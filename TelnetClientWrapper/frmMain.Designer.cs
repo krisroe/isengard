@@ -75,6 +75,7 @@
             this.btnWho = new System.Windows.Forms.Button();
             this.btnUptime = new System.Windows.Forms.Button();
             this.btnEquipment = new System.Windows.Forms.Button();
+            this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -134,7 +135,7 @@
             // 
             // btnFlee
             // 
-            this.btnFlee.Location = new System.Drawing.Point(111, 228);
+            this.btnFlee.Location = new System.Drawing.Point(111, 269);
             this.btnFlee.Name = "btnFlee";
             this.btnFlee.Size = new System.Drawing.Size(156, 35);
             this.btnFlee.TabIndex = 6;
@@ -145,7 +146,7 @@
             // 
             // btnDrinkHazy
             // 
-            this.btnDrinkHazy.Location = new System.Drawing.Point(111, 269);
+            this.btnDrinkHazy.Location = new System.Drawing.Point(111, 310);
             this.btnDrinkHazy.Name = "btnDrinkHazy";
             this.btnDrinkHazy.Size = new System.Drawing.Size(156, 35);
             this.btnDrinkHazy.TabIndex = 7;
@@ -156,7 +157,7 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(273, 146);
+            this.btnLookAtMob.Location = new System.Drawing.Point(274, 270);
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(156, 35);
             this.btnLookAtMob.TabIndex = 8;
@@ -189,7 +190,7 @@
             // 
             // btnManashield
             // 
-            this.btnManashield.Location = new System.Drawing.Point(273, 310);
+            this.btnManashield.Location = new System.Drawing.Point(111, 228);
             this.btnManashield.Name = "btnManashield";
             this.btnManashield.Size = new System.Drawing.Size(156, 35);
             this.btnManashield.TabIndex = 11;
@@ -362,7 +363,7 @@
             // 
             // btnAttackMob
             // 
-            this.btnAttackMob.Location = new System.Drawing.Point(273, 187);
+            this.btnAttackMob.Location = new System.Drawing.Point(273, 146);
             this.btnAttackMob.Name = "btnAttackMob";
             this.btnAttackMob.Size = new System.Drawing.Size(156, 35);
             this.btnAttackMob.TabIndex = 35;
@@ -438,7 +439,7 @@
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(273, 228);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(274, 228);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(156, 35);
             this.btnWieldWeapon.TabIndex = 43;
@@ -507,7 +508,7 @@
             // 
             // btnUseWandOnMob
             // 
-            this.btnUseWandOnMob.Location = new System.Drawing.Point(273, 269);
+            this.btnUseWandOnMob.Location = new System.Drawing.Point(273, 310);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(156, 35);
             this.btnUseWandOnMob.TabIndex = 50;
@@ -549,11 +550,23 @@
             this.btnEquipment.UseVisualStyleBackColor = true;
             this.btnEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
+            // btnPowerAttackMob
+            // 
+            this.btnPowerAttackMob.Location = new System.Drawing.Point(274, 188);
+            this.btnPowerAttackMob.Name = "btnPowerAttackMob";
+            this.btnPowerAttackMob.Size = new System.Drawing.Size(156, 35);
+            this.btnPowerAttackMob.TabIndex = 54;
+            this.btnPowerAttackMob.Tag = "power {0}";
+            this.btnPowerAttackMob.Text = "Power Attack Mob";
+            this.btnPowerAttackMob.UseVisualStyleBackColor = true;
+            this.btnPowerAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(890, 693);
+            this.Controls.Add(this.btnPowerAttackMob);
             this.Controls.Add(this.btnEquipment);
             this.Controls.Add(this.btnUptime);
             this.Controls.Add(this.btnWho);
@@ -656,6 +669,7 @@
         private System.Windows.Forms.Button btnWho;
         private System.Windows.Forms.Button btnUptime;
         private System.Windows.Forms.Button btnEquipment;
+        private System.Windows.Forms.Button btnPowerAttackMob;
     }
 }
 

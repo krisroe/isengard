@@ -28,6 +28,7 @@ namespace IsengardClient
         private Area _breeToImladris;
         private Area _imladris;
         private Area _imladrisToTharbad;
+        private Area _intangible;
 
         public frmMain()
         {
@@ -38,11 +39,13 @@ namespace IsengardClient
             _breeToImladris = new Area("Bree to Imladris");
             _imladris = new Area("Imladris");
             _imladrisToTharbad = new Area("Imladris to Tharbad");
+            _intangible = new Area("Intangible");
             cboArea.Items.Add(_bree);
             cboArea.Items.Add(_breeToHobbiton);
             cboArea.Items.Add(_breeToImladris);
             cboArea.Items.Add(_imladris);
             cboArea.Items.Add(_imladrisToTharbad);
+            cboArea.Items.Add(_intangible);
 
             _bw = new BackgroundWorker();
             _bw.WorkerSupportsCancellation = true;
@@ -188,7 +191,7 @@ namespace IsengardClient
             }
             cboRoom.Items.Clear();
 
-            AddBreeCity(out Room oIxell, out Room oBreeWestGateInside, out Room oBreeEastGateInside, out Room oSewerPipeExit);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oBreeEastGateInside, out Room oSewerPipeExit);
             AddMayorMillwoodMansion(oIxell, out Room oWarriorBardsOnPath, out Room oWarriorBardMansionGrandPorch, out Room oWarriorBardMansionNorth, out Room oWarriorBardMansionSouth, out Room oWarriorBardMansionEast);
             AddLocation(_bree, oWarriorBardsOnPath);
             AddLocation(_bree, oWarriorBardMansionGrandPorch);
@@ -200,9 +203,10 @@ namespace IsengardClient
             AddBreeToImladris(isNight, oBreeEastGateInside, oSewerPipeExit, out Room oImladrisWestGateOutside);
             AddImladrisCity(isNight, oImladrisWestGateOutside, out Room oImladrisSouthGateInside);
             AddImladrisToTharbad(oImladrisSouthGateInside);
+            AddIntangible(oBreeTownSquare);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oWestGateInside, out Room oEastGateInside, out Room oSewerPipeExit)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oEastGateInside, out Room oSewerPipeExit)
         {
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
@@ -266,7 +270,7 @@ namespace IsengardClient
             breeStreets[2, 7] = AddRoom("Bree Leviathan 3x8");
             breeStreets[3, 7] = AddRoom("Bree Leviathan/High 4x8");
             breeStreets[4, 7] = AddRoom("Bree Leviathan 5x8");
-            breeStreets[5, 7] = AddRoom("Bree Town Square 6x8");
+            oBreeTownSquare = breeStreets[5, 7] = AddRoom("Bree Town Square 6x8");
             breeStreets[6, 7] = AddRoom("Bree Leviathan 7x8");
             breeStreets[7, 7] = AddRoom("Bree Leviathan/Main 8x8");
             breeStreets[8, 7] = AddRoom("Bree Leviathan 9x8");
@@ -480,6 +484,7 @@ namespace IsengardClient
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell4, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.WestEast);
 
             oWarriorBardMansionNorth = AddRoom("Warrior Bard Mansion North");
+            oWarriorBardMansionNorth.Mob = sWarriorBard;
             AddBidirectionalExits(oWarriorBardMansionNorth, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.NorthSouth);
 
             Room oMansionFirstFloorToSouthStairwell1 = AddRoom("Long Hallway");
@@ -498,6 +503,7 @@ namespace IsengardClient
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell4, oMansionFirstFloorToSouthStairwell5, BidirectionalExitType.WestEast);
 
             oWarriorBardMansionSouth = AddRoom("Warrior Bard Mansion South");
+            oWarriorBardMansionSouth.Mob = sWarriorBard;
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell5, oWarriorBardMansionSouth, BidirectionalExitType.NorthSouth);
 
             Room oMansionFirstFloorToEastStairwell1 = AddRoom("Main Hallway");
@@ -520,6 +526,7 @@ namespace IsengardClient
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell5, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.SoutheastNorthwest);
 
             oWarriorBardMansionEast = AddRoom("Warrior Bard Mansion East");
+            oWarriorBardMansionEast.Mob = sWarriorBard;
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
         }
 
@@ -780,10 +787,19 @@ namespace IsengardClient
             AddBidirectionalExits(oGypsyCamp, oRedFoxLane, BidirectionalExitType.SoutheastNorthwest);
 
             Room oPrinceBrunden = AddRoom("Prince Brunden");
+            oPrinceBrunden.Mob = "Prince";
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
 
             AddLocation(_imladrisToTharbad, oPrinceBrunden);
+        }
+
+        private void AddIntangible(Room oBreeTownSquare)
+        {
+            Room oTreeOfLife = AddRoom("Tree of Life");
+            AddExit(oTreeOfLife, oBreeTownSquare, "down");
+
+            AddLocation(_intangible, oTreeOfLife);
         }
 
         private Room AddRoom(string roomName)
