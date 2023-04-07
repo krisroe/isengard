@@ -296,7 +296,7 @@ namespace IsengardClient
             breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
             breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
             breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
-            breeStreets[4, 10] = AddRoom("Bree Ormenel 5x11");
+            Room oToCasino = breeStreets[4, 10] = AddRoom("Bree Ormenel 5x11");
             breeStreets[5, 10] = AddRoom("Bree Ormenel 6x11");
             breeStreets[6, 10] = AddRoom("Bree Ormenel 7x11");
             breeStreets[7, 10] = AddRoom("Bree Ormenel/Main 8x11");
@@ -379,6 +379,11 @@ namespace IsengardClient
             AddExit(oToSnarSlystoneShoppe, oSnarlingMutt, "shoppe");
             AddExit(oSnarlingMutt, oToSnarSlystoneShoppe, "out");
 
+            Room oGuido = AddRoom("Guido");
+            oGuido.Mob = "Guido";
+            AddExit(oToCasino, oGuido, "casino");
+            AddExit(oGuido, oToCasino, "north");
+
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
 
@@ -400,6 +405,7 @@ namespace IsengardClient
             AddLocation(_bree, oDroolie);
             AddLocation(_bree, oIgor);
             AddLocation(_bree, oSnarlingMutt);
+            AddLocation(_bree, oGuido);
             AddLocation(_bree, oBreePawnShopWest);
             AddLocation(_bree, oBreePawnShopEast);
             AddLocation(_bree, oLeonardosSwords);
@@ -1186,7 +1192,35 @@ namespace IsengardClient
 
         private void btnSet_Click(object sender, EventArgs e)
         {
-            SendCommand((chkSetOn.Checked ? "set" : "clear") + " " + cboSetOption.SelectedItem.ToString(), true);
+            string command;
+            bool isSet = chkSetOn.Checked;
+            if (isSet)
+                command = "set";
+            else
+                command = "clear";
+            command += " ";
+            command += cboSetOption.SelectedItem.ToString();
+            if (isSet)
+            {
+                string setValue = txtSetValue.Text;
+                if (!string.IsNullOrEmpty(setValue))
+                {
+                    command += " ";
+                    command += setValue;
+                }
+            }
+            SendCommand(command, true);
+        }
+
+        private void cboSetOption_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtSetValue.Text = string.Empty;
+            txtSetValue.Enabled = chkSetOn.Checked && cboSetOption.SelectedItem.ToString() == "wimpy";
+        }
+
+        private void chkSetOn_CheckedChanged(object sender, EventArgs e)
+        {
+            cboSetOption_SelectedIndexChanged(null, null);
         }
     }
 }

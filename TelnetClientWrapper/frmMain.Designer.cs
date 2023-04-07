@@ -77,6 +77,7 @@
             this.btnEquipment = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.btnQuit = new System.Windows.Forms.Button();
+            this.txtSetValue = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -475,11 +476,13 @@
             this.cboSetOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboSetOption.FormattingEnabled = true;
             this.cboSetOption.Items.AddRange(new object[] {
-            "noauto"});
+            "noauto",
+            "wimpy"});
             this.cboSetOption.Location = new System.Drawing.Point(254, 600);
             this.cboSetOption.Name = "cboSetOption";
             this.cboSetOption.Size = new System.Drawing.Size(164, 24);
             this.cboSetOption.TabIndex = 46;
+            this.cboSetOption.SelectedIndexChanged += new System.EventHandler(this.cboSetOption_SelectedIndexChanged);
             // 
             // chkSetOn
             // 
@@ -490,6 +493,7 @@
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
+            this.chkSetOn.CheckedChanged += new System.EventHandler(this.chkSetOn_CheckedChanged);
             // 
             // txtWand
             // 
@@ -573,11 +577,19 @@
             this.btnQuit.UseVisualStyleBackColor = true;
             this.btnQuit.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
+            // txtSetValue
+            // 
+            this.txtSetValue.Location = new System.Drawing.Point(483, 602);
+            this.txtSetValue.Name = "txtSetValue";
+            this.txtSetValue.Size = new System.Drawing.Size(117, 22);
+            this.txtSetValue.TabIndex = 56;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(890, 693);
+            this.Controls.Add(this.txtSetValue);
             this.Controls.Add(this.btnQuit);
             this.Controls.Add(this.btnPowerAttackMob);
             this.Controls.Add(this.btnEquipment);
@@ -684,6 +696,7 @@
         private System.Windows.Forms.Button btnEquipment;
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.Button btnQuit;
+        private System.Windows.Forms.TextBox txtSetValue;
     }
 }
 
