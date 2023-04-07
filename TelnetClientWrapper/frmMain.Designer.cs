@@ -76,6 +76,7 @@
             this.btnUptime = new System.Windows.Forms.Button();
             this.btnEquipment = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
+            this.btnQuit = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -561,11 +562,23 @@
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
             this.btnPowerAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
+            // btnQuit
+            // 
+            this.btnQuit.Location = new System.Drawing.Point(597, 22);
+            this.btnQuit.Name = "btnQuit";
+            this.btnQuit.Size = new System.Drawing.Size(124, 35);
+            this.btnQuit.TabIndex = 55;
+            this.btnQuit.Tag = "quit";
+            this.btnQuit.Text = "Quit";
+            this.btnQuit.UseVisualStyleBackColor = true;
+            this.btnQuit.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(890, 693);
+            this.Controls.Add(this.btnQuit);
             this.Controls.Add(this.btnPowerAttackMob);
             this.Controls.Add(this.btnEquipment);
             this.Controls.Add(this.btnUptime);
@@ -670,6 +683,7 @@
         private System.Windows.Forms.Button btnUptime;
         private System.Windows.Forms.Button btnEquipment;
         private System.Windows.Forms.Button btnPowerAttackMob;
+        private System.Windows.Forms.Button btnQuit;
     }
 }
 
