@@ -8,6 +8,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
+
 namespace IsengardClient
 {
     public partial class frmMain : Form
@@ -23,6 +25,7 @@ namespace IsengardClient
         private Dictionary<Room, Exit> _pathMapping;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
+        private string _macroBaseDirectoryPath;
 
         private Area _bree;
         private Area _breeToHobbiton;
@@ -122,10 +125,52 @@ namespace IsengardClient
 
             _sw = new Stopwatch();
 
+            LoadMacroList();
+
             InitializeMap(false);
 
             cboArea.SelectedIndex = 0;
             cboSetOption.SelectedIndex = 0;
+        }
+
+        private void LoadMacroList()
+        {
+            cboMacros.Items.Add(string.Empty);
+            string macroListFile = Properties.Settings.Default.MacroListFile;
+            if (string.IsNullOrEmpty(macroListFile))
+            {
+                return;
+            }
+            FileInfo fi = new FileInfo(macroListFile);
+            if (!fi.Exists)
+            {
+                return;
+            }
+            _macroBaseDirectoryPath = fi.Directory.FullName;
+            XmlDocument doc = new XmlDocument();
+            try
+            {
+                doc.Load(macroListFile);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load macro list file: " + ex.ToString());
+            }
+            foreach (XmlNode nextNode in doc.DocumentElement.GetElementsByTagName("Macro"))
+            {
+                if (nextNode.NodeType == XmlNodeType.Element)
+                {
+                    XmlAttribute oFileNameAttr = nextNode.Attributes["fileName"];
+                    if (oFileNameAttr != null)
+                    {
+                        string fileName = oFileNameAttr.Value;
+                        if (!string.IsNullOrEmpty(fileName) && File.Exists(Path.Combine(_macroBaseDirectoryPath, fileName)))
+                        {
+                            cboMacros.Items.Add(fileName);
+                        }
+                    }
+                }
+            }
         }
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -1344,6 +1389,14 @@ namespace IsengardClient
         private void txtMacroPath_TextChanged(object sender, EventArgs e)
         {
             btnRunMacro.Enabled = !string.IsNullOrEmpty(txtMacroPath.Text);
+        }
+
+        private void cboMacros_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboMacros.SelectedIndex > 0)
+            {
+                txtMacroPath.Text = Path.Combine(_macroBaseDirectoryPath, cboMacros.SelectedItem.ToString());
+            }
         }
     }
 }
