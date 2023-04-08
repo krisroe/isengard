@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -18,10 +19,10 @@ namespace IsengardClient
         private Stopwatch _sw;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
-        private Room m_oTargetRoom;
         private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
         private Dictionary<Room, Exit> _pathMapping;
         private BackgroundWorker _bw;
+        private BackgroundWorkerParameters _currentBackgroundParameters;
 
         private Area _bree;
         private Area _breeToHobbiton;
@@ -131,12 +132,16 @@ namespace IsengardClient
         {
             if (!e.Cancelled)
             {
-                if (!string.IsNullOrEmpty(m_oTargetRoom.Mob))
+                Room targetRoom = _currentBackgroundParameters.TargetRoom;
+                if (targetRoom != null)
                 {
-                    txtMob.Text = m_oTargetRoom.Mob;
+                    if (!string.IsNullOrEmpty(targetRoom.Mob))
+                    {
+                        txtMob.Text = targetRoom.Mob;
+                    }
+                    m_oCurrentRoom = targetRoom;
+                    txtCurrentRoom.Text = m_oCurrentRoom.Name;
                 }
-                m_oCurrentRoom = m_oTargetRoom;
-                txtCurrentRoom.Text = m_oCurrentRoom.Name;
             }
             ToggleBackgroundProcess(false);
         }
@@ -144,19 +149,37 @@ namespace IsengardClient
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
-            List<string> commands = pms.Commands;
+            List<MacroCommand> commands = pms.Commands;
             bool isFirst = true;
-            foreach (string nextCommand in commands)
+            foreach (MacroCommand nextCommand in commands)
             {
                 if (_bw.CancellationPending) break;
                 if (!isFirst) Thread.Sleep(260);
                 if (_bw.CancellationPending) break;
-                //Console.Out.WriteLine("Executing command: " + nextCommand);
-                if (!SendCommand(nextCommand, false))
+                if (nextCommand.WaitMS.HasValue)
                 {
-                    break;
+                    int remainingMS = nextCommand.WaitMS.Value;
+                    while (remainingMS > 0)
+                    {
+                        int nextWaitMS = Math.Min(remainingMS, 100);
+                        Thread.Sleep(nextWaitMS);
+                        remainingMS -= nextWaitMS;
+                        if (_bw.CancellationPending) break;
+                    }
                 }
-                isFirst = false;
+                else
+                {
+                    string sCommand = nextCommand.Command;
+                    //Console.Out.WriteLine("Executing command: " + nextCommand);
+                    if (SendCommand(sCommand, false))
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -995,8 +1018,9 @@ namespace IsengardClient
             Wand,
         }
 
-        private string ValidateSpecifiedObject(ObjectType objType)
+        private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
         {
+            errorMessage = string.Empty;
             TextBox txt;
             switch (objType)
             {
@@ -1015,45 +1039,55 @@ namespace IsengardClient
             string value = txt.Text;
             if (string.IsNullOrEmpty(value))
             {
-                MessageBox.Show("No " + objType + " specified.");
+                errorMessage = "No " + objType + " specified.";
                 value = null;
             }
             return value;
         }
 
-        private void btnDoAction_Click(object sender, EventArgs e)
+        private string TranslateCommand(string input, out string errorMessage)
         {
-            Button btn = (Button)sender;
-            string tag = btn.Tag.ToString();
-            bool needsMob = tag.Contains("{0}");
-            bool needsWeapon = tag.Contains("{1}");
-            bool needsWand = tag.Contains("{2}");
+            input = input ?? string.Empty;
+            bool needsMob = input.Contains("{0}");
+            bool needsWeapon = input.Contains("{1}");
+            bool needsWand = input.Contains("{2}");
             string specifiedValue;
+            errorMessage = string.Empty;
             if (needsMob)
             {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Mob);
+                specifiedValue = ValidateSpecifiedObject(ObjectType.Mob, out errorMessage);
                 if (string.IsNullOrEmpty(specifiedValue))
-                    return;
+                    input = null;
                 else
-                    tag = tag.Replace("{0}", specifiedValue);
+                    input = input.Replace("{0}", specifiedValue);
             }
             if (needsWeapon)
             {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Weapon);
+                specifiedValue = ValidateSpecifiedObject(ObjectType.Weapon, out errorMessage);
                 if (string.IsNullOrEmpty(specifiedValue))
-                    return;
+                    input = null;
                 else
-                    tag = tag.Replace("{1}", specifiedValue);
+                    input = input.Replace("{1}", specifiedValue);
             }
             if (needsWand)
             {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Wand);
+                specifiedValue = ValidateSpecifiedObject(ObjectType.Wand, out errorMessage);
                 if (string.IsNullOrEmpty(specifiedValue))
-                    return;
+                    input = null;
                 else
-                    tag = tag.Replace("{2}", specifiedValue);
+                    input = input.Replace("{2}", specifiedValue);
             }
-            SendCommand(tag, true);
+            return input;
+        }
+
+        private void btnDoAction_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            string command = TranslateCommand(btn.Tag.ToString(), out string errorMessage);
+            if (string.IsNullOrEmpty(errorMessage))
+                SendCommand(command, true);
+            else
+                MessageBox.Show(errorMessage);
         }
 
         private void btnSetCurrentLocation_Click(object sender, EventArgs e)
@@ -1079,7 +1113,9 @@ namespace IsengardClient
                 MessageBox.Show("No selected room");
                 return;
             }
-            m_oTargetRoom = targetRoom;
+
+            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            _currentBackgroundParameters.TargetRoom = targetRoom;
             _pathMapping = new Dictionary<Room, Exit>();
             _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
             _currentSearch.TreeEdge += Alg_TreeEdge;
@@ -1100,34 +1136,39 @@ namespace IsengardClient
                 currentRoom = nextExit.Source;
             }
 
-            List<string> commands = new List<string>();
+            List<MacroCommand> commands = new List<MacroCommand>();
             for (int i = exits.Count - 1; i >= 0; i--)
             {
                 Exit exit = exits[i];
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    commands.Add(exit.PreCommand);
+                    commands.Add(new MacroCommand(exit.PreCommand));
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(nextCommand);
+                commands.Add(new MacroCommand(nextCommand));
             }
 
-            BackgroundWorkerParameters pms = new BackgroundWorkerParameters();
-            pms.Commands = commands;
-            _bw.RunWorkerAsync(pms);
+            RunCommands(commands, _currentBackgroundParameters);
+        }
+
+        private void RunCommands(List<MacroCommand> commands, BackgroundWorkerParameters backgroundParameters)
+        {
+            backgroundParameters.Commands = commands;
+            _bw.RunWorkerAsync(backgroundParameters);
             ToggleBackgroundProcess(true);
         }
 
         private class BackgroundWorkerParameters
         {
-            public List<string> Commands { get; set; }
+            public Room TargetRoom { get; set; }
+            public List<MacroCommand> Commands { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
         {
             _pathMapping[e.Target] = e;
-            if (e.Target == m_oTargetRoom)
+            if (e.Target == _currentBackgroundParameters.TargetRoom)
             {
                 _currentSearch.Abort();
             }
@@ -1221,6 +1262,76 @@ namespace IsengardClient
         private void chkSetOn_CheckedChanged(object sender, EventArgs e)
         {
             cboSetOption_SelectedIndexChanged(null, null);
+        }
+
+        private void btnRunMacro_Click(object sender, EventArgs e)
+        {
+            string macroPath = txtMacroPath.Text;
+            if (!File.Exists(macroPath))
+            {
+                MessageBox.Show("File does not exist.");
+                return;
+            }
+            List<MacroCommand> commands = new List<MacroCommand>();
+            try
+            {
+                using (StreamReader sr = new StreamReader(macroPath))
+                {
+                    while (true)
+                    {
+                        string nextLine = sr.ReadLine();
+                        if (nextLine == null) break;
+                        MacroCommand cmd;
+                        if (nextLine.StartsWith("wait") && int.TryParse(nextLine.Substring(4), out int waitMS))
+                        {
+                            cmd = new MacroCommand(waitMS);
+                        }
+                        else
+                        {
+                            string errorMessage;
+                            string command = TranslateCommand(nextLine, out errorMessage);
+                            if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                MessageBox.Show("Invalid command: " + nextLine + " - " + errorMessage);
+                                return;
+                            }
+                            cmd = new MacroCommand(command);
+                        }
+                        commands.Add(cmd);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception occurred reading file: " + ex.ToString());
+                return;
+            }
+            if (commands.Count == 0)
+            {
+                MessageBox.Show("No commands specified.");
+                return;
+            }
+            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            RunCommands(commands, _currentBackgroundParameters);
+        }
+
+        private class MacroCommand
+        {
+            public MacroCommand(string Command)
+            {
+                this.Command = Command;
+            }
+            public MacroCommand(int WaitMS)
+            {
+                this.WaitMS = WaitMS;
+            }
+            public string Command { get; set; }
+            public int? WaitMS { get; set; }
+        }
+
+        private void txtMacroPath_TextChanged(object sender, EventArgs e)
+        {
+            btnRunMacro.Enabled = !string.IsNullOrEmpty(txtMacroPath.Text);
         }
     }
 }
