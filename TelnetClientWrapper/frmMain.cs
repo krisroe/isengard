@@ -585,12 +585,12 @@ namespace IsengardClient
             Room oGreatEastRoad6 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad5, oGreatEastRoad6, BidirectionalExitType.WestEast);
 
-            Room oGreatEastRoad7 = AddRoom("Goblin Ambush");
-            oGreatEastRoad7.Mob = "goblin";
-            AddBidirectionalExits(oGreatEastRoad7, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
+            Room oGreatEastRoadGoblinAmbush = AddRoom("Goblin Ambush");
+            oGreatEastRoadGoblinAmbush.Mob = "goblin";
+            AddBidirectionalExits(oGreatEastRoadGoblinAmbush, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
 
             Room oGreatEastRoad8 = AddRoom("Great East Road");
-            AddBidirectionalExits(oGreatEastRoad7, oGreatEastRoad8, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oGreatEastRoadGoblinAmbush, oGreatEastRoad8, BidirectionalExitType.SoutheastNorthwest);
 
             Room oGreatEastRoad9 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad8, oGreatEastRoad9, BidirectionalExitType.WestEast);
@@ -631,10 +631,10 @@ namespace IsengardClient
             Room oRoadToFarm6 = AddRoom("Ranch House Front Steps");
             AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
 
-            Room oRoadToFarm7 = AddRoom("Hound Dog");
-            oRoadToFarm7.Mob = "dog";
-            AddExit(oRoadToFarm7, oRoadToFarm6, "out");
-            AddExit(oRoadToFarm6, oRoadToFarm7, "porch");
+            Room oRoadToFarm7HoundDog = AddRoom("Hound Dog");
+            oRoadToFarm7HoundDog.Mob = "dog";
+            AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
+            AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
 
             Room oOuthouse = AddRoom("Outhouse");
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
@@ -679,9 +679,21 @@ namespace IsengardClient
             AddExit(oBrandywineRiverShore, oSalamander, "reeds");
             AddExit(oSalamander, oBrandywineRiverShore, "shore");
 
-            AddLocation(_breeToImladris, oRoadToFarm7); //hound dog
+            Room oDeepForest = AddRoom("Deep Forest");
+            AddBidirectionalExits(oGreatEastRoad9, oDeepForest, BidirectionalExitType.NorthSouth);
+
+            Room oBrethilForest = AddRoom("Brethil Forest");
+            AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
+
+            Room oSpriteGuards = AddRoom("Sprite Guards");
+            oSpriteGuards.Mob = "guard";
+            AddExit(oBrethilForest, oSpriteGuards, "brush");
+            AddExit(oSpriteGuards, oBrethilForest, "east");
+
+            AddLocation(_breeToImladris, oRoadToFarm7HoundDog); //hound dog
             AddLocation(_breeToImladris, oSalamander);
-            AddLocation(_breeToImladris, oGreatEastRoad7); //goblin ambush
+            AddLocation(_breeToImladris, oGreatEastRoadGoblinAmbush); //goblin ambush
+            AddLocation(_breeToImladris, oSpriteGuards);
         }
 
         private void AddImladrisCity(bool isNight, Room oImladrisWestGateOutside, out Room oImladrisSouthGateInside)
