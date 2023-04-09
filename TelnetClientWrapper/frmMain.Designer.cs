@@ -44,8 +44,6 @@
             this.btnTime = new System.Windows.Forms.Button();
             this.btnScore = new System.Windows.Forms.Button();
             this.btnInformation = new System.Windows.Forms.Button();
-            this.cboRoom = new System.Windows.Forms.ComboBox();
-            this.lblLocation = new System.Windows.Forms.Label();
             this.btnSetCurrentLocation = new System.Windows.Forms.Button();
             this.btnGoToLocation = new System.Windows.Forms.Button();
             this.btnCastProtection = new System.Windows.Forms.Button();
@@ -57,7 +55,6 @@
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnOneOffExecute = new System.Windows.Forms.Button();
             this.btnAttackMob = new System.Windows.Forms.Button();
-            this.cboArea = new System.Windows.Forms.ComboBox();
             this.txtCurrentRoom = new System.Windows.Forms.TextBox();
             this.lblCurrentRoom = new System.Windows.Forms.Label();
             this.btnDrinkYellow = new System.Windows.Forms.Button();
@@ -84,11 +81,14 @@
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.lblMacro = new System.Windows.Forms.Label();
             this.grpRealm = new System.Windows.Forms.GroupBox();
-            this.radEarth = new System.Windows.Forms.RadioButton();
-            this.radWind = new System.Windows.Forms.RadioButton();
-            this.radWater = new System.Windows.Forms.RadioButton();
             this.radFire = new System.Windows.Forms.RadioButton();
+            this.radWater = new System.Windows.Forms.RadioButton();
+            this.radWind = new System.Windows.Forms.RadioButton();
+            this.radEarth = new System.Windows.Forms.RadioButton();
+            this.treeLocations = new System.Windows.Forms.TreeView();
+            this.grpLocations = new System.Windows.Forms.GroupBox();
             this.grpRealm.SuspendLayout();
+            this.grpLocations.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -272,29 +272,9 @@
             this.btnInformation.UseVisualStyleBackColor = true;
             this.btnInformation.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // cboRoom
-            // 
-            this.cboRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboRoom.FormattingEnabled = true;
-            this.cboRoom.Location = new System.Drawing.Point(196, 357);
-            this.cboRoom.Margin = new System.Windows.Forms.Padding(2);
-            this.cboRoom.Name = "cboRoom";
-            this.cboRoom.Size = new System.Drawing.Size(118, 21);
-            this.cboRoom.TabIndex = 22;
-            // 
-            // lblLocation
-            // 
-            this.lblLocation.AutoSize = true;
-            this.lblLocation.Location = new System.Drawing.Point(25, 359);
-            this.lblLocation.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblLocation.Name = "lblLocation";
-            this.lblLocation.Size = new System.Drawing.Size(51, 13);
-            this.lblLocation.TabIndex = 23;
-            this.lblLocation.Text = "Location:";
-            // 
             // btnSetCurrentLocation
             // 
-            this.btnSetCurrentLocation.Location = new System.Drawing.Point(327, 358);
+            this.btnSetCurrentLocation.Location = new System.Drawing.Point(512, 386);
             this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
             this.btnSetCurrentLocation.Size = new System.Drawing.Size(116, 21);
@@ -305,7 +285,7 @@
             // 
             // btnGoToLocation
             // 
-            this.btnGoToLocation.Location = new System.Drawing.Point(327, 384);
+            this.btnGoToLocation.Location = new System.Drawing.Point(512, 412);
             this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToLocation.Name = "btnGoToLocation";
             this.btnGoToLocation.Size = new System.Drawing.Size(116, 21);
@@ -340,7 +320,7 @@
             // 
             // txtOneOffCommand
             // 
-            this.txtOneOffCommand.Location = new System.Drawing.Point(126, 453);
+            this.txtOneOffCommand.Location = new System.Drawing.Point(82, 348);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(2);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
             this.txtOneOffCommand.Size = new System.Drawing.Size(188, 20);
@@ -350,7 +330,7 @@
             // lblOneOffCommand
             // 
             this.lblOneOffCommand.AutoSize = true;
-            this.lblOneOffCommand.Location = new System.Drawing.Point(73, 455);
+            this.lblOneOffCommand.Location = new System.Drawing.Point(29, 350);
             this.lblOneOffCommand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOneOffCommand.Name = "lblOneOffCommand";
             this.lblOneOffCommand.Size = new System.Drawing.Size(44, 13);
@@ -371,7 +351,7 @@
             // 
             // btnClearOneOff
             // 
-            this.btnClearOneOff.Location = new System.Drawing.Point(318, 453);
+            this.btnClearOneOff.Location = new System.Drawing.Point(274, 348);
             this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(2);
             this.btnClearOneOff.Name = "btnClearOneOff";
             this.btnClearOneOff.Size = new System.Drawing.Size(64, 24);
@@ -382,7 +362,7 @@
             // 
             // btnAbort
             // 
-            this.btnAbort.Location = new System.Drawing.Point(327, 412);
+            this.btnAbort.Location = new System.Drawing.Point(512, 440);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(116, 21);
@@ -393,7 +373,7 @@
             // 
             // btnOneOffExecute
             // 
-            this.btnOneOffExecute.Location = new System.Drawing.Point(386, 453);
+            this.btnOneOffExecute.Location = new System.Drawing.Point(342, 348);
             this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(2);
             this.btnOneOffExecute.Name = "btnOneOffExecute";
             this.btnOneOffExecute.Size = new System.Drawing.Size(64, 24);
@@ -414,21 +394,10 @@
             this.btnAttackMob.UseVisualStyleBackColor = true;
             this.btnAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // cboArea
-            // 
-            this.cboArea.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboArea.FormattingEnabled = true;
-            this.cboArea.Location = new System.Drawing.Point(75, 357);
-            this.cboArea.Margin = new System.Windows.Forms.Padding(2);
-            this.cboArea.Name = "cboArea";
-            this.cboArea.Size = new System.Drawing.Size(118, 21);
-            this.cboArea.TabIndex = 36;
-            this.cboArea.SelectedIndexChanged += new System.EventHandler(this.cboArea_SelectedIndexChanged);
-            // 
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(196, 384);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(510, 362);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
             this.txtCurrentRoom.Size = new System.Drawing.Size(118, 20);
@@ -437,7 +406,7 @@
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(125, 387);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(439, 365);
             this.lblCurrentRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
             this.lblCurrentRoom.Size = new System.Drawing.Size(70, 13);
@@ -512,7 +481,7 @@
             // 
             // btnSet
             // 
-            this.btnSet.Location = new System.Drawing.Point(128, 487);
+            this.btnSet.Location = new System.Drawing.Point(84, 382);
             this.btnSet.Margin = new System.Windows.Forms.Padding(2);
             this.btnSet.Name = "btnSet";
             this.btnSet.Size = new System.Drawing.Size(55, 24);
@@ -528,7 +497,7 @@
             this.cboSetOption.Items.AddRange(new object[] {
             "noauto",
             "wimpy"});
-            this.cboSetOption.Location = new System.Drawing.Point(190, 488);
+            this.cboSetOption.Location = new System.Drawing.Point(146, 383);
             this.cboSetOption.Margin = new System.Windows.Forms.Padding(2);
             this.cboSetOption.Name = "cboSetOption";
             this.cboSetOption.Size = new System.Drawing.Size(124, 21);
@@ -538,7 +507,7 @@
             // chkSetOn
             // 
             this.chkSetOn.AutoSize = true;
-            this.chkSetOn.Location = new System.Drawing.Point(318, 491);
+            this.chkSetOn.Location = new System.Drawing.Point(274, 386);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
             this.chkSetOn.Name = "chkSetOn";
             this.chkSetOn.Size = new System.Drawing.Size(46, 17);
@@ -639,7 +608,7 @@
             // 
             // txtSetValue
             // 
-            this.txtSetValue.Location = new System.Drawing.Point(362, 489);
+            this.txtSetValue.Location = new System.Drawing.Point(318, 384);
             this.txtSetValue.Margin = new System.Windows.Forms.Padding(2);
             this.txtSetValue.Name = "txtSetValue";
             this.txtSetValue.Size = new System.Drawing.Size(89, 20);
@@ -648,7 +617,7 @@
             // lblMacroPath
             // 
             this.lblMacroPath.AutoSize = true;
-            this.lblMacroPath.Location = new System.Drawing.Point(58, 547);
+            this.lblMacroPath.Location = new System.Drawing.Point(14, 442);
             this.lblMacroPath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMacroPath.Name = "lblMacroPath";
             this.lblMacroPath.Size = new System.Drawing.Size(64, 13);
@@ -657,7 +626,7 @@
             // 
             // txtMacroPath
             // 
-            this.txtMacroPath.Location = new System.Drawing.Point(126, 544);
+            this.txtMacroPath.Location = new System.Drawing.Point(82, 439);
             this.txtMacroPath.Margin = new System.Windows.Forms.Padding(2);
             this.txtMacroPath.Name = "txtMacroPath";
             this.txtMacroPath.Size = new System.Drawing.Size(325, 20);
@@ -667,7 +636,7 @@
             // btnRunMacro
             // 
             this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(455, 544);
+            this.btnRunMacro.Location = new System.Drawing.Point(411, 439);
             this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
             this.btnRunMacro.Name = "btnRunMacro";
             this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
@@ -680,7 +649,7 @@
             // 
             this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMacros.FormattingEnabled = true;
-            this.cboMacros.Location = new System.Drawing.Point(126, 516);
+            this.cboMacros.Location = new System.Drawing.Point(82, 411);
             this.cboMacros.Name = "cboMacros";
             this.cboMacros.Size = new System.Drawing.Size(324, 21);
             this.cboMacros.TabIndex = 60;
@@ -689,7 +658,7 @@
             // lblMacro
             // 
             this.lblMacro.AutoSize = true;
-            this.lblMacro.Location = new System.Drawing.Point(58, 519);
+            this.lblMacro.Location = new System.Drawing.Point(14, 414);
             this.lblMacro.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMacro.Name = "lblMacro";
             this.lblMacro.Size = new System.Drawing.Size(40, 13);
@@ -709,16 +678,27 @@
             this.grpRealm.TabStop = false;
             this.grpRealm.Text = "Realm";
             // 
-            // radEarth
+            // radFire
             // 
-            this.radEarth.AutoSize = true;
-            this.radEarth.Location = new System.Drawing.Point(6, 19);
-            this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(50, 17);
-            this.radEarth.TabIndex = 0;
-            this.radEarth.TabStop = true;
-            this.radEarth.Text = "Earth";
-            this.radEarth.UseVisualStyleBackColor = true;
+            this.radFire.AutoSize = true;
+            this.radFire.Location = new System.Drawing.Point(173, 19);
+            this.radFire.Name = "radFire";
+            this.radFire.Size = new System.Drawing.Size(42, 17);
+            this.radFire.TabIndex = 3;
+            this.radFire.TabStop = true;
+            this.radFire.Text = "Fire";
+            this.radFire.UseVisualStyleBackColor = true;
+            // 
+            // radWater
+            // 
+            this.radWater.AutoSize = true;
+            this.radWater.Location = new System.Drawing.Point(113, 19);
+            this.radWater.Name = "radWater";
+            this.radWater.Size = new System.Drawing.Size(54, 17);
+            this.radWater.TabIndex = 2;
+            this.radWater.TabStop = true;
+            this.radWater.Text = "Water";
+            this.radWater.UseVisualStyleBackColor = true;
             // 
             // radWind
             // 
@@ -732,33 +712,41 @@
             this.radWind.Text = "Wind";
             this.radWind.UseVisualStyleBackColor = true;
             // 
-            // radWater
+            // radEarth
             // 
-            this.radWater.AutoSize = true;
-            this.radWater.Location = new System.Drawing.Point(113, 19);
-            this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(54, 17);
-            this.radWater.TabIndex = 2;
-            this.radWater.TabStop = true;
-            this.radWater.Text = "Water";
-            this.radWater.UseVisualStyleBackColor = true;
+            this.radEarth.AutoSize = true;
+            this.radEarth.Location = new System.Drawing.Point(6, 19);
+            this.radEarth.Name = "radEarth";
+            this.radEarth.Size = new System.Drawing.Size(50, 17);
+            this.radEarth.TabIndex = 0;
+            this.radEarth.TabStop = true;
+            this.radEarth.Text = "Earth";
+            this.radEarth.UseVisualStyleBackColor = true;
             // 
-            // radFire
+            // treeLocations
             // 
-            this.radFire.AutoSize = true;
-            this.radFire.Location = new System.Drawing.Point(173, 19);
-            this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(42, 17);
-            this.radFire.TabIndex = 3;
-            this.radFire.TabStop = true;
-            this.radFire.Text = "Fire";
-            this.radFire.UseVisualStyleBackColor = true;
+            this.treeLocations.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeLocations.Location = new System.Drawing.Point(3, 16);
+            this.treeLocations.Name = "treeLocations";
+            this.treeLocations.Size = new System.Drawing.Size(194, 426);
+            this.treeLocations.TabIndex = 63;
+            // 
+            // grpLocations
+            // 
+            this.grpLocations.Controls.Add(this.treeLocations);
+            this.grpLocations.Location = new System.Drawing.Point(647, 18);
+            this.grpLocations.Name = "grpLocations";
+            this.grpLocations.Size = new System.Drawing.Size(200, 445);
+            this.grpLocations.TabIndex = 64;
+            this.grpLocations.TabStop = false;
+            this.grpLocations.Text = "Locations";
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(668, 605);
+            this.ClientSize = new System.Drawing.Size(867, 508);
+            this.Controls.Add(this.grpLocations);
             this.Controls.Add(this.grpRealm);
             this.Controls.Add(this.lblMacro);
             this.Controls.Add(this.cboMacros);
@@ -785,7 +773,6 @@
             this.Controls.Add(this.btnDrinkYellow);
             this.Controls.Add(this.lblCurrentRoom);
             this.Controls.Add(this.txtCurrentRoom);
-            this.Controls.Add(this.cboArea);
             this.Controls.Add(this.btnAttackMob);
             this.Controls.Add(this.btnOneOffExecute);
             this.Controls.Add(this.btnAbort);
@@ -797,8 +784,6 @@
             this.Controls.Add(this.btnCastProtection);
             this.Controls.Add(this.btnGoToLocation);
             this.Controls.Add(this.btnSetCurrentLocation);
-            this.Controls.Add(this.lblLocation);
-            this.Controls.Add(this.cboRoom);
             this.Controls.Add(this.btnInformation);
             this.Controls.Add(this.btnScore);
             this.Controls.Add(this.btnTime);
@@ -819,6 +804,7 @@
             this.Name = "frmMain";
             this.grpRealm.ResumeLayout(false);
             this.grpRealm.PerformLayout();
+            this.grpLocations.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -842,8 +828,6 @@
         private System.Windows.Forms.Button btnTime;
         private System.Windows.Forms.Button btnScore;
         private System.Windows.Forms.Button btnInformation;
-        private System.Windows.Forms.ComboBox cboRoom;
-        private System.Windows.Forms.Label lblLocation;
         private System.Windows.Forms.Button btnSetCurrentLocation;
         private System.Windows.Forms.Button btnGoToLocation;
         private System.Windows.Forms.Button btnCastProtection;
@@ -855,7 +839,6 @@
         private System.Windows.Forms.Button btnAbort;
         private System.Windows.Forms.Button btnOneOffExecute;
         private System.Windows.Forms.Button btnAttackMob;
-        private System.Windows.Forms.ComboBox cboArea;
         private System.Windows.Forms.TextBox txtCurrentRoom;
         private System.Windows.Forms.Label lblCurrentRoom;
         private System.Windows.Forms.Button btnDrinkYellow;
@@ -886,6 +869,8 @@
         private System.Windows.Forms.RadioButton radWater;
         private System.Windows.Forms.RadioButton radWind;
         private System.Windows.Forms.RadioButton radEarth;
+        private System.Windows.Forms.TreeView treeLocations;
+        private System.Windows.Forms.GroupBox grpLocations;
     }
 }
 

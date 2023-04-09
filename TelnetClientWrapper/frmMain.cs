@@ -26,30 +26,28 @@ namespace IsengardClient
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private string _macroBaseDirectoryPath;
+        private List<Area> _areas;
+        private Dictionary<string, Area> _areasByName;
 
-        private Area _bree;
-        private Area _breeToHobbiton;
-        private Area _breeToImladris;
-        private Area _imladris;
-        private Area _imladrisToTharbad;
-        private Area _intangible;
+        private const string AREA_BREE = "Bree";
+        private const string AREA_BREE_TO_HOBBITON = "Bree to Hobbiton";
+        private const string AREA_BREE_TO_IMLADRIS = "Bree to Imladris";
+        private const string AREA_IMLADRIS = "Imladris";
+        private const string AREA_IMLADRIS_TO_THARBAD = "Imladris to Tharbad";
+        private const string AREA_INTANGIBLE = "Intangible";
 
         public frmMain()
         {
             InitializeComponent();
 
-            _bree = new Area("Bree");
-            _breeToHobbiton = new Area("Bree to Hobbiton");
-            _breeToImladris = new Area("Bree to Imladris");
-            _imladris = new Area("Imladris");
-            _imladrisToTharbad = new Area("Imladris to Tharbad");
-            _intangible = new Area("Intangible");
-            cboArea.Items.Add(_bree);
-            cboArea.Items.Add(_breeToHobbiton);
-            cboArea.Items.Add(_breeToImladris);
-            cboArea.Items.Add(_imladris);
-            cboArea.Items.Add(_imladrisToTharbad);
-            cboArea.Items.Add(_intangible);
+            _areas = new List<Area>();
+            _areasByName = new Dictionary<string, Area>();
+            AddArea(AREA_BREE);
+            AddArea(AREA_BREE_TO_HOBBITON);
+            AddArea(AREA_BREE_TO_IMLADRIS);
+            AddArea(AREA_IMLADRIS);
+            AddArea(AREA_IMLADRIS_TO_THARBAD);
+            AddArea(AREA_INTANGIBLE);
 
             _bw = new BackgroundWorker();
             _bw.WorkerSupportsCancellation = true;
@@ -128,9 +126,33 @@ namespace IsengardClient
             LoadMacroList();
 
             InitializeMap(false);
+            PopulateTree();
 
-            cboArea.SelectedIndex = 0;
             cboSetOption.SelectedIndex = 0;
+        }
+
+        private void AddArea(string areaName)
+        {
+            Area a = new Area(areaName);
+            _areas.Add(a);
+            _areasByName[a.Name] = a;
+        }
+
+        private void PopulateTree()
+        {
+            foreach (Area a in _areas)
+            {
+                TreeNode tArea = new TreeNode(a.Name);
+                tArea.Tag = a;
+                treeLocations.Nodes.Add(tArea);
+                tArea.Expand();
+                foreach (Room r in a.Locations)
+                {
+                    TreeNode tRoom = new TreeNode(r.Name);
+                    tRoom.Tag = r;
+                    tArea.Nodes.Add(tRoom);
+                }
+            }
         }
 
         private void LoadMacroList()
@@ -253,19 +275,19 @@ namespace IsengardClient
         {
             _map = new AdjacencyGraph<Room, Exit>();
             
-            foreach (Area a in cboArea.Items)
+            foreach (Area a in _areas)
             {
                 a.Locations.Clear();
             }
-            cboRoom.Items.Clear();
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oBreeEastGateInside, out Room oSewerPipeExit);
+            Area aBree = _areasByName[AREA_BREE];
+            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oBreeEastGateInside, out Room oSewerPipeExit);
             AddMayorMillwoodMansion(oIxell, out Room oWarriorBardsOnPath, out Room oWarriorBardMansionGrandPorch, out Room oWarriorBardMansionNorth, out Room oWarriorBardMansionSouth, out Room oWarriorBardMansionEast);
-            AddLocation(_bree, oWarriorBardsOnPath);
-            AddLocation(_bree, oWarriorBardMansionGrandPorch);
-            AddLocation(_bree, oWarriorBardMansionNorth);
-            AddLocation(_bree, oWarriorBardMansionSouth);
-            AddLocation(_bree, oWarriorBardMansionEast);
+            AddLocation(aBree, oWarriorBardsOnPath);
+            AddLocation(aBree, oWarriorBardMansionGrandPorch);
+            AddLocation(aBree, oWarriorBardMansionNorth);
+            AddLocation(aBree, oWarriorBardMansionSouth);
+            AddLocation(aBree, oWarriorBardMansionEast);
 
             AddBreeToHobbiton(oBreeWestGateInside);
             AddBreeToImladris(isNight, oBreeEastGateInside, oSewerPipeExit, out Room oImladrisWestGateOutside);
@@ -274,7 +296,7 @@ namespace IsengardClient
             AddIntangible(oBreeTownSquare);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oEastGateInside, out Room oSewerPipeExit)
+        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oEastGateInside, out Room oSewerPipeExit)
         {
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
@@ -465,18 +487,18 @@ namespace IsengardClient
             Room oLeonardosSwords = AddRoom("Bree Leonardo's Swords");
             AddBidirectionalExits(oLeonardosSwords, oLeonardosFoundry, BidirectionalExitType.NorthSouth);
 
-            AddLocation(_bree, oOrderOfLove);
-            AddLocation(_bree, oCampusFreeClinic);
-            AddLocation(_bree, oGrant);
-            AddLocation(_bree, oIxell);
-            AddLocation(_bree, oPansy);
-            AddLocation(_bree, oDroolie);
-            AddLocation(_bree, oIgor);
-            AddLocation(_bree, oSnarlingMutt);
-            AddLocation(_bree, oGuido);
-            AddLocation(_bree, oBreePawnShopWest);
-            AddLocation(_bree, oBreePawnShopEast);
-            AddLocation(_bree, oLeonardosSwords);
+            AddLocation(aBree, oOrderOfLove);
+            AddLocation(aBree, oCampusFreeClinic);
+            AddLocation(aBree, oGrant);
+            AddLocation(aBree, oIxell);
+            AddLocation(aBree, oPansy);
+            AddLocation(aBree, oDroolie);
+            AddLocation(aBree, oIgor);
+            AddLocation(aBree, oSnarlingMutt);
+            AddLocation(aBree, oGuido);
+            AddLocation(aBree, oBreePawnShopWest);
+            AddLocation(aBree, oBreePawnShopEast);
+            AddLocation(aBree, oLeonardosSwords);
         }
 
         /// <summary>
@@ -606,6 +628,8 @@ namespace IsengardClient
 
         private void AddBreeToImladris(bool isNight, Room oBreeEastGateInside, Room oSewerPipeExit, out Room oImladrisWestGateOutside)
         {
+            Area oBreeToImladris = _areasByName[AREA_BREE_TO_IMLADRIS];
+
             Room oBreeEastGateOutside = AddRoom("East Gate of Bree");
             if (isNight)
                 AddExit(oBreeEastGateInside, oBreeEastGateOutside, "gate");
@@ -735,14 +759,16 @@ namespace IsengardClient
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
 
-            AddLocation(_breeToImladris, oRoadToFarm7HoundDog); //hound dog
-            AddLocation(_breeToImladris, oSalamander);
-            AddLocation(_breeToImladris, oGreatEastRoadGoblinAmbush); //goblin ambush
-            AddLocation(_breeToImladris, oSpriteGuards);
+            AddLocation(oBreeToImladris, oRoadToFarm7HoundDog); //hound dog
+            AddLocation(oBreeToImladris, oSalamander);
+            AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbush); //goblin ambush
+            AddLocation(oBreeToImladris, oSpriteGuards);
         }
 
         private void AddImladrisCity(bool isNight, Room oImladrisWestGateOutside, out Room oImladrisSouthGateInside)
         {
+            Area oImladris = _areasByName[AREA_IMLADRIS];
+
             Room oImladrisWestGateInside = AddRoom("West Gate of Imladris");
             if (isNight)
                 AddExit(oImladrisWestGateInside, oImladrisWestGateOutside, "gate");
@@ -801,12 +827,14 @@ namespace IsengardClient
             Room oTyriesPriestSupplies = AddRoom("Tyrie's Priest Supplies");
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
 
-            AddLocation(_imladris, oImladrisHealingHand);
-            AddLocation(_imladris, oTyriesPriestSupplies);
+            AddLocation(oImladris, oImladrisHealingHand);
+            AddLocation(oImladris, oTyriesPriestSupplies);
         }
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside)
         {
+            Area oBreeToHobbiton = _areasByName[AREA_BREE_TO_HOBBITON];
+
             Room oBreeWestGateOutside = AddRoom("West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate", null);
 
@@ -829,12 +857,14 @@ namespace IsengardClient
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
 
-            AddLocation(_breeToHobbiton, oSomething);
-            AddLocation(_breeToHobbiton, oShepherd);
+            AddLocation(oBreeToHobbiton, oSomething);
+            AddLocation(oBreeToHobbiton, oShepherd);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside)
         {
+            Area oImladrisToTharbad = _areasByName[AREA_IMLADRIS_TO_THARBAD];
+
             Room oMistyTrail1 = AddRoom("Misty Trail");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate", null);
 
@@ -877,15 +907,19 @@ namespace IsengardClient
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
 
-            AddLocation(_imladrisToTharbad, oPrinceBrunden);
+            AddLocation(oImladrisToTharbad, oPrinceBrunden);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
         {
+            Area oIntangible = _areasByName[AREA_INTANGIBLE];
+
             Room oTreeOfLife = AddRoom("Tree of Life");
             AddExit(oTreeOfLife, oBreeTownSquare, "down");
 
-            AddLocation(_intangible, oTreeOfLife);
+            //CSRTODO: add death room
+
+            AddLocation(oIntangible, oTreeOfLife);
         }
 
         private Room AddRoom(string roomName)
@@ -1170,12 +1204,20 @@ namespace IsengardClient
 
         private void btnSetCurrentLocation_Click(object sender, EventArgs e)
         {
-            m_oCurrentRoom = cboRoom.SelectedItem as Room;
-            if (!string.IsNullOrEmpty(m_oCurrentRoom.Mob))
+            TreeNode oSelectedTreeNode = treeLocations.SelectedNode as TreeNode;
+            if (oSelectedTreeNode != null)
             {
-                txtMob.Text = m_oCurrentRoom.Mob;
+                Room r = oSelectedTreeNode.Tag as Room;
+                if (r != null)
+                {
+                    m_oCurrentRoom = r;
+                    if (!string.IsNullOrEmpty(m_oCurrentRoom.Mob))
+                    {
+                        txtMob.Text = m_oCurrentRoom.Mob;
+                    }
+                    txtCurrentRoom.Text = m_oCurrentRoom.Name;
+                }
             }
-            txtCurrentRoom.Text = m_oCurrentRoom.Name;
         }
 
         private void btnGoToLocation_Click(object sender, EventArgs e)
@@ -1185,10 +1227,18 @@ namespace IsengardClient
                 MessageBox.Show("No current room.");
                 return;
             }
-            Room targetRoom = cboRoom.SelectedItem as Room;
+            TreeNode oSelectedTreeNode = treeLocations.SelectedNode;
+            if (oSelectedTreeNode == null)
+            {
+                MessageBox.Show("Nothing selected in tree.");
+                return;
+
+            }
+
+            Room targetRoom = oSelectedTreeNode.Tag as Room;
             if (targetRoom == null)
             {
-                MessageBox.Show("No selected room");
+                MessageBox.Show("Selected tree node is not a room.");
                 return;
             }
 
@@ -1290,22 +1340,16 @@ namespace IsengardClient
             btnAbort.Enabled = false;
         }
 
-        private void cboArea_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            RefreshAreaLocations();
-        }
-
         private void RefreshAreaLocations()
         {
-            cboRoom.Items.Clear();
-            Area a = cboArea.SelectedItem as Area;
-            if (a != null)
+            foreach (TreeNode tArea in treeLocations.Nodes)
             {
-                foreach (Room r in a.Locations)
+                Area a = (Area)tArea.Tag;
+                int i = 0;
+                foreach (TreeNode tRoom in tArea.Nodes)
                 {
-                    cboRoom.Items.Add(r);
+                    tRoom.Tag = a.Locations[i++];
                 }
-                cboRoom.SelectedIndex = 0;
             }
         }
 
