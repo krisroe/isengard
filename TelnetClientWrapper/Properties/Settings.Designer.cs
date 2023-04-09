@@ -25,7 +25,7 @@ namespace IsengardClient.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Source\\isengard\\MacroList.xml")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Source\\isengard\\TelnetClientWrapper\\bin\\Debug\\MacroList.xml")]
         public string MacroListFile {
             get {
                 return ((string)(this["MacroListFile"]));

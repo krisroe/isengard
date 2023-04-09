@@ -198,84 +198,20 @@ namespace IsengardClient
                     errorMessages.Add("Found duplicate macro name: " + macroName);
                     continue;
                 }
-                XmlElement oStepsElem = null;
-                foreach (XmlNode nextMacroNode in elemMacro.ChildNodes)
-                {
-                    XmlElement oElement = nextMacroNode as XmlElement;
-                    if (oElement == null) continue;
-                    string elemName = oElement.Name.ToLower();
-                    switch (elemName)
-                    {
-                        case "steps":
-                            if (oStepsElem == null)
-                            {
-                                oStepsElem = oElement;
-                            }
-                            else
-                            {
-                                oStepsElem = null;
-                                errorMessages.Add("Found duplicate steps node: " + macroName);
-                                break;
-                            }
-                            break;
-                    }
-                }
-                if (oStepsElem == null)
-                {
-                    errorMessages.Add("Failed to find steps node: " + macroName);
-                    continue;
-                }
 
-                Macro oMacro = new Macro(macroName);
                 bool macroIsValid = true;
-                
-                foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
+                Macro oMacro = new Macro(macroName);
+                List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
+                if (foundSteps == null)
                 {
-                    XmlElement elemStep = nextStepNode as XmlElement;
-                    if (elemStep == null) continue;
-                    string stepType = elemStep.Name.ToLower();
-                    switch (stepType)
-                    {
-                        case "command":
-                            string cmd = elemStep.GetAttribute("text");
-                            if (cmd == null)
-                            {
-                                errorMessages.Add("Macro step command missing text: " + macroName);
-                                macroIsValid = false;
-                            }
-                            else
-                            {
-                                oMacro.Steps.Add(new MacroStepCommand(cmd));
-                            }
-                            break;
-                        case "wait":
-                            string ms = elemStep.GetAttribute("ms");
-                            if (ms == null)
-                            {
-                                errorMessages.Add("Macro wait command missing ms: " + macroName);
-                                macroIsValid = false;
-                            }
-                            else if (!int.TryParse(ms, out int iMS))
-                            {
-                                errorMessages.Add("Macro wait command invalid ms: " + macroName + " " + ms);
-                                macroIsValid = false;
-                            }
-                            else
-                            {
-                                oMacro.Steps.Add(new MacroStepWait(iMS));
-                            }
-                            break;
-                        default:
-                            errorMessages.Add("Invalid macro step type: " + macroName + " " + stepType);
-                            macroIsValid = false;
-                            break;
-                    }
-               }
-                if (oMacro.Steps.Count == 0)
+                    macroIsValid = false;
+                }
+                else if (foundSteps.Count == 0)
                 {
                     errorMessages.Add("Macro has no steps: " + macroName);
-                    continue;
+                    macroIsValid = false;
                 }
+                oMacro.Steps = foundSteps;
 
                 string sOneClick = elemMacro.GetAttribute("oneclick");
                 bool isOneClick = false;
@@ -314,6 +250,95 @@ namespace IsengardClient
             }
         }
 
+        private List<MacroStepBase> ProcessStepsParentElement(XmlElement parentElement, string errorSource, List<string> errorMessages)
+        {
+            List<MacroStepBase> ret = new List<MacroStepBase>();
+            XmlElement oStepsElem = null;
+            foreach (XmlNode nextMacroNode in parentElement.ChildNodes)
+            {
+                XmlElement oElement = nextMacroNode as XmlElement;
+                if (oElement == null) continue;
+                string elemName = oElement.Name.ToLower();
+                switch (elemName)
+                {
+                    case "steps":
+                        if (oStepsElem == null)
+                        {
+                            oStepsElem = oElement;
+                        }
+                        else
+                        {
+                            oStepsElem = null;
+                            errorMessages.Add("Found duplicate steps node: " + errorSource);
+                            break;
+                        }
+                        break;
+                }
+            }
+            if (oStepsElem == null)
+            {
+                errorMessages.Add("Failed to find steps node: " + errorSource);
+                return null;
+            }
+            bool isValid = true;
+            foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
+            {
+                XmlElement elemStep = nextStepNode as XmlElement;
+                if (elemStep == null) continue;
+                string stepType = elemStep.Name.ToLower();
+                switch (stepType)
+                {
+                    case "loop":
+                        List<MacroStepBase> loopSteps = ProcessStepsParentElement(elemStep, errorSource + " " + stepType, errorMessages);
+                        if (loopSteps == null)
+                        {
+                            isValid = false;
+                        }
+                        else
+                        {
+                            MacroStepLoop loop = new MacroStepLoop();
+                            loop.SubCommands = loopSteps;
+                            ret.Add(loop);
+                        }
+                        break;
+                    case "command":
+                        string cmd = elemStep.GetAttribute("text");
+                        if (cmd == null)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Macro step command missing text: " + errorSource);
+                        }
+                        else
+                        {
+                            ret.Add(new MacroStepCommand(cmd));
+                        }
+                        break;
+                    case "wait":
+                        string ms = elemStep.GetAttribute("ms");
+                        if (ms == null)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Macro wait command missing ms: " + errorSource);
+                        }
+                        else if (!int.TryParse(ms, out int iMS))
+                        {
+                            isValid = false;
+                            errorMessages.Add("Macro wait command invalid ms: " + errorSource + " " + ms);
+                        }
+                        else
+                        {
+                            ret.Add(new MacroStepWait(iMS));
+                        }
+                        break;
+                    default:
+                        isValid = false;
+                        errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
+                        break;
+                }
+            }
+            return isValid ? ret : null;
+        }
+
         private void btnOneClick_Click(object sender, EventArgs e)
         {
             RunMacro((Macro)((Button)sender).Tag);
@@ -342,7 +367,7 @@ namespace IsengardClient
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             List<MacroStepBase> commands = pms.Commands;
             bool isFirst = true;
-            foreach (MacroStepBase nextCommand in commands)
+            foreach (MacroStepBase nextCommand in IterateStepCommands(commands))
             {
                 if (_bw.CancellationPending) break;
                 if (!isFirst) Thread.Sleep(260);
@@ -374,6 +399,27 @@ namespace IsengardClient
                 else
                 {
                     throw new InvalidOperationException();
+                }
+            }
+        }
+
+        private IEnumerable<MacroStepBase> IterateStepCommands(List<MacroStepBase> Steps)
+        {
+            foreach (MacroStepBase nextStep in Steps)
+            {
+                if (nextStep is MacroStepLoop)
+                {
+                    while (true)
+                    {
+                        foreach (MacroStepBase nextSubCommand in IterateStepCommands(((MacroStepLoop)nextStep).SubCommands))
+                        {
+                            yield return nextSubCommand;
+                        }
+                    }
+                }
+                else
+                {
+                    yield return nextStep;
                 }
             }
         }
@@ -1524,26 +1570,48 @@ namespace IsengardClient
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
             foreach (MacroStepBase nextMacroStep in m.Steps)
             {
-                bool addStepAsIs = true;
-                if (nextMacroStep is MacroStepCommand)
+                string errorMessage;
+                stepsToRun.Add(TranslateStep(nextMacroStep, out errorMessage));
+                if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    string rawCommand = ((MacroStepCommand)nextMacroStep).Command;
-                    string translatedCommand = TranslateCommand(rawCommand, out string errorMessage);
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        MessageBox.Show(errorMessage);
-                        return;
-                    }
-                    stepsToRun.Add(new MacroStepCommand(translatedCommand));
-                    addStepAsIs = false;
-                }
-                if (addStepAsIs)
-                {
-                    stepsToRun.Add(nextMacroStep);
+                    MessageBox.Show(errorMessage);
+                    return;
                 }
             }
             _currentBackgroundParameters = new BackgroundWorkerParameters();
             RunCommands(stepsToRun, _currentBackgroundParameters);
+        }
+
+        private MacroStepBase TranslateStep(MacroStepBase input, out string errorMessage)
+        {
+            MacroStepBase ret = null;
+            bool addStepAsIs = true;
+            errorMessage = string.Empty;
+            if (input is MacroStepLoop)
+            {
+                MacroStepLoop sourceLoop = (MacroStepLoop)input;
+                MacroStepLoop translatedLoop = new MacroStepLoop();
+                foreach (MacroStepBase nextStep in sourceLoop.SubCommands)
+                {
+                    translatedLoop.SubCommands.Add(TranslateStep(nextStep, out errorMessage));
+                    if (!string.IsNullOrEmpty(errorMessage)) return null;
+                }
+                addStepAsIs = false;
+                ret = translatedLoop;
+            }
+            else if (input is MacroStepCommand)
+            {
+                string rawCommand = ((MacroStepCommand)input).Command;
+                string translatedCommand = TranslateCommand(rawCommand, out errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage)) return null;
+                ret = new MacroStepCommand(translatedCommand);
+                addStepAsIs = false;
+            }
+            if (addStepAsIs)
+            {
+                ret = input;
+            }
+            return ret;
         }
 
         private class Macro
@@ -1559,11 +1627,20 @@ namespace IsengardClient
             }
 
             public string Name { get; set; }
-            public List<MacroStepBase> Steps { get; private set; }
+            public List<MacroStepBase> Steps { get; set; }
         }
 
         private class MacroStepBase
         {
+        }
+
+        private class MacroStepLoop : MacroStepBase
+        {
+            public List<MacroStepBase> SubCommands { get; set; }
+            public MacroStepLoop()
+            {
+                this.SubCommands = new List<MacroStepBase>();
+            }
         }
 
         private class MacroStepCommand : MacroStepBase
