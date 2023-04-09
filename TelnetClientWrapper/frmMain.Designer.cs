@@ -85,8 +85,11 @@
             this.radEarth = new System.Windows.Forms.RadioButton();
             this.treeLocations = new System.Windows.Forms.TreeView();
             this.grpLocations = new System.Windows.Forms.GroupBox();
+            this.grpOneClickMacros = new System.Windows.Forms.GroupBox();
+            this.flpOneClickMacros = new System.Windows.Forms.FlowLayoutPanel();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
+            this.grpOneClickMacros.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -615,7 +618,7 @@
             // btnRunMacro
             // 
             this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(411, 410);
+            this.btnRunMacro.Location = new System.Drawing.Point(413, 436);
             this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
             this.btnRunMacro.Name = "btnRunMacro";
             this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
@@ -628,7 +631,7 @@
             // 
             this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMacros.FormattingEnabled = true;
-            this.cboMacros.Location = new System.Drawing.Point(82, 411);
+            this.cboMacros.Location = new System.Drawing.Point(84, 437);
             this.cboMacros.Name = "cboMacros";
             this.cboMacros.Size = new System.Drawing.Size(324, 21);
             this.cboMacros.TabIndex = 60;
@@ -637,7 +640,7 @@
             // lblMacro
             // 
             this.lblMacro.AutoSize = true;
-            this.lblMacro.Location = new System.Drawing.Point(14, 414);
+            this.lblMacro.Location = new System.Drawing.Point(16, 440);
             this.lblMacro.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMacro.Name = "lblMacro";
             this.lblMacro.Size = new System.Drawing.Size(40, 13);
@@ -720,11 +723,30 @@
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
             // 
+            // grpOneClickMacros
+            // 
+            this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
+            this.grpOneClickMacros.Location = new System.Drawing.Point(14, 466);
+            this.grpOneClickMacros.Name = "grpOneClickMacros";
+            this.grpOneClickMacros.Size = new System.Drawing.Size(829, 65);
+            this.grpOneClickMacros.TabIndex = 65;
+            this.grpOneClickMacros.TabStop = false;
+            this.grpOneClickMacros.Text = "One Click Macros";
+            // 
+            // flpOneClickMacros
+            // 
+            this.flpOneClickMacros.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpOneClickMacros.Location = new System.Drawing.Point(3, 16);
+            this.flpOneClickMacros.Name = "flpOneClickMacros";
+            this.flpOneClickMacros.Size = new System.Drawing.Size(823, 46);
+            this.flpOneClickMacros.TabIndex = 0;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 508);
+            this.ClientSize = new System.Drawing.Size(867, 542);
+            this.Controls.Add(this.grpOneClickMacros);
             this.Controls.Add(this.grpLocations);
             this.Controls.Add(this.grpRealm);
             this.Controls.Add(this.lblMacro);
@@ -782,6 +804,7 @@
             this.grpRealm.ResumeLayout(false);
             this.grpRealm.PerformLayout();
             this.grpLocations.ResumeLayout(false);
+            this.grpOneClickMacros.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -846,6 +869,8 @@
         private System.Windows.Forms.RadioButton radEarth;
         private System.Windows.Forms.TreeView treeLocations;
         private System.Windows.Forms.GroupBox grpLocations;
+        private System.Windows.Forms.GroupBox grpOneClickMacros;
+        private System.Windows.Forms.FlowLayoutPanel flpOneClickMacros;
     }
 }
 

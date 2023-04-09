@@ -25,7 +25,6 @@ namespace IsengardClient
         private Dictionary<Room, Exit> _pathMapping;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
-        private string _macroBaseDirectoryPath;
         private List<Area> _areas;
         private Dictionary<string, Area> _areasByName;
 
@@ -168,7 +167,6 @@ namespace IsengardClient
             {
                 return;
             }
-            _macroBaseDirectoryPath = fi.Directory.FullName;
             XmlDocument doc = new XmlDocument();
             try
             {
@@ -178,8 +176,9 @@ namespace IsengardClient
             {
                 MessageBox.Show("Failed to load macro list file: " + ex.ToString());
             }
+            int iOneClickTabIndex = 0;
             List<string> errorMessages = new List<string>();
-            Dictionary<string, Macro> _foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, Macro> foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
             foreach (XmlNode nextNode in doc.DocumentElement.GetElementsByTagName("Macro"))
             {
                 XmlElement elemMacro = nextNode as XmlElement;
@@ -194,7 +193,7 @@ namespace IsengardClient
                     errorMessages.Add("Found macro with blank name.");
                     continue;
                 }
-                if (_foundMacros.ContainsKey(macroName))
+                if (foundMacros.ContainsKey(macroName))
                 {
                     errorMessages.Add("Found duplicate macro name: " + macroName);
                     continue;
@@ -277,16 +276,47 @@ namespace IsengardClient
                     errorMessages.Add("Macro has no steps: " + macroName);
                     continue;
                 }
+
+                string sOneClick = elemMacro.GetAttribute("oneclick");
+                bool isOneClick = false;
+                if (sOneClick != null)
+                {
+                    if (!bool.TryParse(sOneClick, out isOneClick))
+                    {
+                        errorMessages.Add("Invalid one click flag for macro " + macroName);
+                        macroIsValid = false;
+                    }
+                }
+
                 if (macroIsValid)
                 {
-                    _foundMacros[macroName] = oMacro;
-                    cboMacros.Items.Add(oMacro);
+                    foundMacros[macroName] = oMacro;
+                    if (isOneClick)
+                    {
+                        Button btnOneClick = new Button();
+                        btnOneClick.AutoSize = true;
+                        btnOneClick.TabIndex = iOneClickTabIndex++;
+                        btnOneClick.Tag = oMacro;
+                        btnOneClick.Text = oMacro.Name;
+                        btnOneClick.UseVisualStyleBackColor = true;
+                        btnOneClick.Click += btnOneClick_Click;
+                        flpOneClickMacros.Controls.Add(btnOneClick);
+                    }
+                    else
+                    {
+                        cboMacros.Items.Add(oMacro);
+                    }
                 }
             }
             if (errorMessages.Count > 0)
             {
                 MessageBox.Show("Errors loading macros" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
             }
+        }
+
+        private void btnOneClick_Click(object sender, EventArgs e)
+        {
+            RunMacro((Macro)((Button)sender).Tag);
         }
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -1486,8 +1516,11 @@ namespace IsengardClient
 
         private void btnRunMacro_Click(object sender, EventArgs e)
         {
-            Macro m = (Macro)cboMacros.SelectedItem;
-            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            RunMacro((Macro)cboMacros.SelectedItem);
+        }
+
+        private void RunMacro(Macro m)
+        {
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
             foreach (MacroStepBase nextMacroStep in m.Steps)
             {
@@ -1509,6 +1542,7 @@ namespace IsengardClient
                     stepsToRun.Add(nextMacroStep);
                 }
             }
+            _currentBackgroundParameters = new BackgroundWorkerParameters();
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
