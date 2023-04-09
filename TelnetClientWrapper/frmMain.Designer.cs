@@ -83,6 +83,12 @@
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.lblMacro = new System.Windows.Forms.Label();
+            this.grpRealm = new System.Windows.Forms.GroupBox();
+            this.radEarth = new System.Windows.Forms.RadioButton();
+            this.radWind = new System.Windows.Forms.RadioButton();
+            this.radWater = new System.Windows.Forms.RadioButton();
+            this.radFire = new System.Windows.Forms.RadioButton();
+            this.grpRealm.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -92,7 +98,7 @@
             this.btnLevel1OffensiveSpell.Name = "btnLevel1OffensiveSpell";
             this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(117, 28);
             this.btnLevel1OffensiveSpell.TabIndex = 0;
-            this.btnLevel1OffensiveSpell.Tag = "cast hurt {0}";
+            this.btnLevel1OffensiveSpell.Tag = "cast {realm1spell} {mob}";
             this.btnLevel1OffensiveSpell.Text = "Level 1 Offensive Spell";
             this.btnLevel1OffensiveSpell.UseVisualStyleBackColor = true;
             this.btnLevel1OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -141,7 +147,7 @@
             this.btnLevel2OffensiveSpell.Name = "btnLevel2OffensiveSpell";
             this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(117, 28);
             this.btnLevel2OffensiveSpell.TabIndex = 5;
-            this.btnLevel2OffensiveSpell.Tag = "cast dustgust {0}";
+            this.btnLevel2OffensiveSpell.Tag = "cast {realm2spell} {mob}";
             this.btnLevel2OffensiveSpell.Text = "Level 2 Offensive Spell";
             this.btnLevel2OffensiveSpell.UseVisualStyleBackColor = true;
             this.btnLevel2OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -177,7 +183,7 @@
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(117, 28);
             this.btnLookAtMob.TabIndex = 8;
-            this.btnLookAtMob.Tag = "look {0}";
+            this.btnLookAtMob.Tag = "look {mob}";
             this.btnLookAtMob.Text = "Look at Mob";
             this.btnLookAtMob.UseVisualStyleBackColor = true;
             this.btnLookAtMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -403,7 +409,7 @@
             this.btnAttackMob.Name = "btnAttackMob";
             this.btnAttackMob.Size = new System.Drawing.Size(117, 28);
             this.btnAttackMob.TabIndex = 35;
-            this.btnAttackMob.Tag = "kill {0}";
+            this.btnAttackMob.Tag = "kill {mob}";
             this.btnAttackMob.Text = "Attack Mob";
             this.btnAttackMob.UseVisualStyleBackColor = true;
             this.btnAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -487,7 +493,7 @@
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(117, 28);
             this.btnWieldWeapon.TabIndex = 43;
-            this.btnWieldWeapon.Tag = "wield {1}";
+            this.btnWieldWeapon.Tag = "wield {weapon}";
             this.btnWieldWeapon.Text = "Wield Weapon";
             this.btnWieldWeapon.UseVisualStyleBackColor = true;
             this.btnWieldWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -566,7 +572,7 @@
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(117, 28);
             this.btnUseWandOnMob.TabIndex = 50;
-            this.btnUseWandOnMob.Tag = "zap {2} {0}";
+            this.btnUseWandOnMob.Tag = "zap {wand} {mob}";
             this.btnUseWandOnMob.Text = "Wand Mob";
             this.btnUseWandOnMob.UseVisualStyleBackColor = true;
             this.btnUseWandOnMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -614,7 +620,7 @@
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
             this.btnPowerAttackMob.Size = new System.Drawing.Size(117, 28);
             this.btnPowerAttackMob.TabIndex = 54;
-            this.btnPowerAttackMob.Tag = "power {0}";
+            this.btnPowerAttackMob.Tag = "power {mob}";
             this.btnPowerAttackMob.Text = "Power Attack Mob";
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
             this.btnPowerAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -690,11 +696,70 @@
             this.lblMacro.TabIndex = 61;
             this.lblMacro.Text = "Macro:";
             // 
+            // grpRealm
+            // 
+            this.grpRealm.Controls.Add(this.radFire);
+            this.grpRealm.Controls.Add(this.radWater);
+            this.grpRealm.Controls.Add(this.radWind);
+            this.grpRealm.Controls.Add(this.radEarth);
+            this.grpRealm.Location = new System.Drawing.Point(83, 294);
+            this.grpRealm.Name = "grpRealm";
+            this.grpRealm.Size = new System.Drawing.Size(217, 46);
+            this.grpRealm.TabIndex = 62;
+            this.grpRealm.TabStop = false;
+            this.grpRealm.Text = "Realm";
+            // 
+            // radEarth
+            // 
+            this.radEarth.AutoSize = true;
+            this.radEarth.Location = new System.Drawing.Point(6, 19);
+            this.radEarth.Name = "radEarth";
+            this.radEarth.Size = new System.Drawing.Size(50, 17);
+            this.radEarth.TabIndex = 0;
+            this.radEarth.TabStop = true;
+            this.radEarth.Text = "Earth";
+            this.radEarth.UseVisualStyleBackColor = true;
+            // 
+            // radWind
+            // 
+            this.radWind.AutoSize = true;
+            this.radWind.Checked = true;
+            this.radWind.Location = new System.Drawing.Point(62, 19);
+            this.radWind.Name = "radWind";
+            this.radWind.Size = new System.Drawing.Size(50, 17);
+            this.radWind.TabIndex = 1;
+            this.radWind.TabStop = true;
+            this.radWind.Text = "Wind";
+            this.radWind.UseVisualStyleBackColor = true;
+            // 
+            // radWater
+            // 
+            this.radWater.AutoSize = true;
+            this.radWater.Location = new System.Drawing.Point(113, 19);
+            this.radWater.Name = "radWater";
+            this.radWater.Size = new System.Drawing.Size(54, 17);
+            this.radWater.TabIndex = 2;
+            this.radWater.TabStop = true;
+            this.radWater.Text = "Water";
+            this.radWater.UseVisualStyleBackColor = true;
+            // 
+            // radFire
+            // 
+            this.radFire.AutoSize = true;
+            this.radFire.Location = new System.Drawing.Point(173, 19);
+            this.radFire.Name = "radFire";
+            this.radFire.Size = new System.Drawing.Size(42, 17);
+            this.radFire.TabIndex = 3;
+            this.radFire.TabStop = true;
+            this.radFire.Text = "Fire";
+            this.radFire.UseVisualStyleBackColor = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(668, 605);
+            this.Controls.Add(this.grpRealm);
             this.Controls.Add(this.lblMacro);
             this.Controls.Add(this.cboMacros);
             this.Controls.Add(this.btnRunMacro);
@@ -752,6 +817,8 @@
             this.Controls.Add(this.btnLevel1OffensiveSpell);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "frmMain";
+            this.grpRealm.ResumeLayout(false);
+            this.grpRealm.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -814,6 +881,11 @@
         private System.Windows.Forms.Button btnRunMacro;
         private System.Windows.Forms.ComboBox cboMacros;
         private System.Windows.Forms.Label lblMacro;
+        private System.Windows.Forms.GroupBox grpRealm;
+        private System.Windows.Forms.RadioButton radFire;
+        private System.Windows.Forms.RadioButton radWater;
+        private System.Windows.Forms.RadioButton radWind;
+        private System.Windows.Forms.RadioButton radEarth;
     }
 }
 

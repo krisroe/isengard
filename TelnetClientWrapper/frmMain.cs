@@ -1073,12 +1073,15 @@ namespace IsengardClient
             Mob,
             Weapon,
             Wand,
+            Realm1Spell,
+            Realm2Spell,
         }
 
         private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
         {
             errorMessage = string.Empty;
-            TextBox txt;
+            TextBox txt = null;
+            string value = string.Empty;
             switch (objType)
             {
                 case ObjectType.Mob:
@@ -1090,14 +1093,41 @@ namespace IsengardClient
                 case ObjectType.Wand:
                     txt = txtWand;
                     break;
+                case ObjectType.Realm1Spell:
+                    if (radEarth.Checked)
+                        value = "rumble";
+                    else if (radWind.Checked)
+                        value = "hurt";
+                    else if (radFire.Checked)
+                        value = "burn";
+                    else if (radWater.Checked)
+                        value = "blister";
+                    else
+                        throw new InvalidOperationException();
+                    break;
+                case ObjectType.Realm2Spell:
+                    if (radEarth.Checked)
+                        value = "crush";
+                    else if (radWind.Checked)
+                        value = "dustgust";
+                    else if (radFire.Checked)
+                        value = "fireball";
+                    else if (radWater.Checked)
+                        value = "waterbolt";
+                    else
+                        throw new InvalidOperationException();
+                    break;
                 default:
                     throw new InvalidOperationException();
             }
-            string value = txt.Text;
-            if (string.IsNullOrEmpty(value))
+            if (txt != null)
             {
-                errorMessage = "No " + objType + " specified.";
-                value = null;
+                value = txt.Text;
+                if (string.IsNullOrEmpty(value))
+                {
+                    errorMessage = "No " + objType + " specified.";
+                    value = null;
+                }
             }
             return value;
         }
@@ -1105,34 +1135,25 @@ namespace IsengardClient
         private string TranslateCommand(string input, out string errorMessage)
         {
             input = input ?? string.Empty;
-            bool needsMob = input.Contains("{0}");
-            bool needsWeapon = input.Contains("{1}");
-            bool needsWand = input.Contains("{2}");
             string specifiedValue;
             errorMessage = string.Empty;
-            if (needsMob)
+            foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
             {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Mob, out errorMessage);
-                if (string.IsNullOrEmpty(specifiedValue))
-                    input = null;
-                else
-                    input = input.Replace("{0}", specifiedValue);
-            }
-            if (needsWeapon)
-            {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Weapon, out errorMessage);
-                if (string.IsNullOrEmpty(specifiedValue))
-                    input = null;
-                else
-                    input = input.Replace("{1}", specifiedValue);
-            }
-            if (needsWand)
-            {
-                specifiedValue = ValidateSpecifiedObject(ObjectType.Wand, out errorMessage);
-                if (string.IsNullOrEmpty(specifiedValue))
-                    input = null;
-                else
-                    input = input.Replace("{2}", specifiedValue);
+                string lowerOT = ot.ToString().ToLower();
+                string replacement = "{" + lowerOT + "}";
+                if (input.Contains(replacement))
+                {
+                    specifiedValue = ValidateSpecifiedObject(ot, out errorMessage);
+                    if (string.IsNullOrEmpty(specifiedValue))
+                    {
+                        input = null;
+                        break;
+                    }
+                    else
+                    {
+                        input = input.Replace(replacement, specifiedValue);
+                    }
+                }
             }
             return input;
         }
