@@ -75,8 +75,6 @@
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.btnQuit = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
-            this.lblMacroPath = new System.Windows.Forms.Label();
-            this.txtMacroPath = new System.Windows.Forms.TextBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.lblMacro = new System.Windows.Forms.Label();
@@ -614,29 +612,10 @@
             this.txtSetValue.Size = new System.Drawing.Size(89, 20);
             this.txtSetValue.TabIndex = 56;
             // 
-            // lblMacroPath
-            // 
-            this.lblMacroPath.AutoSize = true;
-            this.lblMacroPath.Location = new System.Drawing.Point(14, 442);
-            this.lblMacroPath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblMacroPath.Name = "lblMacroPath";
-            this.lblMacroPath.Size = new System.Drawing.Size(64, 13);
-            this.lblMacroPath.TabIndex = 58;
-            this.lblMacroPath.Text = "Macro path:";
-            // 
-            // txtMacroPath
-            // 
-            this.txtMacroPath.Location = new System.Drawing.Point(82, 439);
-            this.txtMacroPath.Margin = new System.Windows.Forms.Padding(2);
-            this.txtMacroPath.Name = "txtMacroPath";
-            this.txtMacroPath.Size = new System.Drawing.Size(325, 20);
-            this.txtMacroPath.TabIndex = 57;
-            this.txtMacroPath.TextChanged += new System.EventHandler(this.txtMacroPath_TextChanged);
-            // 
             // btnRunMacro
             // 
             this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(411, 439);
+            this.btnRunMacro.Location = new System.Drawing.Point(411, 410);
             this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
             this.btnRunMacro.Name = "btnRunMacro";
             this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
@@ -751,8 +730,6 @@
             this.Controls.Add(this.lblMacro);
             this.Controls.Add(this.cboMacros);
             this.Controls.Add(this.btnRunMacro);
-            this.Controls.Add(this.lblMacroPath);
-            this.Controls.Add(this.txtMacroPath);
             this.Controls.Add(this.txtSetValue);
             this.Controls.Add(this.btnQuit);
             this.Controls.Add(this.btnPowerAttackMob);
@@ -859,8 +836,6 @@
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.Button btnQuit;
         private System.Windows.Forms.TextBox txtSetValue;
-        private System.Windows.Forms.Label lblMacroPath;
-        private System.Windows.Forms.TextBox txtMacroPath;
         private System.Windows.Forms.Button btnRunMacro;
         private System.Windows.Forms.ComboBox cboMacros;
         private System.Windows.Forms.Label lblMacro;

@@ -123,7 +123,7 @@ namespace IsengardClient
 
             _sw = new Stopwatch();
 
-            LoadMacroList();
+            LoadMacros();
 
             InitializeMap(false);
             PopulateTree();
@@ -155,7 +155,7 @@ namespace IsengardClient
             }
         }
 
-        private void LoadMacroList()
+        private void LoadMacros()
         {
             cboMacros.Items.Add(string.Empty);
             string macroListFile = Properties.Settings.Default.MacroListFile;
@@ -178,20 +178,114 @@ namespace IsengardClient
             {
                 MessageBox.Show("Failed to load macro list file: " + ex.ToString());
             }
+            List<string> errorMessages = new List<string>();
+            Dictionary<string, Macro> _foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
             foreach (XmlNode nextNode in doc.DocumentElement.GetElementsByTagName("Macro"))
             {
-                if (nextNode.NodeType == XmlNodeType.Element)
+                XmlElement elemMacro = nextNode as XmlElement;
+                if (elemMacro == null)
                 {
-                    XmlAttribute oFileNameAttr = nextNode.Attributes["fileName"];
-                    if (oFileNameAttr != null)
+                    errorMessages.Add("Found non-element macro node.");
+                    continue;
+                }
+                string macroName = elemMacro.GetAttribute("name");
+                if (string.IsNullOrEmpty(macroName))
+                {
+                    errorMessages.Add("Found macro with blank name.");
+                    continue;
+                }
+                if (_foundMacros.ContainsKey(macroName))
+                {
+                    errorMessages.Add("Found duplicate macro name: " + macroName);
+                    continue;
+                }
+                XmlElement oStepsElem = null;
+                foreach (XmlNode nextMacroNode in elemMacro.ChildNodes)
+                {
+                    XmlElement oElement = nextMacroNode as XmlElement;
+                    if (oElement == null) continue;
+                    string elemName = oElement.Name.ToLower();
+                    switch (elemName)
                     {
-                        string fileName = oFileNameAttr.Value;
-                        if (!string.IsNullOrEmpty(fileName) && File.Exists(Path.Combine(_macroBaseDirectoryPath, fileName)))
-                        {
-                            cboMacros.Items.Add(fileName);
-                        }
+                        case "steps":
+                            if (oStepsElem == null)
+                            {
+                                oStepsElem = oElement;
+                            }
+                            else
+                            {
+                                oStepsElem = null;
+                                errorMessages.Add("Found duplicate steps node: " + macroName);
+                                break;
+                            }
+                            break;
                     }
                 }
+                if (oStepsElem == null)
+                {
+                    errorMessages.Add("Failed to find steps node: " + macroName);
+                    continue;
+                }
+
+                Macro oMacro = new Macro(macroName);
+                bool macroIsValid = true;
+                
+                foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
+                {
+                    XmlElement elemStep = nextStepNode as XmlElement;
+                    if (elemStep == null) continue;
+                    string stepType = elemStep.Name.ToLower();
+                    switch (stepType)
+                    {
+                        case "command":
+                            string cmd = elemStep.GetAttribute("text");
+                            if (cmd == null)
+                            {
+                                errorMessages.Add("Macro step command missing text: " + macroName);
+                                macroIsValid = false;
+                            }
+                            else
+                            {
+                                oMacro.Steps.Add(new MacroStepCommand(cmd));
+                            }
+                            break;
+                        case "wait":
+                            string ms = elemStep.GetAttribute("ms");
+                            if (ms == null)
+                            {
+                                errorMessages.Add("Macro wait command missing ms: " + macroName);
+                                macroIsValid = false;
+                            }
+                            else if (!int.TryParse(ms, out int iMS))
+                            {
+                                errorMessages.Add("Macro wait command invalid ms: " + macroName + " " + ms);
+                                macroIsValid = false;
+                            }
+                            else
+                            {
+                                oMacro.Steps.Add(new MacroStepWait(iMS));
+                            }
+                            break;
+                        default:
+                            errorMessages.Add("Invalid macro step type: " + macroName + " " + stepType);
+                            macroIsValid = false;
+                            break;
+                    }
+               }
+                if (oMacro.Steps.Count == 0)
+                {
+                    errorMessages.Add("Macro has no steps: " + macroName);
+                    continue;
+                }
+                if (macroIsValid)
+                {
+                    _foundMacros[macroName] = oMacro;
+                    cboMacros.Items.Add(oMacro);
+                }
+            }
+            if (errorMessages.Count > 0)
+            {
+                MessageBox.Show("Errors loading macros" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
             }
         }
 
@@ -216,16 +310,16 @@ namespace IsengardClient
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
-            List<MacroCommand> commands = pms.Commands;
+            List<MacroStepBase> commands = pms.Commands;
             bool isFirst = true;
-            foreach (MacroCommand nextCommand in commands)
+            foreach (MacroStepBase nextCommand in commands)
             {
                 if (_bw.CancellationPending) break;
                 if (!isFirst) Thread.Sleep(260);
                 if (_bw.CancellationPending) break;
-                if (nextCommand.WaitMS.HasValue)
+                if (nextCommand is MacroStepWait)
                 {
-                    int remainingMS = nextCommand.WaitMS.Value;
+                    int remainingMS = ((MacroStepWait)nextCommand).MS;
                     while (remainingMS > 0)
                     {
                         int nextWaitMS = Math.Min(remainingMS, 100);
@@ -234,9 +328,9 @@ namespace IsengardClient
                         if (_bw.CancellationPending) break;
                     }
                 }
-                else
+                else if (nextCommand is MacroStepCommand)
                 {
-                    string sCommand = nextCommand.Command;
+                    string sCommand = ((MacroStepCommand)nextCommand).Command;
                     //Console.Out.WriteLine("Executing command: " + nextCommand);
                     if (SendCommand(sCommand, false))
                     {
@@ -246,6 +340,10 @@ namespace IsengardClient
                     {
                         break;
                     }
+                }
+                else
+                {
+                    throw new InvalidOperationException();
                 }
             }
         }
@@ -1264,23 +1362,23 @@ namespace IsengardClient
                 currentRoom = nextExit.Source;
             }
 
-            List<MacroCommand> commands = new List<MacroCommand>();
+            List<MacroStepBase> commands = new List<MacroStepBase>();
             for (int i = exits.Count - 1; i >= 0; i--)
             {
                 Exit exit = exits[i];
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    commands.Add(new MacroCommand(exit.PreCommand));
+                    commands.Add(new MacroStepCommand(exit.PreCommand));
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(new MacroCommand(nextCommand));
+                commands.Add(new MacroStepCommand(nextCommand));
             }
 
             RunCommands(commands, _currentBackgroundParameters);
         }
 
-        private void RunCommands(List<MacroCommand> commands, BackgroundWorkerParameters backgroundParameters)
+        private void RunCommands(List<MacroStepBase> commands, BackgroundWorkerParameters backgroundParameters)
         {
             backgroundParameters.Commands = commands;
             _bw.RunWorkerAsync(backgroundParameters);
@@ -1290,7 +1388,7 @@ namespace IsengardClient
         private class BackgroundWorkerParameters
         {
             public Room TargetRoom { get; set; }
-            public List<MacroCommand> Commands { get; set; }
+            public List<MacroStepBase> Commands { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -1388,80 +1486,73 @@ namespace IsengardClient
 
         private void btnRunMacro_Click(object sender, EventArgs e)
         {
-            string macroPath = txtMacroPath.Text;
-            if (!File.Exists(macroPath))
+            Macro m = (Macro)cboMacros.SelectedItem;
+            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
+            foreach (MacroStepBase nextMacroStep in m.Steps)
             {
-                MessageBox.Show("File does not exist.");
-                return;
-            }
-            List<MacroCommand> commands = new List<MacroCommand>();
-            try
-            {
-                using (StreamReader sr = new StreamReader(macroPath))
+                bool addStepAsIs = true;
+                if (nextMacroStep is MacroStepCommand)
                 {
-                    while (true)
+                    string rawCommand = ((MacroStepCommand)nextMacroStep).Command;
+                    string translatedCommand = TranslateCommand(rawCommand, out string errorMessage);
+                    if (!string.IsNullOrEmpty(errorMessage))
                     {
-                        string nextLine = sr.ReadLine();
-                        if (nextLine == null) break;
-                        MacroCommand cmd;
-                        if (nextLine.StartsWith("wait") && int.TryParse(nextLine.Substring(4), out int waitMS))
-                        {
-                            cmd = new MacroCommand(waitMS);
-                        }
-                        else
-                        {
-                            string errorMessage;
-                            string command = TranslateCommand(nextLine, out errorMessage);
-                            if (!string.IsNullOrEmpty(errorMessage))
-                            {
-                                MessageBox.Show("Invalid command: " + nextLine + " - " + errorMessage);
-                                return;
-                            }
-                            cmd = new MacroCommand(command);
-                        }
-                        commands.Add(cmd);
+                        MessageBox.Show(errorMessage);
+                        return;
                     }
+                    stepsToRun.Add(new MacroStepCommand(translatedCommand));
+                    addStepAsIs = false;
+                }
+                if (addStepAsIs)
+                {
+                    stepsToRun.Add(nextMacroStep);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Exception occurred reading file: " + ex.ToString());
-                return;
-            }
-            if (commands.Count == 0)
-            {
-                MessageBox.Show("No commands specified.");
-                return;
-            }
-            _currentBackgroundParameters = new BackgroundWorkerParameters();
-            RunCommands(commands, _currentBackgroundParameters);
+            RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
-        private class MacroCommand
+        private class Macro
         {
-            public MacroCommand(string Command)
+            public Macro(string Name)
+            {
+                this.Name = Name;
+                this.Steps = new List<MacroStepBase>();
+            }
+            public override string ToString()
+            {
+                return this.Name;
+            }
+
+            public string Name { get; set; }
+            public List<MacroStepBase> Steps { get; private set; }
+        }
+
+        private class MacroStepBase
+        {
+        }
+
+        private class MacroStepCommand : MacroStepBase
+        {
+            public string Command { get; set; }
+            public MacroStepCommand(string Command)
             {
                 this.Command = Command;
             }
-            public MacroCommand(int WaitMS)
-            {
-                this.WaitMS = WaitMS;
-            }
-            public string Command { get; set; }
-            public int? WaitMS { get; set; }
         }
 
-        private void txtMacroPath_TextChanged(object sender, EventArgs e)
+        private class MacroStepWait : MacroStepBase
         {
-            btnRunMacro.Enabled = !string.IsNullOrEmpty(txtMacroPath.Text);
+            public MacroStepWait(int WaitMS)
+            {
+                this.MS = WaitMS;
+            }
+            public int MS { get; set; }
         }
 
         private void cboMacros_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboMacros.SelectedIndex > 0)
-            {
-                txtMacroPath.Text = Path.Combine(_macroBaseDirectoryPath, cboMacros.SelectedItem.ToString());
-            }
+            btnRunMacro.Enabled = cboMacros.SelectedIndex > 0;
         }
     }
 }
