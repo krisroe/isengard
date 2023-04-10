@@ -1,21 +1,18 @@
 <Macros>
  <Macro name="threecast" oneclick="true">
   <Steps>
+   <Command text="cast {realm2spell} {mob}" waitms="2400"/>
    <Command text="cast {realm2spell} {mob}"/>
-   <Wait ms="2400"/>
-   <Command text="cast {realm2spell} {mob}"/>
-   <Wait ms="2400"/>
    <Command text="cast {realm2spell} {mob}"/>
   </Steps>
  </Macro>
  <Macro name="polltick" oneclick="true">
   <Steps>
-   <Loop>
+   <Sequence loop="true">
     <Steps>
-     <Command text=""/>
-     <Wait ms="5000"/>
+     <Command text="" waitms="5000"/>
     </Steps>
-   </Loop>
+   </Sequence>
   </Steps>
  </Macro>
 </Macros>

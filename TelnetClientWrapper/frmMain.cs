@@ -3,7 +3,6 @@ using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -18,7 +17,6 @@ namespace IsengardClient
         private const int VK_RETURN = 0x0D;
 
         private Dictionary<char, int> _keyMapping;
-        private Stopwatch _sw;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
         private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
@@ -119,8 +117,6 @@ namespace IsengardClient
             _keyMapping['Z'] = 0x5A;
             _keyMapping['z'] = 0x5A;
             _keyMapping['-'] = 0x6D;
-
-            _sw = new Stopwatch();
 
             LoadMacros();
 
@@ -286,20 +282,35 @@ namespace IsengardClient
                 XmlElement elemStep = nextStepNode as XmlElement;
                 if (elemStep == null) continue;
                 string stepType = elemStep.Name.ToLower();
+                MacroStepBase step = null;
                 switch (stepType)
                 {
-                    case "loop":
+                    case "sequence":
                         List<MacroStepBase> loopSteps = ProcessStepsParentElement(elemStep, errorSource + " " + stepType, errorMessages);
+                        MacroStepSequence seq = null;
                         if (loopSteps == null)
                         {
                             isValid = false;
                         }
                         else
                         {
-                            MacroStepLoop loop = new MacroStepLoop();
-                            loop.SubCommands = loopSteps;
-                            ret.Add(loop);
+                            seq = new MacroStepSequence();
+                            seq.SubCommands = loopSteps;
+                            ret.Add(seq);
+                            step = seq;
                         }
+
+                        string sLoop = elemStep.GetAttribute("loop");
+                        if (!string.IsNullOrEmpty(sLoop))
+                        {
+                            if (!bool.TryParse(sLoop, out bool bLoop))
+                            {
+                                isValid = false;
+                                errorMessages.Add("Invalid loop: " + errorSource + " " + stepType);
+                            }
+                            if (seq != null) seq.Loop = bLoop;
+                        }
+
                         break;
                     case "command":
                         string cmd = elemStep.GetAttribute("text");
@@ -310,30 +321,25 @@ namespace IsengardClient
                         }
                         else
                         {
-                            ret.Add(new MacroStepCommand(cmd));
-                        }
-                        break;
-                    case "wait":
-                        string ms = elemStep.GetAttribute("ms");
-                        if (ms == null)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Macro wait command missing ms: " + errorSource);
-                        }
-                        else if (!int.TryParse(ms, out int iMS))
-                        {
-                            isValid = false;
-                            errorMessages.Add("Macro wait command invalid ms: " + errorSource + " " + ms);
-                        }
-                        else
-                        {
-                            ret.Add(new MacroStepWait(iMS));
+                            MacroCommand oCommand = new MacroCommand(cmd);
+                            ret.Add(oCommand);
+                            step = oCommand;
                         }
                         break;
                     default:
                         isValid = false;
                         errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
                         break;
+                }
+                string sWait = elemStep.GetAttribute("waitms");
+                if (!string.IsNullOrEmpty(sWait))
+                {
+                    if (!int.TryParse(sWait, out int iWaitMS))
+                    {
+                        isValid = false;
+                        errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
+                    }
+                    if (step != null) step.WaitMS = iWaitMS;
                 }
             }
             return isValid ? ret : null;
@@ -366,60 +372,73 @@ namespace IsengardClient
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             List<MacroStepBase> commands = pms.Commands;
-            bool isFirst = true;
-            foreach (MacroStepBase nextCommand in IterateStepCommands(commands))
+            MacroCommand oPreviousCommand;
+            MacroCommand oCurrentCommand = null;
+            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms))
             {
                 if (_bw.CancellationPending) break;
-                if (!isFirst) Thread.Sleep(260);
-                if (_bw.CancellationPending) break;
-                if (nextCommand is MacroStepWait)
+                oPreviousCommand = oCurrentCommand;
+                oCurrentCommand = nextCommand;
+
+                //wait for an appropriate amount of time for commands after the first
+                if (oPreviousCommand != null)
                 {
-                    int remainingMS = ((MacroStepWait)nextCommand).MS;
+                    int remainingMS = pms.WaitMS;
                     while (remainingMS > 0)
                     {
                         int nextWaitMS = Math.Min(remainingMS, 100);
+                        if (_bw.CancellationPending) break;
                         Thread.Sleep(nextWaitMS);
                         remainingMS -= nextWaitMS;
-                        if (_bw.CancellationPending) break;
                     }
                 }
-                else if (nextCommand is MacroStepCommand)
+
+                if (_bw.CancellationPending) break;
+                string sCommand = nextCommand.Command;
+                //Console.Out.WriteLine("Executing command: " + sCommand);
+                if (!SendCommand(sCommand, false))
                 {
-                    string sCommand = ((MacroStepCommand)nextCommand).Command;
-                    //Console.Out.WriteLine("Executing command: " + nextCommand);
-                    if (SendCommand(sCommand, false))
-                    {
-                        isFirst = false;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException();
+                    break;
                 }
             }
         }
 
-        private IEnumerable<MacroStepBase> IterateStepCommands(List<MacroStepBase> Steps)
+        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters)
         {
             foreach (MacroStepBase nextStep in Steps)
             {
-                if (nextStep is MacroStepLoop)
+                if (nextStep is MacroStepSequence)
                 {
+                    MacroStepSequence seq = (MacroStepSequence)nextStep;
                     while (true)
                     {
-                        foreach (MacroStepBase nextSubCommand in IterateStepCommands(((MacroStepLoop)nextStep).SubCommands))
+                        bool pastFirst = false;
+                        foreach (MacroCommand nextSubCommand in IterateStepCommands(((MacroStepSequence)nextStep).SubCommands, parameters))
                         {
+                            if (!pastFirst)
+                            {
+                                if (seq.WaitMS.HasValue)
+                                {
+                                    parameters.WaitMS = seq.WaitMS.Value;
+                                }
+                                pastFirst = true;
+                            }
                             yield return nextSubCommand;
+                        }
+                        if (!seq.Loop)
+                        {
+                            break;
                         }
                     }
                 }
                 else
                 {
-                    yield return nextStep;
+                    MacroCommand nextCommand = (MacroCommand)nextStep;
+                    if (nextCommand.WaitMS.HasValue)
+                    {
+                        parameters.WaitMS = nextCommand.WaitMS.Value;
+                    }
+                    yield return nextCommand;
                 }
             }
         }
@@ -1263,7 +1282,6 @@ namespace IsengardClient
                 }
                 if (ret)
                 {
-                    HashSet<int> pressedKeys = new HashSet<int>();
                     for (int i = 0; i < keys.Count; i++)
                     {
                         int key = keys[i];
@@ -1417,6 +1435,7 @@ namespace IsengardClient
             }
 
             _currentBackgroundParameters = new BackgroundWorkerParameters();
+            _currentBackgroundParameters.WaitMS = 260; //time to elapse between moves to avoid too fast errors
             _currentBackgroundParameters.TargetRoom = targetRoom;
             _pathMapping = new Dictionary<Room, Exit>();
             _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
@@ -1438,20 +1457,21 @@ namespace IsengardClient
                 currentRoom = nextExit.Source;
             }
 
-            List<MacroStepBase> commands = new List<MacroStepBase>();
+            MacroStepSequence seq = new MacroStepSequence();
+            List<MacroStepBase> commands = seq.SubCommands;
             for (int i = exits.Count - 1; i >= 0; i--)
             {
                 Exit exit = exits[i];
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    commands.Add(new MacroStepCommand(exit.PreCommand));
+                    commands.Add(new MacroCommand(exit.PreCommand));
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(new MacroStepCommand(nextCommand));
+                commands.Add(new MacroCommand(nextCommand));
             }
 
-            RunCommands(commands, _currentBackgroundParameters);
+            RunCommands(new List<MacroStepBase>() { seq }, _currentBackgroundParameters);
         }
 
         private void RunCommands(List<MacroStepBase> commands, BackgroundWorkerParameters backgroundParameters)
@@ -1465,6 +1485,7 @@ namespace IsengardClient
         {
             public Room TargetRoom { get; set; }
             public List<MacroStepBase> Commands { get; set; }
+            public int WaitMS { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -1585,32 +1606,27 @@ namespace IsengardClient
         private MacroStepBase TranslateStep(MacroStepBase input, out string errorMessage)
         {
             MacroStepBase ret = null;
-            bool addStepAsIs = true;
             errorMessage = string.Empty;
-            if (input is MacroStepLoop)
+            if (input is MacroStepSequence)
             {
-                MacroStepLoop sourceLoop = (MacroStepLoop)input;
-                MacroStepLoop translatedLoop = new MacroStepLoop();
-                foreach (MacroStepBase nextStep in sourceLoop.SubCommands)
+                MacroStepSequence sourceSequence = (MacroStepSequence)input;
+                MacroStepSequence translatedSequence = new MacroStepSequence();
+                foreach (MacroStepBase nextStep in sourceSequence.SubCommands)
                 {
-                    translatedLoop.SubCommands.Add(TranslateStep(nextStep, out errorMessage));
+                    translatedSequence.SubCommands.Add(TranslateStep(nextStep, out errorMessage));
                     if (!string.IsNullOrEmpty(errorMessage)) return null;
                 }
-                addStepAsIs = false;
-                ret = translatedLoop;
+                translatedSequence.Loop = sourceSequence.Loop;
+                ret = translatedSequence;
             }
-            else if (input is MacroStepCommand)
+            else if (input is MacroCommand)
             {
-                string rawCommand = ((MacroStepCommand)input).Command;
+                string rawCommand = ((MacroCommand)input).Command;
                 string translatedCommand = TranslateCommand(rawCommand, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
-                ret = new MacroStepCommand(translatedCommand);
-                addStepAsIs = false;
+                ret = new MacroCommand(translatedCommand);
             }
-            if (addStepAsIs)
-            {
-                ret = input;
-            }
+            ret.WaitMS = input.WaitMS;
             return ret;
         }
 
@@ -1630,35 +1646,28 @@ namespace IsengardClient
             public List<MacroStepBase> Steps { get; set; }
         }
 
-        private class MacroStepBase
+        public class MacroStepBase
         {
+            public int? WaitMS { get; set; }
         }
 
-        private class MacroStepLoop : MacroStepBase
+        private class MacroStepSequence : MacroStepBase
         {
+            public bool Loop { get; set; }
             public List<MacroStepBase> SubCommands { get; set; }
-            public MacroStepLoop()
+            public MacroStepSequence()
             {
                 this.SubCommands = new List<MacroStepBase>();
             }
         }
 
-        private class MacroStepCommand : MacroStepBase
+        private class MacroCommand : MacroStepBase
         {
             public string Command { get; set; }
-            public MacroStepCommand(string Command)
+            public MacroCommand(string Command)
             {
                 this.Command = Command;
             }
-        }
-
-        private class MacroStepWait : MacroStepBase
-        {
-            public MacroStepWait(int WaitMS)
-            {
-                this.MS = WaitMS;
-            }
-            public int MS { get; set; }
         }
 
         private void cboMacros_SelectedIndexChanged(object sender, EventArgs e)
