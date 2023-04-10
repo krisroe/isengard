@@ -44,6 +44,8 @@ namespace IsengardClient
     public class IntegerVariable : Variable
     {
         public int Value { get; set; }
+        public int? Min { get; set; }
+        public int? Max { get; set; }
     }
 
     public class StringVariable : Variable

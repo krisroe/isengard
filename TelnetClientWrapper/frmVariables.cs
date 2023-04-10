@@ -50,9 +50,10 @@ namespace IsengardClient
                 }
                 if (v.Type == VariableType.Int)
                 {
+                    IntegerVariable iv = (IntegerVariable)v;
                     NumericUpDown num = new NumericUpDown();
-                    num.Minimum = int.MinValue;
-                    num.Maximum = int.MaxValue;
+                    num.Minimum = iv.Min.GetValueOrDefault(int.MinValue);
+                    num.Maximum = iv.Max.GetValueOrDefault(int.MaxValue);
                     num.Height = controlHeight;
                     num.Margin = new Padding(0, topBottomPadding, 0, topBottomPadding);
                     num.Width = 50;

@@ -260,6 +260,7 @@ namespace IsengardClient
                         continue;
                     }
 
+                    IntegerVariable vInt = null;
                     Variable v;
                     VariableType theVT = foundVT.Value;
                     switch (theVT)
@@ -268,13 +269,49 @@ namespace IsengardClient
                             v = new BooleanVariable();
                             break;
                         case VariableType.Int:
-                            v = new IntegerVariable();
+                            vInt = new IntegerVariable();
+                            v = vInt;
                             break;
                         case VariableType.String:
                             v = new StringVariable();
                             break;
                         default:
                             throw new InvalidOperationException();
+                    }
+
+                    if (theVT == VariableType.Int)
+                    {
+                        string sMin = elemVariable.GetAttribute("min");
+                        if (!string.IsNullOrEmpty(sMin))
+                        {
+                            if (int.TryParse(sMin, out int iMin))
+                            {
+                                vInt.Min = iMin;
+                            }
+                            else
+                            {
+                                errorMessages.Add("Invalid min variable value: " + sMin);
+                                continue;
+                            }
+                        }
+                        string sMax = elemVariable.GetAttribute("max");
+                        if (!string.IsNullOrEmpty(sMax))
+                        {
+                            if (int.TryParse(sMax, out int iMax))
+                            {
+                                vInt.Max = iMax;
+                            }
+                            else
+                            {
+                                errorMessages.Add("Invalid max variable value: " + sMax);
+                                continue;
+                            }
+                        }
+                        if (vInt.Min.HasValue && vInt.Max.HasValue && vInt.Min.Value > vInt.Max.Value)
+                        {
+                            errorMessages.Add("Variable min greater than max");
+                            continue;
+                        }
                     }
 
                     string sValue = elemVariable.GetAttribute("value");
@@ -286,7 +323,10 @@ namespace IsengardClient
                         }
                         else if (theVT == VariableType.Int)
                         {
-                            ((IntegerVariable)v).Value = 0;
+                            if (vInt.Min.HasValue)
+                                vInt.Value = vInt.Min.Value;
+                            else
+                                vInt.Value = 0;
                         }
                         else if (theVT == VariableType.String)
                         {
@@ -320,7 +360,17 @@ namespace IsengardClient
                                     errorMessages.Add("Invalid integer variable value: " + sValue);
                                     continue;
                                 }
-                                ((IntegerVariable)v).Value = iValue;
+                                if (vInt.Min.HasValue && vInt.Min.Value > iValue)
+                                {
+                                    errorMessages.Add("Variable value less than min value");
+                                    continue;
+                                }
+                                if (vInt.Max.HasValue && vInt.Max.Value < iValue)
+                                {
+                                    errorMessages.Add("Variable value greater than max value");
+                                    continue;
+                                }
+                                vInt.Value = iValue;
                             }
                         }
                         else if (theVT == VariableType.String)
@@ -1638,6 +1688,7 @@ namespace IsengardClient
             input = input ?? string.Empty;
             string specifiedValue;
             errorMessage = string.Empty;
+            input = TranslateVariables(input);
             foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
             {
                 string lowerOT = ot.ToString().ToLower();
@@ -1655,6 +1706,12 @@ namespace IsengardClient
                     }
                 }
             }
+            input = TranslateVariables(input);
+            return input;
+        }
+
+        private string TranslateVariables(string input)
+        {
             foreach (Variable v in _variables)
             {
                 string sValue;
@@ -1678,6 +1735,7 @@ namespace IsengardClient
             }
             return input;
         }
+
 
         private void btnDoAction_Click(object sender, EventArgs e)
         {
