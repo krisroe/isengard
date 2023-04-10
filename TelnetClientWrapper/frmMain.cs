@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-
 namespace IsengardClient
 {
     public partial class frmMain : Form
@@ -25,6 +25,8 @@ namespace IsengardClient
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private List<Area> _areas;
         private Dictionary<string, Area> _areasByName;
+        private List<Variable> _variables;
+        private Dictionary<string, Variable> _variablesByName;
 
         private const string AREA_BREE = "Bree";
         private const string AREA_BREE_TO_HOBBITON = "Bree to Hobbiton";
@@ -118,8 +120,7 @@ namespace IsengardClient
             _keyMapping['z'] = 0x5A;
             _keyMapping['-'] = 0x6D;
 
-            LoadMacros();
-
+            LoadConfiguration();
             InitializeMap(false);
             PopulateTree();
 
@@ -150,99 +151,258 @@ namespace IsengardClient
             }
         }
 
-        private void LoadMacros()
+        private void LoadConfiguration()
         {
             cboMacros.Items.Add(string.Empty);
-            string macroListFile = Properties.Settings.Default.MacroListFile;
-            if (string.IsNullOrEmpty(macroListFile))
-            {
-                return;
-            }
-            FileInfo fi = new FileInfo(macroListFile);
+            _variables = new List<Variable>();
+            _variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
+
+            string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
+            FileInfo fi = new FileInfo(configurationFile);
             if (!fi.Exists)
             {
+                MessageBox.Show("Configuration.xml does not exist!");
                 return;
             }
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(macroListFile);
+                doc.Load(configurationFile);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to load macro list file: " + ex.ToString());
+                MessageBox.Show("Failed to load Configuration.xml: " + ex.ToString());
+                return;
             }
-            int iOneClickTabIndex = 0;
+
             List<string> errorMessages = new List<string>();
-            Dictionary<string, Macro> foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
-            foreach (XmlNode nextNode in doc.DocumentElement.GetElementsByTagName("Macro"))
+
+            bool dupMacros = false;
+            bool dupVariables = false;
+            XmlElement macrosElement = null;
+            XmlElement variablesElement = null;
+            foreach (XmlNode nextNode in doc.DocumentElement.ChildNodes)
             {
-                XmlElement elemMacro = nextNode as XmlElement;
-                if (elemMacro == null)
+                XmlElement elem = nextNode as XmlElement;
+                if (elem == null) continue;
+                string sName = elem.Name.ToLower();
+                switch (sName)
                 {
-                    errorMessages.Add("Found non-element macro node.");
-                    continue;
+                    case "macros":
+                        if (macrosElement == null)
+                        {
+                            macrosElement = elem;
+                        }
+                        else //duplicate
+                        {
+                            errorMessages.Add("Found duplicate macros nodes.");
+                            dupMacros = true;
+                        }
+                        break;
+                    case "variables":
+                        if (variablesElement == null)
+                        {
+                            variablesElement = elem;
+                        }
+                        else
+                        {
+                            errorMessages.Add("Found duplicate variables nodes.");
+                            dupVariables = true;
+                        }
+                        break;
                 }
-                string macroName = elemMacro.GetAttribute("name");
-                if (string.IsNullOrEmpty(macroName))
-                {
-                    errorMessages.Add("Found macro with blank name.");
-                    continue;
-                }
-                if (foundMacros.ContainsKey(macroName))
-                {
-                    errorMessages.Add("Found duplicate macro name: " + macroName);
-                    continue;
-                }
+            }
 
-                bool macroIsValid = true;
-                Macro oMacro = new Macro(macroName);
-                List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
-                if (foundSteps == null)
+            if (!dupVariables)
+            {
+                foreach (XmlNode nextNode in variablesElement.GetElementsByTagName("Variable"))
                 {
-                    macroIsValid = false;
-                }
-                else if (foundSteps.Count == 0)
-                {
-                    errorMessages.Add("Macro has no steps: " + macroName);
-                    macroIsValid = false;
-                }
-                oMacro.Steps = foundSteps;
-
-                string sOneClick = elemMacro.GetAttribute("oneclick");
-                bool isOneClick = false;
-                if (sOneClick != null)
-                {
-                    if (!bool.TryParse(sOneClick, out isOneClick))
+                    XmlElement elemVariable = nextNode as XmlElement;
+                    if (elemVariable == null)
                     {
-                        errorMessages.Add("Invalid one click flag for macro " + macroName);
-                        macroIsValid = false;
+                        errorMessages.Add("Found non-element variable node.");
+                        continue;
                     }
-                }
-
-                if (macroIsValid)
-                {
-                    foundMacros[macroName] = oMacro;
-                    if (isOneClick)
+                    string sName = elemVariable.GetAttribute("name");
+                    if (string.IsNullOrEmpty(sName))
                     {
-                        Button btnOneClick = new Button();
-                        btnOneClick.AutoSize = true;
-                        btnOneClick.TabIndex = iOneClickTabIndex++;
-                        btnOneClick.Tag = oMacro;
-                        btnOneClick.Text = oMacro.Name;
-                        btnOneClick.UseVisualStyleBackColor = true;
-                        btnOneClick.Click += btnOneClick_Click;
-                        flpOneClickMacros.Controls.Add(btnOneClick);
+                        errorMessages.Add("Found variable with blank name.");
+                        continue;
+                    }
+                    if (!IsValidMacroName(sName))
+                    {
+                        errorMessages.Add("Invalid variable name: " + sName);
+                        continue;
+                    }
+                    if (_variablesByName.ContainsKey(sName))
+                    {
+                        errorMessages.Add("Duplicate variable name: " + sName);
+                        continue;
+                    }
+                    string sType = elemVariable.GetAttribute("type");
+                    if (string.IsNullOrEmpty(sType))
+                    {
+                        errorMessages.Add("Found variable with blank type.");
+                        continue;
+                    }
+                    VariableType? foundVT = null;
+                    foreach (VariableType vt in Enum.GetValues(typeof(VariableType)))
+                    {
+                        if (sType.ToLower().Equals(vt.ToString().ToLower()))
+                        {
+                            foundVT = vt;
+                            break;
+                        }
+                    }
+                    if (!foundVT.HasValue)
+                    {
+                        errorMessages.Add("Unable to find variable type: " + sType);
+                        continue;
+                    }
+
+                    Variable v;
+                    VariableType theVT = foundVT.Value;
+                    switch (theVT)
+                    {
+                        case VariableType.Bool:
+                            v = new BooleanVariable();
+                            break;
+                        case VariableType.Int:
+                            v = new IntegerVariable();
+                            break;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+
+                    string sValue = elemVariable.GetAttribute("value");
+                    if (sValue == null)
+                    {
+                        if (theVT == VariableType.Bool)
+                        {
+                            ((BooleanVariable)v).Value = false;
+                        }
+                        else if (theVT == VariableType.Int)
+                        {
+                            ((IntegerVariable)v).Value = 0;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
                     }
                     else
                     {
-                        cboMacros.Items.Add(oMacro);
+                        if (theVT == VariableType.Bool)
+                        {
+                            if (!string.IsNullOrEmpty(sValue))
+                            {
+                                if (!bool.TryParse(sValue, out bool bValue))
+                                {
+                                    errorMessages.Add("Invalid boolean variable value: " + sValue);
+                                    continue;
+                                }
+                            ((BooleanVariable)v).Value = bValue;
+                            }
+                        }
+                        else if (theVT == VariableType.Int)
+                        {
+                            if (!string.IsNullOrEmpty(sValue))
+                            {
+                                if (!int.TryParse(sValue, out int iValue))
+                                {
+                                    errorMessages.Add("Invalid integer variable value: " + sValue);
+                                    continue;
+                                }
+                            ((IntegerVariable)v).Value = iValue;
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                    }
+
+                    v.Name = sName;
+                    v.Type = theVT;
+                    _variables.Add(v);
+                    _variablesByName[sName] = v;
+                }
+            }
+
+            if (!dupMacros)
+            {
+                int iOneClickTabIndex = 0;
+                Dictionary<string, Macro> foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
+                foreach (XmlNode nextNode in macrosElement.GetElementsByTagName("Macro"))
+                {
+                    XmlElement elemMacro = nextNode as XmlElement;
+                    if (elemMacro == null)
+                    {
+                        errorMessages.Add("Found non-element macro node.");
+                        continue;
+                    }
+                    string macroName = elemMacro.GetAttribute("name");
+                    if (string.IsNullOrEmpty(macroName))
+                    {
+                        errorMessages.Add("Found macro with blank name.");
+                        continue;
+                    }
+                    if (foundMacros.ContainsKey(macroName))
+                    {
+                        errorMessages.Add("Found duplicate macro name: " + macroName);
+                        continue;
+                    }
+
+                    bool macroIsValid = true;
+                    Macro oMacro = new Macro(macroName);
+                    List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
+                    if (foundSteps == null)
+                    {
+                        macroIsValid = false;
+                    }
+                    else if (foundSteps.Count == 0)
+                    {
+                        errorMessages.Add("Macro has no steps: " + macroName);
+                        macroIsValid = false;
+                    }
+                    oMacro.Steps = foundSteps;
+
+                    string sOneClick = elemMacro.GetAttribute("oneclick");
+                    bool isOneClick = false;
+                    if (sOneClick != null)
+                    {
+                        if (!bool.TryParse(sOneClick, out isOneClick))
+                        {
+                            errorMessages.Add("Invalid one click flag for macro " + macroName);
+                            macroIsValid = false;
+                        }
+                    }
+
+                    if (macroIsValid)
+                    {
+                        foundMacros[macroName] = oMacro;
+                        if (isOneClick)
+                        {
+                            Button btnOneClick = new Button();
+                            btnOneClick.AutoSize = true;
+                            btnOneClick.TabIndex = iOneClickTabIndex++;
+                            btnOneClick.Tag = oMacro;
+                            btnOneClick.Text = oMacro.Name;
+                            btnOneClick.UseVisualStyleBackColor = true;
+                            btnOneClick.Click += btnOneClick_Click;
+                            flpOneClickMacros.Controls.Add(btnOneClick);
+                        }
+                        else
+                        {
+                            cboMacros.Items.Add(oMacro);
+                        }
                     }
                 }
             }
+
             if (errorMessages.Count > 0)
             {
-                MessageBox.Show("Errors loading macros" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
+                MessageBox.Show("Errors loading configuration file" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
             }
         }
 
@@ -299,18 +459,6 @@ namespace IsengardClient
                             ret.Add(seq);
                             step = seq;
                         }
-
-                        string sLoop = elemStep.GetAttribute("loop");
-                        if (!string.IsNullOrEmpty(sLoop))
-                        {
-                            if (!bool.TryParse(sLoop, out bool bLoop))
-                            {
-                                isValid = false;
-                                errorMessages.Add("Invalid loop: " + errorSource + " " + stepType);
-                            }
-                            if (seq != null) seq.Loop = bLoop;
-                        }
-
                         break;
                     case "command":
                         string cmd = elemStep.GetAttribute("text");
@@ -334,12 +482,65 @@ namespace IsengardClient
                 string sWait = elemStep.GetAttribute("waitms");
                 if (!string.IsNullOrEmpty(sWait))
                 {
-                    if (!int.TryParse(sWait, out int iWaitMS))
+                    if (int.TryParse(sWait, out int iWaitMS))
+                    {
+                        if (step != null) step.WaitMS = iWaitMS;
+                    }
+                    else if (_variablesByName.TryGetValue(sWait, out Variable v))
+                    {
+                        if (v.Type != VariableType.Int)
+                        {
+                            isValid = false;
+                            errorMessages.Add("WaitMS variable must be an integer: " + errorSource + " " + stepType);
+                        }
+                        else
+                        {
+                            if (step != null) step.WaitMSVariable = (IntegerVariable)v;
+                        }
+                    }
+                    else
                     {
                         isValid = false;
                         errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
                     }
-                    if (step != null) step.WaitMS = iWaitMS;
+                }
+
+                string sLoop = elemStep.GetAttribute("loop");
+                if (!string.IsNullOrEmpty(sLoop))
+                {
+                    if (bool.TryParse(sLoop, out bool bLoop))
+                    {
+                        if (step != null) step.Loop = bLoop;
+                    }
+                    else if (int.TryParse(sLoop, out int iLoop))
+                    {
+                        if (iLoop < 0)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Invalid negative loop count: " + errorSource + " " + stepType);
+                        }
+                        else
+                        {
+                            if (step != null) step.LoopCount = iLoop;
+                        }
+                    }
+                    else if (_variablesByName.TryGetValue(sLoop, out Variable v))
+                    {
+                        if (v.Type != VariableType.Int && v.Type != VariableType.Bool)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Loop variable must be an integer: " + errorSource + " " + stepType);
+                        }
+                        else
+                        {
+                            if (step != null) step.LoopVariable = v;
+                        }
+                    }
+                    else
+                    {
+                        isValid = false;
+                        errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
+                    }
                 }
             }
             return isValid ? ret : null;
@@ -395,7 +596,6 @@ namespace IsengardClient
 
                 if (_bw.CancellationPending) break;
                 string sCommand = nextCommand.Command;
-                //Console.Out.WriteLine("Executing command: " + sCommand);
                 if (!SendCommand(sCommand, false))
                 {
                     break;
@@ -405,41 +605,85 @@ namespace IsengardClient
 
         private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters)
         {
+            Dictionary<string, Variable> variables = parameters.Variables;
             foreach (MacroStepBase nextStep in Steps)
             {
-                if (nextStep is MacroStepSequence)
+                int? loopCountMax = null;
+                if (nextStep.LoopCount.HasValue)
                 {
-                    MacroStepSequence seq = (MacroStepSequence)nextStep;
-                    while (true)
+                    loopCountMax = nextStep.LoopCount.Value;
+                }
+                else if (nextStep.LoopVariable != null && nextStep.LoopVariable.Type == VariableType.Int)
+                {
+                    loopCountMax = ((IntegerVariable)variables[nextStep.LoopVariable.Name]).Value;
+                }
+                bool doInfiniteLoop = false;
+                if (nextStep.Loop.HasValue)
+                {
+                    doInfiniteLoop = nextStep.Loop.Value;
+                }
+                else if (nextStep.LoopVariable != null && nextStep.LoopVariable.Type == VariableType.Bool)
+                {
+                    doInfiniteLoop = ((BooleanVariable)variables[nextStep.LoopVariable.Name]).Value;
+                }
+
+                int loopCount = 0;
+                while (true)
+                {
+                    //do nothing if the loop count is zero
+                    if (nextStep.LoopCount.HasValue && nextStep.LoopCount.Value == 0)
                     {
+                        break;
+                    }
+                    if (nextStep is MacroStepSequence)
+                    {
+                        MacroStepSequence seq = (MacroStepSequence)nextStep;
                         bool pastFirst = false;
-                        foreach (MacroCommand nextSubCommand in IterateStepCommands(((MacroStepSequence)nextStep).SubCommands, parameters))
+                        foreach (MacroCommand nextSubCommand in IterateStepCommands(seq.SubCommands, parameters))
                         {
                             if (!pastFirst)
                             {
-                                if (seq.WaitMS.HasValue)
-                                {
-                                    parameters.WaitMS = seq.WaitMS.Value;
-                                }
+                                SetWaitMS(seq, parameters, variables);
                                 pastFirst = true;
                             }
                             yield return nextSubCommand;
                         }
-                        if (!seq.Loop)
+                    }
+                    else
+                    {
+                        MacroCommand nextCommand = (MacroCommand)nextStep;
+                        SetWaitMS(nextCommand, parameters, variables);
+                        yield return nextCommand;
+                    }
+                    loopCount++;
+
+
+
+                    if (loopCountMax.HasValue)
+                    {
+                        //stop if reached the number of times to loop
+                        if (loopCount >= loopCountMax.Value)
                         {
                             break;
                         }
                     }
-                }
-                else
-                {
-                    MacroCommand nextCommand = (MacroCommand)nextStep;
-                    if (nextCommand.WaitMS.HasValue)
+                    else if (!doInfiniteLoop)
                     {
-                        parameters.WaitMS = nextCommand.WaitMS.Value;
+                        break; //stop if not in a loop
                     }
-                    yield return nextCommand;
                 }
+            }
+        }
+
+        private void SetWaitMS(MacroStepBase nextStep, BackgroundWorkerParameters parameters, Dictionary<string, Variable> variables)
+        {
+            if (nextStep.WaitMS.HasValue)
+            {
+                parameters.WaitMS = nextStep.WaitMS.Value;
+            }
+            else if (nextStep.WaitMSVariable != null)
+            {
+                parameters.WaitMS = ((IntegerVariable)variables[nextStep.WaitMSVariable.Name]).Value;
             }
         }
 
@@ -1358,6 +1602,26 @@ namespace IsengardClient
             return value;
         }
 
+        private bool IsValidMacroName(string name)
+        {
+            foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
+            {
+                if (ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            if (bool.TryParse(name, out _))
+            {
+                return false;
+            }
+            if (int.TryParse(name, out _))
+            {
+                return false;
+            }
+            return true;
+        }
+
         private string TranslateCommand(string input, out string errorMessage)
         {
             input = input ?? string.Empty;
@@ -1457,8 +1721,7 @@ namespace IsengardClient
                 currentRoom = nextExit.Source;
             }
 
-            MacroStepSequence seq = new MacroStepSequence();
-            List<MacroStepBase> commands = seq.SubCommands;
+            List<MacroStepBase> commands = new List<MacroStepBase>();
             for (int i = exits.Count - 1; i >= 0; i--)
             {
                 Exit exit = exits[i];
@@ -1471,12 +1734,18 @@ namespace IsengardClient
                 commands.Add(new MacroCommand(nextCommand));
             }
 
-            RunCommands(new List<MacroStepBase>() { seq }, _currentBackgroundParameters);
+            RunCommands(commands, _currentBackgroundParameters);
         }
 
         private void RunCommands(List<MacroStepBase> commands, BackgroundWorkerParameters backgroundParameters)
         {
+            Dictionary<string, Variable> copyVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
+            foreach (Variable v in _variables)
+            {
+                copyVariables[v.Name] = Variable.CopyVariable(v);
+            }
             backgroundParameters.Commands = commands;
+            backgroundParameters.Variables = copyVariables;
             _bw.RunWorkerAsync(backgroundParameters);
             ToggleBackgroundProcess(true);
         }
@@ -1485,6 +1754,7 @@ namespace IsengardClient
         {
             public Room TargetRoom { get; set; }
             public List<MacroStepBase> Commands { get; set; }
+            public Dictionary<string, Variable> Variables { get; set; }
             public int WaitMS { get; set; }
         }
 
@@ -1616,7 +1886,6 @@ namespace IsengardClient
                     translatedSequence.SubCommands.Add(TranslateStep(nextStep, out errorMessage));
                     if (!string.IsNullOrEmpty(errorMessage)) return null;
                 }
-                translatedSequence.Loop = sourceSequence.Loop;
                 ret = translatedSequence;
             }
             else if (input is MacroCommand)
@@ -1627,6 +1896,10 @@ namespace IsengardClient
                 ret = new MacroCommand(translatedCommand);
             }
             ret.WaitMS = input.WaitMS;
+            ret.WaitMSVariable = input.WaitMSVariable;
+            ret.Loop = input.Loop;
+            ret.LoopCount = input.LoopCount;
+            ret.LoopVariable = input.LoopVariable;
             return ret;
         }
 
@@ -1649,11 +1922,14 @@ namespace IsengardClient
         public class MacroStepBase
         {
             public int? WaitMS { get; set; }
+            public IntegerVariable WaitMSVariable { get; set; }
+            public bool? Loop { get; set; }
+            public int? LoopCount { get; set; }
+            public Variable LoopVariable { get; set; }
         }
 
         private class MacroStepSequence : MacroStepBase
         {
-            public bool Loop { get; set; }
             public List<MacroStepBase> SubCommands { get; set; }
             public MacroStepSequence()
             {
@@ -1673,6 +1949,53 @@ namespace IsengardClient
         private void cboMacros_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnRunMacro.Enabled = cboMacros.SelectedIndex > 0;
+        }
+
+        public class Variable
+        {
+            public Variable()
+            {
+            }
+
+            public static Variable CopyVariable(Variable copied)
+            {
+                Variable ret;
+                switch (copied.Type)
+                {
+                    case VariableType.Bool:
+                        ret = new BooleanVariable();
+                        ((BooleanVariable)ret).Value = ((BooleanVariable)copied).Value;
+                        break;
+                    case VariableType.Int:
+                        ret = new IntegerVariable();
+                        ((IntegerVariable)ret).Value = ((IntegerVariable)copied).Value;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                ret.Name = copied.Name;
+                ret.Type = copied.Type;
+                return ret;
+            }
+
+            public string Name { get; set; }
+            public VariableType Type { get; set; }
+        }
+
+        public class BooleanVariable : Variable
+        {
+            public bool Value { get; set; }
+        }
+
+        public class IntegerVariable : Variable
+        {
+            public int Value { get; set; }
+        }
+
+        public enum VariableType
+        {
+            Bool,
+            Int,
         }
     }
 }
