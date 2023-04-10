@@ -87,6 +87,7 @@
             this.grpLocations = new System.Windows.Forms.GroupBox();
             this.grpOneClickMacros = new System.Windows.Forms.GroupBox();
             this.flpOneClickMacros = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnVariables = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -94,10 +95,10 @@
             // 
             // btnLevel1OffensiveSpell
             // 
-            this.btnLevel1OffensiveSpell.Location = new System.Drawing.Point(83, 119);
-            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLevel1OffensiveSpell.Location = new System.Drawing.Point(111, 146);
+            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLevel1OffensiveSpell.Name = "btnLevel1OffensiveSpell";
-            this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(117, 28);
+            this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(156, 34);
             this.btnLevel1OffensiveSpell.TabIndex = 0;
             this.btnLevel1OffensiveSpell.Tag = "cast {realm1spell} {mob}";
             this.btnLevel1OffensiveSpell.Text = "Level 1 Offensive Spell";
@@ -106,47 +107,45 @@
             // 
             // lblWindow
             // 
-            this.lblWindow.Location = new System.Drawing.Point(26, 18);
-            this.lblWindow.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblWindow.Location = new System.Drawing.Point(35, 22);
             this.lblWindow.Name = "lblWindow";
-            this.lblWindow.Size = new System.Drawing.Size(51, 21);
+            this.lblWindow.Size = new System.Drawing.Size(68, 26);
             this.lblWindow.TabIndex = 1;
             this.lblWindow.Text = "Window:";
             this.lblWindow.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtWindow
             // 
-            this.txtWindow.Location = new System.Drawing.Point(82, 21);
-            this.txtWindow.Margin = new System.Windows.Forms.Padding(2);
+            this.txtWindow.Location = new System.Drawing.Point(109, 26);
+            this.txtWindow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWindow.Name = "txtWindow";
-            this.txtWindow.Size = new System.Drawing.Size(179, 20);
+            this.txtWindow.Size = new System.Drawing.Size(237, 22);
             this.txtWindow.TabIndex = 2;
             this.txtWindow.Text = "Telnet isengard.nazgul.com";
             // 
             // txtMob
             // 
-            this.txtMob.Location = new System.Drawing.Point(82, 44);
-            this.txtMob.Margin = new System.Windows.Forms.Padding(2);
+            this.txtMob.Location = new System.Drawing.Point(109, 54);
+            this.txtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtMob.Name = "txtMob";
-            this.txtMob.Size = new System.Drawing.Size(179, 20);
+            this.txtMob.Size = new System.Drawing.Size(237, 22);
             this.txtMob.TabIndex = 4;
             // 
             // lblMob
             // 
-            this.lblMob.Location = new System.Drawing.Point(26, 41);
-            this.lblMob.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMob.Location = new System.Drawing.Point(35, 50);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(52, 27);
+            this.lblMob.Size = new System.Drawing.Size(69, 33);
             this.lblMob.TabIndex = 3;
             this.lblMob.Text = "Mob:";
             this.lblMob.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnLevel2OffensiveSpell
             // 
-            this.btnLevel2OffensiveSpell.Location = new System.Drawing.Point(83, 152);
-            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLevel2OffensiveSpell.Location = new System.Drawing.Point(111, 187);
+            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLevel2OffensiveSpell.Name = "btnLevel2OffensiveSpell";
-            this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(117, 28);
+            this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(156, 34);
             this.btnLevel2OffensiveSpell.TabIndex = 5;
             this.btnLevel2OffensiveSpell.Tag = "cast {realm2spell} {mob}";
             this.btnLevel2OffensiveSpell.Text = "Level 2 Offensive Spell";
@@ -155,10 +154,10 @@
             // 
             // btnFlee
             // 
-            this.btnFlee.Location = new System.Drawing.Point(83, 219);
-            this.btnFlee.Margin = new System.Windows.Forms.Padding(2);
+            this.btnFlee.Location = new System.Drawing.Point(111, 270);
+            this.btnFlee.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnFlee.Name = "btnFlee";
-            this.btnFlee.Size = new System.Drawing.Size(117, 28);
+            this.btnFlee.Size = new System.Drawing.Size(156, 34);
             this.btnFlee.TabIndex = 6;
             this.btnFlee.Tag = "flee";
             this.btnFlee.Text = "Flee";
@@ -167,10 +166,10 @@
             // 
             // btnDrinkHazy
             // 
-            this.btnDrinkHazy.Location = new System.Drawing.Point(83, 252);
-            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDrinkHazy.Location = new System.Drawing.Point(111, 310);
+            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkHazy.Name = "btnDrinkHazy";
-            this.btnDrinkHazy.Size = new System.Drawing.Size(117, 28);
+            this.btnDrinkHazy.Size = new System.Drawing.Size(156, 34);
             this.btnDrinkHazy.TabIndex = 7;
             this.btnDrinkHazy.Tag = "drink hazy";
             this.btnDrinkHazy.Text = "Drink Hazy";
@@ -179,10 +178,10 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(206, 219);
-            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLookAtMob.Location = new System.Drawing.Point(275, 270);
+            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLookAtMob.Name = "btnLookAtMob";
-            this.btnLookAtMob.Size = new System.Drawing.Size(117, 28);
+            this.btnLookAtMob.Size = new System.Drawing.Size(156, 34);
             this.btnLookAtMob.TabIndex = 8;
             this.btnLookAtMob.Tag = "look {mob}";
             this.btnLookAtMob.Text = "Look at Mob";
@@ -191,10 +190,10 @@
             // 
             // btnLook
             // 
-            this.btnLook.Location = new System.Drawing.Point(327, 119);
-            this.btnLook.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLook.Location = new System.Drawing.Point(436, 146);
+            this.btnLook.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLook.Name = "btnLook";
-            this.btnLook.Size = new System.Drawing.Size(117, 28);
+            this.btnLook.Size = new System.Drawing.Size(156, 34);
             this.btnLook.TabIndex = 9;
             this.btnLook.Tag = "look";
             this.btnLook.Text = "Look";
@@ -203,10 +202,10 @@
             // 
             // btnCastVigor
             // 
-            this.btnCastVigor.Location = new System.Drawing.Point(448, 119);
-            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastVigor.Location = new System.Drawing.Point(597, 146);
+            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastVigor.Name = "btnCastVigor";
-            this.btnCastVigor.Size = new System.Drawing.Size(93, 28);
+            this.btnCastVigor.Size = new System.Drawing.Size(124, 34);
             this.btnCastVigor.TabIndex = 10;
             this.btnCastVigor.Tag = "cast vigor";
             this.btnCastVigor.Text = "Cast Vigor";
@@ -215,10 +214,10 @@
             // 
             // btnManashield
             // 
-            this.btnManashield.Location = new System.Drawing.Point(83, 185);
-            this.btnManashield.Margin = new System.Windows.Forms.Padding(2);
+            this.btnManashield.Location = new System.Drawing.Point(111, 228);
+            this.btnManashield.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnManashield.Name = "btnManashield";
-            this.btnManashield.Size = new System.Drawing.Size(117, 28);
+            this.btnManashield.Size = new System.Drawing.Size(156, 34);
             this.btnManashield.TabIndex = 11;
             this.btnManashield.Tag = "manashield";
             this.btnManashield.Text = "Manashield";
@@ -227,10 +226,10 @@
             // 
             // btnCastCurePoison
             // 
-            this.btnCastCurePoison.Location = new System.Drawing.Point(448, 152);
-            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastCurePoison.Location = new System.Drawing.Point(597, 187);
+            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastCurePoison.Name = "btnCastCurePoison";
-            this.btnCastCurePoison.Size = new System.Drawing.Size(93, 28);
+            this.btnCastCurePoison.Size = new System.Drawing.Size(124, 34);
             this.btnCastCurePoison.TabIndex = 18;
             this.btnCastCurePoison.Tag = "cast cure-poison";
             this.btnCastCurePoison.Text = "Cast Curepoison";
@@ -239,10 +238,10 @@
             // 
             // btnTime
             // 
-            this.btnTime.Location = new System.Drawing.Point(327, 84);
-            this.btnTime.Margin = new System.Windows.Forms.Padding(2);
+            this.btnTime.Location = new System.Drawing.Point(436, 103);
+            this.btnTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTime.Name = "btnTime";
-            this.btnTime.Size = new System.Drawing.Size(117, 28);
+            this.btnTime.Size = new System.Drawing.Size(156, 34);
             this.btnTime.TabIndex = 19;
             this.btnTime.Tag = "time";
             this.btnTime.Text = "Time";
@@ -251,10 +250,10 @@
             // 
             // btnScore
             // 
-            this.btnScore.Location = new System.Drawing.Point(327, 153);
-            this.btnScore.Margin = new System.Windows.Forms.Padding(2);
+            this.btnScore.Location = new System.Drawing.Point(436, 188);
+            this.btnScore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnScore.Name = "btnScore";
-            this.btnScore.Size = new System.Drawing.Size(117, 28);
+            this.btnScore.Size = new System.Drawing.Size(156, 34);
             this.btnScore.TabIndex = 20;
             this.btnScore.Tag = "score";
             this.btnScore.Text = "Score";
@@ -263,10 +262,10 @@
             // 
             // btnInformation
             // 
-            this.btnInformation.Location = new System.Drawing.Point(327, 186);
-            this.btnInformation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnInformation.Location = new System.Drawing.Point(436, 229);
+            this.btnInformation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInformation.Name = "btnInformation";
-            this.btnInformation.Size = new System.Drawing.Size(117, 28);
+            this.btnInformation.Size = new System.Drawing.Size(156, 34);
             this.btnInformation.TabIndex = 21;
             this.btnInformation.Tag = "information";
             this.btnInformation.Text = "Information";
@@ -275,10 +274,10 @@
             // 
             // btnSetCurrentLocation
             // 
-            this.btnSetCurrentLocation.Location = new System.Drawing.Point(512, 386);
-            this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSetCurrentLocation.Location = new System.Drawing.Point(683, 475);
+            this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
-            this.btnSetCurrentLocation.Size = new System.Drawing.Size(116, 21);
+            this.btnSetCurrentLocation.Size = new System.Drawing.Size(155, 26);
             this.btnSetCurrentLocation.TabIndex = 24;
             this.btnSetCurrentLocation.Text = "Set Current Location";
             this.btnSetCurrentLocation.UseVisualStyleBackColor = true;
@@ -286,10 +285,10 @@
             // 
             // btnGoToLocation
             // 
-            this.btnGoToLocation.Location = new System.Drawing.Point(512, 412);
-            this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnGoToLocation.Location = new System.Drawing.Point(683, 507);
+            this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToLocation.Name = "btnGoToLocation";
-            this.btnGoToLocation.Size = new System.Drawing.Size(116, 21);
+            this.btnGoToLocation.Size = new System.Drawing.Size(155, 26);
             this.btnGoToLocation.TabIndex = 25;
             this.btnGoToLocation.Text = "Go to Location";
             this.btnGoToLocation.UseVisualStyleBackColor = true;
@@ -297,10 +296,10 @@
             // 
             // btnCastProtection
             // 
-            this.btnCastProtection.Location = new System.Drawing.Point(448, 185);
-            this.btnCastProtection.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastProtection.Location = new System.Drawing.Point(597, 228);
+            this.btnCastProtection.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastProtection.Name = "btnCastProtection";
-            this.btnCastProtection.Size = new System.Drawing.Size(93, 28);
+            this.btnCastProtection.Size = new System.Drawing.Size(124, 34);
             this.btnCastProtection.TabIndex = 26;
             this.btnCastProtection.Tag = "cast protection";
             this.btnCastProtection.Text = "Cast Protection";
@@ -310,10 +309,10 @@
             // chkIsNight
             // 
             this.chkIsNight.AutoSize = true;
-            this.chkIsNight.Location = new System.Drawing.Point(264, 23);
-            this.chkIsNight.Margin = new System.Windows.Forms.Padding(2);
+            this.chkIsNight.Location = new System.Drawing.Point(352, 28);
+            this.chkIsNight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkIsNight.Name = "chkIsNight";
-            this.chkIsNight.Size = new System.Drawing.Size(66, 17);
+            this.chkIsNight.Size = new System.Drawing.Size(77, 20);
             this.chkIsNight.TabIndex = 28;
             this.chkIsNight.Text = "Is night?";
             this.chkIsNight.UseVisualStyleBackColor = true;
@@ -321,29 +320,28 @@
             // 
             // txtOneOffCommand
             // 
-            this.txtOneOffCommand.Location = new System.Drawing.Point(82, 348);
-            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(2);
+            this.txtOneOffCommand.Location = new System.Drawing.Point(109, 428);
+            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(188, 20);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(249, 22);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
             // lblOneOffCommand
             // 
             this.lblOneOffCommand.AutoSize = true;
-            this.lblOneOffCommand.Location = new System.Drawing.Point(29, 350);
-            this.lblOneOffCommand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblOneOffCommand.Location = new System.Drawing.Point(39, 431);
             this.lblOneOffCommand.Name = "lblOneOffCommand";
-            this.lblOneOffCommand.Size = new System.Drawing.Size(44, 13);
+            this.lblOneOffCommand.Size = new System.Drawing.Size(52, 16);
             this.lblOneOffCommand.TabIndex = 30;
             this.lblOneOffCommand.Text = "One-Off";
             // 
             // btnInventory
             // 
-            this.btnInventory.Location = new System.Drawing.Point(327, 219);
-            this.btnInventory.Margin = new System.Windows.Forms.Padding(2);
+            this.btnInventory.Location = new System.Drawing.Point(436, 270);
+            this.btnInventory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInventory.Name = "btnInventory";
-            this.btnInventory.Size = new System.Drawing.Size(117, 28);
+            this.btnInventory.Size = new System.Drawing.Size(156, 34);
             this.btnInventory.TabIndex = 31;
             this.btnInventory.Tag = "inventory";
             this.btnInventory.Text = "Inventory";
@@ -352,10 +350,10 @@
             // 
             // btnClearOneOff
             // 
-            this.btnClearOneOff.Location = new System.Drawing.Point(274, 348);
-            this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClearOneOff.Location = new System.Drawing.Point(365, 428);
+            this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnClearOneOff.Name = "btnClearOneOff";
-            this.btnClearOneOff.Size = new System.Drawing.Size(64, 24);
+            this.btnClearOneOff.Size = new System.Drawing.Size(85, 30);
             this.btnClearOneOff.TabIndex = 32;
             this.btnClearOneOff.Text = "Clear";
             this.btnClearOneOff.UseVisualStyleBackColor = true;
@@ -363,10 +361,10 @@
             // 
             // btnAbort
             // 
-            this.btnAbort.Location = new System.Drawing.Point(512, 440);
-            this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
+            this.btnAbort.Location = new System.Drawing.Point(683, 542);
+            this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
-            this.btnAbort.Size = new System.Drawing.Size(116, 21);
+            this.btnAbort.Size = new System.Drawing.Size(155, 26);
             this.btnAbort.TabIndex = 33;
             this.btnAbort.Text = "Abort";
             this.btnAbort.UseVisualStyleBackColor = true;
@@ -374,10 +372,10 @@
             // 
             // btnOneOffExecute
             // 
-            this.btnOneOffExecute.Location = new System.Drawing.Point(342, 348);
-            this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(2);
+            this.btnOneOffExecute.Location = new System.Drawing.Point(456, 428);
+            this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOneOffExecute.Name = "btnOneOffExecute";
-            this.btnOneOffExecute.Size = new System.Drawing.Size(64, 24);
+            this.btnOneOffExecute.Size = new System.Drawing.Size(85, 30);
             this.btnOneOffExecute.TabIndex = 34;
             this.btnOneOffExecute.Text = "Execute";
             this.btnOneOffExecute.UseVisualStyleBackColor = true;
@@ -385,10 +383,10 @@
             // 
             // btnAttackMob
             // 
-            this.btnAttackMob.Location = new System.Drawing.Point(205, 119);
-            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnAttackMob.Location = new System.Drawing.Point(273, 146);
+            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAttackMob.Name = "btnAttackMob";
-            this.btnAttackMob.Size = new System.Drawing.Size(117, 28);
+            this.btnAttackMob.Size = new System.Drawing.Size(156, 34);
             this.btnAttackMob.TabIndex = 35;
             this.btnAttackMob.Tag = "kill {mob}";
             this.btnAttackMob.Text = "Attack Mob";
@@ -398,28 +396,27 @@
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(510, 362);
-            this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(680, 446);
+            this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
-            this.txtCurrentRoom.Size = new System.Drawing.Size(118, 20);
+            this.txtCurrentRoom.Size = new System.Drawing.Size(156, 22);
             this.txtCurrentRoom.TabIndex = 37;
             // 
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(439, 365);
-            this.lblCurrentRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(585, 449);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
-            this.lblCurrentRoom.Size = new System.Drawing.Size(70, 13);
+            this.lblCurrentRoom.Size = new System.Drawing.Size(86, 16);
             this.lblCurrentRoom.TabIndex = 38;
             this.lblCurrentRoom.Text = "Current room:";
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(545, 119);
-            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(727, 146);
+            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
-            this.btnDrinkYellow.Size = new System.Drawing.Size(93, 28);
+            this.btnDrinkYellow.Size = new System.Drawing.Size(124, 34);
             this.btnDrinkYellow.TabIndex = 39;
             this.btnDrinkYellow.Tag = "drink yellow";
             this.btnDrinkYellow.Text = "Yellow pot";
@@ -428,10 +425,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(545, 152);
-            this.button1.Margin = new System.Windows.Forms.Padding(2);
+            this.button1.Location = new System.Drawing.Point(727, 187);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(93, 28);
+            this.button1.Size = new System.Drawing.Size(124, 34);
             this.button1.TabIndex = 40;
             this.button1.Tag = "drink green";
             this.button1.Text = "Green pot";
@@ -440,28 +437,27 @@
             // 
             // txtWeapon
             // 
-            this.txtWeapon.Location = new System.Drawing.Point(82, 67);
-            this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
+            this.txtWeapon.Location = new System.Drawing.Point(109, 82);
+            this.txtWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWeapon.Name = "txtWeapon";
-            this.txtWeapon.Size = new System.Drawing.Size(179, 20);
+            this.txtWeapon.Size = new System.Drawing.Size(237, 22);
             this.txtWeapon.TabIndex = 42;
             // 
             // lblWeapon
             // 
-            this.lblWeapon.Location = new System.Drawing.Point(26, 63);
-            this.lblWeapon.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblWeapon.Location = new System.Drawing.Point(35, 78);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(51, 27);
+            this.lblWeapon.Size = new System.Drawing.Size(68, 33);
             this.lblWeapon.TabIndex = 41;
             this.lblWeapon.Text = "Weapon:";
             this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(206, 185);
-            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(2);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(275, 228);
+            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
-            this.btnWieldWeapon.Size = new System.Drawing.Size(117, 28);
+            this.btnWieldWeapon.Size = new System.Drawing.Size(156, 34);
             this.btnWieldWeapon.TabIndex = 43;
             this.btnWieldWeapon.Tag = "wield {weapon}";
             this.btnWieldWeapon.Text = "Wield Weapon";
@@ -470,10 +466,10 @@
             // 
             // btnCastBless
             // 
-            this.btnCastBless.Location = new System.Drawing.Point(448, 219);
-            this.btnCastBless.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastBless.Location = new System.Drawing.Point(597, 270);
+            this.btnCastBless.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastBless.Name = "btnCastBless";
-            this.btnCastBless.Size = new System.Drawing.Size(93, 28);
+            this.btnCastBless.Size = new System.Drawing.Size(124, 34);
             this.btnCastBless.TabIndex = 44;
             this.btnCastBless.Tag = "cast bless";
             this.btnCastBless.Text = "Cast Bless";
@@ -482,10 +478,10 @@
             // 
             // btnSet
             // 
-            this.btnSet.Location = new System.Drawing.Point(84, 382);
-            this.btnSet.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSet.Location = new System.Drawing.Point(112, 470);
+            this.btnSet.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(55, 24);
+            this.btnSet.Size = new System.Drawing.Size(73, 30);
             this.btnSet.TabIndex = 45;
             this.btnSet.Text = "Set";
             this.btnSet.UseVisualStyleBackColor = true;
@@ -498,20 +494,20 @@
             this.cboSetOption.Items.AddRange(new object[] {
             "noauto",
             "wimpy"});
-            this.cboSetOption.Location = new System.Drawing.Point(146, 383);
-            this.cboSetOption.Margin = new System.Windows.Forms.Padding(2);
+            this.cboSetOption.Location = new System.Drawing.Point(195, 471);
+            this.cboSetOption.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cboSetOption.Name = "cboSetOption";
-            this.cboSetOption.Size = new System.Drawing.Size(124, 21);
+            this.cboSetOption.Size = new System.Drawing.Size(164, 24);
             this.cboSetOption.TabIndex = 46;
             this.cboSetOption.SelectedIndexChanged += new System.EventHandler(this.cboSetOption_SelectedIndexChanged);
             // 
             // chkSetOn
             // 
             this.chkSetOn.AutoSize = true;
-            this.chkSetOn.Location = new System.Drawing.Point(274, 386);
-            this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
+            this.chkSetOn.Location = new System.Drawing.Point(365, 475);
+            this.chkSetOn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(46, 17);
+            this.chkSetOn.Size = new System.Drawing.Size(53, 20);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -519,28 +515,27 @@
             // 
             // txtWand
             // 
-            this.txtWand.Location = new System.Drawing.Point(82, 89);
-            this.txtWand.Margin = new System.Windows.Forms.Padding(2);
+            this.txtWand.Location = new System.Drawing.Point(109, 110);
+            this.txtWand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWand.Name = "txtWand";
-            this.txtWand.Size = new System.Drawing.Size(179, 20);
+            this.txtWand.Size = new System.Drawing.Size(237, 22);
             this.txtWand.TabIndex = 49;
             // 
             // lblWand
             // 
-            this.lblWand.Location = new System.Drawing.Point(26, 86);
-            this.lblWand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblWand.Location = new System.Drawing.Point(35, 106);
             this.lblWand.Name = "lblWand";
-            this.lblWand.Size = new System.Drawing.Size(51, 27);
+            this.lblWand.Size = new System.Drawing.Size(68, 33);
             this.lblWand.TabIndex = 48;
             this.lblWand.Text = "Wand:";
             this.lblWand.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnUseWandOnMob
             // 
-            this.btnUseWandOnMob.Location = new System.Drawing.Point(205, 252);
-            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUseWandOnMob.Location = new System.Drawing.Point(273, 310);
+            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
-            this.btnUseWandOnMob.Size = new System.Drawing.Size(117, 28);
+            this.btnUseWandOnMob.Size = new System.Drawing.Size(156, 34);
             this.btnUseWandOnMob.TabIndex = 50;
             this.btnUseWandOnMob.Tag = "zap {wand} {mob}";
             this.btnUseWandOnMob.Text = "Wand Mob";
@@ -549,10 +544,10 @@
             // 
             // btnWho
             // 
-            this.btnWho.Location = new System.Drawing.Point(327, 51);
-            this.btnWho.Margin = new System.Windows.Forms.Padding(2);
+            this.btnWho.Location = new System.Drawing.Point(436, 63);
+            this.btnWho.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWho.Name = "btnWho";
-            this.btnWho.Size = new System.Drawing.Size(117, 28);
+            this.btnWho.Size = new System.Drawing.Size(156, 34);
             this.btnWho.TabIndex = 51;
             this.btnWho.Tag = "who";
             this.btnWho.Text = "Who";
@@ -561,10 +556,10 @@
             // 
             // btnUptime
             // 
-            this.btnUptime.Location = new System.Drawing.Point(326, 18);
-            this.btnUptime.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUptime.Location = new System.Drawing.Point(435, 22);
+            this.btnUptime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUptime.Name = "btnUptime";
-            this.btnUptime.Size = new System.Drawing.Size(117, 28);
+            this.btnUptime.Size = new System.Drawing.Size(156, 34);
             this.btnUptime.TabIndex = 52;
             this.btnUptime.Tag = "uptime";
             this.btnUptime.Text = "Uptime";
@@ -573,10 +568,10 @@
             // 
             // btnEquipment
             // 
-            this.btnEquipment.Location = new System.Drawing.Point(326, 253);
-            this.btnEquipment.Margin = new System.Windows.Forms.Padding(2);
+            this.btnEquipment.Location = new System.Drawing.Point(435, 311);
+            this.btnEquipment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEquipment.Name = "btnEquipment";
-            this.btnEquipment.Size = new System.Drawing.Size(117, 28);
+            this.btnEquipment.Size = new System.Drawing.Size(156, 34);
             this.btnEquipment.TabIndex = 53;
             this.btnEquipment.Tag = "equipment";
             this.btnEquipment.Text = "Equipment";
@@ -585,10 +580,10 @@
             // 
             // btnPowerAttackMob
             // 
-            this.btnPowerAttackMob.Location = new System.Drawing.Point(206, 153);
-            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnPowerAttackMob.Location = new System.Drawing.Point(275, 188);
+            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
-            this.btnPowerAttackMob.Size = new System.Drawing.Size(117, 28);
+            this.btnPowerAttackMob.Size = new System.Drawing.Size(156, 34);
             this.btnPowerAttackMob.TabIndex = 54;
             this.btnPowerAttackMob.Tag = "power {mob}";
             this.btnPowerAttackMob.Text = "Power Attack Mob";
@@ -597,10 +592,10 @@
             // 
             // btnQuit
             // 
-            this.btnQuit.Location = new System.Drawing.Point(448, 18);
-            this.btnQuit.Margin = new System.Windows.Forms.Padding(2);
+            this.btnQuit.Location = new System.Drawing.Point(597, 22);
+            this.btnQuit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnQuit.Name = "btnQuit";
-            this.btnQuit.Size = new System.Drawing.Size(93, 28);
+            this.btnQuit.Size = new System.Drawing.Size(124, 34);
             this.btnQuit.TabIndex = 55;
             this.btnQuit.Tag = "quit";
             this.btnQuit.Text = "Quit";
@@ -609,19 +604,19 @@
             // 
             // txtSetValue
             // 
-            this.txtSetValue.Location = new System.Drawing.Point(318, 384);
-            this.txtSetValue.Margin = new System.Windows.Forms.Padding(2);
+            this.txtSetValue.Location = new System.Drawing.Point(424, 473);
+            this.txtSetValue.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtSetValue.Name = "txtSetValue";
-            this.txtSetValue.Size = new System.Drawing.Size(89, 20);
+            this.txtSetValue.Size = new System.Drawing.Size(117, 22);
             this.txtSetValue.TabIndex = 56;
             // 
             // btnRunMacro
             // 
             this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(413, 436);
-            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
+            this.btnRunMacro.Location = new System.Drawing.Point(551, 537);
+            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRunMacro.Name = "btnRunMacro";
-            this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
+            this.btnRunMacro.Size = new System.Drawing.Size(115, 30);
             this.btnRunMacro.TabIndex = 59;
             this.btnRunMacro.Text = "Run Macro";
             this.btnRunMacro.UseVisualStyleBackColor = true;
@@ -631,19 +626,19 @@
             // 
             this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMacros.FormattingEnabled = true;
-            this.cboMacros.Location = new System.Drawing.Point(84, 437);
+            this.cboMacros.Location = new System.Drawing.Point(112, 538);
+            this.cboMacros.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cboMacros.Name = "cboMacros";
-            this.cboMacros.Size = new System.Drawing.Size(324, 21);
+            this.cboMacros.Size = new System.Drawing.Size(431, 24);
             this.cboMacros.TabIndex = 60;
             this.cboMacros.SelectedIndexChanged += new System.EventHandler(this.cboMacros_SelectedIndexChanged);
             // 
             // lblMacro
             // 
             this.lblMacro.AutoSize = true;
-            this.lblMacro.Location = new System.Drawing.Point(16, 440);
-            this.lblMacro.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMacro.Location = new System.Drawing.Point(21, 542);
             this.lblMacro.Name = "lblMacro";
-            this.lblMacro.Size = new System.Drawing.Size(40, 13);
+            this.lblMacro.Size = new System.Drawing.Size(48, 16);
             this.lblMacro.TabIndex = 61;
             this.lblMacro.Text = "Macro:";
             // 
@@ -653,9 +648,11 @@
             this.grpRealm.Controls.Add(this.radWater);
             this.grpRealm.Controls.Add(this.radWind);
             this.grpRealm.Controls.Add(this.radEarth);
-            this.grpRealm.Location = new System.Drawing.Point(83, 294);
+            this.grpRealm.Location = new System.Drawing.Point(111, 362);
+            this.grpRealm.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpRealm.Name = "grpRealm";
-            this.grpRealm.Size = new System.Drawing.Size(217, 46);
+            this.grpRealm.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpRealm.Size = new System.Drawing.Size(289, 57);
             this.grpRealm.TabIndex = 62;
             this.grpRealm.TabStop = false;
             this.grpRealm.Text = "Realm";
@@ -663,9 +660,10 @@
             // radFire
             // 
             this.radFire.AutoSize = true;
-            this.radFire.Location = new System.Drawing.Point(173, 19);
+            this.radFire.Location = new System.Drawing.Point(231, 23);
+            this.radFire.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(42, 17);
+            this.radFire.Size = new System.Drawing.Size(51, 20);
             this.radFire.TabIndex = 3;
             this.radFire.TabStop = true;
             this.radFire.Text = "Fire";
@@ -674,9 +672,10 @@
             // radWater
             // 
             this.radWater.AutoSize = true;
-            this.radWater.Location = new System.Drawing.Point(113, 19);
+            this.radWater.Location = new System.Drawing.Point(151, 23);
+            this.radWater.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(54, 17);
+            this.radWater.Size = new System.Drawing.Size(64, 20);
             this.radWater.TabIndex = 2;
             this.radWater.TabStop = true;
             this.radWater.Text = "Water";
@@ -686,9 +685,10 @@
             // 
             this.radWind.AutoSize = true;
             this.radWind.Checked = true;
-            this.radWind.Location = new System.Drawing.Point(62, 19);
+            this.radWind.Location = new System.Drawing.Point(83, 23);
+            this.radWind.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radWind.Name = "radWind";
-            this.radWind.Size = new System.Drawing.Size(50, 17);
+            this.radWind.Size = new System.Drawing.Size(59, 20);
             this.radWind.TabIndex = 1;
             this.radWind.TabStop = true;
             this.radWind.Text = "Wind";
@@ -697,9 +697,10 @@
             // radEarth
             // 
             this.radEarth.AutoSize = true;
-            this.radEarth.Location = new System.Drawing.Point(6, 19);
+            this.radEarth.Location = new System.Drawing.Point(8, 23);
+            this.radEarth.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(50, 17);
+            this.radEarth.Size = new System.Drawing.Size(59, 20);
             this.radEarth.TabIndex = 0;
             this.radEarth.TabStop = true;
             this.radEarth.Text = "Earth";
@@ -708,17 +709,20 @@
             // treeLocations
             // 
             this.treeLocations.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeLocations.Location = new System.Drawing.Point(3, 16);
+            this.treeLocations.Location = new System.Drawing.Point(4, 19);
+            this.treeLocations.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(194, 426);
+            this.treeLocations.Size = new System.Drawing.Size(259, 525);
             this.treeLocations.TabIndex = 63;
             // 
             // grpLocations
             // 
             this.grpLocations.Controls.Add(this.treeLocations);
-            this.grpLocations.Location = new System.Drawing.Point(647, 18);
+            this.grpLocations.Location = new System.Drawing.Point(863, 22);
+            this.grpLocations.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpLocations.Name = "grpLocations";
-            this.grpLocations.Size = new System.Drawing.Size(200, 445);
+            this.grpLocations.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpLocations.Size = new System.Drawing.Size(267, 548);
             this.grpLocations.TabIndex = 64;
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
@@ -726,9 +730,11 @@
             // grpOneClickMacros
             // 
             this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
-            this.grpOneClickMacros.Location = new System.Drawing.Point(14, 466);
+            this.grpOneClickMacros.Location = new System.Drawing.Point(19, 574);
+            this.grpOneClickMacros.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpOneClickMacros.Name = "grpOneClickMacros";
-            this.grpOneClickMacros.Size = new System.Drawing.Size(829, 65);
+            this.grpOneClickMacros.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpOneClickMacros.Size = new System.Drawing.Size(1105, 80);
             this.grpOneClickMacros.TabIndex = 65;
             this.grpOneClickMacros.TabStop = false;
             this.grpOneClickMacros.Text = "One Click Macros";
@@ -736,16 +742,28 @@
             // flpOneClickMacros
             // 
             this.flpOneClickMacros.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpOneClickMacros.Location = new System.Drawing.Point(3, 16);
+            this.flpOneClickMacros.Location = new System.Drawing.Point(4, 19);
+            this.flpOneClickMacros.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flpOneClickMacros.Name = "flpOneClickMacros";
-            this.flpOneClickMacros.Size = new System.Drawing.Size(823, 46);
+            this.flpOneClickMacros.Size = new System.Drawing.Size(1097, 57);
             this.flpOneClickMacros.TabIndex = 0;
+            // 
+            // btnVariables
+            // 
+            this.btnVariables.Location = new System.Drawing.Point(727, 24);
+            this.btnVariables.Name = "btnVariables";
+            this.btnVariables.Size = new System.Drawing.Size(123, 32);
+            this.btnVariables.TabIndex = 66;
+            this.btnVariables.Text = "Variables";
+            this.btnVariables.UseVisualStyleBackColor = true;
+            this.btnVariables.Click += new System.EventHandler(this.btnVariables_Click);
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 542);
+            this.ClientSize = new System.Drawing.Size(1156, 667);
+            this.Controls.Add(this.btnVariables);
             this.Controls.Add(this.grpOneClickMacros);
             this.Controls.Add(this.grpLocations);
             this.Controls.Add(this.grpRealm);
@@ -799,8 +817,9 @@
             this.Controls.Add(this.txtWindow);
             this.Controls.Add(this.lblWindow);
             this.Controls.Add(this.btnLevel1OffensiveSpell);
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "frmMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.grpRealm.ResumeLayout(false);
             this.grpRealm.PerformLayout();
             this.grpLocations.ResumeLayout(false);
@@ -871,6 +890,7 @@
         private System.Windows.Forms.GroupBox grpLocations;
         private System.Windows.Forms.GroupBox grpOneClickMacros;
         private System.Windows.Forms.FlowLayoutPanel flpOneClickMacros;
+        private System.Windows.Forms.Button btnVariables;
     }
 }
 
