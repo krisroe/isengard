@@ -603,6 +603,20 @@ namespace IsengardClient
                         errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
                     }
                 }
+
+                string sSkipRounds = elemStep.GetAttribute("skiprounds");
+                if (!string.IsNullOrEmpty(sSkipRounds))
+                {
+                    if (int.TryParse(sSkipRounds, out int iSkipRounds))
+                    {
+                        if (step != null) step.SkipRounds = iSkipRounds;
+                    }
+                    else
+                    {
+                        isValid = false;
+                        errorMessages.Add("Invalid skip rounds: " + errorSource + " " + stepType + " " + sSkipRounds);
+                    }
+                }
             }
             return isValid ? ret : null;
         }
@@ -636,7 +650,7 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
-            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms))
+            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
             {
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
@@ -664,11 +678,23 @@ namespace IsengardClient
             }
         }
 
-        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters)
+        /// <summary>
+        /// iterates through step commands
+        /// </summary>
+        /// <param name="Steps">step commands</param>
+        /// <param name="parameters">parameters to the background worker</param>
+        /// <param name="loopsPerformed">number of loops already performed</param>
+        /// <returns>commands to run</returns>
+        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
         {
             Dictionary<string, Variable> variables = parameters.Variables;
             foreach (MacroStepBase nextStep in Steps)
             {
+                if (nextStep.SkipRounds > 0 && loopsPerformed < nextStep.SkipRounds)
+                {
+                    continue;
+                }
+
                 int? loopCountMax = null;
                 if (nextStep.LoopCount.HasValue)
                 {
@@ -696,11 +722,12 @@ namespace IsengardClient
                     {
                         break;
                     }
+
                     if (nextStep is MacroStepSequence)
                     {
                         MacroStepSequence seq = (MacroStepSequence)nextStep;
                         bool pastFirst = false;
-                        foreach (MacroCommand nextSubCommand in IterateStepCommands(seq.SubCommands, parameters))
+                        foreach (MacroCommand nextSubCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
                         {
                             if (!pastFirst)
                             {
@@ -717,8 +744,6 @@ namespace IsengardClient
                         yield return nextCommand;
                     }
                     loopCount++;
-
-
 
                     if (loopCountMax.HasValue)
                     {
@@ -1604,6 +1629,7 @@ namespace IsengardClient
             Mob,
             Weapon,
             Wand,
+            Potion,
             Realm1Spell,
             Realm2Spell,
         }
@@ -1623,6 +1649,9 @@ namespace IsengardClient
                     break;
                 case ObjectType.Wand:
                     txt = txtWand;
+                    break;
+                case ObjectType.Potion:
+                    txt = txtPotion;
                     break;
                 case ObjectType.Realm1Spell:
                     if (radEarth.Checked)
@@ -1989,6 +2018,7 @@ namespace IsengardClient
             ret.Loop = input.Loop;
             ret.LoopCount = input.LoopCount;
             ret.LoopVariable = input.LoopVariable;
+            ret.SkipRounds = input.SkipRounds;
             return ret;
         }
 
@@ -2015,6 +2045,10 @@ namespace IsengardClient
             public bool? Loop { get; set; }
             public int? LoopCount { get; set; }
             public Variable LoopVariable { get; set; }
+            /// <summary>
+            /// number of times through a loop to skip
+            /// </summary>
+            public int SkipRounds { get; set; }
         }
 
         private class MacroStepSequence : MacroStepBase

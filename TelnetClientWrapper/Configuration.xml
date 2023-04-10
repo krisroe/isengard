@@ -2,7 +2,7 @@
  <Variables>
   <Variable name="spelllevel" type="int" value="2" min="1" max="2"/>
   <Variable name="polltickinterval" type="int" value="5000" min="0"/>
-  <Variable name="castinterval" type="int" value="2450" min="0"/>
+  <Variable name="castinterval" type="int" value="2500" min="0"/>
   <Variable name="fighthitrounds" type="int" value="3" min="1"/>
  </Variables>
  <Macros>
@@ -17,6 +17,17 @@
      <Steps>
       <Command text="cast {realm{spelllevel}spell} {mob}" waitms="castinterval"/>
       <Command text="kill {mob}" waitms="0"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="cast+atk+potX" oneclick="true">
+   <Steps>
+    <Sequence loop="fighthitrounds">
+     <Steps>
+      <Command text="cast {realm{spelllevel}spell} {mob}" waitms="castinterval"/>
+      <Command text="kill {mob}" waitms="0"/>
+      <Command text="drink {potion}" skiprounds="1" waitms="0"/>
      </Steps>
     </Sequence>
    </Steps>
