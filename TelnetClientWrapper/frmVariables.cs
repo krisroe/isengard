@@ -23,6 +23,8 @@ namespace IsengardClient
             _controls = new Control[variables.Count];
 
             int rowHeight = 30;
+            int controlHeight = 20;
+            int topBottomPadding = (rowHeight - controlHeight) / 2;
             this.tlpVariables.RowCount = variables.Count;
             for (int i = 0; i < variables.Count; i++)
             {
@@ -51,13 +53,22 @@ namespace IsengardClient
                     NumericUpDown num = new NumericUpDown();
                     num.Minimum = int.MinValue;
                     num.Maximum = int.MaxValue;
-                    num.Height = 20;
-                    int topBottomPadding = (rowHeight - num.Height) / 2;
+                    num.Height = controlHeight;
                     num.Margin = new Padding(0, topBottomPadding, 0, topBottomPadding);
                     num.Width = 50;
                     num.Value = ((IntegerVariable)v).Value;
                     tlpVariables.Controls.Add(num, 1, i);
                     _controls[i] = num;
+                }
+                else if (v.Type == VariableType.String)
+                {
+                    TextBox txt = new TextBox();
+                    txt.Height = controlHeight;
+                    txt.Margin = new Padding(0, topBottomPadding, 0, topBottomPadding);
+                    txt.Width = 200;
+                    txt.Text = ((StringVariable)v).Value;
+                    tlpVariables.Controls.Add(txt, 1, i);
+                    _controls[i] = txt;
                 }
             }
             tlpVariables.RowStyles.Add(new RowStyle(SizeType.Absolute, 1F));
@@ -71,13 +82,18 @@ namespace IsengardClient
             for (int i = 0; i < _variables.Count; i++)
             {
                 Variable v = _variables[i];
+                Control ctl = _controls[i];
                 if (v.Type == VariableType.Bool)
                 {
-                    ((BooleanVariable)v).Value = ((CheckBox)_controls[i]).Checked;
+                    ((BooleanVariable)v).Value = ((CheckBox)ctl).Checked;
                 }
                 else if (v.Type == VariableType.Int)
                 {
-                    ((IntegerVariable)v).Value = Convert.ToInt32(((NumericUpDown)_controls[i]).Value);
+                    ((IntegerVariable)v).Value = Convert.ToInt32(((NumericUpDown)ctl).Value);
+                }
+                else if (v.Type == VariableType.String)
+                {
+                    ((StringVariable)v).Value = ((TextBox)ctl).Text;
                 }
             }
             this.DialogResult = DialogResult.OK;

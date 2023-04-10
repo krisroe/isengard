@@ -270,6 +270,9 @@ namespace IsengardClient
                         case VariableType.Int:
                             v = new IntegerVariable();
                             break;
+                        case VariableType.String:
+                            v = new StringVariable();
+                            break;
                         default:
                             throw new InvalidOperationException();
                     }
@@ -284,6 +287,10 @@ namespace IsengardClient
                         else if (theVT == VariableType.Int)
                         {
                             ((IntegerVariable)v).Value = 0;
+                        }
+                        else if (theVT == VariableType.String)
+                        {
+                            ((StringVariable)v).Value = string.Empty;
                         }
                         else
                         {
@@ -301,7 +308,7 @@ namespace IsengardClient
                                     errorMessages.Add("Invalid boolean variable value: " + sValue);
                                     continue;
                                 }
-                            ((BooleanVariable)v).Value = bValue;
+                                ((BooleanVariable)v).Value = bValue;
                             }
                         }
                         else if (theVT == VariableType.Int)
@@ -313,8 +320,12 @@ namespace IsengardClient
                                     errorMessages.Add("Invalid integer variable value: " + sValue);
                                     continue;
                                 }
-                            ((IntegerVariable)v).Value = iValue;
+                                ((IntegerVariable)v).Value = iValue;
                             }
+                        }
+                        else if (theVT == VariableType.String)
+                        {
+                            ((StringVariable)v).Value = sValue.ToLower();
                         }
                         else
                         {
@@ -529,7 +540,7 @@ namespace IsengardClient
                         if (v.Type != VariableType.Int && v.Type != VariableType.Bool)
                         {
                             isValid = false;
-                            errorMessages.Add("Loop variable must be an integer: " + errorSource + " " + stepType);
+                            errorMessages.Add("Loop variable must be an integer or boolean: " + errorSource + " " + stepType);
                         }
                         else
                         {
@@ -1644,6 +1655,27 @@ namespace IsengardClient
                         input = input.Replace(replacement, specifiedValue);
                     }
                 }
+            }
+            foreach (Variable v in _variables)
+            {
+                string sValue;
+                if (v.Type == VariableType.Bool)
+                {
+                    sValue = ((BooleanVariable)v).Value.ToString();
+                }
+                else if (v.Type == VariableType.Int)
+                {
+                    sValue = ((IntegerVariable)v).Value.ToString();
+                }
+                else if (v.Type == VariableType.String)
+                {
+                    sValue = ((StringVariable)v).Value;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+                input = input.Replace("{" + v.Name.ToLower() + "}", sValue);
             }
             return input;
         }

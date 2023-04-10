@@ -20,6 +20,10 @@ namespace IsengardClient
                     ret = new IntegerVariable();
                     ((IntegerVariable)ret).Value = ((IntegerVariable)copied).Value;
                     break;
+                case VariableType.String:
+                    ret = new StringVariable();
+                    ((StringVariable)ret).Value = ((StringVariable)copied).Value;
+                    break;
                 default:
                     throw new InvalidOperationException();
             }
@@ -42,9 +46,15 @@ namespace IsengardClient
         public int Value { get; set; }
     }
 
+    public class StringVariable : Variable
+    {
+        public string Value { get; set; }
+    }
+
     public enum VariableType
     {
         Bool,
         Int,
+        String,
     }
 }

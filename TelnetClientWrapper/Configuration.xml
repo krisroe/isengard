@@ -1,26 +1,18 @@
 <Configuration>
  <Variables>
   <Variable name="polltickinterval" type="int" value="5000"/>
-  <Variable name="castinterval" type="int" value="2400"/>
+  <Variable name="castinterval" type="int" value="2450"/>
   <Variable name="castloop" type="int" value="4"/>
  </Variables>
  <Macros>
   <Macro name="castX" oneclick="true">
    <Steps>
-    <Sequence loop="castloop">
-     <Steps>
-      <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
-     </Steps>
-    </Sequence>
+    <Command text="cast {realm2spell} {mob}" waitms="castinterval" loop="castloop"/>
    </Steps>
   </Macro>
   <Macro name="polltick" oneclick="true">
    <Steps>
-    <Sequence loop="true">
-     <Steps>
-      <Command text="" waitms="polltickinterval"/>
-     </Steps>
-    </Sequence>
+    <Command text="" waitms="polltickinterval" loop="true"/>
    </Steps>
   </Macro>
  </Macros>
