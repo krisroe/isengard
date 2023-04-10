@@ -1647,8 +1647,7 @@ namespace IsengardClient
                     specifiedValue = ValidateSpecifiedObject(ot, out errorMessage);
                     if (string.IsNullOrEmpty(specifiedValue))
                     {
-                        input = null;
-                        break;
+                        return null;
                     }
                     else
                     {
