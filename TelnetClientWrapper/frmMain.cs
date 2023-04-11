@@ -1345,10 +1345,12 @@ namespace IsengardClient
             oSpriteGuards.Mob = "guard";
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
+            AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL1CASTROUNDS, "0");
 
-            AddLocation(oBreeToImladris, oRoadToFarm7HoundDog); //hound dog
+            AddLocation(oBreeToImladris, oRoadToFarm7HoundDog);
             AddLocation(oBreeToImladris, oSalamander);
-            AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbush); //goblin ambush
+            AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbush);
             AddLocation(oBreeToImladris, oSpriteGuards);
         }
 
