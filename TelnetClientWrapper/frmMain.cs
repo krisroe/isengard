@@ -861,7 +861,7 @@ namespace IsengardClient
             breeStreets[5, 0] = AddRoom("Bree Thalion 6x1");
             breeStreets[6, 0] = AddRoom("Bree Thalion 7x1");
             breeStreets[7, 0] = AddRoom("Bree Thalion/Main 8x1");
-            breeStreets[9, 0] = AddRoom("Bree Docks 10x1"); ;
+            Room oBreeDocks = breeStreets[9, 0] = AddRoom("Bree Docks"); //10x1
             oSewerPipeExit = breeStreets[10, 0] = AddRoom("Bree Thalion/Crissaegrim 11x1");
             breeStreets[11, 0] = AddRoom("Bree Thalion 12x1");
             breeStreets[12, 0] = AddRoom("Bree Thalion 13x1");
@@ -1058,6 +1058,7 @@ namespace IsengardClient
             AddLocation(aBree, oDroolie);
             AddLocation(aBree, oIgor);
             AddLocation(aBree, oSnarlingMutt);
+            AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oGuido);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
