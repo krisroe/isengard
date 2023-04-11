@@ -1010,6 +1010,8 @@ namespace IsengardClient
             Room oPansy = AddRoom("Pansy Smallburrows");
             oPansy.Mob = "Pansy";
             AddBidirectionalExits(oPansy, oToGamblingPit, BidirectionalExitType.WestEast);
+            AddRoomVariableValue(oPansy, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oPansy, VARIABLE_LEVEL1CASTROUNDS, "0");
 
             Room oDroolie = AddRoom("Droolie");
             oDroolie.Mob = "Droolie";
