@@ -90,6 +90,8 @@
             this.btnVariables = new System.Windows.Forms.Button();
             this.txtPotion = new System.Windows.Forms.TextBox();
             this.lblPotion = new System.Windows.Forms.Label();
+            this.btnRemoveWeapon = new System.Windows.Forms.Button();
+            this.btnFumbleMob = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -180,7 +182,7 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(273, 294);
+            this.btnLookAtMob.Location = new System.Drawing.Point(273, 254);
             this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(156, 34);
@@ -192,7 +194,7 @@
             // 
             // btnLook
             // 
-            this.btnLook.Location = new System.Drawing.Point(434, 170);
+            this.btnLook.Location = new System.Drawing.Point(433, 170);
             this.btnLook.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLook.Name = "btnLook";
             this.btnLook.Size = new System.Drawing.Size(156, 34);
@@ -240,7 +242,7 @@
             // 
             // btnTime
             // 
-            this.btnTime.Location = new System.Drawing.Point(435, 130);
+            this.btnTime.Location = new System.Drawing.Point(434, 92);
             this.btnTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTime.Name = "btnTime";
             this.btnTime.Size = new System.Drawing.Size(156, 34);
@@ -340,7 +342,7 @@
             // 
             // btnInventory
             // 
-            this.btnInventory.Location = new System.Drawing.Point(434, 294);
+            this.btnInventory.Location = new System.Drawing.Point(434, 130);
             this.btnInventory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInventory.Name = "btnInventory";
             this.btnInventory.Size = new System.Drawing.Size(156, 34);
@@ -456,7 +458,7 @@
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(273, 252);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(434, 334);
             this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(156, 34);
@@ -494,6 +496,10 @@
             this.cboSetOption.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboSetOption.FormattingEnabled = true;
             this.cboSetOption.Items.AddRange(new object[] {
+            "compact",
+            "roomname",
+            "short",
+            "long",
             "noauto",
             "wimpy"});
             this.cboSetOption.Location = new System.Drawing.Point(193, 495);
@@ -534,7 +540,7 @@
             // 
             // btnUseWandOnMob
             // 
-            this.btnUseWandOnMob.Location = new System.Drawing.Point(271, 334);
+            this.btnUseWandOnMob.Location = new System.Drawing.Point(271, 294);
             this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(156, 34);
@@ -546,7 +552,7 @@
             // 
             // btnWho
             // 
-            this.btnWho.Location = new System.Drawing.Point(435, 90);
+            this.btnWho.Location = new System.Drawing.Point(434, 52);
             this.btnWho.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWho.Name = "btnWho";
             this.btnWho.Size = new System.Drawing.Size(156, 34);
@@ -558,7 +564,7 @@
             // 
             // btnUptime
             // 
-            this.btnUptime.Location = new System.Drawing.Point(434, 49);
+            this.btnUptime.Location = new System.Drawing.Point(433, 11);
             this.btnUptime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUptime.Name = "btnUptime";
             this.btnUptime.Size = new System.Drawing.Size(156, 34);
@@ -570,7 +576,7 @@
             // 
             // btnEquipment
             // 
-            this.btnEquipment.Location = new System.Drawing.Point(433, 335);
+            this.btnEquipment.Location = new System.Drawing.Point(433, 294);
             this.btnEquipment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEquipment.Name = "btnEquipment";
             this.btnEquipment.Size = new System.Drawing.Size(156, 34);
@@ -777,11 +783,37 @@
             this.lblPotion.Text = "Potion:";
             this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // btnRemoveWeapon
+            // 
+            this.btnRemoveWeapon.Location = new System.Drawing.Point(434, 372);
+            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnRemoveWeapon.Name = "btnRemoveWeapon";
+            this.btnRemoveWeapon.Size = new System.Drawing.Size(156, 34);
+            this.btnRemoveWeapon.TabIndex = 69;
+            this.btnRemoveWeapon.Tag = "remove {weapon}";
+            this.btnRemoveWeapon.Text = "Remove Weapon";
+            this.btnRemoveWeapon.UseVisualStyleBackColor = true;
+            this.btnRemoveWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnFumbleMob
+            // 
+            this.btnFumbleMob.Location = new System.Drawing.Point(273, 334);
+            this.btnFumbleMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnFumbleMob.Name = "btnFumbleMob";
+            this.btnFumbleMob.Size = new System.Drawing.Size(156, 34);
+            this.btnFumbleMob.TabIndex = 70;
+            this.btnFumbleMob.Tag = "cast fumble {mob}";
+            this.btnFumbleMob.Text = "Fumble Mob";
+            this.btnFumbleMob.UseVisualStyleBackColor = true;
+            this.btnFumbleMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 728);
+            this.Controls.Add(this.btnFumbleMob);
+            this.Controls.Add(this.btnRemoveWeapon);
             this.Controls.Add(this.txtPotion);
             this.Controls.Add(this.lblPotion);
             this.Controls.Add(this.btnVariables);
@@ -914,6 +946,8 @@
         private System.Windows.Forms.Button btnVariables;
         private System.Windows.Forms.TextBox txtPotion;
         private System.Windows.Forms.Label lblPotion;
+        private System.Windows.Forms.Button btnRemoveWeapon;
+        private System.Windows.Forms.Button btnFumbleMob;
     }
 }
 
