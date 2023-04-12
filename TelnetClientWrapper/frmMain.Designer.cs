@@ -92,6 +92,14 @@
             this.lblPotion = new System.Windows.Forms.Label();
             this.btnRemoveWeapon = new System.Windows.Forms.Button();
             this.btnFumbleMob = new System.Windows.Forms.Button();
+            this.btnNortheast = new System.Windows.Forms.Button();
+            this.btnNorth = new System.Windows.Forms.Button();
+            this.btnNorthwest = new System.Windows.Forms.Button();
+            this.btnWest = new System.Windows.Forms.Button();
+            this.btnEast = new System.Windows.Forms.Button();
+            this.btnSouthwest = new System.Windows.Forms.Button();
+            this.btnSouth = new System.Windows.Forms.Button();
+            this.btnSoutheast = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -807,11 +815,107 @@
             this.btnFumbleMob.UseVisualStyleBackColor = true;
             this.btnFumbleMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
+            // btnNortheast
+            // 
+            this.btnNortheast.Location = new System.Drawing.Point(776, 340);
+            this.btnNortheast.Name = "btnNortheast";
+            this.btnNortheast.Size = new System.Drawing.Size(45, 28);
+            this.btnNortheast.TabIndex = 71;
+            this.btnNortheast.Tag = "go northeast";
+            this.btnNortheast.Text = "NE";
+            this.btnNortheast.UseVisualStyleBackColor = true;
+            this.btnNortheast.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnNorth
+            // 
+            this.btnNorth.Location = new System.Drawing.Point(725, 340);
+            this.btnNorth.Name = "btnNorth";
+            this.btnNorth.Size = new System.Drawing.Size(45, 28);
+            this.btnNorth.TabIndex = 72;
+            this.btnNorth.Tag = "north";
+            this.btnNorth.Text = "N";
+            this.btnNorth.UseVisualStyleBackColor = true;
+            this.btnNorth.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnNorthwest
+            // 
+            this.btnNorthwest.Location = new System.Drawing.Point(674, 340);
+            this.btnNorthwest.Name = "btnNorthwest";
+            this.btnNorthwest.Size = new System.Drawing.Size(45, 28);
+            this.btnNorthwest.TabIndex = 73;
+            this.btnNorthwest.Tag = "go northwest";
+            this.btnNorthwest.Text = "NW";
+            this.btnNorthwest.UseVisualStyleBackColor = true;
+            this.btnNorthwest.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnWest
+            // 
+            this.btnWest.Location = new System.Drawing.Point(674, 372);
+            this.btnWest.Name = "btnWest";
+            this.btnWest.Size = new System.Drawing.Size(45, 28);
+            this.btnWest.TabIndex = 75;
+            this.btnWest.Tag = "go west";
+            this.btnWest.Text = "W";
+            this.btnWest.UseVisualStyleBackColor = true;
+            this.btnWest.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnEast
+            // 
+            this.btnEast.Location = new System.Drawing.Point(776, 372);
+            this.btnEast.Name = "btnEast";
+            this.btnEast.Size = new System.Drawing.Size(45, 28);
+            this.btnEast.TabIndex = 74;
+            this.btnEast.Tag = "go east";
+            this.btnEast.Text = "E";
+            this.btnEast.UseVisualStyleBackColor = true;
+            this.btnEast.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnSouthwest
+            // 
+            this.btnSouthwest.Location = new System.Drawing.Point(674, 405);
+            this.btnSouthwest.Name = "btnSouthwest";
+            this.btnSouthwest.Size = new System.Drawing.Size(45, 28);
+            this.btnSouthwest.TabIndex = 78;
+            this.btnSouthwest.Tag = "go southwest";
+            this.btnSouthwest.Text = "SW";
+            this.btnSouthwest.UseVisualStyleBackColor = true;
+            this.btnSouthwest.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnSouth
+            // 
+            this.btnSouth.Location = new System.Drawing.Point(725, 405);
+            this.btnSouth.Name = "btnSouth";
+            this.btnSouth.Size = new System.Drawing.Size(45, 28);
+            this.btnSouth.TabIndex = 77;
+            this.btnSouth.Tag = "south";
+            this.btnSouth.Text = "S";
+            this.btnSouth.UseVisualStyleBackColor = true;
+            this.btnSouth.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnSoutheast
+            // 
+            this.btnSoutheast.Location = new System.Drawing.Point(776, 405);
+            this.btnSoutheast.Name = "btnSoutheast";
+            this.btnSoutheast.Size = new System.Drawing.Size(45, 28);
+            this.btnSoutheast.TabIndex = 76;
+            this.btnSoutheast.Tag = "go southeast";
+            this.btnSoutheast.Text = "SE";
+            this.btnSoutheast.UseVisualStyleBackColor = true;
+            this.btnSoutheast.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 728);
+            this.Controls.Add(this.btnSouthwest);
+            this.Controls.Add(this.btnSouth);
+            this.Controls.Add(this.btnSoutheast);
+            this.Controls.Add(this.btnWest);
+            this.Controls.Add(this.btnEast);
+            this.Controls.Add(this.btnNorthwest);
+            this.Controls.Add(this.btnNorth);
+            this.Controls.Add(this.btnNortheast);
             this.Controls.Add(this.btnFumbleMob);
             this.Controls.Add(this.btnRemoveWeapon);
             this.Controls.Add(this.txtPotion);
@@ -948,6 +1052,14 @@
         private System.Windows.Forms.Label lblPotion;
         private System.Windows.Forms.Button btnRemoveWeapon;
         private System.Windows.Forms.Button btnFumbleMob;
+        private System.Windows.Forms.Button btnNortheast;
+        private System.Windows.Forms.Button btnNorth;
+        private System.Windows.Forms.Button btnNorthwest;
+        private System.Windows.Forms.Button btnWest;
+        private System.Windows.Forms.Button btnEast;
+        private System.Windows.Forms.Button btnSouthwest;
+        private System.Windows.Forms.Button btnSouth;
+        private System.Windows.Forms.Button btnSoutheast;
     }
 }
 
