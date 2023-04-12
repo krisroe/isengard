@@ -638,7 +638,7 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!e.Cancelled)
+            if (!_currentBackgroundParameters.Cancelled)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
                 if (targetRoom != null)
@@ -1017,8 +1017,8 @@ namespace IsengardClient
             oDroolie.Mob = "Droolie";
             AddExit(oNorthBridge, oDroolie, "rope");
             AddExit(oDroolie, oNorthBridge, "up");
-            AddRoomVariableValue(oDroolie, VARIABLE_LEVEL2CASTROUNDS, "3");
-            AddRoomVariableValue(oDroolie, VARIABLE_LEVEL1CASTROUNDS, "1");
+            AddRoomVariableValue(oDroolie, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oDroolie, VARIABLE_LEVEL1CASTROUNDS, "0");
 
             Room oIgor = AddRoom("Igor");
             oIgor.Mob = "Igor";
@@ -1348,7 +1348,7 @@ namespace IsengardClient
             oSpriteGuards.Mob = "guard";
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
-            AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL2CASTROUNDS, "3");
             AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL1CASTROUNDS, "0");
 
             AddLocation(oBreeToImladris, oRoadToFarm7HoundDog);
@@ -1998,6 +1998,7 @@ namespace IsengardClient
             public List<MacroStepBase> Commands { get; set; }
             public Dictionary<string, Variable> Variables { get; set; }
             public int WaitMS { get; set; }
+            public bool Cancelled { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -2040,6 +2041,7 @@ namespace IsengardClient
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
+            _currentBackgroundParameters.Cancelled = true;
             _bw.CancelAsync();
             btnAbort.Enabled = false;
         }
