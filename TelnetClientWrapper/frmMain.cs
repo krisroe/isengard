@@ -805,20 +805,28 @@ namespace IsengardClient
 
         private void ToggleBackgroundProcess(bool running)
         {
-            foreach (Control ctl in this.Controls)
+            List<Panel> topLevelPanels = new List<Panel>
             {
-                if (ctl != txtCurrentRoom) //skip always-disabled controls
+                pnlMain,
+                pnlAncillary
+            };
+            foreach (Panel p in topLevelPanels)
+            {
+                foreach (Control ctl in p.Controls)
                 {
-                    bool enable;
-                    if (running)
+                    if (!(ctl is TextBox))
                     {
-                        enable = ctl == btnAbort;
+                        bool enable;
+                        if (running)
+                        {
+                            enable = ctl == btnAbort;
+                        }
+                        else
+                        {
+                            enable = ctl != btnAbort;
+                        }
+                        ctl.Enabled = enable;
                     }
-                    else
-                    {
-                        enable = ctl != btnAbort;
-                    }
-                    ctl.Enabled = enable;
                 }
             }
         }
@@ -2018,14 +2026,6 @@ namespace IsengardClient
         private void chkIsNight_CheckedChanged(object sender, EventArgs e)
         {
             SetNightEdges(chkIsNight.Checked);
-        }
-
-        private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)
-        {
-          if (e.KeyChar == (char)Keys.Return)
-            {
-                SendCommand(txtOneOffCommand.Text, true);
-            }
         }
 
         private void btnClearOneOff_Click(object sender, EventArgs e)
