@@ -107,6 +107,7 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
+            this.btnReddishOrange = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -262,7 +263,7 @@
             // 
             // btnTime
             // 
-            this.btnTime.Location = new System.Drawing.Point(832, 253);
+            this.btnTime.Location = new System.Drawing.Point(832, 294);
             this.btnTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTime.Name = "btnTime";
             this.btnTime.Size = new System.Drawing.Size(136, 34);
@@ -274,7 +275,7 @@
             // 
             // btnScore
             // 
-            this.btnScore.Location = new System.Drawing.Point(832, 293);
+            this.btnScore.Location = new System.Drawing.Point(832, 334);
             this.btnScore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnScore.Name = "btnScore";
             this.btnScore.Size = new System.Drawing.Size(136, 34);
@@ -286,7 +287,7 @@
             // 
             // btnInformation
             // 
-            this.btnInformation.Location = new System.Drawing.Point(832, 211);
+            this.btnInformation.Location = new System.Drawing.Point(832, 252);
             this.btnInformation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInformation.Name = "btnInformation";
             this.btnInformation.Size = new System.Drawing.Size(136, 34);
@@ -333,7 +334,7 @@
             // chkIsNight
             // 
             this.chkIsNight.AutoSize = true;
-            this.chkIsNight.Location = new System.Drawing.Point(749, 259);
+            this.chkIsNight.Location = new System.Drawing.Point(749, 300);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkIsNight.Name = "chkIsNight";
             this.chkIsNight.Size = new System.Drawing.Size(77, 20);
@@ -361,7 +362,7 @@
             // 
             // btnInventory
             // 
-            this.btnInventory.Location = new System.Drawing.Point(832, 169);
+            this.btnInventory.Location = new System.Drawing.Point(832, 210);
             this.btnInventory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInventory.Name = "btnInventory";
             this.btnInventory.Size = new System.Drawing.Size(136, 34);
@@ -436,7 +437,7 @@
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(702, 169);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(702, 211);
             this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(124, 34);
@@ -448,7 +449,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(702, 210);
+            this.button1.Location = new System.Drawing.Point(702, 252);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(124, 34);
@@ -571,7 +572,7 @@
             // 
             // btnWho
             // 
-            this.btnWho.Location = new System.Drawing.Point(832, 87);
+            this.btnWho.Location = new System.Drawing.Point(832, 128);
             this.btnWho.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWho.Name = "btnWho";
             this.btnWho.Size = new System.Drawing.Size(136, 34);
@@ -583,7 +584,7 @@
             // 
             // btnUptime
             // 
-            this.btnUptime.Location = new System.Drawing.Point(832, 51);
+            this.btnUptime.Location = new System.Drawing.Point(832, 92);
             this.btnUptime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUptime.Name = "btnUptime";
             this.btnUptime.Size = new System.Drawing.Size(136, 30);
@@ -595,7 +596,7 @@
             // 
             // btnEquipment
             // 
-            this.btnEquipment.Location = new System.Drawing.Point(832, 333);
+            this.btnEquipment.Location = new System.Drawing.Point(832, 374);
             this.btnEquipment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEquipment.Name = "btnEquipment";
             this.btnEquipment.Size = new System.Drawing.Size(136, 34);
@@ -619,7 +620,7 @@
             // 
             // btnQuit
             // 
-            this.btnQuit.Location = new System.Drawing.Point(832, 129);
+            this.btnQuit.Location = new System.Drawing.Point(832, 170);
             this.btnQuit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(136, 34);
@@ -745,7 +746,7 @@
             // 
             // btnVariables
             // 
-            this.btnVariables.Location = new System.Drawing.Point(703, 50);
+            this.btnVariables.Location = new System.Drawing.Point(703, 91);
             this.btnVariables.Name = "btnVariables";
             this.btnVariables.Size = new System.Drawing.Size(123, 32);
             this.btnVariables.TabIndex = 66;
@@ -906,6 +907,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnReddishOrange);
             this.pnlMain.Controls.Add(this.btnHide);
             this.pnlMain.Controls.Add(this.btnSearch);
             this.pnlMain.Controls.Add(this.lblWindow);
@@ -1003,7 +1005,7 @@
             this.tabAncillary.Location = new System.Drawing.Point(4, 25);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAncillary.Size = new System.Drawing.Size(1326, 976);
+            this.tabAncillary.Size = new System.Drawing.Size(1326, 641);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1020,7 +1022,7 @@
             this.pnlAncillary.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlAncillary.Location = new System.Drawing.Point(3, 3);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1320, 970);
+            this.pnlAncillary.Size = new System.Drawing.Size(1320, 635);
             this.pnlAncillary.TabIndex = 0;
             // 
             // lblMacro
@@ -1053,6 +1055,17 @@
             this.btnRunMacro.Text = "Run Macro";
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
+            // 
+            // btnReddishOrange
+            // 
+            this.btnReddishOrange.Location = new System.Drawing.Point(703, 170);
+            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnReddishOrange.Name = "btnReddishOrange";
+            this.btnReddishOrange.Size = new System.Drawing.Size(124, 34);
+            this.btnReddishOrange.TabIndex = 81;
+            this.btnReddishOrange.Tag = "drink reddish-orange";
+            this.btnReddishOrange.Text = "Red-Orange pot";
+            this.btnReddishOrange.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -1159,6 +1172,7 @@
         private System.Windows.Forms.Label lblMacro;
         private System.Windows.Forms.ComboBox cboMacros;
         private System.Windows.Forms.Button btnRunMacro;
+        private System.Windows.Forms.Button btnReddishOrange;
     }
 }
 

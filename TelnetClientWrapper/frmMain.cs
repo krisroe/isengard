@@ -1110,6 +1110,7 @@ namespace IsengardClient
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oGuido);
             AddLocation(aBree, oToCasino);
+            AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
             AddLocation(aBree, oLeonardosSwords);
