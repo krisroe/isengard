@@ -43,6 +43,8 @@ namespace IsengardClient
         private const string VARIABLE_MOVEGAPMS = "movegapms";
         private const string VARIABLE_LEVEL1CASTROUNDS = "level1castrounds";
         private const string VARIABLE_LEVEL2CASTROUNDS = "level2castrounds";
+        private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
+        private const string VARIABLE_STUNCASTROUNDS = "stuncastrounds";
 
         public frmMain()
         {
@@ -614,6 +616,23 @@ namespace IsengardClient
                     }
                 }
 
+                string sCondition = elemStep.GetAttribute("condition");
+                if (!string.IsNullOrEmpty(sCondition))
+                {
+                    if (_variablesByName.TryGetValue(sCondition, out Variable v))
+                    {
+                        if (v.Type != VariableType.String)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Condition variable must be a string: " + errorSource + " " + stepType);
+                        }
+                        else
+                        {
+                            if (step != null) step.ConditionVariable = v;
+                        }
+                    }
+                }
+
                 string sSkipRounds = elemStep.GetAttribute("skiprounds");
                 if (!string.IsNullOrEmpty(sSkipRounds))
                 {
@@ -720,6 +739,22 @@ namespace IsengardClient
             Dictionary<string, Variable> variables = parameters.Variables;
             foreach (MacroStepBase nextStep in Steps)
             {
+                Variable conditionV = nextStep.ConditionVariable;
+                if (conditionV != null)
+                {
+                    if (conditionV.Type == VariableType.String)
+                    {
+                        if (string.IsNullOrEmpty(((StringVariable)conditionV).Value))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+
                 if (nextStep.SkipRounds > 0 && loopsPerformed < nextStep.SkipRounds)
                 {
                     continue;
@@ -947,7 +982,7 @@ namespace IsengardClient
             breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
             breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
             breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
-            Room oToCasino = breeStreets[4, 10] = AddRoom("Bree Ormenel 5x11");
+            Room oToCasino = breeStreets[4, 10] = AddRoom("Guido Threshold"); //Bree Ormenel 5x11
             breeStreets[5, 10] = AddRoom("Bree Ormenel 6x11");
             breeStreets[6, 10] = AddRoom("Bree Ormenel 7x11");
             breeStreets[7, 10] = AddRoom("Bree Ormenel/Main 8x11");
@@ -1043,9 +1078,13 @@ namespace IsengardClient
             AddRoomVariableValue(oSnarlingMutt, VARIABLE_LEVEL1CASTROUNDS, "1");
 
             Room oGuido = AddRoom("Guido");
-            oGuido.Mob = "Guido";
+            oToCasino.Mob = oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
+            AddRoomVariableValue(oGuido, VARIABLE_HITANDRUNDIRECTION, string.Empty);
+            AddRoomVariableValue(oGuido, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oToCasino, VARIABLE_HITANDRUNDIRECTION, "casino");
+            AddRoomVariableValue(oToCasino, VARIABLE_STUNCASTROUNDS, "1");
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1070,6 +1109,7 @@ namespace IsengardClient
             AddLocation(aBree, oSnarlingMutt);
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oGuido);
+            AddLocation(aBree, oToCasino);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
             AddLocation(aBree, oLeonardosSwords);
@@ -2129,6 +2169,7 @@ namespace IsengardClient
             ret.LoopCount = input.LoopCount;
             ret.LoopVariable = input.LoopVariable;
             ret.SkipRounds = input.SkipRounds;
+            ret.ConditionVariable = input.ConditionVariable;
             return ret;
         }
 
@@ -2159,6 +2200,10 @@ namespace IsengardClient
             /// number of times through a loop to skip
             /// </summary>
             public int SkipRounds { get; set; }
+            /// <summary>
+            /// variable controlling whether the step executes
+            /// </summary>
+            public Variable ConditionVariable { get; set; }
         }
 
         private class MacroStepSequence : MacroStepBase

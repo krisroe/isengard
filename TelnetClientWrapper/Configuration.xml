@@ -5,6 +5,7 @@
   <Variable name="castinterval" type="int" value="2550" min="0"/>
   <Variable name="level2castrounds" type="int" value="3" min="0"/>
   <Variable name="level1castrounds" type="int" value="0" min="0"/>
+  <Variable name="stuncastrounds" type="int" value="2" min="0"/>
   <Variable name="hitandrundirection" type="string"/>
  </Variables>
  <Macros>
@@ -12,6 +13,22 @@
    <Steps>
     <Command text="cast {realm2spell} {mob}" waitms="castinterval" loop="level2castrounds"/>
     <Command text="cast {realm1spell} {mob}" waitms="castinterval" loop="level1castrounds"/>
+   </Steps>
+  </Macro>
+  <Macro name="stuncastrepeat" oneclick="true">
+   <Steps>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <Command text="cast stun {mob}"/>
+    <Command text="cast {realm2spell} {mob}" loop="stuncastrounds" waitms="castinterval"/>
+    <Command text="cast stun {mob}"/>
+    <Command text="cast {realm2spell} {mob}" loop="stuncastrounds"/>
+    <Command text="look {mob}" waitms="0"/>
+   </Steps>
+  </Macro>
+  <Macro name="stuncast" oneclick="true">
+   <Steps>
+    <Command text="cast stun {mob}" waitms="castinterval"/>
+    <Command text="cast {realm2spell} {mob}" loop="level2castrounds"/>
    </Steps>
   </Macro>
   <Macro name="cast+atkX" oneclick="true">
@@ -33,13 +50,6 @@
       <Command text="drink {potion}" skiprounds="1" waitms="0"/>
      </Steps>
     </Sequence>
-   </Steps>
-  </Macro>
-  <Macro name="hitandflee" oneclick="true">
-   <Steps>
-    <Command text="go {hitandrundirection}"/>
-    <Command text="cast {realm2spell} {mob}" waitms="movegapms"/>
-    <Command text="flee" waitms="castinterval"/>
    </Steps>
   </Macro>
   <Macro name="polltick" oneclick="true">

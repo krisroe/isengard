@@ -75,9 +75,6 @@
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.btnQuit = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
-            this.btnRunMacro = new System.Windows.Forms.Button();
-            this.cboMacros = new System.Windows.Forms.ComboBox();
-            this.lblMacro = new System.Windows.Forms.Label();
             this.grpRealm = new System.Windows.Forms.GroupBox();
             this.radFire = new System.Windows.Forms.RadioButton();
             this.radWater = new System.Windows.Forms.RadioButton();
@@ -102,17 +99,22 @@
             this.btnSoutheast = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
+            this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnHide = new System.Windows.Forms.Button();
+            this.btnSearch = new System.Windows.Forms.Button();
             this.tabAncillary = new System.Windows.Forms.TabPage();
             this.pnlAncillary = new System.Windows.Forms.Panel();
-            this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblMacro = new System.Windows.Forms.Label();
+            this.cboMacros = new System.Windows.Forms.ComboBox();
+            this.btnRunMacro = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
+            this.pnlMain.SuspendLayout();
             this.tabAncillary.SuspendLayout();
             this.pnlAncillary.SuspendLayout();
-            this.pnlMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -260,10 +262,10 @@
             // 
             // btnTime
             // 
-            this.btnTime.Location = new System.Drawing.Point(411, 91);
+            this.btnTime.Location = new System.Drawing.Point(832, 253);
             this.btnTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTime.Name = "btnTime";
-            this.btnTime.Size = new System.Drawing.Size(156, 34);
+            this.btnTime.Size = new System.Drawing.Size(136, 34);
             this.btnTime.TabIndex = 19;
             this.btnTime.Tag = "time";
             this.btnTime.Text = "Time";
@@ -272,10 +274,10 @@
             // 
             // btnScore
             // 
-            this.btnScore.Location = new System.Drawing.Point(411, 211);
+            this.btnScore.Location = new System.Drawing.Point(832, 293);
             this.btnScore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnScore.Name = "btnScore";
-            this.btnScore.Size = new System.Drawing.Size(156, 34);
+            this.btnScore.Size = new System.Drawing.Size(136, 34);
             this.btnScore.TabIndex = 20;
             this.btnScore.Tag = "score";
             this.btnScore.Text = "Score";
@@ -284,10 +286,10 @@
             // 
             // btnInformation
             // 
-            this.btnInformation.Location = new System.Drawing.Point(411, 252);
+            this.btnInformation.Location = new System.Drawing.Point(832, 211);
             this.btnInformation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInformation.Name = "btnInformation";
-            this.btnInformation.Size = new System.Drawing.Size(156, 34);
+            this.btnInformation.Size = new System.Drawing.Size(136, 34);
             this.btnInformation.TabIndex = 21;
             this.btnInformation.Tag = "information";
             this.btnInformation.Text = "Information";
@@ -296,7 +298,7 @@
             // 
             // btnSetCurrentLocation
             // 
-            this.btnSetCurrentLocation.Location = new System.Drawing.Point(658, 498);
+            this.btnSetCurrentLocation.Location = new System.Drawing.Point(819, 477);
             this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
             this.btnSetCurrentLocation.Size = new System.Drawing.Size(155, 26);
@@ -307,7 +309,7 @@
             // 
             // btnGoToLocation
             // 
-            this.btnGoToLocation.Location = new System.Drawing.Point(658, 530);
+            this.btnGoToLocation.Location = new System.Drawing.Point(819, 509);
             this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToLocation.Name = "btnGoToLocation";
             this.btnGoToLocation.Size = new System.Drawing.Size(155, 26);
@@ -331,7 +333,7 @@
             // chkIsNight
             // 
             this.chkIsNight.AutoSize = true;
-            this.chkIsNight.Location = new System.Drawing.Point(573, 99);
+            this.chkIsNight.Location = new System.Drawing.Point(749, 259);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkIsNight.Name = "chkIsNight";
             this.chkIsNight.Size = new System.Drawing.Size(77, 20);
@@ -359,10 +361,10 @@
             // 
             // btnInventory
             // 
-            this.btnInventory.Location = new System.Drawing.Point(411, 129);
+            this.btnInventory.Location = new System.Drawing.Point(832, 169);
             this.btnInventory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnInventory.Name = "btnInventory";
-            this.btnInventory.Size = new System.Drawing.Size(156, 34);
+            this.btnInventory.Size = new System.Drawing.Size(136, 34);
             this.btnInventory.TabIndex = 31;
             this.btnInventory.Tag = "inventory";
             this.btnInventory.Text = "Inventory";
@@ -382,7 +384,7 @@
             // 
             // btnAbort
             // 
-            this.btnAbort.Location = new System.Drawing.Point(658, 565);
+            this.btnAbort.Location = new System.Drawing.Point(819, 544);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(155, 26);
@@ -417,7 +419,7 @@
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(655, 469);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(816, 448);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
             this.txtCurrentRoom.Size = new System.Drawing.Size(156, 22);
@@ -426,7 +428,7 @@
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(560, 472);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(721, 451);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
             this.lblCurrentRoom.Size = new System.Drawing.Size(86, 16);
             this.lblCurrentRoom.TabIndex = 38;
@@ -475,7 +477,7 @@
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(411, 333);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(410, 295);
             this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(156, 34);
@@ -569,10 +571,10 @@
             // 
             // btnWho
             // 
-            this.btnWho.Location = new System.Drawing.Point(411, 51);
+            this.btnWho.Location = new System.Drawing.Point(832, 87);
             this.btnWho.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWho.Name = "btnWho";
-            this.btnWho.Size = new System.Drawing.Size(156, 34);
+            this.btnWho.Size = new System.Drawing.Size(136, 34);
             this.btnWho.TabIndex = 51;
             this.btnWho.Tag = "who";
             this.btnWho.Text = "Who";
@@ -581,10 +583,10 @@
             // 
             // btnUptime
             // 
-            this.btnUptime.Location = new System.Drawing.Point(410, 10);
+            this.btnUptime.Location = new System.Drawing.Point(832, 51);
             this.btnUptime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUptime.Name = "btnUptime";
-            this.btnUptime.Size = new System.Drawing.Size(156, 34);
+            this.btnUptime.Size = new System.Drawing.Size(136, 30);
             this.btnUptime.TabIndex = 52;
             this.btnUptime.Tag = "uptime";
             this.btnUptime.Text = "Uptime";
@@ -593,10 +595,10 @@
             // 
             // btnEquipment
             // 
-            this.btnEquipment.Location = new System.Drawing.Point(410, 293);
+            this.btnEquipment.Location = new System.Drawing.Point(832, 333);
             this.btnEquipment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEquipment.Name = "btnEquipment";
-            this.btnEquipment.Size = new System.Drawing.Size(156, 34);
+            this.btnEquipment.Size = new System.Drawing.Size(136, 34);
             this.btnEquipment.TabIndex = 53;
             this.btnEquipment.Tag = "equipment";
             this.btnEquipment.Text = "Equipment";
@@ -617,10 +619,10 @@
             // 
             // btnQuit
             // 
-            this.btnQuit.Location = new System.Drawing.Point(573, 48);
+            this.btnQuit.Location = new System.Drawing.Point(832, 129);
             this.btnQuit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnQuit.Name = "btnQuit";
-            this.btnQuit.Size = new System.Drawing.Size(124, 34);
+            this.btnQuit.Size = new System.Drawing.Size(136, 34);
             this.btnQuit.TabIndex = 55;
             this.btnQuit.Tag = "quit";
             this.btnQuit.Text = "Quit";
@@ -634,38 +636,6 @@
             this.txtSetValue.Name = "txtSetValue";
             this.txtSetValue.Size = new System.Drawing.Size(117, 22);
             this.txtSetValue.TabIndex = 56;
-            // 
-            // btnRunMacro
-            // 
-            this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(531, 498);
-            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnRunMacro.Name = "btnRunMacro";
-            this.btnRunMacro.Size = new System.Drawing.Size(115, 30);
-            this.btnRunMacro.TabIndex = 59;
-            this.btnRunMacro.Text = "Run Macro";
-            this.btnRunMacro.UseVisualStyleBackColor = true;
-            this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
-            // 
-            // cboMacros
-            // 
-            this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMacros.FormattingEnabled = true;
-            this.cboMacros.Location = new System.Drawing.Point(92, 499);
-            this.cboMacros.Margin = new System.Windows.Forms.Padding(4);
-            this.cboMacros.Name = "cboMacros";
-            this.cboMacros.Size = new System.Drawing.Size(431, 24);
-            this.cboMacros.TabIndex = 60;
-            this.cboMacros.SelectedIndexChanged += new System.EventHandler(this.cboMacros_SelectedIndexChanged);
-            // 
-            // lblMacro
-            // 
-            this.lblMacro.AutoSize = true;
-            this.lblMacro.Location = new System.Drawing.Point(12, 505);
-            this.lblMacro.Name = "lblMacro";
-            this.lblMacro.Size = new System.Drawing.Size(48, 16);
-            this.lblMacro.TabIndex = 61;
-            this.lblMacro.Text = "Macro:";
             // 
             // grpRealm
             // 
@@ -743,7 +713,7 @@
             // grpLocations
             // 
             this.grpLocations.Controls.Add(this.treeLocations);
-            this.grpLocations.Location = new System.Drawing.Point(839, 21);
+            this.grpLocations.Location = new System.Drawing.Point(975, 17);
             this.grpLocations.Margin = new System.Windows.Forms.Padding(4);
             this.grpLocations.Name = "grpLocations";
             this.grpLocations.Padding = new System.Windows.Forms.Padding(4);
@@ -755,11 +725,11 @@
             // grpOneClickMacros
             // 
             this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
-            this.grpOneClickMacros.Location = new System.Drawing.Point(6, 628);
+            this.grpOneClickMacros.Location = new System.Drawing.Point(6, 487);
             this.grpOneClickMacros.Margin = new System.Windows.Forms.Padding(4);
             this.grpOneClickMacros.Name = "grpOneClickMacros";
             this.grpOneClickMacros.Padding = new System.Windows.Forms.Padding(4);
-            this.grpOneClickMacros.Size = new System.Drawing.Size(1175, 80);
+            this.grpOneClickMacros.Size = new System.Drawing.Size(801, 129);
             this.grpOneClickMacros.TabIndex = 65;
             this.grpOneClickMacros.TabStop = false;
             this.grpOneClickMacros.Text = "One Click Macros";
@@ -770,7 +740,7 @@
             this.flpOneClickMacros.Location = new System.Drawing.Point(4, 19);
             this.flpOneClickMacros.Margin = new System.Windows.Forms.Padding(4);
             this.flpOneClickMacros.Name = "flpOneClickMacros";
-            this.flpOneClickMacros.Size = new System.Drawing.Size(1167, 57);
+            this.flpOneClickMacros.Size = new System.Drawing.Size(793, 106);
             this.flpOneClickMacros.TabIndex = 0;
             // 
             // btnVariables
@@ -802,7 +772,7 @@
             // 
             // btnRemoveWeapon
             // 
-            this.btnRemoveWeapon.Location = new System.Drawing.Point(411, 371);
+            this.btnRemoveWeapon.Location = new System.Drawing.Point(410, 333);
             this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
             this.btnRemoveWeapon.Size = new System.Drawing.Size(156, 34);
@@ -920,7 +890,7 @@
             this.tcMain.Location = new System.Drawing.Point(0, 0);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1513, 1256);
+            this.tcMain.Size = new System.Drawing.Size(1334, 670);
             this.tcMain.TabIndex = 79;
             // 
             // tabMain
@@ -929,36 +899,15 @@
             this.tabMain.Location = new System.Drawing.Point(4, 25);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMain.Size = new System.Drawing.Size(1505, 1227);
+            this.tabMain.Size = new System.Drawing.Size(1326, 641);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
-            // tabAncillary
-            // 
-            this.tabAncillary.Controls.Add(this.pnlAncillary);
-            this.tabAncillary.Location = new System.Drawing.Point(4, 25);
-            this.tabAncillary.Name = "tabAncillary";
-            this.tabAncillary.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAncillary.Size = new System.Drawing.Size(1505, 1227);
-            this.tabAncillary.TabIndex = 1;
-            this.tabAncillary.Text = "Ancillary";
-            this.tabAncillary.UseVisualStyleBackColor = true;
-            // 
-            // pnlAncillary
-            // 
-            this.pnlAncillary.Controls.Add(this.txtSetValue);
-            this.pnlAncillary.Controls.Add(this.btnSet);
-            this.pnlAncillary.Controls.Add(this.cboSetOption);
-            this.pnlAncillary.Controls.Add(this.chkSetOn);
-            this.pnlAncillary.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlAncillary.Location = new System.Drawing.Point(3, 3);
-            this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1499, 1221);
-            this.pnlAncillary.TabIndex = 0;
-            // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnHide);
+            this.pnlMain.Controls.Add(this.btnSearch);
             this.pnlMain.Controls.Add(this.lblWindow);
             this.pnlMain.Controls.Add(this.btnSouthwest);
             this.pnlMain.Controls.Add(this.btnLevel1OffensiveSpell);
@@ -992,11 +941,8 @@
             this.pnlMain.Controls.Add(this.btnInformation);
             this.pnlMain.Controls.Add(this.grpRealm);
             this.pnlMain.Controls.Add(this.btnSetCurrentLocation);
-            this.pnlMain.Controls.Add(this.lblMacro);
             this.pnlMain.Controls.Add(this.btnGoToLocation);
-            this.pnlMain.Controls.Add(this.cboMacros);
             this.pnlMain.Controls.Add(this.btnCastProtection);
-            this.pnlMain.Controls.Add(this.btnRunMacro);
             this.pnlMain.Controls.Add(this.chkIsNight);
             this.pnlMain.Controls.Add(this.btnQuit);
             this.pnlMain.Controls.Add(this.txtOneOffCommand);
@@ -1024,14 +970,95 @@
             this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMain.Location = new System.Drawing.Point(3, 3);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(1499, 1221);
+            this.pnlMain.Size = new System.Drawing.Size(1320, 635);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnHide
+            // 
+            this.btnHide.Location = new System.Drawing.Point(410, 253);
+            this.btnHide.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnHide.Name = "btnHide";
+            this.btnHide.Size = new System.Drawing.Size(156, 34);
+            this.btnHide.TabIndex = 80;
+            this.btnHide.Tag = "hide";
+            this.btnHide.Text = "Hide";
+            this.btnHide.UseVisualStyleBackColor = true;
+            this.btnHide.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Location = new System.Drawing.Point(410, 211);
+            this.btnSearch.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(156, 34);
+            this.btnSearch.TabIndex = 79;
+            this.btnSearch.Tag = "search";
+            this.btnSearch.Text = "Search";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tabAncillary
+            // 
+            this.tabAncillary.Controls.Add(this.pnlAncillary);
+            this.tabAncillary.Location = new System.Drawing.Point(4, 25);
+            this.tabAncillary.Name = "tabAncillary";
+            this.tabAncillary.Padding = new System.Windows.Forms.Padding(3);
+            this.tabAncillary.Size = new System.Drawing.Size(1326, 976);
+            this.tabAncillary.TabIndex = 1;
+            this.tabAncillary.Text = "Ancillary";
+            this.tabAncillary.UseVisualStyleBackColor = true;
+            // 
+            // pnlAncillary
+            // 
+            this.pnlAncillary.Controls.Add(this.lblMacro);
+            this.pnlAncillary.Controls.Add(this.cboMacros);
+            this.pnlAncillary.Controls.Add(this.btnRunMacro);
+            this.pnlAncillary.Controls.Add(this.txtSetValue);
+            this.pnlAncillary.Controls.Add(this.btnSet);
+            this.pnlAncillary.Controls.Add(this.cboSetOption);
+            this.pnlAncillary.Controls.Add(this.chkSetOn);
+            this.pnlAncillary.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlAncillary.Location = new System.Drawing.Point(3, 3);
+            this.pnlAncillary.Name = "pnlAncillary";
+            this.pnlAncillary.Size = new System.Drawing.Size(1320, 970);
+            this.pnlAncillary.TabIndex = 0;
+            // 
+            // lblMacro
+            // 
+            this.lblMacro.AutoSize = true;
+            this.lblMacro.Location = new System.Drawing.Point(16, 67);
+            this.lblMacro.Name = "lblMacro";
+            this.lblMacro.Size = new System.Drawing.Size(48, 16);
+            this.lblMacro.TabIndex = 64;
+            this.lblMacro.Text = "Macro:";
+            // 
+            // cboMacros
+            // 
+            this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMacros.FormattingEnabled = true;
+            this.cboMacros.Location = new System.Drawing.Point(96, 61);
+            this.cboMacros.Margin = new System.Windows.Forms.Padding(4);
+            this.cboMacros.Name = "cboMacros";
+            this.cboMacros.Size = new System.Drawing.Size(431, 24);
+            this.cboMacros.TabIndex = 63;
+            // 
+            // btnRunMacro
+            // 
+            this.btnRunMacro.Enabled = false;
+            this.btnRunMacro.Location = new System.Drawing.Point(535, 60);
+            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnRunMacro.Name = "btnRunMacro";
+            this.btnRunMacro.Size = new System.Drawing.Size(115, 30);
+            this.btnRunMacro.TabIndex = 62;
+            this.btnRunMacro.Text = "Run Macro";
+            this.btnRunMacro.UseVisualStyleBackColor = true;
+            this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1210, 1005);
+            this.ClientSize = new System.Drawing.Size(1334, 670);
             this.Controls.Add(this.tcMain);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "frmMain";
@@ -1042,11 +1069,11 @@
             this.grpOneClickMacros.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
+            this.pnlMain.ResumeLayout(false);
+            this.pnlMain.PerformLayout();
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
             this.pnlAncillary.PerformLayout();
-            this.pnlMain.ResumeLayout(false);
-            this.pnlMain.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1100,9 +1127,6 @@
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.Button btnQuit;
         private System.Windows.Forms.TextBox txtSetValue;
-        private System.Windows.Forms.Button btnRunMacro;
-        private System.Windows.Forms.ComboBox cboMacros;
-        private System.Windows.Forms.Label lblMacro;
         private System.Windows.Forms.GroupBox grpRealm;
         private System.Windows.Forms.RadioButton radFire;
         private System.Windows.Forms.RadioButton radWater;
@@ -1130,6 +1154,11 @@
         private System.Windows.Forms.Panel pnlMain;
         private System.Windows.Forms.TabPage tabAncillary;
         private System.Windows.Forms.Panel pnlAncillary;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Button btnHide;
+        private System.Windows.Forms.Label lblMacro;
+        private System.Windows.Forms.ComboBox cboMacros;
+        private System.Windows.Forms.Button btnRunMacro;
     }
 }
 
