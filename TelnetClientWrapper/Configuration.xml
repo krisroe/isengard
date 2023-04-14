@@ -29,12 +29,6 @@
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
-  <Macro name="stuncast" oneclick="true">
-   <Steps>
-    <Command text="cast stun {mob}" waitms="castinterval"/>
-    <Command text="cast {realm2spell} {mob}" loop="level2castrounds"/>
-   </Steps>
-  </Macro>
   <Macro name="cast+atkX" oneclick="true">
    <Steps>
     <Sequence loop="level2castrounds">

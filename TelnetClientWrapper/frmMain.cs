@@ -984,7 +984,7 @@ namespace IsengardClient
             breeStreets[14, 1] = AddRoom("Bree Brownhaven 15x2");
             breeStreets[0, 2] = AddRoom("Bree Wain 1x3");
             Room oToPawnShopWest = breeStreets[3, 2] = AddRoom("Bree High 4x3");
-            breeStreets[7, 2] = AddRoom("Bree Main 8x3");
+            Room oToBarracks = breeStreets[7, 2] = AddRoom("Sergeant Grimdall Threshold"); //Bree Main 8x3
             breeStreets[10, 2] = AddRoom("Bree Crissaegrim 11x3");
             breeStreets[14, 2] = AddRoom("Bree Brownhaven 15x3");
             breeStreets[0, 3] = AddRoom("Bree Periwinkle/Wain 1x4");
@@ -1161,6 +1161,12 @@ namespace IsengardClient
             AddExit(oGuido, oToCasino, "north");
             SetVariablesForPermWithThreshold(oGuido, oToCasino, "casino", null);
 
+            Room oSergeantGrimdall = AddRoom("Sergeant Grimdall");
+            oToBarracks.Mob = oSergeantGrimdall.Mob = "Sergeant";
+            AddExit(oToBarracks, oSergeantGrimdall, "barracks");
+            AddExit(oSergeantGrimdall, oToBarracks, "east");
+            SetVariablesForPermWithThreshold(oSergeantGrimdall, oToBarracks, "barracks", null);
+
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
 
@@ -1187,6 +1193,8 @@ namespace IsengardClient
             AddSubLocation(oGuido, oToCasino);
             AddLocation(aBree, oFallon);
             AddSubLocation(oFallon, oChurchsEnglishGardenFallonThreshold);
+            AddLocation(aBree, oSergeantGrimdall);
+            AddSubLocation(oSergeantGrimdall, oToBarracks);
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
@@ -1347,6 +1355,7 @@ namespace IsengardClient
             Room oChancellorThreshold = AddRoom("Chancellor Threshold");
             AddBidirectionalExits(oChancellorThreshold, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
 
+            //mayor is immune to stun
             Room oMayorMillwood = AddRoom("Mayor Millwood");
             Exit e = AddExit(oMayorThreshold, oMayorMillwood, "chamber");
             e.PreCommand = "open chamber";
@@ -1359,8 +1368,8 @@ namespace IsengardClient
             e.PreCommand = "open chamber";
             AddExit(oChancellorOfProtection, oChancellorThreshold, "out");
             oChancellorOfProtection.Mob = oChancellorThreshold.Mob = "chancellor";
-            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_LEVEL2CASTROUNDS, "2");
-            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_STUNCASTROUNDS, "2");
+            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_LEVEL2CASTROUNDS, "5");
+            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_STUNCASTROUNDS, "1");
 
             MansionLocations = new List<Room>
             {
@@ -1634,6 +1643,7 @@ namespace IsengardClient
             AddExit(oGreatHallOfHeroes, oLeviathanNorthForkWestern, "out");
             AddExit(oLeviathanNorthForkWestern, oGreatHallOfHeroes, "hall");
 
+            //something is hasted
             Room oSomething = AddRoom("Something");
             oSomething.Mob = "Something";
             AddBidirectionalSameNameExit(oGreatHallOfHeroes, oSomething, "curtain", null);
