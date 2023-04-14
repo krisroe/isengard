@@ -7,6 +7,7 @@
   <Variable name="level1castrounds" type="int" value="0" min="0"/>
   <Variable name="stuncastrounds" type="int" value="2" min="0"/>
   <Variable name="hitandrundirection" type="string"/>
+  <Variable name="hitandrunprecommand" type="string"/>
  </Variables>
  <Macros>
   <Macro name="castX" oneclick="true">
@@ -17,11 +18,12 @@
   </Macro>
   <Macro name="stuncastrepeat" oneclick="true">
    <Steps>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <Sequence loop="stuncastrounds" waitms="castinterval" waitmsfirst="0">
      <Steps>
       <Command text="cast stun {mob}"/>
-      <Command text="cast {realm2spell} {mob}"/>
+      <Command text="cast {realm2spell} {mob}" loop="level2castrounds"/>
      </Steps>
     </Sequence>
     <Command text="look {mob}" waitms="0"/>

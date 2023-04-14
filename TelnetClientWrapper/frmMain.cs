@@ -44,6 +44,7 @@ namespace IsengardClient
         private const string VARIABLE_LEVEL1CASTROUNDS = "level1castrounds";
         private const string VARIABLE_LEVEL2CASTROUNDS = "level2castrounds";
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
+        private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
         private const string VARIABLE_STUNCASTROUNDS = "stuncastrounds";
 
         public frmMain()
@@ -159,6 +160,21 @@ namespace IsengardClient
                     TreeNode tRoom = new TreeNode(r.Name);
                     tRoom.Tag = r;
                     tArea.Nodes.Add(tRoom);
+                    PopulateSubLocations(tRoom, r);
+                }
+            }
+        }
+
+        private void PopulateSubLocations(TreeNode t, Room r)
+        {
+            if (r.SubLocations != null)
+            {
+                foreach (var nextSubLocation in r.SubLocations)
+                {
+                    TreeNode tSub = new TreeNode(nextSubLocation.Name);
+                    tSub.Tag = nextSubLocation;
+                    t.Nodes.Add(tSub);
+                    PopulateSubLocations(tSub, nextSubLocation);
                 }
             }
         }
@@ -930,12 +946,11 @@ namespace IsengardClient
 
             Area aBree = _areasByName[AREA_BREE];
             AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit);
-            AddMayorMillwoodMansion(oIxell, out Room oWarriorBardsOnPath, out Room oWarriorBardMansionGrandPorch, out Room oWarriorBardMansionNorth, out Room oWarriorBardMansionSouth, out Room oWarriorBardMansionEast);
-            AddLocation(aBree, oWarriorBardsOnPath);
-            AddLocation(aBree, oWarriorBardMansionGrandPorch);
-            AddLocation(aBree, oWarriorBardMansionNorth);
-            AddLocation(aBree, oWarriorBardMansionSouth);
-            AddLocation(aBree, oWarriorBardMansionEast);
+            AddMayorMillwoodMansion(oIxell, out List<Room> mansionRooms);
+            foreach (Room r in mansionRooms)
+            {
+                AddLocation(aBree, r);
+            }
 
             AddBreeToHobbiton(oBreeWestGateInside);
             AddBreeToImladris(oSewerPipeExit);
@@ -1098,14 +1113,8 @@ namespace IsengardClient
             Room oFallon = AddRoom("Fallon");
             AddExit(oChurchsEnglishGardenFallonThreshold, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
-            AddRoomVariableValue(oFallon, VARIABLE_HITANDRUNDIRECTION, string.Empty);
-            AddRoomVariableValue(oFallon, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oFallon, VARIABLE_STUNCASTROUNDS, "3");
-            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_HITANDRUNDIRECTION, "door");
-            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_STUNCASTROUNDS, "3");
-            oFallon.Mob = "Fallon";
-            oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
+            SetVariablesForPermWithThreshold(oFallon, oChurchsEnglishGardenFallonThreshold, "door", null);
+            oFallon.Mob = oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
             AddExit(oToGrantsStables, oGrantsStables, "stable");
@@ -1150,12 +1159,7 @@ namespace IsengardClient
             oToCasino.Mob = oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
-            AddRoomVariableValue(oGuido, VARIABLE_HITANDRUNDIRECTION, string.Empty);
-            AddRoomVariableValue(oGuido, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oGuido, VARIABLE_STUNCASTROUNDS, "3");
-            AddRoomVariableValue(oToCasino, VARIABLE_HITANDRUNDIRECTION, "casino");
-            AddRoomVariableValue(oToCasino, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oToCasino, VARIABLE_STUNCASTROUNDS, "3");
+            SetVariablesForPermWithThreshold(oGuido, oToCasino, "casino", null);
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1180,25 +1184,33 @@ namespace IsengardClient
             AddLocation(aBree, oSnarlingMutt);
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oGuido);
-            AddLocation(aBree, oToCasino);
+            AddSubLocation(oGuido, oToCasino);
             AddLocation(aBree, oFallon);
-            AddLocation(aBree, oChurchsEnglishGardenFallonThreshold);
+            AddSubLocation(oFallon, oChurchsEnglishGardenFallonThreshold);
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
             AddLocation(aBree, oLeonardosSwords);
         }
 
+        private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand)
+        {
+            AddRoomVariableValue(perm, VARIABLE_HITANDRUNDIRECTION, string.Empty);
+            AddRoomVariableValue(perm, VARIABLE_HITANDRUNPRECOMMAND, string.Empty);
+            AddRoomVariableValue(perm, VARIABLE_LEVEL2CASTROUNDS, "1");
+            AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, "3");
+            AddRoomVariableValue(threshold, VARIABLE_HITANDRUNDIRECTION, hitAndRunDirection);
+            AddRoomVariableValue(threshold, VARIABLE_HITANDRUNPRECOMMAND, hitAndRunPrecommand);
+            AddRoomVariableValue(threshold, VARIABLE_LEVEL2CASTROUNDS, "1");
+            AddRoomVariableValue(threshold, VARIABLE_STUNCASTROUNDS, "3");
+        }
+
         /// <summary>
         /// adds rooms for mayor millwood's mansion
         /// </summary>
         /// <param name="oIxell">Ixell (entrance to mansion)</param>
-        /// <param name="oPathToMansion4">Warrior bards on mansion path</param>
-        /// <param name="oGrandPorch">Warrior bard on grand porch mansion entrance</param>
-        /// <param name="oWarriorBardMansionNorth">warrior bard in north mansion stairwell</param>
-        /// <param name="oWarriorBardMansionSouth">warrior bard in south mansion stairwell</param>
-        /// <param name="oWarriorBardMansionEast">warrior bard in east mansion stairwell</param>
-        private void AddMayorMillwoodMansion(Room oIxell, out Room oPathToMansion4, out Room oGrandPorch, out Room oWarriorBardMansionNorth, out Room oWarriorBardMansionSouth, out Room oWarriorBardMansionEast)
+        /// <param name="MansionLocations">mansion locations</param>
+        private void AddMayorMillwoodMansion(Room oIxell, out List<Room> MansionLocations)
         {
             string sWarriorBard = "Warrior bard";
 
@@ -1212,15 +1224,15 @@ namespace IsengardClient
             Room oPathToMansion3 = AddRoom("The South Wall");
             AddBidirectionalExits(oPathToMansion2, oPathToMansion3, BidirectionalExitType.NorthSouth);
 
-            oPathToMansion4 = AddRoom("Warrior Bards (Path to Mansion)");
-            oPathToMansion4.Mob = sWarriorBard;
-            AddExit(oPathToMansion3, oPathToMansion4, "stone");
-            AddExit(oPathToMansion4, oPathToMansion3, "north");
-            AddRoomVariableValue(oPathToMansion4, VARIABLE_LEVEL2CASTROUNDS, "3");
-            AddRoomVariableValue(oPathToMansion4, VARIABLE_LEVEL1CASTROUNDS, "0");
+            Room oPathToMansion4WarriorBardsx2 = AddRoom("Warrior Bards (Path to Mansion)");
+            oPathToMansion4WarriorBardsx2.Mob = sWarriorBard;
+            AddExit(oPathToMansion3, oPathToMansion4WarriorBardsx2, "stone");
+            AddExit(oPathToMansion4WarriorBardsx2, oPathToMansion3, "north");
+            AddRoomVariableValue(oPathToMansion4WarriorBardsx2, VARIABLE_LEVEL2CASTROUNDS, "3");
+            AddRoomVariableValue(oPathToMansion4WarriorBardsx2, VARIABLE_LEVEL1CASTROUNDS, "0");
 
             Room oPathToMansion5 = AddRoom("Stone Path");
-            AddBidirectionalExits(oPathToMansion4, oPathToMansion5, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oPathToMansion4WarriorBardsx2, oPathToMansion5, BidirectionalExitType.SouthwestNortheast);
 
             Room oPathToMansion6 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion5, oPathToMansion6, BidirectionalExitType.NorthSouth);
@@ -1243,7 +1255,7 @@ namespace IsengardClient
             Room oPathToMansion12 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion11, oPathToMansion12, BidirectionalExitType.WestEast);
 
-            oGrandPorch = AddRoom("Warrior Bard (Grand Porch)");
+            Room oGrandPorch = AddRoom("Warrior Bard (Grand Porch)");
             oGrandPorch.Mob = sWarriorBard;
             AddExit(oPathToMansion12, oGrandPorch, "porch");
             AddExit(oGrandPorch, oPathToMansion12, "path");
@@ -1271,7 +1283,7 @@ namespace IsengardClient
             Room oMansionFirstFloorToNorthStairwell5 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell4, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.WestEast);
 
-            oWarriorBardMansionNorth = AddRoom("Warrior Bard Mansion North");
+            Room oWarriorBardMansionNorth = AddRoom("Warrior Bard Mansion North");
             oWarriorBardMansionNorth.Mob = sWarriorBard;
             AddBidirectionalExits(oWarriorBardMansionNorth, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.NorthSouth);
             AddRoomVariableValue(oWarriorBardMansionNorth, VARIABLE_LEVEL2CASTROUNDS, "3");
@@ -1292,7 +1304,7 @@ namespace IsengardClient
             Room oMansionFirstFloorToSouthStairwell5 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell4, oMansionFirstFloorToSouthStairwell5, BidirectionalExitType.WestEast);
 
-            oWarriorBardMansionSouth = AddRoom("Warrior Bard Mansion South");
+            Room oWarriorBardMansionSouth = AddRoom("Warrior Bard Mansion South");
             oWarriorBardMansionSouth.Mob = sWarriorBard;
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell5, oWarriorBardMansionSouth, BidirectionalExitType.NorthSouth);
             AddRoomVariableValue(oWarriorBardMansionSouth, VARIABLE_LEVEL2CASTROUNDS, "3");
@@ -1317,11 +1329,49 @@ namespace IsengardClient
             Room oMansionFirstFloorToEastStairwell6 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell5, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.SoutheastNorthwest);
 
-            oWarriorBardMansionEast = AddRoom("Warrior Bard Mansion East");
+            Room oWarriorBardMansionEast = AddRoom("Warrior Bard Mansion East");
             oWarriorBardMansionEast.Mob = sWarriorBard;
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
             AddRoomVariableValue(oWarriorBardMansionEast, VARIABLE_LEVEL2CASTROUNDS, "3");
             AddRoomVariableValue(oWarriorBardMansionEast, VARIABLE_LEVEL1CASTROUNDS, "0");
+
+            Room oGrandStaircaseUpstairs = AddRoom("Grand Staircase");
+            AddBidirectionalExits(oGrandStaircaseUpstairs, oWarriorBardMansionEast, BidirectionalExitType.UpDown);
+
+            Room oRoyalHallwayUpstairs = AddRoom("Royal Hallway");
+            AddBidirectionalExits(oRoyalHallwayUpstairs, oGrandStaircaseUpstairs, BidirectionalExitType.WestEast);
+
+            Room oMayorThreshold = AddRoom("Mayor Threshold");
+            AddBidirectionalExits(oRoyalHallwayUpstairs, oMayorThreshold, BidirectionalExitType.NorthSouth);
+
+            Room oChancellorThreshold = AddRoom("Chancellor Threshold");
+            AddBidirectionalExits(oChancellorThreshold, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
+
+            Room oMayorMillwood = AddRoom("Mayor Millwood");
+            Exit e = AddExit(oMayorThreshold, oMayorMillwood, "chamber");
+            e.PreCommand = "open chamber";
+            AddExit(oMayorMillwood, oMayorThreshold, "out");
+            oMayorMillwood.Mob = oMayorThreshold.Mob = "mayor";
+            AddRoomVariableValue(oMayorMillwood, VARIABLE_LEVEL2CASTROUNDS, "4");
+
+            Room oChancellorOfProtection = AddRoom("Chancellor of Protection");
+            e = AddExit(oChancellorThreshold, oChancellorOfProtection, "chamber");
+            e.PreCommand = "open chamber";
+            AddExit(oChancellorOfProtection, oChancellorThreshold, "out");
+            oChancellorOfProtection.Mob = oChancellorThreshold.Mob = "chancellor";
+            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_LEVEL2CASTROUNDS, "2");
+            AddRoomVariableValue(oChancellorOfProtection, VARIABLE_STUNCASTROUNDS, "2");
+
+            MansionLocations = new List<Room>
+            {
+                oChancellorOfProtection,
+                oMayorMillwood,
+                oPathToMansion4WarriorBardsx2,
+                oGrandPorch,
+                oWarriorBardMansionNorth,
+                oWarriorBardMansionSouth,
+                oWarriorBardMansionEast
+            };
         }
 
         private void SetNightEdges(bool isNight)
@@ -1729,6 +1779,12 @@ namespace IsengardClient
             area.Locations.Add(locRoom);
         }
 
+        private void AddSubLocation(Room locRoom, Room subRoom)
+        {
+            if (locRoom.SubLocations == null) locRoom.SubLocations = new List<Room>();
+            locRoom.SubLocations.Add(subRoom);
+        }
+
         private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, string preCommand)
         {
             Exit e = new Exit(aRoom, bRoom, exitText);
@@ -1812,6 +1868,7 @@ namespace IsengardClient
             public string Name { get; set; }
             public string Mob { get; set; }
             public Dictionary<Variable, string> VariableValues { get; set; }
+            public List<Room> SubLocations { get; set; }
         }
 
         internal class Exit : Edge<Room>
