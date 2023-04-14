@@ -18,7 +18,7 @@
   <Macro name="stuncastrepeat" oneclick="true">
    <Steps>
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
-    <Sequence loop="stuncastrounds" waitms="castinterval">
+    <Sequence loop="stuncastrounds" waitms="castinterval" waitmsfirst="0">
      <Steps>
       <Command text="cast stun {mob}"/>
       <Command text="cast {realm2spell} {mob}"/>

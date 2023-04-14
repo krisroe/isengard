@@ -578,6 +578,20 @@ namespace IsengardClient
                     }
                 }
 
+                string sWaitFirst = elemStep.GetAttribute("waitmsfirst");
+                if (!string.IsNullOrEmpty(sWaitFirst))
+                {
+                    if (int.TryParse(sWaitFirst, out int iWaitFirstMS))
+                    {
+                        if (step != null) step.WaitMSFirstCommand = iWaitFirstMS;
+                    }
+                    else
+                    {
+                        isValid = false;
+                        errorMessages.Add("Invalid wait ms first command: " + errorSource + " " + stepType);
+                    }
+                }
+
                 string sLoop = elemStep.GetAttribute("loop");
                 if (!string.IsNullOrEmpty(sLoop))
                 {
@@ -793,25 +807,58 @@ namespace IsengardClient
                         break;
                     }
 
+                    bool overrideWaitMS;
                     if (nextStep is MacroStepSequence)
                     {
                         MacroStepSequence seq = (MacroStepSequence)nextStep;
+                        overrideWaitMS = seq.WaitMSFirstCommand.HasValue && loopCount == 0;
+                        int previousWaitMS = parameters.WaitMS;
                         bool pastFirst = false;
                         foreach (MacroCommand nextSubCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
                         {
-                            if (!pastFirst)
+                            if (pastFirst)
                             {
-                                SetWaitMS(seq, parameters, variables);
+                                yield return nextSubCommand;
+                            }
+                            else
+                            {
+                                if (overrideWaitMS)
+                                {
+                                    parameters.WaitMS = seq.WaitMSFirstCommand.Value;
+                                }
+                                else
+                                {
+                                    SetWaitMS(seq, parameters, variables);
+                                }
+                                yield return nextSubCommand;
+                                if (overrideWaitMS)
+                                {
+                                    parameters.WaitMS = previousWaitMS;
+                                    SetWaitMS(seq, parameters, variables);
+                                }
                                 pastFirst = true;
                             }
-                            yield return nextSubCommand;
                         }
                     }
                     else
                     {
                         MacroCommand nextCommand = (MacroCommand)nextStep;
-                        SetWaitMS(nextCommand, parameters, variables);
+                        overrideWaitMS = nextCommand.WaitMSFirstCommand.HasValue && loopCount == 0;
+                        int previousWaitMS = parameters.WaitMS;
+                        if (overrideWaitMS)
+                        {
+                            parameters.WaitMS = nextCommand.WaitMSFirstCommand.Value;
+                        }
+                        else
+                        {
+                            SetWaitMS(nextCommand, parameters, variables);
+                        }
                         yield return nextCommand;
+                        if (overrideWaitMS)
+                        {
+                            parameters.WaitMS = previousWaitMS;
+                            SetWaitMS(nextCommand, parameters, variables);
+                        }
                     }
                     loopCount++;
 
@@ -1053,10 +1100,10 @@ namespace IsengardClient
             AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
             AddRoomVariableValue(oFallon, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(oFallon, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oFallon, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oFallon, VARIABLE_STUNCASTROUNDS, "3");
             AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_HITANDRUNDIRECTION, "door");
             AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_STUNCASTROUNDS, "3");
             oFallon.Mob = "Fallon";
             oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
 
@@ -1105,10 +1152,10 @@ namespace IsengardClient
             AddExit(oGuido, oToCasino, "north");
             AddRoomVariableValue(oGuido, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(oGuido, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oGuido, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oGuido, VARIABLE_STUNCASTROUNDS, "3");
             AddRoomVariableValue(oToCasino, VARIABLE_HITANDRUNDIRECTION, "casino");
             AddRoomVariableValue(oToCasino, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(oToCasino, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oToCasino, VARIABLE_STUNCASTROUNDS, "3");
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -2212,6 +2259,7 @@ namespace IsengardClient
             }
             ret.WaitMS = input.WaitMS;
             ret.WaitMSVariable = input.WaitMSVariable;
+            ret.WaitMSFirstCommand = input.WaitMSFirstCommand;
             ret.Loop = input.Loop;
             ret.LoopCount = input.LoopCount;
             ret.LoopVariable = input.LoopVariable;
@@ -2238,7 +2286,17 @@ namespace IsengardClient
 
         public class MacroStepBase
         {
+            /// <summary>
+            /// nonpersistent wait milliseconds for the first command under the step
+            /// </summary>
+            public int? WaitMSFirstCommand { get; set; }
+            /// <summary>
+            /// persistent wait milliseconds
+            /// </summary>
             public int? WaitMS { get; set; }
+            /// <summary>
+            /// persistent wait milliseconds from a variable
+            /// </summary>
             public IntegerVariable WaitMSVariable { get; set; }
             public bool? Loop { get; set; }
             public int? LoopCount { get; set; }
