@@ -18,10 +18,12 @@
   <Macro name="stuncastrepeat" oneclick="true">
    <Steps>
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
-    <Command text="cast stun {mob}"/>
-    <Command text="cast {realm2spell} {mob}" loop="stuncastrounds" waitms="castinterval"/>
-    <Command text="cast stun {mob}"/>
-    <Command text="cast {realm2spell} {mob}" loop="stuncastrounds"/>
+    <Sequence loop="stuncastrounds" waitms="castinterval">
+     <Steps>
+      <Command text="cast stun {mob}"/>
+      <Command text="cast {realm2spell} {mob}"/>
+     </Steps>
+    </Sequence>
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>

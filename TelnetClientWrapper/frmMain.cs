@@ -662,35 +662,40 @@ namespace IsengardClient
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
                 if (targetRoom != null)
                 {
-                    if (!string.IsNullOrEmpty(targetRoom.Mob))
-                    {
-                        txtMob.Text = targetRoom.Mob;
-                    }
-                    m_oCurrentRoom = targetRoom;
-                    txtCurrentRoom.Text = m_oCurrentRoom.Name;
-                    if (targetRoom.VariableValues != null)
-                    {
-                        foreach (KeyValuePair<Variable, string> next in targetRoom.VariableValues)
-                        {
-                            switch (next.Key.Type)
-                            {
-                                case VariableType.Bool:
-                                    ((BooleanVariable)next.Key).Value = bool.Parse(next.Value);
-                                    break;
-                                case VariableType.Int:
-                                    ((IntegerVariable)next.Key).Value = int.Parse(next.Value);
-                                    break;
-                                case VariableType.String:
-                                    ((StringVariable)next.Key).Value = next.Value;
-                                    break;
-                                default:
-                                    throw new InvalidOperationException();
-                            }
-                        }
-                    }
+                    SetCurrentRoom(targetRoom);
                 }
             }
             ToggleBackgroundProcess(false);
+        }
+
+        private void SetCurrentRoom(Room r)
+        {
+            if (!string.IsNullOrEmpty(r.Mob))
+            {
+                txtMob.Text = r.Mob;
+            }
+            m_oCurrentRoom = r;
+            txtCurrentRoom.Text = m_oCurrentRoom.Name;
+            if (r.VariableValues != null)
+            {
+                foreach (KeyValuePair<Variable, string> next in r.VariableValues)
+                {
+                    switch (next.Key.Type)
+                    {
+                        case VariableType.Bool:
+                            ((BooleanVariable)next.Key).Value = bool.Parse(next.Value);
+                            break;
+                        case VariableType.Int:
+                            ((IntegerVariable)next.Key).Value = int.Parse(next.Value);
+                            break;
+                        case VariableType.String:
+                            ((StringVariable)next.Key).Value = next.Value;
+                            break;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+            }
         }
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
@@ -989,7 +994,7 @@ namespace IsengardClient
             breeStreets[10, 10] = AddRoom("Bree Ormenel 11x11");
             Room oToRealEstateOffice = breeStreets[11, 10] = AddRoom("Bree Ormenel 12x11");
             breeStreets[12, 10] = AddRoom("Bree Ormenel 13x11");
-            breeStreets[13, 10] = AddRoom("Bree Ormenel 14x11");
+            Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Bree Ormenel 14x11");
             breeStreets[14, 10] = AddRoom("Bree Brownhaven/Ormenel 15x11");
 
             for (int x = 0; x < 16; x++)
@@ -1038,6 +1043,23 @@ namespace IsengardClient
             AddRoomVariableValue(oIxell, VARIABLE_LEVEL2CASTROUNDS, "3");
             AddRoomVariableValue(oIxell, VARIABLE_LEVEL1CASTROUNDS, "0");
 
+            Room oKistaHillsHousing = AddRoom("Kista Hills Housing");
+            AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
+
+            Room oChurchsEnglishGardenFallonThreshold = AddRoom("Fallon Threshold");
+            AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGardenFallonThreshold, "gate", null);
+            Room oFallon = AddRoom("Fallon");
+            AddExit(oChurchsEnglishGardenFallonThreshold, oFallon, "door");
+            AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
+            AddRoomVariableValue(oFallon, VARIABLE_HITANDRUNDIRECTION, string.Empty);
+            AddRoomVariableValue(oFallon, VARIABLE_LEVEL2CASTROUNDS, "1");
+            AddRoomVariableValue(oFallon, VARIABLE_STUNCASTROUNDS, "1");
+            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_HITANDRUNDIRECTION, "door");
+            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_LEVEL2CASTROUNDS, "1");
+            AddRoomVariableValue(oChurchsEnglishGardenFallonThreshold, VARIABLE_STUNCASTROUNDS, "1");
+            oFallon.Mob = "Fallon";
+            oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
+
             Room oGrantsStables = AddRoom("Grant's stables");
             AddExit(oToGrantsStables, oGrantsStables, "stable");
             AddExit(oGrantsStables, oToGrantsStables, "south");
@@ -1082,8 +1104,10 @@ namespace IsengardClient
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
             AddRoomVariableValue(oGuido, VARIABLE_HITANDRUNDIRECTION, string.Empty);
+            AddRoomVariableValue(oGuido, VARIABLE_LEVEL2CASTROUNDS, "1");
             AddRoomVariableValue(oGuido, VARIABLE_STUNCASTROUNDS, "1");
             AddRoomVariableValue(oToCasino, VARIABLE_HITANDRUNDIRECTION, "casino");
+            AddRoomVariableValue(oToCasino, VARIABLE_LEVEL2CASTROUNDS, "1");
             AddRoomVariableValue(oToCasino, VARIABLE_STUNCASTROUNDS, "1");
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
@@ -1110,6 +1134,8 @@ namespace IsengardClient
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oGuido);
             AddLocation(aBree, oToCasino);
+            AddLocation(aBree, oFallon);
+            AddLocation(aBree, oChurchsEnglishGardenFallonThreshold);
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oBreePawnShopWest);
             AddLocation(aBree, oBreePawnShopEast);
@@ -1289,12 +1315,12 @@ namespace IsengardClient
             Room oGreatEastRoad6 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad5, oGreatEastRoad6, BidirectionalExitType.WestEast);
 
-            Room oGreatEastRoadGoblinAmbush = AddRoom("Goblin Ambush");
-            oGreatEastRoadGoblinAmbush.Mob = "goblin";
-            AddBidirectionalExits(oGreatEastRoadGoblinAmbush, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
+            Room oGreatEastRoadGoblinAmbushGobLrgLrg = AddRoom("Goblin Ambush Gob/Lrg/Lrg");
+            oGreatEastRoadGoblinAmbushGobLrgLrg.Mob = "goblin";
+            AddBidirectionalExits(oGreatEastRoadGoblinAmbushGobLrgLrg, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
 
             Room oGreatEastRoad8 = AddRoom("Great East Road");
-            AddBidirectionalExits(oGreatEastRoadGoblinAmbush, oGreatEastRoad8, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oGreatEastRoadGoblinAmbushGobLrgLrg, oGreatEastRoad8, BidirectionalExitType.SoutheastNorthwest);
 
             Room oGreatEastRoad9 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad8, oGreatEastRoad9, BidirectionalExitType.WestEast);
@@ -1387,6 +1413,29 @@ namespace IsengardClient
             AddRoomVariableValue(oSalamander, VARIABLE_LEVEL2CASTROUNDS, "4");
             AddRoomVariableValue(oSalamander, VARIABLE_LEVEL1CASTROUNDS, "0");
 
+            Room oNorthBrethilForest1 = AddRoom("North Brethil Forest");
+            AddBidirectionalExits(oNorthBrethilForest1, oGreatEastRoadGoblinAmbushGobLrgLrg, BidirectionalExitType.NorthSouth);
+
+            Room oNorthBrethilForest2 = AddRoom("North Brethil Forest");
+            AddBidirectionalExits(oNorthBrethilForest1, oNorthBrethilForest2, BidirectionalExitType.WestEast);
+
+            Room oDarkFootpath = AddRoom("Dark Footpath");
+            AddBidirectionalExits(oDarkFootpath, oGreatEastRoad10, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oNorthBrethilForest2, oDarkFootpath, BidirectionalExitType.WestEast);
+
+            //North Brethil Forest
+            Room oNorthBrethilForest3 = AddRoom("North Brethil Forest");
+            AddBidirectionalExits(oNorthBrethilForest3, oDarkFootpath, BidirectionalExitType.NorthSouth);
+
+            Room oNorthBrethilForest4GobAmbushThreshold = AddRoom("Goblin Ambush War/Lrg/Lrg Threshold");
+            oNorthBrethilForest4GobAmbushThreshold.Mob = "goblin";
+            AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
+
+            Room oNorthBrethilForest5GobAmbush = AddRoom("Goblin Ambush War/Lrg/Lrg");
+            oNorthBrethilForest5GobAmbush.Mob = "goblin";
+            AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
+
+            //South Brethil Forest
             Room oDeepForest = AddRoom("Deep Forest");
             AddBidirectionalExits(oGreatEastRoad9, oDeepForest, BidirectionalExitType.NorthSouth);
 
@@ -1402,7 +1451,9 @@ namespace IsengardClient
 
             AddLocation(oBreeToImladris, oRoadToFarm7HoundDog);
             AddLocation(oBreeToImladris, oSalamander);
-            AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbush);
+            AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbushGobLrgLrg);
+            AddLocation(oBreeToImladris, oNorthBrethilForest4GobAmbushThreshold);
+            AddLocation(oBreeToImladris, oNorthBrethilForest5GobAmbush);
             AddLocation(oBreeToImladris, oSpriteGuards);
         }
 
@@ -1952,12 +2003,7 @@ namespace IsengardClient
                 Room r = oSelectedTreeNode.Tag as Room;
                 if (r != null)
                 {
-                    m_oCurrentRoom = r;
-                    if (!string.IsNullOrEmpty(m_oCurrentRoom.Mob))
-                    {
-                        txtMob.Text = m_oCurrentRoom.Mob;
-                    }
-                    txtCurrentRoom.Text = m_oCurrentRoom.Name;
+                    SetCurrentRoom(r);
                 }
             }
         }

@@ -100,6 +100,8 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnCastMend = new System.Windows.Forms.Button();
+            this.btnReddishOrange = new System.Windows.Forms.Button();
             this.btnHide = new System.Windows.Forms.Button();
             this.btnSearch = new System.Windows.Forms.Button();
             this.tabAncillary = new System.Windows.Forms.TabPage();
@@ -107,7 +109,7 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
-            this.btnReddishOrange = new System.Windows.Forms.Button();
+            this.btnStunMob = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -203,7 +205,7 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(250, 253);
+            this.btnLookAtMob.Location = new System.Drawing.Point(250, 294);
             this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(156, 34);
@@ -227,7 +229,7 @@
             // 
             // btnCastVigor
             // 
-            this.btnCastVigor.Location = new System.Drawing.Point(572, 169);
+            this.btnCastVigor.Location = new System.Drawing.Point(572, 128);
             this.btnCastVigor.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastVigor.Name = "btnCastVigor";
             this.btnCastVigor.Size = new System.Drawing.Size(124, 34);
@@ -345,7 +347,7 @@
             // 
             // txtOneOffCommand
             // 
-            this.txtOneOffCommand.Location = new System.Drawing.Point(84, 451);
+            this.txtOneOffCommand.Location = new System.Drawing.Point(84, 494);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
             this.txtOneOffCommand.Size = new System.Drawing.Size(249, 22);
@@ -354,7 +356,7 @@
             // lblOneOffCommand
             // 
             this.lblOneOffCommand.AutoSize = true;
-            this.lblOneOffCommand.Location = new System.Drawing.Point(14, 454);
+            this.lblOneOffCommand.Location = new System.Drawing.Point(14, 497);
             this.lblOneOffCommand.Name = "lblOneOffCommand";
             this.lblOneOffCommand.Size = new System.Drawing.Size(52, 16);
             this.lblOneOffCommand.TabIndex = 30;
@@ -374,7 +376,7 @@
             // 
             // btnClearOneOff
             // 
-            this.btnClearOneOff.Location = new System.Drawing.Point(340, 451);
+            this.btnClearOneOff.Location = new System.Drawing.Point(340, 494);
             this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnClearOneOff.Name = "btnClearOneOff";
             this.btnClearOneOff.Size = new System.Drawing.Size(85, 30);
@@ -396,7 +398,7 @@
             // 
             // btnOneOffExecute
             // 
-            this.btnOneOffExecute.Location = new System.Drawing.Point(431, 451);
+            this.btnOneOffExecute.Location = new System.Drawing.Point(431, 494);
             this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOneOffExecute.Name = "btnOneOffExecute";
             this.btnOneOffExecute.Size = new System.Drawing.Size(85, 30);
@@ -407,7 +409,7 @@
             // 
             // btnAttackMob
             // 
-            this.btnAttackMob.Location = new System.Drawing.Point(248, 169);
+            this.btnAttackMob.Location = new System.Drawing.Point(248, 210);
             this.btnAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAttackMob.Name = "btnAttackMob";
             this.btnAttackMob.Size = new System.Drawing.Size(156, 34);
@@ -437,7 +439,7 @@
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(702, 211);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(703, 128);
             this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(124, 34);
@@ -449,7 +451,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(702, 252);
+            this.button1.Location = new System.Drawing.Point(703, 211);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(124, 34);
@@ -560,7 +562,7 @@
             // 
             // btnUseWandOnMob
             // 
-            this.btnUseWandOnMob.Location = new System.Drawing.Point(248, 293);
+            this.btnUseWandOnMob.Location = new System.Drawing.Point(248, 334);
             this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(156, 34);
@@ -608,7 +610,7 @@
             // 
             // btnPowerAttackMob
             // 
-            this.btnPowerAttackMob.Location = new System.Drawing.Point(250, 211);
+            this.btnPowerAttackMob.Location = new System.Drawing.Point(250, 252);
             this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
             this.btnPowerAttackMob.Size = new System.Drawing.Size(156, 34);
@@ -644,7 +646,7 @@
             this.grpRealm.Controls.Add(this.radWater);
             this.grpRealm.Controls.Add(this.radWind);
             this.grpRealm.Controls.Add(this.radEarth);
-            this.grpRealm.Location = new System.Drawing.Point(86, 385);
+            this.grpRealm.Location = new System.Drawing.Point(86, 428);
             this.grpRealm.Margin = new System.Windows.Forms.Padding(4);
             this.grpRealm.Name = "grpRealm";
             this.grpRealm.Padding = new System.Windows.Forms.Padding(4);
@@ -726,11 +728,11 @@
             // grpOneClickMacros
             // 
             this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
-            this.grpOneClickMacros.Location = new System.Drawing.Point(6, 487);
+            this.grpOneClickMacros.Location = new System.Drawing.Point(6, 532);
             this.grpOneClickMacros.Margin = new System.Windows.Forms.Padding(4);
             this.grpOneClickMacros.Name = "grpOneClickMacros";
             this.grpOneClickMacros.Padding = new System.Windows.Forms.Padding(4);
-            this.grpOneClickMacros.Size = new System.Drawing.Size(801, 129);
+            this.grpOneClickMacros.Size = new System.Drawing.Size(801, 84);
             this.grpOneClickMacros.TabIndex = 65;
             this.grpOneClickMacros.TabStop = false;
             this.grpOneClickMacros.Text = "One Click Macros";
@@ -741,7 +743,7 @@
             this.flpOneClickMacros.Location = new System.Drawing.Point(4, 19);
             this.flpOneClickMacros.Margin = new System.Windows.Forms.Padding(4);
             this.flpOneClickMacros.Name = "flpOneClickMacros";
-            this.flpOneClickMacros.Size = new System.Drawing.Size(793, 106);
+            this.flpOneClickMacros.Size = new System.Drawing.Size(793, 61);
             this.flpOneClickMacros.TabIndex = 0;
             // 
             // btnVariables
@@ -785,7 +787,7 @@
             // 
             // btnFumbleMob
             // 
-            this.btnFumbleMob.Location = new System.Drawing.Point(250, 333);
+            this.btnFumbleMob.Location = new System.Drawing.Point(250, 374);
             this.btnFumbleMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnFumbleMob.Name = "btnFumbleMob";
             this.btnFumbleMob.Size = new System.Drawing.Size(156, 34);
@@ -907,6 +909,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnStunMob);
+            this.pnlMain.Controls.Add(this.btnCastMend);
             this.pnlMain.Controls.Add(this.btnReddishOrange);
             this.pnlMain.Controls.Add(this.btnHide);
             this.pnlMain.Controls.Add(this.btnSearch);
@@ -974,6 +978,30 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1320, 635);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnCastMend
+            // 
+            this.btnCastMend.Location = new System.Drawing.Point(573, 169);
+            this.btnCastMend.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnCastMend.Name = "btnCastMend";
+            this.btnCastMend.Size = new System.Drawing.Size(124, 34);
+            this.btnCastMend.TabIndex = 82;
+            this.btnCastMend.Tag = "cast mend-wounds";
+            this.btnCastMend.Text = "Cast Mend";
+            this.btnCastMend.UseVisualStyleBackColor = true;
+            this.btnCastMend.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // btnReddishOrange
+            // 
+            this.btnReddishOrange.Location = new System.Drawing.Point(703, 170);
+            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnReddishOrange.Name = "btnReddishOrange";
+            this.btnReddishOrange.Size = new System.Drawing.Size(124, 34);
+            this.btnReddishOrange.TabIndex = 81;
+            this.btnReddishOrange.Tag = "drink reddish-orange";
+            this.btnReddishOrange.Text = "Red-Orange pot";
+            this.btnReddishOrange.UseVisualStyleBackColor = true;
+            this.btnReddishOrange.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnHide
             // 
@@ -1056,16 +1084,17 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
-            // btnReddishOrange
+            // btnStunMob
             // 
-            this.btnReddishOrange.Location = new System.Drawing.Point(703, 170);
-            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnReddishOrange.Name = "btnReddishOrange";
-            this.btnReddishOrange.Size = new System.Drawing.Size(124, 34);
-            this.btnReddishOrange.TabIndex = 81;
-            this.btnReddishOrange.Tag = "drink reddish-orange";
-            this.btnReddishOrange.Text = "Red-Orange pot";
-            this.btnReddishOrange.UseVisualStyleBackColor = true;
+            this.btnStunMob.Location = new System.Drawing.Point(248, 170);
+            this.btnStunMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnStunMob.Name = "btnStunMob";
+            this.btnStunMob.Size = new System.Drawing.Size(156, 34);
+            this.btnStunMob.TabIndex = 83;
+            this.btnStunMob.Tag = "cast stun {mob}";
+            this.btnStunMob.Text = "Stun Mob";
+            this.btnStunMob.UseVisualStyleBackColor = true;
+            this.btnStunMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // frmMain
             // 
@@ -1173,6 +1202,8 @@
         private System.Windows.Forms.ComboBox cboMacros;
         private System.Windows.Forms.Button btnRunMacro;
         private System.Windows.Forms.Button btnReddishOrange;
+        private System.Windows.Forms.Button btnCastMend;
+        private System.Windows.Forms.Button btnStunMob;
     }
 }
 
