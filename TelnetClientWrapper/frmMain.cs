@@ -442,8 +442,20 @@ namespace IsengardClient
                         continue;
                     }
 
+                    string sSetParentLocation = elemMacro.GetAttribute("setparentlocation");
+                    bool bSetParentLocation = false;
+                    if (!string.IsNullOrEmpty(sSetParentLocation))
+                    {
+                        if (!bool.TryParse(sSetParentLocation, out bSetParentLocation))
+                        {
+                            errorMessages.Add("Invalid set parent location for " + macroName + " " + sSetParentLocation);
+                            continue;
+                        }
+                    }
+
                     bool macroIsValid = true;
                     Macro oMacro = new Macro(macroName);
+                    oMacro.SetParentLocation = bSetParentLocation;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
                     if (foundSteps == null)
                     {
@@ -687,7 +699,7 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!_currentBackgroundParameters.Cancelled && _currentBackgroundParameters.CommandsRun > 0)
+            if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
                 if (targetRoom != null)
@@ -1117,7 +1129,7 @@ namespace IsengardClient
             Room oFallon = AddRoom("Fallon");
             AddExit(oChurchsEnglishGardenFallonThreshold, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
-            SetVariablesForPermWithThreshold(oFallon, oChurchsEnglishGardenFallonThreshold, "door", null);
+            SetVariablesForPermWithThreshold(oFallon, oChurchsEnglishGardenFallonThreshold, "door", null, 2);
             oFallon.Mob = oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
@@ -1163,13 +1175,13 @@ namespace IsengardClient
             oToCasino.Mob = oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
-            SetVariablesForPermWithThreshold(oGuido, oToCasino, "casino", null);
+            SetVariablesForPermWithThreshold(oGuido, oToCasino, "casino", null, 2);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall");
             oToBarracks.Mob = oSergeantGrimdall.Mob = "Sergeant";
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
-            SetVariablesForPermWithThreshold(oSergeantGrimdall, oToBarracks, "barracks", null);
+            SetVariablesForPermWithThreshold(oSergeantGrimdall, oToBarracks, "barracks", null, 2);
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1205,16 +1217,31 @@ namespace IsengardClient
             AddLocation(aBree, oLeonardosSwords);
         }
 
-        private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand)
+        private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand, int numRounds)
         {
+            string sCastsPerStun, sStunRounds;
+            if (numRounds == 1)
+            {
+                sCastsPerStun = "1";
+                sStunRounds = "3";
+            }
+            else if (numRounds == 2)
+            {
+                sCastsPerStun = "2";
+                sStunRounds = "2";
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNPRECOMMAND, string.Empty);
-            AddRoomVariableValue(perm, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, "3");
+            AddRoomVariableValue(perm, VARIABLE_LEVEL2CASTROUNDS, sCastsPerStun);
+            AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, sStunRounds);
             AddRoomVariableValue(threshold, VARIABLE_HITANDRUNDIRECTION, hitAndRunDirection);
             AddRoomVariableValue(threshold, VARIABLE_HITANDRUNPRECOMMAND, hitAndRunPrecommand);
-            AddRoomVariableValue(threshold, VARIABLE_LEVEL2CASTROUNDS, "1");
-            AddRoomVariableValue(threshold, VARIABLE_STUNCASTROUNDS, "3");
+            AddRoomVariableValue(threshold, VARIABLE_LEVEL2CASTROUNDS, sCastsPerStun);
+            AddRoomVariableValue(threshold, VARIABLE_STUNCASTROUNDS, sStunRounds);
         }
 
         /// <summary>
@@ -1485,7 +1512,7 @@ namespace IsengardClient
             oManagerMulloy.Mob = "manager";
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
-            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null);
+            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null, 1);
 
             Room oOuthouse = AddRoom("Outhouse");
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
@@ -1808,6 +1835,7 @@ namespace IsengardClient
         {
             if (locRoom.SubLocations == null) locRoom.SubLocations = new List<Room>();
             locRoom.SubLocations.Add(subRoom);
+            subRoom.ParentRoom = locRoom;
         }
 
         private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, string preCommand)
@@ -1894,6 +1922,7 @@ namespace IsengardClient
             public string Mob { get; set; }
             public Dictionary<Variable, string> VariableValues { get; set; }
             public List<Room> SubLocations { get; set; }
+            public Room ParentRoom { get; set; }
         }
 
         internal class Exit : Edge<Room>
@@ -2119,7 +2148,15 @@ namespace IsengardClient
             Button btn = (Button)sender;
             string command = TranslateCommand(btn.Tag.ToString(), out string errorMessage);
             if (string.IsNullOrEmpty(errorMessage))
-                SendCommand(command, true);
+            {
+                if (SendCommand(command, true))
+                {
+                    if (m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
+                    {
+                        SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
+                    }
+                }
+            }
             else
                 MessageBox.Show(errorMessage);
         }
@@ -2223,6 +2260,7 @@ namespace IsengardClient
             public Dictionary<string, Variable> Variables { get; set; }
             public int WaitMS { get; set; }
             public bool Cancelled { get; set; }
+            public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
         }
 
@@ -2315,6 +2353,11 @@ namespace IsengardClient
                 }
             }
             _currentBackgroundParameters = new BackgroundWorkerParameters();
+            if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
+            {
+                _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
+                _currentBackgroundParameters.SetTargetRoomIfCancelled = true;
+            }
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
@@ -2365,6 +2408,7 @@ namespace IsengardClient
 
             public string Name { get; set; }
             public List<MacroStepBase> Steps { get; set; }
+            public bool SetParentLocation { get; set; }
         }
 
         public class MacroStepBase

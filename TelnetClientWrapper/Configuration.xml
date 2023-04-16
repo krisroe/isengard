@@ -16,7 +16,7 @@
     <Command text="cast {realm1spell} {mob}" waitms="castinterval" loop="level1castrounds"/>
    </Steps>
   </Macro>
-  <Macro name="stuncastrepeat" oneclick="true">
+  <Macro name="stuncastrepeat" oneclick="true" setparentlocation="true">
    <Steps>
     <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
