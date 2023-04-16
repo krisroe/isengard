@@ -687,7 +687,7 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!_currentBackgroundParameters.Cancelled)
+            if (!_currentBackgroundParameters.Cancelled && _currentBackgroundParameters.CommandsRun > 0)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
                 if (targetRoom != null)
@@ -755,7 +755,11 @@ namespace IsengardClient
 
                 if (_bw.CancellationPending) break;
                 string sCommand = nextCommand.Command;
-                if (!SendCommand(sCommand, false))
+                if (SendCommand(sCommand, false))
+                {
+                    pms.CommandsRun++;
+                }
+                else
                 {
                     break;
                 }
@@ -1474,6 +1478,15 @@ namespace IsengardClient
             AddRoomVariableValue(oRoadToFarm7HoundDog, VARIABLE_LEVEL2CASTROUNDS, "4");
             AddRoomVariableValue(oRoadToFarm7HoundDog, VARIABLE_LEVEL1CASTROUNDS, "0");
 
+            Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
+            oFarmParlorManagerMulloyThreshold.Mob = "manager";
+            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
+            Room oManagerMulloy = AddRoom("Manager Mulloy");
+            oManagerMulloy.Mob = "manager";
+            AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
+            AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
+            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null);
+
             Room oOuthouse = AddRoom("Outhouse");
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
 
@@ -1556,6 +1569,8 @@ namespace IsengardClient
             AddRoomVariableValue(oSpriteGuards, VARIABLE_LEVEL1CASTROUNDS, "0");
 
             AddLocation(oBreeToImladris, oRoadToFarm7HoundDog);
+            AddLocation(oBreeToImladris, oManagerMulloy);
+            AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(oBreeToImladris, oSalamander);
             AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(oBreeToImladris, oNorthBrethilForest4GobAmbushThreshold);
@@ -2208,6 +2223,7 @@ namespace IsengardClient
             public Dictionary<string, Variable> Variables { get; set; }
             public int WaitMS { get; set; }
             public bool Cancelled { get; set; }
+            public int CommandsRun { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
