@@ -1636,6 +1636,16 @@ namespace IsengardClient
             Room oImladrisAlley5 = AddRoom("Side Alley South");
             AddBidirectionalExits(oImladrisAlley4, oImladrisAlley5, BidirectionalExitType.NorthSouth);
 
+            Room oImladrisSmallAlley1 = AddRoom("Small Alley");
+            AddExit(oImladrisAlley3, oImladrisSmallAlley1, "alley");
+            AddExit(oImladrisSmallAlley1, oImladrisAlley3, "south");
+
+            Room oImladrisSmallAlley2 = AddRoom("Small Alley");
+            AddBidirectionalExits(oImladrisSmallAlley2, oImladrisSmallAlley1, BidirectionalExitType.NorthSouth);
+
+            Room oImladrisPawnShop = AddRoom("Sharkey's Pawn Shop");
+            AddBidirectionalSameNameExit(oImladrisPawnShop, oImladrisSmallAlley2, "door", null);
+
             Room oImladrisCircle10 = AddRoom("Imladris Circle");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
 
@@ -1665,6 +1675,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
 
             AddLocation(oImladris, oImladrisHealingHand);
+            AddLocation(oImladris, oImladrisPawnShop);
             AddLocation(oImladris, oTyriesPriestSupplies);
         }
 
@@ -1744,6 +1755,18 @@ namespace IsengardClient
             Room oGypsyCamp = AddRoom("Gypsy Camp");
             AddBidirectionalExits(oGypsyCamp, oRedFoxLane, BidirectionalExitType.SoutheastNorthwest);
 
+            Room oNorthShantyTown = AddRoom("North Shanty Town");
+            AddBidirectionalExits(oRedFoxLane, oNorthShantyTown, BidirectionalExitType.SouthwestNortheast);
+
+            Room oShantyTownDump = AddRoom("Shanty Town Dump");
+            AddBidirectionalExits(oNorthShantyTown, oShantyTownDump, BidirectionalExitType.SouthwestNortheast);
+
+            Room oShantyTownWest = AddRoom("Shanty Town West");
+            AddBidirectionalExits(oShantyTownDump, oShantyTownWest, BidirectionalExitType.NorthSouth);
+
+            Room oShantyTown = AddRoom("Shanty Town");
+            AddBidirectionalExits(oNorthEdgeOfShantyTown, oShantyTown, BidirectionalExitType.NorthSouth);
+
             Room oPrinceBrunden = AddRoom("Prince Brunden");
             oPrinceBrunden.Mob = "Prince";
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
@@ -1751,7 +1774,31 @@ namespace IsengardClient
             AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL2CASTROUNDS, "4");
             AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL1CASTROUNDS, "0");
 
+            Room oNaugrim = AddRoom("Naugrim");
+            oNaugrim.Mob = "Naugrim";
+            AddExit(oNorthShantyTown, oNaugrim, "cask");
+            AddExit(oNaugrim, oNorthShantyTown, "out");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_STUNCASTROUNDS, "1");
+
+            Room oHogoth = AddRoom("Hogoth");
+            oHogoth.Mob = "Hogoth";
+            AddExit(oShantyTownWest, oHogoth, "shack");
+            AddExit(oHogoth, oShantyTownWest, "out");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_STUNCASTROUNDS, "1");
+
+            Room oFaornil = AddRoom("Faornil");
+            oFaornil.Mob = "Faornil";
+            AddExit(oShantyTown, oFaornil, "tent");
+            AddExit(oFaornil, oShantyTown, "out");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL2CASTROUNDS, "4");
+            AddRoomVariableValue(oPrinceBrunden, VARIABLE_STUNCASTROUNDS, "1");
+
             AddLocation(oImladrisToTharbad, oPrinceBrunden);
+            AddLocation(oImladrisToTharbad, oNaugrim);
+            AddLocation(oImladrisToTharbad, oHogoth);
+            AddLocation(oImladrisToTharbad, oFaornil);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
