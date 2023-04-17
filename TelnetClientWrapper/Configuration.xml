@@ -29,6 +29,11 @@
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
+  <Macro name="repeatatk" oneclick="true">
+   <Steps>
+    <Command text="attack {mob}" waitms="castinterval" loop="true"/>
+   </Steps>
+  </Macro>
   <Macro name="cast+atkX" oneclick="true">
    <Steps>
     <Sequence loop="level2castrounds">

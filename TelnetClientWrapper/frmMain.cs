@@ -1764,8 +1764,11 @@ namespace IsengardClient
             Room oShantyTownWest = AddRoom("Shanty Town West");
             AddBidirectionalExits(oShantyTownDump, oShantyTownWest, BidirectionalExitType.NorthSouth);
 
-            Room oShantyTown = AddRoom("Shanty Town");
-            AddBidirectionalExits(oNorthEdgeOfShantyTown, oShantyTown, BidirectionalExitType.NorthSouth);
+            Room oShantyTown1 = AddRoom("Shanty Town");
+            AddBidirectionalExits(oNorthEdgeOfShantyTown, oShantyTown1, BidirectionalExitType.NorthSouth);
+
+            Room oShantyTown2GraddyThreshold = AddRoom("Graddy Threshold");
+            AddBidirectionalExits(oShantyTown1, oShantyTown2GraddyThreshold, BidirectionalExitType.NorthSouth);
 
             Room oPrinceBrunden = AddRoom("Prince Brunden");
             oPrinceBrunden.Mob = "Prince";
@@ -1790,15 +1793,23 @@ namespace IsengardClient
 
             Room oFaornil = AddRoom("Faornil");
             oFaornil.Mob = "Faornil";
-            AddExit(oShantyTown, oFaornil, "tent");
-            AddExit(oFaornil, oShantyTown, "out");
+            AddExit(oShantyTown1, oFaornil, "tent");
+            AddExit(oFaornil, oShantyTown1, "out");
             AddRoomVariableValue(oPrinceBrunden, VARIABLE_LEVEL2CASTROUNDS, "4");
             AddRoomVariableValue(oPrinceBrunden, VARIABLE_STUNCASTROUNDS, "1");
+
+            Room oGraddy = AddRoom("Graddy");
+            oGraddy.Mob = oShantyTown2GraddyThreshold.Mob = "Graddy";
+            AddExit(oShantyTown2GraddyThreshold, oGraddy, "wagon");
+            AddExit(oGraddy, oShantyTown2GraddyThreshold, "out");
+            SetVariablesForPermWithThreshold(oGraddy, oShantyTown2GraddyThreshold, "wagon", null, 2);
 
             AddLocation(oImladrisToTharbad, oPrinceBrunden);
             AddLocation(oImladrisToTharbad, oNaugrim);
             AddLocation(oImladrisToTharbad, oHogoth);
             AddLocation(oImladrisToTharbad, oFaornil);
+            AddLocation(oImladrisToTharbad, oGraddy);
+            AddSubLocation(oGraddy, oShantyTown2GraddyThreshold);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
