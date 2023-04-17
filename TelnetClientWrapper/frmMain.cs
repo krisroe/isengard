@@ -205,6 +205,29 @@ namespace IsengardClient
 
             List<string> errorMessages = new List<string>();
 
+            string sDefaultRealm = doc.DocumentElement.GetAttribute("defaultrealm");
+            if (!string.IsNullOrEmpty(sDefaultRealm))
+            {
+                switch (sDefaultRealm.ToLower())
+                {
+                    case "earth":
+                        radEarth.Checked = true;
+                        break;
+                    case "fire":
+                        radFire.Checked = true;
+                        break;
+                    case "water":
+                        radWater.Checked = true;
+                        break;
+                    case "wind":
+                        radWind.Checked = true;
+                        break;
+                    default:
+                        MessageBox.Show("Invalid default realm: " + sDefaultRealm);
+                        break;
+                }
+            }
+
             bool dupMacros = false;
             bool dupVariables = false;
             XmlElement macrosElement = null;
