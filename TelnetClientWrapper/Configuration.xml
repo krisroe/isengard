@@ -10,13 +10,13 @@
   <Variable name="hitandrunprecommand" type="string"/>
  </Variables>
  <Macros>
-  <Macro name="castX" oneclick="true">
+  <Macro name="castX" oneclick="true" combatcommandtypes="Magic">
    <Steps>
     <Command text="cast {realm2spell} {mob}" waitms="castinterval" loop="level2castrounds"/>
     <Command text="cast {realm1spell} {mob}" waitms="castinterval" loop="level1castrounds"/>
    </Steps>
   </Macro>
-  <Macro name="stuncastrepeat" oneclick="true" setparentlocation="true">
+  <Macro name="stuncastrepeat" oneclick="true" setparentlocation="true" combatcommandtypes="Magic">
    <Steps>
     <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
@@ -29,12 +29,12 @@
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
-  <Macro name="repeatatk" oneclick="true">
+  <Macro name="repeatatk" oneclick="true" combatcommandtypes="Melee">
    <Steps>
     <Command text="attack {mob}" waitms="castinterval" loop="true"/>
    </Steps>
   </Macro>
-  <Macro name="cast+atkX" oneclick="true">
+  <Macro name="cast+atkX" oneclick="true" combatcommandtypes="Magic,Melee">
    <Steps>
     <Sequence loop="level2castrounds">
      <Steps>
@@ -44,7 +44,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="cast+atk+potX" oneclick="true">
+  <Macro name="cast+atk+potX" oneclick="true" combatcommandtypes="Magic,Melee,Potions">
    <Steps>
     <Sequence loop="level2castrounds">
      <Steps>

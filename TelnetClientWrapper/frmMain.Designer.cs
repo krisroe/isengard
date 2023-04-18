@@ -58,7 +58,7 @@
             this.txtCurrentRoom = new System.Windows.Forms.TextBox();
             this.lblCurrentRoom = new System.Windows.Forms.Label();
             this.btnDrinkYellow = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnDrinkGreen = new System.Windows.Forms.Button();
             this.txtWeapon = new System.Windows.Forms.TextBox();
             this.lblWeapon = new System.Windows.Forms.Label();
             this.btnWieldWeapon = new System.Windows.Forms.Button();
@@ -127,7 +127,6 @@
             this.btnLevel1OffensiveSpell.Name = "btnLevel1OffensiveSpell";
             this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(156, 34);
             this.btnLevel1OffensiveSpell.TabIndex = 0;
-            this.btnLevel1OffensiveSpell.Tag = "cast {realm1spell} {mob}";
             this.btnLevel1OffensiveSpell.Text = "Level 1 Offensive Spell";
             this.btnLevel1OffensiveSpell.UseVisualStyleBackColor = true;
             this.btnLevel1OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -174,7 +173,6 @@
             this.btnLevel2OffensiveSpell.Name = "btnLevel2OffensiveSpell";
             this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(156, 34);
             this.btnLevel2OffensiveSpell.TabIndex = 5;
-            this.btnLevel2OffensiveSpell.Tag = "cast {realm2spell} {mob}";
             this.btnLevel2OffensiveSpell.Text = "Level 2 Offensive Spell";
             this.btnLevel2OffensiveSpell.UseVisualStyleBackColor = true;
             this.btnLevel2OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -186,7 +184,6 @@
             this.btnFlee.Name = "btnFlee";
             this.btnFlee.Size = new System.Drawing.Size(156, 34);
             this.btnFlee.TabIndex = 6;
-            this.btnFlee.Tag = "flee";
             this.btnFlee.Text = "Flee";
             this.btnFlee.UseVisualStyleBackColor = true;
             this.btnFlee.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -198,7 +195,6 @@
             this.btnDrinkHazy.Name = "btnDrinkHazy";
             this.btnDrinkHazy.Size = new System.Drawing.Size(156, 34);
             this.btnDrinkHazy.TabIndex = 7;
-            this.btnDrinkHazy.Tag = "drink hazy";
             this.btnDrinkHazy.Text = "Drink Hazy";
             this.btnDrinkHazy.UseVisualStyleBackColor = true;
             this.btnDrinkHazy.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -210,7 +206,6 @@
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(156, 34);
             this.btnLookAtMob.TabIndex = 8;
-            this.btnLookAtMob.Tag = "look {mob}";
             this.btnLookAtMob.Text = "Look at Mob";
             this.btnLookAtMob.UseVisualStyleBackColor = true;
             this.btnLookAtMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -222,7 +217,6 @@
             this.btnLook.Name = "btnLook";
             this.btnLook.Size = new System.Drawing.Size(156, 34);
             this.btnLook.TabIndex = 9;
-            this.btnLook.Tag = "look";
             this.btnLook.Text = "Look";
             this.btnLook.UseVisualStyleBackColor = true;
             this.btnLook.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -234,7 +228,6 @@
             this.btnCastVigor.Name = "btnCastVigor";
             this.btnCastVigor.Size = new System.Drawing.Size(124, 34);
             this.btnCastVigor.TabIndex = 10;
-            this.btnCastVigor.Tag = "cast vigor";
             this.btnCastVigor.Text = "Cast Vigor";
             this.btnCastVigor.UseVisualStyleBackColor = true;
             this.btnCastVigor.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -246,7 +239,6 @@
             this.btnManashield.Name = "btnManashield";
             this.btnManashield.Size = new System.Drawing.Size(156, 34);
             this.btnManashield.TabIndex = 11;
-            this.btnManashield.Tag = "manashield";
             this.btnManashield.Text = "Manashield";
             this.btnManashield.UseVisualStyleBackColor = true;
             this.btnManashield.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -258,7 +250,6 @@
             this.btnCastCurePoison.Name = "btnCastCurePoison";
             this.btnCastCurePoison.Size = new System.Drawing.Size(124, 34);
             this.btnCastCurePoison.TabIndex = 18;
-            this.btnCastCurePoison.Tag = "cast cure-poison";
             this.btnCastCurePoison.Text = "Cast Curepoison";
             this.btnCastCurePoison.UseVisualStyleBackColor = true;
             this.btnCastCurePoison.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -270,7 +261,6 @@
             this.btnTime.Name = "btnTime";
             this.btnTime.Size = new System.Drawing.Size(136, 34);
             this.btnTime.TabIndex = 19;
-            this.btnTime.Tag = "time";
             this.btnTime.Text = "Time";
             this.btnTime.UseVisualStyleBackColor = true;
             this.btnTime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -282,7 +272,6 @@
             this.btnScore.Name = "btnScore";
             this.btnScore.Size = new System.Drawing.Size(136, 34);
             this.btnScore.TabIndex = 20;
-            this.btnScore.Tag = "score";
             this.btnScore.Text = "Score";
             this.btnScore.UseVisualStyleBackColor = true;
             this.btnScore.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -294,7 +283,6 @@
             this.btnInformation.Name = "btnInformation";
             this.btnInformation.Size = new System.Drawing.Size(136, 34);
             this.btnInformation.TabIndex = 21;
-            this.btnInformation.Tag = "information";
             this.btnInformation.Text = "Information";
             this.btnInformation.UseVisualStyleBackColor = true;
             this.btnInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -328,7 +316,6 @@
             this.btnCastProtection.Name = "btnCastProtection";
             this.btnCastProtection.Size = new System.Drawing.Size(124, 34);
             this.btnCastProtection.TabIndex = 26;
-            this.btnCastProtection.Tag = "cast protection";
             this.btnCastProtection.Text = "Cast Protection";
             this.btnCastProtection.UseVisualStyleBackColor = true;
             this.btnCastProtection.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -369,7 +356,6 @@
             this.btnInventory.Name = "btnInventory";
             this.btnInventory.Size = new System.Drawing.Size(136, 34);
             this.btnInventory.TabIndex = 31;
-            this.btnInventory.Tag = "inventory";
             this.btnInventory.Text = "Inventory";
             this.btnInventory.UseVisualStyleBackColor = true;
             this.btnInventory.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -414,7 +400,6 @@
             this.btnAttackMob.Name = "btnAttackMob";
             this.btnAttackMob.Size = new System.Drawing.Size(156, 34);
             this.btnAttackMob.TabIndex = 35;
-            this.btnAttackMob.Tag = "kill {mob}";
             this.btnAttackMob.Text = "Attack Mob";
             this.btnAttackMob.UseVisualStyleBackColor = true;
             this.btnAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -444,22 +429,20 @@
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(124, 34);
             this.btnDrinkYellow.TabIndex = 39;
-            this.btnDrinkYellow.Tag = "drink yellow";
             this.btnDrinkYellow.Text = "Yellow pot";
             this.btnDrinkYellow.UseVisualStyleBackColor = true;
             this.btnDrinkYellow.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // button1
+            // btnDrinkGreen
             // 
-            this.button1.Location = new System.Drawing.Point(703, 211);
-            this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(124, 34);
-            this.button1.TabIndex = 40;
-            this.button1.Tag = "drink green";
-            this.button1.Text = "Green pot";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnDrinkGreen.Location = new System.Drawing.Point(703, 211);
+            this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnDrinkGreen.Name = "btnDrinkGreen";
+            this.btnDrinkGreen.Size = new System.Drawing.Size(124, 34);
+            this.btnDrinkGreen.TabIndex = 40;
+            this.btnDrinkGreen.Text = "Green pot";
+            this.btnDrinkGreen.UseVisualStyleBackColor = true;
+            this.btnDrinkGreen.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // txtWeapon
             // 
@@ -485,7 +468,6 @@
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(156, 34);
             this.btnWieldWeapon.TabIndex = 43;
-            this.btnWieldWeapon.Tag = "wield {weapon}";
             this.btnWieldWeapon.Text = "Wield Weapon";
             this.btnWieldWeapon.UseVisualStyleBackColor = true;
             this.btnWieldWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -497,7 +479,6 @@
             this.btnCastBless.Name = "btnCastBless";
             this.btnCastBless.Size = new System.Drawing.Size(124, 34);
             this.btnCastBless.TabIndex = 44;
-            this.btnCastBless.Tag = "cast bless";
             this.btnCastBless.Text = "Cast Bless";
             this.btnCastBless.UseVisualStyleBackColor = true;
             this.btnCastBless.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -567,7 +548,6 @@
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(156, 34);
             this.btnUseWandOnMob.TabIndex = 50;
-            this.btnUseWandOnMob.Tag = "zap {wand} {mob}";
             this.btnUseWandOnMob.Text = "Wand Mob";
             this.btnUseWandOnMob.UseVisualStyleBackColor = true;
             this.btnUseWandOnMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -579,7 +559,6 @@
             this.btnWho.Name = "btnWho";
             this.btnWho.Size = new System.Drawing.Size(136, 34);
             this.btnWho.TabIndex = 51;
-            this.btnWho.Tag = "who";
             this.btnWho.Text = "Who";
             this.btnWho.UseVisualStyleBackColor = true;
             this.btnWho.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -591,7 +570,6 @@
             this.btnUptime.Name = "btnUptime";
             this.btnUptime.Size = new System.Drawing.Size(136, 30);
             this.btnUptime.TabIndex = 52;
-            this.btnUptime.Tag = "uptime";
             this.btnUptime.Text = "Uptime";
             this.btnUptime.UseVisualStyleBackColor = true;
             this.btnUptime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -603,7 +581,6 @@
             this.btnEquipment.Name = "btnEquipment";
             this.btnEquipment.Size = new System.Drawing.Size(136, 34);
             this.btnEquipment.TabIndex = 53;
-            this.btnEquipment.Tag = "equipment";
             this.btnEquipment.Text = "Equipment";
             this.btnEquipment.UseVisualStyleBackColor = true;
             this.btnEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -615,7 +592,6 @@
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
             this.btnPowerAttackMob.Size = new System.Drawing.Size(156, 34);
             this.btnPowerAttackMob.TabIndex = 54;
-            this.btnPowerAttackMob.Tag = "power {mob}";
             this.btnPowerAttackMob.Text = "Power Attack Mob";
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
             this.btnPowerAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -627,7 +603,6 @@
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(136, 34);
             this.btnQuit.TabIndex = 55;
-            this.btnQuit.Tag = "quit";
             this.btnQuit.Text = "Quit";
             this.btnQuit.UseVisualStyleBackColor = true;
             this.btnQuit.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -780,7 +755,6 @@
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
             this.btnRemoveWeapon.Size = new System.Drawing.Size(156, 34);
             this.btnRemoveWeapon.TabIndex = 69;
-            this.btnRemoveWeapon.Tag = "remove {weapon}";
             this.btnRemoveWeapon.Text = "Remove Weapon";
             this.btnRemoveWeapon.UseVisualStyleBackColor = true;
             this.btnRemoveWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -792,7 +766,6 @@
             this.btnFumbleMob.Name = "btnFumbleMob";
             this.btnFumbleMob.Size = new System.Drawing.Size(156, 34);
             this.btnFumbleMob.TabIndex = 70;
-            this.btnFumbleMob.Tag = "cast fumble {mob}";
             this.btnFumbleMob.Text = "Fumble Mob";
             this.btnFumbleMob.UseVisualStyleBackColor = true;
             this.btnFumbleMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -971,7 +944,7 @@
             this.pnlMain.Controls.Add(this.btnWieldWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkYellow);
             this.pnlMain.Controls.Add(this.txtWeapon);
-            this.pnlMain.Controls.Add(this.button1);
+            this.pnlMain.Controls.Add(this.btnDrinkGreen);
             this.pnlMain.Controls.Add(this.lblWeapon);
             this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMain.Location = new System.Drawing.Point(3, 3);
@@ -986,7 +959,6 @@
             this.btnCastMend.Name = "btnCastMend";
             this.btnCastMend.Size = new System.Drawing.Size(124, 34);
             this.btnCastMend.TabIndex = 82;
-            this.btnCastMend.Tag = "cast mend-wounds";
             this.btnCastMend.Text = "Cast Mend";
             this.btnCastMend.UseVisualStyleBackColor = true;
             this.btnCastMend.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -998,7 +970,6 @@
             this.btnReddishOrange.Name = "btnReddishOrange";
             this.btnReddishOrange.Size = new System.Drawing.Size(124, 34);
             this.btnReddishOrange.TabIndex = 81;
-            this.btnReddishOrange.Tag = "drink reddish-orange";
             this.btnReddishOrange.Text = "Red-Orange pot";
             this.btnReddishOrange.UseVisualStyleBackColor = true;
             this.btnReddishOrange.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1091,7 +1062,6 @@
             this.btnStunMob.Name = "btnStunMob";
             this.btnStunMob.Size = new System.Drawing.Size(156, 34);
             this.btnStunMob.TabIndex = 83;
-            this.btnStunMob.Tag = "cast stun {mob}";
             this.btnStunMob.Text = "Stun Mob";
             this.btnStunMob.UseVisualStyleBackColor = true;
             this.btnStunMob.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1152,7 +1122,7 @@
         private System.Windows.Forms.TextBox txtCurrentRoom;
         private System.Windows.Forms.Label lblCurrentRoom;
         private System.Windows.Forms.Button btnDrinkYellow;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnDrinkGreen;
         private System.Windows.Forms.TextBox txtWeapon;
         private System.Windows.Forms.Label lblWeapon;
         private System.Windows.Forms.Button btnWieldWeapon;

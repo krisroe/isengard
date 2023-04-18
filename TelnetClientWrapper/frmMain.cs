@@ -32,6 +32,7 @@ namespace IsengardClient
         private Room _breeEastGateOutside = null;
         private Room _imladrisWestGateInside = null;
         private Room _imladrisWestGateOutside = null;
+        private object _queuedCommandLock = new object();
 
         private const string AREA_BREE = "Bree";
         private const string AREA_BREE_TO_HOBBITON = "Bree to Hobbiton";
@@ -132,12 +133,47 @@ namespace IsengardClient
             _keyMapping['z'] = 0x5A;
             _keyMapping['-'] = 0x6D;
 
+            SetButtonTags();
             LoadConfiguration();
             InitializeMap();
             SetNightEdges(false);
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
+        }
+
+        private void SetButtonTags()
+        {
+            btnLevel1OffensiveSpell.Tag = new CommandButtonTag("cast {realm1spell} {mob}", CommandType.Magic);
+            btnLevel2OffensiveSpell.Tag = new CommandButtonTag("cast {realm2spell} {mob}", CommandType.Magic);
+            btnFlee.Tag = new CommandButtonTag("flee", CommandType.Magic | CommandType.Melee | CommandType.Potions);
+            btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions);
+            btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None);
+            btnLook.Tag = new CommandButtonTag("look", CommandType.None);
+            btnCastVigor.Tag = new CommandButtonTag("cast vigor", CommandType.Magic);
+            btnManashield.Tag = new CommandButtonTag("manashield", CommandType.Magic);
+            btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic);
+            btnTime.Tag = new CommandButtonTag("time", CommandType.None);
+            btnScore.Tag = new CommandButtonTag("score", CommandType.None);
+            btnInformation.Tag = new CommandButtonTag("information", CommandType.None);
+            btnCastProtection.Tag = new CommandButtonTag("cast protection", CommandType.Magic);
+            btnInventory.Tag = new CommandButtonTag("inventory", CommandType.None);
+            btnAttackMob.Tag = new CommandButtonTag("kill {mob}", CommandType.Melee);
+            btnDrinkYellow.Tag = new CommandButtonTag("drink yellow", CommandType.Potions);
+            btnDrinkGreen.Tag = new CommandButtonTag("drink green", CommandType.Potions);
+            btnWieldWeapon.Tag = new CommandButtonTag("wield {weapon}", CommandType.None);
+            btnCastBless.Tag = new CommandButtonTag("cast bless", CommandType.Magic);
+            btnUseWandOnMob.Tag = new CommandButtonTag("zap {wand} {mob}", CommandType.Magic);
+            btnWho.Tag = new CommandButtonTag("who", CommandType.None);
+            btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None);
+            btnEquipment.Tag = new CommandButtonTag("equipment", CommandType.None);
+            btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee);
+            btnQuit.Tag = new CommandButtonTag("quit", CommandType.None);
+            btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None);
+            btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic);
+            btnCastMend.Tag = new CommandButtonTag("cast mend-wounds", CommandType.Magic);
+            btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions);
+            btnStunMob.Tag = new CommandButtonTag("cast stun {mob}", CommandType.Magic);
         }
 
         private void AddArea(string areaName)
@@ -476,9 +512,21 @@ namespace IsengardClient
                         }
                     }
 
+                    string sCombatCommandTypes = elemMacro.GetAttribute("combatcommandtypes");
+                    CommandType eCombatCommandTypes = CommandType.None;
+                    if (!string.IsNullOrEmpty(sCombatCommandTypes))
+                    {
+                        if (!Enum.TryParse(sCombatCommandTypes, out eCombatCommandTypes))
+                        {
+                            errorMessages.Add("Invalid combat command types for " + macroName + " " + sCombatCommandTypes);
+                            continue;
+                        }
+                    }
+
                     bool macroIsValid = true;
                     Macro oMacro = new Macro(macroName);
                     oMacro.SetParentLocation = bSetParentLocation;
+                    oMacro.CombatCommandTypes = eCombatCommandTypes;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
                     if (foundSteps == null)
                     {
@@ -731,6 +779,7 @@ namespace IsengardClient
                 }
             }
             ToggleBackgroundProcess(false);
+            _currentBackgroundParameters = null;
         }
 
         private void SetCurrentRoom(Room r)
@@ -774,6 +823,7 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
                 oCurrentCommand = nextCommand;
+                RunQueuedCommand();
 
                 //wait for an appropriate amount of time for commands after the first
                 if (oPreviousCommand != null)
@@ -785,6 +835,7 @@ namespace IsengardClient
                         if (_bw.CancellationPending) break;
                         Thread.Sleep(nextWaitMS);
                         remainingMS -= nextWaitMS;
+                        RunQueuedCommand();
                     }
                 }
 
@@ -797,6 +848,22 @@ namespace IsengardClient
                 else
                 {
                     break;
+                }
+                RunQueuedCommand();
+            }
+        }
+
+        private void RunQueuedCommand()
+        {
+            lock (_queuedCommandLock)
+            {
+                if (_currentBackgroundParameters.QueuedCommand != null)
+                {
+                    if (SendCommand(_currentBackgroundParameters.QueuedCommand, false))
+                    {
+                        _currentBackgroundParameters.CommandsRun++;
+                    }
+                    _currentBackgroundParameters.QueuedCommand = null;
                 }
             }
         }
@@ -947,6 +1014,9 @@ namespace IsengardClient
 
         private void ToggleBackgroundProcess(bool running)
         {
+            Macro m = _currentBackgroundParameters.Macro;
+            CommandType eRunningCombatCommandTypes = CommandType.Magic | CommandType.Melee | CommandType.Potions;
+            if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
             List<Panel> topLevelPanels = new List<Panel>
             {
                 pnlMain,
@@ -956,18 +1026,29 @@ namespace IsengardClient
             {
                 foreach (Control ctl in p.Controls)
                 {
-                    if (!(ctl is TextBox))
+                    if (ctl == btnAbort)
                     {
-                        bool enable;
-                        if (running)
+                        ctl.Enabled = running;
+                    }
+                    else if (ctl is Button)
+                    {
+                        if (ctl.Tag is CommandButtonTag)
                         {
-                            enable = ctl == btnAbort;
+                            CommandButtonTag cbt = (CommandButtonTag)ctl.Tag;
+                            ctl.Enabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
+                        }
+                        else if (ctl.Tag is string)
+                        {
+                            ctl.Enabled = !running;
                         }
                         else
                         {
-                            enable = ctl != btnAbort;
+                            ctl.Enabled = !running;
                         }
-                        ctl.Enabled = enable;
+                    }
+                    else if (!(ctl is TextBox))
+                    {
+                        ctl.Enabled = !running;
                     }
                 }
             }
@@ -2227,14 +2308,33 @@ namespace IsengardClient
         private void btnDoAction_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
-            string command = TranslateCommand(btn.Tag.ToString(), out string errorMessage);
+            string command;
+            if (btn.Tag is CommandButtonTag)
+            {
+                command = ((CommandButtonTag)btn.Tag).Command;
+            }
+            else
+            {
+                command = btn.Tag.ToString();
+            }
+            command = TranslateCommand(command, out string errorMessage);
             if (string.IsNullOrEmpty(errorMessage))
             {
-                if (SendCommand(command, true))
+                if (_currentBackgroundParameters != null) //queue to background process
                 {
-                    if (m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
+                    lock (_queuedCommandLock)
                     {
-                        SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
+                        _currentBackgroundParameters.QueuedCommand = command;
+                    }
+                }
+                else //send the command to the telnet window
+                {
+                    if (SendCommand(command, true))
+                    {
+                        if (btn == btnFlee && m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
+                        {
+                            SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
+                        }
                     }
                 }
             }
@@ -2343,6 +2443,8 @@ namespace IsengardClient
             public bool Cancelled { get; set; }
             public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
+            public Macro Macro { get; set; }
+            public string QueuedCommand { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -2352,11 +2454,6 @@ namespace IsengardClient
             {
                 _currentSearch.Abort();
             }
-        }
-
-        private void btnEnter_Click(object sender, EventArgs e)
-        {
-            SendCommand(string.Empty, true);
         }
 
         private void chkIsNight_CheckedChanged(object sender, EventArgs e)
@@ -2434,6 +2531,7 @@ namespace IsengardClient
                 }
             }
             _currentBackgroundParameters = new BackgroundWorkerParameters();
+            _currentBackgroundParameters.Macro = m;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
                 _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
@@ -2490,6 +2588,7 @@ namespace IsengardClient
             public string Name { get; set; }
             public List<MacroStepBase> Steps { get; set; }
             public bool SetParentLocation { get; set; }
+            public CommandType CombatCommandTypes { get; set; }
         }
 
         public class MacroStepBase
@@ -2545,6 +2644,26 @@ namespace IsengardClient
         private void btnVariables_Click(object sender, EventArgs e)
         {
             new frmVariables(_variables).ShowDialog(this);
+        }
+
+        public class CommandButtonTag
+        {
+            public CommandButtonTag(string Command, CommandType CommandType)
+            {
+                this.Command = Command;
+                this.CommandType = CommandType;
+            }
+            public string Command { get; set; }
+            public CommandType CommandType { get; set; }
+        }
+
+        [Flags]
+        public enum CommandType
+        {
+            None = 0,
+            Melee = 1,
+            Magic = 2,
+            Potions = 4,
         }
     }
 }
