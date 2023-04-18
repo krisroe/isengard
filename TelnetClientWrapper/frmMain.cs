@@ -146,6 +146,7 @@ namespace IsengardClient
         {
             btnLevel1OffensiveSpell.Tag = new CommandButtonTag("cast {realm1spell} {mob}", CommandType.Magic);
             btnLevel2OffensiveSpell.Tag = new CommandButtonTag("cast {realm2spell} {mob}", CommandType.Magic);
+            btnLevel3OffensiveSpell.Tag = new CommandButtonTag("cast {realm3spell} {mob}", CommandType.Magic);
             btnFlee.Tag = new CommandButtonTag("flee", CommandType.Magic | CommandType.Melee | CommandType.Potions);
             btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions);
             btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None);
@@ -2171,6 +2172,7 @@ namespace IsengardClient
             Potion,
             Realm1Spell,
             Realm2Spell,
+            Realm3Spell,
         }
 
         private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
@@ -2215,6 +2217,16 @@ namespace IsengardClient
                         value = "waterbolt";
                     else
                         throw new InvalidOperationException();
+                    break;
+                case ObjectType.Realm3Spell:
+                    if (radEarth.Checked)
+                        value = "shatterstone";
+                    else if (radWind.Checked)
+                        value = "shockbolt";
+                    else if (radFire.Checked)
+                        value = "burstflame";
+                    else if (radWater.Checked)
+                        value = "steamblast";
                     break;
                 default:
                     throw new InvalidOperationException();

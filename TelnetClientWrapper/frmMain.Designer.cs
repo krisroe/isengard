@@ -100,6 +100,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnStunMob = new System.Windows.Forms.Button();
             this.btnCastMend = new System.Windows.Forms.Button();
             this.btnReddishOrange = new System.Windows.Forms.Button();
             this.btnHide = new System.Windows.Forms.Button();
@@ -109,7 +110,7 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
-            this.btnStunMob = new System.Windows.Forms.Button();
+            this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -179,7 +180,7 @@
             // 
             // btnFlee
             // 
-            this.btnFlee.Location = new System.Drawing.Point(86, 293);
+            this.btnFlee.Location = new System.Drawing.Point(86, 334);
             this.btnFlee.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnFlee.Name = "btnFlee";
             this.btnFlee.Size = new System.Drawing.Size(156, 34);
@@ -190,7 +191,7 @@
             // 
             // btnDrinkHazy
             // 
-            this.btnDrinkHazy.Location = new System.Drawing.Point(86, 333);
+            this.btnDrinkHazy.Location = new System.Drawing.Point(86, 374);
             this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkHazy.Name = "btnDrinkHazy";
             this.btnDrinkHazy.Size = new System.Drawing.Size(156, 34);
@@ -234,7 +235,7 @@
             // 
             // btnManashield
             // 
-            this.btnManashield.Location = new System.Drawing.Point(86, 251);
+            this.btnManashield.Location = new System.Drawing.Point(86, 292);
             this.btnManashield.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnManashield.Name = "btnManashield";
             this.btnManashield.Size = new System.Drawing.Size(156, 34);
@@ -882,6 +883,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
             this.pnlMain.Controls.Add(this.btnCastMend);
             this.pnlMain.Controls.Add(this.btnReddishOrange);
@@ -951,6 +953,17 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1320, 635);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnStunMob
+            // 
+            this.btnStunMob.Location = new System.Drawing.Point(248, 170);
+            this.btnStunMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnStunMob.Name = "btnStunMob";
+            this.btnStunMob.Size = new System.Drawing.Size(156, 34);
+            this.btnStunMob.TabIndex = 83;
+            this.btnStunMob.Text = "Stun Mob";
+            this.btnStunMob.UseVisualStyleBackColor = true;
+            this.btnStunMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnCastMend
             // 
@@ -1055,16 +1068,16 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
-            // btnStunMob
+            // btnLevel3OffensiveSpell
             // 
-            this.btnStunMob.Location = new System.Drawing.Point(248, 170);
-            this.btnStunMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnStunMob.Name = "btnStunMob";
-            this.btnStunMob.Size = new System.Drawing.Size(156, 34);
-            this.btnStunMob.TabIndex = 83;
-            this.btnStunMob.Text = "Stun Mob";
-            this.btnStunMob.UseVisualStyleBackColor = true;
-            this.btnStunMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLevel3OffensiveSpell.Location = new System.Drawing.Point(86, 251);
+            this.btnLevel3OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnLevel3OffensiveSpell.Name = "btnLevel3OffensiveSpell";
+            this.btnLevel3OffensiveSpell.Size = new System.Drawing.Size(156, 34);
+            this.btnLevel3OffensiveSpell.TabIndex = 84;
+            this.btnLevel3OffensiveSpell.Text = "Level 3 Offensive Spell";
+            this.btnLevel3OffensiveSpell.UseVisualStyleBackColor = true;
+            this.btnLevel3OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // frmMain
             // 
@@ -1174,6 +1187,7 @@
         private System.Windows.Forms.Button btnReddishOrange;
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;
+        private System.Windows.Forms.Button btnLevel3OffensiveSpell;
     }
 }
 
