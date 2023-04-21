@@ -1,6 +1,6 @@
 <Configuration defaultrealm="earth">
  <Variables>
-  <Variable name="movegapms" type="int" value="260"/>
+  <Variable name="movegapms" type="int" value="265"/>
   <Variable name="polltickinterval" type="int" value="5000" min="0"/>
   <Variable name="castinterval" type="int" value="2550" min="0"/>
   <Variable name="level2castrounds" type="int" value="3" min="0"/>
