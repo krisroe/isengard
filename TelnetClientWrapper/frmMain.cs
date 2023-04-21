@@ -1603,6 +1603,35 @@ namespace IsengardClient
             Room oRoadToFarm6 = AddRoom("Ranch House Front Steps");
             AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
 
+            Room oOuthouse = AddRoom("Outhouse");
+            AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
+
+            Room oSwimmingPond = AddRoom("Swimming Pond");
+            AddExit(oOuthouse, oSwimmingPond, "pond");
+            AddExit(oSwimmingPond, oOuthouse, "west");
+
+            Room oMuddyPath = AddRoom("Muddy Path");
+            AddExit(oSwimmingPond, oMuddyPath, "path");
+            AddExit(oMuddyPath, oSwimmingPond, "pond");
+
+            Room oSmallPlayground = AddRoom("Small Playground");
+            AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
+
+            Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance");
+            AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate", null);
+
+            Room oMuddyFoyer = AddRoom("Muddy Foyer");
+            AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
+            AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
+
+            Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
+            AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");
+            AddExit(oUglyKidClassroomK7, oMuddyFoyer, "foyer");
+
+            Room oHallway = AddRoom("Hallway");
+            AddExit(oUglyKidClassroomK7, oHallway, "hallway");
+            AddExit(oHallway, oUglyKidClassroomK7, "classroom");
+
             Room oRoadToFarm7HoundDog = AddRoom("Hound Dog");
             oRoadToFarm7HoundDog.Mob = "dog";
             AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
@@ -1619,8 +1648,15 @@ namespace IsengardClient
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
             SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null, 1);
 
-            Room oOuthouse = AddRoom("Outhouse");
-            AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
+            Room oCrabbe = AddRoom("Crabbe");
+            oCrabbe.Mob = "Crabbe";
+            AddExit(oHallway, oCrabbe, "detention");
+            AddExit(oCrabbe, oHallway, "out");
+
+            Room oMrWartnose = AddRoom("Mr. Wartnose");
+            oMrWartnose.Mob = "Wartnose";
+            AddExit(oUglyKidClassroomK7, oMrWartnose, "office");
+            AddExit(oMrWartnose, oUglyKidClassroomK7, "out");
 
             Room oCatchBasin = AddRoom("Catch Basin");
             AddExit(oOuthouse, oCatchBasin, "hole");
@@ -1704,6 +1740,8 @@ namespace IsengardClient
             AddLocation(oBreeToImladris, oManagerMulloy);
             AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(oBreeToImladris, oSalamander);
+            AddLocation(oBreeToImladris, oMrWartnose);
+            AddLocation(oBreeToImladris, oCrabbe);
             AddLocation(oBreeToImladris, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(oBreeToImladris, oNorthBrethilForest4GobAmbushThreshold);
             AddLocation(oBreeToImladris, oNorthBrethilForest5GobAmbush);
