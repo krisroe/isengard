@@ -3,7 +3,8 @@
   <Variable name="movegapms" type="int" value="265"/>
   <Variable name="polltickinterval" type="int" value="5000" min="0"/>
   <Variable name="castinterval" type="int" value="2550" min="0"/>
-  <Variable name="level2castrounds" type="int" value="3" min="0"/>
+  <Variable name="level3castrounds" type="int" value="0" min="0"/>
+  <Variable name="level2castrounds" type="int" value="0" min="0"/>
   <Variable name="level1castrounds" type="int" value="0" min="0"/>
   <Variable name="stuncastrounds" type="int" value="2" min="0"/>
   <Variable name="hitandrundirection" type="string"/>
@@ -12,6 +13,7 @@
  <Macros>
   <Macro name="castX" oneclick="true" combatcommandtypes="Magic">
    <Steps>
+    <Command text="cast {realm3spell} {mob}" waitms="castinterval" loop="level3castrounds"/>
     <Command text="cast {realm2spell} {mob}" waitms="castinterval" loop="level2castrounds"/>
     <Command text="cast {realm1spell} {mob}" waitms="castinterval" loop="level1castrounds"/>
    </Steps>
@@ -23,7 +25,9 @@
     <Sequence loop="stuncastrounds" waitms="castinterval" waitmsfirst="0">
      <Steps>
       <Command text="cast stun {mob}"/>
+      <Command text="cast {realm1spell} {mob}" loop="level1castrounds"/>
       <Command text="cast {realm2spell} {mob}" loop="level2castrounds"/>
+      <Command text="cast {realm3spell} {mob}" loop="level3castrounds"/>
      </Steps>
     </Sequence>
     <Command text="look {mob}" waitms="0"/>
