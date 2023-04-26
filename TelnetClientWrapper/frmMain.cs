@@ -1112,6 +1112,7 @@ namespace IsengardClient
         {
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
+            Room[,] breeSewers = new Room[16, 11];
             breeStreets[0, 0] = AddRoom("Bree Thalion/Wain 1x1");
             breeStreets[1, 0] = AddRoom("Bree Thalion 2x1");
             breeStreets[2, 0] = AddRoom("Bree Thalion 3x1");
@@ -1137,13 +1138,24 @@ namespace IsengardClient
             breeStreets[10, 2] = AddRoom("Bree Crissaegrim 11x3");
             breeStreets[14, 2] = AddRoom("Bree Brownhaven 15x3");
             breeStreets[0, 3] = AddRoom("Bree Periwinkle/Wain 1x4");
+            breeSewers[0, 3] = AddRoom("Bree Sewers Periwinkle/Wain 1x4");
+            AddExit(breeSewers[0, 3], breeStreets[0, 3], "up");
             breeStreets[1, 3] = AddRoom("Bree Periwinkle 2x4");
+            breeSewers[1, 3] = AddRoom("Bree Sewers Periwinkle 2x4");
             breeStreets[2, 3] = AddRoom("Bree Periwinkle 3x4");
+            breeSewers[2, 3] = AddRoom("Bree Sewers Periwinkle 3x4");
             breeStreets[3, 3] = AddRoom("Bree Periwinkle/High 4x4");
+            breeSewers[3, 3] = AddRoom("Bree Sewers Periwinkle/high 4x4");
+            AddExit(breeSewers[3, 3], breeStreets[3, 3], "up");
             breeStreets[4, 3] = AddRoom("Bree Periwinkle 5x4");
+            breeSewers[4, 3] = AddRoom("Bree Sewers Periwinkle 5x4");
             breeStreets[5, 3] = AddRoom("Bree Periwinkle 6x4");
+            breeSewers[5, 3] = AddRoom("Bree Sewers Periwinkle 6x4");
             breeStreets[6, 3] = AddRoom("Bree Periwinkle 7x4");
+            breeSewers[6, 3] = AddRoom("Bree Sewers Periwinkle 7x4");
             breeStreets[7, 3] = AddRoom("Bree Periwinkle/Main 8x4");
+            breeSewers[7, 3] = AddRoom("Bree Sewers Periwinkle/Main 8x4");
+            AddExit(breeSewers[7, 3], breeStreets[7, 3], "up");
             breeStreets[8, 3] = AddRoom("Bree Periwinkle 9x4");
             breeStreets[9, 3] = AddRoom("Bree South Bridge 10x4");
             breeStreets[10, 3] = AddRoom("Bree Periwinkle/Crissaegrim 11x4");
@@ -1152,22 +1164,27 @@ namespace IsengardClient
             breeStreets[13, 3] = AddRoom("Bree Periwinkle 14x4");
             breeStreets[14, 3] = AddRoom("Bree Periwinkle/Brownhaven 15x4");
             breeStreets[0, 4] = AddRoom("Bree Wain 1x5");
+            breeSewers[0, 4] = AddRoom("Bree Sewers Wain 1x5");
             Room oToBlindPigPubAndUniversity = breeStreets[3, 4] = AddRoom("Bree High 4x5");
             breeStreets[7, 4] = AddRoom("Bree Main 8x5");
             Room oToSnarSlystoneShoppe = breeStreets[10, 4] = AddRoom("Bree Crissaegrim 11x5");
             breeStreets[14, 4] = AddRoom("Bree Brownhaven 15x5");
             breeStreets[0, 5] = AddRoom("Bree Wain 1x6");
+            breeSewers[0, 5] = AddRoom("Bree Sewers Wain 1x6");
             breeStreets[3, 5] = AddRoom("Bree High 4x6");
             Room oToBigPapa = breeStreets[7, 5] = AddRoom("Big Papa Threshold"); //Main 8x6
             Room oBigPapa = breeStreets[8, 5] = AddRoom("Big Papa 350"); //9x6
             breeStreets[10, 5] = AddRoom("Bree Crissaegrim 11x6");
             breeStreets[14, 5] = AddRoom("Bree Brownhaven 15x6");
             breeStreets[0, 6] = AddRoom("Bree Wain 1x7");
+            breeSewers[0, 6] = AddRoom("Bree Sewers Wain 1x7");
             breeStreets[3, 6] = AddRoom("Bree High 4x7");
             breeStreets[7, 6] = AddRoom("Bree Main 8x7");
             breeStreets[10, 6] = AddRoom("Bree Crissaegrim 11x7");
             breeStreets[14, 6] = AddRoom("Bree Brownhaven 15x7");
             oWestGateInside = breeStreets[0, 7] = AddRoom("Bree West Gate 1x8");
+            breeSewers[0, 7] = AddRoom("Bree Sewers West Gate 1x8");
+            AddExit(breeSewers[0, 7], oWestGateInside, "up");
             breeStreets[1, 7] = AddRoom("Bree Leviathan 2x8");
             breeStreets[2, 7] = AddRoom("Bree Leviathan 3x8");
             breeStreets[3, 7] = AddRoom("Bree Leviathan/High 4x8");
@@ -1183,6 +1200,7 @@ namespace IsengardClient
             Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Bree Leviathan 14x8");
             _breeEastGateInside = breeStreets[14, 7] = AddRoom("Bree East Gate 15x8");
             breeStreets[0, 8] = AddRoom("Bree Wain 1x9");
+            breeSewers[0, 8] = AddRoom("Bree Sewers Wain 1x9");
             breeStreets[3, 8] = AddRoom("Bree High 4x9");
             breeStreets[7, 8] = AddRoom("Bree Main 8x9");
             breeStreets[10, 8] = AddRoom("Bree Crissaegrim 11x9");
@@ -1190,11 +1208,15 @@ namespace IsengardClient
             Room oOrderOfLove = breeStreets[15, 8] = AddRoom("Bree Order of Love"); //16x9
             oOrderOfLove.Mob = "Doctor";
             breeStreets[0, 9] = AddRoom("Bree Wain 1x10");
+            breeSewers[0, 9] = AddRoom("Bree Sewers Wain 1x10");
             breeStreets[3, 9] = AddRoom("Bree High 4x10");
             breeStreets[7, 9] = AddRoom("Bree Main 8x10");
             Room oToLeonardosFoundry = breeStreets[10, 9] = AddRoom("Bree Crissaegrim 11x10");
             Room oToGamblingPit = breeStreets[14, 9] = AddRoom("Bree Brownhaven 15x10");
             breeStreets[0, 10] = AddRoom("Bree Ormenel/Wain 1x11");
+            breeSewers[0, 10] = AddRoom("Bree Sewers Ormenel/Wain 1x11");
+            Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
+            e.PreCommand = "open sewer";
             breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
             breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
             breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
@@ -1209,31 +1231,41 @@ namespace IsengardClient
             breeStreets[14, 10] = AddRoom("Bree Brownhaven/Ormenel 15x11");
 
             for (int x = 0; x < 16; x++)
+            {
                 for (int y = 0; y < 11; y++)
                 {
-                    Room r = breeStreets[x, y];
-                    if (r != null)
-                    {
-                        //look for a square to the west and add the east/west exits
-                        if (x > 0)
-                        {
-                            Room roomToWest = breeStreets[x - 1, y];
-                            if (roomToWest != null)
-                            {
-                                AddBidirectionalExits(roomToWest, r, BidirectionalExitType.WestEast);
-                            }
-                        }
-                        //look for a square to the south and add the north/south exits
-                        if (y > 0)
-                        {
-                            Room roomToSouth = breeStreets[x, y - 1];
-                            if (roomToSouth != null)
-                            {
-                                AddBidirectionalExits(r, roomToSouth, BidirectionalExitType.NorthSouth);
-                            }
-                        }
-                    }
+                    AddGridBidirectionalExits(breeStreets, x, y);
                 }
+            }
+
+            //add exits for the sewers. due to screwiness on periwinkle this can't be done automatically.
+            AddBidirectionalExits(breeSewers[0, 10], breeSewers[0, 9], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 9], breeSewers[0, 8], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 8], breeSewers[0, 7], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 7], breeSewers[0, 6], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 6], breeSewers[0, 5], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 5], breeSewers[0, 4], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 4], breeSewers[0, 3], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 3], breeSewers[1, 3], BidirectionalExitType.WestEast);
+            AddExit(breeSewers[1, 3], breeSewers[3, 3], "east");
+            AddExit(breeSewers[3, 3], breeSewers[2, 3], "west");
+            AddExit(breeSewers[2, 3], breeSewers[1, 3], "west");
+            AddBidirectionalExits(breeSewers[3, 3], breeSewers[4, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[4, 3], breeSewers[5, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[5, 3], breeSewers[6, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[6, 3], breeSewers[7, 3], BidirectionalExitType.WestEast);
+
+            Room oValveChamber = AddRoom("Valve Chamber");
+            AddExit(breeSewers[7, 3], oValveChamber, "valve");
+            AddExit(oValveChamber, breeSewers[7, 3], "south");
+
+            Room oSewerPassage = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSewerPassage, oValveChamber, BidirectionalExitType.NorthSouth);
+
+            Room oSewerDemonThreshold = AddRoom("Sewer Demon Threshold");
+            oSewerDemonThreshold.Mob = "demon";
+            oSewerDemonThreshold.Priority = PRIORITY_BREE_PERMS_LESS;
+            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassage, BidirectionalExitType.SoutheastNorthwest);
 
             Room oPoorAlley1 = AddRoom("Bree Poor Alley");
             AddExit(oLeviathanPoorAlley, oPoorAlley1, "alley");
@@ -1346,6 +1378,7 @@ namespace IsengardClient
             AddLocation(_aPerms, oBigPapa);
             AddSubLocation(oBigPapa, oToBigPapa);
             AddLocation(_aPerms, oDroolie);
+            AddLocation(_aPerms, oSewerDemonThreshold);
             AddLocation(aBree, oPansy);
             AddLocation(aBree, oIxell);
             AddLocation(aBree, oSnarlingMutt);
@@ -1354,6 +1387,32 @@ namespace IsengardClient
             AddLocation(_aMisc, oBreePawnShopWest);
             AddLocation(_aMisc, oBreePawnShopEast);
             AddLocation(_aMisc, oLeonardosSwords);
+        }
+
+        private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
+        {
+            Room r = grid[x, y];
+            if (r != null)
+            {
+                //look for a square to the west and add the east/west exits
+                if (x > 0)
+                {
+                    Room roomToWest = grid[x - 1, y];
+                    if (roomToWest != null)
+                    {
+                        AddBidirectionalExits(roomToWest, r, BidirectionalExitType.WestEast);
+                    }
+                }
+                //look for a square to the south and add the north/south exits
+                if (y > 0)
+                {
+                    Room roomToSouth = grid[x, y - 1];
+                    if (roomToSouth != null)
+                    {
+                        AddBidirectionalExits(r, roomToSouth, BidirectionalExitType.NorthSouth);
+                    }
+                }
+            }
         }
 
         private void SetVariablesForIndefiniteCasts(Room perm, bool includeStun, int level)
