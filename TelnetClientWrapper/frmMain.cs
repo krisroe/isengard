@@ -550,10 +550,13 @@ namespace IsengardClient
                         }
                     }
 
+                    string sFinalCommand = elemMacro.GetAttribute("finalcommand");
+
                     bool macroIsValid = true;
                     Macro oMacro = new Macro(macroName);
                     oMacro.SetParentLocation = bSetParentLocation;
                     oMacro.CombatCommandTypes = eCombatCommandTypes;
+                    oMacro.FinalCommand = sFinalCommand;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
                     if (foundSteps == null)
                     {
@@ -673,6 +676,11 @@ namespace IsengardClient
                             step = oCommand;
                         }
                         break;
+                    case "setnextcommandms":
+                        MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
+                        ret.Add(oWaitMSCommand);
+                        step = oWaitMSCommand;
+                        break;
                     default:
                         isValid = false;
                         errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
@@ -703,21 +711,11 @@ namespace IsengardClient
                         errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
                     }
                 }
-
-                string sWaitFirst = elemStep.GetAttribute("waitmsfirst");
-                if (!string.IsNullOrEmpty(sWaitFirst))
+                if (step != null && step is MacroStepSetNextCommandWaitMS && !step.WaitMS.HasValue)
                 {
-                    if (int.TryParse(sWaitFirst, out int iWaitFirstMS))
-                    {
-                        if (step != null) step.WaitMSFirstCommand = iWaitFirstMS;
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid wait ms first command: " + errorSource + " " + stepType);
-                    }
+                    isValid = false;
+                    errorMessages.Add("setnextcommandms step must have wait ms");
                 }
-
                 string sLoop = elemStep.GetAttribute("loop");
                 if (!string.IsNullOrEmpty(sLoop))
                 {
@@ -797,6 +795,13 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
+            {
+                if (SendCommand(_currentBackgroundParameters.FinalCommand, false))
+                {
+                    _currentBackgroundParameters.CommandsRun++;
+                }
+            }
             if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
@@ -845,8 +850,11 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
-            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
+            foreach (var nextCommandInfo in IterateStepCommands(commands, pms, 0))
             {
+                MacroCommand nextCommand = nextCommandInfo.Key;
+                int? overrideWaitMS = nextCommandInfo.Value;
+
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
                 oCurrentCommand = nextCommand;
@@ -855,7 +863,7 @@ namespace IsengardClient
                 //wait for an appropriate amount of time for commands after the first
                 if (oPreviousCommand != null)
                 {
-                    int remainingMS = pms.WaitMS;
+                    int remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
                     while (remainingMS > 0)
                     {
                         int nextWaitMS = Math.Min(remainingMS, 100);
@@ -902,7 +910,7 @@ namespace IsengardClient
         /// <param name="parameters">parameters to the background worker</param>
         /// <param name="loopsPerformed">number of loops already performed</param>
         /// <returns>commands to run</returns>
-        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
+        private IEnumerable<KeyValuePair<MacroCommand, int?>> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
         {
             Dictionary<string, Variable> variables = parameters.Variables;
             foreach (MacroStepBase nextStep in Steps)
@@ -957,33 +965,36 @@ namespace IsengardClient
                     }
 
                     bool overrideWaitMS;
-                    if (nextStep is MacroStepSequence)
+                    if (nextStep is MacroStepSetNextCommandWaitMS)
+                    {
+                        parameters.NextCommandWaitMS = ((MacroStepSetNextCommandWaitMS)nextStep).WaitMS.Value;
+                    }
+                    else if (nextStep is MacroStepSequence)
                     {
                         MacroStepSequence seq = (MacroStepSequence)nextStep;
-                        overrideWaitMS = seq.WaitMSFirstCommand.HasValue && loopCount == 0;
+                        overrideWaitMS = parameters.NextCommandWaitMS.HasValue;
+                        int overrideWaitMSValue = overrideWaitMS ? parameters.NextCommandWaitMS.Value : 0;
                         int previousWaitMS = parameters.WaitMS;
                         bool pastFirst = false;
-                        foreach (MacroCommand nextSubCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
+                        foreach (var nextStepCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
                         {
+                            MacroCommand nextSubCommand = nextStepCommand.Key;
                             if (pastFirst)
                             {
-                                yield return nextSubCommand;
+                                yield return nextStepCommand;
                             }
                             else
                             {
                                 if (overrideWaitMS)
                                 {
-                                    parameters.WaitMS = seq.WaitMSFirstCommand.Value;
+                                    yield return new KeyValuePair<MacroCommand, int?>(nextSubCommand, overrideWaitMSValue);
+                                    parameters.NextCommandWaitMS = null;
+                                    SetWaitMS(seq, parameters, variables);
                                 }
                                 else
                                 {
                                     SetWaitMS(seq, parameters, variables);
-                                }
-                                yield return nextSubCommand;
-                                if (overrideWaitMS)
-                                {
-                                    parameters.WaitMS = previousWaitMS;
-                                    SetWaitMS(seq, parameters, variables);
+                                    yield return nextStepCommand;
                                 }
                                 pastFirst = true;
                             }
@@ -992,21 +1003,16 @@ namespace IsengardClient
                     else
                     {
                         MacroCommand nextCommand = (MacroCommand)nextStep;
-                        overrideWaitMS = nextCommand.WaitMSFirstCommand.HasValue && loopCount == 0;
-                        int previousWaitMS = parameters.WaitMS;
+                        overrideWaitMS = parameters.NextCommandWaitMS.HasValue;
                         if (overrideWaitMS)
                         {
-                            parameters.WaitMS = nextCommand.WaitMSFirstCommand.Value;
+                            int overrideWaitMSValue = parameters.NextCommandWaitMS.Value;
+                            yield return new KeyValuePair<MacroCommand, int?>(nextCommand, overrideWaitMSValue);
                         }
                         else
                         {
                             SetWaitMS(nextCommand, parameters, variables);
-                        }
-                        yield return nextCommand;
-                        if (overrideWaitMS)
-                        {
-                            parameters.WaitMS = previousWaitMS;
-                            SetWaitMS(nextCommand, parameters, variables);
+                            yield return new KeyValuePair<MacroCommand, int?>(nextCommand, null);
                         }
                     }
                     loopCount++;
@@ -2701,12 +2707,14 @@ namespace IsengardClient
             public Room TargetRoom { get; set; }
             public List<MacroStepBase> Commands { get; set; }
             public Dictionary<string, Variable> Variables { get; set; }
+            public int? NextCommandWaitMS { get; set; }
             public int WaitMS { get; set; }
             public bool Cancelled { get; set; }
             public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
             public Macro Macro { get; set; }
             public string QueuedCommand { get; set; }
+            public string FinalCommand { get; set; }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -2782,10 +2790,20 @@ namespace IsengardClient
         private void RunMacro(Macro m)
         {
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
+            string errorMessage;
             foreach (MacroStepBase nextMacroStep in m.Steps)
             {
-                string errorMessage;
                 stepsToRun.Add(TranslateStep(nextMacroStep, out errorMessage));
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    MessageBox.Show(errorMessage);
+                    return;
+                }
+            }
+            string sFinalCommand = string.Empty;
+            if (!string.IsNullOrEmpty(m.FinalCommand))
+            {
+                sFinalCommand = TranslateCommand(m.FinalCommand, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     MessageBox.Show(errorMessage);
@@ -2794,6 +2812,7 @@ namespace IsengardClient
             }
             _currentBackgroundParameters = new BackgroundWorkerParameters();
             _currentBackgroundParameters.Macro = m;
+            _currentBackgroundParameters.FinalCommand = sFinalCommand;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
                 _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
@@ -2824,9 +2843,12 @@ namespace IsengardClient
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
                 ret = new MacroCommand(translatedCommand);
             }
+            else if (input is MacroStepSetNextCommandWaitMS)
+            {
+                ret = input;
+            }
             ret.WaitMS = input.WaitMS;
             ret.WaitMSVariable = input.WaitMSVariable;
-            ret.WaitMSFirstCommand = input.WaitMSFirstCommand;
             ret.Loop = input.Loop;
             ret.LoopCount = input.LoopCount;
             ret.LoopVariable = input.LoopVariable;
@@ -2851,14 +2873,11 @@ namespace IsengardClient
             public List<MacroStepBase> Steps { get; set; }
             public bool SetParentLocation { get; set; }
             public CommandType CombatCommandTypes { get; set; }
+            public string FinalCommand { get; set; }
         }
 
         public class MacroStepBase
         {
-            /// <summary>
-            /// nonpersistent wait milliseconds for the first command under the step
-            /// </summary>
-            public int? WaitMSFirstCommand { get; set; }
             /// <summary>
             /// persistent wait milliseconds
             /// </summary>
@@ -2895,6 +2914,13 @@ namespace IsengardClient
             public MacroCommand(string Command)
             {
                 this.Command = Command;
+            }
+        }
+
+        private class MacroStepSetNextCommandWaitMS : MacroStepBase
+        {
+            public MacroStepSetNextCommandWaitMS()
+            {
             }
         }
 
