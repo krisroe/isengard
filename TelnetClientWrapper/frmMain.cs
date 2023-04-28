@@ -1466,7 +1466,10 @@ namespace IsengardClient
             oFallon.Mob = oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
-            AddExit(oToGrantsStables, oGrantsStables, "stable");
+            if (_level < 11)
+            {
+                AddExit(oToGrantsStables, oGrantsStables, "stable");
+            }
             AddExit(oGrantsStables, oToGrantsStables, "south");
 
             Room oGrant = AddRoom("Grant 170");
@@ -1558,7 +1561,7 @@ namespace IsengardClient
 
             AddLocation(_aHealing, oOrderOfLove);
             AddLocation(_aHealing, oCampusFreeClinic);
-            AddLocation(_aPerms, oGrant);
+            AddLocation(_aInaccessible, oGrant);
             AddLocation(_aPerms, oIgor);
             AddLocation(_aPerms, oGuido);
             AddSubLocation(oGuido, oToCasino);
