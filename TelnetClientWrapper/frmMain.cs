@@ -1110,8 +1110,77 @@ namespace IsengardClient
             AddBreeToHobbiton(oBreeWestGateInside);
             AddBreeToImladris(oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside);
-            AddImladrisToTharbad(oImladrisSouthGateInside);
+            AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
+            AddTharbadCity(oTharbadGateOutside);
             AddIntangible(oBreeTownSquare);
+        }
+
+        private void AddTharbadCity(Room oTharbadGateOutside)
+        {
+            Room balleNightingale = AddRoom("Tharbad Balle/Nightingale");
+            Room balle1 = AddRoom("Tharbad Balle");
+            AddBidirectionalExits(balleNightingale, balle1, BidirectionalExitType.WestEast);
+            AddBidirectionalSameNameExit(oTharbadGateOutside, balleNightingale, "gate", null);
+
+            Room balleIllusion = AddRoom("Tharbad Balle/Illusion");
+            AddBidirectionalExits(balle1, balleIllusion, BidirectionalExitType.WestEast);
+
+            Room balle2 = AddRoom("Tharbad Balle");
+            AddBidirectionalExits(balleIllusion, balle2, BidirectionalExitType.WestEast);
+
+            Room balleEvard = AddRoom("Tharbad Balle/Evard");
+            AddBidirectionalExits(balle2, balleEvard, BidirectionalExitType.WestEast);
+
+            Room evard1 = AddRoom("Tharbad Evard");
+            AddBidirectionalExits(balleEvard, evard1, BidirectionalExitType.NorthSouth);
+
+            Room evard2 = AddRoom("Tharbad Evard");
+            AddBidirectionalExits(evard1, evard2, BidirectionalExitType.NorthSouth);
+
+            Room sabreEvard = AddRoom("Tharbad Sabre/Evard");
+            AddBidirectionalExits(evard2, sabreEvard, BidirectionalExitType.NorthSouth);
+
+            Room sabre1 = AddRoom("Tharbad Sabre");
+            AddBidirectionalExits(sabre1, sabreEvard, BidirectionalExitType.WestEast);
+
+            Room sabreIllusion = AddRoom("Tharbad Sabre/Illusion");
+            AddBidirectionalExits(sabreIllusion, sabre1, BidirectionalExitType.WestEast);
+
+            Room sabre2 = AddRoom("Tharbad Sabre");
+            AddBidirectionalExits(sabre2, sabreIllusion, BidirectionalExitType.WestEast);
+
+            Room sabreNightingale = AddRoom("Tharbad Sabre/Nightingale");
+            AddBidirectionalExits(sabreNightingale, sabre2, BidirectionalExitType.WestEast);
+
+            Room nightingale1 = AddRoom("Tharbad Nightingale");
+            AddBidirectionalExits(nightingale1, sabreNightingale, BidirectionalExitType.NorthSouth);
+
+            Room nightingale2 = AddRoom("Tharbad Nightingale");
+            AddBidirectionalExits(nightingale2, nightingale1, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(balleNightingale, nightingale2, BidirectionalExitType.NorthSouth);
+
+            Room nightingale3 = AddRoom("Tharbad Nightingale");
+            AddBidirectionalExits(sabreNightingale, nightingale3, BidirectionalExitType.NorthSouth);
+
+            Room bardicGuildhall = AddRoom("Tharbad Bardic Guildhall");
+            AddBidirectionalExits(bardicGuildhall, nightingale3, BidirectionalExitType.WestEast);
+
+            Room sabre3 = AddRoom("Tharbad Sabre");
+            AddBidirectionalExits(sabre3, sabreNightingale, BidirectionalExitType.WestEast);
+
+            Room gildedAppleZathrielThreshold = AddRoom("Zathriel Threshold");
+            AddBidirectionalSameNameExit(sabre3, gildedAppleZathrielThreshold, "door", null);
+
+            Room zathriel = AddRoom("Zathriel the Minstrel 220");
+            zathriel.Mob = gildedAppleZathrielThreshold.Mob = "Minstrel";
+            zathriel.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddExit(gildedAppleZathrielThreshold, zathriel, "stage");
+            AddExit(zathriel, gildedAppleZathrielThreshold, "down");
+            SetVariablesForPermWithThreshold(zathriel, gildedAppleZathrielThreshold, "stage", null, 2);
+
+            AddLocation(_aHealing, bardicGuildhall);
+            AddLocation(_aPerms, zathriel);
+            AddSubLocation(zathriel, gildedAppleZathrielThreshold);
         }
 
         private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit)
@@ -1854,8 +1923,8 @@ namespace IsengardClient
             AddLocation(oBreeToImladris, oManagerMulloy);
             AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aPerms, oSalamander);
-            AddLocation(_aPerms, oMrWartnose);
-            AddLocation(_aPerms, oCrabbe);
+            AddLocation(oBreeToImladris, oMrWartnose);
+            AddLocation(oBreeToImladris, oCrabbe);
             AddLocation(_aPerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aPerms, oNorthBrethilForest5GobAmbush);
             AddSubLocation(oNorthBrethilForest5GobAmbush, oNorthBrethilForest4GobAmbushThreshold);
@@ -2073,7 +2142,7 @@ namespace IsengardClient
             AddLocation(oBreeToHobbiton, oShepherd);
         }
 
-        private void AddImladrisToTharbad(Room oImladrisSouthGateInside)
+        private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
         {
             Area oImladrisToTharbad = _areasByName[AREA_IMLADRIS_TO_THARBAD];
 
@@ -2100,6 +2169,27 @@ namespace IsengardClient
 
             Room oMistyTrail8 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail7, oMistyTrail8, BidirectionalExitType.NorthSouth);
+
+            Room oMistyTrail9 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail8, oMistyTrail9, BidirectionalExitType.NorthSouth);
+
+            Room oMistyTrail10 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail9, oMistyTrail10, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMistyTrail11 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail10, oMistyTrail11, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMistyTrail12 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail11, oMistyTrail12, BidirectionalExitType.NorthSouth);
+
+            Room oMistyTrail13 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail12, oMistyTrail13, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMistyTrail14 = AddRoom("Misty Trail");
+            AddBidirectionalExits(oMistyTrail13, oMistyTrail14, BidirectionalExitType.SouthwestNortheast);
+
+            oTharbadGateOutside = AddRoom("North Gate of Tharbad");
+            AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
 
             //Shanty Town
             Room oRuttedDirtRoad = AddRoom("Rutted Dirt Road");
