@@ -111,6 +111,8 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
+            this.lblLevel = new System.Windows.Forms.Label();
+            this.txtLevel = new System.Windows.Forms.TextBox();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -124,7 +126,7 @@
             // btnLevel1OffensiveSpell
             // 
             this.btnLevel1OffensiveSpell.Location = new System.Drawing.Point(64, 137);
-            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
             this.btnLevel1OffensiveSpell.Name = "btnLevel1OffensiveSpell";
             this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(117, 28);
             this.btnLevel1OffensiveSpell.TabIndex = 0;
@@ -145,7 +147,7 @@
             // txtWindow
             // 
             this.txtWindow.Location = new System.Drawing.Point(64, 20);
-            this.txtWindow.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtWindow.Margin = new System.Windows.Forms.Padding(2);
             this.txtWindow.Name = "txtWindow";
             this.txtWindow.Size = new System.Drawing.Size(179, 20);
             this.txtWindow.TabIndex = 2;
@@ -154,7 +156,7 @@
             // txtMob
             // 
             this.txtMob.Location = new System.Drawing.Point(64, 43);
-            this.txtMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtMob.Margin = new System.Windows.Forms.Padding(2);
             this.txtMob.Name = "txtMob";
             this.txtMob.Size = new System.Drawing.Size(179, 20);
             this.txtMob.TabIndex = 4;
@@ -172,7 +174,7 @@
             // btnLevel2OffensiveSpell
             // 
             this.btnLevel2OffensiveSpell.Location = new System.Drawing.Point(64, 171);
-            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
             this.btnLevel2OffensiveSpell.Name = "btnLevel2OffensiveSpell";
             this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(117, 28);
             this.btnLevel2OffensiveSpell.TabIndex = 5;
@@ -183,7 +185,7 @@
             // btnFlee
             // 
             this.btnFlee.Location = new System.Drawing.Point(64, 271);
-            this.btnFlee.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnFlee.Margin = new System.Windows.Forms.Padding(2);
             this.btnFlee.Name = "btnFlee";
             this.btnFlee.Size = new System.Drawing.Size(117, 28);
             this.btnFlee.TabIndex = 6;
@@ -194,7 +196,7 @@
             // btnDrinkHazy
             // 
             this.btnDrinkHazy.Location = new System.Drawing.Point(64, 304);
-            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkHazy.Name = "btnDrinkHazy";
             this.btnDrinkHazy.Size = new System.Drawing.Size(117, 28);
             this.btnDrinkHazy.TabIndex = 7;
@@ -205,7 +207,7 @@
             // btnLookAtMob
             // 
             this.btnLookAtMob.Location = new System.Drawing.Point(188, 239);
-            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnLookAtMob.Name = "btnLookAtMob";
             this.btnLookAtMob.Size = new System.Drawing.Size(117, 28);
             this.btnLookAtMob.TabIndex = 8;
@@ -216,7 +218,7 @@
             // btnLook
             // 
             this.btnLook.Location = new System.Drawing.Point(308, 137);
-            this.btnLook.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLook.Margin = new System.Windows.Forms.Padding(2);
             this.btnLook.Name = "btnLook";
             this.btnLook.Size = new System.Drawing.Size(117, 28);
             this.btnLook.TabIndex = 9;
@@ -227,7 +229,7 @@
             // btnCastVigor
             // 
             this.btnCastVigor.Location = new System.Drawing.Point(429, 104);
-            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastVigor.Name = "btnCastVigor";
             this.btnCastVigor.Size = new System.Drawing.Size(93, 28);
             this.btnCastVigor.TabIndex = 10;
@@ -238,7 +240,7 @@
             // btnManashield
             // 
             this.btnManashield.Location = new System.Drawing.Point(64, 237);
-            this.btnManashield.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnManashield.Margin = new System.Windows.Forms.Padding(2);
             this.btnManashield.Name = "btnManashield";
             this.btnManashield.Size = new System.Drawing.Size(117, 28);
             this.btnManashield.TabIndex = 11;
@@ -249,7 +251,7 @@
             // btnCastCurePoison
             // 
             this.btnCastCurePoison.Location = new System.Drawing.Point(429, 171);
-            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastCurePoison.Name = "btnCastCurePoison";
             this.btnCastCurePoison.Size = new System.Drawing.Size(93, 28);
             this.btnCastCurePoison.TabIndex = 18;
@@ -260,7 +262,7 @@
             // btnTime
             // 
             this.btnTime.Location = new System.Drawing.Point(624, 239);
-            this.btnTime.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnTime.Margin = new System.Windows.Forms.Padding(2);
             this.btnTime.Name = "btnTime";
             this.btnTime.Size = new System.Drawing.Size(102, 28);
             this.btnTime.TabIndex = 19;
@@ -271,7 +273,7 @@
             // btnScore
             // 
             this.btnScore.Location = new System.Drawing.Point(624, 271);
-            this.btnScore.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnScore.Margin = new System.Windows.Forms.Padding(2);
             this.btnScore.Name = "btnScore";
             this.btnScore.Size = new System.Drawing.Size(102, 28);
             this.btnScore.TabIndex = 20;
@@ -282,7 +284,7 @@
             // btnInformation
             // 
             this.btnInformation.Location = new System.Drawing.Point(624, 205);
-            this.btnInformation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnInformation.Margin = new System.Windows.Forms.Padding(2);
             this.btnInformation.Name = "btnInformation";
             this.btnInformation.Size = new System.Drawing.Size(102, 28);
             this.btnInformation.TabIndex = 21;
@@ -293,7 +295,7 @@
             // btnSetCurrentLocation
             // 
             this.btnSetCurrentLocation.Location = new System.Drawing.Point(614, 388);
-            this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
             this.btnSetCurrentLocation.Size = new System.Drawing.Size(116, 21);
             this.btnSetCurrentLocation.TabIndex = 24;
@@ -304,7 +306,7 @@
             // btnGoToLocation
             // 
             this.btnGoToLocation.Location = new System.Drawing.Point(614, 414);
-            this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToLocation.Name = "btnGoToLocation";
             this.btnGoToLocation.Size = new System.Drawing.Size(116, 21);
             this.btnGoToLocation.TabIndex = 25;
@@ -315,7 +317,7 @@
             // btnCastProtection
             // 
             this.btnCastProtection.Location = new System.Drawing.Point(429, 204);
-            this.btnCastProtection.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCastProtection.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastProtection.Name = "btnCastProtection";
             this.btnCastProtection.Size = new System.Drawing.Size(93, 28);
             this.btnCastProtection.TabIndex = 26;
@@ -327,7 +329,7 @@
             // 
             this.chkIsNight.AutoSize = true;
             this.chkIsNight.Location = new System.Drawing.Point(562, 244);
-            this.chkIsNight.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkIsNight.Margin = new System.Windows.Forms.Padding(2);
             this.chkIsNight.Name = "chkIsNight";
             this.chkIsNight.Size = new System.Drawing.Size(66, 17);
             this.chkIsNight.TabIndex = 28;
@@ -338,7 +340,7 @@
             // txtOneOffCommand
             // 
             this.txtOneOffCommand.Location = new System.Drawing.Point(63, 401);
-            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(2);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
             this.txtOneOffCommand.Size = new System.Drawing.Size(188, 20);
             this.txtOneOffCommand.TabIndex = 29;
@@ -356,7 +358,7 @@
             // btnInventory
             // 
             this.btnInventory.Location = new System.Drawing.Point(624, 171);
-            this.btnInventory.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnInventory.Margin = new System.Windows.Forms.Padding(2);
             this.btnInventory.Name = "btnInventory";
             this.btnInventory.Size = new System.Drawing.Size(102, 28);
             this.btnInventory.TabIndex = 31;
@@ -367,7 +369,7 @@
             // btnClearOneOff
             // 
             this.btnClearOneOff.Location = new System.Drawing.Point(255, 401);
-            this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(2);
             this.btnClearOneOff.Name = "btnClearOneOff";
             this.btnClearOneOff.Size = new System.Drawing.Size(64, 24);
             this.btnClearOneOff.TabIndex = 32;
@@ -378,7 +380,7 @@
             // btnAbort
             // 
             this.btnAbort.Location = new System.Drawing.Point(614, 442);
-            this.btnAbort.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(116, 21);
             this.btnAbort.TabIndex = 33;
@@ -389,7 +391,7 @@
             // btnOneOffExecute
             // 
             this.btnOneOffExecute.Location = new System.Drawing.Point(323, 401);
-            this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(2);
             this.btnOneOffExecute.Name = "btnOneOffExecute";
             this.btnOneOffExecute.Size = new System.Drawing.Size(64, 24);
             this.btnOneOffExecute.TabIndex = 34;
@@ -400,7 +402,7 @@
             // btnAttackMob
             // 
             this.btnAttackMob.Location = new System.Drawing.Point(186, 171);
-            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnAttackMob.Name = "btnAttackMob";
             this.btnAttackMob.Size = new System.Drawing.Size(117, 28);
             this.btnAttackMob.TabIndex = 35;
@@ -412,7 +414,7 @@
             // 
             this.txtCurrentRoom.Enabled = false;
             this.txtCurrentRoom.Location = new System.Drawing.Point(612, 364);
-            this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
             this.txtCurrentRoom.Size = new System.Drawing.Size(118, 20);
             this.txtCurrentRoom.TabIndex = 37;
@@ -430,7 +432,7 @@
             // btnDrinkYellow
             // 
             this.btnDrinkYellow.Location = new System.Drawing.Point(527, 104);
-            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(93, 28);
             this.btnDrinkYellow.TabIndex = 39;
@@ -441,7 +443,7 @@
             // btnDrinkGreen
             // 
             this.btnDrinkGreen.Location = new System.Drawing.Point(527, 171);
-            this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkGreen.Name = "btnDrinkGreen";
             this.btnDrinkGreen.Size = new System.Drawing.Size(93, 28);
             this.btnDrinkGreen.TabIndex = 40;
@@ -452,7 +454,7 @@
             // txtWeapon
             // 
             this.txtWeapon.Location = new System.Drawing.Point(64, 66);
-            this.txtWeapon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.txtWeapon.Name = "txtWeapon";
             this.txtWeapon.Size = new System.Drawing.Size(179, 20);
             this.txtWeapon.TabIndex = 42;
@@ -470,7 +472,7 @@
             // btnWieldWeapon
             // 
             this.btnWieldWeapon.Location = new System.Drawing.Point(308, 240);
-            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(117, 28);
             this.btnWieldWeapon.TabIndex = 43;
@@ -481,7 +483,7 @@
             // btnCastBless
             // 
             this.btnCastBless.Location = new System.Drawing.Point(429, 238);
-            this.btnCastBless.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCastBless.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastBless.Name = "btnCastBless";
             this.btnCastBless.Size = new System.Drawing.Size(93, 28);
             this.btnCastBless.TabIndex = 44;
@@ -492,7 +494,7 @@
             // btnSet
             // 
             this.btnSet.Location = new System.Drawing.Point(10, 13);
-            this.btnSet.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSet.Margin = new System.Windows.Forms.Padding(2);
             this.btnSet.Name = "btnSet";
             this.btnSet.Size = new System.Drawing.Size(55, 24);
             this.btnSet.TabIndex = 45;
@@ -512,7 +514,7 @@
             "noauto",
             "wimpy"});
             this.cboSetOption.Location = new System.Drawing.Point(72, 14);
-            this.cboSetOption.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.cboSetOption.Margin = new System.Windows.Forms.Padding(2);
             this.cboSetOption.Name = "cboSetOption";
             this.cboSetOption.Size = new System.Drawing.Size(124, 21);
             this.cboSetOption.TabIndex = 46;
@@ -522,7 +524,7 @@
             // 
             this.chkSetOn.AutoSize = true;
             this.chkSetOn.Location = new System.Drawing.Point(200, 17);
-            this.chkSetOn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
             this.chkSetOn.Name = "chkSetOn";
             this.chkSetOn.Size = new System.Drawing.Size(46, 17);
             this.chkSetOn.TabIndex = 47;
@@ -533,7 +535,7 @@
             // txtWand
             // 
             this.txtWand.Location = new System.Drawing.Point(64, 89);
-            this.txtWand.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtWand.Margin = new System.Windows.Forms.Padding(2);
             this.txtWand.Name = "txtWand";
             this.txtWand.Size = new System.Drawing.Size(179, 20);
             this.txtWand.TabIndex = 49;
@@ -551,7 +553,7 @@
             // btnUseWandOnMob
             // 
             this.btnUseWandOnMob.Location = new System.Drawing.Point(186, 271);
-            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
             this.btnUseWandOnMob.Size = new System.Drawing.Size(117, 28);
             this.btnUseWandOnMob.TabIndex = 50;
@@ -562,7 +564,7 @@
             // btnWho
             // 
             this.btnWho.Location = new System.Drawing.Point(624, 104);
-            this.btnWho.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnWho.Margin = new System.Windows.Forms.Padding(2);
             this.btnWho.Name = "btnWho";
             this.btnWho.Size = new System.Drawing.Size(102, 28);
             this.btnWho.TabIndex = 51;
@@ -573,7 +575,7 @@
             // btnUptime
             // 
             this.btnUptime.Location = new System.Drawing.Point(624, 75);
-            this.btnUptime.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnUptime.Margin = new System.Windows.Forms.Padding(2);
             this.btnUptime.Name = "btnUptime";
             this.btnUptime.Size = new System.Drawing.Size(102, 24);
             this.btnUptime.TabIndex = 52;
@@ -584,7 +586,7 @@
             // btnEquipment
             // 
             this.btnEquipment.Location = new System.Drawing.Point(624, 304);
-            this.btnEquipment.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnEquipment.Margin = new System.Windows.Forms.Padding(2);
             this.btnEquipment.Name = "btnEquipment";
             this.btnEquipment.Size = new System.Drawing.Size(102, 28);
             this.btnEquipment.TabIndex = 53;
@@ -595,7 +597,7 @@
             // btnPowerAttackMob
             // 
             this.btnPowerAttackMob.Location = new System.Drawing.Point(188, 205);
-            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
             this.btnPowerAttackMob.Size = new System.Drawing.Size(117, 28);
             this.btnPowerAttackMob.TabIndex = 54;
@@ -606,7 +608,7 @@
             // btnQuit
             // 
             this.btnQuit.Location = new System.Drawing.Point(624, 138);
-            this.btnQuit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnQuit.Margin = new System.Windows.Forms.Padding(2);
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(102, 28);
             this.btnQuit.TabIndex = 55;
@@ -617,7 +619,7 @@
             // txtSetValue
             // 
             this.txtSetValue.Location = new System.Drawing.Point(244, 15);
-            this.txtSetValue.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtSetValue.Margin = new System.Windows.Forms.Padding(2);
             this.txtSetValue.Name = "txtSetValue";
             this.txtSetValue.Size = new System.Drawing.Size(89, 20);
             this.txtSetValue.TabIndex = 56;
@@ -720,7 +722,7 @@
             // btnVariables
             // 
             this.btnVariables.Location = new System.Drawing.Point(527, 74);
-            this.btnVariables.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnVariables.Margin = new System.Windows.Forms.Padding(2);
             this.btnVariables.Name = "btnVariables";
             this.btnVariables.Size = new System.Drawing.Size(92, 26);
             this.btnVariables.TabIndex = 66;
@@ -731,7 +733,7 @@
             // txtPotion
             // 
             this.txtPotion.Location = new System.Drawing.Point(64, 111);
-            this.txtPotion.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtPotion.Margin = new System.Windows.Forms.Padding(2);
             this.txtPotion.Name = "txtPotion";
             this.txtPotion.Size = new System.Drawing.Size(179, 20);
             this.txtPotion.TabIndex = 68;
@@ -749,7 +751,7 @@
             // btnRemoveWeapon
             // 
             this.btnRemoveWeapon.Location = new System.Drawing.Point(308, 271);
-            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
             this.btnRemoveWeapon.Size = new System.Drawing.Size(117, 28);
             this.btnRemoveWeapon.TabIndex = 69;
@@ -760,7 +762,7 @@
             // btnFumbleMob
             // 
             this.btnFumbleMob.Location = new System.Drawing.Point(188, 304);
-            this.btnFumbleMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnFumbleMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnFumbleMob.Name = "btnFumbleMob";
             this.btnFumbleMob.Size = new System.Drawing.Size(117, 28);
             this.btnFumbleMob.TabIndex = 70;
@@ -771,7 +773,7 @@
             // btnNortheast
             // 
             this.btnNortheast.Location = new System.Drawing.Point(565, 275);
-            this.btnNortheast.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnNortheast.Margin = new System.Windows.Forms.Padding(2);
             this.btnNortheast.Name = "btnNortheast";
             this.btnNortheast.Size = new System.Drawing.Size(34, 23);
             this.btnNortheast.TabIndex = 71;
@@ -783,7 +785,7 @@
             // btnNorth
             // 
             this.btnNorth.Location = new System.Drawing.Point(526, 275);
-            this.btnNorth.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnNorth.Margin = new System.Windows.Forms.Padding(2);
             this.btnNorth.Name = "btnNorth";
             this.btnNorth.Size = new System.Drawing.Size(34, 23);
             this.btnNorth.TabIndex = 72;
@@ -795,7 +797,7 @@
             // btnNorthwest
             // 
             this.btnNorthwest.Location = new System.Drawing.Point(488, 275);
-            this.btnNorthwest.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnNorthwest.Margin = new System.Windows.Forms.Padding(2);
             this.btnNorthwest.Name = "btnNorthwest";
             this.btnNorthwest.Size = new System.Drawing.Size(34, 23);
             this.btnNorthwest.TabIndex = 73;
@@ -807,7 +809,7 @@
             // btnWest
             // 
             this.btnWest.Location = new System.Drawing.Point(488, 301);
-            this.btnWest.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnWest.Margin = new System.Windows.Forms.Padding(2);
             this.btnWest.Name = "btnWest";
             this.btnWest.Size = new System.Drawing.Size(34, 23);
             this.btnWest.TabIndex = 75;
@@ -819,7 +821,7 @@
             // btnEast
             // 
             this.btnEast.Location = new System.Drawing.Point(565, 301);
-            this.btnEast.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnEast.Margin = new System.Windows.Forms.Padding(2);
             this.btnEast.Name = "btnEast";
             this.btnEast.Size = new System.Drawing.Size(34, 23);
             this.btnEast.TabIndex = 74;
@@ -831,7 +833,7 @@
             // btnSouthwest
             // 
             this.btnSouthwest.Location = new System.Drawing.Point(488, 328);
-            this.btnSouthwest.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSouthwest.Margin = new System.Windows.Forms.Padding(2);
             this.btnSouthwest.Name = "btnSouthwest";
             this.btnSouthwest.Size = new System.Drawing.Size(34, 23);
             this.btnSouthwest.TabIndex = 78;
@@ -843,7 +845,7 @@
             // btnSouth
             // 
             this.btnSouth.Location = new System.Drawing.Point(526, 328);
-            this.btnSouth.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSouth.Margin = new System.Windows.Forms.Padding(2);
             this.btnSouth.Name = "btnSouth";
             this.btnSouth.Size = new System.Drawing.Size(34, 23);
             this.btnSouth.TabIndex = 77;
@@ -855,7 +857,7 @@
             // btnSoutheast
             // 
             this.btnSoutheast.Location = new System.Drawing.Point(565, 328);
-            this.btnSoutheast.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSoutheast.Margin = new System.Windows.Forms.Padding(2);
             this.btnSoutheast.Name = "btnSoutheast";
             this.btnSoutheast.Size = new System.Drawing.Size(34, 23);
             this.btnSoutheast.TabIndex = 76;
@@ -870,7 +872,7 @@
             this.tcMain.Controls.Add(this.tabAncillary);
             this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcMain.Location = new System.Drawing.Point(0, 0);
-            this.tcMain.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(1000, 544);
@@ -880,9 +882,9 @@
             // 
             this.tabMain.Controls.Add(this.pnlMain);
             this.tabMain.Location = new System.Drawing.Point(4, 22);
-            this.tabMain.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
-            this.tabMain.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabMain.Padding = new System.Windows.Forms.Padding(2);
             this.tabMain.Size = new System.Drawing.Size(992, 518);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
@@ -890,6 +892,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblLevel);
+            this.pnlMain.Controls.Add(this.txtLevel);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
             this.pnlMain.Controls.Add(this.btnCastMend);
@@ -957,7 +961,7 @@
             this.pnlMain.Controls.Add(this.lblWeapon);
             this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMain.Location = new System.Drawing.Point(2, 2);
-            this.pnlMain.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pnlMain.Margin = new System.Windows.Forms.Padding(2);
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(988, 514);
             this.pnlMain.TabIndex = 0;
@@ -965,7 +969,7 @@
             // btnLevel3OffensiveSpell
             // 
             this.btnLevel3OffensiveSpell.Location = new System.Drawing.Point(64, 204);
-            this.btnLevel3OffensiveSpell.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLevel3OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
             this.btnLevel3OffensiveSpell.Name = "btnLevel3OffensiveSpell";
             this.btnLevel3OffensiveSpell.Size = new System.Drawing.Size(117, 28);
             this.btnLevel3OffensiveSpell.TabIndex = 84;
@@ -976,7 +980,7 @@
             // btnStunMob
             // 
             this.btnStunMob.Location = new System.Drawing.Point(186, 138);
-            this.btnStunMob.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnStunMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnStunMob.Name = "btnStunMob";
             this.btnStunMob.Size = new System.Drawing.Size(117, 28);
             this.btnStunMob.TabIndex = 83;
@@ -987,7 +991,7 @@
             // btnCastMend
             // 
             this.btnCastMend.Location = new System.Drawing.Point(430, 137);
-            this.btnCastMend.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCastMend.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastMend.Name = "btnCastMend";
             this.btnCastMend.Size = new System.Drawing.Size(93, 28);
             this.btnCastMend.TabIndex = 82;
@@ -998,7 +1002,7 @@
             // btnReddishOrange
             // 
             this.btnReddishOrange.Location = new System.Drawing.Point(527, 138);
-            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(2);
             this.btnReddishOrange.Name = "btnReddishOrange";
             this.btnReddishOrange.Size = new System.Drawing.Size(93, 28);
             this.btnReddishOrange.TabIndex = 81;
@@ -1009,7 +1013,7 @@
             // btnHide
             // 
             this.btnHide.Location = new System.Drawing.Point(308, 206);
-            this.btnHide.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnHide.Margin = new System.Windows.Forms.Padding(2);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(117, 28);
             this.btnHide.TabIndex = 80;
@@ -1021,7 +1025,7 @@
             // btnSearch
             // 
             this.btnSearch.Location = new System.Drawing.Point(308, 171);
-            this.btnSearch.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnSearch.Margin = new System.Windows.Forms.Padding(2);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(117, 28);
             this.btnSearch.TabIndex = 79;
@@ -1034,9 +1038,9 @@
             // 
             this.tabAncillary.Controls.Add(this.pnlAncillary);
             this.tabAncillary.Location = new System.Drawing.Point(4, 22);
-            this.tabAncillary.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
-            this.tabAncillary.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Size = new System.Drawing.Size(992, 518);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
@@ -1053,7 +1057,7 @@
             this.pnlAncillary.Controls.Add(this.chkSetOn);
             this.pnlAncillary.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
-            this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
             this.pnlAncillary.Size = new System.Drawing.Size(988, 514);
             this.pnlAncillary.TabIndex = 0;
@@ -1081,7 +1085,7 @@
             // 
             this.btnRunMacro.Enabled = false;
             this.btnRunMacro.Location = new System.Drawing.Point(401, 49);
-            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
             this.btnRunMacro.Name = "btnRunMacro";
             this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
             this.btnRunMacro.TabIndex = 62;
@@ -1089,13 +1093,32 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
+            // lblLevel
+            // 
+            this.lblLevel.Location = new System.Drawing.Point(253, 17);
+            this.lblLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblLevel.Name = "lblLevel";
+            this.lblLevel.Size = new System.Drawing.Size(51, 21);
+            this.lblLevel.TabIndex = 85;
+            this.lblLevel.Text = "Level:";
+            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtLevel
+            // 
+            this.txtLevel.Enabled = false;
+            this.txtLevel.Location = new System.Drawing.Point(308, 20);
+            this.txtLevel.Margin = new System.Windows.Forms.Padding(2);
+            this.txtLevel.Name = "txtLevel";
+            this.txtLevel.Size = new System.Drawing.Size(179, 20);
+            this.txtLevel.TabIndex = 86;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1000, 544);
             this.Controls.Add(this.tcMain);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.grpRealm.ResumeLayout(false);
@@ -1198,6 +1221,8 @@
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;
         private System.Windows.Forms.Button btnLevel3OffensiveSpell;
+        private System.Windows.Forms.Label lblLevel;
+        private System.Windows.Forms.TextBox txtLevel;
     }
 }
 

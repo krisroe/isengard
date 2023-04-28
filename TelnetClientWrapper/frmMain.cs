@@ -16,6 +16,7 @@ namespace IsengardClient
         private const int WM_SYSKEYDOWN = 0x0104;
         private const int VK_RETURN = 0x0D;
 
+        private int _level;
         private Dictionary<char, int> _keyMapping;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
@@ -36,6 +37,7 @@ namespace IsengardClient
         private Area _aHealing;
         private Area _aPerms;
         private Area _aMisc;
+        private Area _aInaccessible;
 
         private const string AREA_HEALING = "Healing";
         private const string AREA_PERMS = "Perms";
@@ -46,6 +48,7 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_TO_THARBAD = "Imladris to Tharbad";
         private const string AREA_MISC = "Misc";
         private const string AREA_INTANGIBLE = "Intangible";
+        private const string AREA_INACCESSIBLE = "Inaccessible";
 
         private const string VARIABLE_MOVEGAPMS = "movegapms";
         private const string VARIABLE_LEVEL1CASTROUNDS = "level1castrounds";
@@ -76,6 +79,7 @@ namespace IsengardClient
             AddArea(AREA_IMLADRIS_TO_THARBAD);
             _aMisc = AddArea(AREA_MISC);
             AddArea(AREA_INTANGIBLE);
+            _aInaccessible = AddArea(AREA_INACCESSIBLE);
 
             _bw = new BackgroundWorker();
             _bw.WorkerSupportsCancellation = true;
@@ -290,6 +294,19 @@ namespace IsengardClient
                         break;
                 }
             }
+
+            string sLevel = doc.DocumentElement.GetAttribute("level");
+            if (string.IsNullOrEmpty(sLevel))
+            {
+                MessageBox.Show("No level specified");
+                _level = 1;
+            }
+            else if (!int.TryParse(sLevel, out _level))
+            {
+                MessageBox.Show("Invalid level specified: " + sLevel);
+                _level = 1;
+            }
+            txtLevel.Text = _level.ToString();
 
             bool dupMacros = false;
             bool dupVariables = false;
@@ -1875,7 +1892,10 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate", null);
 
             Room oMuddyFoyer = AddRoom("Muddy Foyer");
-            AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
+            if (_level < 11)
+            {
+                AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
+            }
             AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
 
             Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
@@ -1999,8 +2019,8 @@ namespace IsengardClient
             AddLocation(oBreeToImladris, oManagerMulloy);
             AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aPerms, oSalamander);
-            AddLocation(oBreeToImladris, oMrWartnose);
-            AddLocation(oBreeToImladris, oCrabbe);
+            AddLocation(_aInaccessible, oMrWartnose);
+            AddLocation(_aInaccessible, oCrabbe);
             AddLocation(_aPerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aPerms, oNorthBrethilForest5GobAmbush);
             AddSubLocation(oNorthBrethilForest5GobAmbush, oNorthBrethilForest4GobAmbushThreshold);

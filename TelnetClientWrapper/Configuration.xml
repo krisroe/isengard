@@ -1,4 +1,4 @@
-<Configuration defaultrealm="earth">
+<Configuration defaultrealm="earth" level="11">
  <Variables>
   <Variable name="movegapms" type="int" value="265"/>
   <Variable name="polltickinterval" type="int" value="5000" min="0"/>
