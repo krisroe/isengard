@@ -1386,7 +1386,7 @@ namespace IsengardClient
             Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
             e.PreCommand = "open sewer";
             breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
-            breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
+            Room oToZoo = breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
             breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
             Room oToCasino = breeStreets[4, 10] = AddRoom("Guido Threshold"); //Bree Ormenel 5x11
             breeStreets[5, 10] = AddRoom("Bree Ormenel 6x11");
@@ -1533,6 +1533,29 @@ namespace IsengardClient
             Room oLeonardosSwords = AddRoom("Bree Leonardo's Swords");
             AddBidirectionalExits(oLeonardosSwords, oLeonardosFoundry, BidirectionalExitType.NorthSouth);
 
+            Room oZooEntrance = AddRoom("Scranlin's Zoological Wonders");
+            AddExit(oToZoo, oZooEntrance, "zoo");
+            AddExit(oZooEntrance, oToZoo, "exit");
+
+            Room oPathThroughScranlinsZoo = AddRoom("Path through Scranlin's Zoo");
+            AddBidirectionalExits(oPathThroughScranlinsZoo, oZooEntrance, BidirectionalExitType.NorthSouth);
+
+            Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo");
+            e = AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
+            e.OmitGo = true;
+            AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
+
+            Room oScranlinThreshold = AddRoom("Scranlin Threshold");
+            AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
+            AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
+
+            Room oScranlin = AddRoom("Scranlin 500");
+            oScranlin.Priority = PRIORITY_BREE_PERMS_BIG;
+            oScranlin.Mob = oScranlinThreshold.Mob = "Scranlin";
+            AddExit(oScranlinThreshold, oScranlin, "outhouse");
+            AddExit(oScranlin, oScranlinThreshold, "out");
+            SetVariablesForPermWithThreshold(oScranlin, oScranlinThreshold, "outhouse", null, 2);
+
             AddLocation(_aHealing, oOrderOfLove);
             AddLocation(_aHealing, oCampusFreeClinic);
             AddLocation(_aPerms, oGrant);
@@ -1545,6 +1568,8 @@ namespace IsengardClient
             AddSubLocation(oSergeantGrimdall, oToBarracks);
             AddLocation(_aPerms, oBigPapa);
             AddSubLocation(oBigPapa, oToBigPapa);
+            AddLocation(_aPerms, oScranlin);
+            AddSubLocation(oScranlin, oScranlinThreshold);
             AddLocation(_aPerms, oDroolie);
             AddLocation(_aPerms, oSewerDemonThreshold);
             AddLocation(aBree, oPansy);
