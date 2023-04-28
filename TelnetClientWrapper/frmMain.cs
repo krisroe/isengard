@@ -1168,6 +1168,66 @@ namespace IsengardClient
             Room sabre3 = AddRoom("Tharbad Sabre");
             AddBidirectionalExits(sabre3, sabreNightingale, BidirectionalExitType.WestEast);
 
+            Room illusion1 = AddRoom("Tharbad Illusion");
+            AddBidirectionalExits(illusion1, sabreIllusion, BidirectionalExitType.NorthSouth);
+
+            Room marketDistrictClothiers = AddRoom("Tharbad Market District Clothiers");
+            AddBidirectionalExits(marketDistrictClothiers, illusion1, BidirectionalExitType.NorthSouth);
+
+            Room oMasterJeweler = AddRoom("Master Jeweler 170");
+            oMasterJeweler.Mob = "Jeweler";
+            oMasterJeweler.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddBidirectionalExits(marketDistrictClothiers, oMasterJeweler, BidirectionalExitType.WestEast);
+            SetVariablesForIndefiniteCasts(oMasterJeweler, true, 3);
+
+            Room oEntranceToGypsyEncampment = AddRoom("Entrance to Gypsy Encampment");
+            AddExit(oMasterJeweler, oEntranceToGypsyEncampment, "row");
+            AddExit(oEntranceToGypsyEncampment, oMasterJeweler, "market");
+
+            Room oGypsyRow1 = AddRoom("Gypsy Row");
+            AddBidirectionalExits(oEntranceToGypsyEncampment, oGypsyRow1, BidirectionalExitType.WestEast);
+
+            Room oGypsyRow2 = AddRoom("Gypsy Row");
+            AddBidirectionalExits(oGypsyRow1, oGypsyRow2, BidirectionalExitType.WestEast);
+
+            Room oGypsyRow3 = AddRoom("Gypsy Row");
+            AddBidirectionalExits(oGypsyRow3, oGypsyRow2, BidirectionalExitType.NorthSouth);
+
+            Room oGypsyRow4 = AddRoom("Gypsy Row");
+            AddBidirectionalExits(oGypsyRow4, oGypsyRow3, BidirectionalExitType.WestEast);
+
+            Room oKingBrundenThreshold = AddRoom("King Brunden Threshold");
+            AddExit(oGypsyRow4, oKingBrundenThreshold, "wagon");
+            AddExit(oKingBrundenThreshold, oGypsyRow4, "out");
+
+            Room oKingBrunden = AddRoom("King Brunden 300");
+            oKingBrunden.Mob = oKingBrundenThreshold.Mob = "king";
+            oKingBrunden.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddExit(oKingBrundenThreshold, oKingBrunden, "back");
+            AddExit(oKingBrunden, oKingBrundenThreshold, "out");
+            SetVariablesForPermWithThreshold(oKingBrunden, oKingBrundenThreshold, "back", null, 2);
+
+            Room oGypsyBlademaster = AddRoom("Gypsy Blademaster 160");
+            oGypsyBlademaster.Mob = "Blademaster";
+            oGypsyBlademaster.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddExit(oGypsyRow3, oGypsyBlademaster, "tent");
+            AddExit(oGypsyBlademaster, oGypsyRow3, "out");
+            SetVariablesForIndefiniteCasts(oGypsyBlademaster, true, 3);
+
+            Room oKingsMoneychanger = AddRoom("King's Moneychanger 150");
+            oKingsMoneychanger.Mob = "Moneychanger";
+            oKingsMoneychanger.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddExit(oGypsyRow2, oKingsMoneychanger, "tent");
+            AddExit(oKingsMoneychanger, oGypsyRow2, "out");
+            SetVariablesForIndefiniteCasts(oKingsMoneychanger, true, 3);
+
+            Room oMadameNicolov = AddRoom("Madame Nicolov 180");
+            oMadameNicolov.Mob = "Madame";
+            oMadameNicolov.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddExit(oGypsyRow1, oMadameNicolov, "wagon");
+            AddExit(oMadameNicolov, oGypsyRow1, "out");
+            SetVariablesForIndefiniteCasts(oMadameNicolov, true, 3);
+
             Room gildedAppleZathrielThreshold = AddRoom("Zathriel Threshold");
             AddBidirectionalSameNameExit(sabre3, gildedAppleZathrielThreshold, "door", null);
 
@@ -1191,6 +1251,12 @@ namespace IsengardClient
             AddSubLocation(zathriel, gildedAppleZathrielThreshold);
             AddLocation(_aPerms, oOliphant);
             AddSubLocation(oOliphant, oOliphauntThreshold);
+            AddLocation(_aPerms, oMasterJeweler);
+            AddLocation(_aPerms, oMadameNicolov);
+            AddLocation(_aPerms, oKingsMoneychanger);
+            AddLocation(_aPerms, oGypsyBlademaster);
+            AddLocation(_aPerms, oKingBrunden);
+            AddSubLocation(oKingBrunden, oKingBrundenThreshold);
         }
 
         private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit)
