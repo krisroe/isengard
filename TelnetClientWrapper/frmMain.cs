@@ -1178,9 +1178,19 @@ namespace IsengardClient
             AddExit(zathriel, gildedAppleZathrielThreshold, "down");
             SetVariablesForPermWithThreshold(zathriel, gildedAppleZathrielThreshold, "stage", null, 2);
 
+            Room oOliphauntThreshold = AddRoom("Oliphaunt Threshold");
+            AddBidirectionalExits(balle2, oOliphauntThreshold, BidirectionalExitType.NorthSouth);
+            Room oOliphant = AddRoom("Oliphaunt 310");
+            oOliphant.Mob = oOliphauntThreshold.Mob = "Oliphaunt";
+            oOliphant.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
+            AddBidirectionalSameNameExit(oOliphauntThreshold, oOliphant, "curtain", null);
+            SetVariablesForPermWithThreshold(oOliphant, oOliphauntThreshold, "curtain", null, 2);
+
             AddLocation(_aHealing, bardicGuildhall);
             AddLocation(_aPerms, zathriel);
             AddSubLocation(zathriel, gildedAppleZathrielThreshold);
+            AddLocation(_aPerms, oOliphant);
+            AddSubLocation(oOliphant, oOliphauntThreshold);
         }
 
         private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit)
