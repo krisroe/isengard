@@ -1214,7 +1214,7 @@ namespace IsengardClient
             Room oGypsyRow4 = AddRoom("Gypsy Row");
             AddBidirectionalExits(oGypsyRow4, oGypsyRow3, BidirectionalExitType.WestEast);
 
-            Room oKingBrundenThreshold = AddRoom("King Brunden Threshold");
+            Room oKingBrundenThreshold = AddRoom("King Brunden's Wagon");
             AddExit(oGypsyRow4, oKingBrundenThreshold, "wagon");
             AddExit(oKingBrundenThreshold, oGypsyRow4, "out");
 
@@ -1223,7 +1223,7 @@ namespace IsengardClient
             oKingBrunden.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
             AddExit(oKingBrundenThreshold, oKingBrunden, "back");
             AddExit(oKingBrunden, oKingBrundenThreshold, "out");
-            SetVariablesForPermWithThreshold(oKingBrunden, oKingBrundenThreshold, "back", null, 2);
+            SetVariablesForIndefiniteCasts(oKingBrunden, true, 3);
 
             Room oGypsyBlademaster = AddRoom("Gypsy Blademaster 160");
             oGypsyBlademaster.Mob = "Blademaster";
@@ -1274,7 +1274,6 @@ namespace IsengardClient
             AddLocation(_aPerms, oKingsMoneychanger);
             AddLocation(_aPerms, oGypsyBlademaster);
             AddLocation(_aPerms, oKingBrunden);
-            AddSubLocation(oKingBrunden, oKingBrundenThreshold);
         }
 
         private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit)
