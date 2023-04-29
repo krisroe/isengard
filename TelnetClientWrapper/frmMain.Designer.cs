@@ -100,6 +100,8 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblLevel = new System.Windows.Forms.Label();
+            this.txtLevel = new System.Windows.Forms.TextBox();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.btnStunMob = new System.Windows.Forms.Button();
             this.btnCastMend = new System.Windows.Forms.Button();
@@ -111,8 +113,7 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
-            this.lblLevel = new System.Windows.Forms.Label();
-            this.txtLevel = new System.Windows.Forms.TextBox();
+            this.btnRemoveAll = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -892,6 +893,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnRemoveAll);
             this.pnlMain.Controls.Add(this.lblLevel);
             this.pnlMain.Controls.Add(this.txtLevel);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
@@ -965,6 +967,25 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(988, 514);
             this.pnlMain.TabIndex = 0;
+            // 
+            // lblLevel
+            // 
+            this.lblLevel.Location = new System.Drawing.Point(253, 17);
+            this.lblLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblLevel.Name = "lblLevel";
+            this.lblLevel.Size = new System.Drawing.Size(51, 21);
+            this.lblLevel.TabIndex = 85;
+            this.lblLevel.Text = "Level:";
+            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtLevel
+            // 
+            this.txtLevel.Enabled = false;
+            this.txtLevel.Location = new System.Drawing.Point(308, 20);
+            this.txtLevel.Margin = new System.Windows.Forms.Padding(2);
+            this.txtLevel.Name = "txtLevel";
+            this.txtLevel.Size = new System.Drawing.Size(179, 20);
+            this.txtLevel.TabIndex = 86;
             // 
             // btnLevel3OffensiveSpell
             // 
@@ -1093,24 +1114,16 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
-            // lblLevel
+            // btnRemoveAll
             // 
-            this.lblLevel.Location = new System.Drawing.Point(253, 17);
-            this.lblLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblLevel.Name = "lblLevel";
-            this.lblLevel.Size = new System.Drawing.Size(51, 21);
-            this.lblLevel.TabIndex = 85;
-            this.lblLevel.Text = "Level:";
-            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtLevel
-            // 
-            this.txtLevel.Enabled = false;
-            this.txtLevel.Location = new System.Drawing.Point(308, 20);
-            this.txtLevel.Margin = new System.Windows.Forms.Padding(2);
-            this.txtLevel.Name = "txtLevel";
-            this.txtLevel.Size = new System.Drawing.Size(179, 20);
-            this.txtLevel.TabIndex = 86;
+            this.btnRemoveAll.Location = new System.Drawing.Point(308, 304);
+            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(2);
+            this.btnRemoveAll.Name = "btnRemoveAll";
+            this.btnRemoveAll.Size = new System.Drawing.Size(117, 28);
+            this.btnRemoveAll.TabIndex = 87;
+            this.btnRemoveAll.Text = "Remove All";
+            this.btnRemoveAll.UseVisualStyleBackColor = true;
+            this.btnRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // frmMain
             // 
@@ -1223,6 +1236,7 @@
         private System.Windows.Forms.Button btnLevel3OffensiveSpell;
         private System.Windows.Forms.Label lblLevel;
         private System.Windows.Forms.TextBox txtLevel;
+        private System.Windows.Forms.Button btnRemoveAll;
     }
 }
 

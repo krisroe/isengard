@@ -191,6 +191,7 @@ namespace IsengardClient
             btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee);
             btnQuit.Tag = new CommandButtonTag("quit", CommandType.None);
             btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None);
+            btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None);
             btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic);
             btnCastMend.Tag = new CommandButtonTag("cast mend-wounds", CommandType.Magic);
             btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions);
@@ -1497,7 +1498,7 @@ namespace IsengardClient
             oIgor.Priority = PRIORITY_BREE_PERMS_MAIN;
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
             AddExit(oToBlindPigPubAndUniversity, oIgor, "pub");
-            SetVariablesForIndefiniteCasts(oIgor, false, 2);
+            SetVariablesForIndefiniteCasts(oIgor, true, 3);
 
             Room oSnarlingMutt = AddRoom("Snarling Mutt 50");
             oSnarlingMutt.Mob = "Mutt";
@@ -2251,7 +2252,11 @@ namespace IsengardClient
             //something is hasted
             Room oSomething = AddRoom("Something 140");
             oSomething.Mob = "Something";
-            AddBidirectionalSameNameExit(oGreatHallOfHeroes, oSomething, "curtain", null);
+            if (_level < 11)
+            {
+                AddExit(oGreatHallOfHeroes, oSomething, "curtain");
+            }
+            AddExit(oSomething, oGreatHallOfHeroes, "curtain");
             SetVariablesForIndefiniteCasts(oSomething, true, 3);
             
             Room oShepherd = AddRoom("Shepherd 60");
@@ -2260,7 +2265,7 @@ namespace IsengardClient
             AddExit(oShepherd, oNorthFork1, "south");
             SetVariablesForIndefiniteCasts(oShepherd, false, 3);
 
-            AddLocation(_aPerms, oSomething);
+            AddLocation(_aInaccessible, oSomething);
             AddLocation(_aPerms, oBilboBaggins);
             AddLocation(_aPerms, oFrodoBaggins);
             AddLocation(oBreeToHobbiton, oShepherd);
