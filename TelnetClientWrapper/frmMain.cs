@@ -1256,19 +1256,19 @@ namespace IsengardClient
             AddExit(zathriel, gildedAppleZathrielThreshold, "down");
             SetVariablesForPermWithThreshold(zathriel, gildedAppleZathrielThreshold, "stage", null, 2);
 
-            Room oOliphauntThreshold = AddRoom("Oliphaunt Threshold");
-            AddBidirectionalExits(balle2, oOliphauntThreshold, BidirectionalExitType.NorthSouth);
+            Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
+            AddBidirectionalExits(balle2, oOliphauntsTattoos, BidirectionalExitType.NorthSouth);
+            
             Room oOliphant = AddRoom("Oliphaunt 310");
-            oOliphant.Mob = oOliphauntThreshold.Mob = "Oliphaunt";
+            oOliphant.Mob = oOliphauntsTattoos.Mob = "Oliphaunt";
             oOliphant.Priority = PRIORITY_IMLADRIS_PERMS_BIG;
-            AddBidirectionalSameNameExit(oOliphauntThreshold, oOliphant, "curtain", null);
-            SetVariablesForPermWithThreshold(oOliphant, oOliphauntThreshold, "curtain", null, 2);
+            AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphant, "curtain", null);
+            SetVariablesForIndefiniteCasts(oOliphant, true, 3);
 
             AddLocation(_aHealing, bardicGuildhall);
             AddLocation(_aPerms, zathriel);
             AddSubLocation(zathriel, gildedAppleZathrielThreshold);
             AddLocation(_aPerms, oOliphant);
-            AddSubLocation(oOliphant, oOliphauntThreshold);
             AddLocation(_aPerms, oMasterJeweler);
             AddLocation(_aPerms, oMadameNicolov);
             AddLocation(_aPerms, oKingsMoneychanger);
