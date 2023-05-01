@@ -91,9 +91,15 @@
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
-  <Macro name="repeatatk" oneclick="false" combatcommandtypes="Melee">
+  <Macro name="repeatatk" oneclick="true" combatcommandtypes="Melee" finalcommand="remove {weapon}">
    <Steps>
-    <Command text="attack {mob}" waitms="castinterval" loop="true"/>
+    <Command text="wield {weapon}" waitms="0"/>
+    <SetNextCommandMS waitms="0"/>
+    <Sequence loop="true">
+     <Steps>
+      <Command text="attack {mob}" waitms="castinterval"/>
+     </Steps>
+    </Sequence>
    </Steps>
   </Macro>
   <Macro name="cast+atk+potX" oneclick="false" combatcommandtypes="Magic,Melee,Potions">
