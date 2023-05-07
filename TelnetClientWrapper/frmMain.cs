@@ -690,7 +690,7 @@ namespace IsengardClient
                         }
                         else
                         {
-                            MacroCommand oCommand = new MacroCommand(cmd);
+                            MacroCommand oCommand = new MacroCommand(cmd, cmd);
                             ret.Add(oCommand);
                             step = oCommand;
                         }
@@ -699,6 +699,11 @@ namespace IsengardClient
                         MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
                         ret.Add(oWaitMSCommand);
                         step = oWaitMSCommand;
+                        break;
+                    case "setvariable":
+                        MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
+                        ret.Add(oSetVariableCommand);
+                        step = oSetVariableCommand;
                         break;
                     default:
                         isValid = false;
@@ -770,6 +775,60 @@ namespace IsengardClient
                     {
                         isValid = false;
                         errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
+                    }
+                }
+
+                string sVariable = elemStep.GetAttribute("variable");
+                if (!string.IsNullOrEmpty(sVariable))
+                {
+                    if (step is MacroStepSetVariable)
+                    {
+                        if (!_variablesByName.TryGetValue(sVariable, out Variable v))
+                        {
+                            isValid = false;
+                            errorMessages.Add("Invalid variable: " + errorSource + " " + stepType + " " + sVariable);
+                        }
+                        else
+                        {
+                            string sValue = elemStep.GetAttribute("value");
+                            int iTemp = 0;
+                            bool bTemp = false;
+                            if (sValue == null)
+                            {
+                                errorMessages.Add("No variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                            }
+                            else if (v.Type == VariableType.Bool && !bool.TryParse(sValue, out bTemp))
+                            {
+                                errorMessages.Add("Invalid boolean variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                            }
+                            else if (v.Type == VariableType.Int && !int.TryParse(sValue, out iTemp))
+                            {
+                                errorMessages.Add("Invalid integer variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                            }
+                            else
+                            {
+                                Variable copyVar = Variable.CopyVariable(v);
+                                ((MacroStepSetVariable)step).Variable = copyVar;
+                                switch (v.Type)
+                                {
+                                    case VariableType.Bool:
+                                        ((BooleanVariable)copyVar).Value = bTemp;
+                                        break;
+                                    case VariableType.Int:
+                                        ((IntegerVariable)copyVar).Value = iTemp;
+                                        break;
+                                    case VariableType.String:
+                                        ((StringVariable)copyVar).Value = sValue;
+                                        break;
+                                }
+                                ((MacroStepSetVariable)step).Variable = copyVar;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isValid = false;
+                        errorMessages.Add("Variable found but not for set variable step: " + errorSource + " " + stepType + " " + sVariable);
                     }
                 }
 
@@ -894,8 +953,15 @@ namespace IsengardClient
                 }
 
                 if (_bw.CancellationPending) break;
-                string sCommand = nextCommand.Command;
-                if (SendCommand(sCommand, false))
+
+                //re-translate the command in case variables have changed
+                string actualCommand = TranslateCommand(nextCommand.RawCommand, _currentBackgroundParameters.GetVariables(), out string errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    break; //not much we can do here except stop
+                }
+
+                if (SendCommand(actualCommand, false))
                 {
                     pms.CommandsRun++;
                 }
@@ -987,6 +1053,26 @@ namespace IsengardClient
                     if (nextStep is MacroStepSetNextCommandWaitMS)
                     {
                         parameters.NextCommandWaitMS = ((MacroStepSetNextCommandWaitMS)nextStep).WaitMS.Value;
+                    }
+                    else if (nextStep is MacroStepSetVariable)
+                    {
+                        MacroStepSetVariable mssv = (MacroStepSetVariable)nextStep;
+                        if (mssv.Variable.Type == VariableType.Bool)
+                        {
+                            ((BooleanVariable)parameters.Variables[mssv.Variable.Name]).Value = ((BooleanVariable)mssv.Variable).Value;
+                        }
+                        else if (mssv.Variable.Type == VariableType.Int)
+                        {
+                            ((IntegerVariable)parameters.Variables[mssv.Variable.Name]).Value = ((IntegerVariable)mssv.Variable).Value;
+                        }
+                        else if (mssv.Variable.Type == VariableType.String)
+                        {
+                            ((StringVariable)parameters.Variables[mssv.Variable.Name]).Value = ((StringVariable)mssv.Variable).Value;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
                     }
                     else if (nextStep is MacroStepSequence)
                     {
@@ -2741,12 +2827,12 @@ namespace IsengardClient
             return true;
         }
 
-        private string TranslateCommand(string input, out string errorMessage)
+        private string TranslateCommand(string input, IEnumerable<Variable> variables, out string errorMessage)
         {
             input = input ?? string.Empty;
             string specifiedValue;
             errorMessage = string.Empty;
-            input = TranslateVariables(input);
+            input = TranslateVariables(input, variables);
             foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
             {
                 string lowerOT = ot.ToString().ToLower();
@@ -2764,13 +2850,13 @@ namespace IsengardClient
                     }
                 }
             }
-            input = TranslateVariables(input);
+            input = TranslateVariables(input, variables);
             return input;
         }
 
-        private string TranslateVariables(string input)
+        private string TranslateVariables(string input, IEnumerable<Variable> variables)
         {
-            foreach (Variable v in _variables)
+            foreach (Variable v in variables)
             {
                 string sValue;
                 if (v.Type == VariableType.Bool)
@@ -2807,7 +2893,7 @@ namespace IsengardClient
             {
                 command = btn.Tag.ToString();
             }
-            command = TranslateCommand(command, out string errorMessage);
+            command = TranslateCommand(command, _variables, out string errorMessage);
             if (string.IsNullOrEmpty(errorMessage))
             {
                 if (_currentBackgroundParameters != null) //queue to background process
@@ -2901,11 +2987,11 @@ namespace IsengardClient
                 Exit exit = exits[i];
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    commands.Add(new MacroCommand(exit.PreCommand));
+                    commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(new MacroCommand(nextCommand));
+                commands.Add(new MacroCommand(nextCommand, nextCommand));
             }
 
             RunCommands(commands, _currentBackgroundParameters);
@@ -2937,6 +3023,14 @@ namespace IsengardClient
             public Macro Macro { get; set; }
             public string QueuedCommand { get; set; }
             public string FinalCommand { get; set; }
+
+            public IEnumerable<Variable> GetVariables()
+            {
+                foreach (Variable v in Variables.Values)
+                {
+                    yield return v;
+                }
+            }
         }
 
         private void Alg_TreeEdge(Exit e)
@@ -3025,7 +3119,7 @@ namespace IsengardClient
             string sFinalCommand = string.Empty;
             if (!string.IsNullOrEmpty(m.FinalCommand))
             {
-                sFinalCommand = TranslateCommand(m.FinalCommand, out errorMessage);
+                sFinalCommand = TranslateCommand(m.FinalCommand, _variables, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     MessageBox.Show(errorMessage);
@@ -3047,6 +3141,7 @@ namespace IsengardClient
         {
             MacroStepBase ret = null;
             errorMessage = string.Empty;
+            bool isSameStep = false;
             if (input is MacroStepSequence)
             {
                 MacroStepSequence sourceSequence = (MacroStepSequence)input;
@@ -3061,21 +3156,25 @@ namespace IsengardClient
             else if (input is MacroCommand)
             {
                 string rawCommand = ((MacroCommand)input).Command;
-                string translatedCommand = TranslateCommand(rawCommand, out errorMessage);
+                string translatedCommand = TranslateCommand(rawCommand, _variables, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
-                ret = new MacroCommand(translatedCommand);
+                ret = new MacroCommand(rawCommand, translatedCommand);
             }
-            else if (input is MacroStepSetNextCommandWaitMS)
+            else if (input is MacroStepSetNextCommandWaitMS || input is MacroStepSetVariable)
             {
                 ret = input;
+                isSameStep = true;
             }
-            ret.WaitMS = input.WaitMS;
-            ret.WaitMSVariable = input.WaitMSVariable;
-            ret.Loop = input.Loop;
-            ret.LoopCount = input.LoopCount;
-            ret.LoopVariable = input.LoopVariable;
-            ret.SkipRounds = input.SkipRounds;
-            ret.ConditionVariable = input.ConditionVariable;
+            if (!isSameStep)
+            {
+                ret.WaitMS = input.WaitMS;
+                ret.WaitMSVariable = input.WaitMSVariable;
+                ret.Loop = input.Loop;
+                ret.LoopCount = input.LoopCount;
+                ret.LoopVariable = input.LoopVariable;
+                ret.SkipRounds = input.SkipRounds;
+                ret.ConditionVariable = input.ConditionVariable;
+            }
             return ret;
         }
 
@@ -3132,9 +3231,11 @@ namespace IsengardClient
 
         private class MacroCommand : MacroStepBase
         {
+            public string RawCommand { get; set; }
             public string Command { get; set; }
-            public MacroCommand(string Command)
+            public MacroCommand(string RawCommand, string Command)
             {
+                this.RawCommand = RawCommand;
                 this.Command = Command;
             }
         }
@@ -3142,6 +3243,15 @@ namespace IsengardClient
         private class MacroStepSetNextCommandWaitMS : MacroStepBase
         {
             public MacroStepSetNextCommandWaitMS()
+            {
+            }
+        }
+
+        private class MacroStepSetVariable : MacroStepBase
+        {
+            public Variable Variable { get; set; }
+
+            public MacroStepSetVariable()
             {
             }
         }

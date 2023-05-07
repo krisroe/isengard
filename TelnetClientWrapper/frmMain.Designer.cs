@@ -100,6 +100,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnRemoveAll = new System.Windows.Forms.Button();
             this.lblLevel = new System.Windows.Forms.Label();
             this.txtLevel = new System.Windows.Forms.TextBox();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
@@ -113,7 +114,6 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
-            this.btnRemoveAll = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -689,7 +689,7 @@
             this.treeLocations.HideSelection = false;
             this.treeLocations.Location = new System.Drawing.Point(3, 16);
             this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(245, 471);
+            this.treeLocations.Size = new System.Drawing.Size(245, 507);
             this.treeLocations.TabIndex = 63;
             // 
             // grpLocations
@@ -697,7 +697,7 @@
             this.grpLocations.Controls.Add(this.treeLocations);
             this.grpLocations.Location = new System.Drawing.Point(731, 14);
             this.grpLocations.Name = "grpLocations";
-            this.grpLocations.Size = new System.Drawing.Size(251, 490);
+            this.grpLocations.Size = new System.Drawing.Size(251, 526);
             this.grpLocations.TabIndex = 64;
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
@@ -707,7 +707,7 @@
             this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
             this.grpOneClickMacros.Location = new System.Drawing.Point(4, 432);
             this.grpOneClickMacros.Name = "grpOneClickMacros";
-            this.grpOneClickMacros.Size = new System.Drawing.Size(601, 68);
+            this.grpOneClickMacros.Size = new System.Drawing.Size(601, 111);
             this.grpOneClickMacros.TabIndex = 65;
             this.grpOneClickMacros.TabStop = false;
             this.grpOneClickMacros.Text = "One Click Macros";
@@ -717,7 +717,7 @@
             this.flpOneClickMacros.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpOneClickMacros.Location = new System.Drawing.Point(3, 16);
             this.flpOneClickMacros.Name = "flpOneClickMacros";
-            this.flpOneClickMacros.Size = new System.Drawing.Size(595, 49);
+            this.flpOneClickMacros.Size = new System.Drawing.Size(595, 92);
             this.flpOneClickMacros.TabIndex = 0;
             // 
             // btnVariables
@@ -876,7 +876,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1000, 544);
+            this.tcMain.Size = new System.Drawing.Size(1000, 588);
             this.tcMain.TabIndex = 79;
             // 
             // tabMain
@@ -886,7 +886,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(992, 518);
+            this.tabMain.Size = new System.Drawing.Size(992, 562);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -965,8 +965,19 @@
             this.pnlMain.Location = new System.Drawing.Point(2, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(2);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(988, 514);
+            this.pnlMain.Size = new System.Drawing.Size(988, 558);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnRemoveAll
+            // 
+            this.btnRemoveAll.Location = new System.Drawing.Point(308, 304);
+            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(2);
+            this.btnRemoveAll.Name = "btnRemoveAll";
+            this.btnRemoveAll.Size = new System.Drawing.Size(117, 28);
+            this.btnRemoveAll.TabIndex = 87;
+            this.btnRemoveAll.Text = "Remove All";
+            this.btnRemoveAll.UseVisualStyleBackColor = true;
+            this.btnRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // lblLevel
             // 
@@ -1114,22 +1125,11 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
-            // btnRemoveAll
-            // 
-            this.btnRemoveAll.Location = new System.Drawing.Point(308, 304);
-            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(2);
-            this.btnRemoveAll.Name = "btnRemoveAll";
-            this.btnRemoveAll.Size = new System.Drawing.Size(117, 28);
-            this.btnRemoveAll.TabIndex = 87;
-            this.btnRemoveAll.Text = "Remove All";
-            this.btnRemoveAll.UseVisualStyleBackColor = true;
-            this.btnRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 544);
+            this.ClientSize = new System.Drawing.Size(1000, 588);
             this.Controls.Add(this.tcMain);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "frmMain";

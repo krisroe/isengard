@@ -9,6 +9,7 @@
   <Variable name="stuncastrounds" type="int" value="2" min="0"/>
   <Variable name="hitandrundirection" type="string"/>
   <Variable name="hitandrunprecommand" type="string"/>
+  <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
   <Macro name="castX" oneclick="true" combatcommandtypes="Magic">
@@ -91,7 +92,42 @@
     <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
-  <Macro name="repeatatk" oneclick="true" combatcommandtypes="Melee" finalcommand="remove {weapon}">
+  <Macro name="stuncastrepeatwithpowattack" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}">
+   <Steps>
+    <Command text="wield {weapon}"/>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <SetNextCommandMS waitms="0"/>
+    <SetVariable variable="attacktype" value="power"/>
+    <Sequence loop="stuncastrounds" waitms="castinterval">
+     <Steps>
+      <Command text="cast stun {mob}"/>
+      <Command text="{attacktype} {mob}" waitms="0"/>
+      <SetVariable variable="attacktype" value="attack"/>
+      <Sequence loop="level1castrounds">
+       <Steps>
+        <Command text="cast {realm1spell} {mob}" waitms="castinterval" />
+        <Command text="attack {mob}" waitms="0"/>
+       </Steps>
+      </Sequence>
+      <Sequence loop="level2castrounds">
+       <Steps>
+        <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
+        <Command text="attack {mob}" waitms="0"/>
+       </Steps>
+      </Sequence>
+      <Sequence loop="level3castrounds">
+       <Steps>
+        <Command text="cast {realm3spell} {mob}" waitms="castinterval"/>
+        <Command text="attack {mob}" waitms="0"/>
+       </Steps>
+      </Sequence>
+     </Steps>
+    </Sequence>
+    <Command text="look {mob}" waitms="0"/>
+   </Steps>
+  </Macro>
+  <Macro name="repeatatk" oneclick="false" combatcommandtypes="Melee" finalcommand="remove {weapon}">
    <Steps>
     <Command text="wield {weapon}" waitms="0"/>
     <SetNextCommandMS waitms="0"/>
