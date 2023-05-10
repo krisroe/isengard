@@ -1347,7 +1347,7 @@ namespace IsengardClient
             Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
             AddBidirectionalExits(balle2, oOliphauntsTattoos, BidirectionalExitType.NorthSouth);
             
-            Room oOliphant = AddRoom("Oliphaunt 310");
+            Room oOliphant = AddRoom("Oliphaunt 310 Bl");
             oOliphant.Mob = oOliphauntsTattoos.Mob = "Oliphaunt";
             oOliphant.Priority = PRIORITY_PERMS_BIG;
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphant, "curtain", null);
@@ -1547,11 +1547,11 @@ namespace IsengardClient
 
             Room oChurchsEnglishGardenFallonThreshold = AddRoom("Fallon Threshold");
             AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGardenFallonThreshold, "gate", null);
-            Room oFallon = AddRoom("Fallon 350");
+            Room oFallon = AddRoom("Fallon 350 Bl");
             oFallon.Priority = PRIORITY_PERMS_BIG;
             AddExit(oChurchsEnglishGardenFallonThreshold, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
-            SetVariablesForPermWithThreshold(oFallon, oChurchsEnglishGardenFallonThreshold, "door", null, 2);
+            SetVariablesForIndefiniteCasts(oFallon, true, 3);
             oFallon.Mob = oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
@@ -1581,7 +1581,7 @@ namespace IsengardClient
             AddExit(oDroolie, oNorthBridge, "up");
             SetVariablesForIndefiniteCasts(oDroolie, false, 2);
 
-            Room oIgor = AddRoom("Igor 130");
+            Room oIgor = AddRoom("Igor 130 Gy");
             oIgor.Mob = "Igor";
             oIgor.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
@@ -1599,18 +1599,18 @@ namespace IsengardClient
             oToCasino.Mob = oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
-            SetVariablesForPermWithThreshold(oGuido, oToCasino, "casino", null, 2);
+            SetVariablesForIndefiniteCasts(oGuido, true, 3);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall 350 Bl");
             oSergeantGrimdall.Priority = PRIORITY_PERMS_BIG;
             oToBarracks.Mob = oSergeantGrimdall.Mob = "Sergeant";
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
-            SetVariablesForPermWithThreshold(oSergeantGrimdall, oToBarracks, "barracks", null, 2);
+            SetVariablesForIndefiniteCasts(oSergeantGrimdall, true, 3);
 
             oToBigPapa.Mob = oBigPapa.Mob = "papa";
             oBigPapa.Priority = PRIORITY_PERMS_BIG;
-            SetVariablesForPermWithThreshold(oBigPapa, oToBigPapa, "east", null, 2);
+            SetVariablesForIndefiniteCasts(oBigPapa, true, 3);
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1641,7 +1641,7 @@ namespace IsengardClient
             AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
             AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
 
-            Room oScranlin = AddRoom("Scranlin 500");
+            Room oScranlin = AddRoom("Scranlin 500 Rd");
             oScranlin.Priority = PRIORITY_PERMS_BIG;
             oScranlin.Mob = oScranlinThreshold.Mob = "Scranlin";
             AddExit(oScranlinThreshold, oScranlin, "outhouse");
@@ -2023,7 +2023,7 @@ namespace IsengardClient
             AddExit(oUglyKidClassroomK7, oHallway, "hallway");
             AddExit(oHallway, oUglyKidClassroomK7, "classroom");
 
-            Room oRoadToFarm7HoundDog = AddRoom("Hound Dog 150");
+            Room oRoadToFarm7HoundDog = AddRoom("Hound Dog 150 Bl");
             oRoadToFarm7HoundDog.Priority = PRIORITY_PERMS_MAIN;
             oRoadToFarm7HoundDog.Mob = "dog";
             AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
@@ -2033,11 +2033,11 @@ namespace IsengardClient
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
             oFarmParlorManagerMulloyThreshold.Mob = "manager";
             AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
-            Room oManagerMulloy = AddRoom("Manager Mulloy Bl");
+            Room oManagerMulloy = AddRoom("Manager Mulloy 600 Bl");
             oManagerMulloy.Mob = "manager";
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
-            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null, 1);
+            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null, 2);
 
             Room oCrabbe = AddRoom("Crabbe 250");
             oCrabbe.Mob = "Crabbe";
@@ -2239,7 +2239,7 @@ namespace IsengardClient
             Room oMountainTrail2 = AddRoom("Mountain Trail");
             AddBidirectionalExits(oMountainTrail2, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
 
-            Room oIorlas = AddRoom("Iorlas 200");
+            Room oIorlas = AddRoom("Iorlas 200 Gy");
             oIorlas.Mob = "Iorlas";
             oIorlas.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oMountainTrail2, oIorlas, "shack");
@@ -2444,14 +2444,14 @@ namespace IsengardClient
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
             SetVariablesForIndefiniteCasts(oPrinceBrunden, true, 3);
 
-            Room oNaugrim = AddRoom("Naugrim 205");
+            Room oNaugrim = AddRoom("Naugrim 205 Rd");
             oNaugrim.Mob = "Naugrim";
             oNaugrim.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oNorthShantyTown, oNaugrim, "cask");
             AddExit(oNaugrim, oNorthShantyTown, "out");
             SetVariablesForIndefiniteCasts(oNaugrim, true, 3);
 
-            Room oHogoth = AddRoom("Hogoth 260");
+            Room oHogoth = AddRoom("Hogoth 260 Bl");
             oHogoth.Mob = "Hogoth";
             oHogoth.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oShantyTownWest, oHogoth, "shack");
@@ -2470,7 +2470,7 @@ namespace IsengardClient
             oGraddy.Priority = PRIORITY_PERMS_BIG;
             AddExit(oShantyTown2GraddyThreshold, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2GraddyThreshold, "out");
-            SetVariablesForPermWithThreshold(oGraddy, oShantyTown2GraddyThreshold, "wagon", null, 2);
+            SetVariablesForIndefiniteCasts(oGraddy, true, 3);
 
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
             AddLocation(_aImladrisTharbadPerms, oNaugrim);
