@@ -1869,27 +1869,27 @@ namespace IsengardClient
             Room oRoyalHallwayUpstairs = AddRoom("Royal Hallway");
             AddBidirectionalExits(oRoyalHallwayUpstairs, oGrandStaircaseUpstairs, BidirectionalExitType.WestEast);
 
-            Room oMayorThreshold = AddRoom("Mayor Threshold");
-            AddBidirectionalExits(oRoyalHallwayUpstairs, oMayorThreshold, BidirectionalExitType.NorthSouth);
+            Room oRoyalHallwayToMayor = AddRoom("Royal Hallway");
+            AddBidirectionalExits(oRoyalHallwayUpstairs, oRoyalHallwayToMayor, BidirectionalExitType.NorthSouth);
 
-            Room oChancellorThreshold = AddRoom("Chancellor Threshold");
-            AddBidirectionalExits(oChancellorThreshold, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
+            Room oRoyalHallwayToChancellor = AddRoom("Royal Hallway");
+            AddBidirectionalExits(oRoyalHallwayToChancellor, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
 
             //mayor is immune to stun
             oMayorMillwood = AddRoom("Mayor Millwood 220 Gy");
             oMayorMillwood.Priority = PRIORITY_PERMS_MAIN;
-            Exit e = AddExit(oMayorThreshold, oMayorMillwood, "chamber");
+            Exit e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
             e.PreCommand = "open chamber";
-            AddExit(oMayorMillwood, oMayorThreshold, "out");
-            oMayorMillwood.Mob = oMayorThreshold.Mob = "mayor";
+            AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
+            oMayorMillwood.Mob = oRoyalHallwayToMayor.Mob = "mayor";
             SetVariablesForIndefiniteCasts(oMayorMillwood, false, 3);
 
             oChancellorOfProtection = AddRoom("Chancellor of Protection 200 Bl");
             oChancellorOfProtection.Priority = PRIORITY_PERMS_MAIN;
-            e = AddExit(oChancellorThreshold, oChancellorOfProtection, "chamber");
+            e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
             e.PreCommand = "open chamber";
-            AddExit(oChancellorOfProtection, oChancellorThreshold, "out");
-            oChancellorOfProtection.Mob = oChancellorThreshold.Mob = "chancellor";
+            AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
+            oChancellorOfProtection.Mob = oRoyalHallwayToChancellor.Mob = "chancellor";
             SetVariablesForIndefiniteCasts(oChancellorOfProtection, true, 3);
 
             MansionLocations = new List<Room>
