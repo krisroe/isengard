@@ -1302,15 +1302,15 @@ namespace IsengardClient
             Room oGypsyRow4 = AddRoom("Gypsy Row");
             AddBidirectionalExits(oGypsyRow4, oGypsyRow3, BidirectionalExitType.WestEast);
 
-            Room oKingBrundenThreshold = AddRoom("King Brunden's Wagon");
-            AddExit(oGypsyRow4, oKingBrundenThreshold, "wagon");
-            AddExit(oKingBrundenThreshold, oGypsyRow4, "out");
+            Room oKingBrundensWagon = AddRoom("King Brunden's Wagon");
+            AddExit(oGypsyRow4, oKingBrundensWagon, "wagon");
+            AddExit(oKingBrundensWagon, oGypsyRow4, "out");
 
             Room oKingBrunden = AddRoom("King Brunden 300");
-            oKingBrunden.Mob = oKingBrundenThreshold.Mob = "king";
+            oKingBrunden.Mob = "king";
             oKingBrunden.Priority = PRIORITY_PERMS_MAIN;
-            AddExit(oKingBrundenThreshold, oKingBrunden, "back");
-            AddExit(oKingBrunden, oKingBrundenThreshold, "out");
+            AddExit(oKingBrundensWagon, oKingBrunden, "back");
+            AddExit(oKingBrunden, oKingBrundensWagon, "out");
             SetVariablesForIndefiniteCasts(oKingBrunden, true, 3);
 
             Room oGypsyBlademaster = AddRoom("Gypsy Blademaster 160 Bl");
@@ -1334,21 +1334,21 @@ namespace IsengardClient
             AddExit(oMadameNicolov, oGypsyRow1, "out");
             SetVariablesForIndefiniteCasts(oMadameNicolov, true, 3);
 
-            Room gildedAppleZathrielThreshold = AddRoom("Zathriel Threshold");
-            AddBidirectionalSameNameExit(sabre3, gildedAppleZathrielThreshold, "door", null);
+            Room gildedApple = AddRoom("Gilded Applie");
+            AddBidirectionalSameNameExit(sabre3, gildedApple, "door", null);
 
             Room zathriel = AddRoom("Zathriel the Minstrel 220 Bl");
-            zathriel.Mob = gildedAppleZathrielThreshold.Mob = "Minstrel";
+            zathriel.Mob = "Minstrel";
             zathriel.Priority = PRIORITY_PERMS_BIG;
-            AddExit(gildedAppleZathrielThreshold, zathriel, "stage");
-            AddExit(zathriel, gildedAppleZathrielThreshold, "down");
+            AddExit(gildedApple, zathriel, "stage");
+            AddExit(zathriel, gildedApple, "down");
             SetVariablesForIndefiniteCasts(zathriel, true, 3);
 
             Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
             AddBidirectionalExits(balle2, oOliphauntsTattoos, BidirectionalExitType.NorthSouth);
             
             Room oOliphant = AddRoom("Oliphaunt 310 Bl");
-            oOliphant.Mob = oOliphauntsTattoos.Mob = "Oliphaunt";
+            oOliphant.Mob = "Oliphaunt";
             oOliphant.Priority = PRIORITY_PERMS_BIG;
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphant, "curtain", null);
             SetVariablesForIndefiniteCasts(oOliphant, true, 3);
@@ -1389,7 +1389,7 @@ namespace IsengardClient
             breeStreets[14, 1] = AddRoom("Bree Brownhaven 15x2");
             breeStreets[0, 2] = AddRoom("Bree Wain 1x3");
             Room oToPawnShopWest = breeStreets[3, 2] = AddRoom("Bree High 4x3");
-            Room oToBarracks = breeStreets[7, 2] = AddRoom("Sergeant Grimdall Threshold"); //Bree Main 8x3
+            Room oToBarracks = breeStreets[7, 2] = AddRoom("Bree Main 8x3");
             breeStreets[10, 2] = AddRoom("Bree Crissaegrim 11x3");
             breeStreets[14, 2] = AddRoom("Bree Brownhaven 15x3");
             breeStreets[0, 3] = AddRoom("Bree Periwinkle/Wain 1x4");
@@ -1427,7 +1427,7 @@ namespace IsengardClient
             breeStreets[0, 5] = AddRoom("Bree Wain 1x6");
             breeSewers[0, 5] = AddRoom("Bree Sewers Wain 1x6");
             breeStreets[3, 5] = AddRoom("Bree High 4x6");
-            Room oToBigPapa = breeStreets[7, 5] = AddRoom("Big Papa Threshold"); //Main 8x6
+            Room oToBigPapa = breeStreets[7, 5] = AddRoom("Bree Main 8x6");
             Room oBigPapa = breeStreets[8, 5] = AddRoom("Big Papa 350 Bl"); //9x6
             breeStreets[10, 5] = AddRoom("Bree Crissaegrim 11x6");
             breeStreets[14, 5] = AddRoom("Bree Brownhaven 15x6");
@@ -1476,7 +1476,7 @@ namespace IsengardClient
             breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
             Room oToZoo = breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
             breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
-            Room oToCasino = breeStreets[4, 10] = AddRoom("Guido Threshold"); //Bree Ormenel 5x11
+            Room oToCasino = breeStreets[4, 10] = AddRoom("Bree Ormenel 5x11");
             breeStreets[5, 10] = AddRoom("Bree Ormenel 6x11");
             breeStreets[6, 10] = AddRoom("Bree Ormenel 7x11");
             breeStreets[7, 10] = AddRoom("Bree Ormenel/Main 8x11");
@@ -1545,14 +1545,14 @@ namespace IsengardClient
             Room oKistaHillsHousing = AddRoom("Kista Hills Housing");
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
 
-            Room oChurchsEnglishGardenFallonThreshold = AddRoom("Fallon Threshold");
-            AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGardenFallonThreshold, "gate", null);
+            Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden");
+            AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate", null);
             Room oFallon = AddRoom("Fallon 350 Bl");
             oFallon.Priority = PRIORITY_PERMS_BIG;
-            AddExit(oChurchsEnglishGardenFallonThreshold, oFallon, "door");
-            AddExit(oFallon, oChurchsEnglishGardenFallonThreshold, "out");
+            AddExit(oChurchsEnglishGarden, oFallon, "door");
+            AddExit(oFallon, oChurchsEnglishGarden, "out");
             SetVariablesForIndefiniteCasts(oFallon, true, 3);
-            oFallon.Mob = oChurchsEnglishGardenFallonThreshold.Mob = "Fallon";
+            oFallon.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
             if (_level < 11)
@@ -1596,19 +1596,19 @@ namespace IsengardClient
 
             Room oGuido = AddRoom("Guido 350 Rd");
             oGuido.Priority = PRIORITY_PERMS_BIG;
-            oToCasino.Mob = oGuido.Mob = "Guido";
+            oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
             SetVariablesForIndefiniteCasts(oGuido, true, 3);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall 350 Bl");
             oSergeantGrimdall.Priority = PRIORITY_PERMS_BIG;
-            oToBarracks.Mob = oSergeantGrimdall.Mob = "Sergeant";
+            oSergeantGrimdall.Mob = "Sergeant";
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
             SetVariablesForIndefiniteCasts(oSergeantGrimdall, true, 3);
 
-            oToBigPapa.Mob = oBigPapa.Mob = "papa";
+            oBigPapa.Mob = "papa";
             oBigPapa.Priority = PRIORITY_PERMS_BIG;
             SetVariablesForIndefiniteCasts(oBigPapa, true, 3);
 
@@ -1653,13 +1653,9 @@ namespace IsengardClient
             AddLocation(_aInaccessible, oGrant);
             AddLocation(_aBreePerms, oIgor);
             AddLocation(_aBreePerms, oGuido);
-            AddSubLocation(oGuido, oToCasino);
             AddLocation(_aBreePerms, oFallon);
-            AddSubLocation(oFallon, oChurchsEnglishGardenFallonThreshold);
             AddLocation(_aBreePerms, oSergeantGrimdall);
-            AddSubLocation(oSergeantGrimdall, oToBarracks);
             AddLocation(_aBreePerms, oBigPapa);
-            AddSubLocation(oBigPapa, oToBigPapa);
             AddLocation(_aBreePerms, oScranlin);
             AddSubLocation(oScranlin, oScranlinThreshold);
             AddLocation(_aBreePerms, oDroolie);
@@ -2434,8 +2430,8 @@ namespace IsengardClient
             Room oShantyTown1 = AddRoom("Shanty Town");
             AddBidirectionalExits(oNorthEdgeOfShantyTown, oShantyTown1, BidirectionalExitType.NorthSouth);
 
-            Room oShantyTown2GraddyThreshold = AddRoom("Graddy Threshold");
-            AddBidirectionalExits(oShantyTown1, oShantyTown2GraddyThreshold, BidirectionalExitType.NorthSouth);
+            Room oShantyTown2 = AddRoom("Shanty Town");
+            AddBidirectionalExits(oShantyTown1, oShantyTown2, BidirectionalExitType.NorthSouth);
 
             Room oPrinceBrunden = AddRoom("Prince Brunden 150 Bl");
             oPrinceBrunden.Mob = "Prince";
@@ -2466,10 +2462,10 @@ namespace IsengardClient
             SetVariablesForIndefiniteCasts(oFaornil, true, 3);
 
             Room oGraddy = AddRoom("Graddy 350");
-            oGraddy.Mob = oShantyTown2GraddyThreshold.Mob = "Graddy";
+            oGraddy.Mob = "Graddy";
             oGraddy.Priority = PRIORITY_PERMS_BIG;
-            AddExit(oShantyTown2GraddyThreshold, oGraddy, "wagon");
-            AddExit(oGraddy, oShantyTown2GraddyThreshold, "out");
+            AddExit(oShantyTown2, oGraddy, "wagon");
+            AddExit(oGraddy, oShantyTown2, "out");
             SetVariablesForIndefiniteCasts(oGraddy, true, 3);
 
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
@@ -2477,7 +2473,6 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oHogoth);
             AddLocation(_aImladrisTharbadPerms, oFaornil);
             AddLocation(_aImladrisTharbadPerms, oGraddy);
-            AddSubLocation(oGraddy, oShantyTown2GraddyThreshold);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
