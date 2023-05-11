@@ -1203,7 +1203,7 @@ namespace IsengardClient
             }
 
             Area aBree = _areasByName[AREA_BREE];
-            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit);
+            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room aqueduct);
             AddMayorMillwoodMansion(oIxell, out List<Room> mansionRooms, out Room oChancellorOfProtection, out Room oMayorMillwood);
             AddLocation(_aBreePerms, oChancellorOfProtection);
             AddLocation(_aBreePerms, oMayorMillwood);
@@ -1212,7 +1212,7 @@ namespace IsengardClient
                 AddLocation(aBree, r);
             }
 
-            AddBreeToHobbiton(oBreeWestGateInside);
+            AddBreeToHobbiton(oBreeWestGateInside, aqueduct);
             AddBreeToImladris(oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
@@ -1282,7 +1282,7 @@ namespace IsengardClient
 
             Room oMasterJeweler = AddRoom("Master Jeweler 170 Rd");
             oMasterJeweler.Mob = "Jeweler";
-            oMasterJeweler.Priority = PRIORITY_PERMS_BIG;
+            oMasterJeweler.Priority = PRIORITY_PERMS_MAIN;
             AddBidirectionalExits(marketDistrictClothiers, oMasterJeweler, BidirectionalExitType.WestEast);
             SetVariablesForIndefiniteCasts(oMasterJeweler, true, 3);
 
@@ -1329,7 +1329,7 @@ namespace IsengardClient
 
             Room oMadameNicolov = AddRoom("Madame Nicolov 180 Bl");
             oMadameNicolov.Mob = "Madame";
-            oMadameNicolov.Priority = PRIORITY_PERMS_BIG;
+            oMadameNicolov.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oGypsyRow1, oMadameNicolov, "wagon");
             AddExit(oMadameNicolov, oGypsyRow1, "out");
             SetVariablesForIndefiniteCasts(oMadameNicolov, true, 3);
@@ -1339,7 +1339,7 @@ namespace IsengardClient
 
             Room zathriel = AddRoom("Zathriel the Minstrel 220 Bl");
             zathriel.Mob = "Minstrel";
-            zathriel.Priority = PRIORITY_PERMS_BIG;
+            zathriel.Priority = PRIORITY_PERMS_MAIN;
             AddExit(gildedApple, zathriel, "stage");
             AddExit(zathriel, gildedApple, "down");
             SetVariablesForIndefiniteCasts(zathriel, true, 3);
@@ -1349,7 +1349,7 @@ namespace IsengardClient
             
             Room oOliphant = AddRoom("Oliphaunt 310 Bl");
             oOliphant.Mob = "Oliphaunt";
-            oOliphant.Priority = PRIORITY_PERMS_BIG;
+            oOliphant.Priority = PRIORITY_PERMS_MAIN;
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphant, "curtain", null);
             SetVariablesForIndefiniteCasts(oOliphant, true, 3);
 
@@ -1363,7 +1363,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit)
+        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room aqueduct)
         {
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
@@ -1548,7 +1548,7 @@ namespace IsengardClient
             Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden");
             AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate", null);
             Room oFallon = AddRoom("Fallon 350 Bl");
-            oFallon.Priority = PRIORITY_PERMS_BIG;
+            oFallon.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oChurchsEnglishGarden, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGarden, "out");
             SetVariablesForIndefiniteCasts(oFallon, true, 3);
@@ -1595,21 +1595,21 @@ namespace IsengardClient
             SetVariablesForIndefiniteCasts(oSnarlingMutt, false, 3);
 
             Room oGuido = AddRoom("Guido 350 Rd");
-            oGuido.Priority = PRIORITY_PERMS_BIG;
+            oGuido.Priority = PRIORITY_PERMS_MAIN;
             oGuido.Mob = "Guido";
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
             SetVariablesForIndefiniteCasts(oGuido, true, 3);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall 350 Bl");
-            oSergeantGrimdall.Priority = PRIORITY_PERMS_BIG;
+            oSergeantGrimdall.Priority = PRIORITY_PERMS_MAIN;
             oSergeantGrimdall.Mob = "Sergeant";
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
             SetVariablesForIndefiniteCasts(oSergeantGrimdall, true, 3);
 
             oBigPapa.Mob = "papa";
-            oBigPapa.Priority = PRIORITY_PERMS_BIG;
+            oBigPapa.Priority = PRIORITY_PERMS_MAIN;
             SetVariablesForIndefiniteCasts(oBigPapa, true, 3);
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
@@ -1648,6 +1648,31 @@ namespace IsengardClient
             AddExit(oScranlin, oScranlinThreshold, "out");
             SetVariablesForPermWithThreshold(oScranlin, oScranlinThreshold, "outhouse", null, 2);
 
+            Room oTunnel = AddRoom("Tunnel");
+            AddBidirectionalSameNameExit(breeSewers[0, 10], oTunnel, "tunnel", null);
+
+            Room oLatrine = AddRoom("Latrine");
+            AddExit(oTunnel, oLatrine, "south");
+            e = AddExit(oLatrine, oTunnel, "north");
+            e.OmitGo = true;
+
+            Room oEugenesDungeon = AddRoom("Eugene's Dungeon");
+            AddBidirectionalExits(oEugenesDungeon, oLatrine, BidirectionalExitType.SouthwestNortheast);
+
+            Room oShadowOfIncendius = AddRoom("Shadow of Incendius");
+            AddBidirectionalExits(oShadowOfIncendius, oEugenesDungeon, BidirectionalExitType.WestEast);
+
+            Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner");
+            AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
+
+            Room oCellar = AddRoom("Cellar");
+            AddExit(oEugeneTheExecutioner, oCellar, "out");
+            AddExit(oCellar, oEugeneTheExecutioner, "door");
+
+            aqueduct = AddRoom("Aqueduct");
+            AddExit(oCellar, aqueduct, "pipe");
+            AddExit(aqueduct, oCellar, "out");
+
             AddLocation(_aBreePerms, oOrderOfLove);
             AddLocation(_aBreePerms, oCampusFreeClinic);
             AddLocation(_aInaccessible, oGrant);
@@ -1665,6 +1690,7 @@ namespace IsengardClient
             AddLocation(aBree, oSnarlingMutt);
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oBreeTownSquare);
+            AddLocation(aBree, oShadowOfIncendius);
             AddLocation(_aMisc, oBreePawnShopWest);
             AddLocation(_aMisc, oBreePawnShopEast);
             AddLocation(_aMisc, oLeonardosSwords);
@@ -2248,7 +2274,7 @@ namespace IsengardClient
             AddLocation(_aMisc, oTyriesPriestSupplies);
         }
 
-        private void AddBreeToHobbiton(Room oBreeWestGateInside)
+        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room aqueduct)
         {
             Area oBreeToHobbiton = _areasByName[AREA_BREE_TO_HOBBITON];
 
@@ -2350,10 +2376,30 @@ namespace IsengardClient
             AddExit(oShepherd, oNorthFork1, "south");
             SetVariablesForIndefiniteCasts(oShepherd, false, 3);
 
+            Room oSmoulderingVillage = AddRoom("Smoldering Village");
+            //Gate is locked (and knocking doesn't work) so not treating as an exit. This is only accessible from the other way around.
+            //AddExit(oShepherd, oSmoulderingVillage, "gate");
+            AddExit(oSmoulderingVillage, oShepherd, "gate");
+
+            Room oWell = AddRoom("Well");
+            AddExit(oSmoulderingVillage, oWell, "well");
+            AddExit(oWell, oSmoulderingVillage, "ladder");
+
+            Room oKasnarTheGuard = AddRoom("Kasnar 535");
+            oKasnarTheGuard.Mob = "Kasnar";
+            oKasnarTheGuard.Priority = PRIORITY_PERMS_MAIN;
+            AddExit(oWell, oKasnarTheGuard, "pipe");
+            AddExit(oKasnarTheGuard, oWell, "north");
+            SetVariablesForIndefiniteCasts(oKasnarTheGuard, true, 3);
+
+            AddExit(aqueduct, oKasnarTheGuard, "north");
+            //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
+            
             AddLocation(_aInaccessible, oSomething);
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
             AddLocation(oBreeToHobbiton, oShepherd);
+            AddLocation(_aBreePerms, oKasnarTheGuard);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
@@ -2463,16 +2509,25 @@ namespace IsengardClient
 
             Room oGraddy = AddRoom("Graddy 350");
             oGraddy.Mob = "Graddy";
-            oGraddy.Priority = PRIORITY_PERMS_BIG;
+            oGraddy.Priority = PRIORITY_PERMS_MAIN;
             AddExit(oShantyTown2, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2, "out");
             SetVariablesForIndefiniteCasts(oGraddy, true, 3);
+
+            Room oGraddyOgre = AddRoom("Graddy Ogre 150");
+            oGraddyOgre.Mob = "Ogre";
+            oGraddyOgre.Priority = PRIORITY_PERMS_MAIN;
+            Exit e = AddExit(oGraddy, oGraddyOgre, "gate");
+            e.PreCommand = "open gate";
+            e = AddExit(oGraddyOgre, oGraddy, "gate");
+            e.PreCommand = "open gate";
 
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
             AddLocation(_aImladrisTharbadPerms, oNaugrim);
             AddLocation(_aImladrisTharbadPerms, oHogoth);
             AddLocation(_aImladrisTharbadPerms, oFaornil);
             AddLocation(_aImladrisTharbadPerms, oGraddy);
+            AddLocation(_aImladrisTharbadPerms, oGraddyOgre);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
