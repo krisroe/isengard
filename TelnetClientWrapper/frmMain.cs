@@ -48,7 +48,6 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_BREE = "Bree";
         private const string AREA_BREE_TO_HOBBITON = "Bree to Hobbiton";
-        private const string AREA_BREE_TO_IMLADRIS = "Bree to Imladris";
         private const string AREA_IMLADRIS = "Imladris";
         private const string AREA_IMLADRIS_TO_THARBAD = "Imladris to Tharbad";
         private const string AREA_MISC = "Misc";
@@ -73,7 +72,6 @@ namespace IsengardClient
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
             AddArea(AREA_BREE);
             AddArea(AREA_BREE_TO_HOBBITON);
-            AddArea(AREA_BREE_TO_IMLADRIS);
             AddArea(AREA_IMLADRIS);
             AddArea(AREA_IMLADRIS_TO_THARBAD);
             _aMisc = AddArea(AREA_MISC);
@@ -1729,7 +1727,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oScranlin);
             AddSubLocation(oScranlin, oScranlinThreshold);
             AddLocation(_aBreePerms, oDroolie);
-            AddLocation(_aBreePerms, oSewerDemonThreshold);
+            AddLocation(aBree, oSewerDemonThreshold);
             AddLocation(aBree, oPansy);
             AddLocation(aBree, oIxell);
             AddLocation(aBree, oSnarlingMutt);
@@ -1988,8 +1986,6 @@ namespace IsengardClient
 
         private void AddBreeToImladris(Room oSewerPipeExit)
         {
-            Area oBreeToImladris = _areasByName[AREA_BREE_TO_IMLADRIS];
-
             _breeEastGateOutside = AddRoom("East Gate of Bree");
             AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
 
@@ -2205,7 +2201,7 @@ namespace IsengardClient
             SetVariablesForIndefiniteCasts(oSpriteGuards, true, 3);
 
             AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
-            AddLocation(oBreeToImladris, oManagerMulloy);
+            AddLocation(_aBreePerms, oManagerMulloy);
             AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aBreePerms, oSalamander);
             AddLocation(_aInaccessible, oMrWartnose);
@@ -2310,7 +2306,7 @@ namespace IsengardClient
             Room oMountainTrail2 = AddRoom("Mountain Trail");
             AddBidirectionalExits(oMountainTrail2, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
 
-            Room oIorlas = AddRoom("Iorlas 200 Gy");
+            Room oIorlas = AddRoom("Iorlas");
             oIorlas.Mob = "Iorlas";
             oIorlas.Experience = 200;
             oIorlas.Alignment = AlignmentType.Grey;
@@ -2486,6 +2482,20 @@ namespace IsengardClient
             Room oMistyTrail4 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail3, oMistyTrail4, BidirectionalExitType.SouthwestNortheast);
 
+            Room oPotionFactoryReception = AddRoom("Reception Area of Potion Factory");
+            AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
+            oPotionFactoryReception.Mob = "Guard";
+            oPotionFactoryReception.Experience = 110;
+
+            Room oPotionFactoryAdministrativeOffices = AddRoom("Potion Factory Administrative Offices");
+            AddBidirectionalExits(oPotionFactoryReception, oPotionFactoryAdministrativeOffices, BidirectionalExitType.NorthSouth);
+
+            Room oMarkFrey = AddRoom("Mark Frey");
+            oMarkFrey.Mob = "Frey";
+            oMarkFrey.Experience = 450;
+            AddExit(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
+            AddExit(oMarkFrey, oPotionFactoryAdministrativeOffices, "out");
+
             Room oMistyTrail5 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
 
@@ -2571,7 +2581,7 @@ namespace IsengardClient
             AddExit(oHogoth, oShantyTownWest, "out");
             SetVariablesForIndefiniteCasts(oHogoth, true, 3);
 
-            Room oFaornil = AddRoom("Faornil 250");
+            Room oFaornil = AddRoom("Faornil");
             oFaornil.Mob = "Faornil";
             oFaornil.Experience = 250;
             oFaornil.Alignment = AlignmentType.Red;
@@ -2602,6 +2612,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oFaornil);
             AddLocation(_aImladrisTharbadPerms, oGraddy);
             AddLocation(_aImladrisTharbadPerms, oGraddyOgre);
+            AddLocation(_aImladrisTharbadPerms, oMarkFrey);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
