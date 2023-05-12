@@ -116,6 +116,8 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
+            this.lblCelduinExpressLocation = new System.Windows.Forms.Label();
+            this.cboCelduinExpress = new System.Windows.Forms.ComboBox();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -295,7 +297,7 @@
             // 
             // btnSetCurrentLocation
             // 
-            this.btnSetCurrentLocation.Location = new System.Drawing.Point(819, 478);
+            this.btnSetCurrentLocation.Location = new System.Drawing.Point(815, 532);
             this.btnSetCurrentLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
             this.btnSetCurrentLocation.Size = new System.Drawing.Size(155, 26);
@@ -306,7 +308,7 @@
             // 
             // btnGoToLocation
             // 
-            this.btnGoToLocation.Location = new System.Drawing.Point(819, 510);
+            this.btnGoToLocation.Location = new System.Drawing.Point(815, 564);
             this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToLocation.Name = "btnGoToLocation";
             this.btnGoToLocation.Size = new System.Drawing.Size(155, 26);
@@ -379,7 +381,7 @@
             // 
             // btnAbort
             // 
-            this.btnAbort.Location = new System.Drawing.Point(819, 544);
+            this.btnAbort.Location = new System.Drawing.Point(815, 598);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(155, 26);
@@ -413,7 +415,7 @@
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(816, 448);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(812, 502);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
             this.txtCurrentRoom.Size = new System.Drawing.Size(156, 22);
@@ -422,7 +424,7 @@
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(721, 450);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(717, 504);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
             this.lblCurrentRoom.Size = new System.Drawing.Size(86, 16);
             this.lblCurrentRoom.TabIndex = 38;
@@ -900,6 +902,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.cboCelduinExpress);
+            this.pnlMain.Controls.Add(this.lblCelduinExpressLocation);
             this.pnlMain.Controls.Add(this.lblPreferredAlignment);
             this.pnlMain.Controls.Add(this.txtPreferredAlignment);
             this.pnlMain.Controls.Add(this.btnRemoveAll);
@@ -1153,6 +1157,29 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
+            // lblCelduinExpressLocation
+            // 
+            this.lblCelduinExpressLocation.AutoSize = true;
+            this.lblCelduinExpressLocation.Location = new System.Drawing.Point(698, 451);
+            this.lblCelduinExpressLocation.Name = "lblCelduinExpressLocation";
+            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(107, 16);
+            this.lblCelduinExpressLocation.TabIndex = 90;
+            this.lblCelduinExpressLocation.Text = "Celduin Express:";
+            // 
+            // cboCelduinExpress
+            // 
+            this.cboCelduinExpress.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCelduinExpress.FormattingEnabled = true;
+            this.cboCelduinExpress.Items.AddRange(new object[] {
+            "At Sea",
+            "Bree",
+            "Mithlond"});
+            this.cboCelduinExpress.Location = new System.Drawing.Point(815, 447);
+            this.cboCelduinExpress.Name = "cboCelduinExpress";
+            this.cboCelduinExpress.Size = new System.Drawing.Size(157, 24);
+            this.cboCelduinExpress.TabIndex = 80;
+            this.cboCelduinExpress.SelectedIndexChanged += new System.EventHandler(this.cboCelduinExpress_SelectedIndexChanged);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1267,6 +1294,8 @@
         private System.Windows.Forms.Button btnRemoveAll;
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.TextBox txtPreferredAlignment;
+        private System.Windows.Forms.Label lblCelduinExpressLocation;
+        private System.Windows.Forms.ComboBox cboCelduinExpress;
     }
 }
 

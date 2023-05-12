@@ -33,14 +33,20 @@ namespace IsengardClient
         private Dictionary<string, Area> _areasByName;
         private List<Variable> _variables;
         private Dictionary<string, Variable> _variablesByName;
+        
         private List<Exit> _nightEdges = new List<Exit>();
+        private List<Exit> _celduinExpressEdges = new List<Exit>();
+
         private Room _breeEastGateInside = null;
         private Room _breeEastGateOutside = null;
         private Room _imladrisWestGateInside = null;
         private Room _imladrisWestGateOutside = null;
+        private Room _breeDocks = null;
+        private Room _boatswain = null;
         private object _queuedCommandLock = new object();
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
+        private Area _aShips;
         private Area _aMisc;
         private Area _aInaccessible;
 
@@ -51,6 +57,7 @@ namespace IsengardClient
         private const string AREA_IMLADRIS = "Imladris";
         private const string AREA_IMLADRIS_TO_THARBAD = "Imladris to Tharbad";
         private const string AREA_MISC = "Misc";
+        private const string AREA_SHIPS = "Ships";
         private const string AREA_INTANGIBLE = "Intangible";
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
@@ -75,6 +82,7 @@ namespace IsengardClient
             AddArea(AREA_IMLADRIS);
             AddArea(AREA_IMLADRIS_TO_THARBAD);
             _aMisc = AddArea(AREA_MISC);
+            _aShips = AddArea(AREA_SHIPS);
             AddArea(AREA_INTANGIBLE);
             _aInaccessible = AddArea(AREA_INACCESSIBLE);
 
@@ -157,6 +165,7 @@ namespace IsengardClient
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
+            cboCelduinExpress.SelectedIndex = 0;
         }
 
         private void SetButtonTags()
@@ -1402,7 +1411,7 @@ namespace IsengardClient
             breeStreets[5, 0] = AddRoom("Bree Thalion 6x1");
             breeStreets[6, 0] = AddRoom("Bree Thalion 7x1");
             breeStreets[7, 0] = AddRoom("Bree Thalion/Main 8x1");
-            Room oBreeDocks = breeStreets[9, 0] = AddRoom("Bree Docks"); //10x1
+            _breeDocks = breeStreets[9, 0] = AddRoom("Bree Docks"); //10x1
             oSewerPipeExit = breeStreets[10, 0] = AddRoom("Bree Thalion/Crissaegrim 11x1");
             breeStreets[11, 0] = AddRoom("Bree Thalion 12x1");
             breeStreets[12, 0] = AddRoom("Bree Thalion 13x1");
@@ -1716,6 +1725,11 @@ namespace IsengardClient
             AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
             AddExit(aqueduct, oBurnedRemainsOfNimrodel, "out");
 
+            _boatswain = AddRoom("Boatswain");
+            _boatswain.Mob = "Boatswain";
+            _boatswain.Experience = 350;
+            AddLocation(_aShips, _boatswain);
+
             AddLocation(_aBreePerms, oOrderOfLove);
             AddLocation(_aBreePerms, oCampusFreeClinic);
             AddLocation(_aInaccessible, oGrant);
@@ -1731,7 +1745,7 @@ namespace IsengardClient
             AddLocation(aBree, oPansy);
             AddLocation(aBree, oIxell);
             AddLocation(aBree, oSnarlingMutt);
-            AddLocation(aBree, oBreeDocks);
+            AddLocation(aBree, _breeDocks);
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oShadowOfIncendius);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
@@ -1981,6 +1995,19 @@ namespace IsengardClient
             {
                 _nightEdges.Add(AddExit(_breeEastGateOutside, _breeEastGateInside, "gate"));
                 _nightEdges.Add(AddExit(_imladrisWestGateOutside, _imladrisWestGateInside, "gate"));
+            }
+        }
+
+        private void SetCelduinExpressEdges()
+        {
+            foreach (Exit e in _celduinExpressEdges)
+            {
+                _map.RemoveEdge(e);
+            }
+            if (cboCelduinExpress.SelectedItem.ToString() == "Bree")
+            {
+                _celduinExpressEdges.Add(AddExit(_breeDocks, _boatswain, "steamboat"));
+                _celduinExpressEdges.Add(AddExit(_boatswain, _breeDocks, "dock"));
             }
         }
 
@@ -3450,6 +3477,11 @@ namespace IsengardClient
             Melee = 1,
             Magic = 2,
             Potions = 4,
+        }
+
+        private void cboCelduinExpress_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SetCelduinExpressEdges();
         }
     }
 }
