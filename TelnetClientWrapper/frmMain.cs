@@ -1444,7 +1444,7 @@ namespace IsengardClient
             breeStreets[6, 3] = AddRoom("Bree Periwinkle 7x4");
             breeSewers[6, 3] = AddRoom("Bree Sewers Periwinkle 7x4");
             breeStreets[7, 3] = AddRoom("Bree Periwinkle/Main 8x4");
-            breeSewers[7, 3] = AddRoom("Bree Sewers Periwinkle/Main 8x4");
+            Room oShirriff = breeSewers[7, 3] = AddRoom("Shirriffs"); //Bree Sewers Periwinkle/Main 8x4
             AddExit(breeSewers[7, 3], breeStreets[7, 3], "up");
             breeStreets[8, 3] = AddRoom("Bree Periwinkle 9x4");
             breeStreets[9, 3] = AddRoom("Bree South Bridge 10x4");
@@ -1552,6 +1552,10 @@ namespace IsengardClient
             AddBidirectionalExits(breeSewers[4, 3], breeSewers[5, 3], BidirectionalExitType.WestEast);
             AddBidirectionalExits(breeSewers[5, 3], breeSewers[6, 3], BidirectionalExitType.WestEast);
             AddBidirectionalExits(breeSewers[6, 3], breeSewers[7, 3], BidirectionalExitType.WestEast);
+
+            oShirriff.Mob = "shirriff";
+            oShirriff.Experience = 325;
+            SetVariablesForIndefiniteCasts(oShirriff, true, 3);
 
             Room oValveChamber = AddRoom("Valve Chamber");
             AddExit(breeSewers[7, 3], oValveChamber, "valve");
@@ -1720,6 +1724,7 @@ namespace IsengardClient
             oBurnedRemainsOfNimrodel.Experience = 300;
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
             AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
+            SetVariablesForIndefiniteCasts(oBurnedRemainsOfNimrodel, true, 3);
 
             aqueduct = AddRoom("Aqueduct");
             AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
@@ -1752,6 +1757,7 @@ namespace IsengardClient
             AddLocation(_aMisc, oBreePawnShopWest);
             AddLocation(_aMisc, oBreePawnShopEast);
             AddLocation(_aMisc, oLeonardosSwords);
+            AddLocation(_aBreePerms, oShirriff);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -2522,6 +2528,7 @@ namespace IsengardClient
             oMarkFrey.Experience = 450;
             AddExit(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
             AddExit(oMarkFrey, oPotionFactoryAdministrativeOffices, "out");
+            SetVariablesForIndefiniteCasts(oMarkFrey, true, 3);
 
             Room oMistyTrail5 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
