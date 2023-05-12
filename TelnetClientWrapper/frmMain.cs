@@ -1646,7 +1646,7 @@ namespace IsengardClient
             oScranlin.Mob = oScranlinThreshold.Mob = "Scranlin";
             AddExit(oScranlinThreshold, oScranlin, "outhouse");
             AddExit(oScranlin, oScranlinThreshold, "out");
-            SetVariablesForPermWithThreshold(oScranlin, oScranlinThreshold, "outhouse", null, 2);
+            SetVariablesForPermWithThreshold(oScranlin, oScranlinThreshold, "outhouse", null);
 
             Room oTunnel = AddRoom("Tunnel");
             AddBidirectionalSameNameExit(breeSewers[0, 10], oTunnel, "tunnel", null);
@@ -1733,23 +1733,10 @@ namespace IsengardClient
             AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, includeStun ? "1" : "0");
         }
 
-        private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand, int numRounds)
+        private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand)
         {
-            string sCastsPerStun, sStunRounds;
-            if (numRounds == 1)
-            {
-                sCastsPerStun = "1";
-                sStunRounds = "3";
-            }
-            else if (numRounds == 2)
-            {
-                sCastsPerStun = "2";
-                sStunRounds = "2";
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+            string sCastsPerStun = "2";
+            string sStunRounds = "2";
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNPRECOMMAND, string.Empty);
             AddRoomVariableValue(perm, VARIABLE_LEVEL1CASTROUNDS, "0");
@@ -2059,7 +2046,7 @@ namespace IsengardClient
             oManagerMulloy.Mob = "manager";
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
-            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null, 2);
+            SetVariablesForPermWithThreshold(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "study", null);
 
             Room oCrabbe = AddRoom("Crabbe 250");
             oCrabbe.Mob = "Crabbe";
@@ -2409,6 +2396,19 @@ namespace IsengardClient
             Room oMistyTrail1 = AddRoom("Misty Trail");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate", null);
 
+            Room oBrunskidTradersGuild1 = AddRoom("Brunskid Trader's Guild Store Front");
+            AddBidirectionalExits(oBrunskidTradersGuild1, oMistyTrail1, BidirectionalExitType.WestEast);
+
+            Room oCutthroatAssassinThreshold = AddRoom("Cutthroat Assassin Threshold");
+            AddBidirectionalExits(oCutthroatAssassinThreshold, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
+
+            //cutthroat is 500xp, master assassin is 600xp
+            Room oCutthroatAssassin = AddRoom("Cutthroat Assassin 1100");
+            AddBidirectionalExits(oCutthroatAssassin, oCutthroatAssassinThreshold, BidirectionalExitType.WestEast);
+            oCutthroatAssassin.Mob = string.Empty; //clear mob since it could be cutthroat or assassin
+            oCutthroatAssassin.Priority = PRIORITY_PERMS_BIG;
+            SetVariablesForPermWithThreshold(oCutthroatAssassin, oCutthroatAssassinThreshold, "west", null);
+
             Room oMistyTrail2 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail1, oMistyTrail2, BidirectionalExitType.NorthSouth);
 
@@ -2522,6 +2522,8 @@ namespace IsengardClient
             e = AddExit(oGraddyOgre, oGraddy, "gate");
             e.PreCommand = "open gate";
 
+            AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
+            AddSubLocation(oCutthroatAssassin, oCutthroatAssassinThreshold);
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
             AddLocation(_aImladrisTharbadPerms, oNaugrim);
             AddLocation(_aImladrisTharbadPerms, oHogoth);
