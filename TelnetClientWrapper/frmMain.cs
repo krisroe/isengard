@@ -1709,13 +1709,14 @@ namespace IsengardClient
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner");
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
 
-            Room oCellar = AddRoom("Cellar");
-            AddExit(oEugeneTheExecutioner, oCellar, "out");
-            AddExit(oCellar, oEugeneTheExecutioner, "door");
+            Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel");
+            oBurnedRemainsOfNimrodel.Experience = 300;
+            AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
+            AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
 
             aqueduct = AddRoom("Aqueduct");
-            AddExit(oCellar, aqueduct, "pipe");
-            AddExit(aqueduct, oCellar, "out");
+            AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
+            AddExit(aqueduct, oBurnedRemainsOfNimrodel, "out");
 
             AddLocation(_aBreePerms, oOrderOfLove);
             AddLocation(_aBreePerms, oCampusFreeClinic);
@@ -1735,6 +1736,7 @@ namespace IsengardClient
             AddLocation(aBree, oBreeDocks);
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oShadowOfIncendius);
+            AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
             AddLocation(_aMisc, oBreePawnShopWest);
             AddLocation(_aMisc, oBreePawnShopEast);
             AddLocation(_aMisc, oLeonardosSwords);
