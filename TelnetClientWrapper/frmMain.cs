@@ -1233,7 +1233,7 @@ namespace IsengardClient
             }
 
             Area aBree = _areasByName[AREA_BREE];
-            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room aqueduct);
+            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room aqueduct, out Room sewerTunnelToTConnection);
             AddMayorMillwoodMansion(oIxell, out List<Room> mansionRooms, out Room oChancellorOfProtection, out Room oMayorMillwood);
             AddLocation(_aBreePerms, oChancellorOfProtection);
             AddLocation(_aBreePerms, oMayorMillwood);
@@ -1243,7 +1243,7 @@ namespace IsengardClient
             }
 
             AddBreeToHobbiton(oBreeWestGateInside, aqueduct);
-            AddBreeToImladris(oSewerPipeExit);
+            AddBreeToImladris(oSewerPipeExit, sewerTunnelToTConnection);
             AddImladrisCity(out Room oImladrisSouthGateInside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside);
@@ -1398,7 +1398,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room aqueduct)
+        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room aqueduct, out Room sewerTunnelToTConnection)
         {
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
@@ -1629,6 +1629,57 @@ namespace IsengardClient
             AddExit(oDroolie, oNorthBridge, "up");
             SetVariablesForIndefiniteCasts(oDroolie, false, 2);
 
+            Room oBrandywineRiver1 = AddRoom("Brandywine River");
+            AddExit(oDroolie, oBrandywineRiver1, "down");
+            //AddExit(oBrandywineRiver1, oDroolie, "rope"); //requires fly
+
+            Room oBrandywineRiver2 = AddRoom("Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver1, oBrandywineRiver2, BidirectionalExitType.WestEast);
+
+            Room oOohlgrist = AddRoom("Oohlgrist");
+            oOohlgrist.Mob = "Oohlgrist";
+            oOohlgrist.Experience = 110;
+            AddExit(oBrandywineRiver2, oOohlgrist, "boat");
+            AddExit(oOohlgrist, oBrandywineRiver2, "river");
+
+            Room oBrandywineRiverBoathouse = AddRoom("Brandywine River Boathouse");
+            AddExit(oOohlgrist, oBrandywineRiverBoathouse, "shore");
+            AddExit(oBrandywineRiverBoathouse, oOohlgrist, "boat");
+
+            Room oRockyBeach1 = AddRoom("Rocky Beach");
+            AddBidirectionalExits(oBrandywineRiverBoathouse, oRockyBeach1, BidirectionalExitType.WestEast);
+
+            Room oRockyBeach2 = AddRoom("Rocky Beach");
+            AddBidirectionalExits(oRockyBeach1, oRockyBeach2, BidirectionalExitType.WestEast);
+
+            Room oHermitsCave = AddRoom("Hermit Fisher");
+            oHermitsCave.Mob = "Fisher";
+            oHermitsCave.Experience = 60;
+            AddExit(oRockyBeach2, oHermitsCave, "cave");
+            AddExit(oHermitsCave, oRockyBeach2, "out");
+
+            Room oRockyAlcove = AddRoom("Rocky Alcove");
+            AddExit(oRockyBeach1, oRockyAlcove, "alcove");
+            AddExit(oRockyAlcove, oRockyBeach1, "north");
+
+            Room oSewerDrain = AddRoom("Sewer Drain");
+            AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate", null);
+
+            Room oDrainTunnel1 = AddRoom("Drain Tunnel");
+            AddExit(oSewerDrain, oDrainTunnel1, "south");
+
+            Room oDrainTunnel2 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel1, oDrainTunnel2, "north");
+
+            Room oDrainTunnel3 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel2, oDrainTunnel3, "south");
+
+            Room oDrainTunnel4 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel3, oDrainTunnel4, "south");
+
+            sewerTunnelToTConnection = AddRoom("Sewer Tunnel");
+            AddBidirectionalExits(oDrainTunnel4, sewerTunnelToTConnection, BidirectionalExitType.NorthSouth);
+
             Room oIgor = AddRoom("Igor");
             oIgor.Mob = "Igor";
             oIgor.Experience = 130;
@@ -1758,6 +1809,8 @@ namespace IsengardClient
             AddLocation(_aMisc, oBreePawnShopEast);
             AddLocation(_aMisc, oLeonardosSwords);
             AddLocation(_aBreePerms, oShirriff);
+            AddLocation(aBree, oOohlgrist);
+            AddLocation(aBree, oHermitsCave);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -2017,7 +2070,7 @@ namespace IsengardClient
             }
         }
 
-        private void AddBreeToImladris(Room oSewerPipeExit)
+        private void AddBreeToImladris(Room oSewerPipeExit, Room sewerTunnelToTConnection)
         {
             _breeEastGateOutside = AddRoom("East Gate of Bree");
             AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
@@ -2178,6 +2231,7 @@ namespace IsengardClient
 
             Room oSewerTConnection = AddRoom("Sewer T-Connection");
             AddBidirectionalExits(oSewerTConnection, oSewerTunnel1, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(sewerTunnelToTConnection, oSewerTConnection, BidirectionalExitType.NorthSouth);
 
             Room oSewerTunnel2 = AddRoom("Sewer Tunnel");
             AddBidirectionalExits(oSewerTunnel2, oSewerTConnection, BidirectionalExitType.WestEast);
