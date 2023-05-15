@@ -1163,22 +1163,6 @@ namespace IsengardClient
             }
         }
 
-        private int GetMana()
-        {
-            lock (_manaLock)
-            {
-                return _currentMana;
-            }
-        }
-
-        private void SetMana(int newMana)
-        {
-            lock (_manaLock)
-            {
-                _currentMana = newMana;
-            }
-        }
-
         private void RunQueuedCommand()
         {
             lock (_queuedCommandLock)
@@ -3838,7 +3822,7 @@ namespace IsengardClient
 
         private void btnManaSet_Click(object sender, EventArgs e)
         {
-            string sNewMana = Interaction.InputBox("New mana:", "New Mana");
+            string sNewMana = Interaction.InputBox("New mana:", "New Mana", txtMana.Text);
             if (int.TryParse(sNewMana, out int iNewMana))
             {
                 lock (_manaLock)
