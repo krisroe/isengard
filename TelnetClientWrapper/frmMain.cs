@@ -996,6 +996,10 @@ namespace IsengardClient
                 if (targetRoom != null)
                 {
                     SetCurrentRoom(targetRoom);
+                    if (targetRoom.IsHealingRoom)
+                    {
+                        _currentMana = _totalMana;
+                    }
                 }
             }
             ToggleBackgroundProcess(false);
@@ -1397,7 +1401,7 @@ namespace IsengardClient
                         {
                             ctl.Enabled = !running;
                         }
-                        else
+                        else if (ctl != btnPlusXMana)
                         {
                             ctl.Enabled = !running;
                         }
@@ -1486,6 +1490,7 @@ namespace IsengardClient
             AddBidirectionalExits(sabreNightingale, nightingale3, BidirectionalExitType.NorthSouth);
 
             Room bardicGuildhall = AddRoom("Tharbad Bardic Guildhall");
+            bardicGuildhall.IsHealingRoom = true;
             AddBidirectionalExits(bardicGuildhall, nightingale3, BidirectionalExitType.WestEast);
 
             Room sabre3 = AddRoom("Tharbad Sabre");
@@ -1684,6 +1689,7 @@ namespace IsengardClient
             breeStreets[10, 8] = AddRoom("Bree Crissaegrim 11x9");
             breeStreets[14, 8] = AddRoom("Bree Brownhaven 15x9");
             Room oOrderOfLove = breeStreets[15, 8] = AddRoom("Bree Order of Love"); //16x9
+            oOrderOfLove.IsHealingRoom = true;
             switch (_preferredAlignment)
             {
                 case AlignmentType.Blue:
@@ -1762,6 +1768,7 @@ namespace IsengardClient
 
             Room oCampusFreeClinic = AddRoom("Bree Campus Free Clinic");
             oCampusFreeClinic.Mob = "Student";
+            oCampusFreeClinic.IsHealingRoom = true;
             AddExit(oToCampusFreeClinic, oCampusFreeClinic, "clinic");
             AddExit(oCampusFreeClinic, oToCampusFreeClinic, "west");
 
@@ -2549,6 +2556,7 @@ namespace IsengardClient
             AddExit(oImladrisCityDump, oRearAlley, "north");
 
             Room oImladrisHealingHand = AddRoom("Imladris Healing Hand");
+            oImladrisHealingHand.IsHealingRoom = true;
             AddBidirectionalExits(oImladrisHealingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
 
             Room oTyriesPriestSupplies = AddRoom("Tyrie's Priest Supplies");
@@ -3070,6 +3078,7 @@ namespace IsengardClient
             public Room ParentRoom { get; set; }
             public AlignmentType? Alignment { get; set; }
             public int? Experience { get; set; }
+            public bool IsHealingRoom { get; set; }
         }
 
         public enum AlignmentType
@@ -3810,7 +3819,7 @@ namespace IsengardClient
         {
             lock (_manaLock)
             {
-                _currentMana += _manaTick;
+                _currentMana = Math.Min(_totalMana, _currentMana + _manaTick);
             }
         }
 
@@ -3834,7 +3843,7 @@ namespace IsengardClient
             {
                 lock (_manaLock)
                 {
-                    _currentMana = iNewMana;
+                    _currentMana = Math.Min(_totalMana, iNewMana);
                 }
             }
         }

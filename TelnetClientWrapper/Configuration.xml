@@ -31,11 +31,11 @@
     <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <ManaStun waitms="0"/>
     <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <SetVariable variable="attacktype" value="attack"/>
     <Sequence loop="true">
      <Steps>
       <ManaOffensive waitms="castinterval"/>
       <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
-      <SetVariable variable="attacktype" value="attack"/>
      </Steps>
     </Sequence>
    </Steps>
