@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.lblWindow = new System.Windows.Forms.Label();
             this.txtWindow = new System.Windows.Forms.TextBox();
@@ -100,6 +101,13 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnManaSet = new System.Windows.Forms.Button();
+            this.txtMana = new System.Windows.Forms.TextBox();
+            this.btnFullMana = new System.Windows.Forms.Button();
+            this.btnPlusXMana = new System.Windows.Forms.Button();
+            this.lblMana = new System.Windows.Forms.Label();
+            this.cboCelduinExpress = new System.Windows.Forms.ComboBox();
+            this.lblCelduinExpressLocation = new System.Windows.Forms.Label();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
             this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
             this.btnRemoveAll = new System.Windows.Forms.Button();
@@ -116,8 +124,10 @@
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
-            this.lblCelduinExpressLocation = new System.Windows.Forms.Label();
-            this.cboCelduinExpress = new System.Windows.Forms.ComboBox();
+            this.tmr = new System.Windows.Forms.Timer(this.components);
+            this.chkPowerAttack = new System.Windows.Forms.CheckBox();
+            this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
+            this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -334,7 +344,7 @@
             this.chkIsNight.Location = new System.Drawing.Point(749, 300);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkIsNight.Name = "chkIsNight";
-            this.chkIsNight.Size = new System.Drawing.Size(77, 20);
+            this.chkIsNight.Size = new System.Drawing.Size(74, 20);
             this.chkIsNight.TabIndex = 28;
             this.chkIsNight.Text = "Is night?";
             this.chkIsNight.UseVisualStyleBackColor = true;
@@ -459,6 +469,7 @@
             this.txtWeapon.Name = "txtWeapon";
             this.txtWeapon.Size = new System.Drawing.Size(237, 22);
             this.txtWeapon.TabIndex = 42;
+            this.txtWeapon.TextChanged += new System.EventHandler(this.txtWeapon_TextChanged);
             // 
             // lblWeapon
             // 
@@ -526,7 +537,7 @@
             this.chkSetOn.Location = new System.Drawing.Point(267, 21);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(53, 20);
+            this.chkSetOn.Size = new System.Drawing.Size(50, 20);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -644,7 +655,7 @@
             this.radFire.Location = new System.Drawing.Point(231, 23);
             this.radFire.Margin = new System.Windows.Forms.Padding(4);
             this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(51, 20);
+            this.radFire.Size = new System.Drawing.Size(48, 20);
             this.radFire.TabIndex = 3;
             this.radFire.TabStop = true;
             this.radFire.Text = "Fire";
@@ -656,7 +667,7 @@
             this.radWater.Location = new System.Drawing.Point(151, 23);
             this.radWater.Margin = new System.Windows.Forms.Padding(4);
             this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(64, 20);
+            this.radWater.Size = new System.Drawing.Size(61, 20);
             this.radWater.TabIndex = 2;
             this.radWater.TabStop = true;
             this.radWater.Text = "Water";
@@ -669,7 +680,7 @@
             this.radWind.Location = new System.Drawing.Point(83, 23);
             this.radWind.Margin = new System.Windows.Forms.Padding(4);
             this.radWind.Name = "radWind";
-            this.radWind.Size = new System.Drawing.Size(59, 20);
+            this.radWind.Size = new System.Drawing.Size(56, 20);
             this.radWind.TabIndex = 1;
             this.radWind.TabStop = true;
             this.radWind.Text = "Wind";
@@ -681,7 +692,7 @@
             this.radEarth.Location = new System.Drawing.Point(8, 23);
             this.radEarth.Margin = new System.Windows.Forms.Padding(4);
             this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(59, 20);
+            this.radEarth.Size = new System.Drawing.Size(56, 20);
             this.radEarth.TabIndex = 0;
             this.radEarth.TabStop = true;
             this.radEarth.Text = "Earth";
@@ -732,10 +743,10 @@
             // 
             // btnVariables
             // 
-            this.btnVariables.Location = new System.Drawing.Point(703, 91);
+            this.btnVariables.Location = new System.Drawing.Point(832, 53);
             this.btnVariables.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnVariables.Name = "btnVariables";
-            this.btnVariables.Size = new System.Drawing.Size(123, 32);
+            this.btnVariables.Size = new System.Drawing.Size(136, 32);
             this.btnVariables.TabIndex = 66;
             this.btnVariables.Text = "Variables";
             this.btnVariables.UseVisualStyleBackColor = true;
@@ -902,6 +913,14 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.cboMaxOffLevel);
+            this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
+            this.pnlMain.Controls.Add(this.chkPowerAttack);
+            this.pnlMain.Controls.Add(this.btnManaSet);
+            this.pnlMain.Controls.Add(this.txtMana);
+            this.pnlMain.Controls.Add(this.btnFullMana);
+            this.pnlMain.Controls.Add(this.btnPlusXMana);
+            this.pnlMain.Controls.Add(this.lblMana);
             this.pnlMain.Controls.Add(this.cboCelduinExpress);
             this.pnlMain.Controls.Add(this.lblCelduinExpressLocation);
             this.pnlMain.Controls.Add(this.lblPreferredAlignment);
@@ -980,6 +999,77 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1319, 691);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnManaSet
+            // 
+            this.btnManaSet.Location = new System.Drawing.Point(761, 88);
+            this.btnManaSet.Name = "btnManaSet";
+            this.btnManaSet.Size = new System.Drawing.Size(54, 29);
+            this.btnManaSet.TabIndex = 96;
+            this.btnManaSet.Text = "Set";
+            this.btnManaSet.UseVisualStyleBackColor = true;
+            this.btnManaSet.Click += new System.EventHandler(this.btnManaSet_Click);
+            // 
+            // txtMana
+            // 
+            this.txtMana.Location = new System.Drawing.Point(488, 91);
+            this.txtMana.Name = "txtMana";
+            this.txtMana.ReadOnly = true;
+            this.txtMana.Size = new System.Drawing.Size(159, 22);
+            this.txtMana.TabIndex = 95;
+            // 
+            // btnFullMana
+            // 
+            this.btnFullMana.Location = new System.Drawing.Point(700, 88);
+            this.btnFullMana.Name = "btnFullMana";
+            this.btnFullMana.Size = new System.Drawing.Size(55, 29);
+            this.btnFullMana.TabIndex = 94;
+            this.btnFullMana.Text = "Full";
+            this.btnFullMana.UseVisualStyleBackColor = true;
+            this.btnFullMana.Click += new System.EventHandler(this.btnFullMana_Click);
+            // 
+            // btnPlusXMana
+            // 
+            this.btnPlusXMana.Location = new System.Drawing.Point(657, 88);
+            this.btnPlusXMana.Name = "btnPlusXMana";
+            this.btnPlusXMana.Size = new System.Drawing.Size(37, 29);
+            this.btnPlusXMana.TabIndex = 93;
+            this.btnPlusXMana.Text = "+X";
+            this.btnPlusXMana.UseVisualStyleBackColor = true;
+            this.btnPlusXMana.Click += new System.EventHandler(this.btnPlusXMana_Click);
+            // 
+            // lblMana
+            // 
+            this.lblMana.AutoSize = true;
+            this.lblMana.Location = new System.Drawing.Point(337, 94);
+            this.lblMana.Name = "lblMana";
+            this.lblMana.Size = new System.Drawing.Size(44, 16);
+            this.lblMana.TabIndex = 92;
+            this.lblMana.Text = "Mana:";
+            this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cboCelduinExpress
+            // 
+            this.cboCelduinExpress.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCelduinExpress.FormattingEnabled = true;
+            this.cboCelduinExpress.Items.AddRange(new object[] {
+            "At Sea",
+            "Bree",
+            "Mithlond"});
+            this.cboCelduinExpress.Location = new System.Drawing.Point(815, 447);
+            this.cboCelduinExpress.Name = "cboCelduinExpress";
+            this.cboCelduinExpress.Size = new System.Drawing.Size(157, 24);
+            this.cboCelduinExpress.TabIndex = 80;
+            this.cboCelduinExpress.SelectedIndexChanged += new System.EventHandler(this.cboCelduinExpress_SelectedIndexChanged);
+            // 
+            // lblCelduinExpressLocation
+            // 
+            this.lblCelduinExpressLocation.AutoSize = true;
+            this.lblCelduinExpressLocation.Location = new System.Drawing.Point(698, 451);
+            this.lblCelduinExpressLocation.Name = "lblCelduinExpressLocation";
+            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(107, 16);
+            this.lblCelduinExpressLocation.TabIndex = 90;
+            this.lblCelduinExpressLocation.Text = "Celduin Express:";
             // 
             // lblPreferredAlignment
             // 
@@ -1157,28 +1247,43 @@
             this.btnRunMacro.UseVisualStyleBackColor = true;
             this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
-            // lblCelduinExpressLocation
+            // tmr
             // 
-            this.lblCelduinExpressLocation.AutoSize = true;
-            this.lblCelduinExpressLocation.Location = new System.Drawing.Point(698, 451);
-            this.lblCelduinExpressLocation.Name = "lblCelduinExpressLocation";
-            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(107, 16);
-            this.lblCelduinExpressLocation.TabIndex = 90;
-            this.lblCelduinExpressLocation.Text = "Celduin Express:";
+            this.tmr.Enabled = true;
+            this.tmr.Interval = 20;
+            this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // cboCelduinExpress
+            // chkPowerAttack
             // 
-            this.cboCelduinExpress.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboCelduinExpress.FormattingEnabled = true;
-            this.cboCelduinExpress.Items.AddRange(new object[] {
-            "At Sea",
-            "Bree",
-            "Mithlond"});
-            this.cboCelduinExpress.Location = new System.Drawing.Point(815, 447);
-            this.cboCelduinExpress.Name = "cboCelduinExpress";
-            this.cboCelduinExpress.Size = new System.Drawing.Size(157, 24);
-            this.cboCelduinExpress.TabIndex = 80;
-            this.cboCelduinExpress.SelectedIndexChanged += new System.EventHandler(this.cboCelduinExpress_SelectedIndexChanged);
+            this.chkPowerAttack.AutoSize = true;
+            this.chkPowerAttack.Location = new System.Drawing.Point(473, 435);
+            this.chkPowerAttack.Name = "chkPowerAttack";
+            this.chkPowerAttack.Size = new System.Drawing.Size(111, 20);
+            this.chkPowerAttack.TabIndex = 97;
+            this.chkPowerAttack.Text = "Power Attack?";
+            this.chkPowerAttack.UseVisualStyleBackColor = true;
+            // 
+            // lblMaxOffensiveLevel
+            // 
+            this.lblMaxOffensiveLevel.AutoSize = true;
+            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(383, 464);
+            this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
+            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(84, 16);
+            this.lblMaxOffensiveLevel.TabIndex = 98;
+            this.lblMaxOffensiveLevel.Text = "Max off level:";
+            // 
+            // cboMaxOffLevel
+            // 
+            this.cboMaxOffLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMaxOffLevel.FormattingEnabled = true;
+            this.cboMaxOffLevel.Items.AddRange(new object[] {
+            "3",
+            "2",
+            "1"});
+            this.cboMaxOffLevel.Location = new System.Drawing.Point(473, 461);
+            this.cboMaxOffLevel.Name = "cboMaxOffLevel";
+            this.cboMaxOffLevel.Size = new System.Drawing.Size(129, 24);
+            this.cboMaxOffLevel.TabIndex = 99;
             // 
             // frmMain
             // 
@@ -1296,6 +1401,15 @@
         private System.Windows.Forms.TextBox txtPreferredAlignment;
         private System.Windows.Forms.Label lblCelduinExpressLocation;
         private System.Windows.Forms.ComboBox cboCelduinExpress;
+        private System.Windows.Forms.Button btnFullMana;
+        private System.Windows.Forms.Button btnPlusXMana;
+        private System.Windows.Forms.Label lblMana;
+        private System.Windows.Forms.Timer tmr;
+        private System.Windows.Forms.TextBox txtMana;
+        private System.Windows.Forms.Button btnManaSet;
+        private System.Windows.Forms.CheckBox chkPowerAttack;
+        private System.Windows.Forms.ComboBox cboMaxOffLevel;
+        private System.Windows.Forms.Label lblMaxOffensiveLevel;
     }
 }
 

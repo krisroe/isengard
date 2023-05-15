@@ -1,133 +1,70 @@
-<Configuration defaultrealm="earth" level="12" preferredalignment="Blue">
+<Configuration defaultrealm="earth" level="12" totalmana="61" manatick="5" preferredalignment="Blue">
  <Variables>
+  <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>
   <Variable name="polltickinterval" type="int" value="5000" min="0"/>
   <Variable name="castinterval" type="int" value="2550" min="0"/>
-  <Variable name="level3castrounds" type="int" value="0" min="0"/>
-  <Variable name="level2castrounds" type="int" value="0" min="0"/>
-  <Variable name="level1castrounds" type="int" value="0" min="0"/>
+  <Variable name="castrounds" type="int" value="0" min="0"/>
   <Variable name="stuncastrounds" type="int" value="2" min="0"/>
   <Variable name="hitandrundirection" type="string"/>
   <Variable name="hitandrunprecommand" type="string"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
-  <Macro name="castX" oneclick="true" combatcommandtypes="Magic">
+  <Macro name="C*" oneclick="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
    <Steps>
-    <Command text="cast {realm3spell} {mob}" waitms="castinterval" loop="level3castrounds"/>
-    <Command text="cast {realm2spell} {mob}" waitms="castinterval" loop="level2castrounds"/>
-    <Command text="cast {realm1spell} {mob}" waitms="castinterval" loop="level1castrounds"/>
-   </Steps>
-  </Macro>
-  <Macro name="stuncastrepeat" oneclick="true" setparentlocation="true" combatcommandtypes="Magic">
-   <Steps>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <SetNextCommandMS waitms="0"/>
-    <Sequence loop="stuncastrounds" waitms="castinterval">
+    <Sequence loop="true">
      <Steps>
-      <Command text="cast stun {mob}"/>
-      <Command text="cast {realm1spell} {mob}" loop="level1castrounds"/>
-      <Command text="cast {realm2spell} {mob}" loop="level2castrounds"/>
-      <Command text="cast {realm3spell} {mob}" loop="level3castrounds"/>
-     </Steps>
-    </Sequence>
-    <Command text="look {mob}" waitms="0"/>
-   </Steps>
-  </Macro>
-  <Macro name="castXwithattack" oneclick="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}">
-   <Steps>
-    <Command text="wield {weapon}" waitms="0"/>
-    <SetNextCommandMS waitms="0"/>
-    <Sequence loop="level3castrounds">
-     <Steps>
-      <Command text="cast {realm3spell} {mob}" waitms="castinterval"/>
-      <Command text="attack {mob}" waitms="0"/>
-     </Steps>
-    </Sequence>
-    <Sequence loop="level2castrounds">
-     <Steps>
-      <Command text="cast {realm2spell} {mob}" waitms="castinterval" />
-      <Command text="attack {mob}" waitms="0"/>
-     </Steps>
-    </Sequence>
-    <Sequence loop="level1castrounds">
-     <Steps>
-      <Command text="cast {realm1spell} {mob}" waitms="castinterval"/>
-      <Command text="attack {mob}" waitms="0"/>
-     </Steps>
-    </Sequence>
-   </Steps>
-  </Macro>
-  <Macro name="stuncastrepeatwithattack" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}">
-   <Steps>
-    <Command text="wield {weapon}"/>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
-    <SetNextCommandMS waitms="0"/>
-    <Sequence loop="stuncastrounds" waitms="castinterval">
-     <Steps>
-      <Command text="cast stun {mob}"/>
-      <Command text="attack {mob}" waitms="0"/>
-      <Sequence loop="level1castrounds">
-       <Steps>
-        <Command text="cast {realm1spell} {mob}" waitms="castinterval" />
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
-      <Sequence loop="level2castrounds">
-       <Steps>
-        <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
-      <Sequence loop="level3castrounds">
-       <Steps>
-        <Command text="cast {realm3spell} {mob}" waitms="castinterval"/>
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
-     </Steps>
-    </Sequence>
-    <Command text="look {mob}" waitms="0"/>
-   </Steps>
-  </Macro>
-  <Macro name="stuncastrepeatwithpowattack" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}">
-   <Steps>
-    <Command text="wield {weapon}"/>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
-    <SetNextCommandMS waitms="0"/>
-    <SetVariable variable="attacktype" value="power"/>
-    <Sequence loop="stuncastrounds" waitms="castinterval">
-     <Steps>
-      <Command text="cast stun {mob}"/>
-      <Command text="{attacktype} {mob}" waitms="0"/>
+      <ManaOffensive waitms="castinterval"/>
+      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
       <SetVariable variable="attacktype" value="attack"/>
-      <Sequence loop="level1castrounds">
-       <Steps>
-        <Command text="cast {realm1spell} {mob}" waitms="castinterval" />
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
-      <Sequence loop="level2castrounds">
-       <Steps>
-        <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
-      <Sequence loop="level3castrounds">
-       <Steps>
-        <Command text="cast {realm3spell} {mob}" waitms="castinterval"/>
-        <Command text="attack {mob}" waitms="0"/>
-       </Steps>
-      </Sequence>
      </Steps>
     </Sequence>
-    <Command text="look {mob}" waitms="0"/>
    </Steps>
   </Macro>
-  <Macro name="repeatatk" oneclick="false" combatcommandtypes="Melee" finalcommand="remove {weapon}">
+  <Macro name="SC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
+   <Steps>
+    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <ManaStun waitms="0"/>
+    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <Sequence loop="true">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+      <SetVariable variable="attacktype" value="attack"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="SCCSCC" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon" finalcommand2="look {mob}">
+   <Steps>
+    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <ManaStun waitms="0"/>
+    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <SetVariable variable="attacktype" value="attack"/>
+    <Sequence loop="2">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+     </Steps>
+    </Sequence>
+    <ManaStun waitms="castinterval"/>
+    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <Sequence loop="2">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+      <Command text="attack {mob}" waitms="0" condition="weapon"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="A*" oneclick="false" combatcommandtypes="Melee" finalcommand="remove {weapon}">
    <Steps>
     <Command text="wield {weapon}" waitms="0"/>
     <SetNextCommandMS waitms="0"/>
@@ -138,9 +75,10 @@
     </Sequence>
    </Steps>
   </Macro>
+  <!--
   <Macro name="cast+atk+potX" oneclick="false" combatcommandtypes="Magic,Melee,Potions">
    <Steps>
-    <Sequence loop="level2castrounds">
+    <Sequence loop="castrounds">
      <Steps>
       <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
       <Command text="kill {mob}" waitms="0"/>
@@ -149,6 +87,7 @@
     </Sequence>
    </Steps>
   </Macro>
+  -->
   <Macro name="polltick" oneclick="true">
    <Steps>
     <Command text="" waitms="polltickinterval" loop="true"/>

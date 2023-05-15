@@ -1,4 +1,5 @@
-﻿using QuickGraph;
+﻿using Microsoft.VisualBasic;
+using QuickGraph;
 using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,9 @@ namespace IsengardClient
         private AlignmentType _preferredAlignment;
 
         private int _level;
+        private int _totalMana;
+        private int _manaTick;
+        private int _currentMana;
         private Dictionary<char, int> _keyMapping;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
@@ -44,6 +48,7 @@ namespace IsengardClient
         private Room _breeDocks = null;
         private Room _boatswain = null;
         private object _queuedCommandLock = new object();
+        private object _manaLock = new object();
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
@@ -62,12 +67,8 @@ namespace IsengardClient
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
         private const string VARIABLE_MOVEGAPMS = "movegapms";
-        private const string VARIABLE_LEVEL1CASTROUNDS = "level1castrounds";
-        private const string VARIABLE_LEVEL2CASTROUNDS = "level2castrounds";
-        private const string VARIABLE_LEVEL3CASTROUNDS = "level3castrounds";
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
-        private const string VARIABLE_STUNCASTROUNDS = "stuncastrounds";
 
         public frmMain()
         {
@@ -166,6 +167,7 @@ namespace IsengardClient
 
             cboSetOption.SelectedIndex = 0;
             cboCelduinExpress.SelectedIndex = 0;
+            cboMaxOffLevel.SelectedIndex = 0;
         }
 
         private void SetButtonTags()
@@ -327,6 +329,31 @@ namespace IsengardClient
                 _level = 1;
             }
             txtLevel.Text = _level.ToString();
+
+            string sMana = doc.DocumentElement.GetAttribute("totalmana");
+            if (string.IsNullOrEmpty(sMana))
+            {
+                _totalMana = 0;
+            }
+            else if (!int.TryParse(sMana, out _totalMana))
+            {
+                MessageBox.Show("Invalid total mana specified: " + sMana);
+                _totalMana = 0;
+            }
+            _currentMana = _totalMana;
+            txtMana.Text = _totalMana.ToString();
+
+            string sManaTick = doc.DocumentElement.GetAttribute("manatick");
+            if (string.IsNullOrEmpty(sManaTick))
+            {
+                _manaTick = 0;
+            }
+            else if (!int.TryParse(sManaTick, out _manaTick))
+            {
+                MessageBox.Show("Invalid mana tick specified: " + sManaTick);
+                _manaTick = 0;
+            }
+            btnPlusXMana.Text = "+" + _manaTick;
 
             string sPreferredAlignment = doc.DocumentElement.GetAttribute("preferredalignment");
             if (Enum.TryParse(sPreferredAlignment, out AlignmentType ePreferredAlignment))
@@ -600,12 +627,14 @@ namespace IsengardClient
                     }
 
                     string sFinalCommand = elemMacro.GetAttribute("finalcommand");
+                    string sFinalCommand2 = elemMacro.GetAttribute("finalcommand2");
 
                     bool macroIsValid = true;
                     Macro oMacro = new Macro(macroName);
                     oMacro.SetParentLocation = bSetParentLocation;
                     oMacro.CombatCommandTypes = eCombatCommandTypes;
                     oMacro.FinalCommand = sFinalCommand;
+                    oMacro.FinalCommand2 = sFinalCommand2;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
                     if (foundSteps == null)
                     {
@@ -617,6 +646,40 @@ namespace IsengardClient
                         macroIsValid = false;
                     }
                     oMacro.Steps = foundSteps;
+
+                    string sFinalCommandCondition = elemMacro.GetAttribute("finalcommandcondition");
+                    if (!string.IsNullOrEmpty(sFinalCommandCondition))
+                    {
+                        if (_variablesByName.TryGetValue(sFinalCommandCondition, out Variable v))
+                        {
+                            if (v.Type != VariableType.String)
+                            {
+                                macroIsValid = false;
+                                errorMessages.Add("Final command Condition variable must be a string: " + macroName);
+                            }
+                            else
+                            {
+                                oMacro.FinalCommandConditionVariable = v;
+                            }
+                        }
+                    }
+
+                    string sFinalCommand2Condition = elemMacro.GetAttribute("finalcommand2condition");
+                    if (!string.IsNullOrEmpty(sFinalCommand2Condition))
+                    {
+                        if (_variablesByName.TryGetValue(sFinalCommand2Condition, out Variable v))
+                        {
+                            if (v.Type != VariableType.String)
+                            {
+                                macroIsValid = false;
+                                errorMessages.Add("Final command 2 Condition variable must be a string: " + macroName);
+                            }
+                            else
+                            {
+                                oMacro.FinalCommand2ConditionVariable = v;
+                            }
+                        }
+                    }
 
                     string sOneClick = elemMacro.GetAttribute("oneclick");
                     bool isOneClick = false;
@@ -734,6 +797,16 @@ namespace IsengardClient
                         MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
                         ret.Add(oSetVariableCommand);
                         step = oSetVariableCommand;
+                        break;
+                    case "manastun":
+                        MacroManaSpellStun oStunCommand = new MacroManaSpellStun();
+                        ret.Add(oStunCommand);
+                        step = oStunCommand;
+                        break;
+                    case "manaoffensive":
+                        MacroManaSpellOffensive oOffensiveCommand = new MacroManaSpellOffensive();
+                        ret.Add(oOffensiveCommand);
+                        step = oOffensiveCommand;
                         break;
                     default:
                         isValid = false;
@@ -910,6 +983,13 @@ namespace IsengardClient
                     _currentBackgroundParameters.CommandsRun++;
                 }
             }
+            if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
+            {
+                if (SendCommand(_currentBackgroundParameters.FinalCommand2, false))
+                {
+                    _currentBackgroundParameters.CommandsRun++;
+                }
+            }
             if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
@@ -984,22 +1064,114 @@ namespace IsengardClient
 
                 if (_bw.CancellationPending) break;
 
-                //re-translate the command in case variables have changed
-                string actualCommand = TranslateCommand(nextCommand.RawCommand, _currentBackgroundParameters.GetVariables(), out string errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage))
+                ManaDrainType mdType = nextCommand.ManaDrain;
+                bool stop;
+                if (mdType == ManaDrainType.Stun || mdType == ManaDrainType.Offensive)
                 {
-                    break; //not much we can do here except stop
-                }
-
-                if (SendCommand(actualCommand, false))
-                {
-                    pms.CommandsRun++;
+                    lock (_manaLock)
+                    {
+                        ProcessCommand(nextCommand, pms, out stop);
+                    }
                 }
                 else
                 {
+                    ProcessCommand(nextCommand, pms, out stop);
+                }
+                if (stop)
+                {
                     break;
                 }
+
                 RunQueuedCommand();
+            }
+        }
+
+        private void ProcessCommand(MacroCommand nextCommand, BackgroundWorkerParameters pms, out bool stop)
+        {
+            string rawCommand;
+            int? manaDrain = null;
+            ManaDrainType mdType = nextCommand.ManaDrain;
+            stop = false;
+            if (mdType == ManaDrainType.Stun)
+            {
+                rawCommand = "cast stun {mob}";
+                manaDrain = 10;
+            }
+            else if (mdType == ManaDrainType.Offensive)
+            {
+                int iMaxOffLevel = Convert.ToInt32(pms.MaxOffensiveLevel);
+                if (_currentMana >= 10 && iMaxOffLevel >= 3)
+                {
+                    manaDrain = 10;
+                    rawCommand = "cast {realm3spell} {mob}";
+                }
+                else if (_currentMana >= 7 && iMaxOffLevel >= 2)
+                {
+                    manaDrain = 7;
+                    rawCommand = "cast {realm2spell} {mob}";
+                }
+                else if (_currentMana >= 3)
+                {
+                    manaDrain = 3;
+                    rawCommand = "cast {realm1spell} {mob}";
+                }
+                else //don't have enough mana to cast an offensive spell
+                {
+                    stop = true;
+                    return;
+                }
+            }
+            else
+            {
+                rawCommand = nextCommand.RawCommand;
+            }
+
+            //stop processing if out of mana
+            if (mdType != ManaDrainType.None && _currentMana < manaDrain.Value)
+            {
+                stop = true;
+                return;
+            }
+
+            //re-translate the command in case variables have changed
+            string actualCommand = TranslateCommand(rawCommand, _currentBackgroundParameters.GetVariables(), out string errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                stop = true; //not much we can do here except stop
+                return;
+            }
+
+            if (SendCommand(actualCommand, false))
+            {
+                pms.CommandsRun++;
+                if (manaDrain.HasValue)
+                {
+                    _currentMana -= manaDrain.Value;
+                    if (_currentMana < 3) //no mana left for casting any more offensive spells
+                    {
+                        stop = true;
+                    }
+                }
+            }
+            else
+            {
+                stop = true;
+            }
+        }
+
+        private int GetMana()
+        {
+            lock (_manaLock)
+            {
+                return _currentMana;
+            }
+        }
+
+        private void SetMana(int newMana)
+        {
+            lock (_manaLock)
+            {
+                _currentMana = newMana;
             }
         }
 
@@ -1137,7 +1309,23 @@ namespace IsengardClient
                     }
                     else
                     {
-                        MacroCommand nextCommand = (MacroCommand)nextStep;
+                        MacroCommand nextCommand;
+                        if (nextStep is MacroManaSpellStun)
+                        {
+                            nextCommand = new MacroCommand(string.Empty, string.Empty);
+                            nextCommand.CopyFrom(nextStep);
+                            nextCommand.ManaDrain = ManaDrainType.Stun;
+                        }
+                        else if (nextStep is MacroManaSpellOffensive)
+                        {
+                            nextCommand = new MacroCommand(string.Empty, string.Empty);
+                            nextCommand.CopyFrom(nextStep);
+                            nextCommand.ManaDrain = ManaDrainType.Offensive;
+                        }
+                        else
+                        {
+                            nextCommand = (MacroCommand)nextStep;
+                        }
                         overrideWaitMS = parameters.NextCommandWaitMS.HasValue;
                         if (overrideWaitMS)
                         {
@@ -1314,7 +1502,7 @@ namespace IsengardClient
             oMasterJeweler.Experience = 170;
             oMasterJeweler.Alignment = AlignmentType.Red;
             AddBidirectionalExits(marketDistrictClothiers, oMasterJeweler, BidirectionalExitType.WestEast);
-            SetVariablesForIndefiniteCasts(oMasterJeweler, true, 3);
+            SetVariablesForIndefiniteCasts(oMasterJeweler);
 
             Room oEntranceToGypsyEncampment = AddRoom("Entrance to Gypsy Encampment");
             AddExit(oMasterJeweler, oEntranceToGypsyEncampment, "row");
@@ -1341,7 +1529,7 @@ namespace IsengardClient
             oKingBrunden.Experience = 300;
             AddExit(oKingBrundensWagon, oKingBrunden, "back");
             AddExit(oKingBrunden, oKingBrundensWagon, "out");
-            SetVariablesForIndefiniteCasts(oKingBrunden, true, 3);
+            SetVariablesForIndefiniteCasts(oKingBrunden);
 
             Room oGypsyBlademaster = AddRoom("Gypsy Blademaster");
             oGypsyBlademaster.Mob = "Blademaster";
@@ -1349,7 +1537,7 @@ namespace IsengardClient
             oGypsyBlademaster.Alignment = AlignmentType.Blue;
             AddExit(oGypsyRow3, oGypsyBlademaster, "tent");
             AddExit(oGypsyBlademaster, oGypsyRow3, "out");
-            SetVariablesForIndefiniteCasts(oGypsyBlademaster, true, 3);
+            SetVariablesForIndefiniteCasts(oGypsyBlademaster);
 
             Room oKingsMoneychanger = AddRoom("King's Moneychanger");
             oKingsMoneychanger.Mob = "Moneychanger";
@@ -1357,7 +1545,7 @@ namespace IsengardClient
             oKingsMoneychanger.Alignment = AlignmentType.Red;
             AddExit(oGypsyRow2, oKingsMoneychanger, "tent");
             AddExit(oKingsMoneychanger, oGypsyRow2, "out");
-            SetVariablesForIndefiniteCasts(oKingsMoneychanger, true, 3);
+            SetVariablesForIndefiniteCasts(oKingsMoneychanger);
 
             Room oMadameNicolov = AddRoom("Madame Nicolov");
             oMadameNicolov.Mob = "Madame";
@@ -1365,7 +1553,7 @@ namespace IsengardClient
             oMadameNicolov.Alignment = AlignmentType.Blue;
             AddExit(oGypsyRow1, oMadameNicolov, "wagon");
             AddExit(oMadameNicolov, oGypsyRow1, "out");
-            SetVariablesForIndefiniteCasts(oMadameNicolov, true, 3);
+            SetVariablesForIndefiniteCasts(oMadameNicolov);
 
             Room gildedApple = AddRoom("Gilded Applie");
             AddBidirectionalSameNameExit(sabre3, gildedApple, "door", null);
@@ -1376,7 +1564,7 @@ namespace IsengardClient
             zathriel.Alignment = AlignmentType.Blue;
             AddExit(gildedApple, zathriel, "stage");
             AddExit(zathriel, gildedApple, "down");
-            SetVariablesForIndefiniteCasts(zathriel, true, 3);
+            SetVariablesForIndefiniteCasts(zathriel);
 
             Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
             AddBidirectionalExits(balle2, oOliphauntsTattoos, BidirectionalExitType.NorthSouth);
@@ -1386,7 +1574,7 @@ namespace IsengardClient
             oOliphaunt.Experience = 310;
             oOliphaunt.Alignment = AlignmentType.Blue;
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain", null);
-            SetVariablesForIndefiniteCasts(oOliphaunt, true, 3);
+            SetVariablesForIndefiniteCasts(oOliphaunt);
 
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, zathriel);
@@ -1555,7 +1743,7 @@ namespace IsengardClient
 
             oShirriff.Mob = "shirriff";
             oShirriff.Experience = 325;
-            SetVariablesForIndefiniteCasts(oShirriff, true, 3);
+            SetVariablesForIndefiniteCasts(oShirriff);
 
             Room oValveChamber = AddRoom("Valve Chamber");
             AddExit(breeSewers[7, 3], oValveChamber, "valve");
@@ -1584,7 +1772,7 @@ namespace IsengardClient
             oIxell.Mob = "Ixell";
             AddExit(oBreeRealEstateOffice, oIxell, "door");
             AddExit(oIxell, oBreeRealEstateOffice, "out");
-            SetVariablesForIndefiniteCasts(oIxell, false, 3);
+            SetVariablesForIndefiniteCasts(oIxell);
 
             Room oKistaHillsHousing = AddRoom("Kista Hills Housing");
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
@@ -1596,7 +1784,7 @@ namespace IsengardClient
             oFallon.Alignment = AlignmentType.Blue;
             AddExit(oChurchsEnglishGarden, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGarden, "out");
-            SetVariablesForIndefiniteCasts(oFallon, true, 3);
+            SetVariablesForIndefiniteCasts(oFallon);
             oFallon.Mob = "Fallon";
 
             Room oGrantsStables = AddRoom("Grant's stables");
@@ -1612,14 +1800,14 @@ namespace IsengardClient
             Exit oToGrant = AddExit(oGrantsStables, oGrant, "gate");
             oToGrant.PreCommand = "open gate";
             AddExit(oGrant, oGrantsStables, "out");
-            SetVariablesForIndefiniteCasts(oGrant, false, 2);
+            SetVariablesForIndefiniteCasts(oGrant);
 
             Room oPansy = AddRoom("Pansy Smallburrows");
             oPansy.Mob = "Pansy";
             oPansy.Experience = 95;
             oPansy.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oPansy, oToGamblingPit, BidirectionalExitType.WestEast);
-            SetVariablesForIndefiniteCasts(oPansy, true, 3);
+            SetVariablesForIndefiniteCasts(oPansy);
 
             Room oDroolie = AddRoom("Droolie");
             oDroolie.Mob = "Droolie";
@@ -1627,7 +1815,7 @@ namespace IsengardClient
             oDroolie.Alignment = AlignmentType.Red;
             AddExit(oNorthBridge, oDroolie, "rope");
             AddExit(oDroolie, oNorthBridge, "up");
-            SetVariablesForIndefiniteCasts(oDroolie, false, 2);
+            SetVariablesForIndefiniteCasts(oDroolie);
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River");
             AddExit(oDroolie, oBrandywineRiver1, "down");
@@ -1686,7 +1874,7 @@ namespace IsengardClient
             oIgor.Alignment = AlignmentType.Grey;
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
             AddExit(oToBlindPigPubAndUniversity, oIgor, "pub");
-            SetVariablesForIndefiniteCasts(oIgor, true, 3);
+            SetVariablesForIndefiniteCasts(oIgor);
 
             Room oSnarlingMutt = AddRoom("Snarling Mutt");
             oSnarlingMutt.Mob = "Mutt";
@@ -1694,7 +1882,7 @@ namespace IsengardClient
             oSnarlingMutt.Alignment = AlignmentType.Red;
             AddExit(oToSnarSlystoneShoppe, oSnarlingMutt, "shoppe");
             AddExit(oSnarlingMutt, oToSnarSlystoneShoppe, "out");
-            SetVariablesForIndefiniteCasts(oSnarlingMutt, false, 3);
+            SetVariablesForIndefiniteCasts(oSnarlingMutt);
 
             Room oGuido = AddRoom("Guido");
             oGuido.Mob = "Guido";
@@ -1702,7 +1890,7 @@ namespace IsengardClient
             oGuido.Alignment = AlignmentType.Red;
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
-            SetVariablesForIndefiniteCasts(oGuido, true, 3);
+            SetVariablesForIndefiniteCasts(oGuido);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall");
             oSergeantGrimdall.Mob = "Sergeant";
@@ -1710,12 +1898,12 @@ namespace IsengardClient
             oSergeantGrimdall.Alignment = AlignmentType.Blue;
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
-            SetVariablesForIndefiniteCasts(oSergeantGrimdall, true, 3);
+            SetVariablesForIndefiniteCasts(oSergeantGrimdall);
 
             oBigPapa.Mob = "papa";
             oBigPapa.Experience = 350;
             oBigPapa.Alignment = AlignmentType.Blue;
-            SetVariablesForIndefiniteCasts(oBigPapa, true, 3);
+            SetVariablesForIndefiniteCasts(oBigPapa);
 
             Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1775,7 +1963,7 @@ namespace IsengardClient
             oBurnedRemainsOfNimrodel.Experience = 300;
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
             AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
-            SetVariablesForIndefiniteCasts(oBurnedRemainsOfNimrodel, true, 3);
+            SetVariablesForIndefiniteCasts(oBurnedRemainsOfNimrodel);
 
             aqueduct = AddRoom("Aqueduct");
             AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
@@ -1839,33 +2027,18 @@ namespace IsengardClient
             }
         }
 
-        private void SetVariablesForIndefiniteCasts(Room perm, bool includeStun, int level)
+        private void SetVariablesForIndefiniteCasts(Room perm)
         {
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNPRECOMMAND, string.Empty);
-            string sIndefiniteNumber = "100";
-            AddRoomVariableValue(perm, VARIABLE_LEVEL1CASTROUNDS, level == 1 ? sIndefiniteNumber : "0");
-            AddRoomVariableValue(perm, VARIABLE_LEVEL2CASTROUNDS, level == 2 ? sIndefiniteNumber : "0");
-            AddRoomVariableValue(perm, VARIABLE_LEVEL3CASTROUNDS, level == 3 ? sIndefiniteNumber : "0");
-            AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, includeStun ? "1" : "0");
         }
 
         private void SetVariablesForPermWithThreshold(Room perm, Room threshold, string hitAndRunDirection, string hitAndRunPrecommand)
         {
-            string sCastsPerStun = "2";
-            string sStunRounds = "2";
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNDIRECTION, string.Empty);
             AddRoomVariableValue(perm, VARIABLE_HITANDRUNPRECOMMAND, string.Empty);
-            AddRoomVariableValue(perm, VARIABLE_LEVEL1CASTROUNDS, "0");
-            AddRoomVariableValue(perm, VARIABLE_LEVEL2CASTROUNDS, "0");
-            AddRoomVariableValue(perm, VARIABLE_LEVEL3CASTROUNDS, sCastsPerStun);
-            AddRoomVariableValue(perm, VARIABLE_STUNCASTROUNDS, sStunRounds);
             AddRoomVariableValue(threshold, VARIABLE_HITANDRUNDIRECTION, hitAndRunDirection);
             AddRoomVariableValue(threshold, VARIABLE_HITANDRUNPRECOMMAND, hitAndRunPrecommand);
-            AddRoomVariableValue(threshold, VARIABLE_LEVEL1CASTROUNDS, "0");
-            AddRoomVariableValue(threshold, VARIABLE_LEVEL2CASTROUNDS, "0");
-            AddRoomVariableValue(threshold, VARIABLE_LEVEL3CASTROUNDS, sCastsPerStun);
-            AddRoomVariableValue(threshold, VARIABLE_STUNCASTROUNDS, sStunRounds);
         }
 
         /// <summary>
@@ -1893,7 +2066,7 @@ namespace IsengardClient
             oPathToMansion4WarriorBardsx2.Alignment = AlignmentType.Red;
             AddExit(oPathToMansion3, oPathToMansion4WarriorBardsx2, "stone");
             AddExit(oPathToMansion4WarriorBardsx2, oPathToMansion3, "north");
-            SetVariablesForIndefiniteCasts(oPathToMansion4WarriorBardsx2, false, 3);
+            SetVariablesForIndefiniteCasts(oPathToMansion4WarriorBardsx2);
 
             Room oPathToMansion5 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion4WarriorBardsx2, oPathToMansion5, BidirectionalExitType.SouthwestNortheast);
@@ -1925,7 +2098,7 @@ namespace IsengardClient
             oGrandPorch.Alignment = AlignmentType.Red;
             AddExit(oPathToMansion12, oGrandPorch, "porch");
             AddExit(oGrandPorch, oPathToMansion12, "path");
-            SetVariablesForIndefiniteCasts(oGrandPorch, false, 3);
+            SetVariablesForIndefiniteCasts(oGrandPorch);
 
             Room oMansionInside1 = AddRoom("Mansion Inside");
             AddBidirectionalSameNameExit(oGrandPorch, oMansionInside1, "door", "open door");
@@ -1953,7 +2126,7 @@ namespace IsengardClient
             oWarriorBardMansionNorth.Experience = 100;
             oWarriorBardMansionNorth.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oWarriorBardMansionNorth, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.NorthSouth);
-            SetVariablesForIndefiniteCasts(oWarriorBardMansionNorth, false, 3);
+            SetVariablesForIndefiniteCasts(oWarriorBardMansionNorth);
 
             Room oMansionFirstFloorToSouthStairwell1 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionInside2, oMansionFirstFloorToSouthStairwell1, BidirectionalExitType.NorthSouth);
@@ -1975,7 +2148,7 @@ namespace IsengardClient
             oWarriorBardMansionSouth.Experience = 100;
             oWarriorBardMansionSouth.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell5, oWarriorBardMansionSouth, BidirectionalExitType.NorthSouth);
-            SetVariablesForIndefiniteCasts(oWarriorBardMansionSouth, false, 3);
+            SetVariablesForIndefiniteCasts(oWarriorBardMansionSouth);
 
             Room oMansionFirstFloorToEastStairwell1 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionInside2, oMansionFirstFloorToEastStairwell1, BidirectionalExitType.WestEast);
@@ -2001,7 +2174,7 @@ namespace IsengardClient
             oWarriorBardMansionEast.Experience = 100;
             oWarriorBardMansionEast.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
-            SetVariablesForIndefiniteCasts(oWarriorBardMansionEast, false, 3);
+            SetVariablesForIndefiniteCasts(oWarriorBardMansionEast);
 
             Room oGrandStaircaseUpstairs = AddRoom("Grand Staircase");
             AddBidirectionalExits(oGrandStaircaseUpstairs, oWarriorBardMansionEast, BidirectionalExitType.UpDown);
@@ -2023,7 +2196,7 @@ namespace IsengardClient
             e.PreCommand = "open chamber";
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
             oMayorMillwood.Mob = oRoyalHallwayToMayor.Mob = "mayor";
-            SetVariablesForIndefiniteCasts(oMayorMillwood, false, 3);
+            SetVariablesForIndefiniteCasts(oMayorMillwood);
 
             oChancellorOfProtection = AddRoom("Chancellor of Protection");
             oChancellorOfProtection.Experience = 200;
@@ -2032,7 +2205,7 @@ namespace IsengardClient
             e.PreCommand = "open chamber";
             AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
             oChancellorOfProtection.Mob = oRoyalHallwayToChancellor.Mob = "chancellor";
-            SetVariablesForIndefiniteCasts(oChancellorOfProtection, true, 3);
+            SetVariablesForIndefiniteCasts(oChancellorOfProtection);
 
             MansionLocations = new List<Room>
             {
@@ -2178,7 +2351,7 @@ namespace IsengardClient
             oRoadToFarm7HoundDog.Alignment = AlignmentType.Blue;
             AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
             AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
-            SetVariablesForIndefiniteCasts(oRoadToFarm7HoundDog, true, 2);
+            SetVariablesForIndefiniteCasts(oRoadToFarm7HoundDog);
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
             oFarmParlorManagerMulloyThreshold.Mob = "manager";
@@ -2196,14 +2369,14 @@ namespace IsengardClient
             oCrabbe.Experience = 250;
             AddExit(oHallway, oCrabbe, "detention");
             AddExit(oCrabbe, oHallway, "out");
-            SetVariablesForIndefiniteCasts(oCrabbe, true, 3);
+            SetVariablesForIndefiniteCasts(oCrabbe);
 
             Room oMrWartnose = AddRoom("Mr. Wartnose");
             oMrWartnose.Mob = "Wartnose";
             oMrWartnose.Experience = 235;
             AddExit(oUglyKidClassroomK7, oMrWartnose, "office");
             AddExit(oMrWartnose, oUglyKidClassroomK7, "out");
-            SetVariablesForIndefiniteCasts(oMrWartnose, true, 3);
+            SetVariablesForIndefiniteCasts(oMrWartnose);
 
             Room oCatchBasin = AddRoom("Catch Basin");
             AddExit(oOuthouse, oCatchBasin, "hole");
@@ -2247,7 +2420,7 @@ namespace IsengardClient
             oSalamander.Alignment = AlignmentType.Red;
             AddExit(oBrandywineRiverShore, oSalamander, "reeds");
             AddExit(oSalamander, oBrandywineRiverShore, "shore");
-            SetVariablesForIndefiniteCasts(oSalamander, true, 2);
+            SetVariablesForIndefiniteCasts(oSalamander);
 
             Room oNorthBrethilForest1 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest1, oGreatEastRoadGoblinAmbushGobLrgLrg, BidirectionalExitType.NorthSouth);
@@ -2285,7 +2458,7 @@ namespace IsengardClient
             oSpriteGuards.Alignment = AlignmentType.Blue;
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
-            SetVariablesForIndefiniteCasts(oSpriteGuards, true, 3);
+            SetVariablesForIndefiniteCasts(oSpriteGuards);
 
             AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
             AddLocation(_aBreePerms, oManagerMulloy);
@@ -2399,7 +2572,7 @@ namespace IsengardClient
             oIorlas.Alignment = AlignmentType.Grey;
             AddExit(oMountainTrail2, oIorlas, "shack");
             AddExit(oIorlas, oMountainTrail2, "door");
-            SetVariablesForIndefiniteCasts(oIorlas, true, 3);
+            SetVariablesForIndefiniteCasts(oIorlas);
 
             AddLocation(_aImladrisTharbadPerms, oImladrisHealingHand);
             AddLocation(_aImladrisTharbadPerms, oIorlas);
@@ -2482,14 +2655,14 @@ namespace IsengardClient
             oBilboBaggins.Experience = 260;
             oBilboBaggins.Alignment = AlignmentType.Blue;
             AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", "open oakdoor");
-            SetVariablesForIndefiniteCasts(oBilboBaggins, true, 3);
+            SetVariablesForIndefiniteCasts(oBilboBaggins);
 
             Room oFrodoBaggins = AddRoom("Frodo Baggins");
             oFrodoBaggins.Mob = "Frodo";
             oFrodoBaggins.Experience = 260;
             oFrodoBaggins.Alignment = AlignmentType.Blue;
             AddBidirectionalSameNameExit(oSouthwingHallway, oFrodoBaggins, "curtain", null);
-            SetVariablesForIndefiniteCasts(oFrodoBaggins, true, 3);
+            SetVariablesForIndefiniteCasts(oFrodoBaggins);
 
             Room oGreatHallOfHeroes = AddRoom("Great Hall of Heroes");
             AddExit(oGreatHallOfHeroes, oLeviathanNorthForkWestern, "out");
@@ -2504,7 +2677,7 @@ namespace IsengardClient
                 AddExit(oGreatHallOfHeroes, oSomething, "curtain");
             }
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
-            SetVariablesForIndefiniteCasts(oSomething, true, 3);
+            SetVariablesForIndefiniteCasts(oSomething);
             
             Room oShepherd = AddRoom("Shepherd");
             oShepherd.Mob = "Shepherd";
@@ -2512,7 +2685,7 @@ namespace IsengardClient
             oShepherd.Alignment = AlignmentType.Blue;
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
-            SetVariablesForIndefiniteCasts(oShepherd, false, 3);
+            SetVariablesForIndefiniteCasts(oShepherd);
 
             Room oSmoulderingVillage = AddRoom("Smoldering Village");
             //Gate is locked (and knocking doesn't work) so not treating as an exit. This is only accessible from the other way around.
@@ -2528,7 +2701,7 @@ namespace IsengardClient
             oKasnarTheGuard.Experience = 535;
             AddExit(oWell, oKasnarTheGuard, "pipe");
             AddExit(oKasnarTheGuard, oWell, "north");
-            SetVariablesForIndefiniteCasts(oKasnarTheGuard, true, 3);
+            SetVariablesForIndefiniteCasts(oKasnarTheGuard);
 
             AddExit(aqueduct, oKasnarTheGuard, "north");
             //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
@@ -2582,7 +2755,7 @@ namespace IsengardClient
             oMarkFrey.Experience = 450;
             AddExit(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
             AddExit(oMarkFrey, oPotionFactoryAdministrativeOffices, "out");
-            SetVariablesForIndefiniteCasts(oMarkFrey, true, 3);
+            SetVariablesForIndefiniteCasts(oMarkFrey);
 
             Room oMistyTrail5 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
@@ -2651,7 +2824,7 @@ namespace IsengardClient
             oPrinceBrunden.Alignment = AlignmentType.Blue;
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
-            SetVariablesForIndefiniteCasts(oPrinceBrunden, true, 3);
+            SetVariablesForIndefiniteCasts(oPrinceBrunden);
 
             Room oNaugrim = AddRoom("Naugrim");
             oNaugrim.Mob = "Naugrim";
@@ -2659,7 +2832,7 @@ namespace IsengardClient
             oNaugrim.Alignment = AlignmentType.Red;
             AddExit(oNorthShantyTown, oNaugrim, "cask");
             AddExit(oNaugrim, oNorthShantyTown, "out");
-            SetVariablesForIndefiniteCasts(oNaugrim, true, 3);
+            SetVariablesForIndefiniteCasts(oNaugrim);
 
             Room oHogoth = AddRoom("Hogoth");
             oHogoth.Mob = "Hogoth";
@@ -2667,7 +2840,7 @@ namespace IsengardClient
             oHogoth.Alignment = AlignmentType.Blue;
             AddExit(oShantyTownWest, oHogoth, "shack");
             AddExit(oHogoth, oShantyTownWest, "out");
-            SetVariablesForIndefiniteCasts(oHogoth, true, 3);
+            SetVariablesForIndefiniteCasts(oHogoth);
 
             Room oFaornil = AddRoom("Faornil");
             oFaornil.Mob = "Faornil";
@@ -2675,14 +2848,14 @@ namespace IsengardClient
             oFaornil.Alignment = AlignmentType.Red;
             AddExit(oShantyTown1, oFaornil, "tent");
             AddExit(oFaornil, oShantyTown1, "out");
-            SetVariablesForIndefiniteCasts(oFaornil, true, 3);
+            SetVariablesForIndefiniteCasts(oFaornil);
 
             Room oGraddy = AddRoom("Graddy");
             oGraddy.Mob = "Graddy";
             oGraddy.Experience = 350;
             AddExit(oShantyTown2, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2, "out");
-            SetVariablesForIndefiniteCasts(oGraddy, true, 3);
+            SetVariablesForIndefiniteCasts(oGraddy);
 
             Room oGraddyOgre = AddRoom("Graddy Ogre");
             oGraddyOgre.Mob = "Ogre";
@@ -3065,7 +3238,7 @@ namespace IsengardClient
         {
             foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
             {
-                if (ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                if (ot != ObjectType.Weapon && ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
@@ -3277,6 +3450,8 @@ namespace IsengardClient
             public Macro Macro { get; set; }
             public string QueuedCommand { get; set; }
             public string FinalCommand { get; set; }
+            public string FinalCommand2 { get; set; }
+            public int MaxOffensiveLevel { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3359,6 +3534,17 @@ namespace IsengardClient
 
         private void RunMacro(Macro m)
         {
+            if (chkPowerAttack.Checked)
+            {
+                if (string.IsNullOrEmpty(txtWeapon.Text))
+                {
+                    MessageBox.Show("No weapon specified.");
+                    return;
+                }
+                ((StringVariable)_variablesByName["attacktype"]).Value = "power";
+                chkPowerAttack.Checked = false;
+            }
+
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
             string errorMessage;
             foreach (MacroStepBase nextMacroStep in m.Steps)
@@ -3370,19 +3556,16 @@ namespace IsengardClient
                     return;
                 }
             }
-            string sFinalCommand = string.Empty;
-            if (!string.IsNullOrEmpty(m.FinalCommand))
-            {
-                sFinalCommand = TranslateCommand(m.FinalCommand, _variables, out errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    MessageBox.Show(errorMessage);
-                    return;
-                }
-            }
+            bool stop;
+            string sFinalCommand = GetFinalCommand(m.FinalCommand, m.FinalCommandConditionVariable, out stop);
+            if (stop) return;
+            string sFinalCommand2 = GetFinalCommand(m.FinalCommand2, m.FinalCommand2ConditionVariable, out stop);
+            if (stop) return;
             _currentBackgroundParameters = new BackgroundWorkerParameters();
             _currentBackgroundParameters.Macro = m;
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
+            _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
+            _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
                 _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
@@ -3391,11 +3574,39 @@ namespace IsengardClient
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
+        private string GetFinalCommand(string FinalCommand, Variable FinalCommandConditionVariable, out bool stop)
+        {
+            stop = false;
+            string sFinalCommand = string.Empty;
+            if (!string.IsNullOrEmpty(FinalCommand))
+            {
+                bool runFinalCommand = true;
+                if (FinalCommandConditionVariable != null)
+                {
+                    StringVariable cond = (StringVariable)_variablesByName[FinalCommandConditionVariable.Name];
+                    runFinalCommand = !string.IsNullOrEmpty(cond.Value);
+                }
+                if (runFinalCommand)
+                {
+                    string errorMessage;
+                    sFinalCommand = TranslateCommand(FinalCommand, _variables, out errorMessage);
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        MessageBox.Show(errorMessage);
+                        stop = true;
+                        return null;
+                    }
+                }
+            }
+            return sFinalCommand;
+        }
+
         private MacroStepBase TranslateStep(MacroStepBase input, out string errorMessage)
         {
             MacroStepBase ret = null;
             errorMessage = string.Empty;
             bool isSameStep = false;
+            string translatedCommand;
             if (input is MacroStepSequence)
             {
                 MacroStepSequence sourceSequence = (MacroStepSequence)input;
@@ -3410,9 +3621,25 @@ namespace IsengardClient
             else if (input is MacroCommand)
             {
                 string rawCommand = ((MacroCommand)input).Command;
-                string translatedCommand = TranslateCommand(rawCommand, _variables, out errorMessage);
+                translatedCommand = TranslateCommand(rawCommand, _variables, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
                 ret = new MacroCommand(rawCommand, translatedCommand);
+            }
+            else if (input is MacroManaSpellStun)
+            {
+                TranslateCommand("cast stun {mob}", _variables, out errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage)) return null;
+                ret = input;
+                isSameStep = true;
+            }
+            else if (input is MacroManaSpellOffensive)
+            {
+                //the spell isn't known at this point, but it doesn't matter since all we need to 
+                //do here is verify the mob variable is present.
+                TranslateCommand("cast rumble {mob}", _variables, out errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage)) return null;
+                ret = input;
+                isSameStep = true;
             }
             else if (input is MacroStepSetNextCommandWaitMS || input is MacroStepSetVariable)
             {
@@ -3449,6 +3676,9 @@ namespace IsengardClient
             public bool SetParentLocation { get; set; }
             public CommandType CombatCommandTypes { get; set; }
             public string FinalCommand { get; set; }
+            public Variable FinalCommandConditionVariable { get; set; }
+            public string FinalCommand2 { get; set; }
+            public Variable FinalCommand2ConditionVariable { get; set; }
         }
 
         public class MacroStepBase
@@ -3472,6 +3702,17 @@ namespace IsengardClient
             /// variable controlling whether the step executes
             /// </summary>
             public Variable ConditionVariable { get; set; }
+
+            public void CopyFrom(MacroStepBase source)
+            {
+                this.WaitMS = source.WaitMS;
+                this.WaitMSVariable = source.WaitMSVariable;
+                this.Loop = source.Loop;
+                this.LoopCount = source.LoopCount;
+                this.LoopVariable = source.LoopVariable;
+                this.SkipRounds = source.SkipRounds;
+                this.ConditionVariable = source.ConditionVariable;
+            }
         }
 
         private class MacroStepSequence : MacroStepBase
@@ -3487,11 +3728,31 @@ namespace IsengardClient
         {
             public string RawCommand { get; set; }
             public string Command { get; set; }
+            public ManaDrainType ManaDrain { get; set; }
             public MacroCommand(string RawCommand, string Command)
             {
                 this.RawCommand = RawCommand;
                 this.Command = Command;
             }
+        }
+
+        private enum ManaDrainType
+        {
+            None = 0,
+            Stun = 1,
+            Offensive = 2,
+        }
+
+        private class MacroManaSpellCommand : MacroStepBase
+        {
+        }
+
+        private class MacroManaSpellStun : MacroManaSpellCommand
+        {
+        }
+
+        private class MacroManaSpellOffensive : MacroManaSpellCommand
+        {
         }
 
         private class MacroStepSetNextCommandWaitMS : MacroStepBase
@@ -3543,6 +3804,44 @@ namespace IsengardClient
         private void cboCelduinExpress_SelectedIndexChanged(object sender, EventArgs e)
         {
             SetCelduinExpressEdges();
+        }
+
+        private void btnPlusXMana_Click(object sender, EventArgs e)
+        {
+            lock (_manaLock)
+            {
+                _currentMana += _manaTick;
+            }
+        }
+
+        private void btnFullMana_Click(object sender, EventArgs e)
+        {
+            lock (_manaLock)
+            {
+                _currentMana = _totalMana;
+            }
+        }
+
+        private void tmr_Tick(object sender, EventArgs e)
+        {
+            txtMana.Text = _currentMana.ToString();
+        }
+
+        private void btnManaSet_Click(object sender, EventArgs e)
+        {
+            string sNewMana = Interaction.InputBox("New mana:", "New Mana");
+            if (int.TryParse(sNewMana, out int iNewMana))
+            {
+                lock (_manaLock)
+                {
+                    _currentMana = iNewMana;
+                }
+            }
+        }
+
+        private void txtWeapon_TextChanged(object sender, EventArgs e)
+        {
+            ((StringVariable)_variablesByName["weapon"]).Value = txtWeapon.Text;
         }
     }
 }
