@@ -101,6 +101,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnManaMinus1 = new System.Windows.Forms.Button();
             this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
             this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
             this.chkPowerAttack = new System.Windows.Forms.CheckBox();
@@ -128,7 +129,8 @@
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.btnManaMinus1 = new System.Windows.Forms.Button();
+            this.ctxGoSingleDirection = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSilentMove = new System.Windows.Forms.ToolStripMenuItem();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -137,6 +139,7 @@
             this.pnlMain.SuspendLayout();
             this.tabAncillary.SuspendLayout();
             this.pnlAncillary.SuspendLayout();
+            this.ctxGoSingleDirection.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -345,7 +348,7 @@
             this.chkIsNight.Location = new System.Drawing.Point(749, 300);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkIsNight.Name = "chkIsNight";
-            this.chkIsNight.Size = new System.Drawing.Size(74, 20);
+            this.chkIsNight.Size = new System.Drawing.Size(77, 20);
             this.chkIsNight.TabIndex = 28;
             this.chkIsNight.Text = "Is night?";
             this.chkIsNight.UseVisualStyleBackColor = true;
@@ -538,7 +541,7 @@
             this.chkSetOn.Location = new System.Drawing.Point(267, 21);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(50, 20);
+            this.chkSetOn.Size = new System.Drawing.Size(53, 20);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -656,7 +659,7 @@
             this.radFire.Location = new System.Drawing.Point(231, 23);
             this.radFire.Margin = new System.Windows.Forms.Padding(4);
             this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(48, 20);
+            this.radFire.Size = new System.Drawing.Size(51, 20);
             this.radFire.TabIndex = 3;
             this.radFire.TabStop = true;
             this.radFire.Text = "Fire";
@@ -668,7 +671,7 @@
             this.radWater.Location = new System.Drawing.Point(151, 23);
             this.radWater.Margin = new System.Windows.Forms.Padding(4);
             this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(61, 20);
+            this.radWater.Size = new System.Drawing.Size(64, 20);
             this.radWater.TabIndex = 2;
             this.radWater.TabStop = true;
             this.radWater.Text = "Water";
@@ -681,7 +684,7 @@
             this.radWind.Location = new System.Drawing.Point(83, 23);
             this.radWind.Margin = new System.Windows.Forms.Padding(4);
             this.radWind.Name = "radWind";
-            this.radWind.Size = new System.Drawing.Size(56, 20);
+            this.radWind.Size = new System.Drawing.Size(59, 20);
             this.radWind.TabIndex = 1;
             this.radWind.TabStop = true;
             this.radWind.Text = "Wind";
@@ -693,7 +696,7 @@
             this.radEarth.Location = new System.Drawing.Point(8, 23);
             this.radEarth.Margin = new System.Windows.Forms.Padding(4);
             this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(56, 20);
+            this.radEarth.Size = new System.Drawing.Size(59, 20);
             this.radEarth.TabIndex = 0;
             this.radEarth.TabStop = true;
             this.radEarth.Text = "Earth";
@@ -794,6 +797,7 @@
             // 
             // btnNortheast
             // 
+            this.btnNortheast.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnNortheast.Location = new System.Drawing.Point(753, 338);
             this.btnNortheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNortheast.Name = "btnNortheast";
@@ -806,6 +810,7 @@
             // 
             // btnNorth
             // 
+            this.btnNorth.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnNorth.Location = new System.Drawing.Point(701, 338);
             this.btnNorth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorth.Name = "btnNorth";
@@ -818,6 +823,7 @@
             // 
             // btnNorthwest
             // 
+            this.btnNorthwest.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnNorthwest.Location = new System.Drawing.Point(651, 338);
             this.btnNorthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorthwest.Name = "btnNorthwest";
@@ -830,6 +836,7 @@
             // 
             // btnWest
             // 
+            this.btnWest.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnWest.Location = new System.Drawing.Point(651, 370);
             this.btnWest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWest.Name = "btnWest";
@@ -842,6 +849,7 @@
             // 
             // btnEast
             // 
+            this.btnEast.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnEast.Location = new System.Drawing.Point(753, 370);
             this.btnEast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEast.Name = "btnEast";
@@ -854,6 +862,7 @@
             // 
             // btnSouthwest
             // 
+            this.btnSouthwest.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnSouthwest.Location = new System.Drawing.Point(651, 404);
             this.btnSouthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouthwest.Name = "btnSouthwest";
@@ -866,6 +875,7 @@
             // 
             // btnSouth
             // 
+            this.btnSouth.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnSouth.Location = new System.Drawing.Point(701, 404);
             this.btnSouth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouth.Name = "btnSouth";
@@ -878,6 +888,7 @@
             // 
             // btnSoutheast
             // 
+            this.btnSoutheast.ContextMenuStrip = this.ctxGoSingleDirection;
             this.btnSoutheast.Location = new System.Drawing.Point(753, 404);
             this.btnSoutheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSoutheast.Name = "btnSoutheast";
@@ -1002,6 +1013,16 @@
             this.pnlMain.Size = new System.Drawing.Size(1319, 691);
             this.pnlMain.TabIndex = 0;
             // 
+            // btnManaMinus1
+            // 
+            this.btnManaMinus1.Location = new System.Drawing.Point(639, 88);
+            this.btnManaMinus1.Name = "btnManaMinus1";
+            this.btnManaMinus1.Size = new System.Drawing.Size(37, 29);
+            this.btnManaMinus1.TabIndex = 100;
+            this.btnManaMinus1.Text = "-1";
+            this.btnManaMinus1.UseVisualStyleBackColor = true;
+            this.btnManaMinus1.Click += new System.EventHandler(this.btnManaMinus1_Click);
+            // 
             // cboMaxOffLevel
             // 
             this.cboMaxOffLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1029,7 +1050,7 @@
             this.chkPowerAttack.AutoSize = true;
             this.chkPowerAttack.Location = new System.Drawing.Point(473, 435);
             this.chkPowerAttack.Name = "chkPowerAttack";
-            this.chkPowerAttack.Size = new System.Drawing.Size(111, 20);
+            this.chkPowerAttack.Size = new System.Drawing.Size(114, 20);
             this.chkPowerAttack.TabIndex = 97;
             this.chkPowerAttack.Text = "Power Attack?";
             this.chkPowerAttack.UseVisualStyleBackColor = true;
@@ -1287,15 +1308,20 @@
             this.tmr.Interval = 20;
             this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // btnManaMinus1
+            // ctxGoSingleDirection
             // 
-            this.btnManaMinus1.Location = new System.Drawing.Point(639, 88);
-            this.btnManaMinus1.Name = "btnManaMinus1";
-            this.btnManaMinus1.Size = new System.Drawing.Size(37, 29);
-            this.btnManaMinus1.TabIndex = 100;
-            this.btnManaMinus1.Text = "-1";
-            this.btnManaMinus1.UseVisualStyleBackColor = true;
-            this.btnManaMinus1.Click += new System.EventHandler(this.btnManaMinus1_Click);
+            this.ctxGoSingleDirection.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxGoSingleDirection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSilentMove});
+            this.ctxGoSingleDirection.Name = "ctxGoSingleDirection";
+            this.ctxGoSingleDirection.Size = new System.Drawing.Size(211, 56);
+            this.ctxGoSingleDirection.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxGoSingleDirection_ItemClicked);
+            // 
+            // tsmiSilentMove
+            // 
+            this.tsmiSilentMove.Name = "tsmiSilentMove";
+            this.tsmiSilentMove.Size = new System.Drawing.Size(156, 24);
+            this.tsmiSilentMove.Text = "Silent Move";
             // 
             // frmMain
             // 
@@ -1317,6 +1343,7 @@
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
             this.pnlAncillary.PerformLayout();
+            this.ctxGoSingleDirection.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1423,6 +1450,8 @@
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
         private System.Windows.Forms.Button btnManaMinus1;
+        private System.Windows.Forms.ContextMenuStrip ctxGoSingleDirection;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSilentMove;
     }
 }
 
