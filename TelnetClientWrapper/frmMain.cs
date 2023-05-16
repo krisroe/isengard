@@ -4,29 +4,31 @@ using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
 namespace IsengardClient
 {
-    public partial class frmMain : Form
+    internal partial class frmMain : Form
     {
-        private const int WM_SYSKEYDOWN = 0x0104;
-        private const int VK_RETURN = 0x0D;
+        private TcpClient _tcpClient;
+        private NetworkStream _tcpClientNetworkStream;
 
         /// <summary>
         /// preferred alignment type for the player. Choose mobs that will push the player in this direction.
         /// </summary>
         private AlignmentType _preferredAlignment;
 
+        private byte[] _NEW_LINE = new byte[] { 13, 10 };
+        private string _username;
+        private string _password;
+        private bool _enteredUserName;
+        private bool _enteredPassword;
         private int _level;
         private int _totalMana;
-        private int _manaTick;
-        private int _currentMana;
-        private Dictionary<char, int> _keyMapping;
+        private static int? _autoMana;
+        private static int? _autoHitpoints;
+        private int? _currentMana;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
         private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
@@ -37,7 +39,7 @@ namespace IsengardClient
         private Dictionary<string, Area> _areasByName;
         private List<Variable> _variables;
         private Dictionary<string, Variable> _variablesByName;
-        
+
         private List<Exit> _nightEdges = new List<Exit>();
         private List<Exit> _celduinExpressEdges = new List<Exit>();
 
@@ -48,7 +50,6 @@ namespace IsengardClient
         private Room _breeDocks = null;
         private Room _boatswain = null;
         private object _queuedCommandLock = new object();
-        private object _manaLock = new object();
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
@@ -70,9 +71,61 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
-        public frmMain()
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros)
         {
             InitializeComponent();
+
+            _variables = variables;
+            _variablesByName = variablesByName;
+
+            if (!string.IsNullOrEmpty(defaultRealm))
+            {
+                switch (defaultRealm)
+                {
+                    case "earth":
+                        radEarth.Checked = true;
+                        break;
+                    case "fire":
+                        radFire.Checked = true;
+                        break;
+                    case "water":
+                        radWater.Checked = true;
+                        break;
+                    case "wind":
+                        radWind.Checked = true;
+                        break;
+                }
+            }
+
+            _level = level;
+            txtLevel.Text = _level.ToString();
+
+            _preferredAlignment = preferredAlignment;
+            txtPreferredAlignment.Text = _preferredAlignment.ToString();
+
+            _username = userName;
+            _password = password;
+
+            cboMacros.Items.Add(string.Empty);
+            int iOneClickTabIndex = 0;
+            foreach (Macro oMacro in allMacros)
+            {
+                if (oMacro.OneClick)
+                {
+                    Button btnOneClick = new Button();
+                    btnOneClick.AutoSize = true;
+                    btnOneClick.TabIndex = iOneClickTabIndex++;
+                    btnOneClick.Tag = oMacro;
+                    btnOneClick.Text = oMacro.Name;
+                    btnOneClick.UseVisualStyleBackColor = true;
+                    btnOneClick.Click += btnOneClick_Click;
+                    flpOneClickMacros.Controls.Add(btnOneClick);
+                }
+                else
+                {
+                    cboMacros.Items.Add(oMacro);
+                }
+            }
 
             _areas = new List<Area>();
             _areasByName = new Dictionary<string, Area>();
@@ -92,75 +145,90 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            //virtual key code mapping
-            _keyMapping = new Dictionary<char, int>();
-            _keyMapping[' '] = 0x20;
-            _keyMapping['0'] = 0x30;
-            _keyMapping['1'] = 0x31;
-            _keyMapping['2'] = 0x32;
-            _keyMapping['3'] = 0x33;
-            _keyMapping['4'] = 0x34;
-            _keyMapping['5'] = 0x35;
-            _keyMapping['6'] = 0x36;
-            _keyMapping['7'] = 0x37;
-            _keyMapping['8'] = 0x38;
-            _keyMapping['9'] = 0x39;
-            _keyMapping['A'] = 0x41;
-            _keyMapping['a'] = 0x41;
-            _keyMapping['B'] = 0x42;
-            _keyMapping['b'] = 0x42;
-            _keyMapping['C'] = 0x43;
-            _keyMapping['c'] = 0x43;
-            _keyMapping['D'] = 0x44;
-            _keyMapping['d'] = 0x44;
-            _keyMapping['E'] = 0x45;
-            _keyMapping['e'] = 0x45;
-            _keyMapping['F'] = 0x46;
-            _keyMapping['f'] = 0x46;
-            _keyMapping['G'] = 0x47;
-            _keyMapping['g'] = 0x47;
-            _keyMapping['H'] = 0x48;
-            _keyMapping['h'] = 0x48;
-            _keyMapping['I'] = 0x49;
-            _keyMapping['i'] = 0x49;
-            _keyMapping['J'] = 0x4A;
-            _keyMapping['j'] = 0x4A;
-            _keyMapping['K'] = 0x4B;
-            _keyMapping['k'] = 0x4B;
-            _keyMapping['L'] = 0x4C;
-            _keyMapping['l'] = 0x4C;
-            _keyMapping['M'] = 0x4D;
-            _keyMapping['m'] = 0x4D;
-            _keyMapping['N'] = 0x4E;
-            _keyMapping['n'] = 0x4E;
-            _keyMapping['O'] = 0x4F;
-            _keyMapping['o'] = 0x4F;
-            _keyMapping['P'] = 0x50;
-            _keyMapping['p'] = 0x50;
-            _keyMapping['Q'] = 0x51;
-            _keyMapping['q'] = 0x51;
-            _keyMapping['R'] = 0x52;
-            _keyMapping['r'] = 0x52;
-            _keyMapping['S'] = 0x53;
-            _keyMapping['s'] = 0x53;
-            _keyMapping['T'] = 0x54;
-            _keyMapping['t'] = 0x54;
-            _keyMapping['U'] = 0x55;
-            _keyMapping['u'] = 0x55;
-            _keyMapping['V'] = 0x56;
-            _keyMapping['v'] = 0x56;
-            _keyMapping['W'] = 0x57;
-            _keyMapping['w'] = 0x57;
-            _keyMapping['X'] = 0x58;
-            _keyMapping['x'] = 0x58;
-            _keyMapping['Y'] = 0x59;
-            _keyMapping['y'] = 0x59;
-            _keyMapping['Z'] = 0x5A;
-            _keyMapping['z'] = 0x5A;
-            _keyMapping['-'] = 0x6D;
+            AddAsciiMapping(' ', 32);
+            AddAsciiMapping('!', 33);
+            AddAsciiMapping('"', 34);
+            AddAsciiMapping('#', 35);
+            AddAsciiMapping('%', 37);
+            AddAsciiMapping('\'', 39);
+            AddAsciiMapping('(', 40);
+            AddAsciiMapping(')', 41);
+            AddAsciiMapping('+', 43);
+            AddAsciiMapping(',', 44);
+            AddAsciiMapping('-', 45);
+            AddAsciiMapping('.', 46);
+            AddAsciiMapping('/', 47);
+            AddAsciiMapping('0', 48);
+            AddAsciiMapping('1', 49);
+            AddAsciiMapping('2', 50);
+            AddAsciiMapping('3', 51);
+            AddAsciiMapping('4', 52);
+            AddAsciiMapping('5', 53);
+            AddAsciiMapping('6', 54);
+            AddAsciiMapping('7', 55);
+            AddAsciiMapping('8', 56);
+            AddAsciiMapping('9', 57);
+            AddAsciiMapping(':', 58);
+            AddAsciiMapping('@', 64);
+            AddAsciiMapping('A', 65);
+            AddAsciiMapping('B', 66);
+            AddAsciiMapping('C', 67);
+            AddAsciiMapping('D', 68);
+            AddAsciiMapping('E', 69);
+            AddAsciiMapping('F', 70);
+            AddAsciiMapping('G', 71);
+            AddAsciiMapping('H', 72);
+            AddAsciiMapping('I', 73);
+            AddAsciiMapping('J', 74);
+            AddAsciiMapping('K', 75);
+            AddAsciiMapping('L', 76);
+            AddAsciiMapping('M', 77);
+            AddAsciiMapping('N', 78);
+            AddAsciiMapping('O', 79);
+            AddAsciiMapping('P', 80);
+            AddAsciiMapping('Q', 81);
+            AddAsciiMapping('R', 82);
+            AddAsciiMapping('S', 83);
+            AddAsciiMapping('T', 84);
+            AddAsciiMapping('U', 85);
+            AddAsciiMapping('V', 86);
+            AddAsciiMapping('W', 87);
+            AddAsciiMapping('X', 88);
+            AddAsciiMapping('Y', 89);
+            AddAsciiMapping('Z', 90);
+            AddAsciiMapping('[', 91);
+            AddAsciiMapping(']', 93);
+            AddAsciiMapping('_', 95);
+            AddAsciiMapping('`', 96);
+            AddAsciiMapping('a', 97);
+            AddAsciiMapping('b', 98);
+            AddAsciiMapping('c', 99);
+            AddAsciiMapping('d', 100);
+            AddAsciiMapping('e', 101);
+            AddAsciiMapping('f', 102);
+            AddAsciiMapping('g', 103);
+            AddAsciiMapping('h', 104);
+            AddAsciiMapping('i', 105);
+            AddAsciiMapping('j', 106);
+            AddAsciiMapping('k', 107);
+            AddAsciiMapping('l', 108);
+            AddAsciiMapping('m', 109);
+            AddAsciiMapping('n', 110);
+            AddAsciiMapping('o', 111);
+            AddAsciiMapping('p', 112);
+            AddAsciiMapping('q', 113);
+            AddAsciiMapping('r', 114);
+            AddAsciiMapping('s', 115);
+            AddAsciiMapping('t', 116);
+            AddAsciiMapping('u', 117);
+            AddAsciiMapping('v', 118);
+            AddAsciiMapping('w', 119);
+            AddAsciiMapping('x', 120);
+            AddAsciiMapping('y', 121);
+            AddAsciiMapping('z', 122);
+            AddAsciiMapping('|', 124);
 
             SetButtonTags();
-            LoadConfiguration();
             InitializeMap();
             SetNightEdges(false);
             PopulateTree();
@@ -168,6 +236,612 @@ namespace IsengardClient
             cboSetOption.SelectedIndex = 0;
             cboCelduinExpress.SelectedIndex = 0;
             cboMaxOffLevel.SelectedIndex = 0;
+
+            _tcpClient = new TcpClient("isengard.nazgul.com", 4040);
+            _tcpClientNetworkStream = _tcpClient.GetStream();
+            BackgroundWorker _bwNetwork = new BackgroundWorker();
+            _bwNetwork.DoWork += _bwNetwork_DoWork;
+            _bwNetwork.RunWorkerAsync();
+        }
+
+        private void AddAsciiMapping(char c, int i)
+        {
+            _asciiMapping[c] = i;
+            _asciiReverseMapping[i] = c;
+        }
+
+        private interface ISequence
+        {
+            void FeedByte(int nextByte);
+            bool IsSatisfied { get; }
+        }
+
+        private class HPMPSequence : ISequence
+        {
+            private List<int> HPNumbers = new List<int>();
+            private List<int> MPNumbers = new List<int>();
+            private HPMPStep CurrentStep = HPMPStep.None;
+
+            private enum HPMPStep
+            {
+                None,
+                LeftParen,
+                AfterHPNumberSpace,
+                H,
+                BeforeMPNumberSpace,
+                AfterMPNumberSpace,
+                M,
+                RightParen,
+                Colon,
+            }
+
+            public bool IsSatisfied
+            {
+                get;
+                private set;
+            }
+
+            public void FeedByte(int nextByte)
+            {
+                if (IsSatisfied)
+                {
+                    IsSatisfied = false;
+                    CurrentStep = HPMPStep.None;
+                }
+                switch (CurrentStep)
+                {
+                    case HPMPStep.None:
+                        if (nextByte == _asciiMapping['('])
+                            CurrentStep = HPMPStep.LeftParen;
+                        break;
+                    case HPMPStep.LeftParen:
+                        if (nextByte == _asciiMapping[' '])
+                        {
+                            if (HPNumbers.Count == 0)
+                                CurrentStep = HPMPStep.None;
+                            else
+                                CurrentStep = HPMPStep.AfterHPNumberSpace;
+                        }
+                        else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                        {
+                            HPNumbers.Add(nextByte - _asciiMapping['0']);
+                        }
+                        else
+                        {
+                            CurrentStep = HPMPStep.None;
+                        }
+                        break;
+                    case HPMPStep.AfterHPNumberSpace:
+                        if (nextByte == _asciiMapping['H'])
+                            CurrentStep = HPMPStep.H;
+                        else
+                            CurrentStep = HPMPStep.None;
+                        break;
+                    case HPMPStep.H:
+                        if (nextByte == _asciiMapping[' '])
+                            CurrentStep = HPMPStep.BeforeMPNumberSpace;
+                        else
+                            CurrentStep = HPMPStep.None;
+                        break;
+                    case HPMPStep.BeforeMPNumberSpace:
+                        if (nextByte == _asciiMapping[' '])
+                        {
+                            if (MPNumbers.Count == 0)
+                                CurrentStep = HPMPStep.None;
+                            else
+                                CurrentStep = HPMPStep.AfterMPNumberSpace;
+                        }
+                        else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                        {
+                            MPNumbers.Add(nextByte - _asciiMapping['0']);
+                        }
+                        else
+                        {
+                            CurrentStep = HPMPStep.None;
+                        }
+                        break;
+                    case HPMPStep.AfterMPNumberSpace:
+                        if (nextByte == _asciiMapping['M'])
+                            CurrentStep = HPMPStep.M;
+                        else
+                            CurrentStep = HPMPStep.None;
+                        break;
+                    case HPMPStep.M:
+                        if (nextByte == _asciiMapping[')'])
+                            CurrentStep = HPMPStep.RightParen;
+                        else
+                            CurrentStep = HPMPStep.None;
+                        break;
+                    case HPMPStep.RightParen:
+                        if (nextByte == _asciiMapping[':'])
+                            CurrentStep = HPMPStep.Colon;
+                        else
+                            CurrentStep = HPMPStep.None;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                if (CurrentStep == HPMPStep.None)
+                {
+                    HPNumbers.Clear();
+                    MPNumbers.Clear();
+                }
+                else if (CurrentStep == HPMPStep.Colon)
+                {
+                    IsSatisfied = true;
+                    int hp = 0;
+                    for (int i = 0; i < HPNumbers.Count; i++)
+                    {
+                        hp = (hp * 10) + HPNumbers[i];
+                    }
+                    _autoHitpoints = hp;
+                    int mp = 0;
+                    for (int i = 0; i < MPNumbers.Count; i++)
+                    {
+                        mp = (mp * 10) + MPNumbers[i];
+                    }
+                    _autoHitpoints = hp;
+                    _autoMana = mp;
+                }
+            }
+        }
+
+        private class ConstantSequence : ISequence
+        {
+            private int _currentMatchPoint = -1;
+            private List<int> _chars;
+            public ConstantSequence(string characters)
+            {
+                _chars = new List<int>(characters.Length);
+                foreach (char c in characters)
+                {
+                    _chars.Add(_asciiMapping[c]);
+                }
+            }
+
+            public bool IsSatisfied
+            {
+                get;
+                private set;
+            }
+
+            public void FeedByte(int nextByte)
+            {
+                if (IsSatisfied)
+                {
+                    IsSatisfied = false;
+                    _currentMatchPoint = -1;
+                }
+                if (_chars[_currentMatchPoint + 1] == nextByte)
+                {
+                    _currentMatchPoint++;
+                    IsSatisfied = _currentMatchPoint == _chars.Count - 1;
+                }
+                else
+                {
+                    _currentMatchPoint = -1;
+                    IsSatisfied = false;
+                }
+            }
+        }
+
+        private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
+        {
+            ConstantSequence userNamePrompt = new ConstantSequence("Please enter name: ");
+            ConstantSequence passwordPrompt = new ConstantSequence("Please enter password: ");
+            List<ISequence> sequences = new List<ISequence>()
+            {
+                userNamePrompt,
+                passwordPrompt,
+                new HPMPSequence(),
+            };
+
+            while (true)
+            {
+                int nextByte = _tcpClientNetworkStream.ReadByte();
+                if (nextByte == -1) //closed connection
+                {
+                    return;
+                }
+                else
+                {
+                    foreach (ISequence nextSequence in sequences)
+                    {
+                        nextSequence.FeedByte(nextByte);
+                    }
+                    ProcessInputCharacter(nextByte);
+
+                    if (!_enteredUserName && userNamePrompt.IsSatisfied)
+                    {
+                        foreach (char c in _username)
+                        {
+                            _tcpClientNetworkStream.WriteByte((byte)_asciiMapping[c]);
+                            Console.Out.Write(c);
+                        }
+                        WriteNewLine();
+                        Console.Out.WriteLine();
+                        _enteredUserName = true;
+                    }
+                    if (_enteredUserName && !_enteredPassword && passwordPrompt.IsSatisfied)
+                    {
+                        foreach (char c in _password)
+                        {
+                            _tcpClientNetworkStream.WriteByte((byte)_asciiMapping[c]);
+                            Console.Out.Write("*");
+                        }
+                        WriteNewLine();
+                        Console.Out.WriteLine();
+                        _enteredPassword = true;
+                    }
+                }
+            }
+        }
+
+        private List<int> _queue = new List<int>();
+
+        private static Dictionary<int, char> _asciiReverseMapping = new Dictionary<int, char>();
+        private static Dictionary<char, int> _asciiMapping = new Dictionary<char, int>();
+
+        private void ProcessInputCharacter(int nextByte)
+        {
+            if (nextByte == 13) //carriage return
+            {
+                if (_queue.Count == 1 && _queue[0] == 10)
+                {
+                    Console.Out.WriteLine();
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+            else if (nextByte == 10) //line feed
+            {
+                _queue.Clear();
+                _queue.Add(10);
+            }
+            else if (nextByte == 27) //escape
+            {
+                _queue.Clear();
+                _queue.Add(27);
+            }
+            else if (_queue.Count > 0 && _queue[0] == 27)
+            {
+                if (nextByte == 109) //ends the escape sequence
+                {
+                    ConsoleColor? cc;
+                    if (_queue[1] == 91 && _queue[2] == 51)
+                    {
+                        switch (_queue[3])
+                        {
+                            case 48:
+                                cc = ConsoleColor.Black; //30
+                                break;
+                            case 49:
+                                cc = ConsoleColor.Red; //31
+                                break;
+                            case 50:
+                                cc = ConsoleColor.Green; //32
+                                break;
+                            case 51:
+                                cc = ConsoleColor.Yellow; //33
+                                break;
+                            case 52:
+                                cc = ConsoleColor.Blue; //34
+                                break;
+                            case 53:
+                                cc = ConsoleColor.Magenta; //35
+                                break;
+                            case 54:
+                                cc = ConsoleColor.Cyan; //36
+                                break;
+                            case 55:
+                                cc = ConsoleColor.White; //37
+                                break;
+                            default:
+                                throw new InvalidOperationException();
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    if (cc.HasValue)
+                    {
+                        Console.ForegroundColor = cc.Value;
+                    }
+                    _queue.Clear();
+                }
+                else
+                {
+                    _queue.Add(nextByte);
+                }
+            }
+            else
+            {
+                char c = '?';
+                bool isUnknown = false;
+                switch (nextByte)
+                {
+                    case 0:
+                        isUnknown = true;
+                        break;
+                    case 1:
+                        isUnknown = true;
+                        break;
+                    case 32:
+                        c = ' ';
+                        break;
+                    case 33:
+                        c = '!';
+                        break;
+                    case 34:
+                        c = '"';
+                        break;
+                    case 35:
+                        c = '#';
+                        break;
+                    case 37:
+                        c = '%';
+                        break;
+                    case 39:
+                        c = '\'';
+                        break;
+                    case 40:
+                        c = '(';
+                        break;
+                    case 41:
+                        c = ')';
+                        break;
+                    case 43:
+                        c = '+';
+                        break;
+                    case 44:
+                        c = ',';
+                        break;
+                    case 45:
+                        c = '-';
+                        break;
+                    case 46:
+                        c = '.';
+                        break;
+                    case 47:
+                        c = '/';
+                        break;
+                    case 48:
+                        c = '0';
+                        break;
+                    case 49:
+                        c = '1';
+                        break;
+                    case 50:
+                        c = '2';
+                        break;
+                    case 51:
+                        c = '3';
+                        break;
+                    case 52:
+                        c = '4';
+                        break;
+                    case 53:
+                        c = '5';
+                        break;
+                    case 54:
+                        c = '6';
+                        break;
+                    case 55:
+                        c = '7';
+                        break;
+                    case 56:
+                        c = '8';
+                        break;
+                    case 57:
+                        c = '9';
+                        break;
+                    case 58:
+                        c = ':';
+                        break;
+                    case 64:
+                        c = '@';
+                        break;
+                    case 65:
+                        c = 'A';
+                        break;
+                    case 66:
+                        c = 'B';
+                        break;
+                    case 67:
+                        c = 'C';
+                        break;
+                    case 68:
+                        c = 'D';
+                        break;
+                    case 69:
+                        c = 'E';
+                        break;
+                    case 70:
+                        c = 'F';
+                        break;
+                    case 71:
+                        c = 'G';
+                        break;
+                    case 72:
+                        c = 'H';
+                        break;
+                    case 73:
+                        c = 'I';
+                        break;
+                    case 74:
+                        c = 'J';
+                        break;
+                    case 75:
+                        c = 'K';
+                        break;
+                    case 76:
+                        c = 'L';
+                        break;
+                    case 77:
+                        c = 'M';
+                        break;
+                    case 78:
+                        c = 'N';
+                        break;
+                    case 79:
+                        c = 'O';
+                        break;
+                    case 80:
+                        c = 'P';
+                        break;
+                    case 81:
+                        c = 'Q';
+                        break;
+                    case 82:
+                        c = 'R';
+                        break;
+                    case 83:
+                        c = 'S';
+                        break;
+                    case 84:
+                        c = 'T';
+                        break;
+                    case 85:
+                        c = 'U';
+                        break;
+                    case 86:
+                        c = 'V';
+                        break;
+                    case 87:
+                        c = 'W';
+                        break;
+                    case 88:
+                        c = 'X';
+                        break;
+                    case 89:
+                        c = 'Y';
+                        break;
+                    case 90:
+                        c = 'Z';
+                        break;
+                    case 91:
+                        c = '[';
+                        break;
+                    case 93:
+                        c = ']';
+                        break;
+                    case 95:
+                        c = '_';
+                        break;
+                    case 96:
+                        c = '`';
+                        break;
+                    case 97:
+                        c = 'a';
+                        break;
+                    case 98:
+                        c = 'b';
+                        break;
+                    case 99:
+                        c = 'c';
+                        break;
+                    case 100:
+                        c = 'd';
+                        break;
+                    case 101:
+                        c = 'e';
+                        break;
+                    case 102:
+                        c = 'f';
+                        break;
+                    case 103:
+                        c = 'g';
+                        break;
+                    case 104:
+                        c = 'h';
+                        break;
+                    case 105:
+                        c = 'i';
+                        break;
+                    case 106:
+                        c = 'j';
+                        break;
+                    case 107:
+                        c = 'k';
+                        break;
+                    case 108:
+                        c = 'l';
+                        break;
+                    case 109:
+                        c = 'm';
+                        break;
+                    case 110:
+                        c = 'n';
+                        break;
+                    case 111:
+                        c = 'o';
+                        break;
+                    case 112:
+                        c = 'p';
+                        break;
+                    case 113:
+                        c = 'q';
+                        break;
+                    case 114:
+                        c = 'r';
+                        break;
+                    case 115:
+                        c = 's';
+                        break;
+                    case 116:
+                        c = 't';
+                        break;
+                    case 117:
+                        c = 'u';
+                        break;
+                    case 118:
+                        c = 'v';
+                        break;
+                    case 119:
+                        c = 'w';
+                        break;
+                    case 120:
+                        c = 'x';
+                        break;
+                    case 121:
+                        c = 'y';
+                        break;
+                    case 122:
+                        c = 'z';
+                        break;
+                    case 124:
+                        c = '|';
+                        break;
+                    case 170:
+                        isUnknown = true;
+                        break;
+                    case 173:
+                        isUnknown = true;
+                        break;
+                    case 251:
+                        isUnknown = true;
+                        break;
+                    case 252:
+                        isUnknown = true;
+                        break;
+                    case 255:
+                        isUnknown = true;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                if (isUnknown)
+                {
+                    Console.Out.Write("<" + nextByte + ">");
+                }
+                else
+                {
+                    Console.Out.Write(c);
+                }
+            }
         }
 
         private void SetButtonTags()
@@ -268,707 +942,6 @@ namespace IsengardClient
             }
         }
 
-        private void LoadConfiguration()
-        {
-            cboMacros.Items.Add(string.Empty);
-            _variables = new List<Variable>();
-            _variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
-
-            string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
-            FileInfo fi = new FileInfo(configurationFile);
-            if (!fi.Exists)
-            {
-                MessageBox.Show("Configuration.xml does not exist!");
-                return;
-            }
-            XmlDocument doc = new XmlDocument();
-            try
-            {
-                doc.Load(configurationFile);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to load Configuration.xml: " + ex.ToString());
-                return;
-            }
-
-            List<string> errorMessages = new List<string>();
-
-            string sDefaultRealm = doc.DocumentElement.GetAttribute("defaultrealm");
-            if (!string.IsNullOrEmpty(sDefaultRealm))
-            {
-                switch (sDefaultRealm.ToLower())
-                {
-                    case "earth":
-                        radEarth.Checked = true;
-                        break;
-                    case "fire":
-                        radFire.Checked = true;
-                        break;
-                    case "water":
-                        radWater.Checked = true;
-                        break;
-                    case "wind":
-                        radWind.Checked = true;
-                        break;
-                    default:
-                        MessageBox.Show("Invalid default realm: " + sDefaultRealm);
-                        break;
-                }
-            }
-
-            string sLevel = doc.DocumentElement.GetAttribute("level");
-            if (string.IsNullOrEmpty(sLevel))
-            {
-                MessageBox.Show("No level specified");
-                _level = 1;
-            }
-            else if (!int.TryParse(sLevel, out _level))
-            {
-                MessageBox.Show("Invalid level specified: " + sLevel);
-                _level = 1;
-            }
-            txtLevel.Text = _level.ToString();
-
-            string sMana = doc.DocumentElement.GetAttribute("totalmana");
-            if (string.IsNullOrEmpty(sMana))
-            {
-                _totalMana = 0;
-            }
-            else if (!int.TryParse(sMana, out _totalMana))
-            {
-                MessageBox.Show("Invalid total mana specified: " + sMana);
-                _totalMana = 0;
-            }
-            _currentMana = _totalMana;
-            txtMana.Text = _totalMana.ToString();
-
-            string sManaTick = doc.DocumentElement.GetAttribute("manatick");
-            if (string.IsNullOrEmpty(sManaTick))
-            {
-                _manaTick = 0;
-            }
-            else if (!int.TryParse(sManaTick, out _manaTick))
-            {
-                MessageBox.Show("Invalid mana tick specified: " + sManaTick);
-                _manaTick = 0;
-            }
-            btnPlusXMana.Text = "+" + _manaTick;
-
-            string sPreferredAlignment = doc.DocumentElement.GetAttribute("preferredalignment");
-            if (Enum.TryParse(sPreferredAlignment, out AlignmentType ePreferredAlignment))
-            {
-                _preferredAlignment = ePreferredAlignment;
-            }
-            else
-            {
-                MessageBox.Show("Invalid preferred alignment type");
-                _preferredAlignment = AlignmentType.Grey;
-            }
-            txtPreferredAlignment.Text = _preferredAlignment.ToString();
-
-            bool dupMacros = false;
-            bool dupVariables = false;
-            XmlElement macrosElement = null;
-            XmlElement variablesElement = null;
-            foreach (XmlNode nextNode in doc.DocumentElement.ChildNodes)
-            {
-                XmlElement elem = nextNode as XmlElement;
-                if (elem == null) continue;
-                string sName = elem.Name.ToLower();
-                switch (sName)
-                {
-                    case "macros":
-                        if (macrosElement == null)
-                        {
-                            macrosElement = elem;
-                        }
-                        else //duplicate
-                        {
-                            errorMessages.Add("Found duplicate macros nodes.");
-                            dupMacros = true;
-                        }
-                        break;
-                    case "variables":
-                        if (variablesElement == null)
-                        {
-                            variablesElement = elem;
-                        }
-                        else
-                        {
-                            errorMessages.Add("Found duplicate variables nodes.");
-                            dupVariables = true;
-                        }
-                        break;
-                }
-            }
-
-            if (!dupVariables)
-            {
-                foreach (XmlNode nextNode in variablesElement.GetElementsByTagName("Variable"))
-                {
-                    XmlElement elemVariable = nextNode as XmlElement;
-                    if (elemVariable == null)
-                    {
-                        errorMessages.Add("Found non-element variable node.");
-                        continue;
-                    }
-                    string sName = elemVariable.GetAttribute("name");
-                    if (string.IsNullOrEmpty(sName))
-                    {
-                        errorMessages.Add("Found variable with blank name.");
-                        continue;
-                    }
-                    if (!IsValidMacroName(sName))
-                    {
-                        errorMessages.Add("Invalid variable name: " + sName);
-                        continue;
-                    }
-                    if (_variablesByName.ContainsKey(sName))
-                    {
-                        errorMessages.Add("Duplicate variable name: " + sName);
-                        continue;
-                    }
-                    string sType = elemVariable.GetAttribute("type");
-                    if (string.IsNullOrEmpty(sType))
-                    {
-                        errorMessages.Add("Found variable with blank type.");
-                        continue;
-                    }
-                    VariableType? foundVT = null;
-                    foreach (VariableType vt in Enum.GetValues(typeof(VariableType)))
-                    {
-                        if (sType.ToLower().Equals(vt.ToString().ToLower()))
-                        {
-                            foundVT = vt;
-                            break;
-                        }
-                    }
-                    if (!foundVT.HasValue)
-                    {
-                        errorMessages.Add("Unable to find variable type: " + sType);
-                        continue;
-                    }
-
-                    IntegerVariable vInt = null;
-                    Variable v;
-                    VariableType theVT = foundVT.Value;
-                    switch (theVT)
-                    {
-                        case VariableType.Bool:
-                            v = new BooleanVariable();
-                            break;
-                        case VariableType.Int:
-                            vInt = new IntegerVariable();
-                            v = vInt;
-                            break;
-                        case VariableType.String:
-                            v = new StringVariable();
-                            break;
-                        default:
-                            throw new InvalidOperationException();
-                    }
-
-                    if (theVT == VariableType.Int)
-                    {
-                        string sMin = elemVariable.GetAttribute("min");
-                        if (!string.IsNullOrEmpty(sMin))
-                        {
-                            if (int.TryParse(sMin, out int iMin))
-                            {
-                                vInt.Min = iMin;
-                            }
-                            else
-                            {
-                                errorMessages.Add("Invalid min variable value: " + sMin);
-                                continue;
-                            }
-                        }
-                        string sMax = elemVariable.GetAttribute("max");
-                        if (!string.IsNullOrEmpty(sMax))
-                        {
-                            if (int.TryParse(sMax, out int iMax))
-                            {
-                                vInt.Max = iMax;
-                            }
-                            else
-                            {
-                                errorMessages.Add("Invalid max variable value: " + sMax);
-                                continue;
-                            }
-                        }
-                        if (vInt.Min.HasValue && vInt.Max.HasValue && vInt.Min.Value > vInt.Max.Value)
-                        {
-                            errorMessages.Add("Variable min greater than max");
-                            continue;
-                        }
-                    }
-
-                    string sValue = elemVariable.GetAttribute("value");
-                    if (sValue == null)
-                    {
-                        if (theVT == VariableType.Bool)
-                        {
-                            ((BooleanVariable)v).Value = false;
-                        }
-                        else if (theVT == VariableType.Int)
-                        {
-                            if (vInt.Min.HasValue)
-                                vInt.Value = vInt.Min.Value;
-                            else
-                                vInt.Value = 0;
-                        }
-                        else if (theVT == VariableType.String)
-                        {
-                            ((StringVariable)v).Value = string.Empty;
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException();
-                        }
-                    }
-                    else
-                    {
-                        if (theVT == VariableType.Bool)
-                        {
-                            if (!string.IsNullOrEmpty(sValue))
-                            {
-                                if (!bool.TryParse(sValue, out bool bValue))
-                                {
-                                    errorMessages.Add("Invalid boolean variable value: " + sValue);
-                                    continue;
-                                }
-                                ((BooleanVariable)v).Value = bValue;
-                            }
-                        }
-                        else if (theVT == VariableType.Int)
-                        {
-                            if (!string.IsNullOrEmpty(sValue))
-                            {
-                                if (!int.TryParse(sValue, out int iValue))
-                                {
-                                    errorMessages.Add("Invalid integer variable value: " + sValue);
-                                    continue;
-                                }
-                                if (vInt.Min.HasValue && vInt.Min.Value > iValue)
-                                {
-                                    errorMessages.Add("Variable value less than min value");
-                                    continue;
-                                }
-                                if (vInt.Max.HasValue && vInt.Max.Value < iValue)
-                                {
-                                    errorMessages.Add("Variable value greater than max value");
-                                    continue;
-                                }
-                                vInt.Value = iValue;
-                            }
-                        }
-                        else if (theVT == VariableType.String)
-                        {
-                            ((StringVariable)v).Value = sValue.ToLower();
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException();
-                        }
-                    }
-
-                    v.Name = sName;
-                    v.Type = theVT;
-                    _variables.Add(v);
-                    _variablesByName[sName] = v;
-                }
-            }
-
-            if (!dupMacros)
-            {
-                int iOneClickTabIndex = 0;
-                Dictionary<string, Macro> foundMacros = new Dictionary<string, Macro>(StringComparer.OrdinalIgnoreCase);
-                foreach (XmlNode nextNode in macrosElement.GetElementsByTagName("Macro"))
-                {
-                    XmlElement elemMacro = nextNode as XmlElement;
-                    if (elemMacro == null)
-                    {
-                        errorMessages.Add("Found non-element macro node.");
-                        continue;
-                    }
-                    string macroName = elemMacro.GetAttribute("name");
-                    if (string.IsNullOrEmpty(macroName))
-                    {
-                        errorMessages.Add("Found macro with blank name.");
-                        continue;
-                    }
-                    if (foundMacros.ContainsKey(macroName))
-                    {
-                        errorMessages.Add("Found duplicate macro name: " + macroName);
-                        continue;
-                    }
-
-                    string sSetParentLocation = elemMacro.GetAttribute("setparentlocation");
-                    bool bSetParentLocation = false;
-                    if (!string.IsNullOrEmpty(sSetParentLocation))
-                    {
-                        if (!bool.TryParse(sSetParentLocation, out bSetParentLocation))
-                        {
-                            errorMessages.Add("Invalid set parent location for " + macroName + " " + sSetParentLocation);
-                            continue;
-                        }
-                    }
-
-                    string sCombatCommandTypes = elemMacro.GetAttribute("combatcommandtypes");
-                    CommandType eCombatCommandTypes = CommandType.None;
-                    if (!string.IsNullOrEmpty(sCombatCommandTypes))
-                    {
-                        if (!Enum.TryParse(sCombatCommandTypes, out eCombatCommandTypes))
-                        {
-                            errorMessages.Add("Invalid combat command types for " + macroName + " " + sCombatCommandTypes);
-                            continue;
-                        }
-                    }
-
-                    string sFinalCommand = elemMacro.GetAttribute("finalcommand");
-                    string sFinalCommand2 = elemMacro.GetAttribute("finalcommand2");
-
-                    bool macroIsValid = true;
-                    Macro oMacro = new Macro(macroName);
-                    oMacro.SetParentLocation = bSetParentLocation;
-                    oMacro.CombatCommandTypes = eCombatCommandTypes;
-                    oMacro.FinalCommand = sFinalCommand;
-                    oMacro.FinalCommand2 = sFinalCommand2;
-                    List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages);
-                    if (foundSteps == null)
-                    {
-                        macroIsValid = false;
-                    }
-                    else if (foundSteps.Count == 0)
-                    {
-                        errorMessages.Add("Macro has no steps: " + macroName);
-                        macroIsValid = false;
-                    }
-                    oMacro.Steps = foundSteps;
-
-                    string sFinalCommandCondition = elemMacro.GetAttribute("finalcommandcondition");
-                    if (!string.IsNullOrEmpty(sFinalCommandCondition))
-                    {
-                        if (_variablesByName.TryGetValue(sFinalCommandCondition, out Variable v))
-                        {
-                            if (v.Type != VariableType.String)
-                            {
-                                macroIsValid = false;
-                                errorMessages.Add("Final command Condition variable must be a string: " + macroName);
-                            }
-                            else
-                            {
-                                oMacro.FinalCommandConditionVariable = v;
-                            }
-                        }
-                    }
-
-                    string sFinalCommand2Condition = elemMacro.GetAttribute("finalcommand2condition");
-                    if (!string.IsNullOrEmpty(sFinalCommand2Condition))
-                    {
-                        if (_variablesByName.TryGetValue(sFinalCommand2Condition, out Variable v))
-                        {
-                            if (v.Type != VariableType.String)
-                            {
-                                macroIsValid = false;
-                                errorMessages.Add("Final command 2 Condition variable must be a string: " + macroName);
-                            }
-                            else
-                            {
-                                oMacro.FinalCommand2ConditionVariable = v;
-                            }
-                        }
-                    }
-
-                    string sOneClick = elemMacro.GetAttribute("oneclick");
-                    bool isOneClick = false;
-                    if (!string.IsNullOrEmpty(sOneClick))
-                    {
-                        if (!bool.TryParse(sOneClick, out isOneClick))
-                        {
-                            errorMessages.Add("Invalid one click flag for macro " + macroName);
-                            macroIsValid = false;
-                        }
-                    }
-
-                    if (macroIsValid)
-                    {
-                        foundMacros[macroName] = oMacro;
-                        if (isOneClick)
-                        {
-                            Button btnOneClick = new Button();
-                            btnOneClick.AutoSize = true;
-                            btnOneClick.TabIndex = iOneClickTabIndex++;
-                            btnOneClick.Tag = oMacro;
-                            btnOneClick.Text = oMacro.Name;
-                            btnOneClick.UseVisualStyleBackColor = true;
-                            btnOneClick.Click += btnOneClick_Click;
-                            flpOneClickMacros.Controls.Add(btnOneClick);
-                        }
-                        else
-                        {
-                            cboMacros.Items.Add(oMacro);
-                        }
-                    }
-                }
-            }
-
-            if (errorMessages.Count > 0)
-            {
-                MessageBox.Show("Errors loading configuration file" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
-            }
-        }
-
-        private List<MacroStepBase> ProcessStepsParentElement(XmlElement parentElement, string errorSource, List<string> errorMessages)
-        {
-            List<MacroStepBase> ret = new List<MacroStepBase>();
-            XmlElement oStepsElem = null;
-            foreach (XmlNode nextMacroNode in parentElement.ChildNodes)
-            {
-                XmlElement oElement = nextMacroNode as XmlElement;
-                if (oElement == null) continue;
-                string elemName = oElement.Name.ToLower();
-                switch (elemName)
-                {
-                    case "steps":
-                        if (oStepsElem == null)
-                        {
-                            oStepsElem = oElement;
-                        }
-                        else
-                        {
-                            oStepsElem = null;
-                            errorMessages.Add("Found duplicate steps node: " + errorSource);
-                            break;
-                        }
-                        break;
-                }
-            }
-            if (oStepsElem == null)
-            {
-                errorMessages.Add("Failed to find steps node: " + errorSource);
-                return null;
-            }
-            bool isValid = true;
-            foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
-            {
-                XmlElement elemStep = nextStepNode as XmlElement;
-                if (elemStep == null) continue;
-                string stepType = elemStep.Name.ToLower();
-                MacroStepBase step = null;
-                switch (stepType)
-                {
-                    case "sequence":
-                        List<MacroStepBase> loopSteps = ProcessStepsParentElement(elemStep, errorSource + " " + stepType, errorMessages);
-                        MacroStepSequence seq = null;
-                        if (loopSteps == null)
-                        {
-                            isValid = false;
-                        }
-                        else
-                        {
-                            seq = new MacroStepSequence();
-                            seq.SubCommands = loopSteps;
-                            ret.Add(seq);
-                            step = seq;
-                        }
-                        break;
-                    case "command":
-                        string cmd = elemStep.GetAttribute("text");
-                        if (cmd == null)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Macro step command missing text: " + errorSource);
-                        }
-                        else
-                        {
-                            MacroCommand oCommand = new MacroCommand(cmd, cmd);
-                            ret.Add(oCommand);
-                            step = oCommand;
-                        }
-                        break;
-                    case "setnextcommandms":
-                        MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
-                        ret.Add(oWaitMSCommand);
-                        step = oWaitMSCommand;
-                        break;
-                    case "setvariable":
-                        MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
-                        ret.Add(oSetVariableCommand);
-                        step = oSetVariableCommand;
-                        break;
-                    case "manastun":
-                        MacroManaSpellStun oStunCommand = new MacroManaSpellStun();
-                        ret.Add(oStunCommand);
-                        step = oStunCommand;
-                        break;
-                    case "manaoffensive":
-                        MacroManaSpellOffensive oOffensiveCommand = new MacroManaSpellOffensive();
-                        ret.Add(oOffensiveCommand);
-                        step = oOffensiveCommand;
-                        break;
-                    default:
-                        isValid = false;
-                        errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
-                        break;
-                }
-                string sWait = elemStep.GetAttribute("waitms");
-                if (!string.IsNullOrEmpty(sWait))
-                {
-                    if (int.TryParse(sWait, out int iWaitMS))
-                    {
-                        if (step != null) step.WaitMS = iWaitMS;
-                    }
-                    else if (_variablesByName.TryGetValue(sWait, out Variable v))
-                    {
-                        if (v.Type != VariableType.Int)
-                        {
-                            isValid = false;
-                            errorMessages.Add("WaitMS variable must be an integer: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.WaitMSVariable = (IntegerVariable)v;
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
-                    }
-                }
-                if (step != null && step is MacroStepSetNextCommandWaitMS && !step.WaitMS.HasValue)
-                {
-                    isValid = false;
-                    errorMessages.Add("setnextcommandms step must have wait ms");
-                }
-                string sLoop = elemStep.GetAttribute("loop");
-                if (!string.IsNullOrEmpty(sLoop))
-                {
-                    if (bool.TryParse(sLoop, out bool bLoop))
-                    {
-                        if (step != null) step.Loop = bLoop;
-                    }
-                    else if (int.TryParse(sLoop, out int iLoop))
-                    {
-                        if (iLoop < 0)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Invalid negative loop count: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.LoopCount = iLoop;
-                        }
-                    }
-                    else if (_variablesByName.TryGetValue(sLoop, out Variable v))
-                    {
-                        if (v.Type != VariableType.Int && v.Type != VariableType.Bool)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Loop variable must be an integer or boolean: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.LoopVariable = v;
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
-                    }
-                }
-
-                string sVariable = elemStep.GetAttribute("variable");
-                if (!string.IsNullOrEmpty(sVariable))
-                {
-                    if (step is MacroStepSetVariable)
-                    {
-                        if (!_variablesByName.TryGetValue(sVariable, out Variable v))
-                        {
-                            isValid = false;
-                            errorMessages.Add("Invalid variable: " + errorSource + " " + stepType + " " + sVariable);
-                        }
-                        else
-                        {
-                            string sValue = elemStep.GetAttribute("value");
-                            int iTemp = 0;
-                            bool bTemp = false;
-                            if (sValue == null)
-                            {
-                                errorMessages.Add("No variable value specified: " + errorSource + " " + stepType + " " + sVariable);
-                            }
-                            else if (v.Type == VariableType.Bool && !bool.TryParse(sValue, out bTemp))
-                            {
-                                errorMessages.Add("Invalid boolean variable value specified: " + errorSource + " " + stepType + " " + sVariable);
-                            }
-                            else if (v.Type == VariableType.Int && !int.TryParse(sValue, out iTemp))
-                            {
-                                errorMessages.Add("Invalid integer variable value specified: " + errorSource + " " + stepType + " " + sVariable);
-                            }
-                            else
-                            {
-                                Variable copyVar = Variable.CopyVariable(v);
-                                ((MacroStepSetVariable)step).Variable = copyVar;
-                                switch (v.Type)
-                                {
-                                    case VariableType.Bool:
-                                        ((BooleanVariable)copyVar).Value = bTemp;
-                                        break;
-                                    case VariableType.Int:
-                                        ((IntegerVariable)copyVar).Value = iTemp;
-                                        break;
-                                    case VariableType.String:
-                                        ((StringVariable)copyVar).Value = sValue;
-                                        break;
-                                }
-                                ((MacroStepSetVariable)step).Variable = copyVar;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Variable found but not for set variable step: " + errorSource + " " + stepType + " " + sVariable);
-                    }
-                }
-
-                string sCondition = elemStep.GetAttribute("condition");
-                if (!string.IsNullOrEmpty(sCondition))
-                {
-                    if (_variablesByName.TryGetValue(sCondition, out Variable v))
-                    {
-                        if (v.Type != VariableType.String)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Condition variable must be a string: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.ConditionVariable = v;
-                        }
-                    }
-                }
-
-                string sSkipRounds = elemStep.GetAttribute("skiprounds");
-                if (!string.IsNullOrEmpty(sSkipRounds))
-                {
-                    if (int.TryParse(sSkipRounds, out int iSkipRounds))
-                    {
-                        if (step != null) step.SkipRounds = iSkipRounds;
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid skip rounds: " + errorSource + " " + stepType + " " + sSkipRounds);
-                    }
-                }
-            }
-            return isValid ? ret : null;
-        }
-
         private void btnOneClick_Click(object sender, EventArgs e)
         {
             RunMacro((Macro)((Button)sender).Tag);
@@ -996,10 +969,6 @@ namespace IsengardClient
                 if (targetRoom != null)
                 {
                     SetCurrentRoom(targetRoom);
-                    if (targetRoom.IsHealingRoom)
-                    {
-                        _currentMana = _totalMana;
-                    }
                 }
             }
             ToggleBackgroundProcess(false);
@@ -1070,17 +1039,7 @@ namespace IsengardClient
 
                 ManaDrainType mdType = nextCommand.ManaDrain;
                 bool stop;
-                if (mdType == ManaDrainType.Stun || mdType == ManaDrainType.Offensive)
-                {
-                    lock (_manaLock)
-                    {
-                        ProcessCommand(nextCommand, pms, out stop);
-                    }
-                }
-                else
-                {
-                    ProcessCommand(nextCommand, pms, out stop);
-                }
+                ProcessCommand(nextCommand, pms, out stop);
                 if (stop)
                 {
                     break;
@@ -1150,7 +1109,10 @@ namespace IsengardClient
                 pms.CommandsRun++;
                 if (manaDrain.HasValue)
                 {
-                    _currentMana -= manaDrain.Value;
+                    if (!pms.AutoMana)
+                    {
+                        _currentMana -= manaDrain.Value;
+                    }
                     if (_currentMana < 3) //no mana left for casting any more offensive spells
                     {
                         stop = true;
@@ -1385,7 +1347,7 @@ namespace IsengardClient
                         {
                             ctl.Enabled = !running;
                         }
-                        else if (ctl != btnPlusXMana && ctl != btnManaMinus1)
+                        else
                         {
                             ctl.Enabled = !running;
                         }
@@ -1402,7 +1364,7 @@ namespace IsengardClient
         private void InitializeMap()
         {
             _map = new AdjacencyGraph<Room, Exit>();
-            
+
             foreach (Area a in _areas)
             {
                 a.Locations.Clear();
@@ -1557,7 +1519,7 @@ namespace IsengardClient
 
             Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
             AddBidirectionalExits(balle2, oOliphauntsTattoos, BidirectionalExitType.NorthSouth);
-            
+
             Room oOliphaunt = AddRoom("Oliphaunt");
             oOliphaunt.Mob = "Oliphaunt";
             oOliphaunt.Experience1 = 310;
@@ -2679,7 +2641,7 @@ namespace IsengardClient
             }
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
             SetVariablesForIndefiniteCasts(oSomething);
-            
+
             Room oShepherd = AddRoom("Shepherd");
             oShepherd.Mob = "Shepherd";
             oShepherd.Experience1 = 60;
@@ -2706,7 +2668,7 @@ namespace IsengardClient
 
             AddExit(aqueduct, oKasnarTheGuard, "north");
             //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
-            
+
             AddLocation(_aInaccessible, oSomething);
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
@@ -3113,67 +3075,47 @@ namespace IsengardClient
             }
         }
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-        [DllImport("user32.dll")]
-        public static extern bool PostMessage(int hWnd, uint Msg, int wParam, int lParam);
-
         private bool SendCommand(string command, bool showUI)
         {
             bool ret = true;
-            IntPtr WindowToFind = FindWindow(null, txtWindow.Text);
 
-            if (WindowToFind == IntPtr.Zero)
+            List<int> keys = new List<int>();
+            foreach (char c in command)
             {
-                ret = false;
-                if (showUI)
+                if (_asciiMapping.TryGetValue(c, out int i))
                 {
-                    MessageBox.Show("Failed to find window.");
+                    keys.Add(i);
+                }
+                else
+                {
+                    if (showUI)
+                    {
+                        MessageBox.Show("Failed to find key: " + c + ".");
+                    }
+                    ret = false;
+                    break;
                 }
             }
-            else
+            if (ret)
             {
-                List<int> keys = new List<int>();
-                foreach (char c in command)
+                if (!string.IsNullOrEmpty(command))
                 {
-                    if (_keyMapping.TryGetValue(c, out int i))
-                    {
-                        keys.Add(i);
-                    }
-                    else
-                    {
-                        if (showUI)
-                        {
-                            MessageBox.Show("Failed to find key: " + c + ".");
-                        }
-                        ret = false;
-                        break;
-                    }
+                    Console.Out.WriteLine(command);
                 }
-                if (ret)
+                for (int i = 0; i < keys.Count; i++)
                 {
-                    for (int i = 0; i < keys.Count; i++)
-                    {
-                        int key = keys[i];
-                        PostMessage((int)WindowToFind, WM_SYSKEYDOWN, key, 0);
-                        Thread.Sleep(1);
-                    }
-                    PostMessage((int)WindowToFind, WM_SYSKEYDOWN, VK_RETURN, 0);
+                    int key = keys[i];
+                    _tcpClientNetworkStream.WriteByte((byte)key);
+                    Thread.Sleep(1);
                 }
+                WriteNewLine();
             }
             return ret;
         }
 
-        private enum ObjectType
+        private void WriteNewLine()
         {
-            Mob,
-            Weapon,
-            Wand,
-            Potion,
-            Realm1Spell,
-            Realm2Spell,
-            Realm3Spell,
+            _tcpClientNetworkStream.Write(_NEW_LINE, 0, 2);
         }
 
         private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
@@ -3242,26 +3184,6 @@ namespace IsengardClient
                 }
             }
             return value;
-        }
-
-        private bool IsValidMacroName(string name)
-        {
-            foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
-            {
-                if (ot != ObjectType.Weapon && ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-            if (bool.TryParse(name, out _))
-            {
-                return false;
-            }
-            if (int.TryParse(name, out _))
-            {
-                return false;
-            }
-            return true;
         }
 
         private string TranslateCommand(string input, IEnumerable<Variable> variables, out string errorMessage)
@@ -3412,6 +3334,10 @@ namespace IsengardClient
                         {
                             SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
                         }
+                        if (btn == btnQuit)
+                        {
+                            this.Close();
+                        }
                     }
                 }
             }
@@ -3526,6 +3452,7 @@ namespace IsengardClient
             public string FinalCommand { get; set; }
             public string FinalCommand2 { get; set; }
             public int MaxOffensiveLevel { get; set; }
+            public bool AutoMana { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3640,6 +3567,7 @@ namespace IsengardClient
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
+            _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
                 _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
@@ -3733,28 +3661,6 @@ namespace IsengardClient
             return ret;
         }
 
-        private class Macro
-        {
-            public Macro(string Name)
-            {
-                this.Name = Name;
-                this.Steps = new List<MacroStepBase>();
-            }
-            public override string ToString()
-            {
-                return this.Name;
-            }
-
-            public string Name { get; set; }
-            public List<MacroStepBase> Steps { get; set; }
-            public bool SetParentLocation { get; set; }
-            public CommandType CombatCommandTypes { get; set; }
-            public string FinalCommand { get; set; }
-            public Variable FinalCommandConditionVariable { get; set; }
-            public string FinalCommand2 { get; set; }
-            public Variable FinalCommand2ConditionVariable { get; set; }
-        }
-
         public class MacroStepBase
         {
             /// <summary>
@@ -3786,62 +3692,6 @@ namespace IsengardClient
                 this.LoopVariable = source.LoopVariable;
                 this.SkipRounds = source.SkipRounds;
                 this.ConditionVariable = source.ConditionVariable;
-            }
-        }
-
-        private class MacroStepSequence : MacroStepBase
-        {
-            public List<MacroStepBase> SubCommands { get; set; }
-            public MacroStepSequence()
-            {
-                this.SubCommands = new List<MacroStepBase>();
-            }
-        }
-
-        private class MacroCommand : MacroStepBase
-        {
-            public string RawCommand { get; set; }
-            public string Command { get; set; }
-            public ManaDrainType ManaDrain { get; set; }
-            public MacroCommand(string RawCommand, string Command)
-            {
-                this.RawCommand = RawCommand;
-                this.Command = Command;
-            }
-        }
-
-        private enum ManaDrainType
-        {
-            None = 0,
-            Stun = 1,
-            Offensive = 2,
-        }
-
-        private class MacroManaSpellCommand : MacroStepBase
-        {
-        }
-
-        private class MacroManaSpellStun : MacroManaSpellCommand
-        {
-        }
-
-        private class MacroManaSpellOffensive : MacroManaSpellCommand
-        {
-        }
-
-        private class MacroStepSetNextCommandWaitMS : MacroStepBase
-        {
-            public MacroStepSetNextCommandWaitMS()
-            {
-            }
-        }
-
-        private class MacroStepSetVariable : MacroStepBase
-        {
-            public Variable Variable { get; set; }
-
-            public MacroStepSetVariable()
-            {
             }
         }
 
@@ -3880,25 +3730,21 @@ namespace IsengardClient
             SetCelduinExpressEdges();
         }
 
-        private void btnPlusXMana_Click(object sender, EventArgs e)
-        {
-            lock (_manaLock)
-            {
-                _currentMana = Math.Min(_totalMana, _currentMana + _manaTick);
-            }
-        }
-
-        private void btnFullMana_Click(object sender, EventArgs e)
-        {
-            lock (_manaLock)
-            {
-                _currentMana = _totalMana;
-            }
-        }
-
         private void tmr_Tick(object sender, EventArgs e)
         {
-            txtMana.Text = _currentMana.ToString();
+            if (chkAutoMana.Checked)
+            {
+                _currentMana = _autoMana;
+                txtMana.Text = _autoMana.ToString();
+            }
+            if (_currentMana.HasValue)
+            {
+                txtMana.Text = _currentMana.Value.ToString();
+            }
+            if (_autoHitpoints.HasValue)
+            {
+                txtHitpoints.Text = _autoHitpoints.Value.ToString();
+            }
         }
 
         private void btnManaSet_Click(object sender, EventArgs e)
@@ -3906,10 +3752,8 @@ namespace IsengardClient
             string sNewMana = Interaction.InputBox("New mana:", "New Mana", txtMana.Text);
             if (int.TryParse(sNewMana, out int iNewMana))
             {
-                lock (_manaLock)
-                {
-                    _currentMana = Math.Min(_totalMana, iNewMana);
-                }
+                chkAutoMana.Checked = false;
+                _currentMana = iNewMana;
             }
         }
 
@@ -3918,11 +3762,11 @@ namespace IsengardClient
             ((StringVariable)_variablesByName["weapon"]).Value = txtWeapon.Text;
         }
 
-        private void btnManaMinus1_Click(object sender, EventArgs e)
+        private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)
         {
-            lock (_manaLock)
+            if (e.KeyChar == (char)Keys.Return)
             {
-                _currentMana = Math.Max(_currentMana - 1, 0);
+                SendCommand(txtOneOffCommand.Text, true);
             }
         }
     }

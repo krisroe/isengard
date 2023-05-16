@@ -1,4 +1,4 @@
-<Configuration defaultrealm="earth" level="12" totalmana="61" manatick="5" preferredalignment="Blue">
+<Configuration defaultrealm="earth" level="12" preferredalignment="Blue" username="despug">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>

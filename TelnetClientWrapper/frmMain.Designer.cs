@@ -91,6 +91,8 @@
             this.btnRemoveWeapon = new System.Windows.Forms.Button();
             this.btnFumbleMob = new System.Windows.Forms.Button();
             this.btnNortheast = new System.Windows.Forms.Button();
+            this.ctxGoSingleDirection = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSilentMove = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNorth = new System.Windows.Forms.Button();
             this.btnNorthwest = new System.Windows.Forms.Button();
             this.btnWest = new System.Windows.Forms.Button();
@@ -101,22 +103,18 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
-            this.btnManaMinus1 = new System.Windows.Forms.Button();
+            this.chkAutoMana = new System.Windows.Forms.CheckBox();
+            this.txtHitpoints = new System.Windows.Forms.TextBox();
+            this.lblHitpoints = new System.Windows.Forms.Label();
             this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
             this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
             this.chkPowerAttack = new System.Windows.Forms.CheckBox();
             this.btnManaSet = new System.Windows.Forms.Button();
             this.txtMana = new System.Windows.Forms.TextBox();
-            this.btnFullMana = new System.Windows.Forms.Button();
-            this.btnPlusXMana = new System.Windows.Forms.Button();
             this.lblMana = new System.Windows.Forms.Label();
             this.cboCelduinExpress = new System.Windows.Forms.ComboBox();
             this.lblCelduinExpressLocation = new System.Windows.Forms.Label();
-            this.lblPreferredAlignment = new System.Windows.Forms.Label();
-            this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
             this.btnRemoveAll = new System.Windows.Forms.Button();
-            this.lblLevel = new System.Windows.Forms.Label();
-            this.txtLevel = new System.Windows.Forms.TextBox();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.btnStunMob = new System.Windows.Forms.Button();
             this.btnCastMend = new System.Windows.Forms.Button();
@@ -125,21 +123,23 @@
             this.btnSearch = new System.Windows.Forms.Button();
             this.tabAncillary = new System.Windows.Forms.TabPage();
             this.pnlAncillary = new System.Windows.Forms.Panel();
+            this.lblPreferredAlignment = new System.Windows.Forms.Label();
+            this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
+            this.lblLevel = new System.Windows.Forms.Label();
+            this.txtLevel = new System.Windows.Forms.TextBox();
             this.lblMacro = new System.Windows.Forms.Label();
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.ctxGoSingleDirection = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSilentMove = new System.Windows.Forms.ToolStripMenuItem();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
+            this.ctxGoSingleDirection.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
             this.tabAncillary.SuspendLayout();
             this.pnlAncillary.SuspendLayout();
-            this.ctxGoSingleDirection.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -361,6 +361,7 @@
             this.txtOneOffCommand.Name = "txtOneOffCommand";
             this.txtOneOffCommand.Size = new System.Drawing.Size(249, 22);
             this.txtOneOffCommand.TabIndex = 29;
+            this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
             // lblOneOffCommand
             // 
@@ -808,6 +809,21 @@
             this.btnNortheast.UseVisualStyleBackColor = true;
             this.btnNortheast.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
+            // ctxGoSingleDirection
+            // 
+            this.ctxGoSingleDirection.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxGoSingleDirection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSilentMove});
+            this.ctxGoSingleDirection.Name = "ctxGoSingleDirection";
+            this.ctxGoSingleDirection.Size = new System.Drawing.Size(157, 28);
+            this.ctxGoSingleDirection.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxGoSingleDirection_ItemClicked);
+            // 
+            // tsmiSilentMove
+            // 
+            this.tsmiSilentMove.Name = "tsmiSilentMove";
+            this.tsmiSilentMove.Size = new System.Drawing.Size(156, 24);
+            this.tsmiSilentMove.Text = "Silent Move";
+            // 
             // btnNorth
             // 
             this.btnNorth.ContextMenuStrip = this.ctxGoSingleDirection;
@@ -925,22 +941,18 @@
             // 
             // pnlMain
             // 
-            this.pnlMain.Controls.Add(this.btnManaMinus1);
+            this.pnlMain.Controls.Add(this.chkAutoMana);
+            this.pnlMain.Controls.Add(this.txtHitpoints);
+            this.pnlMain.Controls.Add(this.lblHitpoints);
             this.pnlMain.Controls.Add(this.cboMaxOffLevel);
             this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
             this.pnlMain.Controls.Add(this.chkPowerAttack);
             this.pnlMain.Controls.Add(this.btnManaSet);
             this.pnlMain.Controls.Add(this.txtMana);
-            this.pnlMain.Controls.Add(this.btnFullMana);
-            this.pnlMain.Controls.Add(this.btnPlusXMana);
             this.pnlMain.Controls.Add(this.lblMana);
             this.pnlMain.Controls.Add(this.cboCelduinExpress);
             this.pnlMain.Controls.Add(this.lblCelduinExpressLocation);
-            this.pnlMain.Controls.Add(this.lblPreferredAlignment);
-            this.pnlMain.Controls.Add(this.txtPreferredAlignment);
             this.pnlMain.Controls.Add(this.btnRemoveAll);
-            this.pnlMain.Controls.Add(this.lblLevel);
-            this.pnlMain.Controls.Add(this.txtLevel);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
             this.pnlMain.Controls.Add(this.btnCastMend);
@@ -1013,15 +1025,35 @@
             this.pnlMain.Size = new System.Drawing.Size(1319, 691);
             this.pnlMain.TabIndex = 0;
             // 
-            // btnManaMinus1
+            // chkAutoMana
             // 
-            this.btnManaMinus1.Location = new System.Drawing.Point(639, 88);
-            this.btnManaMinus1.Name = "btnManaMinus1";
-            this.btnManaMinus1.Size = new System.Drawing.Size(37, 29);
-            this.btnManaMinus1.TabIndex = 100;
-            this.btnManaMinus1.Text = "-1";
-            this.btnManaMinus1.UseVisualStyleBackColor = true;
-            this.btnManaMinus1.Click += new System.EventHandler(this.btnManaMinus1_Click);
+            this.chkAutoMana.AutoSize = true;
+            this.chkAutoMana.Checked = true;
+            this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoMana.Location = new System.Drawing.Point(664, 54);
+            this.chkAutoMana.Name = "chkAutoMana";
+            this.chkAutoMana.Size = new System.Drawing.Size(93, 20);
+            this.chkAutoMana.TabIndex = 103;
+            this.chkAutoMana.Text = "Auto Mana";
+            this.chkAutoMana.UseVisualStyleBackColor = true;
+            // 
+            // txtHitpoints
+            // 
+            this.txtHitpoints.Location = new System.Drawing.Point(454, 25);
+            this.txtHitpoints.Name = "txtHitpoints";
+            this.txtHitpoints.ReadOnly = true;
+            this.txtHitpoints.Size = new System.Drawing.Size(133, 22);
+            this.txtHitpoints.TabIndex = 101;
+            // 
+            // lblHitpoints
+            // 
+            this.lblHitpoints.AutoSize = true;
+            this.lblHitpoints.Location = new System.Drawing.Point(334, 28);
+            this.lblHitpoints.Name = "lblHitpoints";
+            this.lblHitpoints.Size = new System.Drawing.Size(62, 16);
+            this.lblHitpoints.TabIndex = 100;
+            this.lblHitpoints.Text = "Hitpoints:";
+            this.lblHitpoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cboMaxOffLevel
             // 
@@ -1057,7 +1089,7 @@
             // 
             // btnManaSet
             // 
-            this.btnManaSet.Location = new System.Drawing.Point(743, 88);
+            this.btnManaSet.Location = new System.Drawing.Point(593, 51);
             this.btnManaSet.Name = "btnManaSet";
             this.btnManaSet.Size = new System.Drawing.Size(54, 29);
             this.btnManaSet.TabIndex = 96;
@@ -1067,36 +1099,16 @@
             // 
             // txtMana
             // 
-            this.txtMana.Location = new System.Drawing.Point(457, 91);
+            this.txtMana.Location = new System.Drawing.Point(454, 54);
             this.txtMana.Name = "txtMana";
             this.txtMana.ReadOnly = true;
             this.txtMana.Size = new System.Drawing.Size(133, 22);
             this.txtMana.TabIndex = 95;
             // 
-            // btnFullMana
-            // 
-            this.btnFullMana.Location = new System.Drawing.Point(682, 88);
-            this.btnFullMana.Name = "btnFullMana";
-            this.btnFullMana.Size = new System.Drawing.Size(55, 29);
-            this.btnFullMana.TabIndex = 94;
-            this.btnFullMana.Text = "Full";
-            this.btnFullMana.UseVisualStyleBackColor = true;
-            this.btnFullMana.Click += new System.EventHandler(this.btnFullMana_Click);
-            // 
-            // btnPlusXMana
-            // 
-            this.btnPlusXMana.Location = new System.Drawing.Point(596, 88);
-            this.btnPlusXMana.Name = "btnPlusXMana";
-            this.btnPlusXMana.Size = new System.Drawing.Size(37, 29);
-            this.btnPlusXMana.TabIndex = 93;
-            this.btnPlusXMana.Text = "+X";
-            this.btnPlusXMana.UseVisualStyleBackColor = true;
-            this.btnPlusXMana.Click += new System.EventHandler(this.btnPlusXMana_Click);
-            // 
             // lblMana
             // 
             this.lblMana.AutoSize = true;
-            this.lblMana.Location = new System.Drawing.Point(337, 94);
+            this.lblMana.Location = new System.Drawing.Point(334, 57);
             this.lblMana.Name = "lblMana";
             this.lblMana.Size = new System.Drawing.Size(44, 16);
             this.lblMana.TabIndex = 92;
@@ -1126,25 +1138,6 @@
             this.lblCelduinExpressLocation.TabIndex = 90;
             this.lblCelduinExpressLocation.Text = "Celduin Express:";
             // 
-            // lblPreferredAlignment
-            // 
-            this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(337, 62);
-            this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(95, 16);
-            this.lblPreferredAlignment.TabIndex = 88;
-            this.lblPreferredAlignment.Text = "Alignment pref:";
-            this.lblPreferredAlignment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtPreferredAlignment
-            // 
-            this.txtPreferredAlignment.Enabled = false;
-            this.txtPreferredAlignment.Location = new System.Drawing.Point(457, 60);
-            this.txtPreferredAlignment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtPreferredAlignment.Name = "txtPreferredAlignment";
-            this.txtPreferredAlignment.Size = new System.Drawing.Size(134, 22);
-            this.txtPreferredAlignment.TabIndex = 89;
-            // 
             // btnRemoveAll
             // 
             this.btnRemoveAll.Location = new System.Drawing.Point(411, 374);
@@ -1155,25 +1148,6 @@
             this.btnRemoveAll.Text = "Remove All";
             this.btnRemoveAll.UseVisualStyleBackColor = true;
             this.btnRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // lblLevel
-            // 
-            this.lblLevel.AutoSize = true;
-            this.lblLevel.Location = new System.Drawing.Point(337, 27);
-            this.lblLevel.Name = "lblLevel";
-            this.lblLevel.Size = new System.Drawing.Size(43, 16);
-            this.lblLevel.TabIndex = 85;
-            this.lblLevel.Text = "Level:";
-            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtLevel
-            // 
-            this.txtLevel.Enabled = false;
-            this.txtLevel.Location = new System.Drawing.Point(457, 25);
-            this.txtLevel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtLevel.Name = "txtLevel";
-            this.txtLevel.Size = new System.Drawing.Size(134, 22);
-            this.txtLevel.TabIndex = 86;
             // 
             // btnLevel3OffensiveSpell
             // 
@@ -1257,6 +1231,10 @@
             // 
             // pnlAncillary
             // 
+            this.pnlAncillary.Controls.Add(this.lblPreferredAlignment);
+            this.pnlAncillary.Controls.Add(this.txtPreferredAlignment);
+            this.pnlAncillary.Controls.Add(this.lblLevel);
+            this.pnlAncillary.Controls.Add(this.txtLevel);
             this.pnlAncillary.Controls.Add(this.lblMacro);
             this.pnlAncillary.Controls.Add(this.cboMacros);
             this.pnlAncillary.Controls.Add(this.btnRunMacro);
@@ -1270,6 +1248,44 @@
             this.pnlAncillary.Name = "pnlAncillary";
             this.pnlAncillary.Size = new System.Drawing.Size(1319, 691);
             this.pnlAncillary.TabIndex = 0;
+            // 
+            // lblPreferredAlignment
+            // 
+            this.lblPreferredAlignment.AutoSize = true;
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(1042, 61);
+            this.lblPreferredAlignment.Name = "lblPreferredAlignment";
+            this.lblPreferredAlignment.Size = new System.Drawing.Size(95, 16);
+            this.lblPreferredAlignment.TabIndex = 92;
+            this.lblPreferredAlignment.Text = "Alignment pref:";
+            this.lblPreferredAlignment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtPreferredAlignment
+            // 
+            this.txtPreferredAlignment.Enabled = false;
+            this.txtPreferredAlignment.Location = new System.Drawing.Point(1162, 59);
+            this.txtPreferredAlignment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtPreferredAlignment.Name = "txtPreferredAlignment";
+            this.txtPreferredAlignment.Size = new System.Drawing.Size(134, 22);
+            this.txtPreferredAlignment.TabIndex = 93;
+            // 
+            // lblLevel
+            // 
+            this.lblLevel.AutoSize = true;
+            this.lblLevel.Location = new System.Drawing.Point(1042, 26);
+            this.lblLevel.Name = "lblLevel";
+            this.lblLevel.Size = new System.Drawing.Size(43, 16);
+            this.lblLevel.TabIndex = 90;
+            this.lblLevel.Text = "Level:";
+            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtLevel
+            // 
+            this.txtLevel.Enabled = false;
+            this.txtLevel.Location = new System.Drawing.Point(1162, 24);
+            this.txtLevel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtLevel.Name = "txtLevel";
+            this.txtLevel.Size = new System.Drawing.Size(134, 22);
+            this.txtLevel.TabIndex = 91;
             // 
             // lblMacro
             // 
@@ -1308,21 +1324,6 @@
             this.tmr.Interval = 20;
             this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // ctxGoSingleDirection
-            // 
-            this.ctxGoSingleDirection.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxGoSingleDirection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSilentMove});
-            this.ctxGoSingleDirection.Name = "ctxGoSingleDirection";
-            this.ctxGoSingleDirection.Size = new System.Drawing.Size(211, 56);
-            this.ctxGoSingleDirection.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxGoSingleDirection_ItemClicked);
-            // 
-            // tsmiSilentMove
-            // 
-            this.tsmiSilentMove.Name = "tsmiSilentMove";
-            this.tsmiSilentMove.Size = new System.Drawing.Size(156, 24);
-            this.tsmiSilentMove.Text = "Silent Move";
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1336,6 +1337,7 @@
             this.grpRealm.PerformLayout();
             this.grpLocations.ResumeLayout(false);
             this.grpOneClickMacros.ResumeLayout(false);
+            this.ctxGoSingleDirection.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
@@ -1343,7 +1345,6 @@
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
             this.pnlAncillary.PerformLayout();
-            this.ctxGoSingleDirection.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1433,15 +1434,9 @@
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;
         private System.Windows.Forms.Button btnLevel3OffensiveSpell;
-        private System.Windows.Forms.Label lblLevel;
-        private System.Windows.Forms.TextBox txtLevel;
         private System.Windows.Forms.Button btnRemoveAll;
-        private System.Windows.Forms.Label lblPreferredAlignment;
-        private System.Windows.Forms.TextBox txtPreferredAlignment;
         private System.Windows.Forms.Label lblCelduinExpressLocation;
         private System.Windows.Forms.ComboBox cboCelduinExpress;
-        private System.Windows.Forms.Button btnFullMana;
-        private System.Windows.Forms.Button btnPlusXMana;
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
         private System.Windows.Forms.TextBox txtMana;
@@ -1449,9 +1444,15 @@
         private System.Windows.Forms.CheckBox chkPowerAttack;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
-        private System.Windows.Forms.Button btnManaMinus1;
         private System.Windows.Forms.ContextMenuStrip ctxGoSingleDirection;
         private System.Windows.Forms.ToolStripMenuItem tsmiSilentMove;
+        private System.Windows.Forms.Label lblPreferredAlignment;
+        private System.Windows.Forms.TextBox txtPreferredAlignment;
+        private System.Windows.Forms.Label lblLevel;
+        private System.Windows.Forms.TextBox txtLevel;
+        private System.Windows.Forms.TextBox txtHitpoints;
+        private System.Windows.Forms.Label lblHitpoints;
+        private System.Windows.Forms.CheckBox chkAutoMana;
     }
 }
 
