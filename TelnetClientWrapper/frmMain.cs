@@ -1385,7 +1385,7 @@ namespace IsengardClient
                         {
                             ctl.Enabled = !running;
                         }
-                        else if (ctl != btnPlusXMana)
+                        else if (ctl != btnPlusXMana && ctl != btnManaMinus1)
                         {
                             ctl.Enabled = !running;
                         }
@@ -3835,6 +3835,14 @@ namespace IsengardClient
         private void txtWeapon_TextChanged(object sender, EventArgs e)
         {
             ((StringVariable)_variablesByName["weapon"]).Value = txtWeapon.Text;
+        }
+
+        private void btnManaMinus1_Click(object sender, EventArgs e)
+        {
+            lock (_manaLock)
+            {
+                _currentMana = Math.Max(_currentMana - 1, 0);
+            }
         }
     }
 }

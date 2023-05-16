@@ -40,7 +40,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSCC" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon" finalcommand2="look {mob}">
+  <Macro name="SCCSC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon" finalcommand2="look {mob}">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
@@ -56,7 +56,7 @@
     </Sequence>
     <ManaStun waitms="castinterval"/>
     <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
-    <Sequence loop="2">
+    <Sequence loop="true">
      <Steps>
       <ManaOffensive waitms="castinterval"/>
       <Command text="attack {mob}" waitms="0" condition="weapon"/>

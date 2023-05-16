@@ -101,6 +101,9 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
+            this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
+            this.chkPowerAttack = new System.Windows.Forms.CheckBox();
             this.btnManaSet = new System.Windows.Forms.Button();
             this.txtMana = new System.Windows.Forms.TextBox();
             this.btnFullMana = new System.Windows.Forms.Button();
@@ -125,9 +128,7 @@
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.chkPowerAttack = new System.Windows.Forms.CheckBox();
-            this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
-            this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
+            this.btnManaMinus1 = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -913,6 +914,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnManaMinus1);
             this.pnlMain.Controls.Add(this.cboMaxOffLevel);
             this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
             this.pnlMain.Controls.Add(this.chkPowerAttack);
@@ -1000,9 +1002,41 @@
             this.pnlMain.Size = new System.Drawing.Size(1319, 691);
             this.pnlMain.TabIndex = 0;
             // 
+            // cboMaxOffLevel
+            // 
+            this.cboMaxOffLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMaxOffLevel.FormattingEnabled = true;
+            this.cboMaxOffLevel.Items.AddRange(new object[] {
+            "3",
+            "2",
+            "1"});
+            this.cboMaxOffLevel.Location = new System.Drawing.Point(473, 461);
+            this.cboMaxOffLevel.Name = "cboMaxOffLevel";
+            this.cboMaxOffLevel.Size = new System.Drawing.Size(129, 24);
+            this.cboMaxOffLevel.TabIndex = 99;
+            // 
+            // lblMaxOffensiveLevel
+            // 
+            this.lblMaxOffensiveLevel.AutoSize = true;
+            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(383, 464);
+            this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
+            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(84, 16);
+            this.lblMaxOffensiveLevel.TabIndex = 98;
+            this.lblMaxOffensiveLevel.Text = "Max off level:";
+            // 
+            // chkPowerAttack
+            // 
+            this.chkPowerAttack.AutoSize = true;
+            this.chkPowerAttack.Location = new System.Drawing.Point(473, 435);
+            this.chkPowerAttack.Name = "chkPowerAttack";
+            this.chkPowerAttack.Size = new System.Drawing.Size(111, 20);
+            this.chkPowerAttack.TabIndex = 97;
+            this.chkPowerAttack.Text = "Power Attack?";
+            this.chkPowerAttack.UseVisualStyleBackColor = true;
+            // 
             // btnManaSet
             // 
-            this.btnManaSet.Location = new System.Drawing.Point(761, 88);
+            this.btnManaSet.Location = new System.Drawing.Point(743, 88);
             this.btnManaSet.Name = "btnManaSet";
             this.btnManaSet.Size = new System.Drawing.Size(54, 29);
             this.btnManaSet.TabIndex = 96;
@@ -1012,15 +1046,15 @@
             // 
             // txtMana
             // 
-            this.txtMana.Location = new System.Drawing.Point(488, 91);
+            this.txtMana.Location = new System.Drawing.Point(457, 91);
             this.txtMana.Name = "txtMana";
             this.txtMana.ReadOnly = true;
-            this.txtMana.Size = new System.Drawing.Size(159, 22);
+            this.txtMana.Size = new System.Drawing.Size(133, 22);
             this.txtMana.TabIndex = 95;
             // 
             // btnFullMana
             // 
-            this.btnFullMana.Location = new System.Drawing.Point(700, 88);
+            this.btnFullMana.Location = new System.Drawing.Point(682, 88);
             this.btnFullMana.Name = "btnFullMana";
             this.btnFullMana.Size = new System.Drawing.Size(55, 29);
             this.btnFullMana.TabIndex = 94;
@@ -1030,7 +1064,7 @@
             // 
             // btnPlusXMana
             // 
-            this.btnPlusXMana.Location = new System.Drawing.Point(657, 88);
+            this.btnPlusXMana.Location = new System.Drawing.Point(596, 88);
             this.btnPlusXMana.Name = "btnPlusXMana";
             this.btnPlusXMana.Size = new System.Drawing.Size(37, 29);
             this.btnPlusXMana.TabIndex = 93;
@@ -1076,18 +1110,18 @@
             this.lblPreferredAlignment.AutoSize = true;
             this.lblPreferredAlignment.Location = new System.Drawing.Point(337, 62);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(127, 16);
+            this.lblPreferredAlignment.Size = new System.Drawing.Size(95, 16);
             this.lblPreferredAlignment.TabIndex = 88;
-            this.lblPreferredAlignment.Text = "Preferred alignment:";
+            this.lblPreferredAlignment.Text = "Alignment pref:";
             this.lblPreferredAlignment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // txtPreferredAlignment
             // 
             this.txtPreferredAlignment.Enabled = false;
-            this.txtPreferredAlignment.Location = new System.Drawing.Point(488, 60);
+            this.txtPreferredAlignment.Location = new System.Drawing.Point(457, 60);
             this.txtPreferredAlignment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPreferredAlignment.Name = "txtPreferredAlignment";
-            this.txtPreferredAlignment.Size = new System.Drawing.Size(160, 22);
+            this.txtPreferredAlignment.Size = new System.Drawing.Size(134, 22);
             this.txtPreferredAlignment.TabIndex = 89;
             // 
             // btnRemoveAll
@@ -1114,10 +1148,10 @@
             // txtLevel
             // 
             this.txtLevel.Enabled = false;
-            this.txtLevel.Location = new System.Drawing.Point(488, 25);
+            this.txtLevel.Location = new System.Drawing.Point(457, 25);
             this.txtLevel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtLevel.Name = "txtLevel";
-            this.txtLevel.Size = new System.Drawing.Size(160, 22);
+            this.txtLevel.Size = new System.Drawing.Size(134, 22);
             this.txtLevel.TabIndex = 86;
             // 
             // btnLevel3OffensiveSpell
@@ -1253,37 +1287,15 @@
             this.tmr.Interval = 20;
             this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // chkPowerAttack
+            // btnManaMinus1
             // 
-            this.chkPowerAttack.AutoSize = true;
-            this.chkPowerAttack.Location = new System.Drawing.Point(473, 435);
-            this.chkPowerAttack.Name = "chkPowerAttack";
-            this.chkPowerAttack.Size = new System.Drawing.Size(111, 20);
-            this.chkPowerAttack.TabIndex = 97;
-            this.chkPowerAttack.Text = "Power Attack?";
-            this.chkPowerAttack.UseVisualStyleBackColor = true;
-            // 
-            // lblMaxOffensiveLevel
-            // 
-            this.lblMaxOffensiveLevel.AutoSize = true;
-            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(383, 464);
-            this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
-            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(84, 16);
-            this.lblMaxOffensiveLevel.TabIndex = 98;
-            this.lblMaxOffensiveLevel.Text = "Max off level:";
-            // 
-            // cboMaxOffLevel
-            // 
-            this.cboMaxOffLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMaxOffLevel.FormattingEnabled = true;
-            this.cboMaxOffLevel.Items.AddRange(new object[] {
-            "3",
-            "2",
-            "1"});
-            this.cboMaxOffLevel.Location = new System.Drawing.Point(473, 461);
-            this.cboMaxOffLevel.Name = "cboMaxOffLevel";
-            this.cboMaxOffLevel.Size = new System.Drawing.Size(129, 24);
-            this.cboMaxOffLevel.TabIndex = 99;
+            this.btnManaMinus1.Location = new System.Drawing.Point(639, 88);
+            this.btnManaMinus1.Name = "btnManaMinus1";
+            this.btnManaMinus1.Size = new System.Drawing.Size(37, 29);
+            this.btnManaMinus1.TabIndex = 100;
+            this.btnManaMinus1.Text = "-1";
+            this.btnManaMinus1.UseVisualStyleBackColor = true;
+            this.btnManaMinus1.Click += new System.EventHandler(this.btnManaMinus1_Click);
             // 
             // frmMain
             // 
@@ -1410,6 +1422,7 @@
         private System.Windows.Forms.CheckBox chkPowerAttack;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
+        private System.Windows.Forms.Button btnManaMinus1;
     }
 }
 
