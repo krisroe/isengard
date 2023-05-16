@@ -169,6 +169,8 @@ namespace IsengardClient
             AddAsciiMapping('8', 56);
             AddAsciiMapping('9', 57);
             AddAsciiMapping(':', 58);
+            AddAsciiMapping(';', 59);
+            AddAsciiMapping('?', 63);
             AddAsciiMapping('@', 64);
             AddAsciiMapping('A', 65);
             AddAsciiMapping('B', 66);
@@ -640,6 +642,12 @@ namespace IsengardClient
                         break;
                     case 58:
                         c = ':';
+                        break;
+                    case 59:
+                        c = ';';
+                        break;
+                    case 63:
+                        c = '?';
                         break;
                     case 64:
                         c = '@';
@@ -1352,7 +1360,14 @@ namespace IsengardClient
                             ctl.Enabled = !running;
                         }
                     }
-                    else if (!(ctl is TextBox) && ctl != grpLocations)
+                    else if (ctl is TextBox)
+                    {
+                        if (ctl == txtOneOffCommand)
+                        {
+                            ctl.Enabled = !running;
+                        }
+                    }
+                    else if (ctl != grpLocations)
                     {
                         ctl.Enabled = !running;
                     }
