@@ -2525,10 +2525,17 @@ namespace IsengardClient
 
             Room oImladrisCircle8 = AddRoom("Imladris Circle");
             AddBidirectionalExits(oImladrisCircle9, oImladrisCircle8, BidirectionalExitType.SoutheastNorthwest);
+            AddExit(oImladrisAlley5, oImladrisCircle8, "south");
 
-            Room oRearAlley = AddRoom("Rear Alley");
+            Room oRearAlley = AddRoom("Master Assassin Threshold"); //Rear Alley
             AddBidirectionalExits(oImladrisCircle10, oRearAlley, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oRearAlley, oImladrisAlley5, BidirectionalExitType.WestEast);
+
+            Room oPoisonedDagger = AddRoom("Master Assassins");
+            oPoisonedDagger.Mob = oRearAlley.Mob = "assassin";
+            oPoisonedDagger.Experience = 600;
+            AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door", null);
+            SetVariablesForPermWithThreshold(oPoisonedDagger, oRearAlley, "door", null);
 
             oImladrisSouthGateInside = AddRoom("Southern Gate of Imladris");
             AddBidirectionalExits(oImladrisCircle8, oImladrisSouthGateInside, BidirectionalExitType.NorthSouth);
@@ -2568,6 +2575,8 @@ namespace IsengardClient
 
             AddLocation(_aImladrisTharbadPerms, oImladrisHealingHand);
             AddLocation(_aImladrisTharbadPerms, oIorlas);
+            AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
+            AddSubLocation(oPoisonedDagger, oRearAlley);
             AddLocation(_aMisc, oImladrisPawnShop);
             AddLocation(_aMisc, oTyriesPriestSupplies);
         }
@@ -3300,6 +3309,45 @@ namespace IsengardClient
             return input;
         }
 
+        private void btnDoSingleMove_Click(object sender, EventArgs e)
+        {
+            string direction = ((Button)sender).Tag.ToString();
+            string cmd;
+            if (direction == "north" || direction == "south")
+            {
+                cmd = direction;
+            }
+            else
+            {
+                cmd = "go " + direction;
+            }
+            if (SendCommand(cmd, true))
+            {
+                if (m_oCurrentRoom != null)
+                {
+                    Room newRoom = null;
+                    if (_map.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
+                    {
+                        foreach (Exit nextExit in edges)
+                        {
+                            if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
+                            {
+                                newRoom = nextExit.Target;
+                            }
+                        }
+                    }
+                    if (newRoom != null)
+                    {
+                        SetCurrentRoom(newRoom);
+                    }
+                    else
+                    {
+                        m_oCurrentRoom = null;
+                        txtCurrentRoom.Text = string.Empty;
+                    }
+                }
+            }
+        }
 
         private void btnDoAction_Click(object sender, EventArgs e)
         {

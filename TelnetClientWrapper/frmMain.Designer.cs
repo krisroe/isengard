@@ -426,16 +426,16 @@
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(812, 502);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(682, 502);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
-            this.txtCurrentRoom.Size = new System.Drawing.Size(156, 22);
+            this.txtCurrentRoom.Size = new System.Drawing.Size(286, 22);
             this.txtCurrentRoom.TabIndex = 37;
             // 
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(717, 504);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(590, 505);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
             this.lblCurrentRoom.Size = new System.Drawing.Size(86, 16);
             this.lblCurrentRoom.TabIndex = 38;
@@ -799,10 +799,10 @@
             this.btnNortheast.Name = "btnNortheast";
             this.btnNortheast.Size = new System.Drawing.Size(45, 28);
             this.btnNortheast.TabIndex = 71;
-            this.btnNortheast.Tag = "go northeast";
+            this.btnNortheast.Tag = "northeast";
             this.btnNortheast.Text = "NE";
             this.btnNortheast.UseVisualStyleBackColor = true;
-            this.btnNortheast.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnNortheast.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnNorth
             // 
@@ -814,7 +814,7 @@
             this.btnNorth.Tag = "north";
             this.btnNorth.Text = "N";
             this.btnNorth.UseVisualStyleBackColor = true;
-            this.btnNorth.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnNorth.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnNorthwest
             // 
@@ -823,10 +823,10 @@
             this.btnNorthwest.Name = "btnNorthwest";
             this.btnNorthwest.Size = new System.Drawing.Size(45, 28);
             this.btnNorthwest.TabIndex = 73;
-            this.btnNorthwest.Tag = "go northwest";
+            this.btnNorthwest.Tag = "northwest";
             this.btnNorthwest.Text = "NW";
             this.btnNorthwest.UseVisualStyleBackColor = true;
-            this.btnNorthwest.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnNorthwest.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnWest
             // 
@@ -835,10 +835,10 @@
             this.btnWest.Name = "btnWest";
             this.btnWest.Size = new System.Drawing.Size(45, 28);
             this.btnWest.TabIndex = 75;
-            this.btnWest.Tag = "go west";
+            this.btnWest.Tag = "west";
             this.btnWest.Text = "W";
             this.btnWest.UseVisualStyleBackColor = true;
-            this.btnWest.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnWest.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnEast
             // 
@@ -847,10 +847,10 @@
             this.btnEast.Name = "btnEast";
             this.btnEast.Size = new System.Drawing.Size(45, 28);
             this.btnEast.TabIndex = 74;
-            this.btnEast.Tag = "go east";
+            this.btnEast.Tag = "east";
             this.btnEast.Text = "E";
             this.btnEast.UseVisualStyleBackColor = true;
-            this.btnEast.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnEast.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnSouthwest
             // 
@@ -859,10 +859,10 @@
             this.btnSouthwest.Name = "btnSouthwest";
             this.btnSouthwest.Size = new System.Drawing.Size(45, 28);
             this.btnSouthwest.TabIndex = 78;
-            this.btnSouthwest.Tag = "go southwest";
+            this.btnSouthwest.Tag = "southwest";
             this.btnSouthwest.Text = "SW";
             this.btnSouthwest.UseVisualStyleBackColor = true;
-            this.btnSouthwest.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnSouthwest.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnSouth
             // 
@@ -874,7 +874,7 @@
             this.btnSouth.Tag = "south";
             this.btnSouth.Text = "S";
             this.btnSouth.UseVisualStyleBackColor = true;
-            this.btnSouth.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnSouth.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnSoutheast
             // 
@@ -883,10 +883,10 @@
             this.btnSoutheast.Name = "btnSoutheast";
             this.btnSoutheast.Size = new System.Drawing.Size(45, 28);
             this.btnSoutheast.TabIndex = 76;
-            this.btnSoutheast.Tag = "go southeast";
+            this.btnSoutheast.Tag = "southeast";
             this.btnSoutheast.Text = "SE";
             this.btnSoutheast.UseVisualStyleBackColor = true;
-            this.btnSoutheast.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnSoutheast.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // tcMain
             // 
