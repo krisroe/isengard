@@ -103,6 +103,10 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpConsole = new System.Windows.Forms.GroupBox();
+            this.rtbConsole = new System.Windows.Forms.RichTextBox();
+            this.grpSpells = new System.Windows.Forms.GroupBox();
+            this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
             this.txtManashieldTime = new System.Windows.Forms.TextBox();
             this.lblManashieldTime = new System.Windows.Forms.Label();
             this.txtPowerAttackTime = new System.Windows.Forms.TextBox();
@@ -135,8 +139,6 @@
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.grpSpells = new System.Windows.Forms.GroupBox();
-            this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -144,9 +146,10 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpConsole.SuspendLayout();
+            this.grpSpells.SuspendLayout();
             this.tabAncillary.SuspendLayout();
             this.pnlAncillary.SuspendLayout();
-            this.grpSpells.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -718,7 +721,7 @@
             this.treeLocations.Location = new System.Drawing.Point(4, 19);
             this.treeLocations.Margin = new System.Windows.Forms.Padding(4);
             this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(327, 693);
+            this.treeLocations.Size = new System.Drawing.Size(327, 707);
             this.treeLocations.TabIndex = 63;
             // 
             // grpLocations
@@ -728,7 +731,7 @@
             this.grpLocations.Margin = new System.Windows.Forms.Padding(4);
             this.grpLocations.Name = "grpLocations";
             this.grpLocations.Padding = new System.Windows.Forms.Padding(4);
-            this.grpLocations.Size = new System.Drawing.Size(335, 716);
+            this.grpLocations.Size = new System.Drawing.Size(335, 730);
             this.grpLocations.TabIndex = 64;
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
@@ -932,7 +935,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(2093, 1149);
+            this.tcMain.Size = new System.Drawing.Size(2165, 1149);
             this.tcMain.TabIndex = 79;
             // 
             // tabMain
@@ -942,13 +945,14 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(2085, 1120);
+            this.tabMain.Size = new System.Drawing.Size(2157, 1120);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.grpConsole);
             this.pnlMain.Controls.Add(this.grpSpells);
             this.pnlMain.Controls.Add(this.txtManashieldTime);
             this.pnlMain.Controls.Add(this.lblManashieldTime);
@@ -1035,8 +1039,50 @@
             this.pnlMain.Location = new System.Drawing.Point(3, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(2079, 1116);
+            this.pnlMain.Size = new System.Drawing.Size(2151, 1116);
             this.pnlMain.TabIndex = 0;
+            // 
+            // grpConsole
+            // 
+            this.grpConsole.Controls.Add(this.rtbConsole);
+            this.grpConsole.Location = new System.Drawing.Point(1317, 21);
+            this.grpConsole.Name = "grpConsole";
+            this.grpConsole.Size = new System.Drawing.Size(829, 725);
+            this.grpConsole.TabIndex = 109;
+            this.grpConsole.TabStop = false;
+            this.grpConsole.Text = "Console";
+            // 
+            // rtbConsole
+            // 
+            this.rtbConsole.BackColor = System.Drawing.Color.Black;
+            this.rtbConsole.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbConsole.Font = new System.Drawing.Font("Courier New", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rtbConsole.ForeColor = System.Drawing.Color.White;
+            this.rtbConsole.HideSelection = false;
+            this.rtbConsole.Location = new System.Drawing.Point(3, 18);
+            this.rtbConsole.Name = "rtbConsole";
+            this.rtbConsole.ReadOnly = true;
+            this.rtbConsole.Size = new System.Drawing.Size(823, 704);
+            this.rtbConsole.TabIndex = 0;
+            this.rtbConsole.Text = "";
+            // 
+            // grpSpells
+            // 
+            this.grpSpells.Controls.Add(this.flpSpells);
+            this.grpSpells.Location = new System.Drawing.Point(682, 16);
+            this.grpSpells.Name = "grpSpells";
+            this.grpSpells.Size = new System.Drawing.Size(285, 142);
+            this.grpSpells.TabIndex = 108;
+            this.grpSpells.TabStop = false;
+            this.grpSpells.Text = "Active Spells";
+            // 
+            // flpSpells
+            // 
+            this.flpSpells.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpSpells.Location = new System.Drawing.Point(3, 18);
+            this.flpSpells.Name = "flpSpells";
+            this.flpSpells.Size = new System.Drawing.Size(279, 121);
+            this.flpSpells.TabIndex = 0;
             // 
             // txtManashieldTime
             // 
@@ -1273,7 +1319,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(2085, 1120);
+            this.tabAncillary.Size = new System.Drawing.Size(2157, 1120);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1295,7 +1341,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(2079, 1116);
+            this.pnlAncillary.Size = new System.Drawing.Size(2151, 1116);
             this.pnlAncillary.TabIndex = 0;
             // 
             // lblPreferredAlignment
@@ -1373,29 +1419,11 @@
             this.tmr.Interval = 20;
             this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // grpSpells
-            // 
-            this.grpSpells.Controls.Add(this.flpSpells);
-            this.grpSpells.Location = new System.Drawing.Point(682, 16);
-            this.grpSpells.Name = "grpSpells";
-            this.grpSpells.Size = new System.Drawing.Size(285, 142);
-            this.grpSpells.TabIndex = 108;
-            this.grpSpells.TabStop = false;
-            this.grpSpells.Text = "Active Spells";
-            // 
-            // flpSpells
-            // 
-            this.flpSpells.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpSpells.Location = new System.Drawing.Point(4, 23);
-            this.flpSpells.Name = "flpSpells";
-            this.flpSpells.Size = new System.Drawing.Size(349, 151);
-            this.flpSpells.TabIndex = 0;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2093, 1149);
+            this.ClientSize = new System.Drawing.Size(2165, 1149);
             this.Controls.Add(this.tcMain);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
@@ -1412,10 +1440,11 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpConsole.ResumeLayout(false);
+            this.grpSpells.ResumeLayout(false);
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
             this.pnlAncillary.PerformLayout();
-            this.grpSpells.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1530,6 +1559,8 @@
         private System.Windows.Forms.Label lblManashieldTime;
         private System.Windows.Forms.GroupBox grpSpells;
         private System.Windows.Forms.FlowLayoutPanel flpSpells;
+        private System.Windows.Forms.GroupBox grpConsole;
+        private System.Windows.Forms.RichTextBox rtbConsole;
     }
 }
 

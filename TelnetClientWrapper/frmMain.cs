@@ -69,6 +69,8 @@ namespace IsengardClient
         private Room _breeDocks = null;
         private Room _boatswain = null;
         private object _queuedCommandLock = new object();
+        private object _consoleTextLock = new object();
+        private List<string> _newConsoleText = new List<string>();
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
@@ -308,7 +310,10 @@ namespace IsengardClient
             {
                 if (_queue.Count == 1 && _queue[0] == 10)
                 {
-                    Console.Out.WriteLine();
+                    lock (_consoleTextLock)
+                    {
+                        _newConsoleText.Add(Environment.NewLine);
+                    }
                 }
                 else
                 {
@@ -659,13 +664,10 @@ namespace IsengardClient
                     default:
                         throw new InvalidOperationException();
                 }
-                if (isUnknown)
+                string sNewString = isUnknown ? "<" + nextByte + ">" : c.ToString();
+                lock (_consoleTextLock)
                 {
-                    Console.Out.Write("<" + nextByte + ">");
-                }
-                else
-                {
-                    Console.Out.Write(c);
+                    _newConsoleText.Add(sNewString);
                 }
             }
         }
@@ -1178,7 +1180,7 @@ namespace IsengardClient
                             ctl.Enabled = !running;
                         }
                     }
-                    else if (ctl != grpLocations)
+                    else if (ctl != grpLocations && ctl != grpConsole)
                     {
                         ctl.Enabled = !running;
                     }
@@ -2942,7 +2944,11 @@ namespace IsengardClient
                     {
                         sToConsole = command;
                     }
-                    Console.Out.WriteLine(sToConsole);
+                    lock (_consoleTextLock)
+                    {
+                        _newConsoleText.Add(sToConsole);
+                        _newConsoleText.Add(Environment.NewLine);
+                    }
                 }
             }
         }
@@ -3566,6 +3572,17 @@ namespace IsengardClient
             {
                 this.Close();
                 return;
+            }
+            lock (_consoleTextLock)
+            {
+                if (_newConsoleText.Count > 0)
+                {
+                    foreach (string s in _newConsoleText)
+                    {
+                        rtbConsole.AppendText(s);
+                    }
+                    _newConsoleText.Clear();
+                }
             }
             bool autoMana = chkAutoMana.Checked;
             if (autoMana)
