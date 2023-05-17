@@ -1,4 +1,4 @@
-<Configuration defaultrealm="earth" level="12" totalhp="59" totalmp="61" preferredalignment="Blue" username="despug" startupcommands="remove all;score">
+<Configuration defaultrealm="earth" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Blue" username="despug" startupcommands="remove all;score">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>

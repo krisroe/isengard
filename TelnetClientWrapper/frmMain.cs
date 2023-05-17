@@ -4,12 +4,11 @@ using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using static IsengardClient.HPMPSequence;
-
 namespace IsengardClient
 {
     internal partial class frmMain : Form
@@ -22,6 +21,10 @@ namespace IsengardClient
         /// </summary>
         private AlignmentType _preferredAlignment;
 
+        private static Color BACK_COLOR_GO = Color.LightGreen;
+        private static Color BACK_COLOR_CAUTION = Color.Yellow;
+        private static Color BACK_COLOR_STOP = Color.LightSalmon;
+        private static Color BACK_COLOR_NEUTRAL = Color.LightGray;
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
         private bool? _setDay;
@@ -37,6 +40,7 @@ namespace IsengardClient
         private int _level;
         private int _totalhp;
         private int _totalmp;
+        private int _healtickmp;
         private static int? _autoMana;
         private static int? _autoHitpoints;
         private int? _currentMana;
@@ -87,7 +91,7 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands)
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands)
         {
             InitializeComponent();
 
@@ -124,6 +128,7 @@ namespace IsengardClient
             txtLevel.Text = _level.ToString();
             _totalhp = totalhp;
             _totalmp = totalmp;
+            _healtickmp = healtickmp;
 
             _preferredAlignment = preferredAlignment;
             txtPreferredAlignment.Text = _preferredAlignment.ToString();
@@ -250,6 +255,10 @@ namespace IsengardClient
                 new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
                 new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
                 new SpellsCastSequence(_asciiMapping, _reverseAsciiMapping, OnSpellsCastChange),
+                new ConstantSequence("You feel less protected.", DoScore, _asciiMapping),
+                new ConstantSequence("You feel less holy.", DoScore, _asciiMapping),
+                new ConstantSequence("You feel watched.", DoScore, _asciiMapping),
+                new ConstantSequence("You feel holy.", DoScore, _asciiMapping),
             };
 
             while (true)
@@ -3537,18 +3546,44 @@ namespace IsengardClient
 
         private void tmr_Tick(object sender, EventArgs e)
         {
-            if (chkAutoMana.Checked)
+            bool autoMana = chkAutoMana.Checked;
+            if (autoMana)
             {
                 _currentMana = _autoMana;
-                txtMana.Text = _autoMana.ToString();
+            }
+            else
+            {
+                txtMana.BackColor = BACK_COLOR_NEUTRAL;
             }
             if (_currentMana.HasValue)
             {
-                txtMana.Text = _currentMana.Value.ToString();
+                string sText = _currentMana.Value.ToString();
+                if (autoMana)
+                {
+                    sText += "/" + _totalmp;
+                }
+                txtMana.Text = sText;
+                if (autoMana)
+                {
+                    Color backColor;
+                    if (_currentMana == _totalmp)
+                        backColor = BACK_COLOR_GO;
+                    else if (_currentMana + _healtickmp >= _totalmp)
+                        backColor = BACK_COLOR_CAUTION;
+                    else
+                        backColor = BACK_COLOR_STOP;
+                    txtMana.BackColor = backColor;
+                }
             }
             if (_autoHitpoints.HasValue)
             {
-                txtHitpoints.Text = _autoHitpoints.Value.ToString();
+                txtHitpoints.Text = _autoHitpoints.Value.ToString() + "/" + _totalhp;
+                Color backColor;
+                if (_autoHitpoints.Value == _totalhp)
+                    backColor = BACK_COLOR_GO;
+                else
+                    backColor = BACK_COLOR_STOP;
+                txtHitpoints.BackColor = backColor;
             }
             foreach (KeyValuePair<SkillWithCooldownType, SkillCooldownStatus> nextCoolDown in _skillCooldowns)
             {
@@ -3567,27 +3602,35 @@ namespace IsengardClient
                     default:
                         throw new InvalidOperationException();
                 }
+                string sText;
+                Color backColor;
                 if (oStatus.IsActive)
                 {
-                    txt.Text = "ACTIVE";
+                    sText = "ACTIVE";
+                    backColor = BACK_COLOR_GO;
                 }
                 else if (oStatus.NextAvailableDate.HasValue)
                 {
                     DateTime dtDateValue = oStatus.NextAvailableDate.Value;
                     if (dtUTCNow >= dtDateValue)
                     {
-                        txt.Text = "0:00";
+                        sText = "0:00";
+                        backColor = BACK_COLOR_GO;
                     }
                     else
                     {
                         TimeSpan ts = dtDateValue - dtUTCNow;
-                        txt.Text = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
+                        sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
+                        backColor = BACK_COLOR_STOP;
                     }
                 }
                 else
                 {
-                    txt.Text = string.Empty;
+                    sText = string.Empty;
+                    backColor = BACK_COLOR_NEUTRAL;
                 }
+                txt.Text = sText;
+                txt.BackColor = backColor;
             }
             //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
             if (!btnAbort.Enabled)

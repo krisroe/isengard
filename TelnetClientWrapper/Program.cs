@@ -20,7 +20,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands);
+            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,10 +33,10 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, preferredAlignment, userName, password, allMacros, startupCommands));
+            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands));
         }
 
-        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands)
+        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands)
         {
             variables = new List<Variable>();
             variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -44,6 +44,7 @@ namespace IsengardClient
             level = 0;
             totalhp = 0;
             totalmp = 0;
+            healtickmp = 0;
             preferredAlignment = AlignmentType.Grey;
             userName = string.Empty;
             allMacros = new List<Macro>();
@@ -119,6 +120,18 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid total MP specified: " + sTotalMP);
                 totalmp = 0;
+            }
+
+            string sHealTickMP = docElement.GetAttribute("healtickmp");
+            if (string.IsNullOrEmpty(sHealTickMP))
+            {
+                MessageBox.Show("No heal tick MP specified.");
+                healtickmp = 0;
+            }
+            else if (!int.TryParse(sHealTickMP, out healtickmp))
+            {
+                MessageBox.Show("Invalid heal tick MP specified: " + sHealTickMP);
+                healtickmp = 0;
             }
 
             string sPreferredAlignment = docElement.GetAttribute("preferredalignment");
