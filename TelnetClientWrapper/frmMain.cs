@@ -24,6 +24,7 @@ namespace IsengardClient
 
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
+        private bool? _setDay;
         private bool _doScore;
         private static Dictionary<SkillWithCooldownType, SkillCooldownStatus> _skillCooldowns;
         private string _username;
@@ -218,6 +219,16 @@ namespace IsengardClient
             oStatus.NextAvailableDate = nextAvailableDate;
         }
 
+        private void OnNight()
+        {
+            _setDay = false;
+        }
+
+        private void OnDay()
+        {
+            _setDay = true;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -229,6 +240,8 @@ namespace IsengardClient
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
                 new ConstantSequence("You creative a protective manashield.", DoScore, _asciiMapping),
                 new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
+                new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
+                new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
             };
 
             while (true)
@@ -3597,6 +3610,11 @@ namespace IsengardClient
                     {
                         SendCommand(nextCommand, false);
                     }
+                }
+                if (_setDay.HasValue)
+                {
+                    _setDay = null;
+                    chkIsNight.Checked = !_setDay.Value;
                 }
             }
         }
