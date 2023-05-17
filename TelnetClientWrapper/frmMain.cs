@@ -3134,7 +3134,6 @@ namespace IsengardClient
         private void btnQuit_Click(object sender, EventArgs e)
         {
             _quitting = true;
-            Enabled = false;
             SendCommand("quit", false, true);
         }
 
@@ -3649,6 +3648,11 @@ namespace IsengardClient
                 {
                     sText = string.Empty;
                     backColor = BACK_COLOR_NEUTRAL;
+                }
+                string sPreviousText = txt.Text;
+                if (eType == SkillWithCooldownType.PowerAttack && sText == "0:00" && !string.Equals(sPreviousText, sText) && !string.IsNullOrEmpty(txtWeapon.Text) && !btnAbort.Enabled)
+                {
+                    chkPowerAttack.Checked = true;
                 }
                 txt.Text = sText;
                 txt.BackColor = backColor;
