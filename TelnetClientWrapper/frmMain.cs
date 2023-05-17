@@ -1804,7 +1804,6 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
-            AddLocation(_aMisc, oSewerPassageInFrontOfGate);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
