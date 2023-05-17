@@ -20,7 +20,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands);
+            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,10 +33,10 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands));
+            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon));
         }
 
-        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands)
+        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon)
         {
             variables = new List<Variable>();
             variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -49,6 +49,7 @@ namespace IsengardClient
             userName = string.Empty;
             allMacros = new List<Macro>();
             startupCommands = new List<string>();
+            defaultWeapon = string.Empty;
 
             string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
             FileInfo fi = new FileInfo(configurationFile);
@@ -85,6 +86,8 @@ namespace IsengardClient
                     defaultRealm = string.Empty;
                 }
             }
+
+            defaultWeapon = docElement.GetAttribute("defaultweapon");
 
             string sLevel = docElement.GetAttribute("level");
             if (string.IsNullOrEmpty(sLevel))

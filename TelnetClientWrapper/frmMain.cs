@@ -93,7 +93,7 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands)
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon)
         {
             InitializeComponent();
 
@@ -134,6 +134,7 @@ namespace IsengardClient
 
             _preferredAlignment = preferredAlignment;
             txtPreferredAlignment.Text = _preferredAlignment.ToString();
+            txtWeapon.Text = defaultWeapon;
 
             _username = userName;
             _password = password;
@@ -3589,7 +3590,7 @@ namespace IsengardClient
                     Color backColor;
                     if (_currentMana == _totalmp)
                         backColor = BACK_COLOR_GO;
-                    else if (_currentMana + _healtickmp >= _totalmp)
+                    else if (_currentMana + _healtickmp > _totalmp)
                         backColor = BACK_COLOR_CAUTION;
                     else
                         backColor = BACK_COLOR_STOP;
@@ -3636,14 +3637,13 @@ namespace IsengardClient
                     if (dtUTCNow >= dtDateValue)
                     {
                         sText = "0:00";
-                        backColor = BACK_COLOR_GO;
                     }
                     else
                     {
                         TimeSpan ts = dtDateValue - dtUTCNow;
                         sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
-                        backColor = BACK_COLOR_STOP;
                     }
+                    backColor = sText == "0:00" ? BACK_COLOR_GO : BACK_COLOR_STOP;
                 }
                 else
                 {
