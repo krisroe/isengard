@@ -3,7 +3,7 @@ namespace IsengardClient
 {
     public static class AsciiMapping
     {
-        public static Dictionary<char, int> GetAsciiMapping()
+        public static Dictionary<char, int> GetAsciiMapping(out Dictionary<int, char> reverseAsciiMapping)
         {
             Dictionary<char, int> ret = new Dictionary<char, int>();
             ret[' '] = 32;
@@ -90,6 +90,13 @@ namespace IsengardClient
             ret['y'] = 121;
             ret['z'] = 122;
             ret['|'] = 124;
+
+            reverseAsciiMapping = new Dictionary<int, char>();
+            foreach (KeyValuePair<char, int> next in ret)
+            {
+                reverseAsciiMapping[next.Value] = next.Key;
+            }
+
             return ret;
         }
     }

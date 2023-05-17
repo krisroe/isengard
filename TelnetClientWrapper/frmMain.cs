@@ -25,6 +25,7 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
         private bool? _setDay;
+        private List<string> _newSpellsCast;
         private bool _doScore;
         private static Dictionary<SkillWithCooldownType, SkillCooldownStatus> _skillCooldowns;
         private string _username;
@@ -68,7 +69,8 @@ namespace IsengardClient
         private Area _aMisc;
         private Area _aInaccessible;
         private List<int> _queue = new List<int>();
-        private static Dictionary<char, int> _asciiMapping;
+        private Dictionary<char, int> _asciiMapping;
+        private Dictionary<int, char> _reverseAsciiMapping;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -89,7 +91,7 @@ namespace IsengardClient
         {
             InitializeComponent();
 
-            _asciiMapping = AsciiMapping.GetAsciiMapping();
+            _asciiMapping = AsciiMapping.GetAsciiMapping(out _reverseAsciiMapping);
 
             _variables = variables;
             _variablesByName = variablesByName;
@@ -229,6 +231,11 @@ namespace IsengardClient
             _setDay = true;
         }
 
+        private void OnSpellsCastChange(List<string> spells)
+        {
+            _newSpellsCast = spells;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -242,6 +249,7 @@ namespace IsengardClient
                 new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
                 new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
                 new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
+                new SpellsCastSequence(_asciiMapping, _reverseAsciiMapping, OnSpellsCastChange),
             };
 
             while (true)
@@ -3339,8 +3347,8 @@ namespace IsengardClient
                     MessageBox.Show("No weapon specified.");
                     return;
                 }
-                ((StringVariable)_variablesByName["attacktype"]).Value = "power";
             }
+            ((StringVariable)_variablesByName["attacktype"]).Value = powerAttack ? "power" : "attack";
 
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
             string errorMessage;
@@ -3568,7 +3576,7 @@ namespace IsengardClient
                     DateTime dtDateValue = oStatus.NextAvailableDate.Value;
                     if (dtUTCNow >= dtDateValue)
                     {
-                        txt.Text = "0";
+                        txt.Text = "0:00";
                     }
                     else
                     {
@@ -3613,8 +3621,22 @@ namespace IsengardClient
                 }
                 if (_setDay.HasValue)
                 {
+                    bool setDayValue = _setDay.Value;
                     _setDay = null;
-                    chkIsNight.Checked = !_setDay.Value;
+                    chkIsNight.Checked = !setDayValue;
+                }
+                if (_newSpellsCast != null)
+                {
+                    List<string> newSpellsCast = _newSpellsCast;
+                    _newSpellsCast = null;
+                    flpSpells.Controls.Clear();
+                    foreach (string next in newSpellsCast)
+                    {
+                        Label l = new Label();
+                        l.AutoSize = true;
+                        l.Text = next;
+                        flpSpells.Controls.Add(l);
+                    }
                 }
             }
         }

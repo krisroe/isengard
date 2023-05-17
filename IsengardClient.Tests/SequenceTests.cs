@@ -11,7 +11,8 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestSequences()
         {
-            Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping();
+            Dictionary<int, char> reverseAsciiMapping;
+            Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping(out reverseAsciiMapping);
 
             bool skillActive;
             DateTime? availableDate;

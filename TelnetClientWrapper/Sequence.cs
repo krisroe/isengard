@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+
 namespace IsengardClient
 {
     public interface ISequence
@@ -15,11 +17,17 @@ namespace IsengardClient
         public ConstantSequence(string characters, Action onSatisfied, Dictionary<char, int> asciiMapping)
         {
             _onSatisfied = onSatisfied;
-            _chars = new List<int>(characters.Length);
-            foreach (char c in characters)
+            _chars = GenerateBytesForPattern(characters, asciiMapping);
+        }
+
+        public static List<int> GenerateBytesForPattern(string pattern, Dictionary<char,int> asciiMapping)
+        {
+            List<int> ret = new List<int>(pattern.Length);
+            foreach (char c in pattern)
             {
-                _chars.Add(asciiMapping[c]);
+                ret.Add(asciiMapping[c]);
             }
+            return ret;
         }
 
         public void FeedByte(int nextByte)
@@ -208,11 +216,7 @@ namespace IsengardClient
                     throw new InvalidOperationException();
             }
             sPattern += " ";
-            _chars = new List<int>(sPattern.Length);
-            foreach (char c in sPattern)
-            {
-                _chars.Add(_asciiMapping[c]);
-            }
+            _chars = ConstantSequence.GenerateBytesForPattern(sPattern, asciiMapping);
             _minutes = 0;
             _tensOfSeconds = 0;
             _seconds = 0;
@@ -385,6 +389,74 @@ namespace IsengardClient
             {
                 _currentMatchPoint = -1;
             }
+        }
+    }
+
+    public class SpellsCastSequence : ISequence
+    {
+        private Dictionary<char, int> _asciiMapping;
+        private Dictionary<int, char> _reverseAsciiMapping;
+        private List<int> _chars;
+        private SpellsCastStep _currentStep;
+        private int _currentMatchPoint = -1;
+        private List<int> _spellText;
+        private Action<List<string>> _onSatisfied;
+        public SpellsCastSequence(Dictionary<char, int> asciiMapping, Dictionary<int, char> reverseAsciiMapping, Action<List<string>> onSatisfied)
+        {
+            _asciiMapping = asciiMapping;
+            _reverseAsciiMapping = reverseAsciiMapping;
+            _chars = ConstantSequence.GenerateBytesForPattern("Spells cast: ", asciiMapping);
+            _currentStep = SpellsCastStep.None;
+            _spellText = new List<int>();
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedByte(int nextByte)
+        {
+            if (_currentStep == SpellsCastStep.None)
+            {
+                int nextCharToMatch = _chars[_currentMatchPoint + 1];
+                if (nextCharToMatch == nextByte)
+                {
+                    _currentMatchPoint++;
+                    if (_currentMatchPoint == _chars.Count - 1) //finished start pattern
+                    {
+                        _currentStep = SpellsCastStep.PastSpellsCast;
+                        _currentMatchPoint = -1;
+                        _spellText = new List<int>();
+                    }
+                }
+                else //start over
+                {
+                    _currentMatchPoint = -1;
+                }
+            }
+            else if (_currentStep == SpellsCastStep.PastSpellsCast)
+            {
+                if (nextByte == _asciiMapping['.'])
+                {
+                    _currentStep = SpellsCastStep.None;
+                    _currentMatchPoint = -1;
+                    StringBuilder sb = new StringBuilder();
+                    foreach (int nextcharcter in _spellText)
+                    {
+                        sb.Append(_reverseAsciiMapping[nextcharcter]);
+                    }
+                    List<string> ret = new List<string>();
+                    ret.AddRange(sb.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));
+                    _onSatisfied(ret);
+                }
+                else
+                {
+                    _spellText.Add(nextByte);
+                }
+            }
+        }
+
+        private enum SpellsCastStep
+        {
+            None,
+            PastSpellsCast
         }
     }
 
