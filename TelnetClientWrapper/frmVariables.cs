@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace IsengardClient
 {
-    public partial class frmVariables : Form
+    internal partial class frmVariables : Form
     {
         private List<Variable> _variables;
         private Control[] _controls;

@@ -1,7 +1,7 @@
 ﻿using System;
 namespace IsengardClient
 {
-    public class Variable
+    internal class Variable
     {
         public Variable()
         {
@@ -36,24 +36,24 @@ namespace IsengardClient
         public VariableType Type { get; set; }
     }
 
-    public class BooleanVariable : Variable
+    internal class BooleanVariable : Variable
     {
         public bool Value { get; set; }
     }
 
-    public class IntegerVariable : Variable
+    internal class IntegerVariable : Variable
     {
         public int Value { get; set; }
         public int? Min { get; set; }
         public int? Max { get; set; }
     }
 
-    public class StringVariable : Variable
+    internal class StringVariable : Variable
     {
         public string Value { get; set; }
     }
 
-    public enum VariableType
+    internal enum VariableType
     {
         Bool,
         Int,

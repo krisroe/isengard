@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using static IsengardClient.HPMPSequence;
+
 namespace IsengardClient
 {
     internal partial class frmMain : Form
@@ -19,16 +22,24 @@ namespace IsengardClient
         /// </summary>
         private AlignmentType _preferredAlignment;
 
-        private byte[] _NEW_LINE = new byte[] { 13, 10 };
+        private static DateTime? _currentStatusLastComputed;
+        private static DateTime? _lastPollTick;
+        private bool _doScore;
+        private static Dictionary<SkillWithCooldownType, SkillCooldownStatus> _skillCooldowns;
         private string _username;
         private string _password;
+        private bool _promptedUserName;
+        private bool _promptedPassword;
         private bool _enteredUserName;
         private bool _enteredPassword;
         private int _level;
-        private int _totalMana;
+        private int _totalhp;
+        private int _totalmp;
         private static int? _autoMana;
         private static int? _autoHitpoints;
         private int? _currentMana;
+        private List<string> _startupCommands;
+        private bool _ranStartupCommands;
         private AdjacencyGraph<Room, Exit> _map;
         private Room m_oCurrentRoom;
         private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
@@ -55,6 +66,8 @@ namespace IsengardClient
         private Area _aShips;
         private Area _aMisc;
         private Area _aInaccessible;
+        private List<int> _queue = new List<int>();
+        private static Dictionary<char, int> _asciiMapping;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -71,12 +84,19 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros)
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands)
         {
             InitializeComponent();
 
+            _asciiMapping = AsciiMapping.GetAsciiMapping();
+
             _variables = variables;
             _variablesByName = variablesByName;
+            _startupCommands = startupCommands;
+
+            _skillCooldowns = new Dictionary<SkillWithCooldownType, SkillCooldownStatus>();
+            _skillCooldowns[SkillWithCooldownType.PowerAttack] = new SkillCooldownStatus();
+            _skillCooldowns[SkillWithCooldownType.Manashield] = new SkillCooldownStatus();
 
             if (!string.IsNullOrEmpty(defaultRealm))
             {
@@ -99,6 +119,8 @@ namespace IsengardClient
 
             _level = level;
             txtLevel.Text = _level.ToString();
+            _totalhp = totalhp;
+            _totalmp = totalmp;
 
             _preferredAlignment = preferredAlignment;
             txtPreferredAlignment.Text = _preferredAlignment.ToString();
@@ -145,91 +167,6 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            AddAsciiMapping(' ', 32);
-            AddAsciiMapping('!', 33);
-            AddAsciiMapping('"', 34);
-            AddAsciiMapping('#', 35);
-            AddAsciiMapping('%', 37);
-            AddAsciiMapping('\'', 39);
-            AddAsciiMapping('(', 40);
-            AddAsciiMapping(')', 41);
-            AddAsciiMapping('+', 43);
-            AddAsciiMapping(',', 44);
-            AddAsciiMapping('-', 45);
-            AddAsciiMapping('.', 46);
-            AddAsciiMapping('/', 47);
-            AddAsciiMapping('0', 48);
-            AddAsciiMapping('1', 49);
-            AddAsciiMapping('2', 50);
-            AddAsciiMapping('3', 51);
-            AddAsciiMapping('4', 52);
-            AddAsciiMapping('5', 53);
-            AddAsciiMapping('6', 54);
-            AddAsciiMapping('7', 55);
-            AddAsciiMapping('8', 56);
-            AddAsciiMapping('9', 57);
-            AddAsciiMapping(':', 58);
-            AddAsciiMapping(';', 59);
-            AddAsciiMapping('?', 63);
-            AddAsciiMapping('@', 64);
-            AddAsciiMapping('A', 65);
-            AddAsciiMapping('B', 66);
-            AddAsciiMapping('C', 67);
-            AddAsciiMapping('D', 68);
-            AddAsciiMapping('E', 69);
-            AddAsciiMapping('F', 70);
-            AddAsciiMapping('G', 71);
-            AddAsciiMapping('H', 72);
-            AddAsciiMapping('I', 73);
-            AddAsciiMapping('J', 74);
-            AddAsciiMapping('K', 75);
-            AddAsciiMapping('L', 76);
-            AddAsciiMapping('M', 77);
-            AddAsciiMapping('N', 78);
-            AddAsciiMapping('O', 79);
-            AddAsciiMapping('P', 80);
-            AddAsciiMapping('Q', 81);
-            AddAsciiMapping('R', 82);
-            AddAsciiMapping('S', 83);
-            AddAsciiMapping('T', 84);
-            AddAsciiMapping('U', 85);
-            AddAsciiMapping('V', 86);
-            AddAsciiMapping('W', 87);
-            AddAsciiMapping('X', 88);
-            AddAsciiMapping('Y', 89);
-            AddAsciiMapping('Z', 90);
-            AddAsciiMapping('[', 91);
-            AddAsciiMapping(']', 93);
-            AddAsciiMapping('_', 95);
-            AddAsciiMapping('`', 96);
-            AddAsciiMapping('a', 97);
-            AddAsciiMapping('b', 98);
-            AddAsciiMapping('c', 99);
-            AddAsciiMapping('d', 100);
-            AddAsciiMapping('e', 101);
-            AddAsciiMapping('f', 102);
-            AddAsciiMapping('g', 103);
-            AddAsciiMapping('h', 104);
-            AddAsciiMapping('i', 105);
-            AddAsciiMapping('j', 106);
-            AddAsciiMapping('k', 107);
-            AddAsciiMapping('l', 108);
-            AddAsciiMapping('m', 109);
-            AddAsciiMapping('n', 110);
-            AddAsciiMapping('o', 111);
-            AddAsciiMapping('p', 112);
-            AddAsciiMapping('q', 113);
-            AddAsciiMapping('r', 114);
-            AddAsciiMapping('s', 115);
-            AddAsciiMapping('t', 116);
-            AddAsciiMapping('u', 117);
-            AddAsciiMapping('v', 118);
-            AddAsciiMapping('w', 119);
-            AddAsciiMapping('x', 120);
-            AddAsciiMapping('y', 121);
-            AddAsciiMapping('z', 122);
-            AddAsciiMapping('|', 124);
-
             SetButtonTags();
             InitializeMap();
             SetNightEdges(false);
@@ -246,196 +183,52 @@ namespace IsengardClient
             _bwNetwork.RunWorkerAsync();
         }
 
-        private void AddAsciiMapping(char c, int i)
+        private class SkillCooldownStatus
         {
-            _asciiMapping[c] = i;
-            _asciiReverseMapping[i] = c;
+            public bool IsActive { get; set; }
+            public DateTime? NextAvailableDate { get; set; }
         }
 
-        private interface ISequence
+        private void OnNamePrompt()
         {
-            void FeedByte(int nextByte);
-            bool IsSatisfied { get; }
+            _promptedUserName = true;
         }
 
-        private class HPMPSequence : ISequence
+        private void OnPasswordPrompt()
         {
-            private List<int> HPNumbers = new List<int>();
-            private List<int> MPNumbers = new List<int>();
-            private HPMPStep CurrentStep = HPMPStep.None;
-
-            private enum HPMPStep
-            {
-                None,
-                LeftParen,
-                AfterHPNumberSpace,
-                H,
-                BeforeMPNumberSpace,
-                AfterMPNumberSpace,
-                M,
-                RightParen,
-                Colon,
-            }
-
-            public bool IsSatisfied
-            {
-                get;
-                private set;
-            }
-
-            public void FeedByte(int nextByte)
-            {
-                if (IsSatisfied)
-                {
-                    IsSatisfied = false;
-                    CurrentStep = HPMPStep.None;
-                }
-                switch (CurrentStep)
-                {
-                    case HPMPStep.None:
-                        if (nextByte == _asciiMapping['('])
-                            CurrentStep = HPMPStep.LeftParen;
-                        break;
-                    case HPMPStep.LeftParen:
-                        if (nextByte == _asciiMapping[' '])
-                        {
-                            if (HPNumbers.Count == 0)
-                                CurrentStep = HPMPStep.None;
-                            else
-                                CurrentStep = HPMPStep.AfterHPNumberSpace;
-                        }
-                        else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
-                        {
-                            HPNumbers.Add(nextByte - _asciiMapping['0']);
-                        }
-                        else
-                        {
-                            CurrentStep = HPMPStep.None;
-                        }
-                        break;
-                    case HPMPStep.AfterHPNumberSpace:
-                        if (nextByte == _asciiMapping['H'])
-                            CurrentStep = HPMPStep.H;
-                        else
-                            CurrentStep = HPMPStep.None;
-                        break;
-                    case HPMPStep.H:
-                        if (nextByte == _asciiMapping[' '])
-                            CurrentStep = HPMPStep.BeforeMPNumberSpace;
-                        else
-                            CurrentStep = HPMPStep.None;
-                        break;
-                    case HPMPStep.BeforeMPNumberSpace:
-                        if (nextByte == _asciiMapping[' '])
-                        {
-                            if (MPNumbers.Count == 0)
-                                CurrentStep = HPMPStep.None;
-                            else
-                                CurrentStep = HPMPStep.AfterMPNumberSpace;
-                        }
-                        else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
-                        {
-                            MPNumbers.Add(nextByte - _asciiMapping['0']);
-                        }
-                        else
-                        {
-                            CurrentStep = HPMPStep.None;
-                        }
-                        break;
-                    case HPMPStep.AfterMPNumberSpace:
-                        if (nextByte == _asciiMapping['M'])
-                            CurrentStep = HPMPStep.M;
-                        else
-                            CurrentStep = HPMPStep.None;
-                        break;
-                    case HPMPStep.M:
-                        if (nextByte == _asciiMapping[')'])
-                            CurrentStep = HPMPStep.RightParen;
-                        else
-                            CurrentStep = HPMPStep.None;
-                        break;
-                    case HPMPStep.RightParen:
-                        if (nextByte == _asciiMapping[':'])
-                            CurrentStep = HPMPStep.Colon;
-                        else
-                            CurrentStep = HPMPStep.None;
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
-                if (CurrentStep == HPMPStep.None)
-                {
-                    HPNumbers.Clear();
-                    MPNumbers.Clear();
-                }
-                else if (CurrentStep == HPMPStep.Colon)
-                {
-                    IsSatisfied = true;
-                    int hp = 0;
-                    for (int i = 0; i < HPNumbers.Count; i++)
-                    {
-                        hp = (hp * 10) + HPNumbers[i];
-                    }
-                    _autoHitpoints = hp;
-                    int mp = 0;
-                    for (int i = 0; i < MPNumbers.Count; i++)
-                    {
-                        mp = (mp * 10) + MPNumbers[i];
-                    }
-                    _autoHitpoints = hp;
-                    _autoMana = mp;
-                }
-            }
+            _promptedPassword = true;
         }
 
-        private class ConstantSequence : ISequence
+        private void DoScore()
         {
-            private int _currentMatchPoint = -1;
-            private List<int> _chars;
-            public ConstantSequence(string characters)
-            {
-                _chars = new List<int>(characters.Length);
-                foreach (char c in characters)
-                {
-                    _chars.Add(_asciiMapping[c]);
-                }
-            }
+            _doScore = true;
+        }
 
-            public bool IsSatisfied
-            {
-                get;
-                private set;
-            }
+        private void OnGetHPMP(int hp, int mp)
+        {
+            _autoHitpoints = hp;
+            _autoMana = mp;
+            _currentStatusLastComputed = DateTime.UtcNow;
+        }
 
-            public void FeedByte(int nextByte)
-            {
-                if (IsSatisfied)
-                {
-                    IsSatisfied = false;
-                    _currentMatchPoint = -1;
-                }
-                if (_chars[_currentMatchPoint + 1] == nextByte)
-                {
-                    _currentMatchPoint++;
-                    IsSatisfied = _currentMatchPoint == _chars.Count - 1;
-                }
-                else
-                {
-                    _currentMatchPoint = -1;
-                    IsSatisfied = false;
-                }
-            }
+        private void OnGetSkillCooldown(SkillWithCooldownType skillWithCooldownType, bool isActive, DateTime? nextAvailableDate)
+        {
+            SkillCooldownStatus oStatus = _skillCooldowns[skillWithCooldownType];
+            oStatus.IsActive = isActive;
+            oStatus.NextAvailableDate = nextAvailableDate;
         }
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
-            ConstantSequence userNamePrompt = new ConstantSequence("Please enter name: ");
-            ConstantSequence passwordPrompt = new ConstantSequence("Please enter password: ");
             List<ISequence> sequences = new List<ISequence>()
             {
-                userNamePrompt,
-                passwordPrompt,
-                new HPMPSequence(),
+                new ConstantSequence("Please enter name: ", OnNamePrompt, _asciiMapping),
+                new ConstantSequence("Please enter password: ", OnPasswordPrompt, _asciiMapping),
+                new HPMPSequence(_asciiMapping, OnGetHPMP),
+                new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, _asciiMapping, OnGetSkillCooldown),
+                new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
+                new ConstantSequence("You creative a protective manashield.", DoScore, _asciiMapping),
+                new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
             };
 
             while (true)
@@ -453,36 +246,19 @@ namespace IsengardClient
                     }
                     ProcessInputCharacter(nextByte);
 
-                    if (!_enteredUserName && userNamePrompt.IsSatisfied)
+                    if (!_enteredUserName && _promptedUserName)
                     {
-                        foreach (char c in _username)
-                        {
-                            _tcpClientNetworkStream.WriteByte((byte)_asciiMapping[c]);
-                            Console.Out.Write(c);
-                        }
-                        WriteNewLine();
-                        Console.Out.WriteLine();
+                        SendCommand(_username, false);
                         _enteredUserName = true;
                     }
-                    if (_enteredUserName && !_enteredPassword && passwordPrompt.IsSatisfied)
+                    if (_enteredUserName && !_enteredPassword && _promptedPassword)
                     {
-                        foreach (char c in _password)
-                        {
-                            _tcpClientNetworkStream.WriteByte((byte)_asciiMapping[c]);
-                            Console.Out.Write("*");
-                        }
-                        WriteNewLine();
-                        Console.Out.WriteLine();
+                        SendCommand(_password, true);
                         _enteredPassword = true;
                     }
                 }
             }
         }
-
-        private List<int> _queue = new List<int>();
-
-        private static Dictionary<int, char> _asciiReverseMapping = new Dictionary<int, char>();
-        private static Dictionary<char, int> _asciiMapping = new Dictionary<char, int>();
 
         private void ProcessInputCharacter(int nextByte)
         {
@@ -959,17 +735,13 @@ namespace IsengardClient
         {
             if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
             {
-                if (SendCommand(_currentBackgroundParameters.FinalCommand, false))
-                {
-                    _currentBackgroundParameters.CommandsRun++;
-                }
+                SendCommand(_currentBackgroundParameters.FinalCommand, false);
+                _currentBackgroundParameters.CommandsRun++;
             }
             if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
             {
-                if (SendCommand(_currentBackgroundParameters.FinalCommand2, false))
-                {
-                    _currentBackgroundParameters.CommandsRun++;
-                }
+                SendCommand(_currentBackgroundParameters.FinalCommand2, false);
+                _currentBackgroundParameters.CommandsRun++;
             }
             if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
             {
@@ -978,6 +750,11 @@ namespace IsengardClient
                 {
                     SetCurrentRoom(targetRoom);
                 }
+            }
+            if (_currentBackgroundParameters.PowerAttack && _currentBackgroundParameters.CommandsRun > 0)
+            {
+                _doScore = true;
+                chkPowerAttack.Checked = false;
             }
             ToggleBackgroundProcess(false);
             _currentBackgroundParameters = null;
@@ -1112,24 +889,18 @@ namespace IsengardClient
                 return;
             }
 
-            if (SendCommand(actualCommand, false))
+            SendCommand(actualCommand, false);
+            pms.CommandsRun++;
+            if (manaDrain.HasValue)
             {
-                pms.CommandsRun++;
-                if (manaDrain.HasValue)
+                if (!pms.AutoMana)
                 {
-                    if (!pms.AutoMana)
-                    {
-                        _currentMana -= manaDrain.Value;
-                    }
-                    if (_currentMana < 3) //no mana left for casting any more offensive spells
-                    {
-                        stop = true;
-                    }
+                    _currentMana -= manaDrain.Value;
                 }
-            }
-            else
-            {
-                stop = true;
+                if (_currentMana < 3) //no mana left for casting any more offensive spells
+                {
+                    stop = true;
+                }
             }
         }
 
@@ -1139,10 +910,8 @@ namespace IsengardClient
             {
                 if (_currentBackgroundParameters.QueuedCommand != null)
                 {
-                    if (SendCommand(_currentBackgroundParameters.QueuedCommand, false))
-                    {
-                        _currentBackgroundParameters.CommandsRun++;
-                    }
+                    SendCommand(_currentBackgroundParameters.QueuedCommand, false);
+                    _currentBackgroundParameters.CommandsRun++;
                     _currentBackgroundParameters.QueuedCommand = null;
                 }
             }
@@ -3090,10 +2859,8 @@ namespace IsengardClient
             }
         }
 
-        private bool SendCommand(string command, bool showUI)
+        private void SendCommand(string command, bool IsPassword)
         {
-            bool ret = true;
-
             List<int> keys = new List<int>();
             foreach (char c in command)
             {
@@ -3103,34 +2870,36 @@ namespace IsengardClient
                 }
                 else
                 {
-                    if (showUI)
-                    {
-                        MessageBox.Show("Failed to find key: " + c + ".");
-                    }
-                    ret = false;
-                    break;
+                    throw new InvalidOperationException();
                 }
             }
-            if (ret)
+            List<byte> bytesToWrite = new List<byte>();
+            for (int i = 0; i < keys.Count; i++)
             {
-                if (!string.IsNullOrEmpty(command))
-                {
-                    Console.Out.WriteLine(command);
-                }
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    int key = keys[i];
-                    _tcpClientNetworkStream.WriteByte((byte)key);
-                    Thread.Sleep(1);
-                }
-                WriteNewLine();
+                bytesToWrite.Add((byte)keys[i]);
+                Thread.Sleep(1);
             }
-            return ret;
-        }
-
-        private void WriteNewLine()
-        {
-            _tcpClientNetworkStream.Write(_NEW_LINE, 0, 2);
+            bytesToWrite.Add(13);
+            bytesToWrite.Add(10);
+            _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+            if (!string.IsNullOrEmpty(command))
+            {
+                string sToConsole;
+                if (IsPassword)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < command.Length; i++)
+                    {
+                        sb.Append("*");
+                    }
+                    sToConsole = sb.ToString();
+                }
+                else
+                {
+                    sToConsole = command;
+                }
+                Console.Out.WriteLine(sToConsole);
+            }
         }
 
         private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
@@ -3266,30 +3035,28 @@ namespace IsengardClient
             {
                 cmd = "go " + direction;
             }
-            if (SendCommand(cmd, true))
+            SendCommand(cmd, false);
+            if (m_oCurrentRoom != null)
             {
-                if (m_oCurrentRoom != null)
+                Room newRoom = null;
+                if (_map.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
                 {
-                    Room newRoom = null;
-                    if (_map.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
+                    foreach (Exit nextExit in edges)
                     {
-                        foreach (Exit nextExit in edges)
+                        if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
-                            {
-                                newRoom = nextExit.Target;
-                            }
+                            newRoom = nextExit.Target;
                         }
                     }
-                    if (newRoom != null)
-                    {
-                        SetCurrentRoom(newRoom);
-                    }
-                    else
-                    {
-                        m_oCurrentRoom = null;
-                        txtCurrentRoom.Text = string.Empty;
-                    }
+                }
+                if (newRoom != null)
+                {
+                    SetCurrentRoom(newRoom);
+                }
+                else
+                {
+                    m_oCurrentRoom = null;
+                    txtCurrentRoom.Text = string.Empty;
                 }
             }
         }
@@ -3319,13 +3086,19 @@ namespace IsengardClient
             }
         }
 
+        private void btnQuit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         private void btnDoAction_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
             string command;
-            if (btn.Tag is CommandButtonTag)
+            CommandButtonTag cmdButtonTag = btn.Tag as CommandButtonTag;
+            if (cmdButtonTag != null)
             {
-                command = ((CommandButtonTag)btn.Tag).Command;
+                command = cmdButtonTag.Command;
             }
             else
             {
@@ -3343,16 +3116,10 @@ namespace IsengardClient
                 }
                 else //send the command to the telnet window
                 {
-                    if (SendCommand(command, true))
+                    SendCommand(command, false);
+                    if (btn == btnFlee && m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
                     {
-                        if (btn == btnFlee && m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
-                        {
-                            SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
-                        }
-                        if (btn == btnQuit)
-                        {
-                            this.Close();
-                        }
+                        SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
                     }
                 }
             }
@@ -3468,6 +3235,7 @@ namespace IsengardClient
             public string FinalCommand2 { get; set; }
             public int MaxOffensiveLevel { get; set; }
             public bool AutoMana { get; set; }
+            public bool PowerAttack { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3500,7 +3268,7 @@ namespace IsengardClient
 
         private void btnOneOffExecute_Click(object sender, EventArgs e)
         {
-            SendCommand(txtOneOffCommand.Text, true);
+            SendCommand(txtOneOffCommand.Text, false);
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -3529,7 +3297,7 @@ namespace IsengardClient
                     command += setValue;
                 }
             }
-            SendCommand(command, true);
+            SendCommand(command, false);
         }
 
         private void cboSetOption_SelectedIndexChanged(object sender, EventArgs e)
@@ -3550,7 +3318,8 @@ namespace IsengardClient
 
         private void RunMacro(Macro m)
         {
-            if (chkPowerAttack.Checked)
+            bool powerAttack = chkPowerAttack.Checked;
+            if (powerAttack)
             {
                 if (string.IsNullOrEmpty(txtWeapon.Text))
                 {
@@ -3558,7 +3327,6 @@ namespace IsengardClient
                     return;
                 }
                 ((StringVariable)_variablesByName["attacktype"]).Value = "power";
-                chkPowerAttack.Checked = false;
             }
 
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
@@ -3583,6 +3351,7 @@ namespace IsengardClient
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
+            _currentBackgroundParameters.PowerAttack = powerAttack;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
                 _currentBackgroundParameters.TargetRoom = m_oCurrentRoom.ParentRoom;
@@ -3760,6 +3529,76 @@ namespace IsengardClient
             {
                 txtHitpoints.Text = _autoHitpoints.Value.ToString();
             }
+            foreach (KeyValuePair<SkillWithCooldownType, SkillCooldownStatus> nextCoolDown in _skillCooldowns)
+            {
+                SkillWithCooldownType eType = nextCoolDown.Key;
+                SkillCooldownStatus oStatus = nextCoolDown.Value;
+                DateTime dtUTCNow = DateTime.UtcNow;
+                TextBox txt;
+                switch (eType)
+                {
+                    case SkillWithCooldownType.PowerAttack:
+                        txt = txtPowerAttackTime;
+                        break;
+                    case SkillWithCooldownType.Manashield:
+                        txt = txtManashieldTime;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                if (oStatus.IsActive)
+                {
+                    txt.Text = "ACTIVE";
+                }
+                else if (oStatus.NextAvailableDate.HasValue)
+                {
+                    DateTime dtDateValue = oStatus.NextAvailableDate.Value;
+                    if (dtUTCNow >= dtDateValue)
+                    {
+                        txt.Text = "0";
+                    }
+                    else
+                    {
+                        TimeSpan ts = dtDateValue - dtUTCNow;
+                        txt.Text = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
+                    }
+                }
+                else
+                {
+                    txt.Text = string.Empty;
+                }
+            }
+            //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
+            if (!btnAbort.Enabled)
+            {
+                if (_currentStatusLastComputed.HasValue && (!_autoHitpoints.HasValue || _autoHitpoints.Value < _totalhp || !_autoMana.HasValue || _autoMana.Value < _totalmp))
+                {
+                    DateTime dtUtcNow = DateTime.UtcNow;
+                    bool runPollTick = (dtUtcNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
+                    if (runPollTick && _lastPollTick.HasValue)
+                    {
+                        runPollTick = (dtUtcNow - _lastPollTick.Value).TotalSeconds >= 5;
+                    }
+                    if (runPollTick)
+                    {
+                        _lastPollTick = dtUtcNow;
+                        SendCommand(string.Empty, false);
+                    }
+                }
+                if (_doScore)
+                {
+                    _doScore = false;
+                    SendCommand("score", false);
+                }
+                if (_currentStatusLastComputed.HasValue && !_ranStartupCommands)
+                {
+                    _ranStartupCommands = true;
+                    foreach (string nextCommand in _startupCommands)
+                    {
+                        SendCommand(nextCommand, false);
+                    }
+                }
+            }
         }
 
         private void btnManaSet_Click(object sender, EventArgs e)
@@ -3781,8 +3620,14 @@ namespace IsengardClient
         {
             if (e.KeyChar == (char)Keys.Return)
             {
-                SendCommand(txtOneOffCommand.Text, true);
+                SendCommand(txtOneOffCommand.Text, false);
             }
+        }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SendCommand("quit", false);
+            Thread.Sleep(100);
         }
     }
 }

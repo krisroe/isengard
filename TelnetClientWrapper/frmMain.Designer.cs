@@ -103,6 +103,10 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.txtManashieldTime = new System.Windows.Forms.TextBox();
+            this.lblManashieldTime = new System.Windows.Forms.Label();
+            this.txtPowerAttackTime = new System.Windows.Forms.TextBox();
+            this.lblPowerAttackCooldown = new System.Windows.Forms.Label();
             this.chkAutoMana = new System.Windows.Forms.CheckBox();
             this.txtHitpoints = new System.Windows.Forms.TextBox();
             this.lblHitpoints = new System.Windows.Forms.Label();
@@ -396,6 +400,7 @@
             // 
             // btnAbort
             // 
+            this.btnAbort.Enabled = false;
             this.btnAbort.Location = new System.Drawing.Point(815, 598);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
@@ -629,7 +634,7 @@
             this.btnQuit.TabIndex = 55;
             this.btnQuit.Text = "Quit";
             this.btnQuit.UseVisualStyleBackColor = true;
-            this.btnQuit.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
             // txtSetValue
             // 
@@ -748,10 +753,10 @@
             // 
             // btnVariables
             // 
-            this.btnVariables.Location = new System.Drawing.Point(832, 53);
+            this.btnVariables.Location = new System.Drawing.Point(703, 92);
             this.btnVariables.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnVariables.Name = "btnVariables";
-            this.btnVariables.Size = new System.Drawing.Size(136, 32);
+            this.btnVariables.Size = new System.Drawing.Size(124, 30);
             this.btnVariables.TabIndex = 66;
             this.btnVariables.Text = "Variables";
             this.btnVariables.UseVisualStyleBackColor = true;
@@ -924,7 +929,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1333, 724);
+            this.tcMain.Size = new System.Drawing.Size(2093, 1149);
             this.tcMain.TabIndex = 79;
             // 
             // tabMain
@@ -934,13 +939,17 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1325, 695);
+            this.tabMain.Size = new System.Drawing.Size(2085, 1120);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.txtManashieldTime);
+            this.pnlMain.Controls.Add(this.lblManashieldTime);
+            this.pnlMain.Controls.Add(this.txtPowerAttackTime);
+            this.pnlMain.Controls.Add(this.lblPowerAttackCooldown);
             this.pnlMain.Controls.Add(this.chkAutoMana);
             this.pnlMain.Controls.Add(this.txtHitpoints);
             this.pnlMain.Controls.Add(this.lblHitpoints);
@@ -1022,15 +1031,51 @@
             this.pnlMain.Location = new System.Drawing.Point(3, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(1319, 691);
+            this.pnlMain.Size = new System.Drawing.Size(2079, 1116);
             this.pnlMain.TabIndex = 0;
+            // 
+            // txtManashieldTime
+            // 
+            this.txtManashieldTime.Location = new System.Drawing.Point(454, 114);
+            this.txtManashieldTime.Name = "txtManashieldTime";
+            this.txtManashieldTime.ReadOnly = true;
+            this.txtManashieldTime.Size = new System.Drawing.Size(113, 22);
+            this.txtManashieldTime.TabIndex = 107;
+            // 
+            // lblManashieldTime
+            // 
+            this.lblManashieldTime.AutoSize = true;
+            this.lblManashieldTime.Location = new System.Drawing.Point(334, 114);
+            this.lblManashieldTime.Name = "lblManashieldTime";
+            this.lblManashieldTime.Size = new System.Drawing.Size(100, 16);
+            this.lblManashieldTime.TabIndex = 106;
+            this.lblManashieldTime.Text = "To Manashield:";
+            this.lblManashieldTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtPowerAttackTime
+            // 
+            this.txtPowerAttackTime.Location = new System.Drawing.Point(454, 86);
+            this.txtPowerAttackTime.Name = "txtPowerAttackTime";
+            this.txtPowerAttackTime.ReadOnly = true;
+            this.txtPowerAttackTime.Size = new System.Drawing.Size(113, 22);
+            this.txtPowerAttackTime.TabIndex = 105;
+            // 
+            // lblPowerAttackCooldown
+            // 
+            this.lblPowerAttackCooldown.AutoSize = true;
+            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(334, 86);
+            this.lblPowerAttackCooldown.Name = "lblPowerAttackCooldown";
+            this.lblPowerAttackCooldown.Size = new System.Drawing.Size(108, 16);
+            this.lblPowerAttackCooldown.TabIndex = 104;
+            this.lblPowerAttackCooldown.Text = "To Power Attack:";
+            this.lblPowerAttackCooldown.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // chkAutoMana
             // 
             this.chkAutoMana.AutoSize = true;
             this.chkAutoMana.Checked = true;
             this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoMana.Location = new System.Drawing.Point(664, 54);
+            this.chkAutoMana.Location = new System.Drawing.Point(640, 55);
             this.chkAutoMana.Name = "chkAutoMana";
             this.chkAutoMana.Size = new System.Drawing.Size(93, 20);
             this.chkAutoMana.TabIndex = 103;
@@ -1042,7 +1087,7 @@
             this.txtHitpoints.Location = new System.Drawing.Point(454, 25);
             this.txtHitpoints.Name = "txtHitpoints";
             this.txtHitpoints.ReadOnly = true;
-            this.txtHitpoints.Size = new System.Drawing.Size(133, 22);
+            this.txtHitpoints.Size = new System.Drawing.Size(113, 22);
             this.txtHitpoints.TabIndex = 101;
             // 
             // lblHitpoints
@@ -1089,7 +1134,7 @@
             // 
             // btnManaSet
             // 
-            this.btnManaSet.Location = new System.Drawing.Point(593, 51);
+            this.btnManaSet.Location = new System.Drawing.Point(580, 50);
             this.btnManaSet.Name = "btnManaSet";
             this.btnManaSet.Size = new System.Drawing.Size(54, 29);
             this.btnManaSet.TabIndex = 96;
@@ -1102,7 +1147,7 @@
             this.txtMana.Location = new System.Drawing.Point(454, 54);
             this.txtMana.Name = "txtMana";
             this.txtMana.ReadOnly = true;
-            this.txtMana.Size = new System.Drawing.Size(133, 22);
+            this.txtMana.Size = new System.Drawing.Size(113, 22);
             this.txtMana.TabIndex = 95;
             // 
             // lblMana
@@ -1328,11 +1373,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1333, 724);
+            this.ClientSize = new System.Drawing.Size(2093, 1149);
             this.Controls.Add(this.tcMain);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.grpRealm.ResumeLayout(false);
             this.grpRealm.PerformLayout();
             this.grpLocations.ResumeLayout(false);
@@ -1453,6 +1501,10 @@
         private System.Windows.Forms.TextBox txtHitpoints;
         private System.Windows.Forms.Label lblHitpoints;
         private System.Windows.Forms.CheckBox chkAutoMana;
+        private System.Windows.Forms.Label lblPowerAttackCooldown;
+        private System.Windows.Forms.TextBox txtPowerAttackTime;
+        private System.Windows.Forms.TextBox txtManashieldTime;
+        private System.Windows.Forms.Label lblManashieldTime;
     }
 }
 

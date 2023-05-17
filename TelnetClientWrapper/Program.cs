@@ -20,7 +20,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level,out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros);
+            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,18 +33,21 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, preferredAlignment, userName, password, allMacros));
+            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, preferredAlignment, userName, password, allMacros, startupCommands));
         }
 
-        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros)
+        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands)
         {
             variables = new List<Variable>();
             variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
             defaultRealm = string.Empty;
             level = 0;
+            totalhp = 0;
+            totalmp = 0;
             preferredAlignment = AlignmentType.Grey;
             userName = string.Empty;
             allMacros = new List<Macro>();
+            startupCommands = new List<string>();
 
             string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
             FileInfo fi = new FileInfo(configurationFile);
@@ -66,7 +69,9 @@ namespace IsengardClient
 
             List<string> errorMessages = new List<string>();
 
-            defaultRealm = doc.DocumentElement.GetAttribute("defaultrealm");
+            XmlElement docElement = doc.DocumentElement;
+
+            defaultRealm = docElement.GetAttribute("defaultrealm");
             if (!string.IsNullOrEmpty(defaultRealm))
             {
                 defaultRealm = defaultRealm.ToLower();
@@ -80,7 +85,7 @@ namespace IsengardClient
                 }
             }
 
-            string sLevel = doc.DocumentElement.GetAttribute("level");
+            string sLevel = docElement.GetAttribute("level");
             if (string.IsNullOrEmpty(sLevel))
             {
                 MessageBox.Show("No level specified");
@@ -92,7 +97,31 @@ namespace IsengardClient
                 level = 1;
             }
 
-            string sPreferredAlignment = doc.DocumentElement.GetAttribute("preferredalignment");
+            string sTotalHP = docElement.GetAttribute("totalhp");
+            if (string.IsNullOrEmpty(sTotalHP))
+            {
+                MessageBox.Show("No total HP specified.");
+                totalhp = 0;
+            }
+            else if (!int.TryParse(sTotalHP, out totalhp))
+            {
+                MessageBox.Show("Invalid total HP specified: " + sTotalHP);
+                totalhp = 0;
+            }
+
+            string sTotalMP = docElement.GetAttribute("totalmp");
+            if (string.IsNullOrEmpty(sTotalMP))
+            {
+                MessageBox.Show("No total MP specified.");
+                totalmp = 0;
+            }
+            else if (!int.TryParse(sTotalMP, out totalmp))
+            {
+                MessageBox.Show("Invalid total MP specified: " + sTotalMP);
+                totalmp = 0;
+            }
+
+            string sPreferredAlignment = docElement.GetAttribute("preferredalignment");
             if (Enum.TryParse(sPreferredAlignment, out AlignmentType ePreferredAlignment))
             {
                 preferredAlignment = ePreferredAlignment;
@@ -103,13 +132,19 @@ namespace IsengardClient
                 preferredAlignment = AlignmentType.Grey;
             }
 
-            userName = doc.DocumentElement.GetAttribute("username");
+            string sStartupCommands = docElement.GetAttribute("startupcommands");
+            if (!string.IsNullOrEmpty(sStartupCommands))
+            {
+                startupCommands.AddRange(sStartupCommands.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            userName = docElement.GetAttribute("username");
 
             bool dupMacros = false;
             bool dupVariables = false;
             XmlElement macrosElement = null;
             XmlElement variablesElement = null;
-            foreach (XmlNode nextNode in doc.DocumentElement.ChildNodes)
+            foreach (XmlNode nextNode in docElement.ChildNodes)
             {
                 XmlElement elem = nextNode as XmlElement;
                 if (elem == null) continue;

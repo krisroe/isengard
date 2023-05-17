@@ -1,4 +1,4 @@
-<Configuration defaultrealm="earth" level="12" preferredalignment="Blue" username="despug">
+<Configuration defaultrealm="earth" level="12" totalhp="59" totalmp="61" preferredalignment="Blue" username="despug" startupcommands="remove all;score">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>
@@ -88,10 +88,5 @@
    </Steps>
   </Macro>
   -->
-  <Macro name="polltick" oneclick="true">
-   <Steps>
-    <Command text="" waitms="polltickinterval" loop="true"/>
-   </Steps>
-  </Macro>
  </Macros>
 </Configuration>
