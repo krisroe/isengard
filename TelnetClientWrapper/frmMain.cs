@@ -1532,12 +1532,12 @@ namespace IsengardClient
             AddExit(breeSewers[7, 3], oValveChamber, "valve");
             AddExit(oValveChamber, breeSewers[7, 3], "south");
 
-            Room oSewerPassage = AddRoom("Sewer Passage");
-            AddBidirectionalExits(oSewerPassage, oValveChamber, BidirectionalExitType.NorthSouth);
+            Room oSewerPassageFromValveChamber = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSewerPassageFromValveChamber, oValveChamber, BidirectionalExitType.NorthSouth);
 
             Room oSewerDemonThreshold = AddRoom("Sewer Demon Threshold");
             oSewerDemonThreshold.Mob = "demon";
-            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassage, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
 
             Room oPoorAlley1 = AddRoom("Bree Poor Alley");
             AddExit(oLeviathanPoorAlley, oPoorAlley1, "alley");
@@ -1651,6 +1651,27 @@ namespace IsengardClient
 
             sewerTunnelToTConnection = AddRoom("Sewer Tunnel");
             AddBidirectionalExits(oDrainTunnel4, sewerTunnelToTConnection, BidirectionalExitType.NorthSouth);
+
+            Room oBoardedSewerTunnel = AddRoom("Boarded Sewer Tunnel");
+            AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
+
+            Room oSewerOrcChamber = AddRoom("Sewer Orc Chamber");
+            AddBidirectionalSameNameExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted", null);
+
+            Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
+            AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
+
+            Room oSewerPassage = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSewerOrcLair, oSewerPassage, BidirectionalExitType.WestEast);
+
+            Room oSewerOrcStorageRoom = AddRoom("Sewer Orc Storage Room");
+            AddBidirectionalExits(oSewerPassage, oSewerOrcStorageRoom, BidirectionalExitType.WestEast);
+
+            Room oSlopingSewerPassage = AddRoom("Sloping Sewer Passage");
+            AddBidirectionalExits(oSewerOrcStorageRoom, oSlopingSewerPassage, BidirectionalExitType.NorthSouth);
+
+            Room oSewerPassageInFrontOfGate = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSlopingSewerPassage, oSewerPassageInFrontOfGate, BidirectionalExitType.NorthSouth);
 
             Room oIgor = AddRoom("Igor");
             oIgor.Mob = "Igor";
@@ -1783,6 +1804,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
+            AddLocation(_aMisc, oSewerPassageInFrontOfGate);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -3077,6 +3099,15 @@ namespace IsengardClient
             return input;
         }
 
+        private void btnOtherSingleMove_Click(object sender, EventArgs e)
+        {
+            string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
+            if (!string.IsNullOrEmpty(move))
+            {
+                DoSingleMove(move, "go " + move);
+            }
+        }
+
         private void btnDoSingleMove_Click(object sender, EventArgs e)
         {
             string direction = ((Button)sender).Tag.ToString();
@@ -3089,7 +3120,12 @@ namespace IsengardClient
             {
                 cmd = "go " + direction;
             }
-            SendCommand(cmd, false, false);
+            DoSingleMove(direction, cmd);
+        }
+
+        private void DoSingleMove(string direction, string command)
+        {
+            SendCommand(command, false, false);
             if (m_oCurrentRoom != null)
             {
                 Room newRoom = null;
