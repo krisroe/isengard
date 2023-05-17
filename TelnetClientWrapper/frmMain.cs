@@ -28,6 +28,8 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
         private bool? _setDay;
+        private bool _quitting;
+        private bool _finishedQuit;
         private List<string> _newSpellsCast;
         private bool _doScore;
         private static Dictionary<SkillWithCooldownType, SkillCooldownStatus> _skillCooldowns;
@@ -241,6 +243,14 @@ namespace IsengardClient
             _newSpellsCast = spells;
         }
 
+        private void FinishedQuit()
+        {
+            if (_quitting)
+            {
+                _finishedQuit = true;
+            }
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -259,6 +269,7 @@ namespace IsengardClient
                 new ConstantSequence("You feel less holy.", DoScore, _asciiMapping),
                 new ConstantSequence("You feel watched.", DoScore, _asciiMapping),
                 new ConstantSequence("You feel holy.", DoScore, _asciiMapping),
+                new ConstantSequence("Goodbye!", FinishedQuit, _asciiMapping),
             };
 
             while (true)
@@ -278,12 +289,12 @@ namespace IsengardClient
 
                     if (!_enteredUserName && _promptedUserName)
                     {
-                        SendCommand(_username, false);
+                        SendCommand(_username, false, false);
                         _enteredUserName = true;
                     }
                     if (_enteredUserName && !_enteredPassword && _promptedPassword)
                     {
-                        SendCommand(_password, true);
+                        SendCommand(_password, true, false);
                         _enteredPassword = true;
                     }
                 }
@@ -765,12 +776,12 @@ namespace IsengardClient
         {
             if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
             {
-                SendCommand(_currentBackgroundParameters.FinalCommand, false);
+                SendCommand(_currentBackgroundParameters.FinalCommand, false, false);
                 _currentBackgroundParameters.CommandsRun++;
             }
             if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
             {
-                SendCommand(_currentBackgroundParameters.FinalCommand2, false);
+                SendCommand(_currentBackgroundParameters.FinalCommand2, false, false);
                 _currentBackgroundParameters.CommandsRun++;
             }
             if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
@@ -919,7 +930,7 @@ namespace IsengardClient
                 return;
             }
 
-            SendCommand(actualCommand, false);
+            SendCommand(actualCommand, false, false);
             pms.CommandsRun++;
             if (manaDrain.HasValue)
             {
@@ -940,7 +951,7 @@ namespace IsengardClient
             {
                 if (_currentBackgroundParameters.QueuedCommand != null)
                 {
-                    SendCommand(_currentBackgroundParameters.QueuedCommand, false);
+                    SendCommand(_currentBackgroundParameters.QueuedCommand, false, false);
                     _currentBackgroundParameters.CommandsRun++;
                     _currentBackgroundParameters.QueuedCommand = null;
                 }
@@ -2889,46 +2900,49 @@ namespace IsengardClient
             }
         }
 
-        private void SendCommand(string command, bool IsPassword)
+        private void SendCommand(string command, bool IsPassword, bool runIfQuitting)
         {
-            List<int> keys = new List<int>();
-            foreach (char c in command)
+            if (!_quitting || runIfQuitting)
             {
-                if (_asciiMapping.TryGetValue(c, out int i))
+                List<int> keys = new List<int>();
+                foreach (char c in command)
                 {
-                    keys.Add(i);
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
-            }
-            List<byte> bytesToWrite = new List<byte>();
-            for (int i = 0; i < keys.Count; i++)
-            {
-                bytesToWrite.Add((byte)keys[i]);
-                Thread.Sleep(1);
-            }
-            bytesToWrite.Add(13);
-            bytesToWrite.Add(10);
-            _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
-            if (!string.IsNullOrEmpty(command))
-            {
-                string sToConsole;
-                if (IsPassword)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < command.Length; i++)
+                    if (_asciiMapping.TryGetValue(c, out int i))
                     {
-                        sb.Append("*");
+                        keys.Add(i);
                     }
-                    sToConsole = sb.ToString();
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
-                else
+                List<byte> bytesToWrite = new List<byte>();
+                for (int i = 0; i < keys.Count; i++)
                 {
-                    sToConsole = command;
+                    bytesToWrite.Add((byte)keys[i]);
+                    Thread.Sleep(1);
                 }
-                Console.Out.WriteLine(sToConsole);
+                bytesToWrite.Add(13);
+                bytesToWrite.Add(10);
+                _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+                if (!string.IsNullOrEmpty(command))
+                {
+                    string sToConsole;
+                    if (IsPassword)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < command.Length; i++)
+                        {
+                            sb.Append("*");
+                        }
+                        sToConsole = sb.ToString();
+                    }
+                    else
+                    {
+                        sToConsole = command;
+                    }
+                    Console.Out.WriteLine(sToConsole);
+                }
             }
         }
 
@@ -3065,7 +3079,7 @@ namespace IsengardClient
             {
                 cmd = "go " + direction;
             }
-            SendCommand(cmd, false);
+            SendCommand(cmd, false, false);
             if (m_oCurrentRoom != null)
             {
                 Room newRoom = null;
@@ -3118,7 +3132,9 @@ namespace IsengardClient
 
         private void btnQuit_Click(object sender, EventArgs e)
         {
-            this.Close();
+            _quitting = true;
+            Enabled = false;
+            SendCommand("quit", false, true);
         }
 
         private void btnDoAction_Click(object sender, EventArgs e)
@@ -3146,7 +3162,7 @@ namespace IsengardClient
                 }
                 else //send the command to the telnet window
                 {
-                    SendCommand(command, false);
+                    SendCommand(command, false, false);
                     if (btn == btnFlee && m_oCurrentRoom != null && m_oCurrentRoom.SubLocations != null && m_oCurrentRoom.SubLocations.Count == 1)
                     {
                         SetCurrentRoom(m_oCurrentRoom.SubLocations[0]);
@@ -3298,7 +3314,7 @@ namespace IsengardClient
 
         private void btnOneOffExecute_Click(object sender, EventArgs e)
         {
-            SendCommand(txtOneOffCommand.Text, false);
+            SendCommand(txtOneOffCommand.Text, false, false);
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -3327,7 +3343,7 @@ namespace IsengardClient
                     command += setValue;
                 }
             }
-            SendCommand(command, false);
+            SendCommand(command, false, false);
         }
 
         private void cboSetOption_SelectedIndexChanged(object sender, EventArgs e)
@@ -3546,6 +3562,11 @@ namespace IsengardClient
 
         private void tmr_Tick(object sender, EventArgs e)
         {
+            if (_finishedQuit)
+            {
+                this.Close();
+                return;
+            }
             bool autoMana = chkAutoMana.Checked;
             if (autoMana)
             {
@@ -3646,20 +3667,20 @@ namespace IsengardClient
                     if (runPollTick)
                     {
                         _lastPollTick = dtUtcNow;
-                        SendCommand(string.Empty, false);
+                        SendCommand(string.Empty, false, false);
                     }
                 }
                 if (_doScore)
                 {
                     _doScore = false;
-                    SendCommand("score", false);
+                    SendCommand("score", false, false);
                 }
                 if (_currentStatusLastComputed.HasValue && !_ranStartupCommands)
                 {
                     _ranStartupCommands = true;
                     foreach (string nextCommand in _startupCommands)
                     {
-                        SendCommand(nextCommand, false);
+                        SendCommand(nextCommand, false, false);
                     }
                 }
                 if (_setDay.HasValue)
@@ -3703,14 +3724,20 @@ namespace IsengardClient
         {
             if (e.KeyChar == (char)Keys.Return)
             {
-                SendCommand(txtOneOffCommand.Text, false);
+                SendCommand(txtOneOffCommand.Text, false, false);
             }
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SendCommand("quit", false);
-            Thread.Sleep(100);
+            if (!_finishedQuit)
+            {
+                if (MessageBox.Show(this, "Are you sure you want to quit?", "Isengard", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    btnQuit_Click(null, null);
+                }
+                e.Cancel = true;
+            }
         }
     }
 }
