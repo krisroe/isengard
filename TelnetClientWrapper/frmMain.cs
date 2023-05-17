@@ -418,6 +418,9 @@ namespace IsengardClient
                     case 41:
                         c = ')';
                         break;
+                    case 42:
+                        c = '*';
+                        break;
                     case 43:
                         c = '+';
                         break;

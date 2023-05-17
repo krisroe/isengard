@@ -14,6 +14,7 @@ namespace IsengardClient
             ret['\''] = 39;
             ret['('] = 40;
             ret[')'] = 41;
+            ret['*'] = 42;
             ret['+'] = 43;
             ret[','] = 44;
             ret['-'] = 45;
