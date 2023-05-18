@@ -43,6 +43,9 @@ namespace IsengardClient
         private int _totalhp;
         private int _totalmp;
         private int _healtickmp;
+        private int _autoHazyThreshold;
+        private DateTime? _lastTriedToAutoHazy;
+        private bool _autoHazied;
         private static int? _autoMana;
         private static int? _autoHitpoints;
         private int? _currentMana;
@@ -68,8 +71,10 @@ namespace IsengardClient
         private Room _imladrisWestGateOutside = null;
         private Room _breeDocks = null;
         private Room _boatswain = null;
+        private Room _treeOfLife = null;
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
+        private object _writeToNetworkStreamLock = new object();
         private List<string> _newConsoleText = new List<string>();
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
@@ -95,7 +100,7 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon)
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold)
         {
             InitializeComponent();
 
@@ -133,6 +138,8 @@ namespace IsengardClient
             _totalhp = totalhp;
             _totalmp = totalmp;
             _healtickmp = healtickmp;
+            _autoHazyThreshold = autoHazyThreshold;
+            txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
 
             _preferredAlignment = preferredAlignment;
             txtPreferredAlignment.Text = _preferredAlignment.ToString();
@@ -286,6 +293,11 @@ namespace IsengardClient
             }
         }
 
+        private void OnHazy()
+        {
+            _autoHazied = true;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -305,6 +317,7 @@ namespace IsengardClient
                 new ConstantSequence("You feel watched.", DoScore, _asciiMapping),
                 new ConstantSequence("You feel holy.", DoScore, _asciiMapping),
                 new ConstantSequence("Goodbye!", FinishedQuit, _asciiMapping),
+                new ConstantSequence("You phase in and out of existence.", OnHazy, _asciiMapping),
             };
 
             while (true)
@@ -425,6 +438,9 @@ namespace IsengardClient
                         break;
                     case 1:
                         isUnknown = true;
+                        break;
+                    case 9:
+                        c = '\t';
                         break;
                     case 32:
                         c = ' ';
@@ -883,7 +899,7 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
                 oCurrentCommand = nextCommand;
-                RunQueuedCommand();
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
 
                 //wait for an appropriate amount of time for commands after the first
                 if (oPreviousCommand != null)
@@ -895,7 +911,7 @@ namespace IsengardClient
                         if (_bw.CancellationPending) break;
                         Thread.Sleep(nextWaitMS);
                         remainingMS -= nextWaitMS;
-                        RunQueuedCommand();
+                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
                     }
                 }
 
@@ -909,7 +925,22 @@ namespace IsengardClient
                     break;
                 }
 
-                RunQueuedCommand();
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+            }
+        }
+
+        private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms)
+        {
+            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow);
+            
+            lock (_queuedCommandLock)
+            {
+                if (pms.QueuedCommand != null)
+                {
+                    SendCommand(pms.QueuedCommand, false, false);
+                    pms.CommandsRun++;
+                    pms.QueuedCommand = null;
+                }
             }
         }
 
@@ -979,19 +1010,6 @@ namespace IsengardClient
                 if (_currentMana < 3) //no mana left for casting any more offensive spells
                 {
                     stop = true;
-                }
-            }
-        }
-
-        private void RunQueuedCommand()
-        {
-            lock (_queuedCommandLock)
-            {
-                if (_currentBackgroundParameters.QueuedCommand != null)
-                {
-                    SendCommand(_currentBackgroundParameters.QueuedCommand, false, false);
-                    _currentBackgroundParameters.CommandsRun++;
-                    _currentBackgroundParameters.QueuedCommand = null;
                 }
             }
         }
@@ -2729,14 +2747,14 @@ namespace IsengardClient
         {
             Area oIntangible = _areasByName[AREA_INTANGIBLE];
 
-            Room oTreeOfLife = AddRoom("Tree of Life");
-            AddExit(oTreeOfLife, oBreeTownSquare, "down");
+            _treeOfLife = AddRoom("Tree of Life");
+            AddExit(_treeOfLife, oBreeTownSquare, "down");
 
             Room oLimbo = AddRoom("Limbo");
-            Exit e = AddExit(oLimbo, oTreeOfLife, "green");
+            Exit e = AddExit(oLimbo, _treeOfLife, "green");
             e.PreCommand = "open green";
 
-            AddLocation(oIntangible, oTreeOfLife);
+            AddLocation(oIntangible, _treeOfLife);
             AddLocation(oIntangible, oLimbo);
         }
 
@@ -2985,7 +3003,10 @@ namespace IsengardClient
                 }
                 bytesToWrite.Add(13);
                 bytesToWrite.Add(10);
-                _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+                lock (_writeToNetworkStreamLock)
+                {
+                    _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+                }
                 if (!string.IsNullOrEmpty(command))
                 {
                     string sToConsole;
@@ -3360,6 +3381,7 @@ namespace IsengardClient
             public int MaxOffensiveLevel { get; set; }
             public bool AutoMana { get; set; }
             public bool PowerAttack { get; set; }
+            public bool AutoHazy { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3464,6 +3486,7 @@ namespace IsengardClient
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
+            _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _currentBackgroundParameters.PowerAttack = powerAttack;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
@@ -3735,12 +3758,29 @@ namespace IsengardClient
                 txt.Text = sText;
                 txt.BackColor = backColor;
             }
-            //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
             if (!btnAbort.Enabled)
             {
+                DateTime dtUtcNow = DateTime.UtcNow;
+
+                if (_autoHazied)
+                {
+                    chkAutoHazy.Checked = false;
+                    _lastTriedToAutoHazy = null;
+                    _autoHazied = false;
+                    if (_currentBackgroundParameters != null)
+                    {
+                        _currentBackgroundParameters.AutoHazy = false;
+                    }
+                    SetCurrentRoom(_treeOfLife);
+                }
+                else
+                {
+                    CheckAutoHazy(chkAutoHazy.Checked, dtUtcNow);
+                }
+
+                //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
                 if (_currentStatusLastComputed.HasValue && (!_autoHitpoints.HasValue || _autoHitpoints.Value < _totalhp || !_autoMana.HasValue || _autoMana.Value < _totalmp))
                 {
-                    DateTime dtUtcNow = DateTime.UtcNow;
                     bool runPollTick = (dtUtcNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
                     if (runPollTick && _lastPollTick.HasValue)
                     {
@@ -3787,13 +3827,31 @@ namespace IsengardClient
             }
         }
 
+        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow)
+        {
+            if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && _autoMana.HasValue && _autoMana.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
+            {
+                _lastTriedToAutoHazy = dtUtcNow;
+                SendCommand("drink hazy", false, false);
+            }
+        }
+
         private void btnManaSet_Click(object sender, EventArgs e)
         {
-            string sNewMana = Interaction.InputBox("New mana:", "New Mana", txtMana.Text);
+            string sNewMana = Interaction.InputBox("New mana:", "Mana", txtMana.Text);
             if (int.TryParse(sNewMana, out int iNewMana))
             {
                 chkAutoMana.Checked = false;
                 _currentMana = iNewMana;
+            }
+        }
+
+        private void btnSetAutoHazyThreshold_Click(object sender, EventArgs e)
+        {
+            string sNewAutoHazyThreshold = Interaction.InputBox("New auto hazy threshold:", "Auto Hazy Threshold", txtAutoHazyThreshold.Text);
+            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold))
+            {
+                _autoHazyThreshold = iNewAutoHazyThreshold;
             }
         }
 

@@ -99,6 +99,10 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnSetAutoHazyThreshold = new System.Windows.Forms.Button();
+            this.txtAutoHazyThreshold = new System.Windows.Forms.TextBox();
+            this.lblAutoHazyThreshold = new System.Windows.Forms.Label();
+            this.chkAutoHazy = new System.Windows.Forms.CheckBox();
             this.btnOtherSingleMove = new System.Windows.Forms.Button();
             this.btnDn = new System.Windows.Forms.Button();
             this.btnUp = new System.Windows.Forms.Button();
@@ -911,6 +915,10 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnSetAutoHazyThreshold);
+            this.pnlMain.Controls.Add(this.txtAutoHazyThreshold);
+            this.pnlMain.Controls.Add(this.lblAutoHazyThreshold);
+            this.pnlMain.Controls.Add(this.chkAutoHazy);
             this.pnlMain.Controls.Add(this.btnOtherSingleMove);
             this.pnlMain.Controls.Add(this.btnDn);
             this.pnlMain.Controls.Add(this.btnUp);
@@ -999,6 +1007,44 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(2261, 1116);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnSetAutoHazyThreshold
+            // 
+            this.btnSetAutoHazyThreshold.Location = new System.Drawing.Point(254, 166);
+            this.btnSetAutoHazyThreshold.Name = "btnSetAutoHazyThreshold";
+            this.btnSetAutoHazyThreshold.Size = new System.Drawing.Size(54, 29);
+            this.btnSetAutoHazyThreshold.TabIndex = 116;
+            this.btnSetAutoHazyThreshold.Text = "Set";
+            this.btnSetAutoHazyThreshold.UseVisualStyleBackColor = true;
+            this.btnSetAutoHazyThreshold.Click += new System.EventHandler(this.btnSetAutoHazyThreshold_Click);
+            // 
+            // txtAutoHazyThreshold
+            // 
+            this.txtAutoHazyThreshold.Location = new System.Drawing.Point(168, 172);
+            this.txtAutoHazyThreshold.Name = "txtAutoHazyThreshold";
+            this.txtAutoHazyThreshold.ReadOnly = true;
+            this.txtAutoHazyThreshold.Size = new System.Drawing.Size(80, 22);
+            this.txtAutoHazyThreshold.TabIndex = 115;
+            // 
+            // lblAutoHazyThreshold
+            // 
+            this.lblAutoHazyThreshold.AutoSize = true;
+            this.lblAutoHazyThreshold.Location = new System.Drawing.Point(85, 172);
+            this.lblAutoHazyThreshold.Name = "lblAutoHazyThreshold";
+            this.lblAutoHazyThreshold.Size = new System.Drawing.Size(71, 16);
+            this.lblAutoHazyThreshold.TabIndex = 114;
+            this.lblAutoHazyThreshold.Text = "Threshold:";
+            this.lblAutoHazyThreshold.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // chkAutoHazy
+            // 
+            this.chkAutoHazy.AutoSize = true;
+            this.chkAutoHazy.Location = new System.Drawing.Point(93, 147);
+            this.chkAutoHazy.Name = "chkAutoHazy";
+            this.chkAutoHazy.Size = new System.Drawing.Size(90, 20);
+            this.chkAutoHazy.TabIndex = 113;
+            this.chkAutoHazy.Text = "Auto Hazy";
+            this.chkAutoHazy.UseVisualStyleBackColor = true;
             // 
             // btnOtherSingleMove
             // 
@@ -1316,7 +1362,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(2157, 1120);
+            this.tabAncillary.Size = new System.Drawing.Size(2267, 1120);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1338,7 +1384,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(2151, 1116);
+            this.pnlAncillary.Size = new System.Drawing.Size(2261, 1116);
             this.pnlAncillary.TabIndex = 0;
             // 
             // lblPreferredAlignment
@@ -1557,6 +1603,10 @@
         private System.Windows.Forms.Button btnDn;
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Button btnOtherSingleMove;
+        private System.Windows.Forms.Button btnSetAutoHazyThreshold;
+        private System.Windows.Forms.TextBox txtAutoHazyThreshold;
+        private System.Windows.Forms.Label lblAutoHazyThreshold;
+        private System.Windows.Forms.CheckBox chkAutoHazy;
     }
 }
 

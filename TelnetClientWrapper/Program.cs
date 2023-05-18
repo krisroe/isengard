@@ -20,7 +20,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon);
+            LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,10 +33,10 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon));
+            Application.Run(new frmMain(variables, variablesByName, defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon, autoHazyThreshold));
         }
 
-        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon)
+        private static void LoadConfiguration(out List<Variable> variables, out Dictionary<string, Variable> variablesByName, out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold)
         {
             variables = new List<Variable>();
             variablesByName = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -50,6 +50,7 @@ namespace IsengardClient
             allMacros = new List<Macro>();
             startupCommands = new List<string>();
             defaultWeapon = string.Empty;
+            autoHazyThreshold = 0;
 
             string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
             FileInfo fi = new FileInfo(configurationFile);
@@ -135,6 +136,16 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid heal tick MP specified: " + sHealTickMP);
                 healtickmp = 0;
+            }
+
+            string sAutoHazyThreshold = docElement.GetAttribute("autohazythreshold");
+            if (!string.IsNullOrEmpty(sAutoHazyThreshold))
+            {
+                if (!int.TryParse(sAutoHazyThreshold, out autoHazyThreshold))
+                {
+                    MessageBox.Show("Invalid auto hazy threshold: " + sAutoHazyThreshold);
+                    autoHazyThreshold = 0;
+                }
             }
 
             string sPreferredAlignment = docElement.GetAttribute("preferredalignment");

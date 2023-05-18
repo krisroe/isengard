@@ -6,6 +6,7 @@ namespace IsengardClient
         public static Dictionary<char, int> GetAsciiMapping(out Dictionary<int, char> reverseAsciiMapping)
         {
             Dictionary<char, int> ret = new Dictionary<char, int>();
+            ret['\t'] = 9;
             ret[' '] = 32;
             ret['!'] = 33;
             ret['"'] = 34;
