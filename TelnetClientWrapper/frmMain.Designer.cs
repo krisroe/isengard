@@ -30,8 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
-            this.lblWindow = new System.Windows.Forms.Label();
-            this.txtWindow = new System.Windows.Forms.TextBox();
             this.txtMob = new System.Windows.Forms.TextBox();
             this.lblMob = new System.Windows.Forms.Label();
             this.btnLevel2OffensiveSpell = new System.Windows.Forms.Button();
@@ -52,9 +50,7 @@
             this.txtOneOffCommand = new System.Windows.Forms.TextBox();
             this.lblOneOffCommand = new System.Windows.Forms.Label();
             this.btnInventory = new System.Windows.Forms.Button();
-            this.btnClearOneOff = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
-            this.btnOneOffExecute = new System.Windows.Forms.Button();
             this.btnAttackMob = new System.Windows.Forms.Button();
             this.txtCurrentRoom = new System.Windows.Forms.TextBox();
             this.lblCurrentRoom = new System.Windows.Forms.Label();
@@ -103,6 +99,9 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnOtherSingleMove = new System.Windows.Forms.Button();
+            this.btnDn = new System.Windows.Forms.Button();
+            this.btnUp = new System.Windows.Forms.Button();
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.grpSpells = new System.Windows.Forms.GroupBox();
@@ -139,9 +138,6 @@
             this.cboMacros = new System.Windows.Forms.ComboBox();
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.btnUp = new System.Windows.Forms.Button();
-            this.btnDn = new System.Windows.Forms.Button();
-            this.btnOtherSingleMove = new System.Windows.Forms.Button();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
@@ -166,27 +162,9 @@
             this.btnLevel1OffensiveSpell.UseVisualStyleBackColor = true;
             this.btnLevel1OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // lblWindow
-            // 
-            this.lblWindow.Location = new System.Drawing.Point(12, 21);
-            this.lblWindow.Name = "lblWindow";
-            this.lblWindow.Size = new System.Drawing.Size(68, 26);
-            this.lblWindow.TabIndex = 1;
-            this.lblWindow.Text = "Window:";
-            this.lblWindow.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtWindow
-            // 
-            this.txtWindow.Location = new System.Drawing.Point(85, 25);
-            this.txtWindow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtWindow.Name = "txtWindow";
-            this.txtWindow.Size = new System.Drawing.Size(237, 22);
-            this.txtWindow.TabIndex = 2;
-            this.txtWindow.Text = "Telnet isengard.nazgul.com";
-            // 
             // txtMob
             // 
-            this.txtMob.Location = new System.Drawing.Point(85, 53);
+            this.txtMob.Location = new System.Drawing.Point(91, 23);
             this.txtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtMob.Name = "txtMob";
             this.txtMob.Size = new System.Drawing.Size(237, 22);
@@ -194,7 +172,7 @@
             // 
             // lblMob
             // 
-            this.lblMob.Location = new System.Drawing.Point(12, 49);
+            this.lblMob.Location = new System.Drawing.Point(18, 19);
             this.lblMob.Name = "lblMob";
             this.lblMob.Size = new System.Drawing.Size(69, 33);
             this.lblMob.TabIndex = 3;
@@ -372,7 +350,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(84, 571);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(249, 22);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(290, 22);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -396,17 +374,6 @@
             this.btnInventory.UseVisualStyleBackColor = true;
             this.btnInventory.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // btnClearOneOff
-            // 
-            this.btnClearOneOff.Location = new System.Drawing.Point(340, 571);
-            this.btnClearOneOff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnClearOneOff.Name = "btnClearOneOff";
-            this.btnClearOneOff.Size = new System.Drawing.Size(85, 30);
-            this.btnClearOneOff.TabIndex = 32;
-            this.btnClearOneOff.Text = "Clear";
-            this.btnClearOneOff.UseVisualStyleBackColor = true;
-            this.btnClearOneOff.Click += new System.EventHandler(this.btnClearOneOff_Click);
-            // 
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
@@ -418,17 +385,6 @@
             this.btnAbort.Text = "Abort";
             this.btnAbort.UseVisualStyleBackColor = true;
             this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
-            // 
-            // btnOneOffExecute
-            // 
-            this.btnOneOffExecute.Location = new System.Drawing.Point(431, 571);
-            this.btnOneOffExecute.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnOneOffExecute.Name = "btnOneOffExecute";
-            this.btnOneOffExecute.Size = new System.Drawing.Size(85, 30);
-            this.btnOneOffExecute.TabIndex = 34;
-            this.btnOneOffExecute.Text = "Execute";
-            this.btnOneOffExecute.UseVisualStyleBackColor = true;
-            this.btnOneOffExecute.Click += new System.EventHandler(this.btnOneOffExecute_Click);
             // 
             // btnAttackMob
             // 
@@ -483,7 +439,7 @@
             // 
             // txtWeapon
             // 
-            this.txtWeapon.Location = new System.Drawing.Point(85, 81);
+            this.txtWeapon.Location = new System.Drawing.Point(91, 51);
             this.txtWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWeapon.Name = "txtWeapon";
             this.txtWeapon.Size = new System.Drawing.Size(237, 22);
@@ -492,7 +448,7 @@
             // 
             // lblWeapon
             // 
-            this.lblWeapon.Location = new System.Drawing.Point(12, 78);
+            this.lblWeapon.Location = new System.Drawing.Point(18, 48);
             this.lblWeapon.Name = "lblWeapon";
             this.lblWeapon.Size = new System.Drawing.Size(68, 33);
             this.lblWeapon.TabIndex = 41;
@@ -564,7 +520,7 @@
             // 
             // txtWand
             // 
-            this.txtWand.Location = new System.Drawing.Point(85, 110);
+            this.txtWand.Location = new System.Drawing.Point(91, 80);
             this.txtWand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWand.Name = "txtWand";
             this.txtWand.Size = new System.Drawing.Size(237, 22);
@@ -572,7 +528,7 @@
             // 
             // lblWand
             // 
-            this.lblWand.Location = new System.Drawing.Point(12, 103);
+            this.lblWand.Location = new System.Drawing.Point(18, 73);
             this.lblWand.Name = "lblWand";
             this.lblWand.Size = new System.Drawing.Size(68, 33);
             this.lblWand.TabIndex = 48;
@@ -773,7 +729,7 @@
             // 
             // txtPotion
             // 
-            this.txtPotion.Location = new System.Drawing.Point(85, 137);
+            this.txtPotion.Location = new System.Drawing.Point(91, 107);
             this.txtPotion.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPotion.Name = "txtPotion";
             this.txtPotion.Size = new System.Drawing.Size(237, 22);
@@ -781,7 +737,7 @@
             // 
             // lblPotion
             // 
-            this.lblPotion.Location = new System.Drawing.Point(12, 130);
+            this.lblPotion.Location = new System.Drawing.Point(18, 100);
             this.lblPotion.Name = "lblPotion";
             this.lblPotion.Size = new System.Drawing.Size(68, 33);
             this.lblPotion.TabIndex = 67;
@@ -938,7 +894,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(2165, 1149);
+            this.tcMain.Size = new System.Drawing.Size(2275, 1149);
             this.tcMain.TabIndex = 79;
             // 
             // tabMain
@@ -948,7 +904,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(2157, 1120);
+            this.tabMain.Size = new System.Drawing.Size(2267, 1120);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -982,11 +938,9 @@
             this.pnlMain.Controls.Add(this.btnReddishOrange);
             this.pnlMain.Controls.Add(this.btnHide);
             this.pnlMain.Controls.Add(this.btnSearch);
-            this.pnlMain.Controls.Add(this.lblWindow);
             this.pnlMain.Controls.Add(this.btnSouthwest);
             this.pnlMain.Controls.Add(this.btnLevel1OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnSouth);
-            this.pnlMain.Controls.Add(this.txtWindow);
             this.pnlMain.Controls.Add(this.btnSoutheast);
             this.pnlMain.Controls.Add(this.lblMob);
             this.pnlMain.Controls.Add(this.btnWest);
@@ -1025,11 +979,9 @@
             this.pnlMain.Controls.Add(this.btnEquipment);
             this.pnlMain.Controls.Add(this.btnInventory);
             this.pnlMain.Controls.Add(this.btnUptime);
-            this.pnlMain.Controls.Add(this.btnClearOneOff);
             this.pnlMain.Controls.Add(this.btnWho);
             this.pnlMain.Controls.Add(this.btnAbort);
             this.pnlMain.Controls.Add(this.btnUseWandOnMob);
-            this.pnlMain.Controls.Add(this.btnOneOffExecute);
             this.pnlMain.Controls.Add(this.txtWand);
             this.pnlMain.Controls.Add(this.btnAttackMob);
             this.pnlMain.Controls.Add(this.lblWand);
@@ -1045,15 +997,54 @@
             this.pnlMain.Location = new System.Drawing.Point(3, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(2151, 1116);
+            this.pnlMain.Size = new System.Drawing.Size(2261, 1116);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnOtherSingleMove
+            // 
+            this.btnOtherSingleMove.ContextMenuStrip = this.ctxGoSingleDirection;
+            this.btnOtherSingleMove.Location = new System.Drawing.Point(653, 449);
+            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnOtherSingleMove.Name = "btnOtherSingleMove";
+            this.btnOtherSingleMove.Size = new System.Drawing.Size(45, 28);
+            this.btnOtherSingleMove.TabIndex = 112;
+            this.btnOtherSingleMove.Tag = "";
+            this.btnOtherSingleMove.Text = "Oth";
+            this.btnOtherSingleMove.UseVisualStyleBackColor = true;
+            this.btnOtherSingleMove.Click += new System.EventHandler(this.btnOtherSingleMove_Click);
+            // 
+            // btnDn
+            // 
+            this.btnDn.ContextMenuStrip = this.ctxGoSingleDirection;
+            this.btnDn.Location = new System.Drawing.Point(755, 462);
+            this.btnDn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnDn.Name = "btnDn";
+            this.btnDn.Size = new System.Drawing.Size(45, 28);
+            this.btnDn.TabIndex = 111;
+            this.btnDn.Tag = "down";
+            this.btnDn.Text = "Dn";
+            this.btnDn.UseVisualStyleBackColor = true;
+            this.btnDn.Click += new System.EventHandler(this.btnDoSingleMove_Click);
+            // 
+            // btnUp
+            // 
+            this.btnUp.ContextMenuStrip = this.ctxGoSingleDirection;
+            this.btnUp.Location = new System.Drawing.Point(755, 430);
+            this.btnUp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnUp.Name = "btnUp";
+            this.btnUp.Size = new System.Drawing.Size(45, 28);
+            this.btnUp.TabIndex = 110;
+            this.btnUp.Tag = "up";
+            this.btnUp.Text = "Up";
+            this.btnUp.UseVisualStyleBackColor = true;
+            this.btnUp.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // grpConsole
             // 
             this.grpConsole.Controls.Add(this.rtbConsole);
             this.grpConsole.Location = new System.Drawing.Point(1317, 21);
             this.grpConsole.Name = "grpConsole";
-            this.grpConsole.Size = new System.Drawing.Size(829, 725);
+            this.grpConsole.Size = new System.Drawing.Size(932, 725);
             this.grpConsole.TabIndex = 109;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1068,7 +1059,7 @@
             this.rtbConsole.Location = new System.Drawing.Point(3, 18);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(823, 704);
+            this.rtbConsole.Size = new System.Drawing.Size(926, 704);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1425,50 +1416,11 @@
             this.tmr.Interval = 20;
             this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
             // 
-            // btnUp
-            // 
-            this.btnUp.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnUp.Location = new System.Drawing.Point(755, 430);
-            this.btnUp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnUp.Name = "btnUp";
-            this.btnUp.Size = new System.Drawing.Size(45, 28);
-            this.btnUp.TabIndex = 110;
-            this.btnUp.Tag = "up";
-            this.btnUp.Text = "Up";
-            this.btnUp.UseVisualStyleBackColor = true;
-            this.btnUp.Click += new System.EventHandler(this.btnDoSingleMove_Click);
-            // 
-            // btnDn
-            // 
-            this.btnDn.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnDn.Location = new System.Drawing.Point(755, 462);
-            this.btnDn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnDn.Name = "btnDn";
-            this.btnDn.Size = new System.Drawing.Size(45, 28);
-            this.btnDn.TabIndex = 111;
-            this.btnDn.Tag = "down";
-            this.btnDn.Text = "Dn";
-            this.btnDn.UseVisualStyleBackColor = true;
-            this.btnDn.Click += new System.EventHandler(this.btnDoSingleMove_Click);
-            // 
-            // btnOtherSingleMove
-            // 
-            this.btnOtherSingleMove.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnOtherSingleMove.Location = new System.Drawing.Point(653, 449);
-            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnOtherSingleMove.Name = "btnOtherSingleMove";
-            this.btnOtherSingleMove.Size = new System.Drawing.Size(45, 28);
-            this.btnOtherSingleMove.TabIndex = 112;
-            this.btnOtherSingleMove.Tag = "";
-            this.btnOtherSingleMove.Text = "Oth";
-            this.btnOtherSingleMove.UseVisualStyleBackColor = true;
-            this.btnOtherSingleMove.Click += new System.EventHandler(this.btnOtherSingleMove_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2165, 1149);
+            this.ClientSize = new System.Drawing.Size(2275, 1149);
             this.Controls.Add(this.tcMain);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
@@ -1497,8 +1449,6 @@
         #endregion
 
         private System.Windows.Forms.Button btnLevel1OffensiveSpell;
-        private System.Windows.Forms.Label lblWindow;
-        private System.Windows.Forms.TextBox txtWindow;
         private System.Windows.Forms.TextBox txtMob;
         private System.Windows.Forms.Label lblMob;
         private System.Windows.Forms.Button btnLevel2OffensiveSpell;
@@ -1519,9 +1469,7 @@
         private System.Windows.Forms.TextBox txtOneOffCommand;
         private System.Windows.Forms.Label lblOneOffCommand;
         private System.Windows.Forms.Button btnInventory;
-        private System.Windows.Forms.Button btnClearOneOff;
         private System.Windows.Forms.Button btnAbort;
-        private System.Windows.Forms.Button btnOneOffExecute;
         private System.Windows.Forms.Button btnAttackMob;
         private System.Windows.Forms.TextBox txtCurrentRoom;
         private System.Windows.Forms.Label lblCurrentRoom;

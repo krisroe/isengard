@@ -189,11 +189,43 @@ namespace IsengardClient
             cboCelduinExpress.SelectedIndex = 0;
             cboMaxOffLevel.SelectedIndex = 0;
 
+            DoConnect();
+        }
+
+        private void DoConnect()
+        {
+            rtbConsole.Clear();
+            _quitting = false;
+            _finishedQuit = false;
+            _currentStatusLastComputed = null;
+
             _tcpClient = new TcpClient("isengard.nazgul.com", 4040);
             _tcpClientNetworkStream = _tcpClient.GetStream();
             BackgroundWorker _bwNetwork = new BackgroundWorker();
             _bwNetwork.DoWork += _bwNetwork_DoWork;
+            _bwNetwork.RunWorkerCompleted += _bwNetwork_RunWorkerCompleted;
             _bwNetwork.RunWorkerAsync();
+        }
+
+        private void _bwNetwork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (_quitting && _finishedQuit)
+            {
+                this.Close();
+            }
+            else
+            {
+                if (MessageBox.Show("Disconnected. Reconnect?", "Disconnected", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    DoConnect();
+                }
+                else
+                {
+                    _quitting = true;
+                    _finishedQuit = true;
+                    this.Close();
+                }
+            }
         }
 
         private class SkillCooldownStatus
@@ -1655,7 +1687,8 @@ namespace IsengardClient
             Room oBoardedSewerTunnel = AddRoom("Boarded Sewer Tunnel");
             AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
 
-            Room oSewerOrcChamber = AddRoom("Sewer Orc Chamber");
+            Room oSewerOrcChamber = AddRoom("Sewer Orc Guards"); //Sewer Orc Chamber
+            oSewerOrcChamber.Mob = "Guard";
             AddBidirectionalSameNameExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted", null);
 
             Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
@@ -1804,6 +1837,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
+            AddLocation(aBree, oSewerOrcChamber);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -3350,17 +3384,6 @@ namespace IsengardClient
             SetNightEdges(chkIsNight.Checked);
         }
 
-        private void btnClearOneOff_Click(object sender, EventArgs e)
-        {
-            txtOneOffCommand.Text = string.Empty;
-            txtOneOffCommand.Focus();
-        }
-
-        private void btnOneOffExecute_Click(object sender, EventArgs e)
-        {
-            SendCommand(txtOneOffCommand.Text, false, false);
-        }
-
         private void btnAbort_Click(object sender, EventArgs e)
         {
             _currentBackgroundParameters.Cancelled = true;
@@ -3784,6 +3807,7 @@ namespace IsengardClient
             if (e.KeyChar == (char)Keys.Return)
             {
                 SendCommand(txtOneOffCommand.Text, false, false);
+                txtOneOffCommand.SelectAll();
             }
         }
 
