@@ -100,9 +100,15 @@ namespace IsengardClient
         private const string VARIABLE_HITANDRUNDIRECTION = "hitandrundirection";
         private const string VARIABLE_HITANDRUNPRECOMMAND = "hitandrunprecommand";
 
+        private List<EmoteButton> _emoteButtons = new List<EmoteButton>();
+        private bool _showingWithTarget = false;
+        private bool _showingWithoutTarget = false;
+
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold)
         {
             InitializeComponent();
+
+            InitializeEmotes();
 
             _asciiMapping = AsciiMapping.GetAsciiMapping(out _reverseAsciiMapping);
 
@@ -199,12 +205,249 @@ namespace IsengardClient
             DoConnect();
         }
 
+        private void InitializeEmotes()
+        {
+            List<Emote> emotes = new List<Emote>()
+            {
+                new Emote("attention", "snap to attention", null),
+                new Emote("beam", "beam happily", null),
+                new Emote("beckon", "beckon to everyone", "beckon to X"),
+                new Emote("bird", "gesture indignantly", "flip off X"),
+
+                new Emote("blah", "Something got you down?", null),
+                new Emote("bleed", "bleed profusely", null),
+                new Emote("blush", "blush", null),
+                new Emote("bounce", "bounce around wildly", null),
+
+                new Emote("bow", "make a full-sweeping bow", "bow before X"),
+                new Emote("cackle", "cackle gleefully", null),
+                new Emote("cheer", "cheer", "cheer for X"),
+                new Emote("chortle", "chortle mirthfully", null),
+
+                new Emote("chuckle", "chuckle", null),
+                new Emote("clap", "clap your hands", "applaud X"),
+                new Emote("collapse", "collapse from exhaustion", null),
+                new Emote("comfort", null, "comfort X"),
+
+                //skip coin since it is duplicative of flip
+                new Emote("confused", "look bewildered", null),
+                new Emote("cough", "cough politely", null),
+                new Emote("cower", "cower in fear", "cower in fear before X"),
+
+                new Emote("cringe", "cringe painfully", null),
+                new Emote("craps", "roll dice", null),
+                new Emote("cry", "burst into tears", null),
+                new Emote("cuddle", null, "cuddle up with X"),
+
+                new Emote("curtsy", "curtsy rather daintily", "curtsy before X"),
+                new Emote("dance", "dance about", "dance with X"),
+                //skip dice since it is duplicative of craps
+                new Emote("drool", "drool", null),
+
+                new Emote("eye", null, "eye X suspiciously"),
+                new Emote("faint", "faint", null),
+                new Emote("fart", "fart", "fart on X"),
+                new Emote("flaugh", "fall down laughing", null),
+
+                new Emote("flex", "flex your muscles", null),
+                new Emote("flip", "flip a coin: heads/tails", null),
+                new Emote("frown", "frown", null),
+                new Emote("frustrate", "pull your hair out", null),
+
+                new Emote("fume", "fume", null),
+                new Emote("gasp", "jaw drops", null),
+                new Emote("giggle", "giggle inanely", null),
+                new Emote("glare", null, "glare menacingly at X"),
+
+                new Emote("goose", null, "goose X"),
+                new Emote("grab", null, "pull on X"),
+                new Emote("greet", "greet everyone cordially", "greet X warmly"),
+                new Emote("grin", "grin evilly", null),
+
+                new Emote("grind", "grind your teeth", null),
+                new Emote("groan", "groan miserably", null),
+                new Emote("grovel", "throw yourself on the ground and grovel pathetically", "grovel before X"),
+                new Emote("growl", "growl", "growl at X"),
+
+                new Emote("grr", "start looking angry", "stare menacingly at X"),
+                new Emote("grumble", "grumble darkly", null),
+                new Emote("grunt", "grunt agonizingly", null),
+                new Emote("hiccup", "hiccup", null),
+
+                new Emote("high5", null, "slap X a triumphant highfive"),
+                new Emote("hlaugh", "laugh hysterically", null),
+                new Emote("hug", null, "hug X"),
+                new Emote("hum", "hum a little tune", null),
+
+                new Emote("idea", "eyes light up with a brilliant idea", null),
+                new Emote("imitate", null, "imitate X"),
+                new Emote("jump", "jump for joy", null),
+                new Emote("kiss", null, "kiss X gently"),
+                
+                new Emote("kisshand", null, "kiss X on the hand"),
+                new Emote("laugh", "laugh", "laugh at X"),
+                new Emote("lick", "lick your lips in anticipation", null),
+                new Emote("moon", "moon the world", "moon X"),
+
+                new Emote("msmile", "smile mischieviously", null),
+                new Emote("mutter", "mutter", null),
+                new Emote("nervous", "fidget nervously", null),
+                new Emote("nod", "nod", null),
+
+                new Emote("nose", "pick your nose", null),
+                new Emote("ogle", null, "ogle X with carnal intent"),
+                new Emote("pace", "pace to and fro", null),
+                new Emote("pat", "can't quite manage to pat this person", null),
+
+                new Emote("pet", null, "pet X on the back of the head"),
+                new Emote("plead", "plead pathetically", "plead before X"),
+                new Emote("point", "point at yourself", "point at X"),
+                new Emote("poke", "poke everyone", "poke X"),
+
+                new Emote("pout", "pout", null),
+                //cannot seem to use punch since it is ambiguous with power attack without weapon
+                new Emote("purr", "purr provocatively", "purr at X"),
+                new Emote("raise", "raise an eyebrow questioningly", null),
+
+                new Emote("relax", "breath deeply", null),
+                new Emote("roll", "roll your eyes in exasperation", null),
+                new Emote("salute", null, "salute X"),
+                new Emote("scold", "scold everyone around you", "scold X for being naughty"),
+
+                //scowl does not appear to be implemented
+                new Emote("scratch", "scratch your head cluelessly", null),
+                new Emote("shake", "shake your head", "shake X's hand"),
+                new Emote("shove", null, "push X away"),
+
+                new Emote("sit", "sit down", null),
+                new Emote("skip", "skip like a girl", null),
+                new Emote("slap", null, "slap X"),
+                new Emote("sleep", "take a nap", null),
+
+                new Emote("smell", "sniff the air", null),
+                new Emote("smile", "smile happily", null),
+                new Emote("smirk", "smirk wryly", null),
+                new Emote("snap", "snap your fingers", null),
+
+                new Emote("snarl", "snarl threateningly", "snarl threateningly at X"),
+                new Emote("sneer", "sneer contemptuously", "sneer contemptuously at X"),
+                new Emote("sneeze", "sneeze", null),
+                new Emote("sniff", "start to cry", null),
+
+                new Emote("snivel", "snivel in despair", null),
+                new Emote("snort", "snort indignantly", null),
+                new Emote("spit", "spit", "spit on X"),
+                new Emote("squirm", "squirm uncomfortably", null),
+
+                new Emote("ssmile", "smile with satisfaction", null),
+                new Emote("stand", "stand up", null), //does not seem to work
+                new Emote("strut", "strut around vainly", null),
+                new Emote("suck", "suck your thumb", "suck X"),
+
+                new Emote("sulk", "sulk", null),
+                new Emote("sweat", "begin to sweat nervously", null),
+                new Emote("tap", "tap your foot impatiently", null),
+                new Emote("taunt", null, "taunt and jeer at X"),
+
+                new Emote("thank", "thank everyone cordially", "heartily thank X"),
+                new Emote("thumb", "give a thumbs up", "give X the thumbs up sign"),
+                new Emote("tnl", "tnl", null),
+                new Emote("twiddle", "twiddle your thumbs", null),
+
+                new Emote("twirl", "twirl about in joy", null),
+                //skip warm since is duplicative of wsmile
+                new Emote("wave", "wave happily", "wave to X"),
+                new Emote("whimper", "whimper like a beat dog", null),
+
+                new Emote("whine", "whine annoyingly", null),
+                new Emote("whistle", "whistle innocently", "whistle appreciatively at X"),
+                new Emote("wince", "wince painfully", null),
+                new Emote("wink", "wink mischieviously", "wink at X"),
+
+                new Emote("worship", "bow down and give praise", "worship X"),
+                new Emote("wsmile", "smile warmly", null),
+                new Emote("yawn", "yawn loudly", null),
+            };
+            foreach (Emote nextEmote in emotes)
+            {
+                EmoteButton btn;
+                if (!string.IsNullOrEmpty(nextEmote.NoTargetText))
+                {
+                    btn = new EmoteButtonWithoutTarget(nextEmote);
+                    btn.Click += btnEmoteButton_Click;
+                    _emoteButtons.Add(btn);
+                }
+                if (!string.IsNullOrEmpty(nextEmote.WithTargetText))
+                {
+                    btn = new EmoteButtonWithTarget(nextEmote);
+                    btn.Click += btnEmoteButton_Click;
+                    _emoteButtons.Add(btn);
+                }
+            }
+            RefreshEmoteButtons();
+         }
+
+        private void btnEmoteButton_Click(object sender, EventArgs e)
+        {
+            EmoteButton source = (EmoteButton)sender;
+            string command = source.Emote.Command;
+            if (source.HasTarget)
+            {
+                command += " " + txtEmoteTarget.Text;
+            }
+            SendCommand(command, false, false);
+        }
+
+        private class EmoteButton : Button
+        {
+            public Emote Emote;
+            public bool HasTarget;
+            public EmoteButton(Emote emote, bool HasTarget)
+            {
+                this.Emote = emote;
+                this.AutoSize = true;
+                this.Text = HasTarget ? emote.WithTargetText : emote.NoTargetText;
+                this.HasTarget = HasTarget;
+            }
+        }
+
+        private class EmoteButtonWithTarget : EmoteButton
+        {
+            public EmoteButtonWithTarget(Emote emote) : base(emote, true)
+            {
+            }
+        }
+
+        private class EmoteButtonWithoutTarget : EmoteButton
+        {
+            public EmoteButtonWithoutTarget(Emote emote) : base(emote, false)
+            {
+            }
+        }
+
+        private class Emote
+        {
+            public Emote(string Command, string NoTargetText, string WithTargetText)
+            {
+                this.Command = Command;
+                this.NoTargetText = NoTargetText;
+                this.WithTargetText = WithTargetText;
+            }
+            public string Command { get; set; }
+            public string NoTargetText { get; set; }
+            public string WithTargetText { get; set; }
+        }
+
         private void DoConnect()
         {
             rtbConsole.Clear();
             _quitting = false;
             _finishedQuit = false;
             _currentStatusLastComputed = null;
+            _promptedUserName = false;
+            _promptedPassword = false;
+            _enteredUserName = false;
+            _enteredPassword = false;
 
             _tcpClient = new TcpClient("isengard.nazgul.com", 4040);
             _tcpClientNetworkStream = _tcpClient.GetStream();
@@ -3878,6 +4121,45 @@ namespace IsengardClient
                     btnQuit_Click(null, null);
                 }
                 e.Cancel = true;
+            }
+        }
+
+        private void txtEmoteText_TextChanged(object sender, EventArgs e)
+        {
+            btnEmote.Enabled = !string.IsNullOrEmpty(txtEmoteText.Text);
+        }
+
+        private void btnEmote_Click(object sender, EventArgs e)
+        {
+            SendCommand("emote " + txtEmoteText.Text, false, false);
+        }
+
+        private void txtEmoteTarget_TextChanged(object sender, EventArgs e)
+        {
+            RefreshEmoteButtons();
+        }
+
+        private void chkShowEmotesWithoutTarget_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshEmoteButtons();
+        }
+
+        private void RefreshEmoteButtons()
+        {
+            bool ShowHasTarget = !string.IsNullOrEmpty(txtEmoteTarget.Text);
+            bool ShowNoTarget = chkShowEmotesWithoutTarget.Checked;
+            if (_showingWithTarget != ShowHasTarget || _showingWithoutTarget != ShowNoTarget)
+            {
+                flpEmotes.Controls.Clear();
+                foreach (EmoteButton eb in _emoteButtons)
+                {
+                    if (eb.HasTarget ? ShowHasTarget : ShowNoTarget)
+                    {
+                        flpEmotes.Controls.Add(eb);
+                    }
+                }
+                _showingWithTarget = ShowHasTarget;
+                _showingWithoutTarget = ShowNoTarget;
             }
         }
     }
