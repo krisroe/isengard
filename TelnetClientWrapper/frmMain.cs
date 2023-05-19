@@ -440,7 +440,7 @@ namespace IsengardClient
 
         private void DoConnect()
         {
-            rtbConsole.Clear();
+            ClearConsole();
             _quitting = false;
             _finishedQuit = false;
             _currentStatusLastComputed = null;
@@ -3477,6 +3477,23 @@ namespace IsengardClient
             }
         }
 
+        private void ctxConsole_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (e.ClickedItem == tsmiClearConsole)
+            {
+                ClearConsole();
+            }
+        }
+
+        private void ClearConsole()
+        {
+            lock (_consoleTextLock)
+            {
+                _newConsoleText.Clear();
+            }
+            rtbConsole.Clear();
+        }
+
         private void btnQuit_Click(object sender, EventArgs e)
         {
             _quitting = true;
@@ -3914,16 +3931,18 @@ namespace IsengardClient
                 this.Close();
                 return;
             }
+            List<string> textToAdd = new List<string>();
             lock (_consoleTextLock)
             {
                 if (_newConsoleText.Count > 0)
                 {
-                    foreach (string s in _newConsoleText)
-                    {
-                        rtbConsole.AppendText(s);
-                    }
+                    textToAdd.AddRange(_newConsoleText);
                     _newConsoleText.Clear();
                 }
+            }
+            foreach (string s in textToAdd)
+            {
+                rtbConsole.AppendText(s);
             }
             bool autoMana = chkAutoMana.Checked;
             if (autoMana)
