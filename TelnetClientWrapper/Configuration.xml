@@ -11,7 +11,7 @@
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
-  <Macro name="C*" oneclick="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
+  <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <SetNextCommandMS waitms="0"/>
@@ -24,7 +24,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
+  <Macro name="SC*+ATK" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
@@ -40,7 +40,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon" finalcommand2="look {mob}">
+  <Macro name="SCCSC*+ATK" oneclick="true" setparentlocation="true" combatcommandtypes="Magic,Melee" finalcommand="remove {weapon}" finalcommandcondition="weapon" finalcommand2="look {mob}">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
@@ -60,6 +60,45 @@
      <Steps>
       <ManaOffensive waitms="castinterval"/>
       <Command text="attack {mob}" waitms="0" condition="weapon"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="C*" oneclick="true" combatcommandtypes="Magic">
+   <Steps>
+    <Sequence loop="true">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="SC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic">
+   <Steps>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <ManaStun waitms="0"/>
+    <Sequence loop="true">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+     </Steps>
+    </Sequence>
+   </Steps>
+  </Macro>
+  <Macro name="SCCSC*" oneclick="true" setparentlocation="true" combatcommandtypes="Magic" finalcommand2="look {mob}">
+   <Steps>
+    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
+    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
+    <ManaStun waitms="0"/>
+    <Sequence loop="2">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
+     </Steps>
+    </Sequence>
+    <ManaStun waitms="castinterval"/>
+    <Sequence loop="true">
+     <Steps>
+      <ManaOffensive waitms="castinterval"/>
      </Steps>
     </Sequence>
    </Steps>

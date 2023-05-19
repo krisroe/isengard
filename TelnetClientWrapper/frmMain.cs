@@ -1094,6 +1094,10 @@ namespace IsengardClient
                 _doScore = true;
                 chkPowerAttack.Checked = false;
             }
+            else if (!_currentBackgroundParameters.WasPowerAttackAvailableAtStart && IsPowerAttackAvailable())
+            {
+                chkPowerAttack.Checked = true;
+            }
             ToggleBackgroundProcess(false);
             _currentBackgroundParameters = null;
         }
@@ -3558,6 +3562,8 @@ namespace IsengardClient
                 moveGapMS = 260;
             _currentBackgroundParameters.WaitMS = moveGapMS;
             _currentBackgroundParameters.TargetRoom = targetRoom;
+            _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
+            _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
             _pathMapping = new Dictionary<Room, Exit>();
             _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
             _currentSearch.TreeEdge += Alg_TreeEdge;
@@ -3625,6 +3631,7 @@ namespace IsengardClient
             public bool AutoMana { get; set; }
             public bool PowerAttack { get; set; }
             public bool AutoHazy { get; set; }
+            public bool WasPowerAttackAvailableAtStart { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3696,7 +3703,7 @@ namespace IsengardClient
 
         private void RunMacro(Macro m)
         {
-            bool powerAttack = chkPowerAttack.Checked;
+            bool powerAttack = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee) && chkPowerAttack.Checked;
             if (powerAttack)
             {
                 if (string.IsNullOrEmpty(txtWeapon.Text))
@@ -3730,6 +3737,7 @@ namespace IsengardClient
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
+            _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
             _currentBackgroundParameters.PowerAttack = powerAttack;
             if (m.SetParentLocation && m_oCurrentRoom != null && m_oCurrentRoom.ParentRoom != null)
             {
@@ -3737,6 +3745,12 @@ namespace IsengardClient
                 _currentBackgroundParameters.SetTargetRoomIfCancelled = true;
             }
             RunCommands(stepsToRun, _currentBackgroundParameters);
+        }
+
+        private bool IsPowerAttackAvailable()
+        {
+            SkillCooldownStatus oStatus = _skillCooldowns[SkillWithCooldownType.PowerAttack];
+            return !oStatus.IsActive && oStatus.NextAvailableDate.HasValue && oStatus.NextAvailableDate.Value <= DateTime.UtcNow;
         }
 
         private string GetFinalCommand(string FinalCommand, Variable FinalCommandConditionVariable, out bool stop)
@@ -4012,6 +4026,7 @@ namespace IsengardClient
                     _autoHazied = false;
                     if (_currentBackgroundParameters != null)
                     {
+                        _bw.CancelAsync();
                         _currentBackgroundParameters.AutoHazy = false;
                     }
                     SetCurrentRoom(_treeOfLife);
@@ -4092,9 +4107,14 @@ namespace IsengardClient
         private void btnSetAutoHazyThreshold_Click(object sender, EventArgs e)
         {
             string sNewAutoHazyThreshold = Interaction.InputBox("New auto hazy threshold:", "Auto Hazy Threshold", txtAutoHazyThreshold.Text);
-            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold))
+            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold) && iNewAutoHazyThreshold > 0 && iNewAutoHazyThreshold <= _totalmp)
             {
                 _autoHazyThreshold = iNewAutoHazyThreshold;
+                txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
+            }
+            else
+            {
+                MessageBox.Show("Invalid auto hazy threshold: " + sNewAutoHazyThreshold);
             }
         }
 
