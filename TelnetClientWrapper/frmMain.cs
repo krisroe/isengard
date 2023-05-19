@@ -104,7 +104,7 @@ namespace IsengardClient
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold)
+        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
             InitializeComponent();
 
@@ -146,6 +146,7 @@ namespace IsengardClient
             _healtickmp = healtickmp;
             _autoHazyThreshold = autoHazyThreshold;
             txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
+            chkAutoHazy.Checked = autoHazyDefault;
 
             _preferredAlignment = preferredAlignment;
             txtPreferredAlignment.Text = _preferredAlignment.ToString();
