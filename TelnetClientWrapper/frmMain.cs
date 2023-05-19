@@ -4106,7 +4106,7 @@ namespace IsengardClient
 
         private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow)
         {
-            if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && _autoMana.HasValue && _autoMana.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
+            if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && _autoHitpoints.HasValue && _autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
                 SendCommand("drink hazy", false, false);
