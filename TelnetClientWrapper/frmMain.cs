@@ -2068,6 +2068,7 @@ namespace IsengardClient
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
 
             Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel");
+            oBurnedRemainsOfNimrodel.Mob1 = "Nimrodel";
             oBurnedRemainsOfNimrodel.Experience1 = 300;
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
             AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
