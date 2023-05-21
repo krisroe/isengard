@@ -103,6 +103,7 @@
             this.pnlMain = new System.Windows.Forms.Panel();
             this.grpSingleMove = new System.Windows.Forms.GroupBox();
             this.btnExitSingleMove = new System.Windows.Forms.Button();
+            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.chkExecuteMove = new System.Windows.Forms.CheckBox();
             this.btnOtherSingleMove = new System.Windows.Forms.Button();
             this.btnDn = new System.Windows.Forms.Button();
@@ -122,7 +123,6 @@
             this.lblHitpoints = new System.Windows.Forms.Label();
             this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
             this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
-            this.chkPowerAttack = new System.Windows.Forms.CheckBox();
             this.btnManaSet = new System.Windows.Forms.Button();
             this.txtMana = new System.Windows.Forms.TextBox();
             this.lblMana = new System.Windows.Forms.Label();
@@ -161,7 +161,6 @@
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -963,7 +962,6 @@
             this.pnlMain.Controls.Add(this.lblHitpoints);
             this.pnlMain.Controls.Add(this.cboMaxOffLevel);
             this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
-            this.pnlMain.Controls.Add(this.chkPowerAttack);
             this.pnlMain.Controls.Add(this.btnManaSet);
             this.pnlMain.Controls.Add(this.txtMana);
             this.pnlMain.Controls.Add(this.lblMana);
@@ -1064,6 +1062,13 @@
             this.btnExitSingleMove.Text = "Exit";
             this.btnExitSingleMove.UseVisualStyleBackColor = true;
             this.btnExitSingleMove.Click += new System.EventHandler(this.btnExitSingleMove_Click);
+            // 
+            // ctxRoomExits
+            // 
+            this.ctxRoomExits.Name = "ctxOneClickMacro";
+            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
+            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
             // 
             // chkExecuteMove
             // 
@@ -1258,7 +1263,7 @@
             "3",
             "2",
             "1"});
-            this.cboMaxOffLevel.Location = new System.Drawing.Point(355, 437);
+            this.cboMaxOffLevel.Location = new System.Drawing.Point(354, 425);
             this.cboMaxOffLevel.Margin = new System.Windows.Forms.Padding(2);
             this.cboMaxOffLevel.Name = "cboMaxOffLevel";
             this.cboMaxOffLevel.Size = new System.Drawing.Size(98, 21);
@@ -1267,23 +1272,12 @@
             // lblMaxOffensiveLevel
             // 
             this.lblMaxOffensiveLevel.AutoSize = true;
-            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(287, 440);
+            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(286, 428);
             this.lblMaxOffensiveLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
             this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(70, 13);
             this.lblMaxOffensiveLevel.TabIndex = 98;
             this.lblMaxOffensiveLevel.Text = "Max off level:";
-            // 
-            // chkPowerAttack
-            // 
-            this.chkPowerAttack.AutoSize = true;
-            this.chkPowerAttack.Location = new System.Drawing.Point(355, 416);
-            this.chkPowerAttack.Margin = new System.Windows.Forms.Padding(2);
-            this.chkPowerAttack.Name = "chkPowerAttack";
-            this.chkPowerAttack.Size = new System.Drawing.Size(96, 17);
-            this.chkPowerAttack.TabIndex = 97;
-            this.chkPowerAttack.Text = "Power Attack?";
-            this.chkPowerAttack.UseVisualStyleBackColor = true;
             // 
             // btnManaSet
             // 
@@ -1714,13 +1708,6 @@
             this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
             this.tsmiClearConsole.Text = "Clear";
             // 
-            // ctxRoomExits
-            // 
-            this.ctxRoomExits.Name = "ctxOneClickMacro";
-            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
-            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
-            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1851,7 +1838,6 @@
         private System.Windows.Forms.Timer tmr;
         private System.Windows.Forms.TextBox txtMana;
         private System.Windows.Forms.Button btnManaSet;
-        private System.Windows.Forms.CheckBox chkPowerAttack;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
         private System.Windows.Forms.Label lblPreferredAlignment;

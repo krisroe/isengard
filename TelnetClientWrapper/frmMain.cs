@@ -103,6 +103,7 @@ namespace IsengardClient
         private bool _showingWithoutTarget = false;
         private bool _fleeing;
         private bool? _fleeResult;
+        private bool? _manashieldResult;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -555,6 +556,16 @@ namespace IsengardClient
             _fleeResult = true;
         }
 
+        private void OnFailManashield()
+        {
+            _manashieldResult = false;
+        }
+
+        private void OnSuccessfulManashield()
+        {
+            _manashieldResult = true;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -564,7 +575,8 @@ namespace IsengardClient
                 new HPMPSequence(_asciiMapping, OnGetHPMP),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, _asciiMapping, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
-                new ConstantSequence("You creative a protective manashield.", DoScore, _asciiMapping),
+                new ConstantSequence("You creative a protective manashield.", OnSuccessfulManashield, _asciiMapping),
+                new ConstantSequence("Your attempt to manashield fails.", OnFailManashield, _asciiMapping),
                 new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
                 new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
                 new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
@@ -1106,14 +1118,9 @@ namespace IsengardClient
                     SetCurrentRoom(targetRoom);
                 }
             }
-            if (_currentBackgroundParameters.PowerAttack && _currentBackgroundParameters.CommandsRun > 0)
+            if (_currentBackgroundParameters.UsedSkills != PromptedSkills.None && _currentBackgroundParameters.CommandsRun > 0)
             {
                 _doScore = true;
-                chkPowerAttack.Checked = false;
-            }
-            else if (!_currentBackgroundParameters.WasPowerAttackAvailableAtStart && IsPowerAttackAvailable())
-            {
-                chkPowerAttack.Checked = true;
             }
             ToggleBackgroundProcess(false);
             _currentBackgroundParameters = null;
@@ -1158,6 +1165,38 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
+
+            //Activate skills
+            int maxAttempts = 20;
+            int currentAttempts = 0;
+            if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
+            {
+                int castInterval = ((IntegerVariable)pms.Variables["castinterval"]).Value;
+                DateTime? dtLastAttempt = null;
+                while (currentAttempts < maxAttempts)
+                {
+                    while (dtLastAttempt.HasValue && (DateTime.UtcNow - dtLastAttempt.Value).TotalMilliseconds < castInterval)
+                    {
+                        Thread.Sleep(50);
+                        if (_bw.CancellationPending) break;
+                    }
+                    _manashieldResult = null;
+                    SendCommand("manashield", false, false);
+                    _currentBackgroundParameters.CommandsRun++;
+                    currentAttempts++;
+                    dtLastAttempt = DateTime.UtcNow;
+                    while (!_manashieldResult.HasValue)
+                    {
+                        Thread.Sleep(50);
+                        if (_bw.CancellationPending) break;
+                    }
+                    //stop if successfully manashielded
+                    if (_manashieldResult.HasValue && _manashieldResult.Value)
+                    {
+                        break;
+                    }
+                }
+            }
 
             //Run the pre-exit if present
             Exit preExit = pms.PreExit;
@@ -1234,8 +1273,7 @@ namespace IsengardClient
                     if (!_fleeing) return;
                     if (_bw.CancellationPending) return;
                 }
-                int maxAttempts = 20;
-                int currentAttempts = 0;
+                currentAttempts = 0;
                 while (_fleeing && currentAttempts < maxAttempts)
                 {
                     _fleeResult = null;
@@ -3652,7 +3690,6 @@ namespace IsengardClient
             _currentBackgroundParameters.WaitMS = moveGapMS;
             _currentBackgroundParameters.TargetRoom = targetRoom;
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
-            _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
             _pathMapping = new Dictionary<Room, Exit>();
             _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
             _currentSearch.TreeEdge += Alg_TreeEdge;
@@ -3719,9 +3756,8 @@ namespace IsengardClient
             public string FinalCommand2 { get; set; }
             public int MaxOffensiveLevel { get; set; }
             public bool AutoMana { get; set; }
-            public bool PowerAttack { get; set; }
+            public PromptedSkills UsedSkills { get; set; }
             public bool AutoHazy { get; set; }
-            public bool WasPowerAttackAvailableAtStart { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3793,15 +3829,39 @@ namespace IsengardClient
 
         private void RunMacro(Macro m, Exit preExit)
         {
-            bool powerAttack = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee) && chkPowerAttack.Checked;
-            if (powerAttack)
+            bool isMeleeMacro = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee);
+            bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
+            if (isMeleeMacro && !hasWeapon)
             {
-                if (string.IsNullOrEmpty(txtWeapon.Text))
+                MessageBox.Show("No weapon specified.");
+                return;
+            }
+
+            PromptedSkills activatedSkills = PromptedSkills.None;
+
+            if (m.DoSkills)
+            {
+                bool promptPowerAttack = isMeleeMacro && txtPowerAttackTime.Text == "0:00";
+                bool promptManashield = txtManashieldTime.Text == "0:00";
+
+                PromptedSkills skills = PromptedSkills.None;
+                if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
+                if (promptManashield) skills |= PromptedSkills.Manashield;
+
+                if (skills != PromptedSkills.None)
                 {
-                    MessageBox.Show("No weapon specified.");
-                    return;
+                    using (frmPromptSkills frmSkills = new frmPromptSkills(skills))
+                    {
+                        if (frmSkills.ShowDialog(this) != DialogResult.OK)
+                        {
+                            return;
+                        }
+                        activatedSkills = frmSkills.SelectedSkills;
+                    }
                 }
             }
+
+            bool powerAttack = (activatedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
             ((StringVariable)_variablesByName["attacktype"]).Value = powerAttack ? "power" : "attack";
 
             List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
@@ -3828,15 +3888,8 @@ namespace IsengardClient
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
-            _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
-            _currentBackgroundParameters.PowerAttack = powerAttack;
+            _currentBackgroundParameters.UsedSkills = activatedSkills;
             RunCommands(stepsToRun, _currentBackgroundParameters);
-        }
-
-        private bool IsPowerAttackAvailable()
-        {
-            SkillCooldownStatus oStatus = _skillCooldowns[SkillWithCooldownType.PowerAttack];
-            return !oStatus.IsActive && oStatus.NextAvailableDate.HasValue && oStatus.NextAvailableDate.Value <= DateTime.UtcNow;
         }
 
         private string GetFinalCommand(string FinalCommand, Variable FinalCommandConditionVariable, out bool stop)
@@ -4095,11 +4148,6 @@ namespace IsengardClient
                     sText = string.Empty;
                     backColor = BACK_COLOR_NEUTRAL;
                 }
-                string sPreviousText = txt.Text;
-                if (eType == SkillWithCooldownType.PowerAttack && sText == "0:00" && !string.Equals(sPreviousText, sText) && !string.IsNullOrEmpty(txtWeapon.Text) && !btnAbort.Enabled)
-                {
-                    chkPowerAttack.Checked = true;
-                }
                 txt.Text = sText;
                 txt.BackColor = backColor;
             }
@@ -4311,8 +4359,6 @@ namespace IsengardClient
                 _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
                 _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
                 _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
-                _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
-                _currentBackgroundParameters.PowerAttack = false;
                 RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
             }
         }
@@ -4434,5 +4480,13 @@ namespace IsengardClient
         {
             ctxRoomExits.Show(btnExitSingleMove, new Point(0, 0));
         }
+    }
+
+    [Flags]
+    internal enum PromptedSkills
+    {
+        None = 0,
+        PowerAttack = 1,
+        Manashield = 2
     }
 }

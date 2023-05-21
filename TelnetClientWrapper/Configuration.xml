@@ -6,7 +6,7 @@
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
-  <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee">
+  <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <SetNextCommandMS waitms="0"/>
@@ -19,7 +19,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee">
+  <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <ManaStun waitms="0"/>
@@ -33,7 +33,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee">
+  <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
     <ManaStun waitms="0"/>
@@ -55,7 +55,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="C*" oneclick="true" combatcommandtypes="Magic">
+  <Macro name="C*" oneclick="true" combatcommandtypes="Magic" skills="true">
    <Steps>
     <Sequence loop="true">
      <Steps>
@@ -64,7 +64,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SC*" oneclick="true" combatcommandtypes="Magic">
+  <Macro name="SC*" oneclick="true" combatcommandtypes="Magic" skills="true">
    <Steps>
     <ManaStun waitms="0"/>
     <Sequence loop="true">
@@ -74,7 +74,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic">
+  <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic" skills="true">
    <Steps>
     <ManaStun waitms="0"/>
     <Sequence loop="2">
@@ -90,7 +90,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="ATK*" oneclick="true" combatcommandtypes="Melee">
+  <Macro name="ATK*" oneclick="true" combatcommandtypes="Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0"/>
     <SetNextCommandMS waitms="0"/>
@@ -102,5 +102,6 @@
    </Steps>
   </Macro>
   <Macro name="Flee" oneclick="true" flee="true"/>
+  <Macro name="Skills" oneclick="true" skills="true"/>
  </Macros>
 </Configuration>

@@ -75,6 +75,12 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmPromptSkills.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPromptSkills.Designer.cs">
+      <DependentUpon>frmPromptSkills.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmVariables.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPromptSkills.resx">
+      <DependentUpon>frmPromptSkills.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmVariables.resx">
       <DependentUpon>frmVariables.cs</DependentUpon>

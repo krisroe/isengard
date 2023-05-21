@@ -436,6 +436,17 @@ namespace IsengardClient
                         }
                     }
 
+                    string sSkills = elemMacro.GetAttribute("skills");
+                    bool bSkills = false;
+                    if (!string.IsNullOrEmpty(sSkills))
+                    {
+                        if (!bool.TryParse(sSkills, out bSkills))
+                        {
+                            errorMessages.Add("Invalid skills for " + macroName + " " + sSkills);
+                            continue;
+                        }
+                    }
+
                     string sFinalCommand = elemMacro.GetAttribute("finalcommand");
                     string sFinalCommand2 = elemMacro.GetAttribute("finalcommand2");
 
@@ -445,6 +456,7 @@ namespace IsengardClient
                     oMacro.FinalCommand = sFinalCommand;
                     oMacro.FinalCommand2 = sFinalCommand2;
                     oMacro.Flee = bFlee;
+                    oMacro.DoSkills = bSkills;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages, variablesByName);
                     if (foundSteps == null)
                     {
