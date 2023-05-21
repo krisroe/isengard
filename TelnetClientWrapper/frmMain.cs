@@ -3828,6 +3828,10 @@ namespace IsengardClient
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
             _currentBackgroundParameters.PowerAttack = powerAttack;
+            if (m.Flee)
+            {
+                _fleeing = true;
+            }
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 

@@ -24,6 +24,7 @@ namespace IsengardClient
         public string FinalCommand2 { get; set; }
         public Variable FinalCommand2ConditionVariable { get; set; }
         public bool OneClick { get; set; }
+        public bool Flee { get; set; }
 
         public static bool IsValidMacroName(string name)
         {

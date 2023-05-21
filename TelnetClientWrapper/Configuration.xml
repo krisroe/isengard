@@ -101,5 +101,6 @@
     </Sequence>
    </Steps>
   </Macro>
+  <Macro name="Flee" oneclick="true" flee="true"/>
  </Macros>
 </Configuration>

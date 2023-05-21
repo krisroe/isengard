@@ -425,6 +425,17 @@ namespace IsengardClient
                         }
                     }
 
+                    string sFlee = elemMacro.GetAttribute("flee");
+                    bool bFlee = false;
+                    if (!string.IsNullOrEmpty(sFlee))
+                    {
+                        if (!bool.TryParse(sFlee, out bFlee))
+                        {
+                            errorMessages.Add("Invalid flee for " + macroName + " " + sFlee);
+                            continue;
+                        }
+                    }
+
                     string sFinalCommand = elemMacro.GetAttribute("finalcommand");
                     string sFinalCommand2 = elemMacro.GetAttribute("finalcommand2");
 
@@ -433,14 +444,10 @@ namespace IsengardClient
                     oMacro.CombatCommandTypes = eCombatCommandTypes;
                     oMacro.FinalCommand = sFinalCommand;
                     oMacro.FinalCommand2 = sFinalCommand2;
+                    oMacro.Flee = bFlee;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages, variablesByName);
                     if (foundSteps == null)
                     {
-                        macroIsValid = false;
-                    }
-                    else if (foundSteps.Count == 0)
-                    {
-                        errorMessages.Add("Macro has no steps: " + macroName);
                         macroIsValid = false;
                     }
                     oMacro.Steps = foundSteps;
@@ -530,224 +537,222 @@ namespace IsengardClient
                         break;
                 }
             }
-            if (oStepsElem == null)
-            {
-                errorMessages.Add("Failed to find steps node: " + errorSource);
-                return null;
-            }
             bool isValid = true;
-            foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
+            if (oStepsElem != null)
             {
-                XmlElement elemStep = nextStepNode as XmlElement;
-                if (elemStep == null) continue;
-                string stepType = elemStep.Name.ToLower();
-                MacroStepBase step = null;
-                switch (stepType)
+                foreach (XmlNode nextStepNode in oStepsElem.ChildNodes)
                 {
-                    case "sequence":
-                        List<MacroStepBase> loopSteps = ProcessStepsParentElement(elemStep, errorSource + " " + stepType, errorMessages, variablesByName);
-                        MacroStepSequence seq = null;
-                        if (loopSteps == null)
-                        {
-                            isValid = false;
-                        }
-                        else
-                        {
-                            seq = new MacroStepSequence();
-                            seq.SubCommands = loopSteps;
-                            ret.Add(seq);
-                            step = seq;
-                        }
-                        break;
-                    case "command":
-                        string cmd = elemStep.GetAttribute("text");
-                        if (cmd == null)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Macro step command missing text: " + errorSource);
-                        }
-                        else
-                        {
-                            MacroCommand oCommand = new MacroCommand(cmd, cmd);
-                            ret.Add(oCommand);
-                            step = oCommand;
-                        }
-                        break;
-                    case "setnextcommandms":
-                        MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
-                        ret.Add(oWaitMSCommand);
-                        step = oWaitMSCommand;
-                        break;
-                    case "setvariable":
-                        MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
-                        ret.Add(oSetVariableCommand);
-                        step = oSetVariableCommand;
-                        break;
-                    case "manastun":
-                        MacroManaSpellStun oStunCommand = new MacroManaSpellStun();
-                        ret.Add(oStunCommand);
-                        step = oStunCommand;
-                        break;
-                    case "manaoffensive":
-                        MacroManaSpellOffensive oOffensiveCommand = new MacroManaSpellOffensive();
-                        ret.Add(oOffensiveCommand);
-                        step = oOffensiveCommand;
-                        break;
-                    default:
-                        isValid = false;
-                        errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
-                        break;
-                }
-                string sWait = elemStep.GetAttribute("waitms");
-                if (!string.IsNullOrEmpty(sWait))
-                {
-                    if (int.TryParse(sWait, out int iWaitMS))
+                    XmlElement elemStep = nextStepNode as XmlElement;
+                    if (elemStep == null) continue;
+                    string stepType = elemStep.Name.ToLower();
+                    MacroStepBase step = null;
+                    switch (stepType)
                     {
-                        if (step != null) step.WaitMS = iWaitMS;
-                    }
-                    else if (variablesByName.TryGetValue(sWait, out Variable v))
-                    {
-                        if (v.Type != VariableType.Int)
-                        {
-                            isValid = false;
-                            errorMessages.Add("WaitMS variable must be an integer: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.WaitMSVariable = (IntegerVariable)v;
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
-                    }
-                }
-                if (step != null && step is MacroStepSetNextCommandWaitMS && !step.WaitMS.HasValue)
-                {
-                    isValid = false;
-                    errorMessages.Add("setnextcommandms step must have wait ms");
-                }
-                string sLoop = elemStep.GetAttribute("loop");
-                if (!string.IsNullOrEmpty(sLoop))
-                {
-                    if (bool.TryParse(sLoop, out bool bLoop))
-                    {
-                        if (step != null) step.Loop = bLoop;
-                    }
-                    else if (int.TryParse(sLoop, out int iLoop))
-                    {
-                        if (iLoop < 0)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Invalid negative loop count: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.LoopCount = iLoop;
-                        }
-                    }
-                    else if (variablesByName.TryGetValue(sLoop, out Variable v))
-                    {
-                        if (v.Type != VariableType.Int && v.Type != VariableType.Bool)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Loop variable must be an integer or boolean: " + errorSource + " " + stepType);
-                        }
-                        else
-                        {
-                            if (step != null) step.LoopVariable = v;
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
-                    }
-                }
-
-                string sVariable = elemStep.GetAttribute("variable");
-                if (!string.IsNullOrEmpty(sVariable))
-                {
-                    if (step is MacroStepSetVariable)
-                    {
-                        if (!variablesByName.TryGetValue(sVariable, out Variable v))
-                        {
-                            isValid = false;
-                            errorMessages.Add("Invalid variable: " + errorSource + " " + stepType + " " + sVariable);
-                        }
-                        else
-                        {
-                            string sValue = elemStep.GetAttribute("value");
-                            int iTemp = 0;
-                            bool bTemp = false;
-                            if (sValue == null)
+                        case "sequence":
+                            List<MacroStepBase> loopSteps = ProcessStepsParentElement(elemStep, errorSource + " " + stepType, errorMessages, variablesByName);
+                            MacroStepSequence seq = null;
+                            if (loopSteps == null)
                             {
-                                errorMessages.Add("No variable value specified: " + errorSource + " " + stepType + " " + sVariable);
-                            }
-                            else if (v.Type == VariableType.Bool && !bool.TryParse(sValue, out bTemp))
-                            {
-                                errorMessages.Add("Invalid boolean variable value specified: " + errorSource + " " + stepType + " " + sVariable);
-                            }
-                            else if (v.Type == VariableType.Int && !int.TryParse(sValue, out iTemp))
-                            {
-                                errorMessages.Add("Invalid integer variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                                isValid = false;
                             }
                             else
                             {
-                                Variable copyVar = Variable.CopyVariable(v);
-                                ((MacroStepSetVariable)step).Variable = copyVar;
-                                switch (v.Type)
-                                {
-                                    case VariableType.Bool:
-                                        ((BooleanVariable)copyVar).Value = bTemp;
-                                        break;
-                                    case VariableType.Int:
-                                        ((IntegerVariable)copyVar).Value = iTemp;
-                                        break;
-                                    case VariableType.String:
-                                        ((StringVariable)copyVar).Value = sValue;
-                                        break;
-                                }
-                                ((MacroStepSetVariable)step).Variable = copyVar;
+                                seq = new MacroStepSequence();
+                                seq.SubCommands = loopSteps;
+                                ret.Add(seq);
+                                step = seq;
                             }
-                        }
-                    }
-                    else
-                    {
-                        isValid = false;
-                        errorMessages.Add("Variable found but not for set variable step: " + errorSource + " " + stepType + " " + sVariable);
-                    }
-                }
-
-                string sCondition = elemStep.GetAttribute("condition");
-                if (!string.IsNullOrEmpty(sCondition))
-                {
-                    if (variablesByName.TryGetValue(sCondition, out Variable v))
-                    {
-                        if (v.Type != VariableType.String)
-                        {
+                            break;
+                        case "command":
+                            string cmd = elemStep.GetAttribute("text");
+                            if (cmd == null)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Macro step command missing text: " + errorSource);
+                            }
+                            else
+                            {
+                                MacroCommand oCommand = new MacroCommand(cmd, cmd);
+                                ret.Add(oCommand);
+                                step = oCommand;
+                            }
+                            break;
+                        case "setnextcommandms":
+                            MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
+                            ret.Add(oWaitMSCommand);
+                            step = oWaitMSCommand;
+                            break;
+                        case "setvariable":
+                            MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
+                            ret.Add(oSetVariableCommand);
+                            step = oSetVariableCommand;
+                            break;
+                        case "manastun":
+                            MacroManaSpellStun oStunCommand = new MacroManaSpellStun();
+                            ret.Add(oStunCommand);
+                            step = oStunCommand;
+                            break;
+                        case "manaoffensive":
+                            MacroManaSpellOffensive oOffensiveCommand = new MacroManaSpellOffensive();
+                            ret.Add(oOffensiveCommand);
+                            step = oOffensiveCommand;
+                            break;
+                        default:
                             isValid = false;
-                            errorMessages.Add("Condition variable must be a string: " + errorSource + " " + stepType);
+                            errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
+                            break;
+                    }
+                    string sWait = elemStep.GetAttribute("waitms");
+                    if (!string.IsNullOrEmpty(sWait))
+                    {
+                        if (int.TryParse(sWait, out int iWaitMS))
+                        {
+                            if (step != null) step.WaitMS = iWaitMS;
+                        }
+                        else if (variablesByName.TryGetValue(sWait, out Variable v))
+                        {
+                            if (v.Type != VariableType.Int)
+                            {
+                                isValid = false;
+                                errorMessages.Add("WaitMS variable must be an integer: " + errorSource + " " + stepType);
+                            }
+                            else
+                            {
+                                if (step != null) step.WaitMSVariable = (IntegerVariable)v;
+                            }
                         }
                         else
                         {
-                            if (step != null) step.ConditionVariable = v;
+                            isValid = false;
+                            errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
                         }
                     }
-                }
-
-                string sSkipRounds = elemStep.GetAttribute("skiprounds");
-                if (!string.IsNullOrEmpty(sSkipRounds))
-                {
-                    if (int.TryParse(sSkipRounds, out int iSkipRounds))
-                    {
-                        if (step != null) step.SkipRounds = iSkipRounds;
-                    }
-                    else
+                    if (step != null && step is MacroStepSetNextCommandWaitMS && !step.WaitMS.HasValue)
                     {
                         isValid = false;
-                        errorMessages.Add("Invalid skip rounds: " + errorSource + " " + stepType + " " + sSkipRounds);
+                        errorMessages.Add("setnextcommandms step must have wait ms");
+                    }
+                    string sLoop = elemStep.GetAttribute("loop");
+                    if (!string.IsNullOrEmpty(sLoop))
+                    {
+                        if (bool.TryParse(sLoop, out bool bLoop))
+                        {
+                            if (step != null) step.Loop = bLoop;
+                        }
+                        else if (int.TryParse(sLoop, out int iLoop))
+                        {
+                            if (iLoop < 0)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Invalid negative loop count: " + errorSource + " " + stepType);
+                            }
+                            else
+                            {
+                                if (step != null) step.LoopCount = iLoop;
+                            }
+                        }
+                        else if (variablesByName.TryGetValue(sLoop, out Variable v))
+                        {
+                            if (v.Type != VariableType.Int && v.Type != VariableType.Bool)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Loop variable must be an integer or boolean: " + errorSource + " " + stepType);
+                            }
+                            else
+                            {
+                                if (step != null) step.LoopVariable = v;
+                            }
+                        }
+                        else
+                        {
+                            isValid = false;
+                            errorMessages.Add("Invalid loop: " + errorSource + " " + stepType + " " + sLoop);
+                        }
+                    }
+
+                    string sVariable = elemStep.GetAttribute("variable");
+                    if (!string.IsNullOrEmpty(sVariable))
+                    {
+                        if (step is MacroStepSetVariable)
+                        {
+                            if (!variablesByName.TryGetValue(sVariable, out Variable v))
+                            {
+                                isValid = false;
+                                errorMessages.Add("Invalid variable: " + errorSource + " " + stepType + " " + sVariable);
+                            }
+                            else
+                            {
+                                string sValue = elemStep.GetAttribute("value");
+                                int iTemp = 0;
+                                bool bTemp = false;
+                                if (sValue == null)
+                                {
+                                    errorMessages.Add("No variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                                }
+                                else if (v.Type == VariableType.Bool && !bool.TryParse(sValue, out bTemp))
+                                {
+                                    errorMessages.Add("Invalid boolean variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                                }
+                                else if (v.Type == VariableType.Int && !int.TryParse(sValue, out iTemp))
+                                {
+                                    errorMessages.Add("Invalid integer variable value specified: " + errorSource + " " + stepType + " " + sVariable);
+                                }
+                                else
+                                {
+                                    Variable copyVar = Variable.CopyVariable(v);
+                                    ((MacroStepSetVariable)step).Variable = copyVar;
+                                    switch (v.Type)
+                                    {
+                                        case VariableType.Bool:
+                                            ((BooleanVariable)copyVar).Value = bTemp;
+                                            break;
+                                        case VariableType.Int:
+                                            ((IntegerVariable)copyVar).Value = iTemp;
+                                            break;
+                                        case VariableType.String:
+                                            ((StringVariable)copyVar).Value = sValue;
+                                            break;
+                                    }
+                                    ((MacroStepSetVariable)step).Variable = copyVar;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            isValid = false;
+                            errorMessages.Add("Variable found but not for set variable step: " + errorSource + " " + stepType + " " + sVariable);
+                        }
+                    }
+
+                    string sCondition = elemStep.GetAttribute("condition");
+                    if (!string.IsNullOrEmpty(sCondition))
+                    {
+                        if (variablesByName.TryGetValue(sCondition, out Variable v))
+                        {
+                            if (v.Type != VariableType.String)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Condition variable must be a string: " + errorSource + " " + stepType);
+                            }
+                            else
+                            {
+                                if (step != null) step.ConditionVariable = v;
+                            }
+                        }
+                    }
+
+                    string sSkipRounds = elemStep.GetAttribute("skiprounds");
+                    if (!string.IsNullOrEmpty(sSkipRounds))
+                    {
+                        if (int.TryParse(sSkipRounds, out int iSkipRounds))
+                        {
+                            if (step != null) step.SkipRounds = iSkipRounds;
+                        }
+                        else
+                        {
+                            isValid = false;
+                            errorMessages.Add("Invalid skip rounds: " + errorSource + " " + stepType + " " + sSkipRounds);
+                        }
                     }
                 }
             }
