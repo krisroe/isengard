@@ -4232,12 +4232,21 @@ namespace IsengardClient
 
         private void txtEmoteText_TextChanged(object sender, EventArgs e)
         {
-            btnEmote.Enabled = !string.IsNullOrEmpty(txtEmoteText.Text);
+            btnEmote.Enabled = !string.IsNullOrEmpty(txtCommandText.Text);
         }
 
         private void btnEmote_Click(object sender, EventArgs e)
         {
-            SendCommand("emote " + txtEmoteText.Text, false, false);
+            SendCommand("emote " + txtCommandText.Text, false, false);
+            txtCommandText.Focus();
+            txtCommandText.SelectAll();
+        }
+
+        private void btnSay_Click(object sender, EventArgs e)
+        {
+            SendCommand("say " + txtCommandText.Text, false, false);
+            txtCommandText.Focus();
+            txtCommandText.SelectAll();
         }
 
         private void txtEmoteTarget_TextChanged(object sender, EventArgs e)

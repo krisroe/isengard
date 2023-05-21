@@ -145,12 +145,13 @@
             this.btnRunMacro = new System.Windows.Forms.Button();
             this.tabEmotes = new System.Windows.Forms.TabPage();
             this.pnlEmotes = new System.Windows.Forms.Panel();
+            this.btnSay = new System.Windows.Forms.Button();
             this.chkShowEmotesWithoutTarget = new System.Windows.Forms.CheckBox();
             this.lblEmoteTarget = new System.Windows.Forms.Label();
             this.txtEmoteTarget = new System.Windows.Forms.TextBox();
-            this.lblEmoteText = new System.Windows.Forms.Label();
+            this.lblCommandText = new System.Windows.Forms.Label();
             this.btnEmote = new System.Windows.Forms.Button();
-            this.txtEmoteText = new System.Windows.Forms.TextBox();
+            this.txtCommandText = new System.Windows.Forms.TextBox();
             this.grpEmotes = new System.Windows.Forms.GroupBox();
             this.flpEmotes = new System.Windows.Forms.FlowLayoutPanel();
             this.tmr = new System.Windows.Forms.Timer(this.components);
@@ -1522,12 +1523,13 @@
             // 
             // pnlEmotes
             // 
+            this.pnlEmotes.Controls.Add(this.btnSay);
             this.pnlEmotes.Controls.Add(this.chkShowEmotesWithoutTarget);
             this.pnlEmotes.Controls.Add(this.lblEmoteTarget);
             this.pnlEmotes.Controls.Add(this.txtEmoteTarget);
-            this.pnlEmotes.Controls.Add(this.lblEmoteText);
+            this.pnlEmotes.Controls.Add(this.lblCommandText);
             this.pnlEmotes.Controls.Add(this.btnEmote);
-            this.pnlEmotes.Controls.Add(this.txtEmoteText);
+            this.pnlEmotes.Controls.Add(this.txtCommandText);
             this.pnlEmotes.Controls.Add(this.grpEmotes);
             this.pnlEmotes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
@@ -1536,12 +1538,23 @@
             this.pnlEmotes.Size = new System.Drawing.Size(1021, 904);
             this.pnlEmotes.TabIndex = 12;
             // 
+            // btnSay
+            // 
+            this.btnSay.Location = new System.Drawing.Point(349, 9);
+            this.btnSay.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSay.Name = "btnSay";
+            this.btnSay.Size = new System.Drawing.Size(61, 20);
+            this.btnSay.TabIndex = 15;
+            this.btnSay.Text = "Say";
+            this.btnSay.UseVisualStyleBackColor = true;
+            this.btnSay.Click += new System.EventHandler(this.btnSay_Click);
+            // 
             // chkShowEmotesWithoutTarget
             // 
             this.chkShowEmotesWithoutTarget.AutoSize = true;
             this.chkShowEmotesWithoutTarget.Checked = true;
             this.chkShowEmotesWithoutTarget.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(237, 34);
+            this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(284, 34);
             this.chkShowEmotesWithoutTarget.Name = "chkShowEmotesWithoutTarget";
             this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(162, 17);
             this.chkShowEmotesWithoutTarget.TabIndex = 14;
@@ -1561,26 +1574,26 @@
             // 
             // txtEmoteTarget
             // 
-            this.txtEmoteTarget.Location = new System.Drawing.Point(76, 32);
+            this.txtEmoteTarget.Location = new System.Drawing.Point(93, 32);
             this.txtEmoteTarget.Margin = new System.Windows.Forms.Padding(2);
             this.txtEmoteTarget.Name = "txtEmoteTarget";
-            this.txtEmoteTarget.Size = new System.Drawing.Size(158, 20);
+            this.txtEmoteTarget.Size = new System.Drawing.Size(186, 20);
             this.txtEmoteTarget.TabIndex = 13;
             this.txtEmoteTarget.TextChanged += new System.EventHandler(this.txtEmoteTarget_TextChanged);
             // 
-            // lblEmoteText
+            // lblCommandText
             // 
-            this.lblEmoteText.AutoSize = true;
-            this.lblEmoteText.Location = new System.Drawing.Point(12, 13);
-            this.lblEmoteText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblEmoteText.Name = "lblEmoteText";
-            this.lblEmoteText.Size = new System.Drawing.Size(60, 13);
-            this.lblEmoteText.TabIndex = 8;
-            this.lblEmoteText.Text = "Emote text:";
+            this.lblCommandText.AutoSize = true;
+            this.lblCommandText.Location = new System.Drawing.Point(12, 13);
+            this.lblCommandText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblCommandText.Name = "lblCommandText";
+            this.lblCommandText.Size = new System.Drawing.Size(77, 13);
+            this.lblCommandText.TabIndex = 8;
+            this.lblCommandText.Text = "Command text:";
             // 
             // btnEmote
             // 
-            this.btnEmote.Location = new System.Drawing.Point(237, 9);
+            this.btnEmote.Location = new System.Drawing.Point(284, 9);
             this.btnEmote.Margin = new System.Windows.Forms.Padding(2);
             this.btnEmote.Name = "btnEmote";
             this.btnEmote.Size = new System.Drawing.Size(61, 20);
@@ -1589,14 +1602,14 @@
             this.btnEmote.UseVisualStyleBackColor = true;
             this.btnEmote.Click += new System.EventHandler(this.btnEmote_Click);
             // 
-            // txtEmoteText
+            // txtCommandText
             // 
-            this.txtEmoteText.Location = new System.Drawing.Point(76, 10);
-            this.txtEmoteText.Margin = new System.Windows.Forms.Padding(2);
-            this.txtEmoteText.Name = "txtEmoteText";
-            this.txtEmoteText.Size = new System.Drawing.Size(158, 20);
-            this.txtEmoteText.TabIndex = 9;
-            this.txtEmoteText.TextChanged += new System.EventHandler(this.txtEmoteText_TextChanged);
+            this.txtCommandText.Location = new System.Drawing.Point(93, 10);
+            this.txtCommandText.Margin = new System.Windows.Forms.Padding(2);
+            this.txtCommandText.Name = "txtCommandText";
+            this.txtCommandText.Size = new System.Drawing.Size(187, 20);
+            this.txtCommandText.TabIndex = 9;
+            this.txtCommandText.TextChanged += new System.EventHandler(this.txtEmoteText_TextChanged);
             // 
             // grpEmotes
             // 
@@ -1691,7 +1704,7 @@
             // ctxOneClickMacro
             // 
             this.ctxOneClickMacro.Name = "ctxOneClickMacro";
-            this.ctxOneClickMacro.Size = new System.Drawing.Size(181, 26);
+            this.ctxOneClickMacro.Size = new System.Drawing.Size(61, 4);
             this.ctxOneClickMacro.Opening += new System.ComponentModel.CancelEventHandler(this.ctxOneClickMacro_Opening);
             this.ctxOneClickMacro.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxOneClickMacro_ItemClicked);
             // 
@@ -1852,8 +1865,8 @@
         private System.Windows.Forms.TabPage tabEmotes;
         private System.Windows.Forms.Button btnEmote;
         private System.Windows.Forms.GroupBox grpEmotes;
-        private System.Windows.Forms.TextBox txtEmoteText;
-        private System.Windows.Forms.Label lblEmoteText;
+        private System.Windows.Forms.TextBox txtCommandText;
+        private System.Windows.Forms.Label lblCommandText;
         private System.Windows.Forms.Panel pnlEmotes;
         private System.Windows.Forms.SplitContainer scMain;
         private System.Windows.Forms.GroupBox grpConsole;
@@ -1869,6 +1882,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiMob2;
         private System.Windows.Forms.ToolStripMenuItem tsmiMob3;
         private System.Windows.Forms.ContextMenuStrip ctxOneClickMacro;
+        private System.Windows.Forms.Button btnSay;
     }
 }
 
