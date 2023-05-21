@@ -414,17 +414,6 @@ namespace IsengardClient
                         continue;
                     }
 
-                    string sSetParentLocation = elemMacro.GetAttribute("setparentlocation");
-                    bool bSetParentLocation = false;
-                    if (!string.IsNullOrEmpty(sSetParentLocation))
-                    {
-                        if (!bool.TryParse(sSetParentLocation, out bSetParentLocation))
-                        {
-                            errorMessages.Add("Invalid set parent location for " + macroName + " " + sSetParentLocation);
-                            continue;
-                        }
-                    }
-
                     string sCombatCommandTypes = elemMacro.GetAttribute("combatcommandtypes");
                     CommandType eCombatCommandTypes = CommandType.None;
                     if (!string.IsNullOrEmpty(sCombatCommandTypes))
@@ -441,7 +430,6 @@ namespace IsengardClient
 
                     bool macroIsValid = true;
                     Macro oMacro = new Macro(macroName);
-                    oMacro.SetParentLocation = bSetParentLocation;
                     oMacro.CombatCommandTypes = eCombatCommandTypes;
                     oMacro.FinalCommand = sFinalCommand;
                     oMacro.FinalCommand2 = sFinalCommand2;

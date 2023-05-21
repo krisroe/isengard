@@ -18,7 +18,6 @@ namespace IsengardClient
 
         public string Name { get; set; }
         public List<MacroStepBase> Steps { get; set; }
-        public bool SetParentLocation { get; set; }
         public CommandType CombatCommandTypes { get; set; }
         public string FinalCommand { get; set; }
         public Variable FinalCommandConditionVariable { get; set; }

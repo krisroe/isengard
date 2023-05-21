@@ -208,27 +208,27 @@
             this.tsmiMob2,
             this.tsmiMob3});
             this.ctxMob.Name = "ctxMob";
-            this.ctxMob.Size = new System.Drawing.Size(181, 92);
+            this.ctxMob.Size = new System.Drawing.Size(106, 70);
             this.ctxMob.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMob_Opening);
             // 
             // tsmiMob1
             // 
             this.tsmiMob1.Name = "tsmiMob1";
-            this.tsmiMob1.Size = new System.Drawing.Size(180, 22);
+            this.tsmiMob1.Size = new System.Drawing.Size(105, 22);
             this.tsmiMob1.Text = "Mob1";
             this.tsmiMob1.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob2
             // 
             this.tsmiMob2.Name = "tsmiMob2";
-            this.tsmiMob2.Size = new System.Drawing.Size(180, 22);
+            this.tsmiMob2.Size = new System.Drawing.Size(105, 22);
             this.tsmiMob2.Text = "Mob2";
             this.tsmiMob2.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob3
             // 
             this.tsmiMob3.Name = "tsmiMob3";
-            this.tsmiMob3.Size = new System.Drawing.Size(180, 22);
+            this.tsmiMob3.Size = new System.Drawing.Size(105, 22);
             this.tsmiMob3.Text = "Mob3";
             this.tsmiMob3.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
@@ -262,7 +262,7 @@
             this.btnFlee.TabIndex = 6;
             this.btnFlee.Text = "Flee";
             this.btnFlee.UseVisualStyleBackColor = true;
-            this.btnFlee.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnFlee.Click += new System.EventHandler(this.btnFlee_Click);
             // 
             // btnDrinkHazy
             // 
