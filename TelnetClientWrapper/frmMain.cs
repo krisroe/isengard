@@ -170,6 +170,7 @@ namespace IsengardClient
                     btnOneClick.Text = oMacro.Name;
                     btnOneClick.UseVisualStyleBackColor = true;
                     btnOneClick.Click += btnOneClick_Click;
+                    btnOneClick.ContextMenuStrip = ctxOneClickMacro;
                     flpOneClickMacros.Controls.Add(btnOneClick);
                 }
                 else
@@ -1082,7 +1083,7 @@ namespace IsengardClient
 
         private void btnOneClick_Click(object sender, EventArgs e)
         {
-            RunMacro((Macro)((Button)sender).Tag);
+            RunMacro((Macro)((Button)sender).Tag, null);
         }
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -1099,7 +1100,7 @@ namespace IsengardClient
                 SendCommand(_currentBackgroundParameters.FinalCommand2, false, false);
                 _currentBackgroundParameters.CommandsRun++;
             }
-            if (!_currentBackgroundParameters.Cancelled && _currentBackgroundParameters.CommandsRun > 0)
+            if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
             {
                 Room targetRoom = _currentBackgroundParameters.TargetRoom;
                 if (targetRoom != null)
@@ -1157,6 +1158,24 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
+
+            //Run the pre-exit if present
+            Exit preExit = pms.PreExit;
+            if (preExit != null)
+            {
+                if (!string.IsNullOrEmpty(preExit.PreCommand))
+                {
+                    SendCommand(preExit.PreCommand, false, false);
+                    pms.CommandsRun++;
+                }
+                string nextCommand = preExit.ExitText;
+                if (!preExit.OmitGo) nextCommand = "go " + nextCommand;
+                SendCommand(nextCommand, false, false);
+                pms.CommandsRun++;
+                pms.TargetRoom = preExit.Target;
+                pms.SetTargetRoomIfCancelled = true;
+            }
+
             foreach (var nextCommandInfo in IterateStepCommands(commands, pms, 0))
             {
                 MacroCommand nextCommand = nextCommandInfo.Key;
@@ -3748,10 +3767,12 @@ namespace IsengardClient
         {
             public Room TargetRoom { get; set; }
             public List<MacroStepBase> Commands { get; set; }
+            public Exit PreExit { get; set; }
             public Dictionary<string, Variable> Variables { get; set; }
             public int? NextCommandWaitMS { get; set; }
             public int WaitMS { get; set; }
             public bool Cancelled { get; set; }
+            public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
             public Macro Macro { get; set; }
             public string QueuedCommand { get; set; }
@@ -3828,10 +3849,10 @@ namespace IsengardClient
 
         private void btnRunMacro_Click(object sender, EventArgs e)
         {
-            RunMacro((Macro)cboMacros.SelectedItem);
+            RunMacro((Macro)cboMacros.SelectedItem, null);
         }
 
-        private void RunMacro(Macro m)
+        private void RunMacro(Macro m, Exit preExit)
         {
             bool powerAttack = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee) && chkPowerAttack.Checked;
             if (powerAttack)
@@ -3862,6 +3883,7 @@ namespace IsengardClient
             if (stop) return;
             _currentBackgroundParameters = new BackgroundWorkerParameters();
             _currentBackgroundParameters.Macro = m;
+            _currentBackgroundParameters.PreExit = preExit;
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
@@ -4345,6 +4367,38 @@ namespace IsengardClient
                 _currentBackgroundParameters.PowerAttack = false;
                 RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
             }
+        }
+
+        private void ctxOneClickMacro_Opening(object sender, CancelEventArgs e)
+        {
+            Room r = m_oCurrentRoom;
+            ctxOneClickMacro.Items.Clear();
+            if (r == null || !_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                bool hasEdges = false;
+                foreach (Exit nextEdge in edges)
+                {
+                    ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                    tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
+                    tsmi.Tag = nextEdge;
+                    ctxOneClickMacro.Items.Add(tsmi);
+                    hasEdges = true;
+                }
+                e.Cancel = !hasEdges;
+            }
+        }
+
+        private void ctxOneClickMacro_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ContextMenuStrip ctx = (ContextMenuStrip)sender;
+            ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
+            Macro m = (Macro)((Button)ctx.SourceControl).Tag;
+            Exit exit = (Exit)clickedItem.Tag;
+            RunMacro(m, exit);
         }
     }
 }

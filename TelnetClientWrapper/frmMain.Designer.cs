@@ -159,6 +159,7 @@
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
+            this.ctxOneClickMacro = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -1687,6 +1688,13 @@
             this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
             this.tsmiClearConsole.Text = "Clear";
             // 
+            // ctxOneClickMacro
+            // 
+            this.ctxOneClickMacro.Name = "ctxOneClickMacro";
+            this.ctxOneClickMacro.Size = new System.Drawing.Size(181, 26);
+            this.ctxOneClickMacro.Opening += new System.ComponentModel.CancelEventHandler(this.ctxOneClickMacro_Opening);
+            this.ctxOneClickMacro.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxOneClickMacro_ItemClicked);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1860,6 +1868,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiMob1;
         private System.Windows.Forms.ToolStripMenuItem tsmiMob2;
         private System.Windows.Forms.ToolStripMenuItem tsmiMob3;
+        private System.Windows.Forms.ContextMenuStrip ctxOneClickMacro;
     }
 }
 
