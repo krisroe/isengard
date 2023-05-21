@@ -91,8 +91,6 @@
             this.btnRemoveWeapon = new System.Windows.Forms.Button();
             this.btnFumbleMob = new System.Windows.Forms.Button();
             this.btnNortheast = new System.Windows.Forms.Button();
-            this.ctxGoSingleDirection = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSilentMove = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNorth = new System.Windows.Forms.Button();
             this.btnNorthwest = new System.Windows.Forms.Button();
             this.btnWest = new System.Windows.Forms.Button();
@@ -103,13 +101,16 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpSingleMove = new System.Windows.Forms.GroupBox();
+            this.btnExitSingleMove = new System.Windows.Forms.Button();
+            this.chkExecuteMove = new System.Windows.Forms.CheckBox();
+            this.btnOtherSingleMove = new System.Windows.Forms.Button();
+            this.btnDn = new System.Windows.Forms.Button();
+            this.btnUp = new System.Windows.Forms.Button();
             this.btnSetAutoHazyThreshold = new System.Windows.Forms.Button();
             this.txtAutoHazyThreshold = new System.Windows.Forms.TextBox();
             this.lblAutoHazyThreshold = new System.Windows.Forms.Label();
             this.chkAutoHazy = new System.Windows.Forms.CheckBox();
-            this.btnOtherSingleMove = new System.Windows.Forms.Button();
-            this.btnDn = new System.Windows.Forms.Button();
-            this.btnUp = new System.Windows.Forms.Button();
             this.grpSpells = new System.Windows.Forms.GroupBox();
             this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
             this.txtManashieldTime = new System.Windows.Forms.TextBox();
@@ -160,15 +161,15 @@
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxOneClickMacro = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
-            this.ctxGoSingleDirection.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpSingleMove.SuspendLayout();
             this.grpSpells.SuspendLayout();
             this.tabAncillary.SuspendLayout();
             this.pnlAncillary.SuspendLayout();
@@ -826,8 +827,7 @@
             // 
             // btnNortheast
             // 
-            this.btnNortheast.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnNortheast.Location = new System.Drawing.Point(528, 339);
+            this.btnNortheast.Location = new System.Drawing.Point(90, 40);
             this.btnNortheast.Margin = new System.Windows.Forms.Padding(2);
             this.btnNortheast.Name = "btnNortheast";
             this.btnNortheast.Size = new System.Drawing.Size(34, 23);
@@ -837,25 +837,9 @@
             this.btnNortheast.UseVisualStyleBackColor = true;
             this.btnNortheast.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
-            // ctxGoSingleDirection
-            // 
-            this.ctxGoSingleDirection.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxGoSingleDirection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSilentMove});
-            this.ctxGoSingleDirection.Name = "ctxGoSingleDirection";
-            this.ctxGoSingleDirection.Size = new System.Drawing.Size(137, 26);
-            this.ctxGoSingleDirection.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxGoSingleDirection_ItemClicked);
-            // 
-            // tsmiSilentMove
-            // 
-            this.tsmiSilentMove.Name = "tsmiSilentMove";
-            this.tsmiSilentMove.Size = new System.Drawing.Size(136, 22);
-            this.tsmiSilentMove.Text = "Silent Move";
-            // 
             // btnNorth
             // 
-            this.btnNorth.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnNorth.Location = new System.Drawing.Point(489, 339);
+            this.btnNorth.Location = new System.Drawing.Point(51, 40);
             this.btnNorth.Margin = new System.Windows.Forms.Padding(2);
             this.btnNorth.Name = "btnNorth";
             this.btnNorth.Size = new System.Drawing.Size(34, 23);
@@ -867,8 +851,7 @@
             // 
             // btnNorthwest
             // 
-            this.btnNorthwest.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnNorthwest.Location = new System.Drawing.Point(452, 339);
+            this.btnNorthwest.Location = new System.Drawing.Point(14, 40);
             this.btnNorthwest.Margin = new System.Windows.Forms.Padding(2);
             this.btnNorthwest.Name = "btnNorthwest";
             this.btnNorthwest.Size = new System.Drawing.Size(34, 23);
@@ -880,8 +863,7 @@
             // 
             // btnWest
             // 
-            this.btnWest.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnWest.Location = new System.Drawing.Point(452, 365);
+            this.btnWest.Location = new System.Drawing.Point(14, 66);
             this.btnWest.Margin = new System.Windows.Forms.Padding(2);
             this.btnWest.Name = "btnWest";
             this.btnWest.Size = new System.Drawing.Size(34, 23);
@@ -893,8 +875,7 @@
             // 
             // btnEast
             // 
-            this.btnEast.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnEast.Location = new System.Drawing.Point(528, 365);
+            this.btnEast.Location = new System.Drawing.Point(90, 66);
             this.btnEast.Margin = new System.Windows.Forms.Padding(2);
             this.btnEast.Name = "btnEast";
             this.btnEast.Size = new System.Drawing.Size(34, 23);
@@ -906,8 +887,7 @@
             // 
             // btnSouthwest
             // 
-            this.btnSouthwest.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnSouthwest.Location = new System.Drawing.Point(452, 392);
+            this.btnSouthwest.Location = new System.Drawing.Point(14, 93);
             this.btnSouthwest.Margin = new System.Windows.Forms.Padding(2);
             this.btnSouthwest.Name = "btnSouthwest";
             this.btnSouthwest.Size = new System.Drawing.Size(34, 23);
@@ -919,8 +899,7 @@
             // 
             // btnSouth
             // 
-            this.btnSouth.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnSouth.Location = new System.Drawing.Point(489, 392);
+            this.btnSouth.Location = new System.Drawing.Point(51, 93);
             this.btnSouth.Margin = new System.Windows.Forms.Padding(2);
             this.btnSouth.Name = "btnSouth";
             this.btnSouth.Size = new System.Drawing.Size(34, 23);
@@ -932,8 +911,7 @@
             // 
             // btnSoutheast
             // 
-            this.btnSoutheast.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnSoutheast.Location = new System.Drawing.Point(528, 392);
+            this.btnSoutheast.Location = new System.Drawing.Point(90, 93);
             this.btnSoutheast.Margin = new System.Windows.Forms.Padding(2);
             this.btnSoutheast.Name = "btnSoutheast";
             this.btnSoutheast.Size = new System.Drawing.Size(34, 23);
@@ -970,13 +948,11 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.grpSingleMove);
             this.pnlMain.Controls.Add(this.btnSetAutoHazyThreshold);
             this.pnlMain.Controls.Add(this.txtAutoHazyThreshold);
             this.pnlMain.Controls.Add(this.lblAutoHazyThreshold);
             this.pnlMain.Controls.Add(this.chkAutoHazy);
-            this.pnlMain.Controls.Add(this.btnOtherSingleMove);
-            this.pnlMain.Controls.Add(this.btnDn);
-            this.pnlMain.Controls.Add(this.btnUp);
             this.pnlMain.Controls.Add(this.grpSpells);
             this.pnlMain.Controls.Add(this.txtManashieldTime);
             this.pnlMain.Controls.Add(this.lblManashieldTime);
@@ -1000,20 +976,12 @@
             this.pnlMain.Controls.Add(this.btnReddishOrange);
             this.pnlMain.Controls.Add(this.btnHide);
             this.pnlMain.Controls.Add(this.btnSearch);
-            this.pnlMain.Controls.Add(this.btnSouthwest);
             this.pnlMain.Controls.Add(this.btnLevel1OffensiveSpell);
-            this.pnlMain.Controls.Add(this.btnSouth);
-            this.pnlMain.Controls.Add(this.btnSoutheast);
             this.pnlMain.Controls.Add(this.lblMob);
-            this.pnlMain.Controls.Add(this.btnWest);
             this.pnlMain.Controls.Add(this.txtMob);
-            this.pnlMain.Controls.Add(this.btnEast);
             this.pnlMain.Controls.Add(this.btnLevel2OffensiveSpell);
-            this.pnlMain.Controls.Add(this.btnNorthwest);
             this.pnlMain.Controls.Add(this.btnFlee);
-            this.pnlMain.Controls.Add(this.btnNorth);
             this.pnlMain.Controls.Add(this.btnDrinkHazy);
-            this.pnlMain.Controls.Add(this.btnNortheast);
             this.pnlMain.Controls.Add(this.btnLookAtMob);
             this.pnlMain.Controls.Add(this.btnFumbleMob);
             this.pnlMain.Controls.Add(this.btnLook);
@@ -1062,6 +1030,90 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // grpSingleMove
+            // 
+            this.grpSingleMove.Controls.Add(this.btnExitSingleMove);
+            this.grpSingleMove.Controls.Add(this.chkExecuteMove);
+            this.grpSingleMove.Controls.Add(this.btnOtherSingleMove);
+            this.grpSingleMove.Controls.Add(this.btnNortheast);
+            this.grpSingleMove.Controls.Add(this.btnNorth);
+            this.grpSingleMove.Controls.Add(this.btnNorthwest);
+            this.grpSingleMove.Controls.Add(this.btnEast);
+            this.grpSingleMove.Controls.Add(this.btnDn);
+            this.grpSingleMove.Controls.Add(this.btnWest);
+            this.grpSingleMove.Controls.Add(this.btnUp);
+            this.grpSingleMove.Controls.Add(this.btnSoutheast);
+            this.grpSingleMove.Controls.Add(this.btnSouth);
+            this.grpSingleMove.Controls.Add(this.btnSouthwest);
+            this.grpSingleMove.Location = new System.Drawing.Point(542, 612);
+            this.grpSingleMove.Name = "grpSingleMove";
+            this.grpSingleMove.Size = new System.Drawing.Size(181, 168);
+            this.grpSingleMove.TabIndex = 117;
+            this.grpSingleMove.TabStop = false;
+            this.grpSingleMove.Text = "Single Move";
+            // 
+            // btnExitSingleMove
+            // 
+            this.btnExitSingleMove.ContextMenuStrip = this.ctxRoomExits;
+            this.btnExitSingleMove.Location = new System.Drawing.Point(64, 131);
+            this.btnExitSingleMove.Margin = new System.Windows.Forms.Padding(2);
+            this.btnExitSingleMove.Name = "btnExitSingleMove";
+            this.btnExitSingleMove.Size = new System.Drawing.Size(46, 23);
+            this.btnExitSingleMove.TabIndex = 113;
+            this.btnExitSingleMove.Tag = "";
+            this.btnExitSingleMove.Text = "Exit";
+            this.btnExitSingleMove.UseVisualStyleBackColor = true;
+            this.btnExitSingleMove.Click += new System.EventHandler(this.btnExitSingleMove_Click);
+            // 
+            // chkExecuteMove
+            // 
+            this.chkExecuteMove.AutoSize = true;
+            this.chkExecuteMove.Checked = true;
+            this.chkExecuteMove.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkExecuteMove.Location = new System.Drawing.Point(6, 19);
+            this.chkExecuteMove.Name = "chkExecuteMove";
+            this.chkExecuteMove.Size = new System.Drawing.Size(95, 17);
+            this.chkExecuteMove.TabIndex = 0;
+            this.chkExecuteMove.Text = "Execute Move";
+            this.chkExecuteMove.UseVisualStyleBackColor = true;
+            this.chkExecuteMove.CheckedChanged += new System.EventHandler(this.chkExecuteMove_CheckedChanged);
+            // 
+            // btnOtherSingleMove
+            // 
+            this.btnOtherSingleMove.Location = new System.Drawing.Point(14, 131);
+            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(2);
+            this.btnOtherSingleMove.Name = "btnOtherSingleMove";
+            this.btnOtherSingleMove.Size = new System.Drawing.Size(46, 23);
+            this.btnOtherSingleMove.TabIndex = 112;
+            this.btnOtherSingleMove.Tag = "";
+            this.btnOtherSingleMove.Text = "Other";
+            this.btnOtherSingleMove.UseVisualStyleBackColor = true;
+            this.btnOtherSingleMove.Click += new System.EventHandler(this.btnOtherSingleMove_Click);
+            // 
+            // btnDn
+            // 
+            this.btnDn.Location = new System.Drawing.Point(128, 76);
+            this.btnDn.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDn.Name = "btnDn";
+            this.btnDn.Size = new System.Drawing.Size(34, 23);
+            this.btnDn.TabIndex = 111;
+            this.btnDn.Tag = "down";
+            this.btnDn.Text = "Dn";
+            this.btnDn.UseVisualStyleBackColor = true;
+            this.btnDn.Click += new System.EventHandler(this.btnDoSingleMove_Click);
+            // 
+            // btnUp
+            // 
+            this.btnUp.Location = new System.Drawing.Point(128, 50);
+            this.btnUp.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUp.Name = "btnUp";
+            this.btnUp.Size = new System.Drawing.Size(34, 23);
+            this.btnUp.TabIndex = 110;
+            this.btnUp.Tag = "up";
+            this.btnUp.Text = "Up";
+            this.btnUp.UseVisualStyleBackColor = true;
+            this.btnUp.Click += new System.EventHandler(this.btnDoSingleMove_Click);
+            // 
             // btnSetAutoHazyThreshold
             // 
             this.btnSetAutoHazyThreshold.Location = new System.Drawing.Point(190, 135);
@@ -1103,45 +1155,6 @@
             this.chkAutoHazy.TabIndex = 113;
             this.chkAutoHazy.Text = "Auto Hazy";
             this.chkAutoHazy.UseVisualStyleBackColor = true;
-            // 
-            // btnOtherSingleMove
-            // 
-            this.btnOtherSingleMove.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnOtherSingleMove.Location = new System.Drawing.Point(490, 365);
-            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(2);
-            this.btnOtherSingleMove.Name = "btnOtherSingleMove";
-            this.btnOtherSingleMove.Size = new System.Drawing.Size(34, 23);
-            this.btnOtherSingleMove.TabIndex = 112;
-            this.btnOtherSingleMove.Tag = "";
-            this.btnOtherSingleMove.Text = "Oth";
-            this.btnOtherSingleMove.UseVisualStyleBackColor = true;
-            this.btnOtherSingleMove.Click += new System.EventHandler(this.btnOtherSingleMove_Click);
-            // 
-            // btnDn
-            // 
-            this.btnDn.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnDn.Location = new System.Drawing.Point(566, 375);
-            this.btnDn.Margin = new System.Windows.Forms.Padding(2);
-            this.btnDn.Name = "btnDn";
-            this.btnDn.Size = new System.Drawing.Size(34, 23);
-            this.btnDn.TabIndex = 111;
-            this.btnDn.Tag = "down";
-            this.btnDn.Text = "Dn";
-            this.btnDn.UseVisualStyleBackColor = true;
-            this.btnDn.Click += new System.EventHandler(this.btnDoSingleMove_Click);
-            // 
-            // btnUp
-            // 
-            this.btnUp.ContextMenuStrip = this.ctxGoSingleDirection;
-            this.btnUp.Location = new System.Drawing.Point(566, 349);
-            this.btnUp.Margin = new System.Windows.Forms.Padding(2);
-            this.btnUp.Name = "btnUp";
-            this.btnUp.Size = new System.Drawing.Size(34, 23);
-            this.btnUp.TabIndex = 110;
-            this.btnUp.Tag = "up";
-            this.btnUp.Text = "Up";
-            this.btnUp.UseVisualStyleBackColor = true;
-            this.btnUp.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // grpSpells
             // 
@@ -1701,12 +1714,12 @@
             this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
             this.tsmiClearConsole.Text = "Clear";
             // 
-            // ctxOneClickMacro
+            // ctxRoomExits
             // 
-            this.ctxOneClickMacro.Name = "ctxOneClickMacro";
-            this.ctxOneClickMacro.Size = new System.Drawing.Size(61, 4);
-            this.ctxOneClickMacro.Opening += new System.ComponentModel.CancelEventHandler(this.ctxOneClickMacro_Opening);
-            this.ctxOneClickMacro.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxOneClickMacro_ItemClicked);
+            this.ctxRoomExits.Name = "ctxOneClickMacro";
+            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
+            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
             // 
             // frmMain
             // 
@@ -1726,11 +1739,12 @@
             this.grpRealm.PerformLayout();
             this.grpLocations.ResumeLayout(false);
             this.grpOneClickMacros.ResumeLayout(false);
-            this.ctxGoSingleDirection.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpSingleMove.ResumeLayout(false);
+            this.grpSingleMove.PerformLayout();
             this.grpSpells.ResumeLayout(false);
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
@@ -1840,8 +1854,6 @@
         private System.Windows.Forms.CheckBox chkPowerAttack;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
-        private System.Windows.Forms.ContextMenuStrip ctxGoSingleDirection;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSilentMove;
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.TextBox txtPreferredAlignment;
         private System.Windows.Forms.Label lblLevel;
@@ -1881,8 +1893,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiMob1;
         private System.Windows.Forms.ToolStripMenuItem tsmiMob2;
         private System.Windows.Forms.ToolStripMenuItem tsmiMob3;
-        private System.Windows.Forms.ContextMenuStrip ctxOneClickMacro;
+        private System.Windows.Forms.ContextMenuStrip ctxRoomExits;
         private System.Windows.Forms.Button btnSay;
+        private System.Windows.Forms.GroupBox grpSingleMove;
+        private System.Windows.Forms.CheckBox chkExecuteMove;
+        private System.Windows.Forms.Button btnExitSingleMove;
     }
 }
 

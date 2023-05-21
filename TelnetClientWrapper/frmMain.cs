@@ -168,7 +168,7 @@ namespace IsengardClient
                     btnOneClick.Text = oMacro.Name;
                     btnOneClick.UseVisualStyleBackColor = true;
                     btnOneClick.Click += btnOneClick_Click;
-                    btnOneClick.ContextMenuStrip = ctxOneClickMacro;
+                    btnOneClick.ContextMenuStrip = ctxRoomExits;
                     flpOneClickMacros.Controls.Add(btnOneClick);
                 }
                 else
@@ -285,7 +285,7 @@ namespace IsengardClient
                 new Emote("imitate", null, "imitate X"),
                 new Emote("jump", "jump for joy", null),
                 new Emote("kiss", null, "kiss X gently"),
-                
+
                 new Emote("kisshand", null, "kiss X on the hand"),
                 new Emote("laugh", "laugh", "laugh at X"),
                 new Emote("lick", "lick your lips in anticipation", null),
@@ -387,7 +387,7 @@ namespace IsengardClient
                 }
             }
             RefreshEmoteButtons();
-         }
+        }
 
         private void btnEmoteButton_Click(object sender, EventArgs e)
         {
@@ -1148,6 +1148,7 @@ namespace IsengardClient
                     }
                 }
             }
+            RefreshEnabledForSingleMoveButtons();
         }
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
@@ -1274,7 +1275,7 @@ namespace IsengardClient
         private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms)
         {
             CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow);
-            
+
             lock (_queuedCommandLock)
             {
                 if (pms.QueuedCommand != null)
@@ -3485,7 +3486,7 @@ namespace IsengardClient
             string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
             if (!string.IsNullOrEmpty(move))
             {
-                DoSingleMove(move, "go " + move);
+                DoSingleMove(chkExecuteMove.Checked, move, "go " + move);
             }
         }
 
@@ -3501,28 +3502,44 @@ namespace IsengardClient
             {
                 cmd = "go " + direction;
             }
-            DoSingleMove(direction, cmd);
+            DoSingleMove(chkExecuteMove.Checked, direction, cmd);
         }
 
-        private void DoSingleMove(string direction, string command)
+        private void DoSingleMove(bool move, Exit exit)
         {
-            SendCommand(command, false, false);
+            if (move)
+            {
+                if (!string.IsNullOrEmpty(exit.PreCommand))
+                {
+                    SendCommand(exit.PreCommand, false, false);
+                }
+                string nextCommand = exit.ExitText;
+                if (!exit.OmitGo) nextCommand = "go " + nextCommand;
+                SendCommand(nextCommand, false, false);
+            }
+            SetCurrentRoom(exit.Target);
+        }
+
+        private void DoSingleMove(bool move, string direction, string command)
+        {
             if (m_oCurrentRoom != null)
             {
-                Room newRoom = null;
+                Exit foundExit = null;
                 if (_map.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
                 {
                     foreach (Exit nextExit in edges)
                     {
                         if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
                         {
-                            newRoom = nextExit.Target;
+                            foundExit = nextExit;
+                            break;
                         }
                     }
                 }
-                if (newRoom != null)
+                if (foundExit != null)
                 {
-                    SetCurrentRoom(newRoom);
+                    DoSingleMove(move, foundExit);
+                    return;
                 }
                 else
                 {
@@ -3530,30 +3547,9 @@ namespace IsengardClient
                     txtCurrentRoom.Text = string.Empty;
                 }
             }
-        }
-
-        private void ctxGoSingleDirection_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            Button btn = (Button)ctxGoSingleDirection.SourceControl;
-            string direction = btn.Tag.ToString();
-            Room newRoom = null;
-            if (_map.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
+            if (move)
             {
-                foreach (Exit nextExit in edges)
-                {
-                    if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
-                    {
-                        newRoom = nextExit.Target;
-                    }
-                }
-            }
-            if (newRoom != null)
-            {
-                SetCurrentRoom(newRoom);
-            }
-            else
-            {
-                MessageBox.Show("Cannot go that direction.");
+                SendCommand(command, false, false);
             }
         }
 
@@ -4321,10 +4317,10 @@ namespace IsengardClient
             }
         }
 
-        private void ctxOneClickMacro_Opening(object sender, CancelEventArgs e)
+        private void ctxRoomExits_Opening(object sender, CancelEventArgs e)
         {
             Room r = m_oCurrentRoom;
-            ctxOneClickMacro.Items.Clear();
+            ctxRoomExits.Items.Clear();
             if (r == null || !_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
             {
                 e.Cancel = true;
@@ -4337,20 +4333,106 @@ namespace IsengardClient
                     ToolStripMenuItem tsmi = new ToolStripMenuItem();
                     tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
                     tsmi.Tag = nextEdge;
-                    ctxOneClickMacro.Items.Add(tsmi);
+                    ctxRoomExits.Items.Add(tsmi);
                     hasEdges = true;
                 }
                 e.Cancel = !hasEdges;
             }
         }
 
-        private void ctxOneClickMacro_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void ctxRoomExits_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ContextMenuStrip ctx = (ContextMenuStrip)sender;
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
-            Macro m = (Macro)((Button)ctx.SourceControl).Tag;
             Exit exit = (Exit)clickedItem.Tag;
-            RunMacro(m, exit);
+            Button sourceButton = (Button)ctx.SourceControl;
+            if (sourceButton == btnExitSingleMove)
+            {
+                DoSingleMove(chkExecuteMove.Checked, exit);
+            }
+            else //one click macro button
+            {
+                Macro m = (Macro)sourceButton.Tag;
+                RunMacro(m, exit);
+            }
+        }
+
+        private void chkExecuteMove_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshEnabledForSingleMoveButtons();
+        }
+
+        private void RefreshEnabledForSingleMoveButtons()
+        {
+            Room r = m_oCurrentRoom;
+            bool haveCurrentRoom = r != null;
+            bool enable = chkExecuteMove.Checked || haveCurrentRoom;
+
+            bool n, ne, nw, w, e, s, sw, se, u, d;
+            n = ne = nw = w = e = s = sw = se = u = d = false;
+            if (haveCurrentRoom)
+            {
+                if (_map.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                {
+                    foreach (Exit nextExit in exits)
+                    {
+                        switch (nextExit.ExitText.ToLower())
+                        {
+                            case "north":
+                                n = true;
+                                break;
+                            case "northeast":
+                                ne = true;
+                                break;
+                            case "northwest":
+                                nw = true;
+                                break;
+                            case "west":
+                                w = true;
+                                break;
+                            case "east":
+                                e = true;
+                                break;
+                            case "south":
+                                s = true;
+                                break;
+                            case "southeast":
+                                se = true;
+                                break;
+                            case "southwest":
+                                sw = true;
+                                break;
+                            case "up":
+                                u = true;
+                                break;
+                            case "down":
+                                d = true;
+                                break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                n = ne = nw = w = e = s = sw = se = u = d = enable;
+            }
+            btnNorth.Enabled = n;
+            btnNorthwest.Enabled = nw;
+            btnNortheast.Enabled = ne;
+            btnWest.Enabled = w;
+            btnEast.Enabled = e;
+            btnSouth.Enabled = s;
+            btnSouthwest.Enabled = sw;
+            btnSoutheast.Enabled = se;
+            btnUp.Enabled = u;
+            btnDn.Enabled = d;
+            btnOtherSingleMove.Enabled = enable;
+            btnExitSingleMove.Enabled = haveCurrentRoom;
+        }
+
+        private void btnExitSingleMove_Click(object sender, EventArgs e)
+        {
+            ctxRoomExits.Show(btnExitSingleMove, new Point(0, 0));
         }
     }
 }
