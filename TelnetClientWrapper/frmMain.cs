@@ -1153,6 +1153,7 @@ namespace IsengardClient
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
+            Macro m = pms.Macro;
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
@@ -1172,6 +1173,11 @@ namespace IsengardClient
                 pms.CommandsRun++;
                 pms.TargetRoom = preExit.Target;
                 pms.SetTargetRoomIfCancelled = true;
+            }
+
+            if (m != null && m.Flee)
+            {
+                _fleeing = true;
             }
 
             foreach (var nextCommandInfo in IterateStepCommands(commands, pms, 0))
@@ -3828,10 +3834,6 @@ namespace IsengardClient
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _currentBackgroundParameters.WasPowerAttackAvailableAtStart = IsPowerAttackAvailable();
             _currentBackgroundParameters.PowerAttack = powerAttack;
-            if (m.Flee)
-            {
-                _fleeing = true;
-            }
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
