@@ -2,12 +2,7 @@
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>
-  <Variable name="polltickinterval" type="int" value="5000" min="0"/>
   <Variable name="castinterval" type="int" value="2550" min="0"/>
-  <Variable name="castrounds" type="int" value="0" min="0"/>
-  <Variable name="stuncastrounds" type="int" value="2" min="0"/>
-  <Variable name="hitandrundirection" type="string"/>
-  <Variable name="hitandrunprecommand" type="string"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
@@ -27,8 +22,6 @@
   <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <ManaStun waitms="0"/>
     <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
     <SetVariable variable="attacktype" value="attack"/>
@@ -43,8 +36,6 @@
   <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <ManaStun waitms="0"/>
     <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
     <SetVariable variable="attacktype" value="attack"/>
@@ -75,8 +66,6 @@
   </Macro>
   <Macro name="SC*" oneclick="true" combatcommandtypes="Magic">
    <Steps>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <ManaStun waitms="0"/>
     <Sequence loop="true">
      <Steps>
@@ -87,8 +76,6 @@
   </Macro>
   <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic">
    <Steps>
-    <Command text="{hitandrunprecommand}" condition="hitandrunprecommand"/>
-    <Command text="go {hitandrundirection}" condition="hitandrundirection"/>
     <ManaStun waitms="0"/>
     <Sequence loop="2">
      <Steps>
@@ -114,18 +101,5 @@
     </Sequence>
    </Steps>
   </Macro>
-  <!--
-  <Macro name="cast+atk+potX" oneclick="false" combatcommandtypes="Magic,Melee,Potions">
-   <Steps>
-    <Sequence loop="castrounds">
-     <Steps>
-      <Command text="cast {realm2spell} {mob}" waitms="castinterval"/>
-      <Command text="kill {mob}" waitms="0"/>
-      <Command text="drink {potion}" skiprounds="1" waitms="0"/>
-     </Steps>
-    </Sequence>
-   </Steps>
-  </Macro>
-  -->
  </Macros>
 </Configuration>
