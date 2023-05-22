@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Media;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -42,6 +43,8 @@ namespace IsengardClient
         private int _level;
         private int _totalhp;
         private int _totalmp;
+        private int? _previoustickautohp;
+        private int? _previoustickautomp;
         private int _healtickmp;
         private int _autoHazyThreshold;
         private DateTime? _lastTriedToAutoHazy;
@@ -590,7 +593,7 @@ namespace IsengardClient
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, _asciiMapping, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
                 new ConstantSequence("You creative a protective manashield.", OnSuccessfulManashield, _asciiMapping),
-                new ConstantSequence("Your attempt to manashield fails.", OnFailManashield, _asciiMapping),
+                new ConstantSequence("Your attempt to manashield failed.", OnFailManashield, _asciiMapping),
                 new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
                 new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
                 new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
@@ -1377,7 +1380,7 @@ namespace IsengardClient
 
         private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms, bool fleeing)
         {
-            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow);
+            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow, _autoHitpoints);
 
             if (!fleeing && _fumbled)
             {
@@ -3705,8 +3708,7 @@ namespace IsengardClient
                 }
                 else
                 {
-                    m_oCurrentRoom = null;
-                    txtCurrentRoom.Text = string.Empty;
+                    DoClearCurrentLocation();
                 }
             }
             if (move)
@@ -3784,6 +3786,11 @@ namespace IsengardClient
         }
 
         private void btnClearCurrentLocation_Click(object sender, EventArgs e)
+        {
+            DoClearCurrentLocation();
+        }
+
+        private void DoClearCurrentLocation()
         {
             m_oCurrentRoom = null;
             txtCurrentRoom.Text = string.Empty;
@@ -4173,6 +4180,8 @@ namespace IsengardClient
 
         private void tmr_Tick(object sender, EventArgs e)
         {
+            int? autohpforthistick = _autoHitpoints;
+            int? autompforthistick = _autoMana;
             if (_finishedQuit)
             {
                 this.Close();
@@ -4194,7 +4203,7 @@ namespace IsengardClient
             bool autoMana = chkAutoMana.Checked;
             if (autoMana)
             {
-                _currentMana = _autoMana;
+                _currentMana = autompforthistick;
             }
             else
             {
@@ -4220,11 +4229,12 @@ namespace IsengardClient
                     txtMana.BackColor = backColor;
                 }
             }
-            if (_autoHitpoints.HasValue)
+            if (autohpforthistick.HasValue)
             {
-                txtHitpoints.Text = _autoHitpoints.Value.ToString() + "/" + _totalhp;
+                int autohpvalue = autohpforthistick.Value;
+                txtHitpoints.Text = autohpvalue.ToString() + "/" + _totalhp;
                 Color backColor;
-                if (_autoHitpoints.Value == _totalhp)
+                if (autohpvalue == _totalhp)
                     backColor = BACK_COLOR_GO;
                 else
                     backColor = BACK_COLOR_STOP;
@@ -4276,6 +4286,12 @@ namespace IsengardClient
                 txt.Text = sText;
                 txt.BackColor = backColor;
             }
+            if (autohpforthistick.HasValue && autompforthistick.HasValue && autohpforthistick.Value == _totalhp && autompforthistick.Value == _totalmp &&
+                ((_previoustickautohp.HasValue && _previoustickautohp.Value != autohpforthistick.Value) ||
+                (_previoustickautomp.HasValue && _previoustickautomp.Value != autompforthistick.Value)))
+            {
+                SystemSounds.Beep.Play();
+            }
             if (!btnAbort.Enabled)
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
@@ -4294,11 +4310,11 @@ namespace IsengardClient
                 }
                 else
                 {
-                    CheckAutoHazy(chkAutoHazy.Checked, dtUtcNow);
+                    CheckAutoHazy(chkAutoHazy.Checked, dtUtcNow, autohpforthistick);
                 }
 
                 //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
-                if (_currentStatusLastComputed.HasValue && (!_autoHitpoints.HasValue || _autoHitpoints.Value < _totalhp || !_autoMana.HasValue || _autoMana.Value < _totalmp))
+                if (_currentStatusLastComputed.HasValue && (!autohpforthistick.HasValue || autohpforthistick.Value < _totalhp || !autompforthistick.HasValue || autompforthistick.Value < _totalmp))
                 {
                     bool runPollTick = (dtUtcNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
                     if (runPollTick && _lastPollTick.HasValue)
@@ -4344,11 +4360,13 @@ namespace IsengardClient
                     }
                 }
             }
+            _previoustickautohp = autohpforthistick;
+            _previoustickautomp = autompforthistick;
         }
 
-        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow)
+        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow, int? autoHitpoints)
         {
-            if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && _autoHitpoints.HasValue && _autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
+            if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && autoHitpoints.HasValue && autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
                 SendCommand("drink hazy", false, false);
