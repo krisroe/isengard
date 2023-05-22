@@ -392,6 +392,109 @@ namespace IsengardClient
         }
     }
 
+    public class PleaseWaitXSecondsSequence : ISequence
+    {
+        private Dictionary<char, int> _asciiMapping;
+        private Action<int> _onSatisfied;
+        private int _currentMatchPoint = -1;
+        private List<int> _firstChars;
+        private List<int> _secondCharsGreaterThanOne;
+        private List<int> _secondCharsOne;
+        private List<int> _secondChars;
+        private List<int> _waitNumbers;
+        private PleaseWaitXSecondsStep _currentStep;
+
+        private enum PleaseWaitXSecondsStep
+        {
+            None,
+            PastPleaseWait,
+            SecondPart,
+        }
+
+        public PleaseWaitXSecondsSequence(Dictionary<char, int> asciiMapping, Action<int> onSatisfied)
+        {
+            _asciiMapping = asciiMapping;
+            _onSatisfied = onSatisfied;
+            _firstChars = ConstantSequence.GenerateBytesForPattern("Please wait ", asciiMapping);
+            _secondCharsGreaterThanOne = ConstantSequence.GenerateBytesForPattern("seconds.", asciiMapping);
+            _secondCharsOne = ConstantSequence.GenerateBytesForPattern("more second.", asciiMapping);
+            _waitNumbers = new List<int>();
+        }
+
+        public void FeedByte(int nextByte)
+        {
+            if (_currentStep == PleaseWaitXSecondsStep.None)
+            {
+                int nextCharToMatch = _firstChars[_currentMatchPoint + 1];
+                if (nextCharToMatch == nextByte)
+                {
+                    _currentMatchPoint++;
+                    if (_currentMatchPoint == _firstChars.Count - 1) //finished start pattern
+                    {
+                        _currentStep = PleaseWaitXSecondsStep.PastPleaseWait;
+                        _currentMatchPoint = -1;
+                        _waitNumbers.Clear();
+                    }
+                }
+                else //start over
+                {
+                    _currentMatchPoint = -1;
+                }
+            }
+            else if (_currentStep == PleaseWaitXSecondsStep.PastPleaseWait)
+            {
+                if (nextByte == _asciiMapping[' '])
+                {
+                    if (_waitNumbers.Count == 0)
+                    {
+                        _currentStep = PleaseWaitXSecondsStep.None;
+                    }
+                    else
+                    {
+                        if (_waitNumbers.Count == 1 && _waitNumbers[0] == 1)
+                        {
+                            _secondChars = _secondCharsOne;
+                        }
+                        else
+                        {
+                            _secondChars = _secondCharsGreaterThanOne;
+                        }
+                        _currentStep = PleaseWaitXSecondsStep.SecondPart;
+                        _currentMatchPoint = -1;
+                    }
+                }
+                else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                {
+                    _waitNumbers.Add(nextByte - _asciiMapping['0']);
+                }
+            }
+            else if (_currentStep == PleaseWaitXSecondsStep.SecondPart)
+            {
+                int nextCharToMatch = _secondChars[_currentMatchPoint + 1];
+                if (nextCharToMatch == nextByte)
+                {
+                    _currentMatchPoint++;
+                    if (_currentMatchPoint == _secondChars.Count - 1) //finished pattern
+                    {
+                        int waitNumber = 0;
+                        foreach (int nextWaitNumber in _waitNumbers)
+                        {
+                            waitNumber = (waitNumber * 10) + nextWaitNumber;
+                        }
+                        _onSatisfied(waitNumber);
+                        _currentStep = PleaseWaitXSecondsStep.None;
+                        _currentMatchPoint = -1;
+                    }
+                }
+                else //start over
+                {
+                    _currentStep = PleaseWaitXSecondsStep.None;
+                    _currentMatchPoint = -1;
+                }
+            }
+        }
+    }
+
     public class SpellsCastSequence : ISequence
     {
         private Dictionary<char, int> _asciiMapping;

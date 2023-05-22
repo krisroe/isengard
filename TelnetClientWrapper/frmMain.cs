@@ -104,6 +104,7 @@ namespace IsengardClient
         private bool _fleeing;
         private bool? _fleeResult;
         private bool? _manashieldResult;
+        private int _waitSeconds = 0;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -548,6 +549,7 @@ namespace IsengardClient
         private void OnFailFlee()
         {
             _fleeResult = false;
+            _waitSeconds = 0;
         }
 
         private void OnSuccessfulFlee()
@@ -564,6 +566,12 @@ namespace IsengardClient
         private void OnSuccessfulManashield()
         {
             _manashieldResult = true;
+        }
+
+        private void OnWaitXSeconds(int waitSeconds)
+        {
+            _fleeResult = false;
+            _waitSeconds = waitSeconds;
         }
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
@@ -589,6 +597,7 @@ namespace IsengardClient
                 new ConstantSequence("You phase in and out of existence.", OnHazy, _asciiMapping),
                 new ConstantSequence("You failed to escape!", OnFailFlee, _asciiMapping),
                 new ConstantSequence("You run like a chicken.", OnSuccessfulFlee, _asciiMapping),
+                new PleaseWaitXSecondsSequence(_asciiMapping, OnWaitXSeconds),
             };
 
             while (true)
@@ -1178,7 +1187,7 @@ namespace IsengardClient
                     if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
                     {
                         int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                        WaitUntilNextCommand(remainingMS);
+                        WaitUntilNextCommand(remainingMS, false);
                     }
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
@@ -1249,7 +1258,7 @@ namespace IsengardClient
                         remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
                     else
                         remainingMS = 0;
-                    WaitUntilNextCommand(remainingMS);
+                    WaitUntilNextCommand(remainingMS, false);
                 }
 
                 if (_bw.CancellationPending) break;
@@ -1286,48 +1295,58 @@ namespace IsengardClient
                     SendCommand("flee", false, false);
                     _currentBackgroundParameters.CommandsRun++;
                     currentAttempts++;
-                    while (!_fleeResult.HasValue)
+                    while (!_fleeResult.HasValue) //wait for the flee result
                     {
                         Thread.Sleep(50);
                         if (!_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
                     bool? currentFleeResult = _fleeResult;
-                    if (currentFleeResult.GetValueOrDefault(false))
+                    int waitSeconds = _waitSeconds;
+                    if (currentFleeResult.HasValue)
                     {
-                        Room r = m_oCurrentRoom;
-                        if (r != null)
+                        if (currentFleeResult.Value)
                         {
-                            if (_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
+                            Room r = m_oCurrentRoom;
+                            if (r != null)
                             {
-                                List<Exit> exits = new List<Exit>();
-                                foreach (Exit nextExit in edges)
+                                if (_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
                                 {
-                                    exits.Add(nextExit);
-                                }
-                                if (exits.Count == 1)
-                                {
-                                    _currentBackgroundParameters.TargetRoom = exits[0].Target;
+                                    List<Exit> exits = new List<Exit>();
+                                    foreach (Exit nextExit in edges)
+                                    {
+                                        exits.Add(nextExit);
+                                    }
+                                    if (exits.Count == 1)
+                                    {
+                                        _currentBackgroundParameters.TargetRoom = exits[0].Target;
+                                    }
                                 }
                             }
+                            _fleeing = false;
                         }
-                        _fleeing = false;
+                        else if (waitSeconds > 1)
+                        {
+                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), true);
+                            if (!_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                        }
                     }
                 }
             }
         }
 
-        private void WaitUntilNextCommand(int remainingMS)
+        private void WaitUntilNextCommand(int remainingMS, bool fleeing)
         {
             while (remainingMS > 0)
             {
                 int nextWaitMS = Math.Min(remainingMS, 100);
-                if (_fleeing) break;
+                if (fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
                 Thread.Sleep(nextWaitMS);
                 remainingMS -= nextWaitMS;
                 RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
-                if (_fleeing) break;
+                if (fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
             }
         }

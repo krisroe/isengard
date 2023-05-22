@@ -9,7 +9,7 @@ namespace IsengardClient.Tests
     public class SequenceTests
     {
         [TestMethod]
-        public void TestSequences()
+        public void TestSkillCooldownSequence()
         {
             Dictionary<int, char> reverseAsciiMapping;
             Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping(out reverseAsciiMapping);
@@ -33,6 +33,33 @@ namespace IsengardClient.Tests
             PumpSequence(scs, "manashield [2:34]", asciiMapping);
             Assert.IsFalse(skillActive);
             Assert.IsTrue(availableDate.HasValue);
+        }
+
+        [TestMethod]
+        public void TestWaitXSecondsSequence()
+        {
+            Dictionary<int, char> reverseAsciiMapping;
+            Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping(out reverseAsciiMapping);
+
+            int waited = -1;
+            Action<int> waitedAction = (seconds) =>
+            {
+                waited = seconds;
+            };
+
+            PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(asciiMapping, waitedAction);
+
+            waited = -1;
+            PumpSequence(plxss, "Please wait 2 seconds.", asciiMapping);
+            Assert.IsTrue(waited == 2);
+
+            waited = -1;
+            PumpSequence(plxss, "Please wait 12 seconds.", asciiMapping);
+            Assert.IsTrue(waited == 12);
+
+            waited = -1;
+            PumpSequence(plxss, "Please wait 1 more second.", asciiMapping);
+            Assert.IsTrue(waited == 1);
         }
 
         public void PumpSequence(ISequence sequence, string text, Dictionary<char, int> asciiMapping)
