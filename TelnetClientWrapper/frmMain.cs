@@ -1673,25 +1673,26 @@ namespace IsengardClient
                 {
                     if (ctl is Button)
                     {
-                        if (ctl != btnFlee)
+                        if (ctl == btnFlee)
                         {
-                            if (ctl == btnAbort)
-                            {
-                                ctl.Enabled = running;
-                            }
-                            else if (ctl.Tag is CommandButtonTag)
-                            {
-                                CommandButtonTag cbt = (CommandButtonTag)ctl.Tag;
-                                ctl.Enabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
-                            }
-                            else if (ctl.Tag is string)
-                            {
-                                ctl.Enabled = !running;
-                            }
-                            else
-                            {
-                                ctl.Enabled = !running;
-                            }
+                            ctl.Enabled = true;
+                        }
+                        else if (ctl == btnAbort)
+                        {
+                            ctl.Enabled = running;
+                        }
+                        else if (ctl.Tag is CommandButtonTag)
+                        {
+                            CommandButtonTag cbt = (CommandButtonTag)ctl.Tag;
+                            ctl.Enabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
+                        }
+                        else if (ctl.Tag is string)
+                        {
+                            ctl.Enabled = !running;
+                        }
+                        else
+                        {
+                            ctl.Enabled = !running;
                         }
                     }
                     else if (ctl is TextBox)
@@ -4480,6 +4481,7 @@ namespace IsengardClient
             else
             {
                 _fleeing = true;
+                btnFlee.Enabled = false;
             }
         }
 
