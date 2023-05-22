@@ -1255,18 +1255,20 @@ namespace IsengardClient
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
 
-                //wait for an appropriate amount of time for commands after the first
-                if (oPreviousCommand != null)
+                //wait for an appropriate amount of time for the next command
+                int remainingMS = 0;
+                if (nextCommand.CombatCycle == null) //use the wait ms for commands after the first
                 {
-                    int remainingMS;
-                    if (nextCommand.CombatCycle == null)
+                    if (oPreviousCommand != null)
+                    {
                         remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
-                    else if (dtLastCombatCycle.HasValue)
-                        remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                    else
-                        remainingMS = 0;
-                    WaitUntilNextCommand(remainingMS, false);
+                    }
                 }
+                else if (dtLastCombatCycle.HasValue) //just use the combat cycle to determine the timing
+                {
+                    remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                }
+                WaitUntilNextCommand(remainingMS, false);
 
                 if (_bw.CancellationPending) break;
                 if (_fleeing) break;
