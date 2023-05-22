@@ -1312,14 +1312,17 @@ namespace IsengardClient
                             {
                                 if (_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
                                 {
-                                    List<Exit> exits = new List<Exit>();
+                                    List<Exit> fleeableExits = new List<Exit>();
                                     foreach (Exit nextExit in edges)
                                     {
-                                        exits.Add(nextExit);
+                                        if (!nextExit.Hidden)
+                                        {
+                                            fleeableExits.Add(nextExit);
+                                        }
                                     }
-                                    if (exits.Count == 1)
+                                    if (fleeableExits.Count == 1)
                                     {
-                                        _currentBackgroundParameters.TargetRoom = exits[0].Target;
+                                        _currentBackgroundParameters.TargetRoom = fleeableExits[0].Target;
                                     }
                                 }
                             }
@@ -1709,7 +1712,7 @@ namespace IsengardClient
             Room balleNightingale = AddRoom("Tharbad Balle/Nightingale");
             Room balle1 = AddRoom("Tharbad Balle");
             AddBidirectionalExits(balleNightingale, balle1, BidirectionalExitType.WestEast);
-            AddBidirectionalSameNameExit(oTharbadGateOutside, balleNightingale, "gate", null);
+            AddBidirectionalSameNameExit(oTharbadGateOutside, balleNightingale, "gate");
 
             Room balleIllusion = AddRoom("Tharbad Balle/Illusion");
             AddBidirectionalExits(balle1, balleIllusion, BidirectionalExitType.WestEast);
@@ -1818,13 +1821,14 @@ namespace IsengardClient
             AddExit(oMadameNicolov, oGypsyRow1, "out");
 
             Room gildedApple = AddRoom("Gilded Applie");
-            AddBidirectionalSameNameExit(sabre3, gildedApple, "door", null);
+            AddBidirectionalSameNameExit(sabre3, gildedApple, "door");
 
             Room zathriel = AddRoom("Zathriel the Minstrel");
             zathriel.Mob1 = "Minstrel";
             zathriel.Experience1 = 220;
             zathriel.Alignment = AlignmentType.Blue;
-            AddExit(gildedApple, zathriel, "stage");
+            Exit e = AddExit(gildedApple, zathriel, "stage");
+            e.Hidden = true;
             AddExit(zathriel, gildedApple, "down");
 
             Room oOliphauntsTattoos = AddRoom("Oliphaunt's Tattoos");
@@ -1834,7 +1838,7 @@ namespace IsengardClient
             oOliphaunt.Mob1 = "Oliphaunt";
             oOliphaunt.Experience1 = 310;
             oOliphaunt.Alignment = AlignmentType.Blue;
-            AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain", null);
+            AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain");
 
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, zathriel);
@@ -2007,7 +2011,8 @@ namespace IsengardClient
             oShirriff.Experience2 = 325;
 
             Room oValveChamber = AddRoom("Valve Chamber");
-            AddExit(breeSewers[7, 3], oValveChamber, "valve");
+            e = AddExit(breeSewers[7, 3], oValveChamber, "valve");
+            e.Hidden = true;
             AddExit(oValveChamber, breeSewers[7, 3], "south");
 
             Room oSewerPassageFromValveChamber = AddRoom("Sewer Passage");
@@ -2039,7 +2044,7 @@ namespace IsengardClient
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
 
             Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden");
-            AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate", null);
+            AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate");
             Room oFallon = AddRoom("Fallon");
             oFallon.Experience1 = 350;
             oFallon.Alignment = AlignmentType.Blue;
@@ -2071,7 +2076,8 @@ namespace IsengardClient
             oDroolie.Mob1 = "Droolie";
             oDroolie.Experience1 = 100;
             oDroolie.Alignment = AlignmentType.Red;
-            AddExit(oNorthBridge, oDroolie, "rope");
+            e = AddExit(oNorthBridge, oDroolie, "rope");
+            e.Hidden = true;
             AddExit(oDroolie, oNorthBridge, "up");
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River");
@@ -2108,7 +2114,7 @@ namespace IsengardClient
             AddExit(oRockyAlcove, oRockyBeach1, "north");
 
             Room oSewerDrain = AddRoom("Sewer Drain");
-            AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate", null);
+            AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate");
 
             Room oDrainTunnel1 = AddRoom("Drain Tunnel");
             AddExit(oSewerDrain, oDrainTunnel1, "south");
@@ -2132,7 +2138,10 @@ namespace IsengardClient
             oSewerOrcChamber.Mob1 = "Guard";
             oSewerOrcChamber.Experience1 = 70;
             oSewerOrcChamber.Experience2 = 70;
-            AddBidirectionalSameNameExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted", null);
+            e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
+            e.Hidden = true;
+            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted");
+            e.Hidden = true;
 
             Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
             AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
@@ -2177,6 +2186,9 @@ namespace IsengardClient
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
 
+            Room oGuardsRecRoom = AddRoom("Guard's Rec Room");
+            AddBidirectionalExits(oSergeantGrimdall, oGuardsRecRoom, BidirectionalExitType.NorthSouth);
+
             oBigPapa.Mob1 = "papa";
             oBigPapa.Experience1 = 350;
             oBigPapa.Alignment = AlignmentType.Blue;
@@ -2207,23 +2219,28 @@ namespace IsengardClient
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
 
             Room oScranlinThreshold = AddRoom("Scranlin Threshold");
-            AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
+            e = AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
+            e.Hidden = true;
             AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
 
             Room oScranlin = AddRoom("Scranlin");
             oScranlin.Mob1 = oScranlinThreshold.Mob1 = "Scranlin";
             oScranlin.Experience1 = 500;
             oScranlin.Alignment = AlignmentType.Red;
-            AddExit(oScranlinThreshold, oScranlin, "outhouse");
+            e = AddExit(oScranlinThreshold, oScranlin, "outhouse");
+            e.Hidden = true;
             AddExit(oScranlin, oScranlinThreshold, "out");
 
             Room oTunnel = AddRoom("Tunnel");
-            AddBidirectionalSameNameExit(breeSewers[0, 10], oTunnel, "tunnel", null);
+            e = AddExit(breeSewers[0, 10], oTunnel, "tunnel");
+            e.Hidden = true;
+            AddExit(oTunnel, breeSewers[0, 10], "tunnel");
 
             Room oLatrine = AddRoom("Latrine");
             AddExit(oTunnel, oLatrine, "south");
             e = AddExit(oLatrine, oTunnel, "north");
             e.OmitGo = true;
+            e.Hidden = true;
 
             Room oEugenesDungeon = AddRoom("Eugene's Dungeon");
             AddBidirectionalExits(oEugenesDungeon, oLatrine, BidirectionalExitType.SouthwestNortheast);
@@ -2248,6 +2265,17 @@ namespace IsengardClient
             _boatswain.Mob1 = "Boatswain";
             _boatswain.Experience1 = 350;
             AddLocation(_aShips, _boatswain);
+
+            Room oPearlAlley = AddRoom("Pearl Alley");
+            AddExit(oBreeTownSquare, oPearlAlley, "alley");
+            AddExit(oPearlAlley, oBreeTownSquare, "north");
+
+            Room oBartenderWaitress = AddRoom("Bartender Waitress");
+            oBartenderWaitress.Mob1 = "Bartender";
+            oBartenderWaitress.Mob2 = "Waitress";
+            oBartenderWaitress.Experience1 = 15;
+            oBartenderWaitress.Experience2 = 7;
+            AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
 
             AddLocation(_aBreePerms, oOrderOfLove);
             AddLocation(_aBreePerms, oCampusFreeClinic);
@@ -2275,6 +2303,7 @@ namespace IsengardClient
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
             AddLocation(aBree, oSewerOrcChamber);
+            AddLocation(aBree, oBartenderWaitress);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -2585,7 +2614,7 @@ namespace IsengardClient
             AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
 
             Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance");
-            AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate", null);
+            AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
 
             Room oMuddyFoyer = AddRoom("Muddy Foyer");
             if (_level < 11)
@@ -2636,13 +2665,13 @@ namespace IsengardClient
             AddExit(oCatchBasin, oOuthouse, "out");
 
             Room oSepticTank = AddRoom("Septic Tank");
-            AddBidirectionalSameNameExit(oCatchBasin, oSepticTank, "grate", null);
+            AddBidirectionalSameNameExit(oCatchBasin, oSepticTank, "grate");
 
             Room oDrainPipe1 = AddRoom("Drain Pipe");
-            AddBidirectionalSameNameExit(oSepticTank, oDrainPipe1, "pipe", null);
+            AddBidirectionalSameNameExit(oSepticTank, oDrainPipe1, "pipe");
 
             Room oDrainPipe2 = AddRoom("Drain Pipe");
-            AddBidirectionalSameNameExit(oDrainPipe1, oDrainPipe2, "culvert", null);
+            AddBidirectionalSameNameExit(oDrainPipe1, oDrainPipe2, "culvert");
 
             Room oBrandywineRiverShore = AddRoom("Southeastern Short of Brandywine River");
             AddExit(oDrainPipe2, oBrandywineRiverShore, "out");
@@ -2766,7 +2795,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisSmallAlley2, oImladrisSmallAlley1, BidirectionalExitType.NorthSouth);
 
             Room oImladrisPawnShop = AddRoom("Sharkey's Pawn Shop");
-            AddBidirectionalSameNameExit(oImladrisPawnShop, oImladrisSmallAlley2, "door", null);
+            AddBidirectionalSameNameExit(oImladrisPawnShop, oImladrisSmallAlley2, "door");
 
             Room oImladrisTownCircle = AddRoom("Imladris Town Circle");
             AddBidirectionalExits(oImladrisAlley3, oImladrisTownCircle, BidirectionalExitType.WestEast);
@@ -2778,7 +2807,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
 
             Room oEastGateOfImladrisOutside = AddRoom("Gates of Imladris");
-            AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate", null);
+            AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
 
             Room oImladrisCircle10 = AddRoom("Imladris Circle");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
@@ -2798,7 +2827,7 @@ namespace IsengardClient
             oPoisonedDagger.Mob1 = oRearAlley.Mob1 = "assassin";
             oPoisonedDagger.Experience1 = 600;
             oPoisonedDagger.Experience2 = 600;
-            AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door", null);
+            AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
 
             oImladrisSouthGateInside = AddRoom("Southern Gate of Imladris");
             AddBidirectionalExits(oImladrisCircle8, oImladrisSouthGateInside, BidirectionalExitType.NorthSouth);
@@ -2807,7 +2836,8 @@ namespace IsengardClient
             Exit e = AddExit(oImladrisCircle8, oImladrisCityDump, "north");
             e.OmitGo = true;
             AddExit(oImladrisCityDump, oImladrisCircle8, "south");
-            AddExit(oImladrisCityDump, oRearAlley, "north");
+            e = AddExit(oImladrisCityDump, oRearAlley, "north");
+            e.Hidden = true;
 
             Room oImladrisHealingHand = AddRoom("Imladris Healing Hand");
             oImladrisHealingHand.IsHealingRoom = true;
@@ -2848,7 +2878,7 @@ namespace IsengardClient
             Area oBreeToHobbiton = _areasByName[AREA_BREE_TO_HOBBITON];
 
             Room oBreeWestGateOutside = AddRoom("West Gate of Bree");
-            AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate", null);
+            AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
 
             Room oLeviathanNorthForkWestern = AddRoom("The Grand Intersection - Leviathan Way/North Fork Road/Western Road");
             AddBidirectionalExits(oLeviathanNorthForkWestern, oBreeWestGateOutside, BidirectionalExitType.WestEast);
@@ -2903,7 +2933,7 @@ namespace IsengardClient
             AddExit(oBilboFrodoHobbitHoleCondo, oHillAtBagEnd, "out");
 
             Room oBilboFrodoCommonArea = AddRoom("Common Area");
-            AddBidirectionalSameNameExit(oBilboFrodoHobbitHoleCondo, oBilboFrodoCommonArea, "curtain", null);
+            AddBidirectionalSameNameExit(oBilboFrodoHobbitHoleCondo, oBilboFrodoCommonArea, "curtain");
 
             Room oEastwingHallway = AddRoom("Eastwing Hallway");
             AddExit(oBilboFrodoCommonArea, oEastwingHallway, "eastwing");
@@ -2923,7 +2953,7 @@ namespace IsengardClient
             oFrodoBaggins.Mob1 = "Frodo";
             oFrodoBaggins.Experience1 = 260;
             oFrodoBaggins.Alignment = AlignmentType.Blue;
-            AddBidirectionalSameNameExit(oSouthwingHallway, oFrodoBaggins, "curtain", null);
+            AddBidirectionalSameNameExit(oSouthwingHallway, oFrodoBaggins, "curtain");
 
             Room oGreatHallOfHeroes = AddRoom("Great Hall of Heroes");
             AddExit(oGreatHallOfHeroes, oLeviathanNorthForkWestern, "out");
@@ -2935,7 +2965,8 @@ namespace IsengardClient
             oSomething.Experience1 = 140;
             if (_level < 11)
             {
-                AddExit(oGreatHallOfHeroes, oSomething, "curtain");
+                Exit e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
+                e.Hidden = true;
             }
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
 
@@ -2976,7 +3007,7 @@ namespace IsengardClient
             Area oImladrisToTharbad = _areasByName[AREA_IMLADRIS_TO_THARBAD];
 
             Room oMistyTrail1 = AddRoom("Misty Trail");
-            AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate", null);
+            AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
 
             Room oBrunskidTradersGuild1 = AddRoom("Brunskid Trader's Guild Store Front");
             AddBidirectionalExits(oBrunskidTradersGuild1, oMistyTrail1, BidirectionalExitType.WestEast);
@@ -3214,6 +3245,11 @@ namespace IsengardClient
             subRoom.ParentRoom = locRoom;
         }
 
+        private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText)
+        {
+            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, null);
+        }
+
         private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, string preCommand)
         {
             Exit e = new Exit(aRoom, bRoom, exitText);
@@ -3390,6 +3426,10 @@ namespace IsengardClient
             /// command to run before using the exit
             /// </summary>
             public string PreCommand { get; set; }
+            /// <summary>
+            /// whether the exit is hidden
+            /// </summary>
+            public bool Hidden { get; set; }
             public Exit(Room source, Room target, string exitText) : base(source, target)
             {
                 this.ExitText = exitText;
