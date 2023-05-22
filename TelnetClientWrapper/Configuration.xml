@@ -1,19 +1,17 @@
-<Configuration defaultrealm="wind" defaultweapon="claw" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Blue" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
+<Configuration defaultrealm="wind" defaultweapon="scimitar" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Blue" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>
-  <Variable name="castinterval" type="int" value="2550" min="0"/>
+  <Variable name="combatcycleinterval" type="int" value="2550" min="0"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
   <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
-    <SetNextCommandMS waitms="0"/>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
-      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+      <CombatCycle magic="OffensiveSpell" attack="true"/>
       <SetVariable variable="attacktype" value="attack"/>
      </Steps>
     </Sequence>
@@ -22,13 +20,11 @@
   <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
-    <ManaStun waitms="0"/>
-    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <CombatCycle magic="Stun" attack="true"/>
     <SetVariable variable="attacktype" value="attack"/>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
-      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+      <CombatCycle magic="OffensiveSpell" attack="true"/>
      </Steps>
     </Sequence>
    </Steps>
@@ -36,21 +32,17 @@
   <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
     <Command text="wield {weapon}" waitms="0" condition="weapon"/>
-    <ManaStun waitms="0"/>
-    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <CombatCycle magic="Stun" attack="true"/>
     <SetVariable variable="attacktype" value="attack"/>
     <Sequence loop="2">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
-      <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+      <CombatCycle magic="OffensiveSpell" attack="true"/>
      </Steps>
     </Sequence>
-    <ManaStun waitms="castinterval"/>
-    <Command text="{attacktype} {mob}" waitms="0" condition="weapon"/>
+    <CombatCycle magic="Stun" attack="true"/>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
-      <Command text="attack {mob}" waitms="0" condition="weapon"/>
+      <CombatCycle magic="OffensiveSpell" attack="true"/>
      </Steps>
     </Sequence>
    </Steps>
@@ -59,33 +51,33 @@
    <Steps>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
+      <CombatCycle magic="OffensiveSpell" attack="false"/>
      </Steps>
     </Sequence>
    </Steps>
   </Macro>
   <Macro name="SC*" oneclick="true" combatcommandtypes="Magic" skills="true">
    <Steps>
-    <ManaStun waitms="0"/>
+    <CombatCycle magic="Stun" attack="false"/>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
+      <CombatCycle magic="OffensiveSpell" attack="false"/>
      </Steps>
     </Sequence>
    </Steps>
   </Macro>
   <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic" skills="true">
    <Steps>
-    <ManaStun waitms="0"/>
+    <CombatCycle magic="Stun" attack="false"/>
     <Sequence loop="2">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
+      <CombatCycle magic="OffensiveSpell" attack="false"/>
      </Steps>
     </Sequence>
-    <ManaStun waitms="castinterval"/>
+    <CombatCycle magic="Stun" attack="false"/>
     <Sequence loop="true">
      <Steps>
-      <ManaOffensive waitms="castinterval"/>
+      <CombatCycle magic="OffensiveSpell" attack="false"/>
      </Steps>
     </Sequence>
    </Steps>
@@ -96,7 +88,7 @@
     <SetNextCommandMS waitms="0"/>
     <Sequence loop="true">
      <Steps>
-      <Command text="attack {mob}" waitms="castinterval"/>
+      <CombatCycle magic="None" attack="true"/>
      </Steps>
     </Sequence>
    </Steps>

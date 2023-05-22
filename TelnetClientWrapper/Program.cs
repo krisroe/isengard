@@ -599,15 +599,10 @@ namespace IsengardClient
                             ret.Add(oSetVariableCommand);
                             step = oSetVariableCommand;
                             break;
-                        case "manastun":
-                            MacroManaSpellStun oStunCommand = new MacroManaSpellStun();
-                            ret.Add(oStunCommand);
-                            step = oStunCommand;
-                            break;
-                        case "manaoffensive":
-                            MacroManaSpellOffensive oOffensiveCommand = new MacroManaSpellOffensive();
-                            ret.Add(oOffensiveCommand);
-                            step = oOffensiveCommand;
+                        case "combatcycle":
+                            MacroStepCombatCycle oCombatCycle = new MacroStepCombatCycle();
+                            ret.Add(oCombatCycle);
+                            step = oCombatCycle;
                             break;
                         default:
                             isValid = false;
@@ -764,6 +759,37 @@ namespace IsengardClient
                         {
                             isValid = false;
                             errorMessages.Add("Invalid skip rounds: " + errorSource + " " + stepType + " " + sSkipRounds);
+                        }
+                    }
+
+                    if (step != null && step is MacroStepCombatCycle)
+                    {
+                        string sMagic = elemStep.GetAttribute("magic");
+                        if (!string.IsNullOrEmpty(sMagic))
+                        {
+                            if (Enum.TryParse(sMagic, out MagicCombatCycleType eMagic))
+                            {
+                                ((MacroStepCombatCycle)step).Magic = eMagic;
+                            }
+                            else
+                            {
+                                isValid = false;
+                                errorMessages.Add("Invalid magic: " + errorSource + " " + stepType + " " + sMagic);
+                            }
+                        }
+
+                        string sAttack = elemStep.GetAttribute("attack");
+                        if (!string.IsNullOrEmpty(sAttack))
+                        {
+                            if (bool.TryParse(sAttack, out bool bAttack))
+                            {
+                                ((MacroStepCombatCycle)step).Attack = bAttack;
+                            }
+                            else
+                            {
+                                isValid = false;
+                                errorMessages.Add("Invalid attack: " + errorSource + " " + stepType + " " + sAttack);
+                            }
                         }
                     }
                 }

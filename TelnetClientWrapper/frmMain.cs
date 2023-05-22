@@ -1169,27 +1169,34 @@ namespace IsengardClient
             //Activate skills
             int maxAttempts = 20;
             int currentAttempts = 0;
+            DateTime? dtLastCombatCycle = null;
+            int combatCycleInterval = ((IntegerVariable)pms.Variables["combatcycleinterval"]).Value;
             if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
             {
-                int castInterval = ((IntegerVariable)pms.Variables["castinterval"]).Value;
-                DateTime? dtLastAttempt = null;
                 while (currentAttempts < maxAttempts)
                 {
-                    while (dtLastAttempt.HasValue && (DateTime.UtcNow - dtLastAttempt.Value).TotalMilliseconds < castInterval)
+                    if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
                     {
-                        Thread.Sleep(50);
-                        if (_bw.CancellationPending) break;
+                        int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                        WaitUntilNextCommand(remainingMS);
                     }
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
                     _manashieldResult = null;
                     SendCommand("manashield", false, false);
                     _currentBackgroundParameters.CommandsRun++;
                     currentAttempts++;
-                    dtLastAttempt = DateTime.UtcNow;
+                    dtLastCombatCycle = DateTime.UtcNow;
                     while (!_manashieldResult.HasValue)
                     {
                         Thread.Sleep(50);
+                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                        if (_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
+
                     //stop if successfully manashielded
                     if (_manashieldResult.HasValue && _manashieldResult.Value)
                     {
@@ -1235,26 +1242,25 @@ namespace IsengardClient
                 //wait for an appropriate amount of time for commands after the first
                 if (oPreviousCommand != null)
                 {
-                    int remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
-                    while (remainingMS > 0)
-                    {
-                        int nextWaitMS = Math.Min(remainingMS, 100);
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                        Thread.Sleep(nextWaitMS);
-                        remainingMS -= nextWaitMS;
-                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                    }
+                    int remainingMS;
+                    if (nextCommand.CombatCycle == null)
+                        remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
+                    else if (dtLastCombatCycle.HasValue)
+                        remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                    else
+                        remainingMS = 0;
+                    WaitUntilNextCommand(remainingMS);
                 }
 
                 if (_bw.CancellationPending) break;
                 if (_fleeing) break;
 
-                ManaDrainType mdType = nextCommand.ManaDrain;
                 bool stop;
                 ProcessCommand(nextCommand, pms, out stop);
+                if (nextCommand.CombatCycle != null)
+                {
+                    dtLastCombatCycle = DateTime.UtcNow;
+                }
                 if (stop) break;
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
@@ -1310,6 +1316,21 @@ namespace IsengardClient
             }
         }
 
+        private void WaitUntilNextCommand(int remainingMS)
+        {
+            while (remainingMS > 0)
+            {
+                int nextWaitMS = Math.Min(remainingMS, 100);
+                if (_fleeing) break;
+                if (_bw.CancellationPending) break;
+                Thread.Sleep(nextWaitMS);
+                remainingMS -= nextWaitMS;
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                if (_fleeing) break;
+                if (_bw.CancellationPending) break;
+            }
+        }
+
         private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms)
         {
             CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow);
@@ -1327,16 +1348,20 @@ namespace IsengardClient
 
         private void ProcessCommand(MacroCommand nextCommand, BackgroundWorkerParameters pms, out bool stop)
         {
+            MacroStepCombatCycle oCombatCycle = nextCommand.CombatCycle;
             string rawCommand;
             int? manaDrain = null;
-            ManaDrainType mdType = nextCommand.ManaDrain;
             stop = false;
-            if (mdType == ManaDrainType.Stun)
+            if (oCombatCycle == null || oCombatCycle.Magic == MagicCombatCycleType.None)
+            {
+                rawCommand = nextCommand.RawCommand;
+            }
+            else if (oCombatCycle.Magic == MagicCombatCycleType.Stun)
             {
                 rawCommand = "cast stun {mob}";
                 manaDrain = 10;
             }
-            else if (mdType == ManaDrainType.Offensive)
+            else if (oCombatCycle.Magic == MagicCombatCycleType.OffensiveSpell)
             {
                 int iMaxOffLevel = Convert.ToInt32(pms.MaxOffensiveLevel);
                 if (_currentMana >= 10 && iMaxOffLevel >= 3)
@@ -1362,11 +1387,11 @@ namespace IsengardClient
             }
             else
             {
-                rawCommand = nextCommand.RawCommand;
+                throw new InvalidOperationException();
             }
 
             //stop processing if out of mana
-            if (mdType != ManaDrainType.None && _currentMana < manaDrain.Value)
+            if (oCombatCycle != null && oCombatCycle.Magic != MagicCombatCycleType.None && _currentMana < manaDrain.Value)
             {
                 stop = true;
                 return;
@@ -1392,6 +1417,18 @@ namespace IsengardClient
                 {
                     stop = true;
                 }
+            }
+
+            if (oCombatCycle != null && oCombatCycle.Attack)
+            {
+                string attackCommand = TranslateCommand("{attacktype} {mob}", _currentBackgroundParameters.GetVariables(), out errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    stop = true; //not much we can do here except stop
+                    return;
+                }
+                SendCommand(attackCommand, false, false);
+                pms.CommandsRun++;
             }
         }
 
@@ -1515,17 +1552,11 @@ namespace IsengardClient
                     else
                     {
                         MacroCommand nextCommand;
-                        if (nextStep is MacroManaSpellStun)
+                        if (nextStep is MacroStepCombatCycle)
                         {
                             nextCommand = new MacroCommand(string.Empty, string.Empty);
                             nextCommand.CopyFrom(nextStep);
-                            nextCommand.ManaDrain = ManaDrainType.Stun;
-                        }
-                        else if (nextStep is MacroManaSpellOffensive)
-                        {
-                            nextCommand = new MacroCommand(string.Empty, string.Empty);
-                            nextCommand.CopyFrom(nextStep);
-                            nextCommand.ManaDrain = ManaDrainType.Offensive;
+                            nextCommand.CombatCycle = (MacroStepCombatCycle)nextStep;
                         }
                         else
                         {
@@ -3943,18 +3974,11 @@ namespace IsengardClient
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
                 ret = new MacroCommand(rawCommand, translatedCommand);
             }
-            else if (input is MacroManaSpellStun)
+            else if (input is MacroStepCombatCycle)
             {
-                TranslateCommand("cast stun {mob}", _variables, out errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage)) return null;
-                ret = input;
-                isSameStep = true;
-            }
-            else if (input is MacroManaSpellOffensive)
-            {
-                //the spell isn't known at this point, but it doesn't matter since all we need to 
-                //do here is verify the mob variable is present.
-                TranslateCommand("cast rumble {mob}", _variables, out errorMessage);
+                //the command here doesn't matter as long as it requires a mob, since it
+                //could contain an attack, stun, or offensive spell
+                TranslateCommand("attack {mob}", _variables, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage)) return null;
                 ret = input;
                 isSameStep = true;

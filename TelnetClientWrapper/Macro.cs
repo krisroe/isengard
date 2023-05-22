@@ -66,23 +66,24 @@ namespace IsengardClient
         }
     }
 
-    internal class MacroManaSpellCommand : MacroStepBase
+    internal class MacroStepCombatCycle : MacroStepBase
     {
+        public bool Attack { get; set; }
+        public MagicCombatCycleType Magic { get; set; }
     }
 
-    internal class MacroManaSpellStun : MacroManaSpellCommand
+    internal enum MagicCombatCycleType
     {
-    }
-
-    internal class MacroManaSpellOffensive : MacroManaSpellCommand
-    {
+        None,
+        Stun,
+        OffensiveSpell
     }
 
     internal class MacroCommand : MacroStepBase
     {
         public string RawCommand { get; set; }
         public string Command { get; set; }
-        public ManaDrainType ManaDrain { get; set; }
+        public MacroStepCombatCycle CombatCycle { get; set; }
         public MacroCommand(string RawCommand, string Command)
         {
             this.RawCommand = RawCommand;
