@@ -105,6 +105,7 @@ namespace IsengardClient
         private bool? _fleeResult;
         private bool? _manashieldResult;
         private int _waitSeconds = 0;
+        private bool _fumbled;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -574,6 +575,11 @@ namespace IsengardClient
             _waitSeconds = waitSeconds;
         }
 
+        private void OnFumbled()
+        {
+            _fumbled = true;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -598,6 +604,7 @@ namespace IsengardClient
                 new ConstantSequence("You failed to escape!", OnFailFlee, _asciiMapping),
                 new ConstantSequence("You run like a chicken.", OnSuccessfulFlee, _asciiMapping),
                 new PleaseWaitXSecondsSequence(_asciiMapping, OnWaitXSeconds),
+                new ConstantSequence("You FUMBLED your weapon.", OnFumbled, _asciiMapping),
             };
 
             while (true)
@@ -1199,7 +1206,7 @@ namespace IsengardClient
                     while (!_manashieldResult.HasValue)
                     {
                         Thread.Sleep(50);
-                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
                         if (_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
@@ -1244,7 +1251,7 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
                 oCurrentCommand = nextCommand;
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
 
@@ -1274,7 +1281,7 @@ namespace IsengardClient
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
 
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
             }
@@ -1360,15 +1367,26 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
                 Thread.Sleep(nextWaitMS);
                 remainingMS -= nextWaitMS;
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters);
+                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
                 if (fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
             }
         }
 
-        private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms)
+        private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms, bool fleeing)
         {
             CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow);
+
+            if (!fleeing && _fumbled)
+            {
+                string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
+                if (!string.IsNullOrEmpty(sWeapon))
+                {
+                    SendCommand("wield " + sWeapon, false, false);
+                    _currentBackgroundParameters.CommandsRun++;
+                }
+                _fumbled = false;
+            }
 
             lock (_queuedCommandLock)
             {
