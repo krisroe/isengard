@@ -1288,6 +1288,33 @@ namespace IsengardClient
                     if (!_fleeing) return;
                     if (_bw.CancellationPending) return;
                 }
+
+                //determine the flee exit if there is only one place to flee to
+                Exit singleFleeableExit = null;
+                Room r = m_oCurrentRoom;
+                if (r != null && _map.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                {
+                    List<Exit> fleeableExits = new List<Exit>();
+                    foreach (Exit nextExit in exits)
+                    {
+                        if (!nextExit.Hidden)
+                        {
+                            fleeableExits.Add(nextExit);
+                        }
+                    }
+                    if (fleeableExits.Count == 1)
+                    {
+                        singleFleeableExit = fleeableExits[0];
+
+                        //Run the precommand to the single fleeable exit
+                        if (!string.IsNullOrEmpty(singleFleeableExit.PreCommand))
+                        {
+                            SendCommand(singleFleeableExit.PreCommand, false, false);
+                            _currentBackgroundParameters.CommandsRun++;
+                        }
+                    }
+                }
+
                 currentAttempts = 0;
                 while (_fleeing && currentAttempts < maxAttempts)
                 {
@@ -1307,24 +1334,9 @@ namespace IsengardClient
                     {
                         if (currentFleeResult.Value)
                         {
-                            Room r = m_oCurrentRoom;
-                            if (r != null)
+                            if (singleFleeableExit != null)
                             {
-                                if (_map.TryGetOutEdges(r, out IEnumerable<Exit> edges))
-                                {
-                                    List<Exit> fleeableExits = new List<Exit>();
-                                    foreach (Exit nextExit in edges)
-                                    {
-                                        if (!nextExit.Hidden)
-                                        {
-                                            fleeableExits.Add(nextExit);
-                                        }
-                                    }
-                                    if (fleeableExits.Count == 1)
-                                    {
-                                        _currentBackgroundParameters.TargetRoom = fleeableExits[0].Target;
-                                    }
-                                }
+                                _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
                             }
                             _fleeing = false;
                         }
@@ -2270,7 +2282,7 @@ namespace IsengardClient
             AddExit(oBreeTownSquare, oPearlAlley, "alley");
             AddExit(oPearlAlley, oBreeTownSquare, "north");
 
-            Room oBartenderWaitress = AddRoom("Bartender Waitress");
+            Room oBartenderWaitress = AddRoom("Prancing Pony Bar/Wait");
             oBartenderWaitress.Mob1 = "Bartender";
             oBartenderWaitress.Mob2 = "Waitress";
             oBartenderWaitress.Experience1 = 15;
