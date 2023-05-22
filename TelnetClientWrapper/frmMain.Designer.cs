@@ -161,6 +161,7 @@
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnClearCurrentLocation = new System.Windows.Forms.Button();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -372,13 +373,13 @@
             this.btnSetCurrentLocation.Name = "btnSetCurrentLocation";
             this.btnSetCurrentLocation.Size = new System.Drawing.Size(116, 21);
             this.btnSetCurrentLocation.TabIndex = 24;
-            this.btnSetCurrentLocation.Text = "Set Current Location";
+            this.btnSetCurrentLocation.Text = "Set Location";
             this.btnSetCurrentLocation.UseVisualStyleBackColor = true;
             this.btnSetCurrentLocation.Click += new System.EventHandler(this.btnSetCurrentLocation_Click);
             // 
             // btnGoToLocation
             // 
-            this.btnGoToLocation.Location = new System.Drawing.Point(611, 521);
+            this.btnGoToLocation.Location = new System.Drawing.Point(610, 545);
             this.btnGoToLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToLocation.Name = "btnGoToLocation";
             this.btnGoToLocation.Size = new System.Drawing.Size(116, 21);
@@ -443,7 +444,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(611, 548);
+            this.btnAbort.Location = new System.Drawing.Point(612, 570);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(116, 21);
@@ -947,6 +948,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
             this.pnlMain.Controls.Add(this.grpSingleMove);
             this.pnlMain.Controls.Add(this.btnSetAutoHazyThreshold);
             this.pnlMain.Controls.Add(this.txtAutoHazyThreshold);
@@ -1708,6 +1710,17 @@
             this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
             this.tsmiClearConsole.Text = "Clear";
             // 
+            // btnClearCurrentLocation
+            // 
+            this.btnClearCurrentLocation.Location = new System.Drawing.Point(612, 520);
+            this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
+            this.btnClearCurrentLocation.Size = new System.Drawing.Size(116, 21);
+            this.btnClearCurrentLocation.TabIndex = 118;
+            this.btnClearCurrentLocation.Text = "Clear Location";
+            this.btnClearCurrentLocation.UseVisualStyleBackColor = true;
+            this.btnClearCurrentLocation.Click += new System.EventHandler(this.btnClearCurrentLocation_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1884,6 +1897,7 @@
         private System.Windows.Forms.GroupBox grpSingleMove;
         private System.Windows.Forms.CheckBox chkExecuteMove;
         private System.Windows.Forms.Button btnExitSingleMove;
+        private System.Windows.Forms.Button btnClearCurrentLocation;
     }
 }
 

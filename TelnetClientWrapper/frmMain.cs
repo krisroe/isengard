@@ -3783,6 +3783,12 @@ namespace IsengardClient
             }
         }
 
+        private void btnClearCurrentLocation_Click(object sender, EventArgs e)
+        {
+            m_oCurrentRoom = null;
+            txtCurrentRoom.Text = string.Empty;
+        }
+
         private void btnGoToLocation_Click(object sender, EventArgs e)
         {
             if (m_oCurrentRoom == null)
