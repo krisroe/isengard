@@ -1222,7 +1222,7 @@ namespace IsengardClient
                 pms.SetTargetRoomIfCancelled = true;
             }
 
-            if (m != null && m.Flee)
+            if (pms.Flee)
             {
                 _fleeing = true;
             }
@@ -1292,7 +1292,8 @@ namespace IsengardClient
                         if (!_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
-                    if (_fleeResult.Value)
+                    bool? currentFleeResult = _fleeResult;
+                    if (currentFleeResult.GetValueOrDefault(false))
                     {
                         Room r = m_oCurrentRoom;
                         if (r != null)
@@ -3789,6 +3790,7 @@ namespace IsengardClient
             public bool AutoMana { get; set; }
             public PromptedSkills UsedSkills { get; set; }
             public bool AutoHazy { get; set; }
+            public bool Flee { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3920,6 +3922,7 @@ namespace IsengardClient
             _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
             _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _currentBackgroundParameters.UsedSkills = activatedSkills;
+            _currentBackgroundParameters.Flee = m.Flee;
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
@@ -4376,14 +4379,18 @@ namespace IsengardClient
 
         private void btnFlee_Click(object sender, EventArgs e)
         {
-            _fleeing = true;
             if (_currentBackgroundParameters == null)
             {
                 _currentBackgroundParameters = new BackgroundWorkerParameters();
                 _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
                 _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
                 _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
+                _currentBackgroundParameters.Flee = true;
                 RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
+            }
+            else
+            {
+                _fleeing = true;
             }
         }
 
