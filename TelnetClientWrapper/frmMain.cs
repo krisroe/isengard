@@ -452,6 +452,7 @@ namespace IsengardClient
             _quitting = false;
             _finishedQuit = false;
             _currentStatusLastComputed = null;
+            _ranStartupCommands = false;
             _promptedUserName = false;
             _promptedPassword = false;
             _enteredUserName = false;
@@ -627,11 +628,13 @@ namespace IsengardClient
 
                     if (!_enteredUserName && _promptedUserName)
                     {
+                        Thread.Sleep(250);
                         SendCommand(_username, false, false);
                         _enteredUserName = true;
                     }
                     if (_enteredUserName && !_enteredPassword && _promptedPassword)
                     {
+                        Thread.Sleep(250);
                         SendCommand(_password, true, false);
                         _enteredPassword = true;
                     }
@@ -3794,6 +3797,7 @@ namespace IsengardClient
         {
             m_oCurrentRoom = null;
             txtCurrentRoom.Text = string.Empty;
+            RefreshEnabledForSingleMoveButtons();
         }
 
         private void btnGoToLocation_Click(object sender, EventArgs e)
