@@ -761,6 +761,9 @@ namespace IsengardClient
                     case 37:
                         c = '%';
                         break;
+                    case 38:
+                        c = '&';
+                        break;
                     case 39:
                         c = '\'';
                         break;
@@ -823,6 +826,12 @@ namespace IsengardClient
                         break;
                     case 59:
                         c = ';';
+                        break;
+                    case 60:
+                        c = '<';
+                        break;
+                    case 62:
+                        c = '>';
                         break;
                     case 63:
                         c = '?';

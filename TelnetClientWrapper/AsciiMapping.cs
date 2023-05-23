@@ -29,6 +29,7 @@ namespace IsengardClient
             ret['"'] = 34;
             ret['#'] = 35;
             ret['%'] = 37;
+            ret['&'] = 38;
             ret['\''] = 39;
             ret['('] = ASCII_LEFT_PAREN;
             ret[')'] = ASCII_RIGHT_PAREN;
@@ -50,6 +51,8 @@ namespace IsengardClient
             ret['9'] = ASCII_NUMBER_NINE;
             ret[':'] = ASCII_COLON;
             ret[';'] = 59;
+            ret['<'] = 60;
+            ret['>'] = 62;
             ret['?'] = 63;
             ret['@'] = 64;
             ret['A'] = ASCII_UPPERCASE_A;
