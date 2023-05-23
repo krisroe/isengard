@@ -29,7 +29,6 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
         private bool? _setDay;
-        private bool _quitting;
         private bool _finishedQuit;
         private List<string> _newSpellsCast;
         private bool _doScore;
@@ -105,10 +104,14 @@ namespace IsengardClient
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
         private bool _fleeing;
-        private bool? _fleeResult;
         private bool? _manashieldResult;
         private int _waitSeconds = 0;
         private bool _fumbled;
+
+        /// <summary>
+        /// result for the flee or quit commands
+        /// </summary>
+        private bool? _commandResult;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -403,7 +406,7 @@ namespace IsengardClient
             {
                 command += " " + txtEmoteTarget.Text;
             }
-            SendCommand(command, false, false);
+            SendCommand(command, false);
         }
 
         private class EmoteButton : Button
@@ -449,7 +452,6 @@ namespace IsengardClient
         private void DoConnect()
         {
             ClearConsole();
-            _quitting = false;
             _finishedQuit = false;
             _currentStatusLastComputed = null;
             _ranStartupCommands = false;
@@ -468,11 +470,7 @@ namespace IsengardClient
 
         private void _bwNetwork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (_quitting && _finishedQuit)
-            {
-                this.Close();
-            }
-            else
+            if (!_finishedQuit)
             {
                 if (MessageBox.Show("Disconnected. Reconnect?", "Disconnected", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
@@ -480,7 +478,6 @@ namespace IsengardClient
                 }
                 else
                 {
-                    _quitting = true;
                     _finishedQuit = true;
                     this.Close();
                 }
@@ -539,10 +536,7 @@ namespace IsengardClient
 
         private void FinishedQuit()
         {
-            if (_quitting)
-            {
-                _finishedQuit = true;
-            }
+            _finishedQuit = true;
         }
 
         private void OnHazy()
@@ -553,14 +547,14 @@ namespace IsengardClient
 
         private void OnFailFlee()
         {
-            _fleeResult = false;
+            _commandResult = false;
             _waitSeconds = 0;
         }
 
         private void OnSuccessfulFlee()
         {
             _fleeing = false;
-            _fleeResult = true;
+            _commandResult = true;
         }
 
         private void OnFailManashield()
@@ -575,7 +569,7 @@ namespace IsengardClient
 
         private void OnWaitXSeconds(int waitSeconds)
         {
-            _fleeResult = false;
+            _commandResult = false;
             _waitSeconds = waitSeconds;
         }
 
@@ -629,13 +623,13 @@ namespace IsengardClient
                     if (!_enteredUserName && _promptedUserName)
                     {
                         Thread.Sleep(250);
-                        SendCommand(_username, false, false);
+                        SendCommand(_username, false);
                         _enteredUserName = true;
                     }
                     if (_enteredUserName && !_enteredPassword && _promptedPassword)
                     {
                         Thread.Sleep(250);
-                        SendCommand(_password, true, false);
+                        SendCommand(_password, true);
                         _enteredPassword = true;
                     }
                 }
@@ -1042,7 +1036,6 @@ namespace IsengardClient
             btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None);
             btnEquipment.Tag = new CommandButtonTag("equipment", CommandType.None);
             btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee);
-            btnQuit.Tag = new CommandButtonTag("quit", CommandType.None);
             btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None);
             btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None);
             btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic);
@@ -1120,32 +1113,39 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            _fleeing = false;
-            _fleeResult = null;
-            if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
+            if (_finishedQuit)
             {
-                SendCommand(_currentBackgroundParameters.FinalCommand, false, false);
-                _currentBackgroundParameters.CommandsRun++;
+                this.Close();
             }
-            if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
+            else
             {
-                SendCommand(_currentBackgroundParameters.FinalCommand2, false, false);
-                _currentBackgroundParameters.CommandsRun++;
-            }
-            if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
-            {
-                Room targetRoom = _currentBackgroundParameters.TargetRoom;
-                if (targetRoom != null)
+                _fleeing = false;
+                _commandResult = null;
+                if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
                 {
-                    SetCurrentRoom(targetRoom);
+                    SendCommand(_currentBackgroundParameters.FinalCommand, false);
+                    _currentBackgroundParameters.CommandsRun++;
                 }
+                if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
+                {
+                    SendCommand(_currentBackgroundParameters.FinalCommand2, false);
+                    _currentBackgroundParameters.CommandsRun++;
+                }
+                if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
+                {
+                    Room targetRoom = _currentBackgroundParameters.TargetRoom;
+                    if (targetRoom != null)
+                    {
+                        SetCurrentRoom(targetRoom);
+                    }
+                }
+                if (_currentBackgroundParameters.UsedSkills != PromptedSkills.None && _currentBackgroundParameters.CommandsRun > 0)
+                {
+                    _doScore = true;
+                }
+                ToggleBackgroundProcess(false);
+                _currentBackgroundParameters = null;
             }
-            if (_currentBackgroundParameters.UsedSkills != PromptedSkills.None && _currentBackgroundParameters.CommandsRun > 0)
-            {
-                _doScore = true;
-            }
-            ToggleBackgroundProcess(false);
-            _currentBackgroundParameters = null;
         }
 
         private void SetCurrentRoom(Room r)
@@ -1200,12 +1200,12 @@ namespace IsengardClient
                     if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
                     {
                         int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                        WaitUntilNextCommand(remainingMS, false);
+                        WaitUntilNextCommand(remainingMS, false, false);
                     }
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
                     _manashieldResult = null;
-                    SendCommand("manashield", false, false);
+                    SendCommand("manashield", false);
                     _currentBackgroundParameters.CommandsRun++;
                     currentAttempts++;
                     dtLastCombatCycle = DateTime.UtcNow;
@@ -1233,12 +1233,12 @@ namespace IsengardClient
             {
                 if (!string.IsNullOrEmpty(preExit.PreCommand))
                 {
-                    SendCommand(preExit.PreCommand, false, false);
+                    SendCommand(preExit.PreCommand, false);
                     pms.CommandsRun++;
                 }
                 string nextCommand = preExit.ExitText;
                 if (!preExit.OmitGo) nextCommand = "go " + nextCommand;
-                SendCommand(nextCommand, false, false);
+                SendCommand(nextCommand, false);
                 pms.CommandsRun++;
                 pms.TargetRoom = preExit.Target;
                 pms.SetTargetRoomIfCancelled = true;
@@ -1274,7 +1274,7 @@ namespace IsengardClient
                 {
                     remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
                 }
-                WaitUntilNextCommand(remainingMS, false);
+                WaitUntilNextCommand(remainingMS, false, false);
 
                 if (_bw.CancellationPending) break;
                 if (_fleeing) break;
@@ -1298,7 +1298,7 @@ namespace IsengardClient
                 string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
                 if (!string.IsNullOrEmpty(sWeapon))
                 {
-                    SendCommand("remove " + sWeapon, false, false);
+                    SendCommand("remove " + sWeapon, false);
                     _currentBackgroundParameters.CommandsRun++;
                     if (!_fleeing) return;
                     if (_bw.CancellationPending) return;
@@ -1324,7 +1324,7 @@ namespace IsengardClient
                         //Run the precommand to the single fleeable exit
                         if (!string.IsNullOrEmpty(singleFleeableExit.PreCommand))
                         {
-                            SendCommand(singleFleeableExit.PreCommand, false, false);
+                            SendCommand(singleFleeableExit.PreCommand, false);
                             _currentBackgroundParameters.CommandsRun++;
                         }
                     }
@@ -1333,21 +1333,21 @@ namespace IsengardClient
                 currentAttempts = 0;
                 while (_fleeing && currentAttempts < maxAttempts)
                 {
-                    _fleeResult = null;
-                    SendCommand("flee", false, false);
+                    _commandResult = null;
+                    SendCommand("flee", false);
                     _currentBackgroundParameters.CommandsRun++;
                     currentAttempts++;
-                    while (!_fleeResult.HasValue) //wait for the flee result
+                    while (!_commandResult.HasValue) //wait for the result
                     {
                         Thread.Sleep(50);
                         if (!_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
-                    bool? currentFleeResult = _fleeResult;
+                    bool? currentResult = _commandResult;
                     int waitSeconds = _waitSeconds;
-                    if (currentFleeResult.HasValue)
+                    if (currentResult.HasValue)
                     {
-                        if (currentFleeResult.Value)
+                        if (currentResult.Value)
                         {
                             if (singleFleeableExit != null)
                             {
@@ -1357,8 +1357,39 @@ namespace IsengardClient
                         }
                         else if (waitSeconds > 1)
                         {
-                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), true);
+                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), true, false);
                             if (!_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                        }
+                    }
+                }
+            }
+
+            if (pms.Quit)
+            {
+                currentAttempts = 0;
+                while (currentAttempts < maxAttempts)
+                {
+                    _commandResult = null;
+                    SendCommand("quit", false);
+                    _currentBackgroundParameters.CommandsRun++;
+                    currentAttempts++;
+                    while (!_commandResult.HasValue) //wait for the result
+                    {
+                        Thread.Sleep(50);
+                        if (_bw.CancellationPending) break;
+                    }
+                    bool? currentResult = _commandResult;
+                    int waitSeconds = _waitSeconds;
+                    if (currentResult.HasValue)
+                    {
+                        if (currentResult.Value)
+                        {
+                            break;
+                        }
+                        else if (waitSeconds > 1)
+                        {
+                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), false, true);
                             if (_bw.CancellationPending) break;
                         }
                     }
@@ -1366,17 +1397,17 @@ namespace IsengardClient
             }
         }
 
-        private void WaitUntilNextCommand(int remainingMS, bool fleeing)
+        private void WaitUntilNextCommand(int remainingMS, bool fleeing, bool quitting)
         {
             while (remainingMS > 0)
             {
                 int nextWaitMS = Math.Min(remainingMS, 100);
-                if (fleeing != _fleeing) break;
+                if (!quitting && fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
                 Thread.Sleep(nextWaitMS);
                 remainingMS -= nextWaitMS;
                 RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
-                if (fleeing != _fleeing) break;
+                if (!quitting && fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
             }
         }
@@ -1390,7 +1421,7 @@ namespace IsengardClient
                 string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
                 if (!string.IsNullOrEmpty(sWeapon))
                 {
-                    SendCommand("wield " + sWeapon, false, false);
+                    SendCommand("wield " + sWeapon, false);
                     _currentBackgroundParameters.CommandsRun++;
                 }
                 _fumbled = false;
@@ -1400,7 +1431,7 @@ namespace IsengardClient
             {
                 if (pms.QueuedCommand != null)
                 {
-                    SendCommand(pms.QueuedCommand, false, false);
+                    SendCommand(pms.QueuedCommand, false);
                     pms.CommandsRun++;
                     pms.QueuedCommand = null;
                 }
@@ -1466,7 +1497,7 @@ namespace IsengardClient
                 return;
             }
 
-            SendCommand(actualCommand, false, false);
+            SendCommand(actualCommand, false);
             pms.CommandsRun++;
             if (manaDrain.HasValue)
             {
@@ -1488,7 +1519,7 @@ namespace IsengardClient
                     stop = true; //not much we can do here except stop
                     return;
                 }
-                SendCommand(attackCommand, false, false);
+                SendCommand(attackCommand, false);
                 pms.CommandsRun++;
             }
         }
@@ -1668,6 +1699,7 @@ namespace IsengardClient
         private void ToggleBackgroundProcess(bool running)
         {
             Macro m = _currentBackgroundParameters.Macro;
+            bool quitting = _currentBackgroundParameters.Quit;
             CommandType eRunningCombatCommandTypes = CommandType.Magic | CommandType.Melee | CommandType.Potions;
             if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
             List<Panel> topLevelPanels = new List<Panel>
@@ -1679,11 +1711,14 @@ namespace IsengardClient
             {
                 foreach (Control ctl in p.Controls)
                 {
+                    bool regularLogic = false;
+                    bool regularLogicEnabled = !running;
                     if (ctl is Button)
                     {
                         if (ctl == btnFlee)
                         {
-                            ctl.Enabled = true;
+                            regularLogic = true;
+                            regularLogicEnabled = true;
                         }
                         else if (ctl == btnAbort)
                         {
@@ -1692,27 +1727,39 @@ namespace IsengardClient
                         else if (ctl.Tag is CommandButtonTag)
                         {
                             CommandButtonTag cbt = (CommandButtonTag)ctl.Tag;
-                            ctl.Enabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
+                            regularLogic = true;
+                            regularLogicEnabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
                         }
                         else if (ctl.Tag is string)
                         {
-                            ctl.Enabled = !running;
+                            regularLogic = true;
                         }
                         else
                         {
-                            ctl.Enabled = !running;
+                            regularLogic = true;
                         }
                     }
                     else if (ctl is TextBox)
                     {
                         if (ctl == txtOneOffCommand)
                         {
-                            ctl.Enabled = !running;
+                            regularLogic = true;
                         }
                     }
                     else if (ctl != grpLocations && ctl != grpConsole)
                     {
-                        ctl.Enabled = !running;
+                        regularLogic = true;
+                    }
+                    if (regularLogic)
+                    {
+                        if (running && quitting)
+                        {
+                            ctl.Enabled = false;
+                        }
+                        else
+                        {
+                            ctl.Enabled = regularLogicEnabled;
+                        }
                     }
                 }
             }
@@ -3475,55 +3522,52 @@ namespace IsengardClient
             }
         }
 
-        private void SendCommand(string command, bool IsPassword, bool runIfQuitting)
+        private void SendCommand(string command, bool IsPassword)
         {
-            if (!_quitting || runIfQuitting)
+            List<int> keys = new List<int>();
+            foreach (char c in command)
             {
-                List<int> keys = new List<int>();
-                foreach (char c in command)
+                if (_asciiMapping.TryGetValue(c, out int i))
                 {
-                    if (_asciiMapping.TryGetValue(c, out int i))
-                    {
-                        keys.Add(i);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
+                    keys.Add(i);
                 }
-                List<byte> bytesToWrite = new List<byte>();
-                for (int i = 0; i < keys.Count; i++)
+                else
                 {
-                    bytesToWrite.Add((byte)keys[i]);
-                    Thread.Sleep(1);
+                    throw new InvalidOperationException();
                 }
-                bytesToWrite.Add(13);
-                bytesToWrite.Add(10);
-                lock (_writeToNetworkStreamLock)
+            }
+            List<byte> bytesToWrite = new List<byte>();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                bytesToWrite.Add((byte)keys[i]);
+                Thread.Sleep(1);
+            }
+            bytesToWrite.Add(13);
+            bytesToWrite.Add(10);
+            lock (_writeToNetworkStreamLock)
+            {
+                _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+            }
+            if (!string.IsNullOrEmpty(command))
+            {
+                string sToConsole;
+                if (IsPassword)
                 {
-                    _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < command.Length; i++)
+                    {
+                        sb.Append("*");
+                    }
+                    sToConsole = sb.ToString();
                 }
-                if (!string.IsNullOrEmpty(command))
+                else
                 {
-                    string sToConsole;
-                    if (IsPassword)
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < command.Length; i++)
-                        {
-                            sb.Append("*");
-                        }
-                        sToConsole = sb.ToString();
-                    }
-                    else
-                    {
-                        sToConsole = command;
-                    }
-                    lock (_consoleTextLock)
-                    {
-                        _newConsoleText.Add(sToConsole);
-                        _newConsoleText.Add(Environment.NewLine);
-                    }
+                    sToConsole = command;
+                }
+                lock (_consoleTextLock)
+                {
+                    _newConsoleText.Add(sToConsole);
+                    _newConsoleText.Add(Environment.NewLine);
                 }
             }
         }
@@ -3679,11 +3723,11 @@ namespace IsengardClient
             {
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    SendCommand(exit.PreCommand, false, false);
+                    SendCommand(exit.PreCommand, false);
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                SendCommand(nextCommand, false, false);
+                SendCommand(nextCommand, false);
             }
             SetCurrentRoom(exit.Target);
         }
@@ -3716,7 +3760,7 @@ namespace IsengardClient
             }
             if (move)
             {
-                SendCommand(command, false, false);
+                SendCommand(command, false);
             }
         }
 
@@ -3739,8 +3783,9 @@ namespace IsengardClient
 
         private void btnQuit_Click(object sender, EventArgs e)
         {
-            _quitting = true;
-            SendCommand("quit", false, true);
+            _currentBackgroundParameters = GenerateNewBackgroundParameters();
+            _currentBackgroundParameters.Quit = true;
+            RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
         }
 
         private void btnDoAction_Click(object sender, EventArgs e)
@@ -3768,7 +3813,7 @@ namespace IsengardClient
                 }
                 else //send the command to the telnet window
                 {
-                    SendCommand(command, false, false);
+                    SendCommand(command, false);
                 }
             }
             else
@@ -3822,7 +3867,7 @@ namespace IsengardClient
                 return;
             }
 
-            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            _currentBackgroundParameters = GenerateNewBackgroundParameters();
             int moveGapMS;
             if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
                 moveGapMS = ((IntegerVariable)movegapmsvar).Value;
@@ -3830,7 +3875,6 @@ namespace IsengardClient
                 moveGapMS = 260;
             _currentBackgroundParameters.WaitMS = moveGapMS;
             _currentBackgroundParameters.TargetRoom = targetRoom;
-            _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _pathMapping = new Dictionary<Room, Exit>();
             _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
             _currentSearch.TreeEdge += Alg_TreeEdge;
@@ -3867,6 +3911,15 @@ namespace IsengardClient
             RunCommands(commands, _currentBackgroundParameters);
         }
 
+        private BackgroundWorkerParameters GenerateNewBackgroundParameters()
+        {
+            BackgroundWorkerParameters ret = new BackgroundWorkerParameters();
+            ret.AutoHazy = chkAutoHazy.Checked;
+            ret.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
+            ret.AutoMana = chkAutoMana.Checked;
+            return ret;
+        }
+
         private void RunCommands(List<MacroStepBase> commands, BackgroundWorkerParameters backgroundParameters)
         {
             Dictionary<string, Variable> copyVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
@@ -3900,6 +3953,7 @@ namespace IsengardClient
             public PromptedSkills UsedSkills { get; set; }
             public bool AutoHazy { get; set; }
             public bool Flee { get; set; }
+            public bool Quit { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -3950,7 +4004,7 @@ namespace IsengardClient
                     command += setValue;
                 }
             }
-            SendCommand(command, false, false);
+            SendCommand(command, false);
         }
 
         private void cboSetOption_SelectedIndexChanged(object sender, EventArgs e)
@@ -4022,14 +4076,11 @@ namespace IsengardClient
             if (stop) return;
             string sFinalCommand2 = GetFinalCommand(m.FinalCommand2, m.FinalCommand2ConditionVariable, out stop);
             if (stop) return;
-            _currentBackgroundParameters = new BackgroundWorkerParameters();
+            _currentBackgroundParameters = GenerateNewBackgroundParameters();
             _currentBackgroundParameters.Macro = m;
             _currentBackgroundParameters.PreExit = preExit;
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
-            _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
-            _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
-            _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
             _currentBackgroundParameters.UsedSkills = activatedSkills;
             _currentBackgroundParameters.Flee = m.Flee;
             RunCommands(stepsToRun, _currentBackgroundParameters);
@@ -4328,20 +4379,20 @@ namespace IsengardClient
                     if (runPollTick)
                     {
                         _lastPollTick = dtUtcNow;
-                        SendCommand(string.Empty, false, false);
+                        SendCommand(string.Empty, false);
                     }
                 }
                 if (_doScore)
                 {
                     _doScore = false;
-                    SendCommand("score", false, false);
+                    SendCommand("score", false);
                 }
                 if (_currentStatusLastComputed.HasValue && !_ranStartupCommands)
                 {
                     _ranStartupCommands = true;
                     foreach (string nextCommand in _startupCommands)
                     {
-                        SendCommand(nextCommand, false, false);
+                        SendCommand(nextCommand, false);
                     }
                 }
                 if (_setDay.HasValue)
@@ -4373,7 +4424,7 @@ namespace IsengardClient
             if (m_oCurrentRoom != _treeOfLife && !_autoHazied && AutoHazyActive && autoHitpoints.HasValue && autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
-                SendCommand("drink hazy", false, false);
+                SendCommand("drink hazy", false);
             }
         }
 
@@ -4410,7 +4461,7 @@ namespace IsengardClient
         {
             if (e.KeyChar == (char)Keys.Return)
             {
-                SendCommand(txtOneOffCommand.Text, false, false);
+                SendCommand(txtOneOffCommand.Text, false);
                 txtOneOffCommand.SelectAll();
             }
         }
@@ -4434,14 +4485,14 @@ namespace IsengardClient
 
         private void btnEmote_Click(object sender, EventArgs e)
         {
-            SendCommand("emote " + txtCommandText.Text, false, false);
+            SendCommand("emote " + txtCommandText.Text, false);
             txtCommandText.Focus();
             txtCommandText.SelectAll();
         }
 
         private void btnSay_Click(object sender, EventArgs e)
         {
-            SendCommand("say " + txtCommandText.Text, false, false);
+            SendCommand("say " + txtCommandText.Text, false);
             txtCommandText.Focus();
             txtCommandText.SelectAll();
         }
