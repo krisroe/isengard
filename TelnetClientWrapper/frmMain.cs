@@ -578,6 +578,11 @@ namespace IsengardClient
             _fumbled = true;
         }
 
+        private void OnVigor()
+        {
+            _commandResult = true;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<ISequence> sequences = new List<ISequence>()
@@ -603,6 +608,7 @@ namespace IsengardClient
                 new ConstantSequence("You run like a chicken.", OnSuccessfulFlee, _asciiMapping),
                 new PleaseWaitXSecondsSequence(_asciiMapping, OnWaitXSeconds),
                 new ConstantSequence("You FUMBLED your weapon.", OnFumbled, _asciiMapping),
+                new ConstantSequence("Vigor spell cast.", OnVigor, _asciiMapping),
             };
 
             while (true)
@@ -1188,27 +1194,84 @@ namespace IsengardClient
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
 
-            //Activate skills
             int maxAttempts = 20;
             int currentAttempts = 0;
             DateTime? dtLastCombatCycle = null;
             int combatCycleInterval = ((IntegerVariable)pms.Variables["combatcycleinterval"]).Value;
-            if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
+
+            //Heal
+            if (m != null && m.Heal)
             {
-                while (currentAttempts < maxAttempts)
+                int? autohp, automp;
+                while (true)
                 {
+                    autohp = _autoHitpoints;
+                    automp = _autoMana;
+                    if (!autohp.HasValue) break;
+                    if (autohp.Value >= _totalhp) break;
+                    if (!automp.HasValue) break;
+                    if (automp.Value < 2) break; //out of mana for vigor cast
+                    currentAttempts = 0;
                     if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
                     {
                         int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
                         WaitUntilNextCommand(remainingMS, false, false);
                     }
+                    while (currentAttempts < maxAttempts)
+                    {
+                        if (_fleeing) break;
+                        if (_bw.CancellationPending) break;
+                        _commandResult = null;
+                        SendCommand("cast vigor", false);
+                        _currentBackgroundParameters.CommandsRun++;
+                        currentAttempts++;
+                        while (!_commandResult.HasValue)
+                        {
+                            Thread.Sleep(50);
+                            RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                        }
+                        if (_commandResult.Value)
+                        {
+                            dtLastCombatCycle = DateTime.UtcNow;
+                        }
+                        else if (_waitSeconds > 1)
+                        {
+                            WaitUntilNextCommand(500 + (1000 * (_waitSeconds - 2)), false, false);
+                        }
+                        if (_fleeing) break;
+                        if (_bw.CancellationPending) break;
+                        autohp = _autoHitpoints;
+                        if (autohp.Value >= _totalhp) break;
+                    }
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
+                    autohp = _autoHitpoints;
+                    if (autohp.Value >= _totalhp) break;
+                }
+                //stop background processing if failed to get to max hitpoints
+                autohp = _autoHitpoints;
+                if (autohp.Value < _totalhp) return;
+            }
+
+            //Activate skills
+            if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
+            {
+                currentAttempts = 0;
+                if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
+                {
+                    int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                    WaitUntilNextCommand(remainingMS, false, false);
+                }
+                while (currentAttempts < maxAttempts)
+                {
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
                     _manashieldResult = null;
                     SendCommand("manashield", false);
                     _currentBackgroundParameters.CommandsRun++;
                     currentAttempts++;
-                    dtLastCombatCycle = DateTime.UtcNow;
                     while (!_manashieldResult.HasValue)
                     {
                         Thread.Sleep(50);
@@ -1219,10 +1282,13 @@ namespace IsengardClient
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
 
-                    //stop if successfully manashielded
-                    if (_manashieldResult.HasValue && _manashieldResult.Value)
+                    if (_manashieldResult.HasValue)
                     {
-                        break;
+                        dtLastCombatCycle = DateTime.UtcNow;
+                        if (_manashieldResult.Value) //stop if successful
+                        {
+                            break;
+                        }
                     }
                 }
             }

@@ -95,5 +95,6 @@
   </Macro>
   <Macro name="Flee" oneclick="true" flee="true"/>
   <Macro name="Skills" oneclick="true" skills="true"/>
+  <Macro name="Heal" oneclick="true" heal="true"/>
  </Macros>
 </Configuration>

@@ -436,6 +436,17 @@ namespace IsengardClient
                         }
                     }
 
+                    string sHeal = elemMacro.GetAttribute("heal");
+                    bool bHeal = false;
+                    if (!string.IsNullOrEmpty(sHeal))
+                    {
+                        if (!bool.TryParse(sHeal, out bHeal))
+                        {
+                            errorMessages.Add("Invalid heal for " + macroName + " " + sHeal);
+                            continue;
+                        }
+                    }
+
                     string sSkills = elemMacro.GetAttribute("skills");
                     bool bSkills = false;
                     if (!string.IsNullOrEmpty(sSkills))
@@ -456,6 +467,7 @@ namespace IsengardClient
                     oMacro.FinalCommand = sFinalCommand;
                     oMacro.FinalCommand2 = sFinalCommand2;
                     oMacro.Flee = bFlee;
+                    oMacro.Heal = bHeal;
                     oMacro.DoSkills = bSkills;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages, variablesByName);
                     if (foundSteps == null)
