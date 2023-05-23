@@ -1,12 +1,16 @@
 ﻿using Microsoft.VisualBasic;
+using NAudio.Vorbis;
+using NAudio.Wave;
 using QuickGraph;
 using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Media;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -16,6 +20,8 @@ namespace IsengardClient
     {
         private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
+        private VorbisWaveReader _vwr;
+        private WaveOutEvent _woe;
 
         /// <summary>
         /// preferred alignment type for the player. Choose mobs that will push the player in this direction.
@@ -116,6 +122,11 @@ namespace IsengardClient
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
             InitializeComponent();
+
+            string sFullSoundPath = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "En-us-full.ogg");
+            _vwr = new VorbisWaveReader(sFullSoundPath);
+            _woe = new WaveOutEvent();
+            _woe.Init(_vwr);
 
             InitializeEmotes();
 
@@ -4411,7 +4422,7 @@ namespace IsengardClient
                 ((_previoustickautohp.HasValue && _previoustickautohp.Value != autohpforthistick.Value) ||
                 (_previoustickautomp.HasValue && _previoustickautomp.Value != autompforthistick.Value)))
             {
-                SystemSounds.Beep.Play();
+                _woe.Play();
             }
             if (!btnAbort.Enabled)
             {
