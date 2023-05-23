@@ -600,7 +600,7 @@ namespace IsengardClient
             {
                 new ConstantSequence("Please enter name: ", OnNamePrompt, _asciiMapping),
                 new ConstantSequence("Please enter password: ", OnPasswordPrompt, _asciiMapping),
-                new HPMPSequence(_asciiMapping, OnGetHPMP),
+                new HPMPSequence(OnGetHPMP),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, _asciiMapping, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
                 new ConstantSequence("You creative a protective manashield.", OnSuccessfulManashield, _asciiMapping),
@@ -746,7 +746,7 @@ namespace IsengardClient
                     case 9:
                         c = '\t';
                         break;
-                    case 32:
+                    case AsciiMapping.ASCII_SPACE:
                         c = ' ';
                         break;
                     case 33:
@@ -764,10 +764,10 @@ namespace IsengardClient
                     case 39:
                         c = '\'';
                         break;
-                    case 40:
+                    case AsciiMapping.ASCII_LEFT_PAREN:
                         c = '(';
                         break;
-                    case 41:
+                    case AsciiMapping.ASCII_RIGHT_PAREN:
                         c = ')';
                         break;
                     case 42:
@@ -788,7 +788,7 @@ namespace IsengardClient
                     case 47:
                         c = '/';
                         break;
-                    case 48:
+                    case AsciiMapping.ASCII_NUMBER_ZERO:
                         c = '0';
                         break;
                     case 49:
@@ -815,10 +815,10 @@ namespace IsengardClient
                     case 56:
                         c = '8';
                         break;
-                    case 57:
+                    case AsciiMapping.ASCII_NUMBER_NINE:
                         c = '9';
                         break;
-                    case 58:
+                    case AsciiMapping.ASCII_COLON:
                         c = ':';
                         break;
                     case 59:
@@ -830,19 +830,19 @@ namespace IsengardClient
                     case 64:
                         c = '@';
                         break;
-                    case 65:
+                    case AsciiMapping.ASCII_UPPERCASE_A:
                         c = 'A';
                         break;
                     case 66:
                         c = 'B';
                         break;
-                    case 67:
+                    case AsciiMapping.ASCII_UPPERCASE_C:
                         c = 'C';
                         break;
                     case 68:
                         c = 'D';
                         break;
-                    case 69:
+                    case AsciiMapping.ASCII_UPPERCASE_E:
                         c = 'E';
                         break;
                     case 70:
@@ -851,10 +851,10 @@ namespace IsengardClient
                     case 71:
                         c = 'G';
                         break;
-                    case 72:
+                    case AsciiMapping.ASCII_UPPERCASE_H:
                         c = 'H';
                         break;
-                    case 73:
+                    case AsciiMapping.ASCII_UPPERCASE_I:
                         c = 'I';
                         break;
                     case 74:
@@ -866,7 +866,7 @@ namespace IsengardClient
                     case 76:
                         c = 'L';
                         break;
-                    case 77:
+                    case AsciiMapping.ASCII_UPPERCASE_M:
                         c = 'M';
                         break;
                     case 78:
@@ -887,13 +887,13 @@ namespace IsengardClient
                     case 83:
                         c = 'S';
                         break;
-                    case 84:
+                    case AsciiMapping.ASCII_UPPERCASE_T:
                         c = 'T';
                         break;
                     case 85:
                         c = 'U';
                         break;
-                    case 86:
+                    case AsciiMapping.ASCII_UPPERCASE_V:
                         c = 'V';
                         break;
                     case 87:
@@ -908,10 +908,10 @@ namespace IsengardClient
                     case 90:
                         c = 'Z';
                         break;
-                    case 91:
+                    case AsciiMapping.ASCII_LEFT_BRACKET:
                         c = '[';
                         break;
-                    case 93:
+                    case AsciiMapping.ASCII_RIGHT_BRACKET:
                         c = ']';
                         break;
                     case 95:

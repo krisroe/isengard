@@ -53,12 +53,10 @@ namespace IsengardClient
         private List<int> HPNumbers = new List<int>();
         private List<int> MPNumbers = new List<int>();
         private HPMPStep CurrentStep = HPMPStep.None;
-        private Dictionary<char, int> _asciiMapping;
         private Action<int, int> _onSatisfied;
 
-        public HPMPSequence(Dictionary<char, int> asciiMapping, Action<int, int> onSatisfied)
+        public HPMPSequence(Action<int, int> onSatisfied)
         {
-            _asciiMapping = asciiMapping;
             _onSatisfied = onSatisfied;
         }
 
@@ -79,20 +77,20 @@ namespace IsengardClient
             switch (CurrentStep)
             {
                 case HPMPStep.None:
-                    if (nextByte == _asciiMapping['('])
+                    if (nextByte == AsciiMapping.ASCII_LEFT_PAREN)
                         CurrentStep = HPMPStep.LeftParen;
                     break;
                 case HPMPStep.LeftParen:
-                    if (nextByte == _asciiMapping[' '])
+                    if (nextByte == AsciiMapping.ASCII_SPACE)
                     {
                         if (HPNumbers.Count == 0)
                             CurrentStep = HPMPStep.None;
                         else
                             CurrentStep = HPMPStep.AfterHPNumberSpace;
                     }
-                    else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                    else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                     {
-                        HPNumbers.Add(nextByte - _asciiMapping['0']);
+                        HPNumbers.Add(nextByte - AsciiMapping.ASCII_NUMBER_ZERO);
                     }
                     else
                     {
@@ -100,28 +98,28 @@ namespace IsengardClient
                     }
                     break;
                 case HPMPStep.AfterHPNumberSpace:
-                    if (nextByte == _asciiMapping['H'])
+                    if (nextByte == AsciiMapping.ASCII_UPPERCASE_H)
                         CurrentStep = HPMPStep.H;
                     else
                         CurrentStep = HPMPStep.None;
                     break;
                 case HPMPStep.H:
-                    if (nextByte == _asciiMapping[' '])
+                    if (nextByte == AsciiMapping.ASCII_SPACE)
                         CurrentStep = HPMPStep.BeforeMPNumberSpace;
                     else
                         CurrentStep = HPMPStep.None;
                     break;
                 case HPMPStep.BeforeMPNumberSpace:
-                    if (nextByte == _asciiMapping[' '])
+                    if (nextByte == AsciiMapping.ASCII_SPACE)
                     {
                         if (MPNumbers.Count == 0)
                             CurrentStep = HPMPStep.None;
                         else
                             CurrentStep = HPMPStep.AfterMPNumberSpace;
                     }
-                    else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                    else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                     {
-                        MPNumbers.Add(nextByte - _asciiMapping['0']);
+                        MPNumbers.Add(nextByte - AsciiMapping.ASCII_NUMBER_ZERO);
                     }
                     else
                     {
@@ -129,19 +127,19 @@ namespace IsengardClient
                     }
                     break;
                 case HPMPStep.AfterMPNumberSpace:
-                    if (nextByte == _asciiMapping['M'])
+                    if (nextByte == AsciiMapping.ASCII_UPPERCASE_M)
                         CurrentStep = HPMPStep.M;
                     else
                         CurrentStep = HPMPStep.None;
                     break;
                 case HPMPStep.M:
-                    if (nextByte == _asciiMapping[')'])
+                    if (nextByte == AsciiMapping.ASCII_RIGHT_PAREN)
                         CurrentStep = HPMPStep.RightParen;
                     else
                         CurrentStep = HPMPStep.None;
                     break;
                 case HPMPStep.RightParen:
-                    if (nextByte == _asciiMapping[':']) //finished
+                    if (nextByte == AsciiMapping.ASCII_COLON) //finished
                     {
                         int hp = 0;
                         for (int i = 0; i < HPNumbers.Count; i++)
@@ -194,14 +192,12 @@ namespace IsengardClient
         private int _minutes;
         private int _tensOfSeconds;
         private int _seconds;
-        private Dictionary<char, int> _asciiMapping;
         private Action<SkillWithCooldownType, bool, DateTime?> _onSatisfied;
 
         public SkillCooldownSequence(SkillWithCooldownType skillWithCooldownType, Dictionary<char, int> asciiMapping, Action<SkillWithCooldownType, bool, DateTime?> onSatisfied)
         {
             _skillWithCooldownType = skillWithCooldownType;
             _currentStep = SkillCooldownStep.None;
-            _asciiMapping = asciiMapping;
             _onSatisfied = onSatisfied;
             string sPattern;
             switch (_skillWithCooldownType)
@@ -250,7 +246,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.FinishedStartPattern)
             {
-                if (nextByte == _asciiMapping['['])
+                if (nextByte == AsciiMapping.ASCII_LEFT_BRACKET)
                 {
                     _currentStep = SkillCooldownStep.LeftBracket;
                 }
@@ -261,13 +257,13 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.LeftBracket)
             {
-                if (nextByte == _asciiMapping['A'] && CanBeActive())
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_A && CanBeActive())
                 {
                     _currentStep = SkillCooldownStep.A;
                 }
-                else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                 {
-                    _minutes = nextByte - _asciiMapping['0'];
+                    _minutes = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
                     _currentStep = SkillCooldownStep.Minute;
                 }
                 else
@@ -277,7 +273,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.Minute)
             {
-                if (nextByte == _asciiMapping[':'])
+                if (nextByte == AsciiMapping.ASCII_COLON)
                 {
                     _currentStep = SkillCooldownStep.Colon;
                 }
@@ -288,9 +284,9 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.Colon)
             {
-                if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                 {
-                    _tensOfSeconds = nextByte - _asciiMapping['0'];
+                    _tensOfSeconds = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
                     _currentStep = SkillCooldownStep.TensOfSeconds;
                 }
                 else
@@ -300,9 +296,9 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.TensOfSeconds)
             {
-                if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                 {
-                    _seconds = nextByte - _asciiMapping['0'];
+                    _seconds = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
                     _currentStep = SkillCooldownStep.Seconds;
                 }
                 else
@@ -312,7 +308,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.Seconds || _currentStep == SkillCooldownStep.E)
             {
-                if (nextByte == _asciiMapping[']'])
+                if (nextByte == AsciiMapping.ASCII_RIGHT_BRACKET)
                 {
                     bool isActive;
                     DateTime? nextAvailableDate;
@@ -332,7 +328,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.A)
             {
-                if (nextByte == _asciiMapping['C'])
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_C)
                 {
                     _currentStep = SkillCooldownStep.C;
                 }
@@ -343,7 +339,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.C)
             {
-                if (nextByte == _asciiMapping['T'])
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_T)
                 {
                     _currentStep = SkillCooldownStep.T;
                 }
@@ -354,7 +350,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.T)
             {
-                if (nextByte == _asciiMapping['I'])
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_I)
                 {
                     _currentStep = SkillCooldownStep.I;
                 }
@@ -365,7 +361,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.I)
             {
-                if (nextByte == _asciiMapping['V'])
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_V)
                 {
                     _currentStep = SkillCooldownStep.V;
                 }
@@ -376,7 +372,7 @@ namespace IsengardClient
             }
             else if (_currentStep == SkillCooldownStep.V)
             {
-                if (nextByte == _asciiMapping['E'])
+                if (nextByte == AsciiMapping.ASCII_UPPERCASE_E)
                 {
                     _currentStep = SkillCooldownStep.E;
                 }
@@ -394,7 +390,6 @@ namespace IsengardClient
 
     public class PleaseWaitXSecondsSequence : ISequence
     {
-        private Dictionary<char, int> _asciiMapping;
         private Action<int> _onSatisfied;
         private int _currentMatchPoint = -1;
         private List<int> _firstChars;
@@ -413,7 +408,6 @@ namespace IsengardClient
 
         public PleaseWaitXSecondsSequence(Dictionary<char, int> asciiMapping, Action<int> onSatisfied)
         {
-            _asciiMapping = asciiMapping;
             _onSatisfied = onSatisfied;
             _firstChars = ConstantSequence.GenerateBytesForPattern("Please wait ", asciiMapping);
             _secondCharsGreaterThanOne = ConstantSequence.GenerateBytesForPattern("seconds.", asciiMapping);
@@ -443,7 +437,7 @@ namespace IsengardClient
             }
             else if (_currentStep == PleaseWaitXSecondsStep.PastPleaseWait)
             {
-                if (nextByte == _asciiMapping[' '])
+                if (nextByte == AsciiMapping.ASCII_SPACE)
                 {
                     if (_waitNumbers.Count == 0)
                     {
@@ -463,9 +457,9 @@ namespace IsengardClient
                         _currentMatchPoint = -1;
                     }
                 }
-                else if (nextByte >= _asciiMapping['0'] && nextByte <= _asciiMapping['9'])
+                else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
                 {
-                    _waitNumbers.Add(nextByte - _asciiMapping['0']);
+                    _waitNumbers.Add(nextByte - AsciiMapping.ASCII_NUMBER_ZERO);
                 }
             }
             else if (_currentStep == PleaseWaitXSecondsStep.SecondPart)
