@@ -11,9 +11,6 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestSkillCooldownSequence()
         {
-            Dictionary<int, char> reverseAsciiMapping;
-            Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping(out reverseAsciiMapping);
-
             bool skillActive;
             DateTime? availableDate;
             Action<SkillWithCooldownType, bool, DateTime?> getcooldown = (type, isActive, date) =>
@@ -22,15 +19,15 @@ namespace IsengardClient.Tests
                 availableDate = date;
             };
 
-            SkillCooldownSequence scs = new SkillCooldownSequence(SkillWithCooldownType.Manashield, asciiMapping, getcooldown);
+            SkillCooldownSequence scs = new SkillCooldownSequence(SkillWithCooldownType.Manashield, getcooldown);
 
             skillActive = false;
             availableDate = DateTime.UtcNow;
-            PumpSequence(scs, "manashield [ACTIVE]", asciiMapping);
+            scs.FeedLine("manashield [ACTIVE]");
             Assert.IsTrue(skillActive);
             Assert.IsTrue(!availableDate.HasValue);
 
-            PumpSequence(scs, "manashield [2:34]", asciiMapping);
+            scs.FeedLine("manashield [2:34]");
             Assert.IsFalse(skillActive);
             Assert.IsTrue(availableDate.HasValue);
         }
@@ -38,36 +35,25 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestWaitXSecondsSequence()
         {
-            Dictionary<int, char> reverseAsciiMapping;
-            Dictionary<char, int> asciiMapping = AsciiMapping.GetAsciiMapping(out reverseAsciiMapping);
-
             int waited = -1;
             Action<int> waitedAction = (seconds) =>
             {
                 waited = seconds;
             };
 
-            PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(asciiMapping, waitedAction);
+            PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(waitedAction);
 
             waited = -1;
-            PumpSequence(plxss, "Please wait 2 seconds.", asciiMapping);
+            plxss.FeedLine("Please wait 2 seconds.");
             Assert.IsTrue(waited == 2);
 
             waited = -1;
-            PumpSequence(plxss, "Please wait 12 seconds.", asciiMapping);
+            plxss.FeedLine("Please wait 12 seconds.");
             Assert.IsTrue(waited == 12);
 
             waited = -1;
-            PumpSequence(plxss, "Please wait 1 more second.", asciiMapping);
+            plxss.FeedLine("Please wait 1 more second.");
             Assert.IsTrue(waited == 1);
-        }
-
-        public void PumpSequence(ISequence sequence, string text, Dictionary<char, int> asciiMapping)
-        {
-            foreach (char nextCharacter in text)
-            {
-                sequence.FeedByte(asciiMapping[nextCharacter]);
-            }
         }
     }
 }

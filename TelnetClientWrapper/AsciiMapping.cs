@@ -20,7 +20,7 @@ namespace IsengardClient
         public const int ASCII_LEFT_BRACKET = 91;
         public const int ASCII_RIGHT_BRACKET = 93;
 
-        public static Dictionary<char, int> GetAsciiMapping(out Dictionary<int, char> reverseAsciiMapping)
+        public static Dictionary<char, int> GetAsciiMapping()
         {
             Dictionary<char, int> ret = new Dictionary<char, int>();
             ret['\t'] = 9;
@@ -112,13 +112,6 @@ namespace IsengardClient
             ret['y'] = 121;
             ret['z'] = 122;
             ret['|'] = 124;
-
-            reverseAsciiMapping = new Dictionary<int, char>();
-            foreach (KeyValuePair<char, int> next in ret)
-            {
-                reverseAsciiMapping[next.Value] = next.Key;
-            }
-
             return ret;
         }
     }

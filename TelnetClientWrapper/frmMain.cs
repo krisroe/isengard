@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Media;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -89,9 +88,7 @@ namespace IsengardClient
         private Area _aShips;
         private Area _aMisc;
         private Area _aInaccessible;
-        private List<int> _queue = new List<int>();
         private Dictionary<char, int> _asciiMapping;
-        private Dictionary<int, char> _reverseAsciiMapping;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -130,7 +127,7 @@ namespace IsengardClient
 
             InitializeEmotes();
 
-            _asciiMapping = AsciiMapping.GetAsciiMapping(out _reverseAsciiMapping);
+            _asciiMapping = AsciiMapping.GetAsciiMapping();
 
             _variables = variables;
             _variablesByName = variablesByName;
@@ -501,26 +498,9 @@ namespace IsengardClient
             public DateTime? NextAvailableDate { get; set; }
         }
 
-        private void OnNamePrompt()
-        {
-            _promptedUserName = true;
-        }
-
-        private void OnPasswordPrompt()
-        {
-            _promptedPassword = true;
-        }
-
         private void DoScore()
         {
             _doScore = true;
-        }
-
-        private void OnGetHPMP(int hp, int mp)
-        {
-            _autoHitpoints = hp;
-            _autoMana = mp;
-            _currentStatusLastComputed = DateTime.UtcNow;
         }
 
         private void OnGetSkillCooldown(SkillWithCooldownType skillWithCooldownType, bool isActive, DateTime? nextAvailableDate)
@@ -543,11 +523,6 @@ namespace IsengardClient
         private void OnSpellsCastChange(List<string> spells)
         {
             _newSpellsCast = spells;
-        }
-
-        private void FinishedQuit()
-        {
-            _finishedQuit = true;
         }
 
         private void OnHazy()
@@ -596,30 +571,37 @@ namespace IsengardClient
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
-            List<ISequence> sequences = new List<ISequence>()
+            List<int> currentOutputItemData = new List<int>();
+            List<int> nextCharacterQueue = new List<int>();
+
+            List<IOutputItemSequence> outputItemSequences = new List<IOutputItemSequence>()
             {
-                new ConstantSequence("Please enter name: ", OnNamePrompt, _asciiMapping),
-                new ConstantSequence("Please enter password: ", OnPasswordPrompt, _asciiMapping),
-                new HPMPSequence(OnGetHPMP),
-                new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, _asciiMapping, OnGetSkillCooldown),
-                new SkillCooldownSequence(SkillWithCooldownType.Manashield, _asciiMapping, OnGetSkillCooldown),
-                new ConstantSequence("You creative a protective manashield.", OnSuccessfulManashield, _asciiMapping),
-                new ConstantSequence("Your attempt to manashield failed.", OnFailManashield, _asciiMapping),
-                new ConstantSequence("Your manashield dissipates.", DoScore, _asciiMapping),
-                new ConstantSequence("The sun disappears over the horizon.", OnNight, _asciiMapping),
-                new ConstantSequence("The sun rises.", OnDay, _asciiMapping),
-                new SpellsCastSequence(_asciiMapping, _reverseAsciiMapping, OnSpellsCastChange),
-                new ConstantSequence("You feel less protected.", DoScore, _asciiMapping),
-                new ConstantSequence("You feel less holy.", DoScore, _asciiMapping),
-                new ConstantSequence("You feel watched.", DoScore, _asciiMapping),
-                new ConstantSequence("You feel holy.", DoScore, _asciiMapping),
-                new ConstantSequence("Goodbye!", FinishedQuit, _asciiMapping),
-                new ConstantSequence("You phase in and out of existence.", OnHazy, _asciiMapping),
-                new ConstantSequence("You failed to escape!", OnFailFlee, _asciiMapping),
-                new ConstantSequence("You run like a chicken.", OnSuccessfulFlee, _asciiMapping),
-                new PleaseWaitXSecondsSequence(_asciiMapping, OnWaitXSeconds),
-                new ConstantSequence("You FUMBLED your weapon.", OnFumbled, _asciiMapping),
-                new ConstantSequence("Vigor spell cast.", OnVigor, _asciiMapping),
+                new ConstantOutputItemSequence(OutputItemSequenceType.UserNamePrompt, "Please enter name: ", _asciiMapping),
+                new ConstantOutputItemSequence(OutputItemSequenceType.PasswordPrompt, "Please enter password: ", _asciiMapping),
+                new ConstantOutputItemSequence(OutputItemSequenceType.ContinueToNextScreen, "[Hit Return, Q to Quit]: ", _asciiMapping),
+                new ConstantOutputItemSequence(OutputItemSequenceType.Goodbye, "Goodbye!", _asciiMapping),
+                new HPMPSequence(),
+            };
+            List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
+            {
+                new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
+                new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore),
+                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight),
+                new ConstantOutputSequence("The sun rises.", OnDay),
+                new SpellsCastSequence(OnSpellsCastChange),
+                new ConstantOutputSequence("You feel less protected.", DoScore),
+                new ConstantOutputSequence("You feel less holy.", DoScore),
+                new ConstantOutputSequence("You feel watched.", DoScore),
+                new ConstantOutputSequence("You feel holy.", DoScore),
+                new ConstantOutputSequence("You phase in and out of existence.", OnHazy),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee),
+                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee),
+                new PleaseWaitXSecondsSequence(OnWaitXSeconds),
+                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled),
+                new ConstantOutputSequence("Vigor spell cast.", OnVigor),
             };
 
             while (true)
@@ -631,38 +613,79 @@ namespace IsengardClient
                 }
                 else
                 {
-                    foreach (ISequence nextSequence in sequences)
+                    OutputItemInfo oii = null;
+                    foreach (IOutputItemSequence nextSequence in outputItemSequences)
                     {
-                        nextSequence.FeedByte(nextByte);
+                        oii = nextSequence.FeedByte(nextByte);
+                        if (oii != null) break;
                     }
-                    ProcessInputCharacter(nextByte);
+                    currentOutputItemData.Add(nextByte);
+                    if (oii != null)
+                    {
+                        OutputItemSequenceType oist = oii.SequenceType;
+                        if (oist == OutputItemSequenceType.UserNamePrompt)
+                        {
+                            _promptedUserName = true;
+                        }
+                        else if (oist == OutputItemSequenceType.PasswordPrompt)
+                        {
+                            _promptedPassword = true;
+                        }
+                        else if (oist == OutputItemSequenceType.Goodbye)
+                        {
+                            _finishedQuit = true;
+                        }
+                        else if (oist == OutputItemSequenceType.HPMPStatus)
+                        {
+                            _autoHitpoints = oii.HP;
+                            _autoMana = oii.MP;
+                            _currentStatusLastComputed = DateTime.UtcNow;
+                        }
 
-                    if (!_enteredUserName && _promptedUserName)
-                    {
-                        Thread.Sleep(250);
-                        SendCommand(_username, false);
-                        _enteredUserName = true;
-                    }
-                    if (_enteredUserName && !_enteredPassword && _promptedPassword)
-                    {
-                        Thread.Sleep(250);
-                        SendCommand(_password, true);
-                        _enteredPassword = true;
+                        if (!_enteredUserName && _promptedUserName)
+                        {
+                            Thread.Sleep(250);
+                            SendCommand(_username, false);
+                            _enteredUserName = true;
+                        }
+                        else if (_enteredUserName && !_enteredPassword && _promptedPassword)
+                        {
+                            Thread.Sleep(250);
+                            SendCommand(_password, true);
+                            _enteredPassword = true;
+                        }
+
+                        StringBuilder sb = new StringBuilder();
+                        foreach (int nextOutputItemByte in currentOutputItemData)
+                        {
+                            ProcessInputCharacter(nextOutputItemByte, nextCharacterQueue, sb);
+                        }
+
+                        string sNewLine = sb.ToString();
+                        foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
+                        {
+                            nextProcessingSequence.FeedLine(sNewLine);
+                        }
+
+                        lock (_consoleTextLock)
+                        {
+                            _newConsoleText.Add(sNewLine);
+                        }
+
+                        currentOutputItemData.Clear();
+                        nextCharacterQueue.Clear();
                     }
                 }
             }
         }
 
-        private void ProcessInputCharacter(int nextByte)
+        private void ProcessInputCharacter(int nextByte, List<int> queue, StringBuilder textBuilder)
         {
             if (nextByte == 13) //carriage return
             {
-                if (_queue.Count == 1 && _queue[0] == 10)
+                if (queue.Count == 1 && queue[0] == 10)
                 {
-                    lock (_consoleTextLock)
-                    {
-                        _newConsoleText.Add(Environment.NewLine);
-                    }
+                    textBuilder.AppendLine();
                 }
                 else
                 {
@@ -671,22 +694,22 @@ namespace IsengardClient
             }
             else if (nextByte == 10) //line feed
             {
-                _queue.Clear();
-                _queue.Add(10);
+                queue.Clear();
+                queue.Add(10);
             }
             else if (nextByte == 27) //escape
             {
-                _queue.Clear();
-                _queue.Add(27);
+                queue.Clear();
+                queue.Add(27);
             }
-            else if (_queue.Count > 0 && _queue[0] == 27)
+            else if (queue.Count > 0 && queue[0] == 27)
             {
                 if (nextByte == 109) //ends the escape sequence
                 {
                     ConsoleColor? cc;
-                    if (_queue[1] == 91 && _queue[2] == 51)
+                    if (queue[1] == 91 && queue[2] == 51)
                     {
-                        switch (_queue[3])
+                        switch (queue[3])
                         {
                             case 48:
                                 cc = ConsoleColor.Black; //30
@@ -724,11 +747,11 @@ namespace IsengardClient
                     {
                         Console.ForegroundColor = cc.Value;
                     }
-                    _queue.Clear();
+                    queue.Clear();
                 }
                 else
                 {
-                    _queue.Add(nextByte);
+                    queue.Add(nextByte);
                 }
             }
             else
@@ -1029,10 +1052,7 @@ namespace IsengardClient
                         throw new InvalidOperationException();
                 }
                 string sNewString = isUnknown ? "<" + nextByte + ">" : c.ToString();
-                lock (_consoleTextLock)
-                {
-                    _newConsoleText.Add(sNewString);
-                }
+                textBuilder.Append(sNewString);
             }
         }
 
@@ -1245,20 +1265,28 @@ namespace IsengardClient
                         SendCommand("cast vigor", false);
                         _currentBackgroundParameters.CommandsRun++;
                         currentAttempts++;
-                        while (!_commandResult.HasValue)
+                        bool? currentResult;
+                        while (true)
                         {
+                            currentResult = _commandResult;
+                            if (currentResult.HasValue) break;
                             Thread.Sleep(50);
                             RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                         }
-                        if (_commandResult.Value)
+                        if (currentResult.HasValue)
                         {
-                            dtLastCombatCycle = DateTime.UtcNow;
-                        }
-                        else if (_waitSeconds > 1)
-                        {
-                            WaitUntilNextCommand(500 + (1000 * (_waitSeconds - 2)), false, false);
+                            if (currentResult.Value)
+                            {
+                                dtLastCombatCycle = DateTime.UtcNow;
+                            }
+                            else if (_waitSeconds > 1)
+                            {
+                                int waitMS = 500 + (1000 * (_waitSeconds - 2));
+                                WaitUntilNextCommand(waitMS, false, false);
+                            }
+                            break;
                         }
                         if (_fleeing) break;
                         if (_bw.CancellationPending) break;

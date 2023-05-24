@@ -1,15 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace IsengardClient
 {
-    public interface ISequence
+    public interface IOutputItemSequence
     {
-        void FeedByte(int nextByte);
+        OutputItemInfo FeedByte(int nextByte);
     }
 
-    internal class ConstantSequence : ISequence
+    public class OutputItemInfo
+    {
+        public OutputItemSequenceType SequenceType { get; set; }
+        public int? HP { get; set; }
+        public int? MP { get; set; }
+    }
+
+    public enum OutputItemSequenceType
+    {
+        UserNamePrompt,
+        PasswordPrompt,
+        HPMPStatus,
+        ContinueToNextScreen,
+        Goodbye,
+    }
+
+    public interface IOutputProcessingSequence
+    {
+        void FeedLine(string Line);
+    }
+
+    internal class ConstantOutputItemSequence : IOutputItemSequence
+    {
+        private ConstantSequence _cs;
+        private OutputItemSequenceType _sequenceType;
+        public ConstantOutputItemSequence(OutputItemSequenceType sequenceType, string pattern, Dictionary<char, int> asciiMapping)
+        {
+            _cs = new ConstantSequence(pattern, null, asciiMapping);
+            _sequenceType = sequenceType;
+        }
+
+        public OutputItemInfo FeedByte(int nextByte)
+        {
+            OutputItemInfo ret = null;
+            if (_cs.FeedByte(nextByte))
+            {
+                ret = new OutputItemInfo();
+                ret.SequenceType = _sequenceType;
+            }
+            return ret;
+        }
+    }
+
+    internal class ConstantOutputSequence : IOutputProcessingSequence
+    {
+        private Action _onSatisfied;
+        private string _characters;
+        public ConstantOutputSequence(string characters, Action onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+            _characters = characters;
+        }
+
+        public void FeedLine(string Line)
+        {
+            if (Line.Contains(_characters))
+            {
+                _onSatisfied();
+            }
+        }
+    }
+
+    internal class ConstantSequence
     {
         private int _currentMatchPoint = -1;
         private List<int> _chars;
@@ -30,35 +93,34 @@ namespace IsengardClient
             return ret;
         }
 
-        public void FeedByte(int nextByte)
+        public bool FeedByte(int nextByte)
         {
             if (_chars[_currentMatchPoint + 1] == nextByte)
             {
                 _currentMatchPoint++;
                 if (_currentMatchPoint == _chars.Count - 1) //reached end of sequence
                 {
-                    _onSatisfied();
+                    if (_onSatisfied != null)
+                    {
+                        _onSatisfied();
+                    }
                     _currentMatchPoint = -1;
+                    return true;
                 }
             }
             else
             {
                 _currentMatchPoint = -1;
             }
+            return false;
         }
     }
 
-    internal class HPMPSequence : ISequence
+    internal class HPMPSequence : IOutputItemSequence
     {
         private List<int> HPNumbers = new List<int>();
         private List<int> MPNumbers = new List<int>();
         private HPMPStep CurrentStep = HPMPStep.None;
-        private Action<int, int> _onSatisfied;
-
-        public HPMPSequence(Action<int, int> onSatisfied)
-        {
-            _onSatisfied = onSatisfied;
-        }
 
         private enum HPMPStep
         {
@@ -70,10 +132,12 @@ namespace IsengardClient
             AfterMPNumberSpace,
             M,
             RightParen,
+            Colon,
         }
 
-        public void FeedByte(int nextByte)
+        public OutputItemInfo FeedByte(int nextByte)
         {
+            OutputItemInfo ret = null;
             switch (CurrentStep)
             {
                 case HPMPStep.None:
@@ -139,7 +203,14 @@ namespace IsengardClient
                         CurrentStep = HPMPStep.None;
                     break;
                 case HPMPStep.RightParen:
-                    if (nextByte == AsciiMapping.ASCII_COLON) //finished
+                    if (nextByte == AsciiMapping.ASCII_COLON)
+                        CurrentStep = HPMPStep.Colon;
+                    else
+                        CurrentStep = HPMPStep.None;
+                    break;
+                case HPMPStep.Colon:
+                    CurrentStep = HPMPStep.None;
+                    if (nextByte == AsciiMapping.ASCII_SPACE) //finished
                     {
                         int hp = 0;
                         for (int i = 0; i < HPNumbers.Count; i++)
@@ -151,9 +222,11 @@ namespace IsengardClient
                         {
                             mp = (mp * 10) + MPNumbers[i];
                         }
-                        _onSatisfied(hp, mp);
+                        ret = new OutputItemInfo();
+                        ret.SequenceType = OutputItemSequenceType.HPMPStatus;
+                        ret.HP = hp;
+                        ret.MP = mp;
                     }
-                    CurrentStep = HPMPStep.None;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -163,10 +236,11 @@ namespace IsengardClient
                 HPNumbers.Clear();
                 MPNumbers.Clear();
             }
+            return ret;
         }
     }
 
-    public class SkillCooldownSequence : ISequence
+    public class SkillCooldownSequence : IOutputProcessingSequence
     {
         private enum SkillCooldownStep
         {
@@ -185,19 +259,13 @@ namespace IsengardClient
             E
         }
 
-        private SkillCooldownStep _currentStep;
         private SkillWithCooldownType _skillWithCooldownType;
-        private int _currentMatchPoint = -1;
-        private List<int> _chars;
-        private int _minutes;
-        private int _tensOfSeconds;
-        private int _seconds;
+        private List<char> _chars;
         private Action<SkillWithCooldownType, bool, DateTime?> _onSatisfied;
 
-        public SkillCooldownSequence(SkillWithCooldownType skillWithCooldownType, Dictionary<char, int> asciiMapping, Action<SkillWithCooldownType, bool, DateTime?> onSatisfied)
+        public SkillCooldownSequence(SkillWithCooldownType skillWithCooldownType, Action<SkillWithCooldownType, bool, DateTime?> onSatisfied)
         {
             _skillWithCooldownType = skillWithCooldownType;
-            _currentStep = SkillCooldownStep.None;
             _onSatisfied = onSatisfied;
             string sPattern;
             switch (_skillWithCooldownType)
@@ -212,10 +280,11 @@ namespace IsengardClient
                     throw new InvalidOperationException();
             }
             sPattern += " ";
-            _chars = ConstantSequence.GenerateBytesForPattern(sPattern, asciiMapping);
-            _minutes = 0;
-            _tensOfSeconds = 0;
-            _seconds = 0;
+            _chars = new List<char>();
+            foreach (char c in sPattern)
+            {
+                _chars.Add(c);
+            }
         }
 
         private bool CanBeActive()
@@ -223,181 +292,186 @@ namespace IsengardClient
             return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
-        public void FeedByte(int nextByte)
+        public void FeedLine(string nextLine)
         {
-            bool startedAtNone = false;
-            if (_currentStep == SkillCooldownStep.None)
+            SkillCooldownStep currentStep = SkillCooldownStep.None;
+            int currentMatchPoint = -1;
+            int minutes = 0;
+            int tensOfSeconds = 0;
+            int seconds = 0;
+            foreach (char nextCharacter in nextLine)
             {
-                startedAtNone = true;
-                int nextCharToMatch = _chars[_currentMatchPoint + 1];
-                if (nextCharToMatch == nextByte)
+                bool startedAtNone = false;
+                if (currentStep == SkillCooldownStep.None)
                 {
-                    _currentMatchPoint++;
-                    if (_currentMatchPoint == _chars.Count - 1) //finished start pattern
+                    startedAtNone = true;
+                    char nextCharToMatch = _chars[currentMatchPoint + 1];
+                    if (nextCharToMatch == nextCharacter)
                     {
-                        _currentStep = SkillCooldownStep.FinishedStartPattern;
-                        _currentMatchPoint = -1;
+                        currentMatchPoint++;
+                        if (currentMatchPoint == _chars.Count - 1) //finished start pattern
+                        {
+                            currentStep = SkillCooldownStep.FinishedStartPattern;
+                            currentMatchPoint = -1;
+                        }
+                    }
+                    else //start over
+                    {
+                        currentMatchPoint = -1;
                     }
                 }
-                else //start over
+                else if (currentStep == SkillCooldownStep.FinishedStartPattern)
                 {
-                    _currentMatchPoint = -1;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.FinishedStartPattern)
-            {
-                if (nextByte == AsciiMapping.ASCII_LEFT_BRACKET)
-                {
-                    _currentStep = SkillCooldownStep.LeftBracket;
-                }
-                else
-                {
-                    _currentStep = SkillCooldownStep.None;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.LeftBracket)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_A && CanBeActive())
-                {
-                    _currentStep = SkillCooldownStep.A;
-                }
-                else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
-                {
-                    _minutes = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
-                    _currentStep = SkillCooldownStep.Minute;
-                }
-                else
-                {
-                    _currentStep = SkillCooldownStep.None;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.Minute)
-            {
-                if (nextByte == AsciiMapping.ASCII_COLON)
-                {
-                    _currentStep = SkillCooldownStep.Colon;
-                }
-                else
-                {
-                    _currentStep = SkillCooldownStep.None;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.Colon)
-            {
-                if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
-                {
-                    _tensOfSeconds = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
-                    _currentStep = SkillCooldownStep.TensOfSeconds;
-                }
-                else
-                {
-                    _currentStep = SkillCooldownStep.None;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.TensOfSeconds)
-            {
-                if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
-                {
-                    _seconds = nextByte - AsciiMapping.ASCII_NUMBER_ZERO;
-                    _currentStep = SkillCooldownStep.Seconds;
-                }
-                else
-                {
-                    _currentStep = SkillCooldownStep.None;
-                }
-            }
-            else if (_currentStep == SkillCooldownStep.Seconds || _currentStep == SkillCooldownStep.E)
-            {
-                if (nextByte == AsciiMapping.ASCII_RIGHT_BRACKET)
-                {
-                    bool isActive;
-                    DateTime? nextAvailableDate;
-                    if (_currentStep == SkillCooldownStep.Seconds)
+                    if (nextCharacter == '[')
                     {
-                        isActive = false;
-                        nextAvailableDate = DateTime.UtcNow.Add(new TimeSpan(0, _minutes, _tensOfSeconds * 10 + _seconds));
+                        currentStep = SkillCooldownStep.LeftBracket;
                     }
                     else
                     {
-                        isActive = true;
-                        nextAvailableDate = null;
+                        currentStep = SkillCooldownStep.None;
                     }
-                    _onSatisfied(_skillWithCooldownType, isActive, nextAvailableDate);
                 }
-                _currentStep = SkillCooldownStep.None;
-            }
-            else if (_currentStep == SkillCooldownStep.A)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_C)
+                else if (currentStep == SkillCooldownStep.LeftBracket)
                 {
-                    _currentStep = SkillCooldownStep.C;
+                    if (nextCharacter == 'A' && CanBeActive())
+                    {
+                        currentStep = SkillCooldownStep.A;
+                    }
+                    else if (nextCharacter >= '0' && nextCharacter <= '9')
+                    {
+                        minutes = nextCharacter - '0';
+                        currentStep = SkillCooldownStep.Minute;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-                else
+                else if (currentStep == SkillCooldownStep.Minute)
                 {
-                    _currentStep = SkillCooldownStep.None;
+                    if (nextCharacter == ':')
+                    {
+                        currentStep = SkillCooldownStep.Colon;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-            }
-            else if (_currentStep == SkillCooldownStep.C)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_T)
+                else if (currentStep == SkillCooldownStep.Colon)
                 {
-                    _currentStep = SkillCooldownStep.T;
+                    if (nextCharacter >= '0' && nextCharacter <= '9')
+                    {
+                        tensOfSeconds = nextCharacter - '0';
+                        currentStep = SkillCooldownStep.TensOfSeconds;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-                else
+                else if (currentStep == SkillCooldownStep.TensOfSeconds)
                 {
-                    _currentStep = SkillCooldownStep.None;
+                    if (nextCharacter >= '0' && nextCharacter <= '9')
+                    {
+                        seconds = nextCharacter - '0';
+                        currentStep = SkillCooldownStep.Seconds;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-            }
-            else if (_currentStep == SkillCooldownStep.T)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_I)
+                else if (currentStep == SkillCooldownStep.Seconds || currentStep == SkillCooldownStep.E)
                 {
-                    _currentStep = SkillCooldownStep.I;
+                    if (nextCharacter == ']')
+                    {
+                        bool isActive;
+                        DateTime? nextAvailableDate;
+                        if (currentStep == SkillCooldownStep.Seconds)
+                        {
+                            isActive = false;
+                            nextAvailableDate = DateTime.UtcNow.Add(new TimeSpan(0, minutes, tensOfSeconds * 10 + seconds));
+                        }
+                        else
+                        {
+                            isActive = true;
+                            nextAvailableDate = null;
+                        }
+                        _onSatisfied(_skillWithCooldownType, isActive, nextAvailableDate);
+                    }
+                    currentStep = SkillCooldownStep.None;
                 }
-                else
+                else if (currentStep == SkillCooldownStep.A)
                 {
-                    _currentStep = SkillCooldownStep.None;
+                    if (nextCharacter == 'C')
+                    {
+                        currentStep = SkillCooldownStep.C;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-            }
-            else if (_currentStep == SkillCooldownStep.I)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_V)
+                else if (currentStep == SkillCooldownStep.C)
                 {
-                    _currentStep = SkillCooldownStep.V;
+                    if (nextCharacter == 'T')
+                    {
+                        currentStep = SkillCooldownStep.T;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-                else
+                else if (currentStep == SkillCooldownStep.T)
                 {
-                    _currentStep = SkillCooldownStep.None;
+                    if (nextCharacter == 'I')
+                    {
+                        currentStep = SkillCooldownStep.I;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-            }
-            else if (_currentStep == SkillCooldownStep.V)
-            {
-                if (nextByte == AsciiMapping.ASCII_UPPERCASE_E)
+                else if (currentStep == SkillCooldownStep.I)
                 {
-                    _currentStep = SkillCooldownStep.E;
+                    if (nextCharacter == 'V')
+                    {
+                        currentStep = SkillCooldownStep.V;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-                else
+                else if (currentStep == SkillCooldownStep.V)
                 {
-                    _currentStep = SkillCooldownStep.None;
+                    if (nextCharacter == 'E')
+                    {
+                        currentStep = SkillCooldownStep.E;
+                    }
+                    else
+                    {
+                        currentStep = SkillCooldownStep.None;
+                    }
                 }
-            }
-            if (!startedAtNone && _currentStep == SkillCooldownStep.None)
-            {
-                _currentMatchPoint = -1;
+                if (!startedAtNone && currentStep == SkillCooldownStep.None)
+                {
+                    currentMatchPoint = -1;
+                }
             }
         }
     }
 
-    public class PleaseWaitXSecondsSequence : ISequence
+    public class PleaseWaitXSecondsSequence : IOutputProcessingSequence
     {
         private Action<int> _onSatisfied;
-        private int _currentMatchPoint = -1;
-        private List<int> _firstChars;
-        private List<int> _secondCharsGreaterThanOne;
-        private List<int> _secondCharsOne;
-        private List<int> _secondChars;
-        private List<int> _waitNumbers;
-        private PleaseWaitXSecondsStep _currentStep;
+        private List<char> _firstChars;
+        private List<char> _secondCharsGreaterThanOne;
+        private List<char> _secondCharsOne;
+        private List<char> _secondChars;
 
         private enum PleaseWaitXSecondsStep
         {
@@ -406,146 +480,164 @@ namespace IsengardClient
             SecondPart,
         }
 
-        public PleaseWaitXSecondsSequence(Dictionary<char, int> asciiMapping, Action<int> onSatisfied)
+        public PleaseWaitXSecondsSequence(Action<int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
-            _firstChars = ConstantSequence.GenerateBytesForPattern("Please wait ", asciiMapping);
-            _secondCharsGreaterThanOne = ConstantSequence.GenerateBytesForPattern("seconds.", asciiMapping);
-            _secondCharsOne = ConstantSequence.GenerateBytesForPattern("more second.", asciiMapping);
-            _waitNumbers = new List<int>();
+            _firstChars = new List<char>();
+            foreach (char c in "Please wait ")
+            {
+                _firstChars.Add(c);
+            }
+            _secondCharsGreaterThanOne = new List<char>();
+            foreach (char c in "seconds.")
+            {
+                _secondCharsGreaterThanOne.Add(c);
+            }
+            _secondCharsOne = new List<char>();
+            foreach (char c in "more second.")
+            {
+                _secondCharsOne.Add(c);
+            }
         }
 
-        public void FeedByte(int nextByte)
+        public void FeedLine(string nextLine)
         {
-            if (_currentStep == PleaseWaitXSecondsStep.None)
+            List<int> waitNumbers = new List<int>();
+            int currentMatchPoint = -1;
+            PleaseWaitXSecondsStep currentStep = PleaseWaitXSecondsStep.None;
+            foreach (char nextCharacter in nextLine)
             {
-                int nextCharToMatch = _firstChars[_currentMatchPoint + 1];
-                if (nextCharToMatch == nextByte)
+                if (currentStep == PleaseWaitXSecondsStep.None)
                 {
-                    _currentMatchPoint++;
-                    if (_currentMatchPoint == _firstChars.Count - 1) //finished start pattern
+                    char nextCharToMatch = _firstChars[currentMatchPoint + 1];
+                    if (nextCharToMatch == nextCharacter)
                     {
-                        _currentStep = PleaseWaitXSecondsStep.PastPleaseWait;
-                        _currentMatchPoint = -1;
-                        _waitNumbers.Clear();
-                    }
-                }
-                else //start over
-                {
-                    _currentMatchPoint = -1;
-                }
-            }
-            else if (_currentStep == PleaseWaitXSecondsStep.PastPleaseWait)
-            {
-                if (nextByte == AsciiMapping.ASCII_SPACE)
-                {
-                    if (_waitNumbers.Count == 0)
-                    {
-                        _currentStep = PleaseWaitXSecondsStep.None;
-                    }
-                    else
-                    {
-                        if (_waitNumbers.Count == 1 && _waitNumbers[0] == 1)
+                        currentMatchPoint++;
+                        if (currentMatchPoint == _firstChars.Count - 1) //finished start pattern
                         {
-                            _secondChars = _secondCharsOne;
+                            currentStep = PleaseWaitXSecondsStep.PastPleaseWait;
+                            currentMatchPoint = -1;
+                            waitNumbers.Clear();
+                        }
+                    }
+                    else //start over
+                    {
+                        currentMatchPoint = -1;
+                    }
+                }
+                else if (currentStep == PleaseWaitXSecondsStep.PastPleaseWait)
+                {
+                    if (nextCharacter == ' ')
+                    {
+                        if (waitNumbers.Count == 0)
+                        {
+                            currentStep = PleaseWaitXSecondsStep.None;
                         }
                         else
                         {
-                            _secondChars = _secondCharsGreaterThanOne;
+                            if (waitNumbers.Count == 1 && waitNumbers[0] == 1)
+                            {
+                                _secondChars = _secondCharsOne;
+                            }
+                            else
+                            {
+                                _secondChars = _secondCharsGreaterThanOne;
+                            }
+                            currentStep = PleaseWaitXSecondsStep.SecondPart;
+                            currentMatchPoint = -1;
                         }
-                        _currentStep = PleaseWaitXSecondsStep.SecondPart;
-                        _currentMatchPoint = -1;
                     }
-                }
-                else if (nextByte >= AsciiMapping.ASCII_NUMBER_ZERO && nextByte <= AsciiMapping.ASCII_NUMBER_NINE)
-                {
-                    _waitNumbers.Add(nextByte - AsciiMapping.ASCII_NUMBER_ZERO);
-                }
-            }
-            else if (_currentStep == PleaseWaitXSecondsStep.SecondPart)
-            {
-                int nextCharToMatch = _secondChars[_currentMatchPoint + 1];
-                if (nextCharToMatch == nextByte)
-                {
-                    _currentMatchPoint++;
-                    if (_currentMatchPoint == _secondChars.Count - 1) //finished pattern
+                    else if (nextCharacter >= '0' && nextCharacter <= '9')
                     {
-                        int waitNumber = 0;
-                        foreach (int nextWaitNumber in _waitNumbers)
-                        {
-                            waitNumber = (waitNumber * 10) + nextWaitNumber;
-                        }
-                        _onSatisfied(waitNumber);
-                        _currentStep = PleaseWaitXSecondsStep.None;
-                        _currentMatchPoint = -1;
+                        waitNumbers.Add(nextCharacter - '0');
                     }
                 }
-                else //start over
+                else if (currentStep == PleaseWaitXSecondsStep.SecondPart)
                 {
-                    _currentStep = PleaseWaitXSecondsStep.None;
-                    _currentMatchPoint = -1;
+                    char nextCharToMatch = _secondChars[currentMatchPoint + 1];
+                    if (nextCharToMatch == nextCharacter)
+                    {
+                        currentMatchPoint++;
+                        if (currentMatchPoint == _secondChars.Count - 1) //finished pattern
+                        {
+                            int waitNumber = 0;
+                            foreach (int nextWaitNumber in waitNumbers)
+                            {
+                                waitNumber = (waitNumber * 10) + nextWaitNumber;
+                            }
+                            _onSatisfied(waitNumber);
+                            currentStep = PleaseWaitXSecondsStep.None;
+                            currentMatchPoint = -1;
+                        }
+                    }
+                    else //start over
+                    {
+                        currentStep = PleaseWaitXSecondsStep.None;
+                        currentMatchPoint = -1;
+                    }
                 }
             }
         }
     }
 
-    public class SpellsCastSequence : ISequence
+    public class SpellsCastSequence : IOutputProcessingSequence
     {
-        private Dictionary<char, int> _asciiMapping;
-        private Dictionary<int, char> _reverseAsciiMapping;
-        private List<int> _chars;
-        private SpellsCastStep _currentStep;
-        private int _currentMatchPoint = -1;
-        private List<int> _spellText;
+        private List<char> _chars;
         private Action<List<string>> _onSatisfied;
-        public SpellsCastSequence(Dictionary<char, int> asciiMapping, Dictionary<int, char> reverseAsciiMapping, Action<List<string>> onSatisfied)
+        public SpellsCastSequence(Action<List<string>> onSatisfied)
         {
-            _asciiMapping = asciiMapping;
-            _reverseAsciiMapping = reverseAsciiMapping;
-            _chars = ConstantSequence.GenerateBytesForPattern("Spells cast: ", asciiMapping);
-            _currentStep = SpellsCastStep.None;
-            _spellText = new List<int>();
+            _chars = new List<char>();
+            foreach (char c in "Spells cast: ")
+            {
+                _chars.Add(c);
+            }
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedByte(int nextByte)
+        public void FeedLine(string nextLine)
         {
-            if (_currentStep == SpellsCastStep.None)
+            SpellsCastStep currentStep = SpellsCastStep.None;
+            int currentMatchPoint = -1;
+            List<char> spellText = new List<char>();
+            foreach (char nextChar in nextLine)
             {
-                int nextCharToMatch = _chars[_currentMatchPoint + 1];
-                if (nextCharToMatch == nextByte)
+                if (currentStep == SpellsCastStep.None)
                 {
-                    _currentMatchPoint++;
-                    if (_currentMatchPoint == _chars.Count - 1) //finished start pattern
+                    char nextCharToMatch = _chars[currentMatchPoint + 1];
+                    if (nextCharToMatch == nextChar)
                     {
-                        _currentStep = SpellsCastStep.PastSpellsCast;
-                        _currentMatchPoint = -1;
-                        _spellText = new List<int>();
+                        currentMatchPoint++;
+                        if (currentMatchPoint == _chars.Count - 1) //finished start pattern
+                        {
+                            currentStep = SpellsCastStep.PastSpellsCast;
+                            currentMatchPoint = -1;
+                            spellText = new List<char>();
+                        }
+                    }
+                    else //start over
+                    {
+                        currentMatchPoint = -1;
                     }
                 }
-                else //start over
+                else if (currentStep == SpellsCastStep.PastSpellsCast)
                 {
-                    _currentMatchPoint = -1;
-                }
-            }
-            else if (_currentStep == SpellsCastStep.PastSpellsCast)
-            {
-                if (nextByte == _asciiMapping['.'])
-                {
-                    _currentStep = SpellsCastStep.None;
-                    _currentMatchPoint = -1;
-                    StringBuilder sb = new StringBuilder();
-                    foreach (int nextcharcter in _spellText)
+                    if (nextChar == '.')
                     {
-                        sb.Append(_reverseAsciiMapping[nextcharcter]);
+                        currentStep = SpellsCastStep.None;
+                        currentMatchPoint = -1;
+                        StringBuilder sb = new StringBuilder();
+                        foreach (char nextcharcter in spellText)
+                        {
+                            sb.Append(nextChar);
+                        }
+                        List<string> ret = new List<string>();
+                        ret.AddRange(sb.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));
+                        _onSatisfied(ret);
                     }
-                    List<string> ret = new List<string>();
-                    ret.AddRange(sb.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));
-                    _onSatisfied(ret);
-                }
-                else
-                {
-                    _spellText.Add(nextByte);
+                    else
+                    {
+                        spellText.Add(nextChar);
+                    }
                 }
             }
         }
