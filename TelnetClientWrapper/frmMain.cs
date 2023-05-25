@@ -3299,10 +3299,23 @@ namespace IsengardClient
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside)
         {
-            Area oImladris = _areasByName[AREA_IMLADRIS];
-
             _imladrisWestGateInside = AddRoom("West Gate of Imladris");
             AddExit(_imladrisWestGateInside, _imladrisWestGateOutside, "gate");
+
+            Room oImladrisCircle1 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle1, _imladrisWestGateInside, BidirectionalExitType.SouthwestNortheast);
+
+            Room oImladrisCircle2 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle2, oImladrisCircle1, BidirectionalExitType.SouthwestNortheast);
+
+            Room oImladrisCircle3 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle3, oImladrisCircle2, BidirectionalExitType.SouthwestNortheast);
+
+            Room oImladrisCircle4 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle3, oImladrisCircle4, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oImladrisCircle5 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle4, oImladrisCircle5, BidirectionalExitType.SoutheastNorthwest);
 
             Room oImladrisMainStreet1 = AddRoom("Imladris Main Street");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisMainStreet1, BidirectionalExitType.WestEast);
@@ -3345,10 +3358,17 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
 
             Room oEastGateOfImladrisInside = AddRoom("East Gate of Imladris");
+            AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
 
             Room oEastGateOfImladrisOutside = AddRoom("Gates of Imladris");
             AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
+
+            Room oImladrisCircle6 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oEastGateOfImladrisInside, oImladrisCircle6, BidirectionalExitType.SouthwestNortheast);
+
+            Room oImladrisCircle7 = AddRoom("Imladris Circle");
+            AddBidirectionalExits(oImladrisCircle6, oImladrisCircle7, BidirectionalExitType.SouthwestNortheast);
 
             Room oImladrisCircle10 = AddRoom("Imladris Circle");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
@@ -3358,6 +3378,7 @@ namespace IsengardClient
 
             Room oImladrisCircle8 = AddRoom("Imladris Circle");
             AddBidirectionalExits(oImladrisCircle9, oImladrisCircle8, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oImladrisCircle7, oImladrisCircle8, BidirectionalExitType.SouthwestNortheast);
             AddExit(oImladrisAlley5, oImladrisCircle8, "south");
 
             Room oRearAlley = AddRoom("Master Assassin Threshold"); //Rear Alley
