@@ -35,6 +35,7 @@ namespace IsengardClient
         private static DateTime? _lastPollTick;
         private bool? _setDay;
         private bool _finishedQuit;
+        private List<string> _currentSpellsCast;
         private List<string> _newSpellsCast;
         private bool _doScore;
         private static Dictionary<SkillWithCooldownType, SkillCooldownStatus> _skillCooldowns;
@@ -853,7 +854,7 @@ namespace IsengardClient
             _fumbled = true;
         }
 
-        private void OnVigor()
+        private void OnLifeSpellCast()
         {
             _commandResult = true;
         }
@@ -883,14 +884,14 @@ namespace IsengardClient
                 new SpellsCastSequence(OnSpellsCastChange),
                 new ConstantOutputSequence("You feel less protected.", DoScore),
                 new ConstantOutputSequence("You feel less holy.", DoScore),
-                new ConstantOutputSequence("You feel watched.", DoScore),
-                new ConstantOutputSequence("You feel holy.", DoScore),
+                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast),
+                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast),
                 new ConstantOutputSequence("You phase in and out of existence.", OnHazy),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee),
                 new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee),
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
                 new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled),
-                new ConstantOutputSequence("Vigor spell cast.", OnVigor),
+                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast),
             };
 
             while (true)
@@ -1486,7 +1487,7 @@ namespace IsengardClient
                         SetCurrentRoom(targetRoom);
                     }
                 }
-                if (_currentBackgroundParameters.UsedSkills != PromptedSkills.None && _currentBackgroundParameters.CommandsRun > 0)
+                if (_currentBackgroundParameters.DoScore && _currentBackgroundParameters.CommandsRun > 0)
                 {
                     _doScore = true;
                 }
@@ -1552,44 +1553,7 @@ namespace IsengardClient
                     if (autohp.Value >= _totalhp) break;
                     if (!automp.HasValue) break;
                     if (automp.Value < 2) break; //out of mana for vigor cast
-                    currentAttempts = 0;
-                    WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-                    while (currentAttempts < maxAttempts)
-                    {
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                        _commandResult = null;
-                        SendCommand("cast vigor", false);
-                        _currentBackgroundParameters.CommandsRun++;
-                        currentAttempts++;
-                        bool? currentResult;
-                        while (true)
-                        {
-                            currentResult = _commandResult;
-                            if (currentResult.HasValue) break;
-                            Thread.Sleep(50);
-                            RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                        }
-                        if (currentResult.HasValue)
-                        {
-                            if (currentResult.Value)
-                            {
-                                dtLastCombatCycle = DateTime.UtcNow;
-                            }
-                            else if (_waitSeconds > 1)
-                            {
-                                int waitMS = 500 + (1000 * (_waitSeconds - 2));
-                                WaitUntilNextCommand(waitMS, false, false);
-                            }
-                            break;
-                        }
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                        autohp = _autoHitpoints;
-                        if (autohp.Value >= _totalhp) break;
-                    }
+                    CastLifeSpell("vigor", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
                     autohp = _autoHitpoints;
@@ -1598,6 +1562,18 @@ namespace IsengardClient
                 //stop background processing if failed to get to max hitpoints
                 autohp = _autoHitpoints;
                 if (autohp.Value < _totalhp) return;
+
+                //cast bless if has enough mana and not currently blessed
+                List<string> spellsCast = _currentSpellsCast;
+                if (_totalmp > 8 && spellsCast != null && !spellsCast.Contains("bless"))
+                {
+                    CastLifeSpell("bless", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
+                }
+                //cast protection if has enough mana and not curently protected
+                if (_totalmp > 8 && spellsCast != null && !spellsCast.Contains("protection"))
+                {
+                    CastLifeSpell("protection", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
+                }
             }
 
             //Activate skills
@@ -1628,6 +1604,7 @@ namespace IsengardClient
                         dtLastCombatCycle = DateTime.UtcNow;
                         if (_manashieldResult.Value) //stop if successful
                         {
+                            pms.DoScore = true;
                             break;
                         }
                     }
@@ -1804,6 +1781,50 @@ namespace IsengardClient
             }
         }
 
+        private void CastLifeSpell(string spellName, int maxAttempts, ref DateTime? dtLastCombatCycle, int combatCycleInterval, BackgroundWorkerParameters bwp)
+        {
+            int currentAttempts = 0;
+            WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
+            while (currentAttempts < maxAttempts)
+            {
+                if (_fleeing) break;
+                if (_bw.CancellationPending) break;
+                _commandResult = null;
+                SendCommand("cast " + spellName, false);
+                _currentBackgroundParameters.CommandsRun++;
+                currentAttempts++;
+                bool? currentResult;
+                while (true)
+                {
+                    currentResult = _commandResult;
+                    if (currentResult.HasValue) break;
+                    Thread.Sleep(50);
+                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
+                }
+                if (currentResult.HasValue)
+                {
+                    if (currentResult.Value)
+                    {
+                        dtLastCombatCycle = DateTime.UtcNow;
+                        if (spellName == "bless" || spellName == "protection")
+                        {
+                            bwp.DoScore = true;
+                        }
+                    }
+                    else if (_waitSeconds > 1)
+                    {
+                        int waitMS = 500 + (1000 * (_waitSeconds - 2));
+                        WaitUntilNextCommand(waitMS, false, false);
+                    }
+                    break;
+                }
+                if (_fleeing) break;
+                if (_bw.CancellationPending) break;
+            }
+        }
+
         /// <summary>
         /// spins until the next combat cycle
         /// </summary>
@@ -1934,7 +1955,15 @@ namespace IsengardClient
 
             if (oCombatCycle != null && oCombatCycle.Attack)
             {
-                string attackCommand = TranslateCommand("{attacktype} {mob}", _currentBackgroundParameters.GetVariables(), out errorMessage);
+                IEnumerable<Variable> vars = _currentBackgroundParameters.GetVariables();
+                foreach (var nextVar in vars)
+                {
+                    if (nextVar.Name == "attacktype" && ((StringVariable)nextVar).Value == "power")
+                    {
+                        pms.DoScore = true;
+                    }
+                }
+                string attackCommand = TranslateCommand("{attacktype} {mob}", vars, out errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     stop = true; //not much we can do here except stop
@@ -4435,6 +4464,7 @@ namespace IsengardClient
             public bool AutoHazy { get; set; }
             public bool Flee { get; set; }
             public bool Quit { get; set; }
+            public bool DoScore { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -4885,6 +4915,7 @@ namespace IsengardClient
                 if (_newSpellsCast != null)
                 {
                     List<string> newSpellsCast = _newSpellsCast;
+                    _currentSpellsCast = _newSpellsCast;
                     _newSpellsCast = null;
                     flpSpells.Controls.Clear();
                     foreach (string next in newSpellsCast)
