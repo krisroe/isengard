@@ -1616,11 +1616,7 @@ namespace IsengardClient
             if (preExit != null)
             {
                 WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-                if (!string.IsNullOrEmpty(preExit.PreCommand))
-                {
-                    SendCommand(preExit.PreCommand, false);
-                    pms.CommandsRun++;
-                }
+                RunPreExitLogic(pms, preExit.PreCommand, preExit.Target);
                 string nextCommand = preExit.ExitText;
                 if (!preExit.OmitGo) nextCommand = "go " + nextCommand;
                 SendCommand(nextCommand, false);
@@ -1701,16 +1697,10 @@ namespace IsengardClient
                             fleeableExits.Add(nextExit);
                         }
                     }
-                    if (fleeableExits.Count == 1)
+                    if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
                     {
                         singleFleeableExit = fleeableExits[0];
-
-                        //Run the precommand to the single fleeable exit
-                        if (!string.IsNullOrEmpty(singleFleeableExit.PreCommand))
-                        {
-                            SendCommand(singleFleeableExit.PreCommand, false);
-                            _currentBackgroundParameters.CommandsRun++;
-                        }
+                        RunPreExitLogic(pms, singleFleeableExit.PreCommand, singleFleeableExit.Target);
                     }
                 }
 
@@ -1777,6 +1767,26 @@ namespace IsengardClient
                             if (_bw.CancellationPending) break;
                         }
                     }
+                }
+            }
+        }
+
+        private void RunPreExitLogic(BackgroundWorkerParameters pms, string preCommand, Room targetRoom)
+        {
+            if (!string.IsNullOrEmpty(preCommand))
+            {
+                SendCommand(preCommand, false);
+                if (pms != null)
+                {
+                    pms.CommandsRun++;
+                }
+            }
+            if (targetRoom.IsTrapRoom)
+            {
+                SendCommand("prepare", false);
+                if (pms != null)
+                {
+                    pms.CommandsRun++;
                 }
             }
         }
@@ -2802,6 +2812,7 @@ namespace IsengardClient
             AddBidirectionalExits(oShadowOfIncendius, oEugenesDungeon, BidirectionalExitType.WestEast);
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner");
+            oEugeneTheExecutioner.IsTrapRoom = true;
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
 
             Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel");
@@ -3971,6 +3982,7 @@ namespace IsengardClient
             public int? Experience2 { get; set; }
             public int? Experience3 { get; set; }
             public bool IsHealingRoom { get; set; }
+            public bool IsTrapRoom { get; set; }
 
             public string GetDefaultMob()
             {
@@ -4231,10 +4243,7 @@ namespace IsengardClient
         {
             if (move)
             {
-                if (!string.IsNullOrEmpty(exit.PreCommand))
-                {
-                    SendCommand(exit.PreCommand, false);
-                }
+                RunPreExitLogic(null, exit.PreCommand, exit.Target);
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
                 SendCommand(nextCommand, false);
@@ -4412,6 +4421,10 @@ namespace IsengardClient
                 if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
                     commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
+                }
+                if (exit.Target.IsTrapRoom)
+                {
+                    commands.Add(new MacroCommand("prepare", "prepare"));
                 }
                 string nextCommand = exit.ExitText;
                 if (!exit.OmitGo) nextCommand = "go " + nextCommand;
