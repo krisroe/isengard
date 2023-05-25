@@ -1538,7 +1538,7 @@ namespace IsengardClient
             MacroCommand oCurrentCommand = null;
 
             int maxAttempts = 20;
-            int currentAttempts = 0;
+            int currentAttempts;
             DateTime? dtLastCombatCycle = null;
             int combatCycleInterval = ((IntegerVariable)pms.Variables["combatcycleinterval"]).Value;
 
@@ -1555,11 +1555,7 @@ namespace IsengardClient
                     if (!automp.HasValue) break;
                     if (automp.Value < 2) break; //out of mana for vigor cast
                     currentAttempts = 0;
-                    if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
-                    {
-                        int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                        WaitUntilNextCommand(remainingMS, false, false);
-                    }
+                    WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                     while (currentAttempts < maxAttempts)
                     {
                         if (_fleeing) break;
@@ -1610,11 +1606,7 @@ namespace IsengardClient
             if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
             {
                 currentAttempts = 0;
-                if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
-                {
-                    int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                    WaitUntilNextCommand(remainingMS, false, false);
-                }
+                WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 while (currentAttempts < maxAttempts)
                 {
                     if (_fleeing) break;
@@ -1648,6 +1640,7 @@ namespace IsengardClient
             Exit preExit = pms.PreExit;
             if (preExit != null)
             {
+                WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 if (!string.IsNullOrEmpty(preExit.PreCommand))
                 {
                     SendCommand(preExit.PreCommand, false);
@@ -1679,19 +1672,18 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
 
                 //wait for an appropriate amount of time for the next command
-                int remainingMS = 0;
                 if (nextCommand.CombatCycle == null) //use the wait ms for commands after the first
                 {
                     if (oPreviousCommand != null)
                     {
-                        remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
+                        int remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
+                        WaitUntilNextCommand(remainingMS, false, false);
                     }
                 }
                 else if (dtLastCombatCycle.HasValue) //just use the combat cycle to determine the timing
                 {
-                    remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                    WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 }
-                WaitUntilNextCommand(remainingMS, false, false);
 
                 if (_bw.CancellationPending) break;
                 if (_fleeing) break;
@@ -1811,6 +1803,20 @@ namespace IsengardClient
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// spins until the next combat cycle
+        /// </summary>
+        /// <param name="dtLastCombatCycle">timestamp for the last combat cycle, if there was one</param>
+        /// <param name="combatCycleInterval">combat cycle interval milliseconds</param>
+        private void WaitUntilNextCombatCycle(DateTime? dtLastCombatCycle, int combatCycleInterval)
+        {
+            if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
+            {
+                int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
+                WaitUntilNextCommand(remainingMS, false, false);
             }
         }
 
@@ -3536,7 +3542,7 @@ namespace IsengardClient
             Room oMistyTrail4 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail3, oMistyTrail4, BidirectionalExitType.SouthwestNortheast);
 
-            Room oPotionFactoryReception = AddRoom("Reception Area of Potion Factory");
+            Room oPotionFactoryReception = AddRoom("Potion Factory Guard");
             AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
             oPotionFactoryReception.Mob1 = "Guard";
             oPotionFactoryReception.Experience1 = 110;
@@ -3662,6 +3668,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oGraddy);
             AddLocation(_aImladrisTharbadPerms, oGraddyOgre);
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
+            AddLocation(_aImladrisTharbadPerms, oPotionFactoryReception);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
