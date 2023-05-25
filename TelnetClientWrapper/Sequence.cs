@@ -626,9 +626,9 @@ namespace IsengardClient
                         currentStep = SpellsCastStep.None;
                         currentMatchPoint = -1;
                         StringBuilder sb = new StringBuilder();
-                        foreach (char nextcharcter in spellText)
+                        foreach (char nextCharacter in spellText)
                         {
-                            sb.Append(nextChar);
+                            sb.Append(nextCharacter);
                         }
                         List<string> ret = new List<string>();
                         ret.AddRange(sb.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));

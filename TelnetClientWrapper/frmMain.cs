@@ -668,9 +668,10 @@ namespace IsengardClient
                 "vigor",
                 "volley",
                 "waterbolt",
+                "weapons",
                 "wear",
                 "welcome",
-                "whirlwind",
+                //"whirlwind", //file could not be opened
                 "who",
                 "whois",
                 "wield",
@@ -2688,6 +2689,15 @@ namespace IsengardClient
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
 
+            Room oGodfather = AddRoom("Godfather");
+            oGodfather.Mob1 = "Godfather";
+            oGodfather.Experience1 = 1200;
+            e = AddExit(oGuido, oGodfather, "door");
+            e.Hidden = true;
+            e.PreCommand = "open door";
+            e = AddExit(oGodfather, oGuido, "door");
+            e.PreCommand = "open door";
+
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall");
             oSergeantGrimdall.Mob1 = "Sergeant";
             oSergeantGrimdall.Experience1 = 350;
@@ -2791,6 +2801,7 @@ namespace IsengardClient
             AddLocation(_aInaccessible, oGrant);
             AddLocation(_aBreePerms, oIgor);
             AddLocation(_aBreePerms, oGuido);
+            AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
             AddLocation(_aBreePerms, oSergeantGrimdall);
             AddLocation(_aBreePerms, oBigPapa);
