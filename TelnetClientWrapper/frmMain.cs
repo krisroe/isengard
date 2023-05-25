@@ -932,19 +932,6 @@ namespace IsengardClient
                             _currentStatusLastComputed = DateTime.UtcNow;
                         }
 
-                        if (!_enteredUserName && _promptedUserName)
-                        {
-                            Thread.Sleep(250);
-                            SendCommand(_username, false);
-                            _enteredUserName = true;
-                        }
-                        else if (_enteredUserName && !_enteredPassword && _promptedPassword)
-                        {
-                            Thread.Sleep(250);
-                            SendCommand(_password, true);
-                            _enteredPassword = true;
-                        }
-
                         StringBuilder sb = new StringBuilder();
                         foreach (int nextOutputItemByte in currentOutputItemData)
                         {
@@ -4779,6 +4766,18 @@ namespace IsengardClient
             {
                 rtbConsole.AppendText(s);
             }
+
+            if (!_enteredUserName && _promptedUserName)
+            {
+                SendCommand(_username, false);
+                _enteredUserName = true;
+            }
+            else if (_enteredUserName && !_enteredPassword && _promptedPassword)
+            {
+                SendCommand(_password, true);
+                _enteredPassword = true;
+            }
+
             bool autoMana = chkAutoMana.Checked;
             if (autoMana)
             {
