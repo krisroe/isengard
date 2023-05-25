@@ -3086,9 +3086,11 @@ namespace IsengardClient
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
             AddBidirectionalExits(_breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
+            AddToFarmHouseAndUglies(oGreatEastRoad1, out Room oOuthouse);
 
             Room oGreatEastRoad2 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad1, oGreatEastRoad2, BidirectionalExitType.WestEast);
+            AddGalbasiDowns(oGreatEastRoad2);
 
             Room oGreatEastRoad3 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad2, oGreatEastRoad3, BidirectionalExitType.WestEast);
@@ -3132,100 +3134,6 @@ namespace IsengardClient
 
             _imladrisWestGateOutside = _imladrisWestGateOutside = AddRoom("West Gate of Imladris");
             AddBidirectionalExits(oGreatEastRoad14, _imladrisWestGateOutside, BidirectionalExitType.WestEast);
-
-            Room oRoadToFarm1 = AddRoom("Farmland");
-            AddBidirectionalExits(oGreatEastRoad1, oRoadToFarm1, BidirectionalExitType.NorthSouth);
-
-            Room oRoadToFarm2 = AddRoom("Farmland");
-            AddBidirectionalExits(oRoadToFarm1, oRoadToFarm2, BidirectionalExitType.NorthSouth);
-
-            Room oRoadToFarm3 = AddRoom("Farmland");
-            AddBidirectionalExits(oRoadToFarm2, oRoadToFarm3, BidirectionalExitType.NorthSouth);
-
-            Room oRoadToFarm4 = AddRoom("Farmland");
-            AddBidirectionalExits(oRoadToFarm3, oRoadToFarm4, BidirectionalExitType.NorthSouth);
-
-            Room oRoadToFarm5 = AddRoom("Path to Ranch House");
-            AddBidirectionalExits(oRoadToFarm5, oRoadToFarm4, BidirectionalExitType.WestEast);
-
-            Room oRoadToFarm6 = AddRoom("Ranch House Front Steps");
-            AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
-
-            Room oOuthouse = AddRoom("Outhouse");
-            AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
-
-            Room oSwimmingPond = AddRoom("Swimming Pond");
-            AddExit(oOuthouse, oSwimmingPond, "pond");
-            AddExit(oSwimmingPond, oOuthouse, "west");
-
-            Room oMuddyPath = AddRoom("Muddy Path");
-            AddExit(oSwimmingPond, oMuddyPath, "path");
-            AddExit(oMuddyPath, oSwimmingPond, "pond");
-
-            Room oSmallPlayground = AddRoom("Small Playground");
-            AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
-
-            Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance");
-            AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
-
-            Room oMuddyFoyer = AddRoom("Muddy Foyer");
-            if (_level < 11)
-            {
-                AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
-            }
-            AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
-
-            Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
-            AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");
-            AddExit(oUglyKidClassroomK7, oMuddyFoyer, "foyer");
-
-            Room oHallway = AddRoom("Hallway");
-            AddExit(oUglyKidClassroomK7, oHallway, "hallway");
-            AddExit(oHallway, oUglyKidClassroomK7, "classroom");
-
-            Room oRoadToFarm7HoundDog = AddRoom("Hound Dog");
-            oRoadToFarm7HoundDog.Mob1 = "dog";
-            oRoadToFarm7HoundDog.Experience1 = 150;
-            oRoadToFarm7HoundDog.Alignment = AlignmentType.Blue;
-            AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
-            AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
-
-            Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
-            oFarmParlorManagerMulloyThreshold.Mob1 = "manager";
-            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
-            Room oManagerMulloy = AddRoom("Manager Mulloy");
-            oManagerMulloy.Mob1 = "manager";
-            oManagerMulloy.Experience1 = 600;
-            oManagerMulloy.Alignment = AlignmentType.Blue;
-            AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
-            AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
-
-            Room oFarmKitchen = AddRoom("Kitchen");
-            AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
-            AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
-
-            Room oFarmBackPorch = AddRoom("Back Porch");
-            AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
-            AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
-
-            Room oFarmCat = AddRoom("Farm Cat");
-            oFarmCat.Mob1 = "cat";
-            oFarmCat.Experience1 = 550;
-            AddExit(oFarmBackPorch, oFarmCat, "woodshed");
-            Exit e = AddExit(oFarmCat, oFarmBackPorch, "out");
-            e.NoFlee = true;
-
-            Room oCrabbe = AddRoom("Crabbe");
-            oCrabbe.Mob1 = "Crabbe";
-            oCrabbe.Experience1 = 250;
-            AddExit(oHallway, oCrabbe, "detention");
-            AddExit(oCrabbe, oHallway, "out");
-
-            Room oMrWartnose = AddRoom("Mr. Wartnose");
-            oMrWartnose.Mob1 = "Wartnose";
-            oMrWartnose.Experience1 = 235;
-            AddExit(oUglyKidClassroomK7, oMrWartnose, "office");
-            AddExit(oMrWartnose, oUglyKidClassroomK7, "out");
 
             Room oCatchBasin = AddRoom("Catch Basin");
             AddExit(oOuthouse, oCatchBasin, "hole");
@@ -3310,18 +3218,135 @@ namespace IsengardClient
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
 
-            AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
-            AddLocation(_aBreePerms, oManagerMulloy);
-            AddLocation(_aBreePerms, oFarmCat);
-            AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aBreePerms, oSalamander);
-            AddLocation(_aInaccessible, oMrWartnose);
-            AddLocation(_aInaccessible, oCrabbe);
             AddLocation(_aBreePerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aBreePerms, oNorthBrethilForest5GobAmbush);
             AddSubLocation(oNorthBrethilForest5GobAmbush, oNorthBrethilForest4GobAmbushThreshold);
             AddLocation(_aBreePerms, oSpriteGuards);
             AddLocation(_aMisc, _breeEastGateOutside);
+        }
+
+        private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse)
+        {
+            Room oRoadToFarm1 = AddRoom("Farmland");
+            AddBidirectionalExits(oGreatEastRoad1, oRoadToFarm1, BidirectionalExitType.NorthSouth);
+
+            Room oRoadToFarm2 = AddRoom("Farmland");
+            AddBidirectionalExits(oRoadToFarm1, oRoadToFarm2, BidirectionalExitType.NorthSouth);
+
+            Room oRoadToFarm3 = AddRoom("Farmland");
+            AddBidirectionalExits(oRoadToFarm2, oRoadToFarm3, BidirectionalExitType.NorthSouth);
+
+            Room oRoadToFarm4 = AddRoom("Farmland");
+            AddBidirectionalExits(oRoadToFarm3, oRoadToFarm4, BidirectionalExitType.NorthSouth);
+
+            Room oRoadToFarm5 = AddRoom("Path to Ranch House");
+            AddBidirectionalExits(oRoadToFarm5, oRoadToFarm4, BidirectionalExitType.WestEast);
+
+            Room oRoadToFarm6 = AddRoom("Ranch House Front Steps");
+            AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
+
+            oOuthouse = AddRoom("Outhouse");
+            AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
+
+            Room oSwimmingPond = AddRoom("Swimming Pond");
+            AddExit(oOuthouse, oSwimmingPond, "pond");
+            AddExit(oSwimmingPond, oOuthouse, "west");
+
+            Room oMuddyPath = AddRoom("Muddy Path");
+            AddExit(oSwimmingPond, oMuddyPath, "path");
+            AddExit(oMuddyPath, oSwimmingPond, "pond");
+
+            Room oSmallPlayground = AddRoom("Small Playground");
+            AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
+
+            Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance");
+            AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
+
+            Room oMuddyFoyer = AddRoom("Muddy Foyer");
+            if (_level < 11)
+            {
+                AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
+            }
+            AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
+
+            Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
+            AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");
+            AddExit(oUglyKidClassroomK7, oMuddyFoyer, "foyer");
+
+            Room oHallway = AddRoom("Hallway");
+            AddExit(oUglyKidClassroomK7, oHallway, "hallway");
+            AddExit(oHallway, oUglyKidClassroomK7, "classroom");
+
+            Room oRoadToFarm7HoundDog = AddRoom("Hound Dog");
+            oRoadToFarm7HoundDog.Mob1 = "dog";
+            oRoadToFarm7HoundDog.Experience1 = 150;
+            oRoadToFarm7HoundDog.Alignment = AlignmentType.Blue;
+            AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
+            AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
+
+            Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
+            oFarmParlorManagerMulloyThreshold.Mob1 = "manager";
+            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
+            Room oManagerMulloy = AddRoom("Manager Mulloy");
+            oManagerMulloy.Mob1 = "manager";
+            oManagerMulloy.Experience1 = 600;
+            oManagerMulloy.Alignment = AlignmentType.Blue;
+            AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
+            AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
+
+            Room oFarmKitchen = AddRoom("Kitchen");
+            AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
+            AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
+
+            Room oFarmBackPorch = AddRoom("Back Porch");
+            AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
+            AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
+
+            Room oFarmCat = AddRoom("Farm Cat");
+            oFarmCat.Mob1 = "cat";
+            oFarmCat.Experience1 = 550;
+            AddExit(oFarmBackPorch, oFarmCat, "woodshed");
+            Exit e = AddExit(oFarmCat, oFarmBackPorch, "out");
+            e.NoFlee = true;
+
+            Room oCrabbe = AddRoom("Crabbe");
+            oCrabbe.Mob1 = "Crabbe";
+            oCrabbe.Experience1 = 250;
+            AddExit(oHallway, oCrabbe, "detention");
+            AddExit(oCrabbe, oHallway, "out");
+
+            Room oMrWartnose = AddRoom("Mr. Wartnose");
+            oMrWartnose.Mob1 = "Wartnose";
+            oMrWartnose.Experience1 = 235;
+            AddExit(oUglyKidClassroomK7, oMrWartnose, "office");
+            AddExit(oMrWartnose, oUglyKidClassroomK7, "out");
+
+            AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
+            AddLocation(_aBreePerms, oManagerMulloy);
+            AddLocation(_aBreePerms, oFarmCat);
+            AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
+            AddLocation(_aInaccessible, oMrWartnose);
+            AddLocation(_aInaccessible, oCrabbe);
+        }
+
+        private void AddGalbasiDowns(Room oGreatEastRoad2)
+        {
+            Room oGalbasiDownsEntrance = AddRoom("Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsEntrance, oGreatEastRoad2, BidirectionalExitType.NorthSouth);
+
+            Room oGalbasiDownsNorth = AddRoom("Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsEntrance, BidirectionalExitType.NorthSouth);
+
+            Room oGalbasiDownsNortheast = AddRoom("Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsNortheast, BidirectionalExitType.WestEast);
+
+            Room oGalbasiDownsFurthestNorth = AddRoom("Galbasi Downs End");
+            AddExit(oGalbasiDownsFurthestNorth, oGalbasiDownsNortheast, "southeast");
+            Exit e = AddExit(oGalbasiDownsNortheast, oGalbasiDownsFurthestNorth, "northwest");
+            e.Hidden = true;
+
+            AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside)
