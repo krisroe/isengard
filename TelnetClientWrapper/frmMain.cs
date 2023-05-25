@@ -1719,7 +1719,7 @@ namespace IsengardClient
                     List<Exit> fleeableExits = new List<Exit>();
                     foreach (Exit nextExit in exits)
                     {
-                        if (!nextExit.Hidden)
+                        if (!nextExit.Hidden && !nextExit.NoFlee)
                         {
                             fleeableExits.Add(nextExit);
                         }
@@ -3173,6 +3173,21 @@ namespace IsengardClient
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
 
+            Room oFarmKitchen = AddRoom("Kitchen");
+            AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
+            AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
+
+            Room oFarmBackPorch = AddRoom("Back Porch");
+            AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
+            AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
+
+            Room oFarmCat = AddRoom("Farm Cat");
+            oFarmCat.Mob1 = "cat";
+            oFarmCat.Experience1 = 550;
+            AddExit(oFarmBackPorch, oFarmCat, "woodshed");
+            Exit e = AddExit(oFarmCat, oFarmBackPorch, "out");
+            e.NoFlee = true;
+
             Room oCrabbe = AddRoom("Crabbe");
             oCrabbe.Mob1 = "Crabbe";
             oCrabbe.Experience1 = 250;
@@ -3270,6 +3285,7 @@ namespace IsengardClient
 
             AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
             AddLocation(_aBreePerms, oManagerMulloy);
+            AddLocation(_aBreePerms, oFarmCat);
             AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aBreePerms, oSalamander);
             AddLocation(_aInaccessible, oMrWartnose);
@@ -3956,6 +3972,10 @@ namespace IsengardClient
             /// whether the exit is hidden
             /// </summary>
             public bool Hidden { get; set; }
+            /// <summary>
+            /// whether flee is permitted
+            /// </summary>
+            public bool NoFlee { get; set; }
             public Exit(Room source, Room target, string exitText) : base(source, target)
             {
                 this.ExitText = exitText;
