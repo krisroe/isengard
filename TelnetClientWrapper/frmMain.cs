@@ -475,7 +475,6 @@ namespace IsengardClient
                 "disarm",
                 "disguise",
                 "dispel",
-                "ditty",
                 "dodge",
                 "drain",
                 "drink", //also quaff
@@ -534,7 +533,6 @@ namespace IsengardClient
                 "human",
                 "hunter",
                 "hurt",
-                "hymn",
                 "iceblade",
                 "identify",
                 "ignore",
@@ -563,7 +561,6 @@ namespace IsengardClient
                 "mage",
                 "magic", 
                 "manashield",
-                "march",
                 "meditate",
                 "mend",
                 "misc",
@@ -581,6 +578,7 @@ namespace IsengardClient
                 "pick",
                 "piety",
                 "pkill",
+                "play", //also hymn, march, serenade, ditty
                 "pledge",
                 "policy",
                 "portal",
@@ -619,7 +617,6 @@ namespace IsengardClient
                 "search",
                 "selection",
                 "send", //also tell
-                "serenade",
                 "set",
                 "shatterstone",
                 "shimmer",
@@ -2268,6 +2265,13 @@ namespace IsengardClient
             bardicGuildhall.IsHealingRoom = true;
             AddBidirectionalExits(bardicGuildhall, nightingale3, BidirectionalExitType.WestEast);
 
+            Room oGuildmasterAnsette = AddRoom("Guildmaster Ansette");
+            oGuildmasterAnsette.Mob1 = "Ansette";
+            oGuildmasterAnsette.Experience1 = 1200;
+            Exit e = AddExit(bardicGuildhall, oGuildmasterAnsette, "door");
+            e.Hidden = true;
+            AddExit(oGuildmasterAnsette, bardicGuildhall, "out");
+
             Room sabre3 = AddRoom("Tharbad Sabre");
             AddBidirectionalExits(sabre3, sabreNightingale, BidirectionalExitType.WestEast);
 
@@ -2337,7 +2341,7 @@ namespace IsengardClient
             zathriel.Mob1 = "Minstrel";
             zathriel.Experience1 = 220;
             zathriel.Alignment = AlignmentType.Blue;
-            Exit e = AddExit(gildedApple, zathriel, "stage");
+            e = AddExit(gildedApple, zathriel, "stage");
             e.Hidden = true;
             AddExit(zathriel, gildedApple, "down");
 
@@ -2351,6 +2355,7 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain");
 
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
+            AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);
             AddLocation(_aImladrisTharbadPerms, oOliphaunt);
             AddLocation(_aImladrisTharbadPerms, oMasterJeweler);
