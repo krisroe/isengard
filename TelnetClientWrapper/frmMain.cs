@@ -110,6 +110,8 @@ namespace IsengardClient
         private bool? _manashieldResult;
         private int _waitSeconds = 0;
         private bool _fumbled;
+        private bool _initiatedEmotesTab;
+        private bool _initiatedHelpTab;
 
         /// <summary>
         /// result for the flee or quit commands
@@ -124,8 +126,6 @@ namespace IsengardClient
             _vwr = new VorbisWaveReader(sFullSoundPath);
             _woe = new WaveOutEvent();
             _woe.Init(_vwr);
-
-            InitializeEmotes();
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
 
@@ -404,6 +404,258 @@ namespace IsengardClient
                 }
             }
             RefreshEmoteButtons();
+        }
+
+        private void InitializeHelp()
+        {
+            List<string> helpCommands = new List<string>()
+            {
+                "accursed",
+                "advice",
+                "alignment",
+                "attack", //also kill
+                "avatar",
+                "backstab",
+                "bait",
+                "barbarian",
+                "bard",
+                "bash",
+                "basics",
+                "berserk",
+                "blaspheme",
+                "bless",
+                "blister",
+                "bloodboil",
+                "bounty",
+                "broadcast",
+                "burn",
+                "burstflame",
+                //"camoflage", //missing
+                "cast",
+                "chant",
+                "chaotic",
+                "charge",
+                "charm",
+                "circle",
+                "clairvoyance",
+                "clan",
+                "clans",
+                "clanappend",
+                "clandelete",
+                "clankick",
+                "clannameroom",
+                "clanpetition",
+                "clanpledge",
+                "clanrating",
+                "clanreplace",
+                "clanrescind",
+                "clanrooms",
+                "clantalk",
+                "clear",
+                "cleave",
+                "combat",
+                "communicate",
+                "conjure",
+                "constitution",
+                "crusader",
+                "crush",
+                "cure-disease",
+                "cure-malady",
+                "cure-poison",
+                "curse",
+                "darkelf",
+                "death",
+                "description",
+                "detect-invis",
+                "detect-magic",
+                "detect-relics",
+                "dexterity",
+                "disarm",
+                "disguise",
+                "dispel",
+                "ditty",
+                "dodge",
+                "drain",
+                "dual",
+                "dustgust",
+                "dwarf",
+                "earthquake",
+                "elf",
+                "enchant",
+                "endure-cold",
+                "endure-earth",
+                "endure-fire",
+                "endure-water",
+                "engulf",
+                "envenom",
+                "evasion",
+                "experience",
+                "farsight",
+                "fear",
+                "featherfall",
+                "fireball",
+                "fireshield",
+                "flamefill",
+                "flaming", //also fist
+                "flood",
+                "flurry",
+                "fly",
+                "focus",
+                "forge",
+                "fortune",
+                "fumble",
+                "gnome",
+                "goblin",
+                "grapple",
+                "group",
+                "gtalk",
+                "guilds",
+                "halfelf",
+                "halfgiant",
+                "halforc",
+                "harm",
+                "heal",
+                "healing",
+                "health", //also score
+                "help",
+                "hone",
+                "human",
+                "hunter",
+                "hurt",
+                "hymn",
+                "iceblade",
+                "identify",
+                "ignore",
+                "immolate",
+                "impale",
+                "incinerate",
+                "information",
+                "intelligence",
+                "invisibility",
+                "keen",
+                "knock",
+                "know-aura",
+                "lawful",
+                "laying", //also lay, hand
+                "learn",
+                "levitate",
+                "light",
+                "lightning",
+                "longshot",
+                "mage",
+                "magic", 
+                "manashield",
+                "march",
+                "meditate",
+                "mend",
+                "misc",
+                "monk",
+                "movement",
+                "mute",
+                "objects",
+                "offer",
+                "ogre",
+                "orc",
+                "peek",
+                "pick",
+                "piety",
+                "pkill",
+                "pledge",
+                "policy",
+                "portal",
+                "power", //also special
+                "pray",
+                "priest",
+                "protection",
+                "punch",
+                "quickshot",
+                "races",
+                "rapidstrike",
+                "recharge",
+                "regenerate",
+                "relics",
+                "remove-curse",
+                "repair",
+                "requiem",
+                "resist-earth",
+                "resist-fire",
+                "resist-magic",
+                "resist-water",
+                "resist-wind",
+                "revive",
+                "rogue",
+                "rumble",
+                "sanctuary",
+                "say",
+                "scout",
+                "send", //also tell
+                "serenade",
+                "set",
+                "shatterstone",
+                "shimmer",
+                "shockbolt",
+                "short",
+                "skills",
+                "smash",
+                "social",
+                "sorcerer",
+                "spells",
+                "stats",
+                "status",
+                "steal",
+                "steamblast",
+                "strength",
+                "study",
+                "stun",
+                "suicide",
+                "summon",
+                "taunt",
+                "teach",
+                "teleport",
+                "thaumaturgy",
+                "thief",
+                "throw",
+                "thunderbolt",
+                "tornado",
+                "touch",
+                "track",
+                //"tracking", //file could not be opened
+                "transform",
+                "transmute",
+                "transport",
+                "tremor",
+                "trip",
+                "troll",
+                "turn",
+                "unarmed",
+                "use",
+                "vampyric",
+                "vigor",
+                "volley",
+                "waterbolt",
+                "wear",
+                "welcome",
+                "whirlwind",
+                "wield",
+                "wither",
+                "wizard",
+                "word-of-recall",
+                "yell",
+            };
+            foreach (string nextHelpCommand in helpCommands)
+            {
+                Button btn = new Button();
+                btn.AutoSize = true;
+                btn.Text = nextHelpCommand;
+                btn.Click += btnHelpCommand_Click;
+                flpHelp.Controls.Add(btn);
+            }
+        }
+
+        private void btnHelpCommand_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            SendCommand("help " + btn.Text, false);
         }
 
         private void btnEmoteButton_Click(object sender, EventArgs e)
@@ -781,6 +1033,9 @@ namespace IsengardClient
                     case 35:
                         c = '#';
                         break;
+                    case 36:
+                        c = '$';
+                        break;
                     case 37:
                         c = '%';
                         break;
@@ -852,6 +1107,9 @@ namespace IsengardClient
                         break;
                     case 60:
                         c = '<';
+                        break;
+                    case 61:
+                        c = '=';
                         break;
                     case 62:
                         c = '>';
@@ -1030,8 +1288,14 @@ namespace IsengardClient
                     case 122:
                         c = 'z';
                         break;
+                    case 123:
+                        c = '{';
+                        break;
                     case 124:
                         c = '|';
+                        break;
+                    case 125:
+                        c = '}';
                         break;
                     case 170:
                         isUnknown = true;
@@ -4796,6 +5060,26 @@ namespace IsengardClient
         private void btnExitSingleMove_Click(object sender, EventArgs e)
         {
             ctxRoomExits.Show(btnExitSingleMove, new Point(0, 0));
+        }
+
+        private void tcMain_Selected(object sender, TabControlEventArgs e)
+        {
+            if (e.TabPage == tabEmotes)
+            {
+                if (!_initiatedEmotesTab)
+                {
+                    InitializeEmotes();
+                    _initiatedEmotesTab = true;
+                }
+            }
+            else if (e.TabPage == tabHelp)
+            {
+                if (!_initiatedHelpTab)
+                {
+                    InitializeHelp();
+                    _initiatedHelpTab = true;
+                }
+            }
         }
     }
 

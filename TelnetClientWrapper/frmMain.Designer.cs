@@ -52,7 +52,6 @@
             this.btnCastProtection = new System.Windows.Forms.Button();
             this.chkIsNight = new System.Windows.Forms.CheckBox();
             this.txtOneOffCommand = new System.Windows.Forms.TextBox();
-            this.lblOneOffCommand = new System.Windows.Forms.Label();
             this.btnInventory = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnAttackMob = new System.Windows.Forms.Button();
@@ -101,6 +100,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnClearCurrentLocation = new System.Windows.Forms.Button();
             this.grpSingleMove = new System.Windows.Forms.GroupBox();
             this.btnExitSingleMove = new System.Windows.Forms.Button();
             this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -155,13 +155,17 @@
             this.txtCommandText = new System.Windows.Forms.TextBox();
             this.grpEmotes = new System.Windows.Forms.GroupBox();
             this.flpEmotes = new System.Windows.Forms.FlowLayoutPanel();
+            this.tabHelp = new System.Windows.Forms.TabPage();
+            this.grpHelp = new System.Windows.Forms.GroupBox();
+            this.flpHelp = new System.Windows.Forms.FlowLayoutPanel();
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.scMain = new System.Windows.Forms.SplitContainer();
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnClearCurrentLocation = new System.Windows.Forms.Button();
+            this.pnlCommand = new System.Windows.Forms.Panel();
+            this.pnlConsoleHolder = new System.Windows.Forms.Panel();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -176,12 +180,16 @@
             this.tabEmotes.SuspendLayout();
             this.pnlEmotes.SuspendLayout();
             this.grpEmotes.SuspendLayout();
+            this.tabHelp.SuspendLayout();
+            this.grpHelp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).BeginInit();
             this.scMain.Panel1.SuspendLayout();
             this.scMain.Panel2.SuspendLayout();
             this.scMain.SuspendLayout();
             this.grpConsole.SuspendLayout();
             this.ctxConsole.SuspendLayout();
+            this.pnlCommand.SuspendLayout();
+            this.pnlConsoleHolder.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -206,32 +214,33 @@
             // 
             // ctxMob
             // 
+            this.ctxMob.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxMob.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiMob1,
             this.tsmiMob2,
             this.tsmiMob3});
             this.ctxMob.Name = "ctxMob";
-            this.ctxMob.Size = new System.Drawing.Size(106, 70);
+            this.ctxMob.Size = new System.Drawing.Size(118, 76);
             this.ctxMob.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMob_Opening);
             // 
             // tsmiMob1
             // 
             this.tsmiMob1.Name = "tsmiMob1";
-            this.tsmiMob1.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob1.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob1.Text = "Mob1";
             this.tsmiMob1.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob2
             // 
             this.tsmiMob2.Name = "tsmiMob2";
-            this.tsmiMob2.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob2.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob2.Text = "Mob2";
             this.tsmiMob2.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob3
             // 
             this.tsmiMob3.Name = "tsmiMob3";
-            this.tsmiMob3.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob3.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob3.Text = "Mob3";
             this.tsmiMob3.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
@@ -405,7 +414,7 @@
             this.chkIsNight.Location = new System.Drawing.Point(562, 306);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(2);
             this.chkIsNight.Name = "chkIsNight";
-            this.chkIsNight.Size = new System.Drawing.Size(66, 17);
+            this.chkIsNight.Size = new System.Drawing.Size(75, 19);
             this.chkIsNight.TabIndex = 28;
             this.chkIsNight.Text = "Is night?";
             this.chkIsNight.UseVisualStyleBackColor = true;
@@ -413,22 +422,14 @@
             // 
             // txtOneOffCommand
             // 
-            this.txtOneOffCommand.Location = new System.Drawing.Point(63, 464);
-            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(2);
+            this.txtOneOffCommand.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtOneOffCommand.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
+            this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(218, 20);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(905, 38);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
-            // 
-            // lblOneOffCommand
-            // 
-            this.lblOneOffCommand.AutoSize = true;
-            this.lblOneOffCommand.Location = new System.Drawing.Point(10, 466);
-            this.lblOneOffCommand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblOneOffCommand.Name = "lblOneOffCommand";
-            this.lblOneOffCommand.Size = new System.Drawing.Size(44, 13);
-            this.lblOneOffCommand.TabIndex = 30;
-            this.lblOneOffCommand.Text = "One-Off";
             // 
             // btnInventory
             // 
@@ -479,7 +480,7 @@
             this.lblCurrentRoom.Location = new System.Drawing.Point(442, 473);
             this.lblCurrentRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
-            this.lblCurrentRoom.Size = new System.Drawing.Size(70, 13);
+            this.lblCurrentRoom.Size = new System.Drawing.Size(82, 15);
             this.lblCurrentRoom.TabIndex = 38;
             this.lblCurrentRoom.Text = "Current room:";
             // 
@@ -581,7 +582,7 @@
             this.chkSetOn.Location = new System.Drawing.Point(200, 17);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(46, 17);
+            this.chkSetOn.Size = new System.Drawing.Size(52, 19);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -697,7 +698,7 @@
             this.radFire.AutoSize = true;
             this.radFire.Location = new System.Drawing.Point(173, 19);
             this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(42, 17);
+            this.radFire.Size = new System.Drawing.Size(49, 19);
             this.radFire.TabIndex = 3;
             this.radFire.TabStop = true;
             this.radFire.Text = "Fire";
@@ -708,7 +709,7 @@
             this.radWater.AutoSize = true;
             this.radWater.Location = new System.Drawing.Point(113, 19);
             this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(54, 17);
+            this.radWater.Size = new System.Drawing.Size(60, 19);
             this.radWater.TabIndex = 2;
             this.radWater.TabStop = true;
             this.radWater.Text = "Water";
@@ -720,7 +721,7 @@
             this.radWind.Checked = true;
             this.radWind.Location = new System.Drawing.Point(62, 19);
             this.radWind.Name = "radWind";
-            this.radWind.Size = new System.Drawing.Size(50, 17);
+            this.radWind.Size = new System.Drawing.Size(56, 19);
             this.radWind.TabIndex = 1;
             this.radWind.TabStop = true;
             this.radWind.Text = "Wind";
@@ -731,7 +732,7 @@
             this.radEarth.AutoSize = true;
             this.radEarth.Location = new System.Drawing.Point(6, 19);
             this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(50, 17);
+            this.radEarth.Size = new System.Drawing.Size(57, 19);
             this.radEarth.TabIndex = 0;
             this.radEarth.TabStop = true;
             this.radEarth.Text = "Earth";
@@ -926,6 +927,7 @@
             this.tcMain.Controls.Add(this.tabMain);
             this.tcMain.Controls.Add(this.tabAncillary);
             this.tcMain.Controls.Add(this.tabEmotes);
+            this.tcMain.Controls.Add(this.tabHelp);
             this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcMain.Location = new System.Drawing.Point(0, 0);
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
@@ -933,6 +935,7 @@
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(1029, 930);
             this.tcMain.TabIndex = 79;
+            this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
             // tabMain
             // 
@@ -1003,9 +1006,7 @@
             this.pnlMain.Controls.Add(this.btnCastProtection);
             this.pnlMain.Controls.Add(this.chkIsNight);
             this.pnlMain.Controls.Add(this.btnQuit);
-            this.pnlMain.Controls.Add(this.txtOneOffCommand);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
-            this.pnlMain.Controls.Add(this.lblOneOffCommand);
             this.pnlMain.Controls.Add(this.btnEquipment);
             this.pnlMain.Controls.Add(this.btnInventory);
             this.pnlMain.Controls.Add(this.btnUptime);
@@ -1029,6 +1030,17 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnClearCurrentLocation
+            // 
+            this.btnClearCurrentLocation.Location = new System.Drawing.Point(612, 520);
+            this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
+            this.btnClearCurrentLocation.Size = new System.Drawing.Size(116, 21);
+            this.btnClearCurrentLocation.TabIndex = 118;
+            this.btnClearCurrentLocation.Text = "Clear Location";
+            this.btnClearCurrentLocation.UseVisualStyleBackColor = true;
+            this.btnClearCurrentLocation.Click += new System.EventHandler(this.btnClearCurrentLocation_Click);
             // 
             // grpSingleMove
             // 
@@ -1067,6 +1079,7 @@
             // 
             // ctxRoomExits
             // 
+            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxRoomExits.Name = "ctxOneClickMacro";
             this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
             this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
@@ -1079,7 +1092,7 @@
             this.chkExecuteMove.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkExecuteMove.Location = new System.Drawing.Point(6, 19);
             this.chkExecuteMove.Name = "chkExecuteMove";
-            this.chkExecuteMove.Size = new System.Drawing.Size(95, 17);
+            this.chkExecuteMove.Size = new System.Drawing.Size(106, 19);
             this.chkExecuteMove.TabIndex = 0;
             this.chkExecuteMove.Text = "Execute Move";
             this.chkExecuteMove.UseVisualStyleBackColor = true;
@@ -1147,7 +1160,7 @@
             this.lblAutoHazyThreshold.Location = new System.Drawing.Point(64, 140);
             this.lblAutoHazyThreshold.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblAutoHazyThreshold.Name = "lblAutoHazyThreshold";
-            this.lblAutoHazyThreshold.Size = new System.Drawing.Size(57, 13);
+            this.lblAutoHazyThreshold.Size = new System.Drawing.Size(65, 15);
             this.lblAutoHazyThreshold.TabIndex = 114;
             this.lblAutoHazyThreshold.Text = "Threshold:";
             this.lblAutoHazyThreshold.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1158,7 +1171,7 @@
             this.chkAutoHazy.Location = new System.Drawing.Point(70, 119);
             this.chkAutoHazy.Margin = new System.Windows.Forms.Padding(2);
             this.chkAutoHazy.Name = "chkAutoHazy";
-            this.chkAutoHazy.Size = new System.Drawing.Size(75, 17);
+            this.chkAutoHazy.Size = new System.Drawing.Size(83, 19);
             this.chkAutoHazy.TabIndex = 113;
             this.chkAutoHazy.Text = "Auto Hazy";
             this.chkAutoHazy.UseVisualStyleBackColor = true;
@@ -1199,7 +1212,7 @@
             this.lblManashieldTime.Location = new System.Drawing.Point(250, 93);
             this.lblManashieldTime.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblManashieldTime.Name = "lblManashieldTime";
-            this.lblManashieldTime.Size = new System.Drawing.Size(80, 13);
+            this.lblManashieldTime.Size = new System.Drawing.Size(92, 15);
             this.lblManashieldTime.TabIndex = 106;
             this.lblManashieldTime.Text = "To Manashield:";
             this.lblManashieldTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1219,7 +1232,7 @@
             this.lblPowerAttackCooldown.Location = new System.Drawing.Point(250, 70);
             this.lblPowerAttackCooldown.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPowerAttackCooldown.Name = "lblPowerAttackCooldown";
-            this.lblPowerAttackCooldown.Size = new System.Drawing.Size(90, 13);
+            this.lblPowerAttackCooldown.Size = new System.Drawing.Size(97, 15);
             this.lblPowerAttackCooldown.TabIndex = 104;
             this.lblPowerAttackCooldown.Text = "To Power Attack:";
             this.lblPowerAttackCooldown.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1232,7 +1245,7 @@
             this.chkAutoMana.Location = new System.Drawing.Point(437, 20);
             this.chkAutoMana.Margin = new System.Windows.Forms.Padding(2);
             this.chkAutoMana.Name = "chkAutoMana";
-            this.chkAutoMana.Size = new System.Drawing.Size(78, 17);
+            this.chkAutoMana.Size = new System.Drawing.Size(88, 19);
             this.chkAutoMana.TabIndex = 103;
             this.chkAutoMana.Text = "Auto Mana";
             this.chkAutoMana.UseVisualStyleBackColor = true;
@@ -1252,7 +1265,7 @@
             this.lblHitpoints.Location = new System.Drawing.Point(250, 23);
             this.lblHitpoints.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblHitpoints.Name = "lblHitpoints";
-            this.lblHitpoints.Size = new System.Drawing.Size(51, 13);
+            this.lblHitpoints.Size = new System.Drawing.Size(58, 15);
             this.lblHitpoints.TabIndex = 100;
             this.lblHitpoints.Text = "Hitpoints:";
             this.lblHitpoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1277,7 +1290,7 @@
             this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(286, 428);
             this.lblMaxOffensiveLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
-            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(70, 13);
+            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(78, 15);
             this.lblMaxOffensiveLevel.TabIndex = 98;
             this.lblMaxOffensiveLevel.Text = "Max off level:";
             // 
@@ -1307,7 +1320,7 @@
             this.lblMana.Location = new System.Drawing.Point(250, 46);
             this.lblMana.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMana.Name = "lblMana";
-            this.lblMana.Size = new System.Drawing.Size(37, 13);
+            this.lblMana.Size = new System.Drawing.Size(42, 15);
             this.lblMana.TabIndex = 92;
             this.lblMana.Text = "Mana:";
             this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1333,7 +1346,7 @@
             this.lblCelduinExpressLocation.Location = new System.Drawing.Point(524, 429);
             this.lblCelduinExpressLocation.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCelduinExpressLocation.Name = "lblCelduinExpressLocation";
-            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(85, 13);
+            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(99, 15);
             this.lblCelduinExpressLocation.TabIndex = 90;
             this.lblCelduinExpressLocation.Text = "Celduin Express:";
             // 
@@ -1454,7 +1467,7 @@
             this.lblPreferredAlignment.Location = new System.Drawing.Point(782, 50);
             this.lblPreferredAlignment.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(77, 13);
+            this.lblPreferredAlignment.Size = new System.Drawing.Size(89, 15);
             this.lblPreferredAlignment.TabIndex = 92;
             this.lblPreferredAlignment.Text = "Alignment pref:";
             this.lblPreferredAlignment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1474,7 +1487,7 @@
             this.lblLevel.Location = new System.Drawing.Point(782, 21);
             this.lblLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblLevel.Name = "lblLevel";
-            this.lblLevel.Size = new System.Drawing.Size(36, 13);
+            this.lblLevel.Size = new System.Drawing.Size(39, 15);
             this.lblLevel.TabIndex = 90;
             this.lblLevel.Text = "Level:";
             this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1494,7 +1507,7 @@
             this.lblMacro.Location = new System.Drawing.Point(12, 54);
             this.lblMacro.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMacro.Name = "lblMacro";
-            this.lblMacro.Size = new System.Drawing.Size(40, 13);
+            this.lblMacro.Size = new System.Drawing.Size(45, 15);
             this.lblMacro.TabIndex = 64;
             this.lblMacro.Text = "Macro:";
             // 
@@ -1565,7 +1578,7 @@
             this.chkShowEmotesWithoutTarget.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(284, 34);
             this.chkShowEmotesWithoutTarget.Name = "chkShowEmotesWithoutTarget";
-            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(162, 17);
+            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(185, 19);
             this.chkShowEmotesWithoutTarget.TabIndex = 14;
             this.chkShowEmotesWithoutTarget.Text = "Show Emotes without Target";
             this.chkShowEmotesWithoutTarget.UseVisualStyleBackColor = true;
@@ -1577,7 +1590,7 @@
             this.lblEmoteTarget.Location = new System.Drawing.Point(12, 35);
             this.lblEmoteTarget.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblEmoteTarget.Name = "lblEmoteTarget";
-            this.lblEmoteTarget.Size = new System.Drawing.Size(41, 13);
+            this.lblEmoteTarget.Size = new System.Drawing.Size(45, 15);
             this.lblEmoteTarget.TabIndex = 12;
             this.lblEmoteTarget.Text = "Target:";
             // 
@@ -1596,7 +1609,7 @@
             this.lblCommandText.Location = new System.Drawing.Point(12, 13);
             this.lblCommandText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCommandText.Name = "lblCommandText";
-            this.lblCommandText.Size = new System.Drawing.Size(77, 13);
+            this.lblCommandText.Size = new System.Drawing.Size(90, 15);
             this.lblCommandText.TabIndex = 8;
             this.lblCommandText.Text = "Command text:";
             // 
@@ -1642,6 +1655,35 @@
             this.flpEmotes.Size = new System.Drawing.Size(1017, 830);
             this.flpEmotes.TabIndex = 0;
             // 
+            // tabHelp
+            // 
+            this.tabHelp.Controls.Add(this.grpHelp);
+            this.tabHelp.Location = new System.Drawing.Point(4, 22);
+            this.tabHelp.Name = "tabHelp";
+            this.tabHelp.Size = new System.Drawing.Size(1021, 904);
+            this.tabHelp.TabIndex = 3;
+            this.tabHelp.Text = "Help";
+            this.tabHelp.UseVisualStyleBackColor = true;
+            // 
+            // grpHelp
+            // 
+            this.grpHelp.Controls.Add(this.flpHelp);
+            this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpHelp.Location = new System.Drawing.Point(0, 0);
+            this.grpHelp.Name = "grpHelp";
+            this.grpHelp.Size = new System.Drawing.Size(1021, 904);
+            this.grpHelp.TabIndex = 0;
+            this.grpHelp.TabStop = false;
+            this.grpHelp.Text = "Help";
+            // 
+            // flpHelp
+            // 
+            this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpHelp.Location = new System.Drawing.Point(3, 16);
+            this.flpHelp.Name = "flpHelp";
+            this.flpHelp.Size = new System.Drawing.Size(1015, 885);
+            this.flpHelp.TabIndex = 0;
+            // 
             // tmr
             // 
             this.tmr.Enabled = true;
@@ -1669,7 +1711,8 @@
             // 
             // grpConsole
             // 
-            this.grpConsole.Controls.Add(this.rtbConsole);
+            this.grpConsole.Controls.Add(this.pnlConsoleHolder);
+            this.grpConsole.Controls.Add(this.pnlCommand);
             this.grpConsole.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpConsole.Location = new System.Drawing.Point(0, 0);
             this.grpConsole.Margin = new System.Windows.Forms.Padding(2);
@@ -1688,38 +1731,46 @@
             this.rtbConsole.Font = new System.Drawing.Font("Courier New", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rtbConsole.ForeColor = System.Drawing.Color.White;
             this.rtbConsole.HideSelection = false;
-            this.rtbConsole.Location = new System.Drawing.Point(2, 15);
+            this.rtbConsole.Location = new System.Drawing.Point(0, 0);
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(724, 913);
+            this.rtbConsole.Size = new System.Drawing.Size(1131, 1349);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
             // ctxConsole
             // 
+            this.ctxConsole.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxConsole.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiClearConsole});
             this.ctxConsole.Name = "ctxConsole";
-            this.ctxConsole.Size = new System.Drawing.Size(102, 26);
+            this.ctxConsole.Size = new System.Drawing.Size(113, 28);
             this.ctxConsole.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxConsole_ItemClicked);
             // 
             // tsmiClearConsole
             // 
             this.tsmiClearConsole.Name = "tsmiClearConsole";
-            this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
+            this.tsmiClearConsole.Size = new System.Drawing.Size(112, 24);
             this.tsmiClearConsole.Text = "Clear";
             // 
-            // btnClearCurrentLocation
+            // pnlCommand
             // 
-            this.btnClearCurrentLocation.Location = new System.Drawing.Point(612, 520);
-            this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
-            this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
-            this.btnClearCurrentLocation.Size = new System.Drawing.Size(116, 21);
-            this.btnClearCurrentLocation.TabIndex = 118;
-            this.btnClearCurrentLocation.Text = "Clear Location";
-            this.btnClearCurrentLocation.UseVisualStyleBackColor = true;
-            this.btnClearCurrentLocation.Click += new System.EventHandler(this.btnClearCurrentLocation_Click);
+            this.pnlCommand.Controls.Add(this.txtOneOffCommand);
+            this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlCommand.Location = new System.Drawing.Point(2, 878);
+            this.pnlCommand.Name = "pnlCommand";
+            this.pnlCommand.Size = new System.Drawing.Size(724, 50);
+            this.pnlCommand.TabIndex = 30;
+            // 
+            // pnlConsoleHolder
+            // 
+            this.pnlConsoleHolder.Controls.Add(this.rtbConsole);
+            this.pnlConsoleHolder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 19);
+            this.pnlConsoleHolder.Name = "pnlConsoleHolder";
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(905, 1079);
+            this.pnlConsoleHolder.TabIndex = 31;
             // 
             // frmMain
             // 
@@ -1753,12 +1804,17 @@
             this.pnlEmotes.ResumeLayout(false);
             this.pnlEmotes.PerformLayout();
             this.grpEmotes.ResumeLayout(false);
+            this.tabHelp.ResumeLayout(false);
+            this.grpHelp.ResumeLayout(false);
             this.scMain.Panel1.ResumeLayout(false);
             this.scMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).EndInit();
             this.scMain.ResumeLayout(false);
             this.grpConsole.ResumeLayout(false);
             this.ctxConsole.ResumeLayout(false);
+            this.pnlCommand.ResumeLayout(false);
+            this.pnlCommand.PerformLayout();
+            this.pnlConsoleHolder.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1784,7 +1840,6 @@
         private System.Windows.Forms.Button btnCastProtection;
         private System.Windows.Forms.CheckBox chkIsNight;
         private System.Windows.Forms.TextBox txtOneOffCommand;
-        private System.Windows.Forms.Label lblOneOffCommand;
         private System.Windows.Forms.Button btnInventory;
         private System.Windows.Forms.Button btnAbort;
         private System.Windows.Forms.Button btnAttackMob;
@@ -1898,6 +1953,11 @@
         private System.Windows.Forms.CheckBox chkExecuteMove;
         private System.Windows.Forms.Button btnExitSingleMove;
         private System.Windows.Forms.Button btnClearCurrentLocation;
+        private System.Windows.Forms.TabPage tabHelp;
+        private System.Windows.Forms.GroupBox grpHelp;
+        private System.Windows.Forms.FlowLayoutPanel flpHelp;
+        private System.Windows.Forms.Panel pnlCommand;
+        private System.Windows.Forms.Panel pnlConsoleHolder;
     }
 }
 

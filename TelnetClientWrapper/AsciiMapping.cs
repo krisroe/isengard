@@ -28,6 +28,7 @@ namespace IsengardClient
             ret['!'] = 33;
             ret['"'] = 34;
             ret['#'] = 35;
+            ret['$'] = 36;
             ret['%'] = 37;
             ret['&'] = 38;
             ret['\''] = 39;
@@ -52,6 +53,7 @@ namespace IsengardClient
             ret[':'] = ASCII_COLON;
             ret[';'] = 59;
             ret['<'] = 60;
+            ret['='] = 61;
             ret['>'] = 62;
             ret['?'] = 63;
             ret['@'] = 64;
@@ -111,7 +113,9 @@ namespace IsengardClient
             ret['x'] = 120;
             ret['y'] = 121;
             ret['z'] = 122;
+            ret['{'] = 123;
             ret['|'] = 124;
+            ret['}'] = 125;
             return ret;
         }
     }
