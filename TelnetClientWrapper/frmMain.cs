@@ -3779,6 +3779,7 @@ namespace IsengardClient
 
             Room oMistyTrail8 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail7, oMistyTrail8, BidirectionalExitType.NorthSouth);
+            AddShantyTown(oMistyTrail8);
 
             Room oMistyTrail9 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail8, oMistyTrail9, BidirectionalExitType.NorthSouth);
@@ -3801,33 +3802,95 @@ namespace IsengardClient
             oTharbadGateOutside = AddRoom("North Gate of Tharbad");
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
 
-            //Shanty Town
-            Room oRuttedDirtRoad = AddRoom("Rutted Dirt Road");
+            AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
+            AddSubLocation(oCutthroatAssassin, oCutthroatAssassinThreshold);
+            AddLocation(_aImladrisTharbadPerms, oMarkFrey);
+            AddLocation(_aImladrisTharbadPerms, oPotionFactoryReception);
+        }
+
+        private void AddShantyTown(Room oMistyTrail8)
+        {
+            RoomGraph oShantyTownGraph = new RoomGraph("Shanty Town");
+            oShantyTownGraph.ScalingFactor = 100;
+            _graphs.Add(oShantyTownGraph);
+
+            oShantyTownGraph.Rooms[oMistyTrail8] = new System.Windows.Point(5, 0);
+
+            Room oRuttedDirtRoad = AddRoom("Dirt Road");
             AddBidirectionalExits(oRuttedDirtRoad, oMistyTrail8, BidirectionalExitType.WestEast);
+            oShantyTownGraph.Rooms[oRuttedDirtRoad] = new System.Windows.Point(4, 0);
 
-            Room oNorthEdgeOfShantyTown = AddRoom("North Edge of Shanty Town");
+            Room oHouseOfPleasure = AddRoom("House of Pleasure");
+            AddBidirectionalSameNameExit(oRuttedDirtRoad, oHouseOfPleasure, "door");
+            oShantyTownGraph.Rooms[oHouseOfPleasure] = new System.Windows.Point(4, -1);
+
+            Room oNorthEdgeOfShantyTown = AddRoom("Shanty Town");
             AddBidirectionalExits(oRuttedDirtRoad, oNorthEdgeOfShantyTown, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oNorthEdgeOfShantyTown] = new System.Windows.Point(4, 1);
 
-            Room oRedFoxLane = AddRoom("Red Fox Lane");
+            Room oRedFoxLane = AddRoom("Red Fox");
             AddBidirectionalExits(oRedFoxLane, oNorthEdgeOfShantyTown, BidirectionalExitType.WestEast);
+            oShantyTownGraph.Rooms[oRedFoxLane] = new System.Windows.Point(3, 1);
 
             Room oGypsyCamp = AddRoom("Gypsy Camp");
             AddBidirectionalExits(oGypsyCamp, oRedFoxLane, BidirectionalExitType.SoutheastNorthwest);
+            oShantyTownGraph.Rooms[oGypsyCamp] = new System.Windows.Point(2, 0);
 
-            Room oNorthShantyTown = AddRoom("North Shanty Town");
+            Room oGypsyCamp2 = AddRoom("Gypsy Camp");
+            AddBidirectionalExits(oGypsyCamp2, oGypsyCamp, BidirectionalExitType.WestEast);
+            oShantyTownGraph.Rooms[oGypsyCamp2] = new System.Windows.Point(1, 0);
+
+            Room oMadameProkawskiPalmReadingService = AddRoom("Palm Reading Service");
+            AddExit(oGypsyCamp2, oMadameProkawskiPalmReadingService, "wagon");
+            AddExit(oMadameProkawskiPalmReadingService, oGypsyCamp2, "out");
+            oShantyTownGraph.Rooms[oMadameProkawskiPalmReadingService] = new System.Windows.Point(1, -1);
+
+            Room oGypsyAnimalKeep = AddRoom("Gypsy Animal Keep");
+            AddBidirectionalSameNameExit(oGypsyCamp2, oGypsyAnimalKeep, "gate");
+            oShantyTownGraph.Rooms[oGypsyAnimalKeep] = new System.Windows.Point(0, 0);
+
+            Room oExoticAnimalKeep = AddRoom("Exotic Animal Wagon");
+            AddExit(oGypsyAnimalKeep, oExoticAnimalKeep, "gate");
+            AddExit(oExoticAnimalKeep, oGypsyAnimalKeep, "out");
+            oShantyTownGraph.Rooms[oExoticAnimalKeep] = new System.Windows.Point(-1, 0);
+
+            Room oNorthShantyTown = AddRoom("Shanty Town");
             AddBidirectionalExits(oRedFoxLane, oNorthShantyTown, BidirectionalExitType.SouthwestNortheast);
+            oShantyTownGraph.Rooms[oNorthShantyTown] = new System.Windows.Point(2, 2);
 
-            Room oShantyTownDump = AddRoom("Shanty Town Dump");
+            Room oShantyTownDump = AddRoom("Town Dump");
             AddBidirectionalExits(oNorthShantyTown, oShantyTownDump, BidirectionalExitType.SouthwestNortheast);
+            oShantyTownGraph.Rooms[oShantyTownDump] = new System.Windows.Point(1, 3);
 
-            Room oShantyTownWest = AddRoom("Shanty Town West");
+            Room oShantyTownWest = AddRoom("Shanty Town");
             AddBidirectionalExits(oShantyTownDump, oShantyTownWest, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oShantyTownWest] = new System.Windows.Point(1, 4);
+
+            Room oCopseOfTrees = AddRoom("Copse of Trees");
+            AddBidirectionalExits(oShantyTownWest, oCopseOfTrees, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oCopseOfTrees] = new System.Windows.Point(1, 5);
+
+            Room oBluff = AddRoom("Bluff");
+            AddBidirectionalExits(oCopseOfTrees, oBluff, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oBluff] = new System.Windows.Point(1, 6);
 
             Room oShantyTown1 = AddRoom("Shanty Town");
             AddBidirectionalExits(oNorthEdgeOfShantyTown, oShantyTown1, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oShantyTown1] = new System.Windows.Point(4, 2);
 
             Room oShantyTown2 = AddRoom("Shanty Town");
             AddBidirectionalExits(oShantyTown1, oShantyTown2, BidirectionalExitType.NorthSouth);
+            oShantyTownGraph.Rooms[oShantyTown2] = new System.Windows.Point(4, 3);
+
+            Room oShantyTown3 = AddRoom("Shanty Town");
+            AddBidirectionalExits(oShantyTown2, oShantyTown3, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oBluff, oShantyTown3, BidirectionalExitType.WestEast);
+            oShantyTownGraph.Rooms[oShantyTown3] = new System.Windows.Point(3, 6);
+
+            Room oPentampurisPalace = AddRoom("Pentampuri's Palace");
+            AddExit(oShantyTown3, oPentampurisPalace, "shack");
+            AddExit(oPentampurisPalace, oShantyTown3, "out");
+            oShantyTownGraph.Rooms[oPentampurisPalace] = new System.Windows.Point(4, 6);
 
             Room oPrinceBrunden = AddRoom("Prince Brunden");
             oPrinceBrunden.Mob1 = "Prince";
@@ -3835,6 +3898,7 @@ namespace IsengardClient
             oPrinceBrunden.Alignment = AlignmentType.Blue;
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
+            oShantyTownGraph.Rooms[oPrinceBrunden] = new System.Windows.Point(2, -1);
 
             Room oNaugrim = AddRoom("Naugrim");
             oNaugrim.Mob1 = "Naugrim";
@@ -3842,6 +3906,7 @@ namespace IsengardClient
             oNaugrim.Alignment = AlignmentType.Red;
             AddExit(oNorthShantyTown, oNaugrim, "cask");
             AddExit(oNaugrim, oNorthShantyTown, "out");
+            oShantyTownGraph.Rooms[oNaugrim] = new System.Windows.Point(1, 1);
 
             Room oHogoth = AddRoom("Hogoth");
             oHogoth.Mob1 = "Hogoth";
@@ -3849,6 +3914,7 @@ namespace IsengardClient
             oHogoth.Alignment = AlignmentType.Blue;
             AddExit(oShantyTownWest, oHogoth, "shack");
             AddExit(oHogoth, oShantyTownWest, "out");
+            oShantyTownGraph.Rooms[oHogoth] = new System.Windows.Point(0, 4);
 
             Room oFaornil = AddRoom("Faornil");
             oFaornil.Mob1 = "Faornil";
@@ -3856,31 +3922,29 @@ namespace IsengardClient
             oFaornil.Alignment = AlignmentType.Red;
             AddExit(oShantyTown1, oFaornil, "tent");
             AddExit(oFaornil, oShantyTown1, "out");
+            oShantyTownGraph.Rooms[oFaornil] = new System.Windows.Point(5, 2);
 
             Room oGraddy = AddRoom("Graddy");
             oGraddy.Mob1 = "Graddy";
             oGraddy.Experience1 = 350;
             AddExit(oShantyTown2, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2, "out");
+            oShantyTownGraph.Rooms[oGraddy] = new System.Windows.Point(5, 3);
 
-            Room oGraddyOgre = AddRoom("Graddy Ogre");
+            Room oGraddyOgre = AddRoom("Ogre");
             oGraddyOgre.Mob1 = "Ogre";
             oGraddyOgre.Experience1 = 150;
             Exit e = AddExit(oGraddy, oGraddyOgre, "gate");
             e.PreCommand = "open gate";
             e = AddExit(oGraddyOgre, oGraddy, "gate");
             e.PreCommand = "open gate";
+            oShantyTownGraph.Rooms[oGraddyOgre] = new System.Windows.Point(5, 4);
 
-            AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
-            AddSubLocation(oCutthroatAssassin, oCutthroatAssassinThreshold);
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
             AddLocation(_aImladrisTharbadPerms, oNaugrim);
             AddLocation(_aImladrisTharbadPerms, oHogoth);
             AddLocation(_aImladrisTharbadPerms, oFaornil);
             AddLocation(_aImladrisTharbadPerms, oGraddy);
-            AddLocation(_aImladrisTharbadPerms, oGraddyOgre);
-            AddLocation(_aImladrisTharbadPerms, oMarkFrey);
-            AddLocation(_aImladrisTharbadPerms, oPotionFactoryReception);
         }
 
         private void AddIntangible(Room oBreeTownSquare)
