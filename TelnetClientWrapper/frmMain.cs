@@ -92,6 +92,7 @@ namespace IsengardClient
         private Dictionary<char, int> _asciiMapping;
         private List<RoomGraph> _graphs;
         private RoomGraph _breeStreetsGraph;
+        private RoomGraph _breeToImladrisGraph;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -2812,7 +2813,7 @@ namespace IsengardClient
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
             _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.5);
 
-            Room oScranlinThreshold = AddRoom("Scranlin Threshold");
+            Room oScranlinThreshold = AddRoom("Scranlin's Training Area");
             e = AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
             e.Hidden = true;
             AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
@@ -2877,30 +2878,20 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
 
             AddLocation(_aBreePerms, oOrderOfLove);
-            AddLocation(_aBreePerms, oCampusFreeClinic);
             AddLocation(_aInaccessible, oGrant);
-            AddLocation(_aBreePerms, oIgor);
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
             AddLocation(_aBreePerms, oSergeantGrimdall);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
-            AddSubLocation(oScranlin, oScranlinThreshold);
-            AddLocation(_aBreePerms, oDroolie);
             AddLocation(aBree, oSewerDemonThreshold);
-            AddLocation(aBree, oPansy);
-            AddLocation(aBree, oIxell);
-            AddLocation(aBree, oSnarlingMutt);
-            AddLocation(aBree, _breeDocks);
-            AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oShadowOfIncendius);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
             AddLocation(aBree, oSewerOrcChamber);
-            AddLocation(aBree, oBartenderWaitress);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -3128,28 +3119,39 @@ namespace IsengardClient
 
         private void AddBreeToImladris(Room oSewerPipeExit, Room sewerTunnelToTConnection)
         {
+            RoomGraph breeToImladrisGraph = new RoomGraph("Bree to Imladris");
+            breeToImladrisGraph.ScalingFactor = 100;
+            _graphs.Add(breeToImladrisGraph);
+
             _breeEastGateOutside = AddRoom("East Gate of Bree");
             AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
+            breeToImladrisGraph.Rooms[_breeEastGateOutside] = new System.Windows.Point(3, 4);
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
             AddBidirectionalExits(_breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
-            AddToFarmHouseAndUglies(oGreatEastRoad1, out Room oOuthouse);
+            AddToFarmHouseAndUglies(oGreatEastRoad1, out Room oOuthouse, breeToImladrisGraph);
+            breeToImladrisGraph.Rooms[oGreatEastRoad1] = new System.Windows.Point(4, 4);
 
             Room oGreatEastRoad2 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad1, oGreatEastRoad2, BidirectionalExitType.WestEast);
             AddGalbasiDowns(oGreatEastRoad2);
+            breeToImladrisGraph.Rooms[oGreatEastRoad2] = new System.Windows.Point(5, 4);
 
             Room oGreatEastRoad3 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad2, oGreatEastRoad3, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad3] = new System.Windows.Point(6, 4);
 
             Room oGreatEastRoad4 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad3, oGreatEastRoad4, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad4] = new System.Windows.Point(7, 4);
 
             Room oGreatEastRoad5 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad4, oGreatEastRoad5, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad5] = new System.Windows.Point(8, 4);
 
             Room oGreatEastRoad6 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad5, oGreatEastRoad6, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad6] = new System.Windows.Point(9, 4);
 
             Room oGreatEastRoadGoblinAmbushGobLrgLrg = AddRoom("Gob Ambush #1");
             oGreatEastRoadGoblinAmbushGobLrgLrg.Mob1 = "goblin";
@@ -3157,30 +3159,39 @@ namespace IsengardClient
             oGreatEastRoadGoblinAmbushGobLrgLrg.Experience2 = 50;
             oGreatEastRoadGoblinAmbushGobLrgLrg.Experience3 = 45;
             AddBidirectionalExits(oGreatEastRoadGoblinAmbushGobLrgLrg, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oGreatEastRoadGoblinAmbushGobLrgLrg] = new System.Windows.Point(10, 3);
 
             Room oGreatEastRoad8 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoadGoblinAmbushGobLrgLrg, oGreatEastRoad8, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oGreatEastRoad8] = new System.Windows.Point(11, 4);
 
             Room oGreatEastRoad9 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad8, oGreatEastRoad9, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad9] = new System.Windows.Point(12, 4);
 
             Room oGreatEastRoad10 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad9, oGreatEastRoad10, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad10] = new System.Windows.Point(13, 4);
 
             Room oGreatEastRoad11 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad10, oGreatEastRoad11, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad11] = new System.Windows.Point(14, 4);
 
             Room oGreatEastRoad12 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad11, oGreatEastRoad12, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad12] = new System.Windows.Point(15, 4);
 
             Room oGreatEastRoad13 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad12, oGreatEastRoad13, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad13] = new System.Windows.Point(16, 4);
 
             Room oGreatEastRoad14 = AddRoom("Great East Road");
             AddBidirectionalExits(oGreatEastRoad13, oGreatEastRoad14, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGreatEastRoad14] = new System.Windows.Point(17, 4);
 
             _imladrisWestGateOutside = _imladrisWestGateOutside = AddRoom("West Gate of Imladris");
             AddBidirectionalExits(oGreatEastRoad14, _imladrisWestGateOutside, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(18, 4);
 
             Room oCatchBasin = AddRoom("Catch Basin");
             AddExit(oOuthouse, oCatchBasin, "hole");
@@ -3227,21 +3238,26 @@ namespace IsengardClient
 
             Room oNorthBrethilForest1 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest1, oGreatEastRoadGoblinAmbushGobLrgLrg, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest1] = new System.Windows.Point(10, 2);
 
             Room oNorthBrethilForest2 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest1, oNorthBrethilForest2, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest2] = new System.Windows.Point(11, 2);
 
             Room oDarkFootpath = AddRoom("Dark Footpath");
             AddBidirectionalExits(oDarkFootpath, oGreatEastRoad10, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oNorthBrethilForest2, oDarkFootpath, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oDarkFootpath] = new System.Windows.Point(12, 2);
 
             //North Brethil Forest
             Room oNorthBrethilForest3 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest3, oDarkFootpath, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(12, 1);
 
             Room oNorthBrethilForest4GobAmbushThreshold = AddRoom("Gob Ambush #2 Threshold");
             oNorthBrethilForest4GobAmbushThreshold.Mob1 = "goblin";
             AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(12, 0);
 
             Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2");
             oNorthBrethilForest5GobAmbush.Mob1 = "goblin";
@@ -3249,13 +3265,16 @@ namespace IsengardClient
             oNorthBrethilForest5GobAmbush.Experience2 = 50;
             oNorthBrethilForest5GobAmbush.Experience3 = 50;
             AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(12, 0);
 
             //South Brethil Forest
             Room oDeepForest = AddRoom("Deep Forest");
             AddBidirectionalExits(oGreatEastRoad9, oDeepForest, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oDeepForest] = new System.Windows.Point(12, 5);
 
             Room oBrethilForest = AddRoom("Brethil Forest");
             AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oBrethilForest] = new System.Windows.Point(12, 6);
 
             Room oSpriteGuards = AddRoom("Sprite Guards");
             oSpriteGuards.Mob1 = "guard";
@@ -3264,41 +3283,49 @@ namespace IsengardClient
             oSpriteGuards.Alignment = AlignmentType.Blue;
             AddExit(oBrethilForest, oSpriteGuards, "brush");
             AddExit(oSpriteGuards, oBrethilForest, "east");
+            breeToImladrisGraph.Rooms[oSpriteGuards] = new System.Windows.Point(11, 6);
 
             AddLocation(_aBreePerms, oSalamander);
             AddLocation(_aBreePerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aBreePerms, oNorthBrethilForest5GobAmbush);
-            AddSubLocation(oNorthBrethilForest5GobAmbush, oNorthBrethilForest4GobAmbushThreshold);
             AddLocation(_aBreePerms, oSpriteGuards);
             AddLocation(_aMisc, _breeEastGateOutside);
         }
 
-        private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse)
+        private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
         {
             Room oRoadToFarm1 = AddRoom("Farmland");
             AddBidirectionalExits(oGreatEastRoad1, oRoadToFarm1, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oRoadToFarm1] = new System.Windows.Point(4, 5);
 
             Room oRoadToFarm2 = AddRoom("Farmland");
             AddBidirectionalExits(oRoadToFarm1, oRoadToFarm2, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oRoadToFarm2] = new System.Windows.Point(4, 6);
 
             Room oRoadToFarm3 = AddRoom("Farmland");
             AddBidirectionalExits(oRoadToFarm2, oRoadToFarm3, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oRoadToFarm3] = new System.Windows.Point(4, 7);
 
             Room oRoadToFarm4 = AddRoom("Farmland");
             AddBidirectionalExits(oRoadToFarm3, oRoadToFarm4, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oRoadToFarm4] = new System.Windows.Point(4, 8);
 
             Room oRoadToFarm5 = AddRoom("Path to Ranch House");
             AddBidirectionalExits(oRoadToFarm5, oRoadToFarm4, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oRoadToFarm5] = new System.Windows.Point(3, 8);
 
             Room oRoadToFarm6 = AddRoom("Ranch House Front Steps");
             AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oRoadToFarm6] = new System.Windows.Point(2, 8);
 
             oOuthouse = AddRoom("Outhouse");
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oOuthouse] = new System.Windows.Point(5, 8);
 
             Room oSwimmingPond = AddRoom("Swimming Pond");
             AddExit(oOuthouse, oSwimmingPond, "pond");
             AddExit(oSwimmingPond, oOuthouse, "west");
+            breeToImladrisGraph.Rooms[oSwimmingPond] = new System.Windows.Point(6, 8);
 
             Room oMuddyPath = AddRoom("Muddy Path");
             AddExit(oSwimmingPond, oMuddyPath, "path");
@@ -3331,24 +3358,29 @@ namespace IsengardClient
             oRoadToFarm7HoundDog.Alignment = AlignmentType.Blue;
             AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
             AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
+            breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new System.Windows.Point(2, 7);
 
-            Room oFarmParlorManagerMulloyThreshold = AddRoom("Manager Mulloy Threshold");
+            Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor");
             oFarmParlorManagerMulloyThreshold.Mob1 = "manager";
             AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
+            breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new System.Windows.Point(2, 6);
             Room oManagerMulloy = AddRoom("Manager Mulloy");
             oManagerMulloy.Mob1 = "manager";
             oManagerMulloy.Experience1 = 600;
             oManagerMulloy.Alignment = AlignmentType.Blue;
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
+            breeToImladrisGraph.Rooms[oManagerMulloy] = new System.Windows.Point(2, 5);
 
             Room oFarmKitchen = AddRoom("Kitchen");
             AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
             AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
+            breeToImladrisGraph.Rooms[oFarmKitchen] = new System.Windows.Point(1, 5);
 
             Room oFarmBackPorch = AddRoom("Back Porch");
             AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
             AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
+            breeToImladrisGraph.Rooms[oFarmBackPorch] = new System.Windows.Point(1, 6);
 
             Room oFarmCat = AddRoom("Farm Cat");
             oFarmCat.Mob1 = "cat";
@@ -3356,6 +3388,7 @@ namespace IsengardClient
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
             Exit e = AddExit(oFarmCat, oFarmBackPorch, "out");
             e.NoFlee = true;
+            breeToImladrisGraph.Rooms[oFarmCat] = new System.Windows.Point(1, 7);
 
             Room oCrabbe = AddRoom("Crabbe");
             oCrabbe.Mob1 = "Crabbe";
@@ -3372,7 +3405,6 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
             AddLocation(_aBreePerms, oManagerMulloy);
             AddLocation(_aBreePerms, oFarmCat);
-            AddSubLocation(oManagerMulloy, oFarmParlorManagerMulloyThreshold);
             AddLocation(_aInaccessible, oMrWartnose);
             AddLocation(_aInaccessible, oCrabbe);
         }
