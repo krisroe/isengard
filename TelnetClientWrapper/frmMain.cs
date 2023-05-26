@@ -2805,7 +2805,7 @@ namespace IsengardClient
 
             Room oPathThroughScranlinsZoo = AddRoom("Path through Scranlin's Zoo");
             AddBidirectionalExits(oPathThroughScranlinsZoo, oZooEntrance, BidirectionalExitType.NorthSouth);
-            _breeStreetsGraph.Rooms[oZooEntrance] = new System.Windows.Point(2, -1);
+            _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo] = new System.Windows.Point(2, -1);
 
             Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo");
             e = AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
@@ -3430,114 +3430,149 @@ namespace IsengardClient
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside)
         {
-            _imladrisWestGateInside = AddRoom("West Gate of Imladris");
+            RoomGraph imladrisGraph = new RoomGraph("Imladris");
+            imladrisGraph.ScalingFactor = 100;
+            _graphs.Add(imladrisGraph);
+
+            _imladrisWestGateInside = AddRoom("West Gate");
             AddExit(_imladrisWestGateInside, _imladrisWestGateOutside, "gate");
+            imladrisGraph.Rooms[_imladrisWestGateInside] = new System.Windows.Point(0, 5);
 
-            Room oImladrisCircle1 = AddRoom("Imladris Circle");
+            Room oImladrisCircle1 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle1, _imladrisWestGateInside, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oImladrisCircle1] = new System.Windows.Point(5D / 3, 5 - (4D / 3));
 
-            Room oImladrisCircle2 = AddRoom("Imladris Circle");
+            Room oImladrisCircle2 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle2, oImladrisCircle1, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oImladrisCircle2] = new System.Windows.Point(10D / 3, 5 - (8D / 3));
 
-            Room oImladrisCircle3 = AddRoom("Imladris Circle");
+            Room oImladrisCircle3 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle2, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oImladrisCircle3] = new System.Windows.Point(5, 1);
 
-            Room oImladrisCircle4 = AddRoom("Imladris Circle");
+            Room oImladrisCircle4 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle4, BidirectionalExitType.SoutheastNorthwest);
+            imladrisGraph.Rooms[oImladrisCircle4] = new System.Windows.Point(5 + (4D / 3), 1 + (4D / 3));
 
-            Room oImladrisCircle5 = AddRoom("Imladris Circle");
+            Room oImladrisCircle5 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle4, oImladrisCircle5, BidirectionalExitType.SoutheastNorthwest);
+            imladrisGraph.Rooms[oImladrisCircle5] = new System.Windows.Point(5 + (8D / 3), 1 + (8D / 3));
 
-            Room oImladrisMainStreet1 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet1 = AddRoom("Main");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisMainStreet1, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet1] = new System.Windows.Point(1, 5);
 
-            Room oImladrisMainStreet2 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet2 = AddRoom("Main");
             AddBidirectionalExits(oImladrisMainStreet1, oImladrisMainStreet2, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet2] = new System.Windows.Point(2, 5);
 
-            Room oImladrisMainStreet3 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet3 = AddRoom("Main");
             AddBidirectionalExits(oImladrisMainStreet2, oImladrisMainStreet3, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet3] = new System.Windows.Point(3, 5);
 
-            Room oImladrisMainStreet4 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet4 = AddRoom("Main");
             AddBidirectionalExits(oImladrisMainStreet3, oImladrisMainStreet4, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet4] = new System.Windows.Point(4, 5);
 
-            Room oImladrisMainStreet5 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet5 = AddRoom("Main");
             AddBidirectionalExits(oImladrisMainStreet4, oImladrisMainStreet5, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet5] = new System.Windows.Point(5, 5);
 
-            Room oImladrisAlley3 = AddRoom("Side Alley North");
+            Room oImladrisAlley3 = AddRoom("Side Alley");
             AddBidirectionalExits(oImladrisMainStreet5, oImladrisAlley3, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisAlley3] = new System.Windows.Point(6, 5);
 
-            Room oImladrisAlley4 = AddRoom("Side Alley North");
+            Room oImladrisAlley4 = AddRoom("Side Alley");
             AddBidirectionalExits(oImladrisAlley3, oImladrisAlley4, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisAlley4] = new System.Windows.Point(6, 6);
 
-            Room oImladrisAlley5 = AddRoom("Side Alley South");
+            Room oImladrisAlley5 = AddRoom("Side Alley");
             AddBidirectionalExits(oImladrisAlley4, oImladrisAlley5, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisAlley5] = new System.Windows.Point(6, 7);
 
             Room oImladrisSmallAlley1 = AddRoom("Small Alley");
             AddExit(oImladrisAlley3, oImladrisSmallAlley1, "alley");
             AddExit(oImladrisSmallAlley1, oImladrisAlley3, "south");
+            imladrisGraph.Rooms[oImladrisSmallAlley1] = new System.Windows.Point(6, 4);
 
             Room oImladrisSmallAlley2 = AddRoom("Small Alley");
             AddBidirectionalExits(oImladrisSmallAlley2, oImladrisSmallAlley1, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisSmallAlley2] = new System.Windows.Point(6, 3);
 
             Room oImladrisPawnShop = AddRoom("Sharkey's Pawn Shop");
             AddBidirectionalSameNameExit(oImladrisPawnShop, oImladrisSmallAlley2, "door");
+            imladrisGraph.Rooms[oImladrisPawnShop] = new System.Windows.Point(5, 3);
 
-            Room oImladrisTownCircle = AddRoom("Imladris Town Circle");
+            Room oImladrisTownCircle = AddRoom("Town Circle");
             AddBidirectionalExits(oImladrisAlley3, oImladrisTownCircle, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisTownCircle] = new System.Windows.Point(7, 5);
 
-            Room oImladrisMainStreet6 = AddRoom("Imladris Main Street");
+            Room oImladrisMainStreet6 = AddRoom("Main");
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oImladrisMainStreet6] = new System.Windows.Point(8, 5);
 
-            Room oEastGateOfImladrisInside = AddRoom("East Gate of Imladris");
+            Room oEastGateOfImladrisInside = AddRoom("East Gate");
             AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(9, 5);
 
             Room oEastGateOfImladrisOutside = AddRoom("Gates of Imladris");
             AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
 
-            Room oImladrisCircle6 = AddRoom("Imladris Circle");
+            Room oImladrisCircle6 = AddRoom("Circle");
             AddBidirectionalExits(oEastGateOfImladrisInside, oImladrisCircle6, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oImladrisCircle6] = new System.Windows.Point(9 - (4D / 3), 5 + (4D / 3));
 
-            Room oImladrisCircle7 = AddRoom("Imladris Circle");
+            Room oImladrisCircle7 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle6, oImladrisCircle7, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oImladrisCircle7] = new System.Windows.Point(9 - (8D / 3), 5 + (8D / 3));
 
-            Room oImladrisCircle10 = AddRoom("Imladris Circle");
+            Room oImladrisCircle10 = AddRoom("Circle");
             AddBidirectionalExits(_imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
+            imladrisGraph.Rooms[oImladrisCircle10] = new System.Windows.Point(5 - (10D / 3), 9 - (8D / 3));
 
-            Room oImladrisCircle9 = AddRoom("Imladris Circle");
+            Room oImladrisCircle9 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle10, oImladrisCircle9, BidirectionalExitType.SoutheastNorthwest);
+            imladrisGraph.Rooms[oImladrisCircle9] = new System.Windows.Point(5 - (5D / 3), 9 - (4D / 3));
 
-            Room oImladrisCircle8 = AddRoom("Imladris Circle");
+            Room oImladrisCircle8 = AddRoom("Circle");
             AddBidirectionalExits(oImladrisCircle9, oImladrisCircle8, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisCircle7, oImladrisCircle8, BidirectionalExitType.SouthwestNortheast);
             AddExit(oImladrisAlley5, oImladrisCircle8, "south");
+            imladrisGraph.Rooms[oImladrisCircle8] = new System.Windows.Point(5, 9);
 
-            Room oRearAlley = AddRoom("Master Assassin Threshold"); //Rear Alley
+            Room oRearAlley = AddRoom("Rear Alley");
             AddBidirectionalExits(oImladrisCircle10, oRearAlley, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oRearAlley, oImladrisAlley5, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oRearAlley] = new System.Windows.Point(5, 7);
 
             Room oPoisonedDagger = AddRoom("Master Assassins");
             oPoisonedDagger.Mob1 = oRearAlley.Mob1 = "assassin";
             oPoisonedDagger.Experience1 = 600;
             oPoisonedDagger.Experience2 = 600;
             AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
+            imladrisGraph.Rooms[oPoisonedDagger] = new System.Windows.Point(5, 6.5);
 
-            oImladrisSouthGateInside = AddRoom("Southern Gate of Imladris");
+            oImladrisSouthGateInside = AddRoom("Southern Gate");
             AddBidirectionalExits(oImladrisCircle8, oImladrisSouthGateInside, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisSouthGateInside] = new System.Windows.Point(5, 10);
 
-            Room oImladrisCityDump = AddRoom("Imladris City Dump");
+            Room oImladrisCityDump = AddRoom("City Dump");
             Exit e = AddExit(oImladrisCircle8, oImladrisCityDump, "north");
             e.OmitGo = true;
             AddExit(oImladrisCityDump, oImladrisCircle8, "south");
             e = AddExit(oImladrisCityDump, oRearAlley, "north");
             e.Hidden = true;
+            imladrisGraph.Rooms[oImladrisCityDump] = new System.Windows.Point(5, 8);
 
-            Room oImladrisHealingHand = AddRoom("Imladris Healing Hand");
+            Room oImladrisHealingHand = AddRoom("Healing Hand");
             oImladrisHealingHand.IsHealingRoom = true;
             AddBidirectionalExits(oImladrisHealingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisHealingHand] = new System.Windows.Point(5, 4.5);
 
             Room oTyriesPriestSupplies = AddRoom("Tyrie's Priest Supplies");
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oTyriesPriestSupplies] = new System.Windows.Point(5, 5.5);
 
             Room oMountainPath1 = AddRoom("Mountain Path");
             AddBidirectionalExits(oEastGateOfImladrisOutside, oMountainPath1, BidirectionalExitType.WestEast);
@@ -3561,9 +3596,6 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oImladrisHealingHand);
             AddLocation(_aImladrisTharbadPerms, oIorlas);
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
-            AddSubLocation(oPoisonedDagger, oRearAlley);
-            AddLocation(_aMisc, oImladrisPawnShop);
-            AddLocation(_aMisc, oTyriesPriestSupplies);
         }
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room aqueduct)
