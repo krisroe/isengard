@@ -2896,9 +2896,6 @@ namespace IsengardClient
             AddLocation(aBree, oBreeTownSquare);
             AddLocation(aBree, oShadowOfIncendius);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
-            AddLocation(_aMisc, oBreePawnShopWest);
-            AddLocation(_aMisc, oBreePawnShopEast);
-            AddLocation(_aMisc, oLeonardosSwords);
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
