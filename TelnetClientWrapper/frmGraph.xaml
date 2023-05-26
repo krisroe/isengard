@@ -1,0 +1,27 @@
+﻿<Window x:Class="IsengardClient.frmGraph"
+             x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IsengardClient"
+             xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" PreviewMouseRightButtonDown="Window_PreviewMouseRightButtonDown"
+             WindowState="Maximized">
+ <Grid>
+  <Grid.RowDefinitions>
+   <RowDefinition Height="Auto" />
+   <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <WrapPanel Grid.Row="0">
+   <Label Content="Graph:" Margin="4"/>
+   <ComboBox x:Name="cboGraphs" Width="200" Margin="4" SelectionChanged="cboGraph_SelectionChanged" />
+   <Label Content="Current room:" Margin="4"/>
+   <TextBox x:Name="txtCurrentRoom" Width="200" Margin="4" IsReadOnly="True"/>
+  </WrapPanel>
+  <zoom:ZoomControl Grid.Row="1" BorderThickness="0">
+   <local:RoomLayout x:Name="graphLayout"/>
+  </zoom:ZoomControl>
+ </Grid>
+</Window>

@@ -80,8 +80,8 @@
             this.radEarth = new System.Windows.Forms.RadioButton();
             this.treeLocations = new System.Windows.Forms.TreeView();
             this.ctxLocations = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetLocation = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiGoToLocation = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetLocation = new System.Windows.Forms.ToolStripMenuItem();
             this.grpLocations = new System.Windows.Forms.GroupBox();
             this.grpOneClickMacros = new System.Windows.Forms.GroupBox();
             this.flpOneClickMacros = new System.Windows.Forms.FlowLayoutPanel();
@@ -167,6 +167,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.btnGraph = new System.Windows.Forms.Button();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -736,21 +737,21 @@
             this.tsmiGoToLocation,
             this.tsmiSetLocation});
             this.ctxLocations.Name = "ctxLocations";
-            this.ctxLocations.Size = new System.Drawing.Size(181, 70);
+            this.ctxLocations.Size = new System.Drawing.Size(91, 48);
             this.ctxLocations.Opening += new System.ComponentModel.CancelEventHandler(this.ctxLocations_Opening);
             this.ctxLocations.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxLocations_ItemClicked);
-            // 
-            // tsmiSetLocation
-            // 
-            this.tsmiSetLocation.Name = "tsmiSetLocation";
-            this.tsmiSetLocation.Size = new System.Drawing.Size(180, 22);
-            this.tsmiSetLocation.Text = "Set";
             // 
             // tsmiGoToLocation
             // 
             this.tsmiGoToLocation.Name = "tsmiGoToLocation";
-            this.tsmiGoToLocation.Size = new System.Drawing.Size(180, 22);
+            this.tsmiGoToLocation.Size = new System.Drawing.Size(90, 22);
             this.tsmiGoToLocation.Text = "Go";
+            // 
+            // tsmiSetLocation
+            // 
+            this.tsmiSetLocation.Name = "tsmiSetLocation";
+            this.tsmiSetLocation.Size = new System.Drawing.Size(90, 22);
+            this.tsmiSetLocation.Text = "Set";
             // 
             // grpLocations
             // 
@@ -956,6 +957,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
             this.pnlMain.Controls.Add(this.grpSingleMove);
             this.pnlMain.Controls.Add(this.btnSetAutoHazyThreshold);
@@ -1775,6 +1777,16 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // btnGraph
+            // 
+            this.btnGraph.Location = new System.Drawing.Point(429, 137);
+            this.btnGraph.Name = "btnGraph";
+            this.btnGraph.Size = new System.Drawing.Size(92, 24);
+            this.btnGraph.TabIndex = 119;
+            this.btnGraph.Text = "Graph";
+            this.btnGraph.UseVisualStyleBackColor = true;
+            this.btnGraph.Click += new System.EventHandler(this.btnGraph_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1963,6 +1975,7 @@
         private System.Windows.Forms.ContextMenuStrip ctxLocations;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetLocation;
         private System.Windows.Forms.ToolStripMenuItem tsmiGoToLocation;
+        private System.Windows.Forms.Button btnGraph;
     }
 }
 

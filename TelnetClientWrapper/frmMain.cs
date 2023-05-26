@@ -90,13 +90,12 @@ namespace IsengardClient
         private Area _aMisc;
         private Area _aInaccessible;
         private Dictionary<char, int> _asciiMapping;
+        private List<RoomGraph> _graphs;
+        private RoomGraph _breeStreetsGraph;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_BREE = "Bree";
-        private const string AREA_BREE_TO_HOBBITON = "Bree to Hobbiton";
-        private const string AREA_IMLADRIS = "Imladris";
-        private const string AREA_IMLADRIS_TO_THARBAD = "Imladris to Tharbad";
         private const string AREA_MISC = "Misc";
         private const string AREA_SHIPS = "Ships";
         private const string AREA_INTANGIBLE = "Intangible";
@@ -129,6 +128,7 @@ namespace IsengardClient
             _woe.Init(_vwr);
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
+            _graphs = new List<RoomGraph>();
 
             _variables = variables;
             _variablesByName = variablesByName;
@@ -200,9 +200,6 @@ namespace IsengardClient
             _aBreePerms = AddArea(AREA_BREE_PERMS);
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
             AddArea(AREA_BREE);
-            AddArea(AREA_BREE_TO_HOBBITON);
-            AddArea(AREA_IMLADRIS);
-            AddArea(AREA_IMLADRIS_TO_THARBAD);
             _aMisc = AddArea(AREA_MISC);
             _aShips = AddArea(AREA_SHIPS);
             AddArea(AREA_INTANGIBLE);
@@ -221,6 +218,16 @@ namespace IsengardClient
             cboSetOption.SelectedIndex = 0;
             cboCelduinExpress.SelectedIndex = 0;
             cboMaxOffLevel.SelectedIndex = 0;
+
+            foreach (RoomGraph g in _graphs)
+            {
+                var oldRooms = g.Rooms;
+                g.Rooms = new Dictionary<Room, System.Windows.Point>();
+                foreach (KeyValuePair<Room, System.Windows.Point> next in oldRooms)
+                {
+                    g.Rooms[next.Key] = new System.Windows.Point(next.Value.X * g.ScalingFactor, next.Value.Y * g.ScalingFactor);
+                }
+            }
 
             DoConnect();
         }
@@ -2397,99 +2404,99 @@ namespace IsengardClient
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
             Room[,] breeSewers = new Room[16, 11];
-            breeStreets[0, 0] = AddRoom("Bree Thalion/Wain 1x1");
-            breeStreets[1, 0] = AddRoom("Bree Thalion 2x1");
-            breeStreets[2, 0] = AddRoom("Bree Thalion 3x1");
-            breeStreets[3, 0] = AddRoom("Bree Thalion/High 4x1");
-            breeStreets[4, 0] = AddRoom("Bree Thalion 5x1");
-            breeStreets[5, 0] = AddRoom("Bree Thalion 6x1");
-            breeStreets[6, 0] = AddRoom("Bree Thalion 7x1");
-            breeStreets[7, 0] = AddRoom("Bree Thalion/Main 8x1");
-            _breeDocks = breeStreets[9, 0] = AddRoom("Bree Docks"); //10x1
-            oSewerPipeExit = breeStreets[10, 0] = AddRoom("Bree Thalion/Crissaegrim 11x1");
-            breeStreets[11, 0] = AddRoom("Bree Thalion 12x1");
-            breeStreets[12, 0] = AddRoom("Bree Thalion 13x1");
-            breeStreets[13, 0] = AddRoom("Bree Thalion 14x1");
-            breeStreets[14, 0] = AddRoom("Bree Thalion/Brownhaven 15x1");
-            breeStreets[0, 1] = AddRoom("Bree Wain 1x2");
-            Room oToCampusFreeClinic = breeStreets[3, 1] = AddRoom("Bree High 4x2");
-            breeStreets[7, 1] = AddRoom("Bree Main 8x2");
-            breeStreets[10, 1] = AddRoom("Bree Crissaegrim 11x2");
-            breeStreets[14, 1] = AddRoom("Bree Brownhaven 15x2");
-            breeStreets[0, 2] = AddRoom("Bree Wain 1x3");
-            Room oToPawnShopWest = breeStreets[3, 2] = AddRoom("Bree High 4x3");
-            Room oToBarracks = breeStreets[7, 2] = AddRoom("Bree Main 8x3");
-            breeStreets[10, 2] = AddRoom("Bree Crissaegrim 11x3");
-            breeStreets[14, 2] = AddRoom("Bree Brownhaven 15x3");
-            breeStreets[0, 3] = AddRoom("Bree Periwinkle/Wain 1x4");
-            breeSewers[0, 3] = AddRoom("Bree Sewers Periwinkle/Wain 1x4");
+            breeStreets[0, 0] = AddRoom("Thalion/Wain"); //1x1
+            breeStreets[1, 0] = AddRoom("Thalion"); //2x1
+            breeStreets[2, 0] = AddRoom("Thalion"); //3x1
+            breeStreets[3, 0] = AddRoom("Thalion/High"); //4x1
+            breeStreets[4, 0] = AddRoom("Thalion"); //5x1
+            breeStreets[5, 0] = AddRoom("Thalion"); //6x1
+            breeStreets[6, 0] = AddRoom("Thalion"); //7x1
+            breeStreets[7, 0] = AddRoom("Thalion/Main"); //8x1
+            _breeDocks = breeStreets[9, 0] = AddRoom("Docks"); //10x1
+            oSewerPipeExit = breeStreets[10, 0] = AddRoom("Thalion/Crissaegrim"); //11x1
+            breeStreets[11, 0] = AddRoom("Thalion"); //12x1
+            breeStreets[12, 0] = AddRoom("Thalion"); //13x1
+            breeStreets[13, 0] = AddRoom("Thalion"); //14x1
+            breeStreets[14, 0] = AddRoom("Thalion/Brownhaven"); //15x1
+            breeStreets[0, 1] = AddRoom("Wain"); //1x2
+            Room oToCampusFreeClinic = breeStreets[3, 1] = AddRoom("High"); //4x2
+            breeStreets[7, 1] = AddRoom("Main"); //8x2
+            breeStreets[10, 1] = AddRoom("Crissaegrim"); //11x2
+            breeStreets[14, 1] = AddRoom("Brownhaven"); //15x2
+            breeStreets[0, 2] = AddRoom("Wain"); //1x3
+            Room oToPawnShopWest = breeStreets[3, 2] = AddRoom("High"); //4x3
+            Room oToBarracks = breeStreets[7, 2] = AddRoom("Main"); //8x3
+            breeStreets[10, 2] = AddRoom("Crissaegrim"); //11x3
+            breeStreets[14, 2] = AddRoom("Brownhaven"); //15x3
+            breeStreets[0, 3] = AddRoom("Periwinkle/Wain"); //1x4
+            breeSewers[0, 3] = AddRoom("Sewers Periwinkle/Wain"); //1x4
             AddExit(breeSewers[0, 3], breeStreets[0, 3], "up");
-            breeStreets[1, 3] = AddRoom("Bree Periwinkle 2x4");
-            breeSewers[1, 3] = AddRoom("Bree Sewers Periwinkle 2x4");
-            breeStreets[2, 3] = AddRoom("Bree Periwinkle 3x4");
-            breeSewers[2, 3] = AddRoom("Bree Sewers Periwinkle 3x4");
-            breeStreets[3, 3] = AddRoom("Bree Periwinkle/High 4x4");
-            breeSewers[3, 3] = AddRoom("Bree Sewers Periwinkle/high 4x4");
+            breeStreets[1, 3] = AddRoom("Periwinkle"); //2x4
+            breeSewers[1, 3] = AddRoom("Sewers Periwinkle"); //2x4
+            breeStreets[2, 3] = AddRoom("Periwinkle"); //3x4
+            breeSewers[2, 3] = AddRoom("Sewers Periwinkle"); //3x4
+            breeStreets[3, 3] = AddRoom("Periwinkle/High"); //4x4
+            breeSewers[3, 3] = AddRoom("Sewers Periwinkle/High"); //4x4
             AddExit(breeSewers[3, 3], breeStreets[3, 3], "up");
-            breeStreets[4, 3] = AddRoom("Bree Periwinkle 5x4");
-            breeSewers[4, 3] = AddRoom("Bree Sewers Periwinkle 5x4");
-            breeStreets[5, 3] = AddRoom("Bree Periwinkle 6x4");
-            breeSewers[5, 3] = AddRoom("Bree Sewers Periwinkle 6x4");
-            breeStreets[6, 3] = AddRoom("Bree Periwinkle 7x4");
-            breeSewers[6, 3] = AddRoom("Bree Sewers Periwinkle 7x4");
-            breeStreets[7, 3] = AddRoom("Bree Periwinkle/Main 8x4");
+            breeStreets[4, 3] = AddRoom("Periwinkle"); //5x4
+            breeSewers[4, 3] = AddRoom("Sewers Periwinkle"); //5x4
+            breeStreets[5, 3] = AddRoom("Periwinkle"); //6x4
+            breeSewers[5, 3] = AddRoom("Sewers Periwinkle"); //6x4
+            breeStreets[6, 3] = AddRoom("Periwinkle"); //7x4
+            breeSewers[6, 3] = AddRoom("Sewers Periwinkle"); //7x4
+            breeStreets[7, 3] = AddRoom("Periwinkle/Main"); //8x4
             Room oShirriff = breeSewers[7, 3] = AddRoom("Shirriffs"); //Bree Sewers Periwinkle/Main 8x4
             AddExit(breeSewers[7, 3], breeStreets[7, 3], "up");
-            breeStreets[8, 3] = AddRoom("Bree Periwinkle 9x4");
-            breeStreets[9, 3] = AddRoom("Bree South Bridge 10x4");
-            breeStreets[10, 3] = AddRoom("Bree Periwinkle/Crissaegrim 11x4");
-            breeStreets[11, 3] = AddRoom("Bree Periwinkle 12x4");
-            breeStreets[12, 3] = AddRoom("Bree Periwinkle/PoorAlley 13x4");
-            breeStreets[13, 3] = AddRoom("Bree Periwinkle 14x4");
-            breeStreets[14, 3] = AddRoom("Bree Periwinkle/Brownhaven 15x4");
-            breeStreets[0, 4] = AddRoom("Bree Wain 1x5");
-            breeSewers[0, 4] = AddRoom("Bree Sewers Wain 1x5");
-            Room oToBlindPigPubAndUniversity = breeStreets[3, 4] = AddRoom("Bree High 4x5");
-            breeStreets[7, 4] = AddRoom("Bree Main 8x5");
-            Room oToSnarSlystoneShoppe = breeStreets[10, 4] = AddRoom("Bree Crissaegrim 11x5");
-            breeStreets[14, 4] = AddRoom("Bree Brownhaven 15x5");
-            breeStreets[0, 5] = AddRoom("Bree Wain 1x6");
-            breeSewers[0, 5] = AddRoom("Bree Sewers Wain 1x6");
-            breeStreets[3, 5] = AddRoom("Bree High 4x6");
-            breeStreets[7, 5] = AddRoom("Bree Main 8x6");
+            breeStreets[8, 3] = AddRoom("Periwinkle"); //9x4
+            breeStreets[9, 3] = AddRoom("South Bridge"); //10x4
+            breeStreets[10, 3] = AddRoom("Periwinkle/Crissaegrim"); //11x4
+            breeStreets[11, 3] = AddRoom("Periwinkle"); //12x4
+            Room oPeriwinklePoorAlley = breeStreets[12, 3] = AddRoom("Periwinkle/PoorAlley"); //13x4
+            breeStreets[13, 3] = AddRoom("Periwinkle"); //14x4
+            breeStreets[14, 3] = AddRoom("Periwinkle/Brownhaven"); //15x4
+            breeStreets[0, 4] = AddRoom("Wain"); //1x5
+            breeSewers[0, 4] = AddRoom("Sewers Wain"); //1x5
+            Room oToBlindPigPubAndUniversity = breeStreets[3, 4] = AddRoom("High"); //4x5
+            breeStreets[7, 4] = AddRoom("Main"); //8x5
+            Room oToSnarSlystoneShoppe = breeStreets[10, 4] = AddRoom("Crissaegrim"); //11x5
+            breeStreets[14, 4] = AddRoom("Brownhaven"); //15x5
+            breeStreets[0, 5] = AddRoom("Wain"); //1x6
+            breeSewers[0, 5] = AddRoom("Sewers Wain"); //1x6
+            breeStreets[3, 5] = AddRoom("High"); //4x6
+            breeStreets[7, 5] = AddRoom("Main"); //8x6
             Room oBigPapa = breeStreets[8, 5] = AddRoom("Big Papa"); //9x6
-            breeStreets[10, 5] = AddRoom("Bree Crissaegrim 11x6");
-            breeStreets[14, 5] = AddRoom("Bree Brownhaven 15x6");
-            breeStreets[0, 6] = AddRoom("Bree Wain 1x7");
-            breeSewers[0, 6] = AddRoom("Bree Sewers Wain 1x7");
-            breeStreets[3, 6] = AddRoom("Bree High 4x7");
-            breeStreets[7, 6] = AddRoom("Bree Main 8x7");
-            breeStreets[10, 6] = AddRoom("Bree Crissaegrim 11x7");
-            breeStreets[14, 6] = AddRoom("Bree Brownhaven 15x7");
-            oWestGateInside = breeStreets[0, 7] = AddRoom("Bree West Gate 1x8");
-            breeSewers[0, 7] = AddRoom("Bree Sewers West Gate 1x8");
+            breeStreets[10, 5] = AddRoom("Crissaegrim"); //11x6
+            breeStreets[14, 5] = AddRoom("Brownhaven"); //15x6
+            breeStreets[0, 6] = AddRoom("Wain"); //1x7
+            breeSewers[0, 6] = AddRoom("Sewers Wain"); //1x7
+            breeStreets[3, 6] = AddRoom("High"); //4x7
+            breeStreets[7, 6] = AddRoom("Main"); //8x7
+            breeStreets[10, 6] = AddRoom("Crissaegrim"); //11x7
+            breeStreets[14, 6] = AddRoom("Brownhaven"); //15x7
+            oWestGateInside = breeStreets[0, 7] = AddRoom("West Gate"); //1x8
+            breeSewers[0, 7] = AddRoom("Sewers West Gate"); //1x8
             AddExit(breeSewers[0, 7], oWestGateInside, "up");
-            breeStreets[1, 7] = AddRoom("Bree Leviathan 2x8");
-            breeStreets[2, 7] = AddRoom("Bree Leviathan 3x8");
-            breeStreets[3, 7] = AddRoom("Bree Leviathan/High 4x8");
-            breeStreets[4, 7] = AddRoom("Bree Leviathan 5x8");
-            oBreeTownSquare = breeStreets[5, 7] = AddRoom("Bree Town Square 6x8");
-            breeStreets[6, 7] = AddRoom("Bree Leviathan 7x8");
-            breeStreets[7, 7] = AddRoom("Bree Leviathan/Main 8x8");
-            breeStreets[8, 7] = AddRoom("Bree Leviathan 9x8");
-            Room oNorthBridge = breeStreets[9, 7] = AddRoom("Bree North Bridge 10x8");
-            breeStreets[10, 7] = AddRoom("Bree Leviathan/Crissaegrim 11x8");
-            breeStreets[11, 7] = AddRoom("Bree Leviathan 12x8");
-            Room oLeviathanPoorAlley = breeStreets[12, 7] = AddRoom("Bree Leviathan 13x8");
-            Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Bree Leviathan 14x8");
-            _breeEastGateInside = breeStreets[14, 7] = AddRoom("Bree East Gate 15x8");
-            breeStreets[0, 8] = AddRoom("Bree Wain 1x9");
-            breeSewers[0, 8] = AddRoom("Bree Sewers Wain 1x9");
-            breeStreets[3, 8] = AddRoom("Bree High 4x9");
-            breeStreets[7, 8] = AddRoom("Bree Main 8x9");
-            breeStreets[10, 8] = AddRoom("Bree Crissaegrim 11x9");
-            breeStreets[14, 8] = AddRoom("Bree Brownhaven 15x9");
-            Room oOrderOfLove = breeStreets[15, 8] = AddRoom("Bree Order of Love"); //16x9
+            breeStreets[1, 7] = AddRoom("Leviathan"); //2x8
+            breeStreets[2, 7] = AddRoom("Leviathan"); //3x8
+            breeStreets[3, 7] = AddRoom("Leviathan/High"); //4x8
+            breeStreets[4, 7] = AddRoom("Leviathan"); //5x8
+            oBreeTownSquare = breeStreets[5, 7] = AddRoom("Town Square"); //6x8
+            breeStreets[6, 7] = AddRoom("Leviathan"); //7x8
+            breeStreets[7, 7] = AddRoom("Leviathan/Main"); //8x8
+            breeStreets[8, 7] = AddRoom("Leviathan"); //9x8
+            Room oNorthBridge = breeStreets[9, 7] = AddRoom("North Bridge"); //10x8
+            breeStreets[10, 7] = AddRoom("Leviathan/Crissaegrim"); //11x8
+            breeStreets[11, 7] = AddRoom("Leviathan"); //12x8
+            Room oLeviathanPoorAlley = breeStreets[12, 7] = AddRoom("Leviathan"); //13x8
+            Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Leviathan"); //14x8
+            _breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate"); //15x8
+            breeStreets[0, 8] = AddRoom("Wain"); //1x9
+            breeSewers[0, 8] = AddRoom("Sewers Wain"); //1x9
+            breeStreets[3, 8] = AddRoom("High"); //4x9
+            breeStreets[7, 8] = AddRoom("Main"); //8x9
+            breeStreets[10, 8] = AddRoom("Crissaegrim"); //11x9
+            breeStreets[14, 8] = AddRoom("Brownhaven"); //15x9
+            Room oOrderOfLove = breeStreets[15, 8] = AddRoom("Order of Love"); //16x9
             oOrderOfLove.IsHealingRoom = true;
             switch (_preferredAlignment)
             {
@@ -2500,28 +2507,32 @@ namespace IsengardClient
                     oOrderOfLove.Mob1 = "Doctor";
                     break;
             }
-            breeStreets[0, 9] = AddRoom("Bree Wain 1x10");
-            breeSewers[0, 9] = AddRoom("Bree Sewers Wain 1x10");
-            breeStreets[3, 9] = AddRoom("Bree High 4x10");
-            breeStreets[7, 9] = AddRoom("Bree Main 8x10");
-            Room oToLeonardosFoundry = breeStreets[10, 9] = AddRoom("Bree Crissaegrim 11x10");
-            Room oToGamblingPit = breeStreets[14, 9] = AddRoom("Bree Brownhaven 15x10");
-            breeStreets[0, 10] = AddRoom("Bree Ormenel/Wain 1x11");
-            breeSewers[0, 10] = AddRoom("Bree Sewers Ormenel/Wain 1x11");
+            breeStreets[0, 9] = AddRoom("Wain"); //1x10
+            breeSewers[0, 9] = AddRoom("Sewers Wain"); //1x10
+            breeStreets[3, 9] = AddRoom("High"); //4x10
+            breeStreets[7, 9] = AddRoom("Main"); //8x10
+            Room oToLeonardosFoundry = breeStreets[10, 9] = AddRoom("Crissaegrim"); //11x10
+            Room oToGamblingPit = breeStreets[14, 9] = AddRoom("Brownhaven"); //15x10
+            breeStreets[0, 10] = AddRoom("Ormenel/Wain"); //1x11
+            breeSewers[0, 10] = AddRoom("Sewers Ormenel/Wain"); //1x11
             Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
             e.PreCommand = "open sewer";
-            breeStreets[1, 10] = AddRoom("Bree Ormenel 2x11");
-            Room oToZoo = breeStreets[2, 10] = AddRoom("Bree Ormenel 3x11");
-            breeStreets[3, 10] = AddRoom("Bree Ormenel/High 4x11");
-            Room oToCasino = breeStreets[4, 10] = AddRoom("Bree Ormenel 5x11");
-            breeStreets[5, 10] = AddRoom("Bree Ormenel 6x11");
-            breeStreets[6, 10] = AddRoom("Bree Ormenel 7x11");
-            breeStreets[7, 10] = AddRoom("Bree Ormenel/Main 8x11");
-            breeStreets[10, 10] = AddRoom("Bree Ormenel 11x11");
-            Room oToRealEstateOffice = breeStreets[11, 10] = AddRoom("Bree Ormenel 12x11");
-            breeStreets[12, 10] = AddRoom("Bree Ormenel 13x11");
-            Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Bree Ormenel 14x11");
-            breeStreets[14, 10] = AddRoom("Bree Brownhaven/Ormenel 15x11");
+            breeStreets[1, 10] = AddRoom("Ormenel"); //2x11
+            Room oToZoo = breeStreets[2, 10] = AddRoom("Ormenel"); //3x11
+            breeStreets[3, 10] = AddRoom("Ormenel/High"); //4x11
+            Room oToCasino = breeStreets[4, 10] = AddRoom("Ormenel"); //5x11
+            breeStreets[5, 10] = AddRoom("Ormenel"); //6x11
+            breeStreets[6, 10] = AddRoom("Ormenel"); //7x11
+            breeStreets[7, 10] = AddRoom("Ormenel/Main"); //8x11
+            breeStreets[10, 10] = AddRoom("Ormenel"); //11x11
+            Room oToRealEstateOffice = breeStreets[11, 10] = AddRoom("Ormenel"); //12x11
+            breeStreets[12, 10] = AddRoom("Ormenel"); //13x11
+            Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Ormenel"); //14x11
+            breeStreets[14, 10] = AddRoom("Brownhaven/Ormenel"); //15x11
+
+            _breeStreetsGraph = new RoomGraph("Bree Streets");
+            _breeStreetsGraph.ScalingFactor = 100;
+            _graphs.Add(_breeStreetsGraph);
 
             for (int x = 0; x < 16; x++)
             {
@@ -2564,26 +2575,41 @@ namespace IsengardClient
             oSewerDemonThreshold.Mob1 = "demon";
             AddBidirectionalExits(oSewerDemonThreshold, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
 
-            Room oPoorAlley1 = AddRoom("Bree Poor Alley");
+            Room oPoorAlley1 = AddRoom("Poor Alley");
             AddExit(oLeviathanPoorAlley, oPoorAlley1, "alley");
             AddExit(oPoorAlley1, oLeviathanPoorAlley, "north");
+            _breeStreetsGraph.Rooms[oPoorAlley1] = new System.Windows.Point(12, 4);
+
+            Room oPoorAlley2 = AddRoom("Poor Alley");
+            AddBidirectionalExits(oPoorAlley1, oPoorAlley2, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oPoorAlley2] = new System.Windows.Point(12, 5);
+
+            Room oPoorAlley3 = AddRoom("Poor Alley");
+            AddBidirectionalExits(oPoorAlley2, oPoorAlley3, BidirectionalExitType.NorthSouth);
+            AddExit(oPeriwinklePoorAlley, oPoorAlley3, "alley");
+            AddExit(oPoorAlley3, oPeriwinklePoorAlley, "south");
+            _breeStreetsGraph.Rooms[oPoorAlley3] = new System.Windows.Point(12, 6);
 
             Room oCampusFreeClinic = AddRoom("Bree Campus Free Clinic");
             oCampusFreeClinic.Mob1 = "Student";
             oCampusFreeClinic.IsHealingRoom = true;
             AddExit(oToCampusFreeClinic, oCampusFreeClinic, "clinic");
             AddExit(oCampusFreeClinic, oToCampusFreeClinic, "west");
+            _breeStreetsGraph.Rooms[oCampusFreeClinic] = new System.Windows.Point(4, 9);
 
-            Room oBreeRealEstateOffice = AddRoom("Bree Real Estate Office");
+            Room oBreeRealEstateOffice = AddRoom("Real Estate Office");
             AddBidirectionalExits(oToRealEstateOffice, oBreeRealEstateOffice, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(11, -0.5);
 
             oIxell = AddRoom("Ixell 70 Bl");
             oIxell.Mob1 = "Ixell";
             AddExit(oBreeRealEstateOffice, oIxell, "door");
             AddExit(oIxell, oBreeRealEstateOffice, "out");
+            _breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, -1);
 
             Room oKistaHillsHousing = AddRoom("Kista Hills Housing");
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oKistaHillsHousing] = new System.Windows.Point(13, -0.5);
 
             Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden");
             AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate");
@@ -2593,6 +2619,8 @@ namespace IsengardClient
             AddExit(oChurchsEnglishGarden, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGarden, "out");
             oChurchsEnglishGarden.Mob1 = oFallon.Mob1 = "Fallon";
+            _breeStreetsGraph.Rooms[oChurchsEnglishGarden] = new System.Windows.Point(13, -1);
+            _breeStreetsGraph.Rooms[oFallon] = new System.Windows.Point(13, -1.5);
 
             Room oGrantsStables = AddRoom("Grant's stables");
             if (_level < 11)
@@ -2613,6 +2641,7 @@ namespace IsengardClient
             oPansy.Experience1 = 95;
             oPansy.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oPansy, oToGamblingPit, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oPansy] = new System.Windows.Point(13, 1);
 
             Room oDroolie = AddRoom("Droolie");
             oDroolie.Mob1 = "Droolie";
@@ -2621,6 +2650,7 @@ namespace IsengardClient
             e = AddExit(oNorthBridge, oDroolie, "rope");
             e.Hidden = true;
             AddExit(oDroolie, oNorthBridge, "up");
+            _breeStreetsGraph.Rooms[oDroolie] = new System.Windows.Point(9, 3.5);
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River");
             AddExit(oDroolie, oBrandywineRiver1, "down");
@@ -2706,6 +2736,7 @@ namespace IsengardClient
             oIgor.Alignment = AlignmentType.Grey;
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
             AddExit(oToBlindPigPubAndUniversity, oIgor, "pub");
+            _breeStreetsGraph.Rooms[oIgor] = new System.Windows.Point(2, 6);
 
             Room oSnarlingMutt = AddRoom("Snarling Mutt");
             oSnarlingMutt.Mob1 = "Mutt";
@@ -2713,6 +2744,7 @@ namespace IsengardClient
             oSnarlingMutt.Alignment = AlignmentType.Red;
             AddExit(oToSnarSlystoneShoppe, oSnarlingMutt, "shoppe");
             AddExit(oSnarlingMutt, oToSnarSlystoneShoppe, "out");
+            _breeStreetsGraph.Rooms[oSnarlingMutt] = new System.Windows.Point(9, 6);
 
             Room oGuido = AddRoom("Guido");
             oGuido.Mob1 = "Guido";
@@ -2720,6 +2752,7 @@ namespace IsengardClient
             oGuido.Alignment = AlignmentType.Red;
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
+            _breeStreetsGraph.Rooms[oGuido] = new System.Windows.Point(4, -0.5);
 
             Room oGodfather = AddRoom("Godfather");
             oGodfather.Mob1 = "Godfather";
@@ -2729,6 +2762,7 @@ namespace IsengardClient
             e.PreCommand = "open door";
             e = AddExit(oGodfather, oGuido, "door");
             e.PreCommand = "open door";
+            _breeStreetsGraph.Rooms[oGodfather] = new System.Windows.Point(4, -1);
 
             Room oSergeantGrimdall = AddRoom("Sergeant Grimdall");
             oSergeantGrimdall.Mob1 = "Sergeant";
@@ -2736,43 +2770,53 @@ namespace IsengardClient
             oSergeantGrimdall.Alignment = AlignmentType.Blue;
             AddExit(oToBarracks, oSergeantGrimdall, "barracks");
             AddExit(oSergeantGrimdall, oToBarracks, "east");
+            _breeStreetsGraph.Rooms[oSergeantGrimdall] = new System.Windows.Point(6, 8);
 
             Room oGuardsRecRoom = AddRoom("Guard's Rec Room");
             AddBidirectionalExits(oSergeantGrimdall, oGuardsRecRoom, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oGuardsRecRoom] = new System.Windows.Point(6, 8.5);
 
             oBigPapa.Mob1 = "papa";
             oBigPapa.Experience1 = 350;
             oBigPapa.Alignment = AlignmentType.Blue;
 
-            Room oBreePawnShopWest = AddRoom("Bree Pawn Shop West (Ixell's Antique Shop)");
+            Room oBreePawnShopWest = AddRoom("Ixell's Antique Shop");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oBreePawnShopWest] = new System.Windows.Point(2, 8);
 
-            Room oBreePawnShopEast = AddRoom("Bree Pawn Shop East");
+            Room oBreePawnShopEast = AddRoom("Pawn Shop");
             AddBidirectionalExits(oPoorAlley1, oBreePawnShopEast, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oBreePawnShopEast] = new System.Windows.Point(13, 4);
 
-            Room oLeonardosFoundry = AddRoom("Bree Leonardo's Foundry");
+            Room oLeonardosFoundry = AddRoom("Leonardo's Foundry");
             AddExit(oToLeonardosFoundry, oLeonardosFoundry, "foundry");
             AddExit(oLeonardosFoundry, oToLeonardosFoundry, "east");
+            _breeStreetsGraph.Rooms[oLeonardosFoundry] = new System.Windows.Point(9, 1);
 
-            Room oLeonardosSwords = AddRoom("Bree Leonardo's Swords");
+            Room oLeonardosSwords = AddRoom("Leonardo's Swords");
             AddBidirectionalExits(oLeonardosSwords, oLeonardosFoundry, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oLeonardosSwords] = new System.Windows.Point(9, 0.5);
 
             Room oZooEntrance = AddRoom("Scranlin's Zoological Wonders");
             AddExit(oToZoo, oZooEntrance, "zoo");
             AddExit(oZooEntrance, oToZoo, "exit");
+            _breeStreetsGraph.Rooms[oZooEntrance] = new System.Windows.Point(2, -0.5);
 
             Room oPathThroughScranlinsZoo = AddRoom("Path through Scranlin's Zoo");
             AddBidirectionalExits(oPathThroughScranlinsZoo, oZooEntrance, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oZooEntrance] = new System.Windows.Point(2, -1);
 
             Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo");
             e = AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
             e.OmitGo = true;
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
+            _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.5);
 
             Room oScranlinThreshold = AddRoom("Scranlin Threshold");
             e = AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
             e.Hidden = true;
             AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
+            _breeStreetsGraph.Rooms[oScranlinThreshold] = new System.Windows.Point(2, -2);
 
             Room oScranlin = AddRoom("Scranlin");
             oScranlin.Mob1 = oScranlinThreshold.Mob1 = "Scranlin";
@@ -2781,6 +2825,7 @@ namespace IsengardClient
             e = AddExit(oScranlinThreshold, oScranlin, "outhouse");
             e.Hidden = true;
             AddExit(oScranlin, oScranlinThreshold, "out");
+            _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
             Room oTunnel = AddRoom("Tunnel");
             e = AddExit(breeSewers[0, 10], oTunnel, "tunnel");
@@ -2821,6 +2866,7 @@ namespace IsengardClient
             Room oPearlAlley = AddRoom("Pearl Alley");
             AddExit(oBreeTownSquare, oPearlAlley, "alley");
             AddExit(oPearlAlley, oBreeTownSquare, "north");
+            _breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 3.5);
 
             Room oBartenderWaitress = AddRoom("Prancing Pony Bar/Wait");
             oBartenderWaitress.Mob1 = "Bartender";
@@ -2828,6 +2874,7 @@ namespace IsengardClient
             oBartenderWaitress.Experience1 = 15;
             oBartenderWaitress.Experience2 = 7;
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
 
             AddLocation(_aBreePerms, oOrderOfLove);
             AddLocation(_aBreePerms, oCampusFreeClinic);
@@ -2864,6 +2911,8 @@ namespace IsengardClient
             Room r = grid[x, y];
             if (r != null)
             {
+                _breeStreetsGraph.Rooms[r] = new System.Windows.Point(x, (10 - y));
+
                 //look for a square to the west and add the east/west exits
                 if (x > 0)
                 {
@@ -3490,8 +3539,6 @@ namespace IsengardClient
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room aqueduct)
         {
-            Area oBreeToHobbiton = _areasByName[AREA_BREE_TO_HOBBITON];
-
             Room oBreeWestGateOutside = AddRoom("West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
 
@@ -3613,14 +3660,12 @@ namespace IsengardClient
             AddLocation(_aInaccessible, oSomething);
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
-            AddLocation(oBreeToHobbiton, oShepherd);
+            AddLocation(_aBreePerms, oShepherd);
             AddLocation(_aBreePerms, oKasnarTheGuard);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
         {
-            Area oImladrisToTharbad = _areasByName[AREA_IMLADRIS_TO_THARBAD];
-
             Room oMistyTrail1 = AddRoom("Misty Trail");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
 
@@ -3935,126 +3980,11 @@ namespace IsengardClient
             public List<Room> Locations { get; set; }
         }
 
-        internal class Room
-        {
-            public override string ToString()
-            {
-                string ret = Name;
-                if (Experience1.HasValue)
-                {
-                    if (Experience2.HasValue)
-                    {
-                        if (Experience3.HasValue)
-                        {
-                            ret += (" " + Experience1.Value + "/" + Experience2.Value + "/" + Experience3.Value);
-                        }
-                        else
-                        {
-                            ret += (" " + Experience1.Value + "/" + Experience2.Value);
-                        }
-                    }
-                    else
-                    {
-                        ret += (" " + Experience1.Value);
-                    }
-                }
-                if (Alignment.HasValue)
-                {
-                    ret += " ";
-                    string sAlign = string.Empty;
-                    switch (Alignment.Value)
-                    {
-                        case AlignmentType.Blue:
-                            sAlign = "Bl";
-                            break;
-                        case AlignmentType.Grey:
-                            sAlign = "Gy";
-                            break;
-                        case AlignmentType.Red:
-                            sAlign = "Rd";
-                            break;
-                    }
-                    ret += sAlign;
-                }
-                return ret;
-            }
-
-            public Room(string name)
-            {
-                this.Name = name;
-            }
-            public string Name { get; set; }
-            public string Mob1 { get; set; }
-            public string Mob2 { get; set; }
-            public string Mob3 { get; set; }
-            public Dictionary<Variable, string> VariableValues { get; set; }
-            public List<Room> SubLocations { get; set; }
-            public Room ParentRoom { get; set; }
-            public AlignmentType? Alignment { get; set; }
-            public int? Experience1 { get; set; }
-            public int? Experience2 { get; set; }
-            public int? Experience3 { get; set; }
-            public bool IsHealingRoom { get; set; }
-            public bool IsTrapRoom { get; set; }
-
-            public string GetDefaultMob()
-            {
-                string defaultMob = this.Mob1;
-                if (!string.IsNullOrEmpty(this.Mob1))
-                {
-                    if (!string.IsNullOrEmpty(this.Mob2))
-                    {
-                        if (!string.Equals(defaultMob, this.Mob2, StringComparison.OrdinalIgnoreCase))
-                        {
-                            defaultMob = string.Empty;
-                        }
-                        else if (!string.Equals(defaultMob, this.Mob3, StringComparison.OrdinalIgnoreCase))
-                        {
-                            defaultMob = string.Empty;
-                        }
-                    }
-                }
-                return defaultMob;
-            }
-        }
-
         public enum AlignmentType
         {
             Blue,
             Grey,
             Red,
-        }
-
-        internal class Exit : Edge<Room>
-        {
-            public override string ToString()
-            {
-                return Source.ToString() + "--" + ExitText + " -->" + Target.ToString();
-            }
-            /// <summary>
-            /// text for the exit
-            /// </summary>
-            public string ExitText { get; set; }
-            /// <summary>
-            /// whether to omit go for the exit
-            /// </summary>
-            public bool OmitGo { get; set; }
-            /// <summary>
-            /// command to run before using the exit
-            /// </summary>
-            public string PreCommand { get; set; }
-            /// <summary>
-            /// whether the exit is hidden
-            /// </summary>
-            public bool Hidden { get; set; }
-            /// <summary>
-            /// whether flee is permitted
-            /// </summary>
-            public bool NoFlee { get; set; }
-            public Exit(Room source, Room target, string exitText) : base(source, target)
-            {
-                this.ExitText = exitText;
-            }
         }
 
         private void SendCommand(string command, bool IsPassword)
@@ -5222,52 +5152,69 @@ namespace IsengardClient
             }
             else if (tsi == tsmiGoToLocation)
             {
-                _currentBackgroundParameters = GenerateNewBackgroundParameters();
-                int moveGapMS;
-                if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
-                    moveGapMS = ((IntegerVariable)movegapmsvar).Value;
-                else
-                    moveGapMS = 260;
-                _currentBackgroundParameters.WaitMS = moveGapMS;
-                _currentBackgroundParameters.TargetRoom = targetRoom;
-                _pathMapping = new Dictionary<Room, Exit>();
-                _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
-                _currentSearch.TreeEdge += Alg_TreeEdge;
-                _currentSearch.Compute(m_oCurrentRoom);
+                GoToRoom(targetRoom);
+            }
+        }
 
-                if (!_pathMapping.ContainsKey(targetRoom))
+        private void GoToRoom(Room targetRoom)
+        {
+            _currentBackgroundParameters = GenerateNewBackgroundParameters();
+            int moveGapMS;
+            if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
+                moveGapMS = ((IntegerVariable)movegapmsvar).Value;
+            else
+                moveGapMS = 260;
+            _currentBackgroundParameters.WaitMS = moveGapMS;
+            _currentBackgroundParameters.TargetRoom = targetRoom;
+            _pathMapping = new Dictionary<Room, Exit>();
+            _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
+            _currentSearch.TreeEdge += Alg_TreeEdge;
+            _currentSearch.Compute(m_oCurrentRoom);
+
+            if (!_pathMapping.ContainsKey(targetRoom))
+            {
+                MessageBox.Show("No path to target room found.");
+                return;
+            }
+
+            Room currentRoom = targetRoom;
+            List<Exit> exits = new List<Exit>();
+            while (currentRoom != m_oCurrentRoom)
+            {
+                Exit nextExit = _pathMapping[currentRoom];
+                exits.Add(nextExit);
+                currentRoom = nextExit.Source;
+            }
+
+            List<MacroStepBase> commands = new List<MacroStepBase>();
+            for (int i = exits.Count - 1; i >= 0; i--)
+            {
+                Exit exit = exits[i];
+                if (!string.IsNullOrEmpty(exit.PreCommand))
                 {
-                    MessageBox.Show("No path to target room found.");
-                    return;
+                    commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
                 }
-
-                Room currentRoom = targetRoom;
-                List<Exit> exits = new List<Exit>();
-                while (currentRoom != m_oCurrentRoom)
+                if (exit.Target.IsTrapRoom)
                 {
-                    Exit nextExit = _pathMapping[currentRoom];
-                    exits.Add(nextExit);
-                    currentRoom = nextExit.Source;
+                    commands.Add(new MacroCommand("prepare", "prepare"));
                 }
+                string nextCommand = exit.ExitText;
+                if (!exit.OmitGo) nextCommand = "go " + nextCommand;
+                commands.Add(new MacroCommand(nextCommand, nextCommand));
+            }
 
-                List<MacroStepBase> commands = new List<MacroStepBase>();
-                for (int i = exits.Count - 1; i >= 0; i--)
-                {
-                    Exit exit = exits[i];
-                    if (!string.IsNullOrEmpty(exit.PreCommand))
-                    {
-                        commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
-                    }
-                    if (exit.Target.IsTrapRoom)
-                    {
-                        commands.Add(new MacroCommand("prepare", "prepare"));
-                    }
-                    string nextCommand = exit.ExitText;
-                    if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                    commands.Add(new MacroCommand(nextCommand, nextCommand));
-                }
+            RunCommands(commands, _currentBackgroundParameters);
+        }
 
-                RunCommands(commands, _currentBackgroundParameters);
+        private void btnGraph_Click(object sender, EventArgs e)
+        {
+            frmGraph frm = new frmGraph(_map, _graphs, m_oCurrentRoom);
+            frm.ShowDialog();
+            m_oCurrentRoom = frm.CurrentRoom;
+            txtCurrentRoom.Text = m_oCurrentRoom == null ? string.Empty : m_oCurrentRoom.ToString();
+            if (frm.GoToRoom != null)
+            {
+                GoToRoom(frm.GoToRoom);
             }
         }
     }
