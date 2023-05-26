@@ -1399,6 +1399,7 @@ namespace IsengardClient
                 foreach (Room r in a.Locations)
                 {
                     TreeNode tRoom = new TreeNode(r.ToString());
+                    tRoom.ContextMenuStrip = ctxLocations;
                     tRoom.Tag = r;
                     tArea.Nodes.Add(tRoom);
                     PopulateSubLocations(tRoom, r);
@@ -4351,19 +4352,6 @@ namespace IsengardClient
                 MessageBox.Show(errorMessage);
         }
 
-        private void btnSetCurrentLocation_Click(object sender, EventArgs e)
-        {
-            TreeNode oSelectedTreeNode = treeLocations.SelectedNode as TreeNode;
-            if (oSelectedTreeNode != null)
-            {
-                Room r = oSelectedTreeNode.Tag as Room;
-                if (r != null)
-                {
-                    SetCurrentRoom(r);
-                }
-            }
-        }
-
         private void btnClearCurrentLocation_Click(object sender, EventArgs e)
         {
             DoClearCurrentLocation();
@@ -4374,76 +4362,6 @@ namespace IsengardClient
             m_oCurrentRoom = null;
             txtCurrentRoom.Text = string.Empty;
             RefreshEnabledForSingleMoveButtons();
-        }
-
-        private void btnGoToLocation_Click(object sender, EventArgs e)
-        {
-            if (m_oCurrentRoom == null)
-            {
-                MessageBox.Show("No current room.");
-                return;
-            }
-            TreeNode oSelectedTreeNode = treeLocations.SelectedNode;
-            if (oSelectedTreeNode == null)
-            {
-                MessageBox.Show("Nothing selected in tree.");
-                return;
-
-            }
-
-            Room targetRoom = oSelectedTreeNode.Tag as Room;
-            if (targetRoom == null)
-            {
-                MessageBox.Show("Selected tree node is not a room.");
-                return;
-            }
-
-            _currentBackgroundParameters = GenerateNewBackgroundParameters();
-            int moveGapMS;
-            if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
-                moveGapMS = ((IntegerVariable)movegapmsvar).Value;
-            else
-                moveGapMS = 260;
-            _currentBackgroundParameters.WaitMS = moveGapMS;
-            _currentBackgroundParameters.TargetRoom = targetRoom;
-            _pathMapping = new Dictionary<Room, Exit>();
-            _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
-            _currentSearch.TreeEdge += Alg_TreeEdge;
-            _currentSearch.Compute(m_oCurrentRoom);
-
-            if (!_pathMapping.ContainsKey(targetRoom))
-            {
-                MessageBox.Show("No path to target room found.");
-                return;
-            }
-
-            Room currentRoom = targetRoom;
-            List<Exit> exits = new List<Exit>();
-            while (currentRoom != m_oCurrentRoom)
-            {
-                Exit nextExit = _pathMapping[currentRoom];
-                exits.Add(nextExit);
-                currentRoom = nextExit.Source;
-            }
-
-            List<MacroStepBase> commands = new List<MacroStepBase>();
-            for (int i = exits.Count - 1; i >= 0; i--)
-            {
-                Exit exit = exits[i];
-                if (!string.IsNullOrEmpty(exit.PreCommand))
-                {
-                    commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
-                }
-                if (exit.Target.IsTrapRoom)
-                {
-                    commands.Add(new MacroCommand("prepare", "prepare"));
-                }
-                string nextCommand = exit.ExitText;
-                if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(new MacroCommand(nextCommand, nextCommand));
-            }
-
-            RunCommands(commands, _currentBackgroundParameters);
         }
 
         private BackgroundWorkerParameters GenerateNewBackgroundParameters()
@@ -5250,6 +5168,106 @@ namespace IsengardClient
                     InitializeHelp();
                     _initiatedHelpTab = true;
                 }
+            }
+        }
+
+        private void ctxLocations_Opening(object sender, CancelEventArgs e)
+        {
+            bool cancel = false;
+            if (btnAbort.Enabled)
+            {
+                cancel = true;
+            }
+            else
+            {
+                TreeNode node = treeLocations.SelectedNode;
+                if (node == null)
+                {
+                    cancel = true;
+                }
+                else
+                {
+                    Room r = node.Tag as Room;
+                    if (r == null)
+                    {
+                        cancel = true;
+                    }
+                    else
+                    {
+                        tsmiGoToLocation.Visible = m_oCurrentRoom != null;
+                    }
+                }
+            }
+            if (cancel)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void treeLocations_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                treeLocations.SelectedNode = e.Node;
+            }
+        }
+
+        private void ctxLocations_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ToolStripItem tsi = e.ClickedItem;
+            Room targetRoom = (Room)treeLocations.SelectedNode.Tag;
+            if (tsi == tsmiSetLocation)
+            {
+                SetCurrentRoom(targetRoom);
+            }
+            else if (tsi == tsmiGoToLocation)
+            {
+                _currentBackgroundParameters = GenerateNewBackgroundParameters();
+                int moveGapMS;
+                if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
+                    moveGapMS = ((IntegerVariable)movegapmsvar).Value;
+                else
+                    moveGapMS = 260;
+                _currentBackgroundParameters.WaitMS = moveGapMS;
+                _currentBackgroundParameters.TargetRoom = targetRoom;
+                _pathMapping = new Dictionary<Room, Exit>();
+                _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_map);
+                _currentSearch.TreeEdge += Alg_TreeEdge;
+                _currentSearch.Compute(m_oCurrentRoom);
+
+                if (!_pathMapping.ContainsKey(targetRoom))
+                {
+                    MessageBox.Show("No path to target room found.");
+                    return;
+                }
+
+                Room currentRoom = targetRoom;
+                List<Exit> exits = new List<Exit>();
+                while (currentRoom != m_oCurrentRoom)
+                {
+                    Exit nextExit = _pathMapping[currentRoom];
+                    exits.Add(nextExit);
+                    currentRoom = nextExit.Source;
+                }
+
+                List<MacroStepBase> commands = new List<MacroStepBase>();
+                for (int i = exits.Count - 1; i >= 0; i--)
+                {
+                    Exit exit = exits[i];
+                    if (!string.IsNullOrEmpty(exit.PreCommand))
+                    {
+                        commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
+                    }
+                    if (exit.Target.IsTrapRoom)
+                    {
+                        commands.Add(new MacroCommand("prepare", "prepare"));
+                    }
+                    string nextCommand = exit.ExitText;
+                    if (!exit.OmitGo) nextCommand = "go " + nextCommand;
+                    commands.Add(new MacroCommand(nextCommand, nextCommand));
+                }
+
+                RunCommands(commands, _currentBackgroundParameters);
             }
         }
     }
