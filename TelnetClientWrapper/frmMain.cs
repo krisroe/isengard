@@ -3931,7 +3931,7 @@ namespace IsengardClient
             oShantyTownGraph.Rooms[oGypsyAnimalKeep] = new System.Windows.Point(0, 0);
 
             Room oExoticAnimalKeep = AddRoom("Exotic Animal Wagon");
-            AddExit(oGypsyAnimalKeep, oExoticAnimalKeep, "gate");
+            AddExit(oGypsyAnimalKeep, oExoticAnimalKeep, "wagon");
             AddExit(oExoticAnimalKeep, oGypsyAnimalKeep, "out");
             oShantyTownGraph.Rooms[oExoticAnimalKeep] = new System.Windows.Point(-1, 0);
 
