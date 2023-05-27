@@ -92,7 +92,6 @@ namespace IsengardClient
         private Dictionary<char, int> _asciiMapping;
         private List<RoomGraph> _graphs;
         private RoomGraph _breeStreetsGraph;
-        private RoomGraph _breeToImladrisGraph;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -2232,7 +2231,7 @@ namespace IsengardClient
             }
 
             Area aBree = _areasByName[AREA_BREE];
-            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room aqueduct, out Room sewerTunnelToTConnection);
+            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage);
             AddMayorMillwoodMansion(oIxell, out List<Room> mansionRooms, out Room oChancellorOfProtection, out Room oMayorMillwood);
             AddLocation(_aBreePerms, oChancellorOfProtection);
             AddLocation(_aBreePerms, oMayorMillwood);
@@ -2241,7 +2240,7 @@ namespace IsengardClient
                 AddLocation(aBree, r);
             }
 
-            AddBreeToHobbiton(oBreeWestGateInside, aqueduct);
+            AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
             AddBreeToImladris(oSewerPipeExit, sewerTunnelToTConnection);
             AddImladrisCity(out Room oImladrisSouthGateInside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
@@ -2481,8 +2480,12 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room aqueduct, out Room sewerTunnelToTConnection)
+        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage)
         {
+            _breeStreetsGraph = new RoomGraph("Bree Streets");
+            _breeStreetsGraph.ScalingFactor = 100;
+            _graphs.Add(_breeStreetsGraph);
+
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
             Room[,] breeSewers = new Room[16, 11];
@@ -2527,7 +2530,7 @@ namespace IsengardClient
             breeStreets[6, 3] = AddRoom("Periwinkle"); //7x4
             breeSewers[6, 3] = AddRoom("Sewers Periwinkle"); //7x4
             breeStreets[7, 3] = AddRoom("Periwinkle/Main"); //8x4
-            Room oShirriff = breeSewers[7, 3] = AddRoom("Shirriffs"); //Bree Sewers Periwinkle/Main 8x4
+            breeSewers[7, 3] = AddRoom("Shirriffs"); //Bree Sewers Periwinkle/Main 8x4
             AddExit(breeSewers[7, 3], breeStreets[7, 3], "up");
             breeStreets[8, 3] = AddRoom("Periwinkle"); //9x4
             breeStreets[9, 3] = AddRoom("South Bridge"); //10x4
@@ -2612,9 +2615,7 @@ namespace IsengardClient
             Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Ormenel"); //14x11
             breeStreets[14, 10] = AddRoom("Brownhaven/Ormenel"); //15x11
 
-            _breeStreetsGraph = new RoomGraph("Bree Streets");
-            _breeStreetsGraph.ScalingFactor = 100;
-            _graphs.Add(_breeStreetsGraph);
+            AddBreeSewers(breeSewers, out oSmoulderingVillage);
 
             for (int x = 0; x < 16; x++)
             {
@@ -2623,39 +2624,6 @@ namespace IsengardClient
                     AddGridBidirectionalExits(breeStreets, x, y);
                 }
             }
-
-            //add exits for the sewers. due to screwiness on periwinkle this can't be done automatically.
-            AddBidirectionalExits(breeSewers[0, 10], breeSewers[0, 9], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 9], breeSewers[0, 8], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 8], breeSewers[0, 7], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 7], breeSewers[0, 6], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 6], breeSewers[0, 5], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 5], breeSewers[0, 4], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 4], breeSewers[0, 3], BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(breeSewers[0, 3], breeSewers[1, 3], BidirectionalExitType.WestEast);
-            AddExit(breeSewers[1, 3], breeSewers[3, 3], "east");
-            AddExit(breeSewers[3, 3], breeSewers[2, 3], "west");
-            AddExit(breeSewers[2, 3], breeSewers[1, 3], "west");
-            AddBidirectionalExits(breeSewers[3, 3], breeSewers[4, 3], BidirectionalExitType.WestEast);
-            AddBidirectionalExits(breeSewers[4, 3], breeSewers[5, 3], BidirectionalExitType.WestEast);
-            AddBidirectionalExits(breeSewers[5, 3], breeSewers[6, 3], BidirectionalExitType.WestEast);
-            AddBidirectionalExits(breeSewers[6, 3], breeSewers[7, 3], BidirectionalExitType.WestEast);
-
-            oShirriff.Mob1 = "shirriff";
-            oShirriff.Experience1 = 325;
-            oShirriff.Experience2 = 325;
-
-            Room oValveChamber = AddRoom("Valve Chamber");
-            e = AddExit(breeSewers[7, 3], oValveChamber, "valve");
-            e.Hidden = true;
-            AddExit(oValveChamber, breeSewers[7, 3], "south");
-
-            Room oSewerPassageFromValveChamber = AddRoom("Sewer Passage");
-            AddBidirectionalExits(oSewerPassageFromValveChamber, oValveChamber, BidirectionalExitType.NorthSouth);
-
-            Room oSewerDemonThreshold = AddRoom("Sewer Demon Threshold");
-            oSewerDemonThreshold.Mob1 = "demon";
-            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
 
             Room oPoorAlley1 = AddRoom("Poor Alley");
             AddExit(oLeviathanPoorAlley, oPoorAlley1, "alley");
@@ -2909,37 +2877,6 @@ namespace IsengardClient
             AddExit(oScranlin, oScranlinThreshold, "out");
             _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
-            Room oTunnel = AddRoom("Tunnel");
-            e = AddExit(breeSewers[0, 10], oTunnel, "tunnel");
-            e.Hidden = true;
-            AddExit(oTunnel, breeSewers[0, 10], "tunnel");
-
-            Room oLatrine = AddRoom("Latrine");
-            AddExit(oTunnel, oLatrine, "south");
-            e = AddExit(oLatrine, oTunnel, "north");
-            e.OmitGo = true;
-            e.Hidden = true;
-
-            Room oEugenesDungeon = AddRoom("Eugene's Dungeon");
-            AddBidirectionalExits(oEugenesDungeon, oLatrine, BidirectionalExitType.SouthwestNortheast);
-
-            Room oShadowOfIncendius = AddRoom("Shadow of Incendius");
-            AddBidirectionalExits(oShadowOfIncendius, oEugenesDungeon, BidirectionalExitType.WestEast);
-
-            Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner");
-            oEugeneTheExecutioner.IsTrapRoom = true;
-            AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
-
-            Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel");
-            oBurnedRemainsOfNimrodel.Mob1 = "Nimrodel";
-            oBurnedRemainsOfNimrodel.Experience1 = 300;
-            AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
-            AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
-
-            aqueduct = AddRoom("Aqueduct");
-            AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
-            AddExit(aqueduct, oBurnedRemainsOfNimrodel, "out");
-
             _boatswain = AddRoom("Boatswain");
             _boatswain.Mob1 = "Boatswain";
             _boatswain.Experience1 = 350;
@@ -2966,13 +2903,128 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oSergeantGrimdall);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
-            AddLocation(aBree, oSewerDemonThreshold);
-            AddLocation(aBree, oShadowOfIncendius);
-            AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
-            AddLocation(_aBreePerms, oShirriff);
             AddLocation(aBree, oOohlgrist);
             AddLocation(aBree, oHermitsCave);
             AddLocation(aBree, oSewerOrcChamber);
+        }
+
+        private void AddBreeSewers(Room[,] breeSewers, out Room oSmoulderingVillage)
+        {
+            RoomGraph breeSewersGraph = new RoomGraph("Bree Sewers");
+            breeSewersGraph.ScalingFactor = 100;
+            _graphs.Add(breeSewersGraph);
+
+            //add exits for the sewers. due to screwiness on periwinkle this can't be done automatically.
+            AddBidirectionalExits(breeSewers[0, 10], breeSewers[0, 9], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 9], breeSewers[0, 8], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 8], breeSewers[0, 7], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 7], breeSewers[0, 6], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 6], breeSewers[0, 5], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 5], breeSewers[0, 4], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 4], breeSewers[0, 3], BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(breeSewers[0, 3], breeSewers[1, 3], BidirectionalExitType.WestEast);
+            AddExit(breeSewers[1, 3], breeSewers[3, 3], "east");
+            AddExit(breeSewers[3, 3], breeSewers[2, 3], "west");
+            AddExit(breeSewers[2, 3], breeSewers[1, 3], "west");
+            AddBidirectionalExits(breeSewers[3, 3], breeSewers[4, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[4, 3], breeSewers[5, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[5, 3], breeSewers[6, 3], BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeSewers[6, 3], breeSewers[7, 3], BidirectionalExitType.WestEast);
+            breeSewersGraph.Rooms[breeSewers[0, 10]] = new System.Windows.Point(5, 2);
+            breeSewersGraph.Rooms[breeSewers[0, 9]] = new System.Windows.Point(5, 3);
+            breeSewersGraph.Rooms[breeSewers[0, 8]] = new System.Windows.Point(5, 4);
+            breeSewersGraph.Rooms[breeSewers[0, 7]] = new System.Windows.Point(5, 5);
+            breeSewersGraph.Rooms[breeSewers[0, 6]] = new System.Windows.Point(5, 6);
+            breeSewersGraph.Rooms[breeSewers[0, 5]] = new System.Windows.Point(5, 7);
+            breeSewersGraph.Rooms[breeSewers[0, 4]] = new System.Windows.Point(5, 8);
+            breeSewersGraph.Rooms[breeSewers[0, 3]] = new System.Windows.Point(5, 9);
+            breeSewersGraph.Rooms[breeSewers[1, 3]] = new System.Windows.Point(6, 9);
+            breeSewersGraph.Rooms[breeSewers[2, 3]] = new System.Windows.Point(7, 8);
+            breeSewersGraph.Rooms[breeSewers[3, 3]] = new System.Windows.Point(8, 9);
+            breeSewersGraph.Rooms[breeSewers[4, 3]] = new System.Windows.Point(9, 9);
+            breeSewersGraph.Rooms[breeSewers[5, 3]] = new System.Windows.Point(10, 9);
+            breeSewersGraph.Rooms[breeSewers[6, 3]] = new System.Windows.Point(11, 9);
+            breeSewersGraph.Rooms[breeSewers[7, 3]] = new System.Windows.Point(12, 9);
+
+            Room oTunnel = AddRoom("Tunnel");
+            Exit e = AddExit(breeSewers[0, 10], oTunnel, "tunnel");
+            e.Hidden = true;
+            AddExit(oTunnel, breeSewers[0, 10], "tunnel");
+            breeSewersGraph.Rooms[oTunnel] = new System.Windows.Point(4, 2);
+
+            Room oLatrine = AddRoom("Latrine");
+            AddExit(oTunnel, oLatrine, "south");
+            e = AddExit(oLatrine, oTunnel, "north");
+            e.OmitGo = true;
+            e.Hidden = true;
+            breeSewersGraph.Rooms[oLatrine] = new System.Windows.Point(4, 3);
+
+            Room oEugenesDungeon = AddRoom("Eugene's Dungeon");
+            AddBidirectionalExits(oEugenesDungeon, oLatrine, BidirectionalExitType.SouthwestNortheast);
+            breeSewersGraph.Rooms[oEugenesDungeon] = new System.Windows.Point(3, 2);
+
+            Room oShadowOfIncendius = AddRoom("Shadow of Incendius");
+            AddBidirectionalExits(oShadowOfIncendius, oEugenesDungeon, BidirectionalExitType.WestEast);
+            breeSewersGraph.Rooms[oShadowOfIncendius] = new System.Windows.Point(2, 2);
+
+            Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner");
+            oEugeneTheExecutioner.IsTrapRoom = true;
+            AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
+            breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
+
+            Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel");
+            oBurnedRemainsOfNimrodel.Mob1 = "Nimrodel";
+            oBurnedRemainsOfNimrodel.Experience1 = 300;
+            AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
+            AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
+            breeSewersGraph.Rooms[oBurnedRemainsOfNimrodel] = new System.Windows.Point(2, 1);
+
+            Room aqueduct = AddRoom("Aqueduct");
+            AddExit(oBurnedRemainsOfNimrodel, aqueduct, "pipe");
+            AddExit(aqueduct, oBurnedRemainsOfNimrodel, "out");
+            breeSewersGraph.Rooms[aqueduct] = new System.Windows.Point(1, 2);
+
+            Room oShirriff = breeSewers[7, 3];
+            oShirriff.Mob1 = "shirriff";
+            oShirriff.Experience1 = 325;
+            oShirriff.Experience2 = 325;
+
+            Room oValveChamber = AddRoom("Valve Chamber");
+            e = AddExit(breeSewers[7, 3], oValveChamber, "valve");
+            e.Hidden = true;
+            AddExit(oValveChamber, breeSewers[7, 3], "south");
+            breeSewersGraph.Rooms[oValveChamber] = new System.Windows.Point(12, 8);
+
+            Room oSewerPassageFromValveChamber = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSewerPassageFromValveChamber, oValveChamber, BidirectionalExitType.NorthSouth);
+            breeSewersGraph.Rooms[oSewerPassageFromValveChamber] = new System.Windows.Point(12, 7);
+
+            Room oSewerDemonThreshold = AddRoom("Central Sewer Channels");
+            oSewerDemonThreshold.Mob1 = "demon";
+            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
+            breeSewersGraph.Rooms[oSewerDemonThreshold] = new System.Windows.Point(11, 6);
+
+            oSmoulderingVillage = AddRoom("Smoldering Village");
+            breeSewersGraph.Rooms[oSmoulderingVillage] = new System.Windows.Point(0, 0);
+
+            Room oWell = AddRoom("Well");
+            AddExit(oSmoulderingVillage, oWell, "well");
+            AddExit(oWell, oSmoulderingVillage, "ladder");
+            breeSewersGraph.Rooms[oWell] = new System.Windows.Point(1, 0);
+
+            Room oKasnarTheGuard = AddRoom("Kasnar");
+            oKasnarTheGuard.Mob1 = "Kasnar";
+            oKasnarTheGuard.Experience1 = 535;
+            AddExit(oWell, oKasnarTheGuard, "pipe");
+            AddExit(oKasnarTheGuard, oWell, "north");
+            breeSewersGraph.Rooms[oKasnarTheGuard] = new System.Windows.Point(1, 1);
+
+            AddExit(aqueduct, oKasnarTheGuard, "north");
+            //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
+
+            AddLocation(_aBreePerms, oShirriff);
+            AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
+            AddLocation(_aBreePerms, oKasnarTheGuard);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -3679,7 +3731,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
-        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room aqueduct)
+        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage)
         {
             Room oBreeWestGateOutside = AddRoom("West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
@@ -3781,29 +3833,14 @@ namespace IsengardClient
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
 
-            Room oSmoulderingVillage = AddRoom("Smoldering Village");
             //Gate is locked (and knocking doesn't work) so not treating as an exit. This is only accessible from the other way around.
             //AddExit(oShepherd, oSmoulderingVillage, "gate");
             AddExit(oSmoulderingVillage, oShepherd, "gate");
-
-            Room oWell = AddRoom("Well");
-            AddExit(oSmoulderingVillage, oWell, "well");
-            AddExit(oWell, oSmoulderingVillage, "ladder");
-
-            Room oKasnarTheGuard = AddRoom("Kasnar");
-            oKasnarTheGuard.Mob1 = "Kasnar";
-            oKasnarTheGuard.Experience1 = 535;
-            AddExit(oWell, oKasnarTheGuard, "pipe");
-            AddExit(oKasnarTheGuard, oWell, "north");
-
-            AddExit(aqueduct, oKasnarTheGuard, "north");
-            //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
 
             AddLocation(_aInaccessible, oSomething);
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
             AddLocation(_aBreePerms, oShepherd);
-            AddLocation(_aBreePerms, oKasnarTheGuard);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
@@ -5416,8 +5453,10 @@ namespace IsengardClient
         {
             frmGraph frm = new frmGraph(_map, _graphs, m_oCurrentRoom);
             frm.ShowDialog();
-            m_oCurrentRoom = frm.CurrentRoom;
-            txtCurrentRoom.Text = m_oCurrentRoom == null ? string.Empty : m_oCurrentRoom.ToString();
+            if (m_oCurrentRoom != frm.CurrentRoom)
+            {
+                SetCurrentRoom(frm.CurrentRoom);
+            }
             if (frm.GoToRoom != null)
             {
                 GoToRoom(frm.GoToRoom);
