@@ -2230,16 +2230,12 @@ namespace IsengardClient
                 a.Locations.Clear();
             }
 
-            Area aBree = _areasByName[AREA_BREE];
-            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage);
-            AddMayorMillwoodMansion(oIxell, out List<Room> mansionRooms, out Room oChancellorOfProtection, out Room oMayorMillwood);
-            AddLocation(_aBreePerms, oChancellorOfProtection);
-            AddLocation(_aBreePerms, oMayorMillwood);
-            foreach (Room r in mansionRooms)
-            {
-                AddLocation(aBree, r);
-            }
+            RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
+            graphMillwoodMansion.ScalingFactor = 100;
 
+            Area aBree = _areasByName[AREA_BREE];
+            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage, graphMillwoodMansion);
+            AddMayorMillwoodMansion(oIxell, graphMillwoodMansion);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
             AddBreeToImladris(oSewerPipeExit, sewerTunnelToTConnection);
             AddImladrisCity(out Room oImladrisSouthGateInside);
@@ -2480,7 +2476,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage)
+        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -2611,6 +2607,7 @@ namespace IsengardClient
             breeStreets[7, 10] = AddRoom("Ormenel/Main"); //8x11
             breeStreets[10, 10] = AddRoom("Ormenel"); //11x11
             Room oToRealEstateOffice = breeStreets[11, 10] = AddRoom("Ormenel"); //12x11
+            graphMillwoodMansion.Rooms[oToRealEstateOffice] = new System.Windows.Point(3, 0);
             breeStreets[12, 10] = AddRoom("Ormenel"); //13x11
             Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Ormenel"); //14x11
             breeStreets[14, 10] = AddRoom("Brownhaven/Ormenel"); //15x11
@@ -2650,12 +2647,14 @@ namespace IsengardClient
             Room oBreeRealEstateOffice = AddRoom("Real Estate Office");
             AddBidirectionalExits(oToRealEstateOffice, oBreeRealEstateOffice, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(11, -0.5);
+            graphMillwoodMansion.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(3, 1);
 
             oIxell = AddRoom("Ixell 70 Bl");
             oIxell.Mob1 = "Ixell";
             AddExit(oBreeRealEstateOffice, oIxell, "door");
             AddExit(oIxell, oBreeRealEstateOffice, "out");
             _breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, -1);
+            graphMillwoodMansion.Rooms[oIxell] = new System.Windows.Point(2, 1);
 
             Room oKistaHillsHousing = AddRoom("Kista Hills Housing");
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
@@ -3059,20 +3058,25 @@ namespace IsengardClient
         /// adds rooms for mayor millwood's mansion
         /// </summary>
         /// <param name="oIxell">Ixell (entrance to mansion)</param>
-        /// <param name="MansionLocations">mansion locations</param>
-        private void AddMayorMillwoodMansion(Room oIxell, out List<Room> MansionLocations, out Room oChancellorOfProtection, out Room oMayorMillwood)
+        /// <param name="graphMillwoodMansion">millwood mansion graph</param>
+        private void AddMayorMillwoodMansion(Room oIxell, RoomGraph graphMillwoodMansion)
         {
+            _graphs.Add(graphMillwoodMansion);
+           
             string sWarriorBard = "Warrior bard";
 
             Room oPathToMansion1 = AddRoom("Construction Site");
             AddExit(oIxell, oPathToMansion1, "back");
             AddExit(oPathToMansion1, oIxell, "hoist");
+            graphMillwoodMansion.Rooms[oPathToMansion1] = new System.Windows.Point(1, 1);
 
             Room oPathToMansion2 = AddRoom("Southern View");
             AddBidirectionalExits(oPathToMansion1, oPathToMansion2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oPathToMansion2] = new System.Windows.Point(1, 2);
 
             Room oPathToMansion3 = AddRoom("The South Wall");
             AddBidirectionalExits(oPathToMansion2, oPathToMansion3, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oPathToMansion3] = new System.Windows.Point(1, 3);
 
             Room oPathToMansion4WarriorBardsx2 = AddRoom("Warrior Bards (Path)");
             oPathToMansion4WarriorBardsx2.Mob1 = sWarriorBard;
@@ -3080,30 +3084,39 @@ namespace IsengardClient
             oPathToMansion4WarriorBardsx2.Alignment = AlignmentType.Red;
             AddExit(oPathToMansion3, oPathToMansion4WarriorBardsx2, "stone");
             AddExit(oPathToMansion4WarriorBardsx2, oPathToMansion3, "north");
+            graphMillwoodMansion.Rooms[oPathToMansion4WarriorBardsx2] = new System.Windows.Point(1, 4);
 
             Room oPathToMansion5 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion4WarriorBardsx2, oPathToMansion5, BidirectionalExitType.SouthwestNortheast);
+            graphMillwoodMansion.Rooms[oPathToMansion5] = new System.Windows.Point(0, 5);
 
             Room oPathToMansion6 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion5, oPathToMansion6, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oPathToMansion6] = new System.Windows.Point(0, 6);
 
             Room oPathToMansion7 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion6, oPathToMansion7, BidirectionalExitType.SoutheastNorthwest);
+            graphMillwoodMansion.Rooms[oPathToMansion7] = new System.Windows.Point(1, 7);
 
             Room oPathToMansion8 = AddRoom("Red Oak Tree");
             AddBidirectionalExits(oPathToMansion7, oPathToMansion8, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oPathToMansion8] = new System.Windows.Point(1, 8);
 
             Room oPathToMansion9 = AddRoom("Red Oak Tree");
             AddBidirectionalExits(oPathToMansion8, oPathToMansion9, BidirectionalExitType.SoutheastNorthwest);
+            graphMillwoodMansion.Rooms[oPathToMansion9] = new System.Windows.Point(2, 9);
 
             Room oPathToMansion10 = AddRoom("Red Oak Tree");
             AddBidirectionalExits(oPathToMansion9, oPathToMansion10, BidirectionalExitType.SouthwestNortheast);
+            graphMillwoodMansion.Rooms[oPathToMansion10] = new System.Windows.Point(1, 10);
 
             Room oPathToMansion11 = AddRoom("Red Oak Tree");
             AddBidirectionalExits(oPathToMansion10, oPathToMansion11, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oPathToMansion11] = new System.Windows.Point(1, 11);
 
             Room oPathToMansion12 = AddRoom("Stone Path");
             AddBidirectionalExits(oPathToMansion11, oPathToMansion12, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oPathToMansion12] = new System.Windows.Point(2, 11);
 
             Room oGrandPorch = AddRoom("Warrior Bard (Porch)");
             oGrandPorch.Mob1 = sWarriorBard;
@@ -3111,79 +3124,101 @@ namespace IsengardClient
             oGrandPorch.Alignment = AlignmentType.Red;
             AddExit(oPathToMansion12, oGrandPorch, "porch");
             AddExit(oGrandPorch, oPathToMansion12, "path");
+            graphMillwoodMansion.Rooms[oGrandPorch] = new System.Windows.Point(3, 11);
 
             Room oMansionInside1 = AddRoom("Mansion Inside");
             AddBidirectionalSameNameExit(oGrandPorch, oMansionInside1, "door", "open door");
+            graphMillwoodMansion.Rooms[oMansionInside1] = new System.Windows.Point(4, 11);
 
             Room oMansionInside2 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionInside1, oMansionInside2, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionInside2] = new System.Windows.Point(5, 11);
 
             Room oMansionFirstFloorToNorthStairwell1 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell1, oMansionInside2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell1] = new System.Windows.Point(5, 10);
 
             Room oMansionFirstFloorToNorthStairwell2 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell2, oMansionFirstFloorToNorthStairwell1, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell2] = new System.Windows.Point(5, 9);
 
             Room oMansionFirstFloorToNorthStairwell3 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell3, oMansionFirstFloorToNorthStairwell2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell3] = new System.Windows.Point(5, 8);
 
             Room oMansionFirstFloorToNorthStairwell4 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell4, oMansionFirstFloorToNorthStairwell3, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell4] = new System.Windows.Point(5, 7);
 
             Room oMansionFirstFloorToNorthStairwell5 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToNorthStairwell4, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell5] = new System.Windows.Point(6, 7);
 
             Room oWarriorBardMansionNorth = AddRoom("Warrior Bard Mansion N");
             oWarriorBardMansionNorth.Mob1 = sWarriorBard;
             oWarriorBardMansionNorth.Experience1 = 100;
             oWarriorBardMansionNorth.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oWarriorBardMansionNorth, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oWarriorBardMansionNorth] = new System.Windows.Point(6, 6);
 
             Room oMansionFirstFloorToSouthStairwell1 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionInside2, oMansionFirstFloorToSouthStairwell1, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell1] = new System.Windows.Point(5, 12);
 
             Room oMansionFirstFloorToSouthStairwell2 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell1, oMansionFirstFloorToSouthStairwell2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell2] = new System.Windows.Point(5, 13);
 
             Room oMansionFirstFloorToSouthStairwell3 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell2, oMansionFirstFloorToSouthStairwell3, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell3] = new System.Windows.Point(5, 14);
 
             Room oMansionFirstFloorToSouthStairwell4 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell3, oMansionFirstFloorToSouthStairwell4, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell4] = new System.Windows.Point(5, 15);
 
             Room oMansionFirstFloorToSouthStairwell5 = AddRoom("Long Hallway");
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell4, oMansionFirstFloorToSouthStairwell5, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell5] = new System.Windows.Point(6, 15);
 
             Room oWarriorBardMansionSouth = AddRoom("Warrior Bard Mansion S");
             oWarriorBardMansionSouth.Mob1 = sWarriorBard;
             oWarriorBardMansionSouth.Experience1 = 100;
             oWarriorBardMansionSouth.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell5, oWarriorBardMansionSouth, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oWarriorBardMansionSouth] = new System.Windows.Point(6, 16);
 
             Room oMansionFirstFloorToEastStairwell1 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionInside2, oMansionFirstFloorToEastStairwell1, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell1] = new System.Windows.Point(6, 11);
 
             //note: this room has north and south exits to dungeons not currently included
             Room oMansionFirstFloorToEastStairwell2 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell1, oMansionFirstFloorToEastStairwell2, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell2] = new System.Windows.Point(7, 11);
 
             Room oMansionFirstFloorToEastStairwell3 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell2, oMansionFirstFloorToEastStairwell3, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell3] = new System.Windows.Point(8, 11);
 
             Room oMansionFirstFloorToEastStairwell4 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell3, oMansionFirstFloorToEastStairwell4, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell4] = new System.Windows.Point(9, 11);
 
             Room oMansionFirstFloorToEastStairwell5 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell5, oMansionFirstFloorToEastStairwell4, BidirectionalExitType.SouthwestNortheast);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell5] = new System.Windows.Point(10, 10);
 
             Room oMansionFirstFloorToEastStairwell6 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell5, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.SoutheastNorthwest);
+            graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell6] = new System.Windows.Point(11, 11);
 
             Room oWarriorBardMansionEast = AddRoom("Warrior Bard Mansion E");
             oWarriorBardMansionEast.Mob1 = sWarriorBard;
             oWarriorBardMansionEast.Experience1 = 100;
             oWarriorBardMansionEast.Alignment = AlignmentType.Red;
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oWarriorBardMansionEast] = new System.Windows.Point(10, 11);
 
             Room oGrandStaircaseUpstairs = AddRoom("Grand Staircase");
             AddBidirectionalExits(oGrandStaircaseUpstairs, oWarriorBardMansionEast, BidirectionalExitType.UpDown);
@@ -3198,7 +3233,7 @@ namespace IsengardClient
             AddBidirectionalExits(oRoyalHallwayToChancellor, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
 
             //mayor is immune to stun
-            oMayorMillwood = AddRoom("Mayor Millwood");
+            Room oMayorMillwood = AddRoom("Mayor Millwood");
             oMayorMillwood.Experience1 = 220;
             oMayorMillwood.Alignment = AlignmentType.Grey;
             Exit e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
@@ -3206,7 +3241,7 @@ namespace IsengardClient
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
             oMayorMillwood.Mob1 = oRoyalHallwayToMayor.Mob1 = "mayor";
 
-            oChancellorOfProtection = AddRoom("Chancellor of Protection");
+            Room oChancellorOfProtection = AddRoom("Chancellor of Protection");
             oChancellorOfProtection.Experience1 = 200;
             oChancellorOfProtection.Alignment = AlignmentType.Blue;
             e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
@@ -3214,14 +3249,8 @@ namespace IsengardClient
             AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
             oChancellorOfProtection.Mob1 = oRoyalHallwayToChancellor.Mob1 = "chancellor";
 
-            MansionLocations = new List<Room>
-            {
-                oPathToMansion4WarriorBardsx2,
-                oGrandPorch,
-                oWarriorBardMansionNorth,
-                oWarriorBardMansionSouth,
-                oWarriorBardMansionEast
-            };
+            AddLocation(_aBreePerms, oChancellorOfProtection);
+            AddLocation(_aBreePerms, oMayorMillwood);
         }
 
         private void SetNightEdges(bool isNight)
