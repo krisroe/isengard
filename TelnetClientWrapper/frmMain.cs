@@ -3192,7 +3192,6 @@ namespace IsengardClient
             AddBidirectionalExits(oMansionInside2, oMansionFirstFloorToEastStairwell1, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell1] = new System.Windows.Point(6, 11);
 
-            //note: this room has north and south exits to dungeons not currently included
             Room oMansionFirstFloorToEastStairwell2 = AddRoom("Main Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell1, oMansionFirstFloorToEastStairwell2, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell2] = new System.Windows.Point(7, 11);
@@ -3231,6 +3230,38 @@ namespace IsengardClient
 
             Room oRoyalHallwayToChancellor = AddRoom("Royal Hallway");
             AddBidirectionalExits(oRoyalHallwayToChancellor, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
+
+            Room oNorthHallway1 = AddRoom("North Hallway");
+            AddBidirectionalExits(oNorthHallway1, oMansionFirstFloorToEastStairwell2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oNorthHallway1] = new System.Windows.Point(7, 10);
+
+            Room oNorthHallway2 = AddRoom("North Hallway");
+            AddBidirectionalExits(oNorthHallway2, oNorthHallway1, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oNorthHallway2] = new System.Windows.Point(7, 9);
+
+            Room oNorthHallway3 = AddRoom("North Hallway");
+            AddBidirectionalExits(oNorthHallway3, oNorthHallway2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oNorthHallway3] = new System.Windows.Point(7, 8);
+
+            Room oDungeonGuardNorth = AddRoom("Dungeon Guard");
+            AddBidirectionalExits(oNorthHallway3, oDungeonGuardNorth, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oDungeonGuardNorth] = new System.Windows.Point(8, 8);
+
+            Room oSouthHallway1 = AddRoom("South Hallway");
+            AddBidirectionalExits(oMansionFirstFloorToEastStairwell2, oSouthHallway1, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oSouthHallway1] = new System.Windows.Point(7, 12);
+
+            Room oSouthHallway2 = AddRoom("South Hallway");
+            AddBidirectionalExits(oSouthHallway1, oSouthHallway2, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oSouthHallway2] = new System.Windows.Point(7, 13);
+
+            Room oSouthHallway3 = AddRoom("South Hallway");
+            AddBidirectionalExits(oSouthHallway2, oSouthHallway3, BidirectionalExitType.NorthSouth);
+            graphMillwoodMansion.Rooms[oSouthHallway3] = new System.Windows.Point(7, 14);
+
+            Room oDungeonGuardSouth = AddRoom("Dungeon Guard");
+            AddBidirectionalExits(oSouthHallway3, oDungeonGuardSouth, BidirectionalExitType.WestEast);
+            graphMillwoodMansion.Rooms[oDungeonGuardSouth] = new System.Windows.Point(8, 14);
 
             //mayor is immune to stun
             Room oMayorMillwood = AddRoom("Mayor Millwood");
