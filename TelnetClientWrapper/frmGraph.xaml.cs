@@ -105,10 +105,7 @@ namespace IsengardClient
             if (vc != null)
             {
                 ContextMenu ctx = new ContextMenu();
-                MenuItem mnu = new MenuItem();
-                mnu.Header = "Set";
-                mnu.Click += mnuSetRoom_Click;
-                ctx.Items.Add(mnu);
+                MenuItem mnu;
                 if (CurrentRoom != null)
                 {
                     mnu = new MenuItem();
@@ -116,6 +113,10 @@ namespace IsengardClient
                     mnu.Click += mnuGoToRoom_Click;
                     ctx.Items.Add(mnu);
                 }
+                mnu = new MenuItem();
+                mnu.Header = "Set";
+                mnu.Click += mnuSetRoom_Click;
+                ctx.Items.Add(mnu);
                 vc.ContextMenu = ctx;
                 vc.ContextMenuClosing += Vc_ContextMenuClosing;
                 _currentVertexControl = vc;
