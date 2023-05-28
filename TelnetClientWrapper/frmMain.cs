@@ -1345,7 +1345,6 @@ namespace IsengardClient
                     tRoom.ContextMenuStrip = ctxLocations;
                     tRoom.Tag = r;
                     tArea.Nodes.Add(tRoom);
-                    PopulateSubLocations(tRoom, r);
                 }
             }
         }
@@ -1368,20 +1367,6 @@ namespace IsengardClient
                     ret = x.Experience1.Value.CompareTo(y.Experience1.Value);
                 }
                 return ret;
-            }
-        }
-
-        private void PopulateSubLocations(TreeNode t, Room r)
-        {
-            if (r.SubLocations != null)
-            {
-                foreach (var nextSubLocation in r.SubLocations)
-                {
-                    TreeNode tSub = new TreeNode(nextSubLocation.Name);
-                    tSub.Tag = nextSubLocation;
-                    t.Nodes.Add(tSub);
-                    PopulateSubLocations(tSub, nextSubLocation);
-                }
             }
         }
 
