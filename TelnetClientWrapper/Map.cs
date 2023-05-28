@@ -1,11 +1,6 @@
 ﻿using QuickGraph;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static IsengardClient.frmMain;
-
 namespace IsengardClient
 {
     internal class IsengardMap
@@ -69,8 +64,8 @@ namespace IsengardClient
             AddMayorMillwoodMansion(oIxell, graphMillwoodMansion);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
             AddBreeToImladris(oSewerPipeExit, sewerTunnelToTConnection, level);
-            AddImladrisCity(out Room oImladrisSouthGateInside);
-            AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
+            AddImladrisCity(out Room oImladrisSouthGateInside, out RoomGraph imladrisGraph);
+            AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside, imladrisGraph);
             AddTharbadCity(oTharbadGateOutside);
             AddIntangible(oBreeTownSquare);
 
@@ -427,7 +422,7 @@ namespace IsengardClient
             breeStreets[7, 6] = AddRoom("Main"); //8x7
             breeStreets[10, 6] = AddRoom("Crissaegrim"); //11x7
             breeStreets[14, 6] = AddRoom("Brownhaven"); //15x7
-            oWestGateInside = breeStreets[0, 7] = AddRoom("West Gate"); //1x8
+            oWestGateInside = breeStreets[0, 7] = AddRoom("West Gate Inside"); //1x8
             breeSewers[0, 7] = AddRoom("Sewers West Gate"); //1x8
             AddExit(breeSewers[0, 7], oWestGateInside, "up");
             breeStreets[1, 7] = AddRoom("Leviathan"); //2x8
@@ -443,7 +438,7 @@ namespace IsengardClient
             breeStreets[11, 7] = AddRoom("Leviathan"); //12x8
             Room oLeviathanPoorAlley = breeStreets[12, 7] = AddRoom("Leviathan"); //13x8
             Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Leviathan"); //14x8
-            _breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate"); //15x8
+            _breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate Inside"); //15x8
             breeStreets[0, 8] = AddRoom("Wain"); //1x9
             breeSewers[0, 8] = AddRoom("Sewers Wain"); //1x9
             breeStreets[3, 8] = AddRoom("High"); //4x9
@@ -485,7 +480,7 @@ namespace IsengardClient
             Room oStreetToFallon = breeStreets[13, 10] = AddRoom("Ormenel"); //14x11
             breeStreets[14, 10] = AddRoom("Brownhaven/Ormenel"); //15x11
 
-            AddBreeSewers(breeSewers, out oSmoulderingVillage);
+            AddBreeSewers(breeStreets, breeSewers, out oSmoulderingVillage);
 
             for (int x = 0; x < 16; x++)
             {
@@ -780,7 +775,7 @@ namespace IsengardClient
             AddLocation(aBree, oSewerOrcChamber);
         }
 
-        private void AddBreeSewers(Room[,] breeSewers, out Room oSmoulderingVillage)
+        private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)
         {
             RoomGraph breeSewersGraph = new RoomGraph("Bree Sewers");
             breeSewersGraph.ScalingFactor = 100;
@@ -802,6 +797,7 @@ namespace IsengardClient
             AddBidirectionalExits(breeSewers[4, 3], breeSewers[5, 3], BidirectionalExitType.WestEast);
             AddBidirectionalExits(breeSewers[5, 3], breeSewers[6, 3], BidirectionalExitType.WestEast);
             AddBidirectionalExits(breeSewers[6, 3], breeSewers[7, 3], BidirectionalExitType.WestEast);
+            breeSewersGraph.Rooms[breeStreets[0, 10]] = new System.Windows.Point(5, 1);
             breeSewersGraph.Rooms[breeSewers[0, 10]] = new System.Windows.Point(5, 2);
             breeSewersGraph.Rooms[breeSewers[0, 9]] = new System.Windows.Point(5, 3);
             breeSewersGraph.Rooms[breeSewers[0, 8]] = new System.Windows.Point(5, 4);
@@ -904,7 +900,7 @@ namespace IsengardClient
             Room r = grid[x, y];
             if (r != null)
             {
-                _breeStreetsGraph.Rooms[r] = new System.Windows.Point(x, (10 - y));
+                _breeStreetsGraph.Rooms[r] = new System.Windows.Point(x, 10 - y);
 
                 //look for a square to the west and add the east/west exits
                 if (x > 0)
@@ -1163,8 +1159,9 @@ namespace IsengardClient
             breeToImladrisGraph.ScalingFactor = 100;
             _graphs.Add(breeToImladrisGraph);
 
-            _breeEastGateOutside = AddRoom("East Gate of Bree");
+            _breeEastGateOutside = AddRoom("East Gate Outside");
             AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
+            _breeStreetsGraph.Rooms[_breeEastGateOutside] = new System.Windows.Point(15, 3);
             breeToImladrisGraph.Rooms[_breeEastGateOutside] = new System.Windows.Point(3, 4);
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
@@ -1229,7 +1226,7 @@ namespace IsengardClient
             AddBidirectionalExits(oGreatEastRoad13, oGreatEastRoad14, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad14] = new System.Windows.Point(17, 4);
 
-            _imladrisWestGateOutside = _imladrisWestGateOutside = AddRoom("West Gate of Imladris");
+            _imladrisWestGateOutside = _imladrisWestGateOutside = AddRoom("West Gate Outside");
             AddBidirectionalExits(oGreatEastRoad14, _imladrisWestGateOutside, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(18, 4);
 
@@ -1468,14 +1465,15 @@ namespace IsengardClient
             AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside, out RoomGraph imladrisGraph)
         {
-            RoomGraph imladrisGraph = new RoomGraph("Imladris");
+            imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
             _graphs.Add(imladrisGraph);
 
-            _imladrisWestGateInside = AddRoom("West Gate");
+            _imladrisWestGateInside = AddRoom("West Gate Inside");
             AddExit(_imladrisWestGateInside, _imladrisWestGateOutside, "gate");
+            imladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(-1, 5);
             imladrisGraph.Rooms[_imladrisWestGateInside] = new System.Windows.Point(0, 5);
 
             Room oImladrisCircle1 = AddRoom("Circle");
@@ -1551,13 +1549,14 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oImladrisMainStreet6] = new System.Windows.Point(8, 5);
 
-            Room oEastGateOfImladrisInside = AddRoom("East Gate");
+            Room oEastGateOfImladrisInside = AddRoom("East Gate Inside");
             AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(9, 5);
 
-            Room oEastGateOfImladrisOutside = AddRoom("Gates of Imladris");
+            Room oEastGateOfImladrisOutside = AddRoom("East Gate Outside");
             AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
+            imladrisGraph.Rooms[oEastGateOfImladrisOutside] = new System.Windows.Point(10, 5);
 
             Room oImladrisCircle6 = AddRoom("Circle");
             AddBidirectionalExits(oEastGateOfImladrisInside, oImladrisCircle6, BidirectionalExitType.SouthwestNortheast);
@@ -1593,7 +1592,7 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
             imladrisGraph.Rooms[oPoisonedDagger] = new System.Windows.Point(5, 6.5);
 
-            oImladrisSouthGateInside = AddRoom("Southern Gate");
+            oImladrisSouthGateInside = AddRoom("South Gate Inside");
             AddBidirectionalExits(oImladrisCircle8, oImladrisSouthGateInside, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oImladrisSouthGateInside] = new System.Windows.Point(5, 10);
 
@@ -1640,8 +1639,9 @@ namespace IsengardClient
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage, int level)
         {
-            Room oBreeWestGateOutside = AddRoom("West Gate of Bree");
+            Room oBreeWestGateOutside = AddRoom("West Gate Outside");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
+            _breeStreetsGraph.Rooms[oBreeWestGateOutside] = new System.Windows.Point(-1, 3);
 
             Room oLeviathanNorthForkWestern = AddRoom("The Grand Intersection - Leviathan Way/North Fork Road/Western Road");
             AddBidirectionalExits(oLeviathanNorthForkWestern, oBreeWestGateOutside, BidirectionalExitType.WestEast);
@@ -1750,10 +1750,11 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oShepherd);
         }
 
-        private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
+        private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside, RoomGraph imladrisGraph)
         {
-            Room oMistyTrail1 = AddRoom("Misty Trail");
+            Room oMistyTrail1 = AddRoom("South Gate Outside");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
+            imladrisGraph.Rooms[oMistyTrail1] = new System.Windows.Point(5, 11);
 
             Room oBrunskidTradersGuild1 = AddRoom("Brunskid Trader's Guild Store Front");
             AddBidirectionalExits(oBrunskidTradersGuild1, oMistyTrail1, BidirectionalExitType.WestEast);
@@ -2095,5 +2096,29 @@ namespace IsengardClient
         SoutheastNorthwest,
         SouthwestNortheast,
         UpDown,
+    }
+
+    internal class Area
+    {
+        public Area(string name)
+        {
+            this.Name = name;
+            this.Locations = new List<Room>();
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        public string Name { get; set; }
+        public List<Room> Locations { get; set; }
+    }
+
+    internal enum AlignmentType
+    {
+        Blue,
+        Grey,
+        Red,
     }
 }

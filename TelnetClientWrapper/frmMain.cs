@@ -2184,30 +2184,6 @@ namespace IsengardClient
             r.VariableValues[v] = variableValue;
         }
 
-        internal class Area
-        {
-            public Area(string name)
-            {
-                this.Name = name;
-                this.Locations = new List<Room>();
-            }
-
-            public override string ToString()
-            {
-                return this.Name;
-            }
-
-            public string Name { get; set; }
-            public List<Room> Locations { get; set; }
-        }
-
-        public enum AlignmentType
-        {
-            Blue,
-            Grey,
-            Red,
-        }
-
         private void SendCommand(string command, bool IsPassword)
         {
             List<int> keys = new List<int>();
