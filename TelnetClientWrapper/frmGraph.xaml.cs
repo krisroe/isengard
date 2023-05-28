@@ -13,11 +13,13 @@ namespace IsengardClient
     {
         private AdjacencyGraph<Room, Exit> _map;
         private VertexControl _currentVertexControl;
+        private List<RoomGraph> _graphs;
 
         internal frmGraph(AdjacencyGraph<Room, Exit> map, List<RoomGraph> graphs, Room currentRoom)
         {
             InitializeComponent();
 
+            _graphs = graphs;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
             _map = map;
@@ -53,7 +55,7 @@ namespace IsengardClient
             cboGraphs.SelectedItem = graphItems[startingGraph];
         }
 
-        private void cboGraph_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void cboGraph_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             RoomGraph rg = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
             RoomBidirectionalGraph rbg = new RoomBidirectionalGraph();
@@ -117,9 +119,39 @@ namespace IsengardClient
                 mnu.Header = "Set";
                 mnu.Click += mnuSetRoom_Click;
                 ctx.Items.Add(mnu);
+
+                //add menu items for other graphs containing the room
+                RoomGraph currentRoomGraph = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
+                foreach (RoomGraph rg in _graphs)
+                {
+                    if (rg != currentRoomGraph && rg.Rooms.ContainsKey((Room)vc.Vertex))
+                    {
+                        mnu = new MenuItem();
+                        mnu.Header = rg.Name;
+                        mnu.Click += mnuChooseGraph_Click;
+                        mnu.Tag = rg;
+                        ctx.Items.Add(mnu);
+                    }
+                }
+
+
                 vc.ContextMenu = ctx;
                 vc.ContextMenuClosing += Vc_ContextMenuClosing;
                 _currentVertexControl = vc;
+            }
+        }
+
+        private void mnuChooseGraph_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem mnu = (MenuItem)e.OriginalSource;
+            object oTag = mnu.Tag;
+            foreach (ComboBoxItem cbi in cboGraphs.Items)
+            {
+                if (cbi.Tag == oTag)
+                {
+                    cboGraphs.SelectedItem = cbi;
+                    break;
+                }
             }
         }
 
