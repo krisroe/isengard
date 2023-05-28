@@ -59,11 +59,11 @@ namespace IsengardClient
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
             graphMillwoodMansion.ScalingFactor = 100;
 
-            Area aBree = _areasByName[AREA_BREE];
-            AddBreeCity(aBree, out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit);
             AddMayorMillwoodMansion(oIxell, graphMillwoodMansion);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
-            AddBreeToImladris(oSewerPipeExit, sewerTunnelToTConnection, level);
+            AddBreeToImladris(level, out Room oOuthouse);
+            AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out RoomGraph imladrisGraph);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside, imladrisGraph);
             AddTharbadCity(oTharbadGateOutside);
@@ -352,7 +352,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(Area aBree, out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSewerPipeExit, out Room sewerTunnelToTConnection, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -568,7 +568,7 @@ namespace IsengardClient
             AddBidirectionalExits(oPansy, oToGamblingPit, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oPansy] = new System.Windows.Point(13, 1);
 
-            Room oDroolie = AddRoom("Droolie");
+            oDroolie = AddRoom("Droolie");
             oDroolie.Mob1 = "Droolie";
             oDroolie.Experience1 = 100;
             oDroolie.Alignment = AlignmentType.Red;
@@ -576,84 +576,6 @@ namespace IsengardClient
             e.Hidden = true;
             AddExit(oDroolie, oNorthBridge, "up");
             _breeStreetsGraph.Rooms[oDroolie] = new System.Windows.Point(9, 3.5);
-
-            Room oBrandywineRiver1 = AddRoom("Brandywine River");
-            AddExit(oDroolie, oBrandywineRiver1, "down");
-            //AddExit(oBrandywineRiver1, oDroolie, "rope"); //requires fly
-
-            Room oBrandywineRiver2 = AddRoom("Brandywine River");
-            AddBidirectionalExits(oBrandywineRiver1, oBrandywineRiver2, BidirectionalExitType.WestEast);
-
-            Room oOohlgrist = AddRoom("Oohlgrist");
-            oOohlgrist.Mob1 = "Oohlgrist";
-            oOohlgrist.Experience1 = 110;
-            AddExit(oBrandywineRiver2, oOohlgrist, "boat");
-            AddExit(oOohlgrist, oBrandywineRiver2, "river");
-
-            Room oBrandywineRiverBoathouse = AddRoom("Brandywine River Boathouse");
-            AddExit(oOohlgrist, oBrandywineRiverBoathouse, "shore");
-            AddExit(oBrandywineRiverBoathouse, oOohlgrist, "boat");
-
-            Room oRockyBeach1 = AddRoom("Rocky Beach");
-            AddBidirectionalExits(oBrandywineRiverBoathouse, oRockyBeach1, BidirectionalExitType.WestEast);
-
-            Room oRockyBeach2 = AddRoom("Rocky Beach");
-            AddBidirectionalExits(oRockyBeach1, oRockyBeach2, BidirectionalExitType.WestEast);
-
-            Room oHermitsCave = AddRoom("Hermit Fisher");
-            oHermitsCave.Mob1 = "Fisher";
-            oHermitsCave.Experience1 = 60;
-            AddExit(oRockyBeach2, oHermitsCave, "cave");
-            AddExit(oHermitsCave, oRockyBeach2, "out");
-
-            Room oRockyAlcove = AddRoom("Rocky Alcove");
-            AddExit(oRockyBeach1, oRockyAlcove, "alcove");
-            AddExit(oRockyAlcove, oRockyBeach1, "north");
-
-            Room oSewerDrain = AddRoom("Sewer Drain");
-            AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate");
-
-            Room oDrainTunnel1 = AddRoom("Drain Tunnel");
-            AddExit(oSewerDrain, oDrainTunnel1, "south");
-
-            Room oDrainTunnel2 = AddRoom("Drain Tunnel");
-            AddExit(oDrainTunnel1, oDrainTunnel2, "north");
-
-            Room oDrainTunnel3 = AddRoom("Drain Tunnel");
-            AddExit(oDrainTunnel2, oDrainTunnel3, "south");
-
-            Room oDrainTunnel4 = AddRoom("Drain Tunnel");
-            AddExit(oDrainTunnel3, oDrainTunnel4, "south");
-
-            sewerTunnelToTConnection = AddRoom("Sewer Tunnel");
-            AddBidirectionalExits(oDrainTunnel4, sewerTunnelToTConnection, BidirectionalExitType.NorthSouth);
-
-            Room oBoardedSewerTunnel = AddRoom("Boarded Sewer Tunnel");
-            AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
-
-            Room oSewerOrcChamber = AddRoom("Sewer Orc Guards");
-            oSewerOrcChamber.Mob1 = "Guard";
-            oSewerOrcChamber.Experience1 = 70;
-            oSewerOrcChamber.Experience2 = 70;
-            e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
-            e.Hidden = true;
-            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted");
-            e.Hidden = true;
-
-            Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
-            AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
-
-            Room oSewerPassage = AddRoom("Sewer Passage");
-            AddBidirectionalExits(oSewerOrcLair, oSewerPassage, BidirectionalExitType.WestEast);
-
-            Room oSewerOrcStorageRoom = AddRoom("Sewer Orc Storage Room");
-            AddBidirectionalExits(oSewerPassage, oSewerOrcStorageRoom, BidirectionalExitType.WestEast);
-
-            Room oSlopingSewerPassage = AddRoom("Sloping Sewer Passage");
-            AddBidirectionalExits(oSewerOrcStorageRoom, oSlopingSewerPassage, BidirectionalExitType.NorthSouth);
-
-            Room oSewerPassageInFrontOfGate = AddRoom("Sewer Passage");
-            AddBidirectionalExits(oSlopingSewerPassage, oSewerPassageInFrontOfGate, BidirectionalExitType.NorthSouth);
 
             Room oIgor = AddRoom("Igor");
             oIgor.Mob1 = "Igor";
@@ -777,9 +699,172 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oFallon);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
-            AddLocation(aBree, oOohlgrist);
-            AddLocation(aBree, oHermitsCave);
-            AddLocation(aBree, oSewerOrcChamber);
+        }
+
+        private void AddUnderBree(Room droolie, Room oOuthouse, Room oSewerPipeExit)
+        {
+            RoomGraph underBreeGraph = new RoomGraph("Under Bree");
+            underBreeGraph.ScalingFactor = 100;
+            _graphs.Add(underBreeGraph);
+
+            underBreeGraph.Rooms[droolie] = new System.Windows.Point(0, 0);
+            underBreeGraph.Rooms[oOuthouse] = new System.Windows.Point(8, 12);
+            underBreeGraph.Rooms[oSewerPipeExit] = new System.Windows.Point(7, 2);
+
+            Room oCatchBasin = AddRoom("Catch Basin");
+            AddExit(oOuthouse, oCatchBasin, "hole");
+            AddExit(oCatchBasin, oOuthouse, "out");
+            underBreeGraph.Rooms[oCatchBasin] = new System.Windows.Point(8, 11);
+
+            Room oSepticTank = AddRoom("Septic Tank");
+            AddBidirectionalSameNameExit(oCatchBasin, oSepticTank, "grate");
+            underBreeGraph.Rooms[oSepticTank] = new System.Windows.Point(8, 10);
+
+            Room oDrainPipe1 = AddRoom("Drain Pipe");
+            AddBidirectionalSameNameExit(oSepticTank, oDrainPipe1, "pipe");
+            underBreeGraph.Rooms[oDrainPipe1] = new System.Windows.Point(8, 9);
+
+            Room oDrainPipe2 = AddRoom("Drain Pipe");
+            AddBidirectionalSameNameExit(oDrainPipe1, oDrainPipe2, "culvert");
+            underBreeGraph.Rooms[oDrainPipe2] = new System.Windows.Point(8, 8);
+
+            Room oBrandywineRiverShore = AddRoom("Brandywine Shore");
+            AddExit(oDrainPipe2, oBrandywineRiverShore, "out");
+            AddExit(oBrandywineRiverShore, oDrainPipe2, "grate");
+            underBreeGraph.Rooms[oBrandywineRiverShore] = new System.Windows.Point(8, 7);
+
+            Room oSewerDitch = AddRoom("Sewer Ditch");
+            AddExit(oBrandywineRiverShore, oSewerDitch, "ditch");
+            AddExit(oSewerDitch, oBrandywineRiverShore, "out");
+            underBreeGraph.Rooms[oSewerDitch] = new System.Windows.Point(8, 6);
+
+            Room oSewerTunnel1 = AddRoom("Sewer Tunnel");
+            AddBidirectionalExits(oSewerTunnel1, oSewerDitch, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerTunnel1] = new System.Windows.Point(8, 5);
+
+            Room oSewerTConnection = AddRoom("Sewer T-Connection");
+            AddBidirectionalExits(oSewerTConnection, oSewerTunnel1, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerTConnection] = new System.Windows.Point(8, 4);
+
+            Room oSewerTunnel2 = AddRoom("Sewer Tunnel");
+            AddBidirectionalExits(oSewerTunnel2, oSewerTConnection, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oSewerTunnel2] = new System.Windows.Point(7, 4);
+
+            Room oSewerPipe = AddRoom("Sewer Pipe");
+            AddExit(oSewerTunnel2, oSewerPipe, "pipe");
+            AddExit(oSewerPipe, oSewerTunnel2, "down");
+            AddExit(oSewerPipe, oSewerPipeExit, "up");
+            underBreeGraph.Rooms[oSewerPipe] = new System.Windows.Point(7, 3);
+
+            Room oSalamander = AddRoom("Salamander");
+            oSalamander.Mob1 = "Salamander";
+            oSalamander.Experience1 = 100;
+            oSalamander.Alignment = AlignmentType.Red;
+            AddExit(oBrandywineRiverShore, oSalamander, "reeds");
+            AddExit(oSalamander, oBrandywineRiverShore, "shore");
+            underBreeGraph.Rooms[oSalamander] = new System.Windows.Point(9, 7);
+
+            Room oBrandywineRiver1 = AddRoom("Brandywine River");
+            AddExit(droolie, oBrandywineRiver1, "down");
+            //AddExit(oBrandywineRiver1, droolie, "rope"); //requires fly
+            underBreeGraph.Rooms[oBrandywineRiver1] = new System.Windows.Point(0, 1);
+
+            Room oBrandywineRiver2 = AddRoom("Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver1, oBrandywineRiver2, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBrandywineRiver2] = new System.Windows.Point(1, 1);
+
+            Room oOohlgrist = AddRoom("Oohlgrist");
+            oOohlgrist.Mob1 = "Oohlgrist";
+            oOohlgrist.Experience1 = 110;
+            AddExit(oBrandywineRiver2, oOohlgrist, "boat");
+            AddExit(oOohlgrist, oBrandywineRiver2, "river");
+            underBreeGraph.Rooms[oOohlgrist] = new System.Windows.Point(2, 1);
+
+            Room oBrandywineRiverBoathouse = AddRoom("Brandywine Boathouse");
+            AddExit(oOohlgrist, oBrandywineRiverBoathouse, "shore");
+            AddExit(oBrandywineRiverBoathouse, oOohlgrist, "boat");
+            underBreeGraph.Rooms[oBrandywineRiverBoathouse] = new System.Windows.Point(3, 1);
+
+            Room oRockyBeach1 = AddRoom("Rocky Beach");
+            AddBidirectionalExits(oBrandywineRiverBoathouse, oRockyBeach1, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oRockyBeach1] = new System.Windows.Point(4, 1);
+
+            Room oRockyBeach2 = AddRoom("Rocky Beach");
+            AddBidirectionalExits(oRockyBeach1, oRockyBeach2, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oRockyBeach2] = new System.Windows.Point(5, 1);
+
+            Room oHermitsCave = AddRoom("Hermit Fisher");
+            oHermitsCave.Mob1 = "Fisher";
+            oHermitsCave.Experience1 = 60;
+            AddExit(oRockyBeach2, oHermitsCave, "cave");
+            AddExit(oHermitsCave, oRockyBeach2, "out");
+            underBreeGraph.Rooms[oHermitsCave] = new System.Windows.Point(6, 1);
+
+            Room oRockyAlcove = AddRoom("Rocky Alcove");
+            AddExit(oRockyBeach1, oRockyAlcove, "alcove");
+            AddExit(oRockyAlcove, oRockyBeach1, "north");
+            underBreeGraph.Rooms[oRockyAlcove] = new System.Windows.Point(5, 0);
+
+            Room oSewerDrain = AddRoom("Sewer Drain");
+            AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate");
+            underBreeGraph.Rooms[oSewerDrain] = new System.Windows.Point(7, 0);
+
+            Room oDrainTunnel1 = AddRoom("Drain Tunnel");
+            AddExit(oSewerDrain, oDrainTunnel1, "south");
+            underBreeGraph.Rooms[oDrainTunnel1] = new System.Windows.Point(7, 1);
+
+            Room oDrainTunnel2 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel1, oDrainTunnel2, "north");
+            underBreeGraph.Rooms[oDrainTunnel2] = new System.Windows.Point(8, 0);
+
+            Room oDrainTunnel3 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel2, oDrainTunnel3, "south");
+            underBreeGraph.Rooms[oDrainTunnel3] = new System.Windows.Point(8, 1);
+
+            Room oDrainTunnel4 = AddRoom("Drain Tunnel");
+            AddExit(oDrainTunnel3, oDrainTunnel4, "south");
+            underBreeGraph.Rooms[oDrainTunnel4] = new System.Windows.Point(8, 2);
+
+            Room sewerTunnelToTConnection = AddRoom("Sewer Tunnel");
+            AddBidirectionalExits(oDrainTunnel4, sewerTunnelToTConnection, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(sewerTunnelToTConnection, oSewerTConnection, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[sewerTunnelToTConnection] = new System.Windows.Point(8, 3);
+
+            Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel");
+            AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 3);
+
+            Room oSewerOrcChamber = AddRoom("Sewer Orc Guards");
+            oSewerOrcChamber.Mob1 = "Guard";
+            oSewerOrcChamber.Experience1 = 70;
+            oSewerOrcChamber.Experience2 = 70;
+            Exit e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
+            e.Hidden = true;
+            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted");
+            e.Hidden = true;
+            underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
+
+            Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
+            AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerOrcLair] = new System.Windows.Point(10, 2);
+
+            Room oSewerPassage = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSewerOrcLair, oSewerPassage, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oSewerPassage] = new System.Windows.Point(11, 2);
+
+            Room oSewerOrcStorageRoom = AddRoom("Storage Room");
+            AddBidirectionalExits(oSewerPassage, oSewerOrcStorageRoom, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oSewerOrcStorageRoom] = new System.Windows.Point(12, 2);
+
+            Room oSlopingSewerPassage = AddRoom("Sloping Sewer Passage");
+            AddBidirectionalExits(oSewerOrcStorageRoom, oSlopingSewerPassage, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSlopingSewerPassage] = new System.Windows.Point(12, 3);
+
+            Room oSewerPassageInFrontOfGate = AddRoom("Sewer Passage");
+            AddBidirectionalExits(oSlopingSewerPassage, oSewerPassageInFrontOfGate, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerPassageInFrontOfGate] = new System.Windows.Point(12, 4);
+
+            AddLocation(_aBreePerms, oSalamander);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)
@@ -1257,7 +1342,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oMayorMillwood);
         }
 
-        private void AddBreeToImladris(Room oSewerPipeExit, Room sewerTunnelToTConnection, int level)
+        private void AddBreeToImladris(int level, out Room oOuthouse)
         {
             RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
@@ -1270,7 +1355,7 @@ namespace IsengardClient
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
             AddBidirectionalExits(_breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
-            AddToFarmHouseAndUglies(oGreatEastRoad1, out Room oOuthouse, breeToImladrisGraph, level);
+            AddToFarmHouseAndUglies(oGreatEastRoad1, out oOuthouse, breeToImladrisGraph, level);
             breeToImladrisGraph.Rooms[oGreatEastRoad1] = new System.Windows.Point(4, 4);
 
             Room oGreatEastRoad2 = AddRoom("Great East Road");
@@ -1334,49 +1419,6 @@ namespace IsengardClient
             AddBidirectionalExits(oGreatEastRoad14, _imladrisWestGateOutside, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(18, 4);
 
-            Room oCatchBasin = AddRoom("Catch Basin");
-            AddExit(oOuthouse, oCatchBasin, "hole");
-            AddExit(oCatchBasin, oOuthouse, "out");
-
-            Room oSepticTank = AddRoom("Septic Tank");
-            AddBidirectionalSameNameExit(oCatchBasin, oSepticTank, "grate");
-
-            Room oDrainPipe1 = AddRoom("Drain Pipe");
-            AddBidirectionalSameNameExit(oSepticTank, oDrainPipe1, "pipe");
-
-            Room oDrainPipe2 = AddRoom("Drain Pipe");
-            AddBidirectionalSameNameExit(oDrainPipe1, oDrainPipe2, "culvert");
-
-            Room oBrandywineRiverShore = AddRoom("Southeastern Short of Brandywine River");
-            AddExit(oDrainPipe2, oBrandywineRiverShore, "out");
-            AddExit(oBrandywineRiverShore, oDrainPipe2, "grate");
-
-            Room oSewerDitch = AddRoom("Sewer Ditch");
-            AddExit(oBrandywineRiverShore, oSewerDitch, "ditch");
-            AddExit(oSewerDitch, oBrandywineRiverShore, "out");
-
-            Room oSewerTunnel1 = AddRoom("Sewer Tunnel");
-            AddBidirectionalExits(oSewerTunnel1, oSewerDitch, BidirectionalExitType.NorthSouth);
-
-            Room oSewerTConnection = AddRoom("Sewer T-Connection");
-            AddBidirectionalExits(oSewerTConnection, oSewerTunnel1, BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(sewerTunnelToTConnection, oSewerTConnection, BidirectionalExitType.NorthSouth);
-
-            Room oSewerTunnel2 = AddRoom("Sewer Tunnel");
-            AddBidirectionalExits(oSewerTunnel2, oSewerTConnection, BidirectionalExitType.WestEast);
-
-            Room oSewerPipe = AddRoom("Sewer Pipe");
-            AddExit(oSewerTunnel2, oSewerPipe, "pipe");
-            AddExit(oSewerPipe, oSewerTunnel2, "down");
-            AddExit(oSewerPipe, oSewerPipeExit, "up");
-
-            Room oSalamander = AddRoom("Salamander");
-            oSalamander.Mob1 = "Salamander";
-            oSalamander.Experience1 = 100;
-            oSalamander.Alignment = AlignmentType.Red;
-            AddExit(oBrandywineRiverShore, oSalamander, "reeds");
-            AddExit(oSalamander, oBrandywineRiverShore, "shore");
-
             Room oNorthBrethilForest1 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest1, oGreatEastRoadGoblinAmbushGobLrgLrg, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oNorthBrethilForest1] = new System.Windows.Point(10, 2);
@@ -1426,7 +1468,6 @@ namespace IsengardClient
             AddExit(oSpriteGuards, oBrethilForest, "east");
             breeToImladrisGraph.Rooms[oSpriteGuards] = new System.Windows.Point(11, 6);
 
-            AddLocation(_aBreePerms, oSalamander);
             AddLocation(_aBreePerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aBreePerms, oNorthBrethilForest5GobAmbush);
             AddLocation(_aBreePerms, oSpriteGuards);
