@@ -58,7 +58,6 @@ namespace IsengardClient
         public string Mob3 { get; set; }
         public Dictionary<Variable, string> VariableValues { get; set; }
         public List<Room> SubLocations { get; set; }
-        public Room ParentRoom { get; set; }
         public AlignmentType? Alignment { get; set; }
         public int? Experience1 { get; set; }
         public int? Experience2 { get; set; }
