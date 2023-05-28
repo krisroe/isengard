@@ -1108,6 +1108,8 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oNorthHallway3] = new System.Windows.Point(7, 8);
 
             Room oDungeonGuardNorth = AddRoom("Dungeon Guard");
+            oDungeonGuardNorth.Mob1 = "guard";
+            oDungeonGuardNorth.Experience1 = 120;
             AddBidirectionalExits(oNorthHallway3, oDungeonGuardNorth, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oDungeonGuardNorth] = new System.Windows.Point(8, 8);
 
@@ -1124,6 +1126,8 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oSouthHallway3] = new System.Windows.Point(7, 14);
 
             Room oDungeonGuardSouth = AddRoom("Dungeon Guard");
+            oDungeonGuardSouth.Mob1 = "guard";
+            oDungeonGuardSouth.Experience1 = 120;
             AddBidirectionalExits(oSouthHallway3, oDungeonGuardSouth, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oDungeonGuardSouth] = new System.Windows.Point(8, 14);
 
@@ -1255,7 +1259,7 @@ namespace IsengardClient
 
         private void AddBreeToImladris(Room oSewerPipeExit, Room sewerTunnelToTConnection, int level)
         {
-            RoomGraph breeToImladrisGraph = new RoomGraph("Bree to Imladris");
+            RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
             _graphs.Add(breeToImladrisGraph);
 
@@ -1852,17 +1856,24 @@ namespace IsengardClient
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside, RoomGraph imladrisGraph)
         {
+            RoomGraph imladrisToTharbadGraph = new RoomGraph("Imladris/Tharbad");
+            imladrisToTharbadGraph.ScalingFactor = 100;
+            _graphs.Add(imladrisToTharbadGraph);
+
             Room oMistyTrail1 = AddRoom("South Gate Outside");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
             imladrisGraph.Rooms[oMistyTrail1] = new System.Windows.Point(5, 11);
+            imladrisToTharbadGraph.Rooms[oMistyTrail1] = new System.Windows.Point(5, 0);
 
-            Room oBrunskidTradersGuild1 = AddRoom("Brunskid Trader's Guild Store Front");
+            Room oBrunskidTradersGuild1 = AddRoom("Brunskid Guild");
             AddBidirectionalExits(oBrunskidTradersGuild1, oMistyTrail1, BidirectionalExitType.WestEast);
+            imladrisToTharbadGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 0);
 
-            Room oCutthroatAssassinThreshold = AddRoom("Hiester Assassin Cutthroat Threshold");
+            Room oCutthroatAssassinThreshold = AddRoom("Guildmaster");
             AddBidirectionalExits(oCutthroatAssassinThreshold, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
+            imladrisToTharbadGraph.Rooms[oCutthroatAssassinThreshold] = new System.Windows.Point(3, 0);
 
-            Room oCutthroatAssassin = AddRoom("Hiester Assassin Cutthroat");
+            Room oCutthroatAssassin = AddRoom("Hiester");
             AddBidirectionalExits(oCutthroatAssassin, oCutthroatAssassinThreshold, BidirectionalExitType.WestEast);
             oCutthroatAssassin.Mob1 = "hiester";
             oCutthroatAssassin.Mob2 = "assassin";
@@ -1870,70 +1881,87 @@ namespace IsengardClient
             oCutthroatAssassin.Experience1 = 1200;
             oCutthroatAssassin.Experience2 = 600;
             oCutthroatAssassin.Experience3 = 500;
+            imladrisToTharbadGraph.Rooms[oCutthroatAssassin] = new System.Windows.Point(2, 0);
 
             Room oMistyTrail2 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail1, oMistyTrail2, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail2] = new System.Windows.Point(5, 1);
 
             Room oMistyTrail3 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail2, oMistyTrail3, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail3] = new System.Windows.Point(5, 2);
 
             Room oMistyTrail4 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail3, oMistyTrail4, BidirectionalExitType.SouthwestNortheast);
+            imladrisToTharbadGraph.Rooms[oMistyTrail4] = new System.Windows.Point(4, 3);
 
             Room oPotionFactoryReception = AddRoom("Potion Factory Guard");
             AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
             oPotionFactoryReception.Mob1 = "Guard";
             oPotionFactoryReception.Experience1 = 110;
+            imladrisToTharbadGraph.Rooms[oPotionFactoryReception] = new System.Windows.Point(3, 3);
 
             Room oPotionFactoryAdministrativeOffices = AddRoom("Potion Factory Administrative Offices");
             AddBidirectionalExits(oPotionFactoryReception, oPotionFactoryAdministrativeOffices, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oPotionFactoryAdministrativeOffices] = new System.Windows.Point(3, 4);
 
             Room oMarkFrey = AddRoom("Mark Frey");
             oMarkFrey.Mob1 = "Frey";
             oMarkFrey.Experience1 = 450;
             AddExit(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
             AddExit(oMarkFrey, oPotionFactoryAdministrativeOffices, "out");
+            imladrisToTharbadGraph.Rooms[oMarkFrey] = new System.Windows.Point(3, 5);
 
             Room oMistyTrail5 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail5] = new System.Windows.Point(4, 4);
 
             Room oMistyTrail6 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail5, oMistyTrail6, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail6] = new System.Windows.Point(4, 5);
 
             Room oMistyTrail7 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail6, oMistyTrail7, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail7] = new System.Windows.Point(4, 6);
 
             Room oMistyTrail8 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail7, oMistyTrail8, BidirectionalExitType.NorthSouth);
-            AddShantyTown(oMistyTrail8);
+            AddShantyTown(oMistyTrail8, imladrisToTharbadGraph);
+            imladrisToTharbadGraph.Rooms[oMistyTrail8] = new System.Windows.Point(4, 7);
 
             Room oMistyTrail9 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail8, oMistyTrail9, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail9] = new System.Windows.Point(4, 8);
 
             Room oMistyTrail10 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail9, oMistyTrail10, BidirectionalExitType.SouthwestNortheast);
+            imladrisToTharbadGraph.Rooms[oMistyTrail10] = new System.Windows.Point(3, 9);
 
             Room oMistyTrail11 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail10, oMistyTrail11, BidirectionalExitType.SouthwestNortheast);
+            imladrisToTharbadGraph.Rooms[oMistyTrail11] = new System.Windows.Point(2, 10);
 
             Room oMistyTrail12 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail11, oMistyTrail12, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oMistyTrail12] = new System.Windows.Point(2, 11);
 
             Room oMistyTrail13 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail12, oMistyTrail13, BidirectionalExitType.SouthwestNortheast);
+            imladrisToTharbadGraph.Rooms[oMistyTrail13] = new System.Windows.Point(1, 12);
 
             Room oMistyTrail14 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail13, oMistyTrail14, BidirectionalExitType.SouthwestNortheast);
+            imladrisToTharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(0, 13);
 
             oTharbadGateOutside = AddRoom("North Gate");
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(0, 14);
 
             AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
-            AddLocation(_aImladrisTharbadPerms, oPotionFactoryReception);
         }
 
-        private void AddShantyTown(Room oMistyTrail8)
+        private void AddShantyTown(Room oMistyTrail8, RoomGraph imladrisToTharbadGraph)
         {
             RoomGraph oShantyTownGraph = new RoomGraph("Shanty Town");
             oShantyTownGraph.ScalingFactor = 100;
@@ -1944,6 +1972,7 @@ namespace IsengardClient
             Room oRuttedDirtRoad = AddRoom("Dirt Road");
             AddBidirectionalExits(oRuttedDirtRoad, oMistyTrail8, BidirectionalExitType.WestEast);
             oShantyTownGraph.Rooms[oRuttedDirtRoad] = new System.Windows.Point(4, 0);
+            imladrisToTharbadGraph.Rooms[oRuttedDirtRoad] = new System.Windows.Point(3, 7);
 
             Room oHouseOfPleasure = AddRoom("House of Pleasure");
             AddBidirectionalSameNameExit(oRuttedDirtRoad, oHouseOfPleasure, "door");
