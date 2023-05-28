@@ -227,9 +227,17 @@ namespace IsengardClient
             AddBidirectionalExits(tourismAndCustoms, sabre4, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[tourismAndCustoms] = new System.Windows.Point(1, 7);
 
-            Room tharbadWestGate = AddRoom("West Gate");
-            AddBidirectionalExits(tharbadWestGate, sabre4, BidirectionalExitType.WestEast);
-            tharbadGraph.Rooms[tharbadWestGate] = new System.Windows.Point(0, 8);
+            Room tharbadWestGateInside = AddRoom("West Gate Inside");
+            AddBidirectionalExits(tharbadWestGateInside, sabre4, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[tharbadWestGateInside] = new System.Windows.Point(0, 8);
+
+            Room tharbadWestGateOutside = AddRoom("West Gate Outside");
+            AddBidirectionalSameNameExit(tharbadWestGateInside, tharbadWestGateOutside, "gate");
+            tharbadGraph.Rooms[tharbadWestGateOutside] = new System.Windows.Point(-1, 8);
+
+            Room tharbadDocks = AddRoom("Docks");
+            AddBidirectionalExits(tharbadWestGateOutside, tharbadDocks, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[tharbadDocks] = new System.Windows.Point(-1, 9);
 
             Room illusion1 = AddRoom("Illusion");
             AddBidirectionalExits(illusion1, sabreIllusion, BidirectionalExitType.NorthSouth);
