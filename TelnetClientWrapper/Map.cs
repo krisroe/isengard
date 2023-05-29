@@ -58,14 +58,15 @@ namespace IsengardClient
 
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
             graphMillwoodMansion.ScalingFactor = 100;
+            _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
             AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit);
-            AddMayorMillwoodMansion(oIxell, graphMillwoodMansion);
+            AddMayorMillwoodMansion(oIxell);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
             AddBreeToImladris(level, out Room oOuthouse);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
-            AddImladrisCity(out Room oImladrisSouthGateInside, out RoomGraph imladrisGraph);
-            AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside, imladrisGraph);
+            AddImladrisCity(out Room oImladrisSouthGateInside);
+            AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside);
             AddIntangible(oBreeTownSquare);
 
@@ -1020,11 +1021,9 @@ namespace IsengardClient
         /// adds rooms for mayor millwood's mansion
         /// </summary>
         /// <param name="oIxell">Ixell (entrance to mansion)</param>
-        /// <param name="graphMillwoodMansion">millwood mansion graph</param>
-        private void AddMayorMillwoodMansion(Room oIxell, RoomGraph graphMillwoodMansion)
+        private void AddMayorMillwoodMansion(Room oIxell)
         {
-            _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
-
+            RoomGraph graphMillwoodMansion = _graphs[MapType.MillwoodMansion];
             string sWarriorBard = "Warrior bard";
 
             Room oPathToMansion1 = AddRoom("Construction Site");
@@ -1611,9 +1610,9 @@ namespace IsengardClient
             AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside, out RoomGraph imladrisGraph)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside)
         {
-            imladrisGraph = new RoomGraph("Imladris");
+            RoomGraph imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
             _graphs[MapType.Imladris] = imladrisGraph;
 
@@ -1896,8 +1895,10 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oShepherd);
         }
 
-        private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside, RoomGraph imladrisGraph)
+        private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
         {
+            RoomGraph imladrisGraph = _graphs[MapType.Imladris];
+
             RoomGraph imladrisToTharbadGraph = new RoomGraph("Imladris/Tharbad");
             imladrisToTharbadGraph.ScalingFactor = 100;
             _graphs[MapType.ImladrisToTharbad] = imladrisToTharbadGraph;
@@ -1909,10 +1910,12 @@ namespace IsengardClient
 
             Room oBrunskidTradersGuild1 = AddRoom("Brunskid Guild");
             AddBidirectionalExits(oBrunskidTradersGuild1, oMistyTrail1, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 11);
             imladrisToTharbadGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 0);
 
             Room oCutthroatAssassinThreshold = AddRoom("Guildmaster");
             AddBidirectionalExits(oCutthroatAssassinThreshold, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oCutthroatAssassinThreshold] = new System.Windows.Point(3, 11);
             imladrisToTharbadGraph.Rooms[oCutthroatAssassinThreshold] = new System.Windows.Point(3, 0);
 
             Room oCutthroatAssassin = AddRoom("Hiester");
@@ -1923,6 +1926,7 @@ namespace IsengardClient
             oCutthroatAssassin.Experience1 = 1200;
             oCutthroatAssassin.Experience2 = 600;
             oCutthroatAssassin.Experience3 = 500;
+            imladrisGraph.Rooms[oCutthroatAssassin] = new System.Windows.Point(2, 11);
             imladrisToTharbadGraph.Rooms[oCutthroatAssassin] = new System.Windows.Point(2, 0);
 
             Room oMistyTrail2 = AddRoom("Misty Trail");
@@ -1968,7 +1972,7 @@ namespace IsengardClient
 
             Room oMistyTrail8 = AddRoom("Misty Trail");
             AddBidirectionalExits(oMistyTrail7, oMistyTrail8, BidirectionalExitType.NorthSouth);
-            AddShantyTown(oMistyTrail8, imladrisToTharbadGraph);
+            AddShantyTown(oMistyTrail8);
             imladrisToTharbadGraph.Rooms[oMistyTrail8] = new System.Windows.Point(4, 7);
 
             Room oMistyTrail9 = AddRoom("Misty Trail");
@@ -2003,8 +2007,10 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
         }
 
-        private void AddShantyTown(Room oMistyTrail8, RoomGraph imladrisToTharbadGraph)
+        private void AddShantyTown(Room oMistyTrail8)
         {
+            RoomGraph imladrisToTharbadGraph = _graphs[MapType.ImladrisToTharbad];
+
             RoomGraph oShantyTownGraph = new RoomGraph("Shanty Town");
             oShantyTownGraph.ScalingFactor = 100;
             _graphs[MapType.ShantyTown] = oShantyTownGraph;
