@@ -601,11 +601,6 @@ namespace IsengardClient
                                 step = oCommand;
                             }
                             break;
-                        case "setnextcommandms":
-                            MacroStepSetNextCommandWaitMS oWaitMSCommand = new MacroStepSetNextCommandWaitMS();
-                            ret.Add(oWaitMSCommand);
-                            step = oWaitMSCommand;
-                            break;
                         case "setvariable":
                             MacroStepSetVariable oSetVariableCommand = new MacroStepSetVariable();
                             ret.Add(oSetVariableCommand);
@@ -620,36 +615,6 @@ namespace IsengardClient
                             isValid = false;
                             errorMessages.Add("Invalid macro step type: " + errorSource + " " + stepType);
                             break;
-                    }
-                    string sWait = elemStep.GetAttribute("waitms");
-                    if (!string.IsNullOrEmpty(sWait))
-                    {
-                        if (int.TryParse(sWait, out int iWaitMS))
-                        {
-                            if (step != null) step.WaitMS = iWaitMS;
-                        }
-                        else if (variablesByName.TryGetValue(sWait, out Variable v))
-                        {
-                            if (v.Type != VariableType.Int)
-                            {
-                                isValid = false;
-                                errorMessages.Add("WaitMS variable must be an integer: " + errorSource + " " + stepType);
-                            }
-                            else
-                            {
-                                if (step != null) step.WaitMSVariable = (IntegerVariable)v;
-                            }
-                        }
-                        else
-                        {
-                            isValid = false;
-                            errorMessages.Add("Invalid wait ms: " + errorSource + " " + stepType);
-                        }
-                    }
-                    if (step != null && step is MacroStepSetNextCommandWaitMS && !step.WaitMS.HasValue)
-                    {
-                        isValid = false;
-                        errorMessages.Add("setnextcommandms step must have wait ms");
                     }
                     string sLoop = elemStep.GetAttribute("loop");
                     if (!string.IsNullOrEmpty(sLoop))

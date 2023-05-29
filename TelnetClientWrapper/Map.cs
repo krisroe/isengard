@@ -1,4 +1,5 @@
 ﻿using QuickGraph;
+using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 namespace IsengardClient
@@ -95,7 +96,7 @@ namespace IsengardClient
                 return _areas;
             }
         }
-        
+
         public Room TreeOfLifeRoom
         {
             get
@@ -2309,5 +2310,53 @@ namespace IsengardClient
         ImladrisToTharbad,
         ShantyTown,
         Tharbad
+    }
+
+    internal class MapComputation
+    {
+        private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
+        private Dictionary<Room, Exit> _pathMapping;
+        private Room _targetRoom;
+        private Room _currentRoom;
+
+        public MapComputation(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph)
+        {
+            _pathMapping = new Dictionary<Room, Exit>();
+            _currentRoom = currentRoom;
+            _targetRoom = targetRoom;
+            _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(mapGraph);
+            _currentSearch.TreeEdge += Alg_TreeEdge;
+            _currentSearch.Compute(currentRoom);
+        }
+
+        public Dictionary<Room, Exit> PathMapping
+        {
+            get
+            {
+                return _pathMapping;
+            }
+        }
+
+        public List<Exit> GetExits()
+        {
+            Room currentRoom = _targetRoom;
+            List<Exit> exits = new List<Exit>();
+            while (currentRoom != _currentRoom)
+            {
+                Exit nextExit = _pathMapping[currentRoom];
+                exits.Add(nextExit);
+                currentRoom = nextExit.Source;
+            }
+            return exits;
+        }
+
+        private void Alg_TreeEdge(Exit e)
+        {
+            _pathMapping[e.Target] = e;
+            if (e.Target == _targetRoom)
+            {
+                _currentSearch.Abort();
+            }
+        }
     }
 }

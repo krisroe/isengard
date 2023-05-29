@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using NAudio.Vorbis;
 using NAudio.Wave;
-using QuickGraph;
-using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -55,8 +53,6 @@ namespace IsengardClient
         private bool _ranStartupCommands;
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
-        private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
-        private Dictionary<Room, Exit> _pathMapping;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private List<Variable> _variables;
@@ -68,8 +64,6 @@ namespace IsengardClient
         private List<string> _newConsoleText = new List<string>();
         private Dictionary<char, int> _asciiMapping;
 
-        private const string VARIABLE_MOVEGAPMS = "movegapms";
-
         private List<EmoteButton> _emoteButtons = new List<EmoteButton>();
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
@@ -79,11 +73,7 @@ namespace IsengardClient
         private bool _fumbled;
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
-
-        /// <summary>
-        /// result for the flee or quit commands
-        /// </summary>
-        private bool? _commandResult;
+        private CommandResult? _commandResult;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -766,22 +756,25 @@ namespace IsengardClient
             _newSpellsCast = spells;
         }
 
-        private void OnHazy()
-        {
-            _autoHazied = true;
-            _fleeing = false;
-        }
-
         private void OnFailFlee()
         {
-            _commandResult = false;
+            _commandResult = CommandResult.CommandUnsuccessfulThisTime;
             _waitSeconds = 0;
         }
 
-        private void OnSuccessfulFlee()
+        private void OnRoomTransition(RoomTransitionType rtType, string roomName)
         {
-            _fleeing = false;
-            _commandResult = true;
+            _commandResult = CommandResult.CommandSuccessful;
+            _waitSeconds = 0;
+            if (rtType == RoomTransitionType.Flee)
+            {
+                _fleeing = false;
+            }
+            else if (rtType == RoomTransitionType.Hazy)
+            {
+                _autoHazied = true;
+                _fleeing = false;
+            }
         }
 
         private void OnFailManashield()
@@ -796,7 +789,7 @@ namespace IsengardClient
 
         private void OnWaitXSeconds(int waitSeconds)
         {
-            _commandResult = false;
+            _commandResult = CommandResult.CommandNotAttempted;
             _waitSeconds = waitSeconds;
         }
 
@@ -807,7 +800,12 @@ namespace IsengardClient
 
         private void OnLifeSpellCast()
         {
-            _commandResult = true;
+            _commandResult = CommandResult.CommandSuccessful;
+        }
+
+        private void OnCantMoveThatWay()
+        {
+            _commandResult = CommandResult.CommandUnsuccessfulAlways;
         }
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
@@ -825,6 +823,7 @@ namespace IsengardClient
             };
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
+                new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
                 new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.Contains),
@@ -837,12 +836,11 @@ namespace IsengardClient
                 new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("You phase in and out of existence.", OnHazy, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains), //could be prefixed by "Scared of going X"*
-                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee, ConstantSequenceMatchType.Contains), //could be prefixed by "Scared of going X"*, output includes the room information where fled to
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
                 new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("You can't go that way.", OnCantMoveThatWay, ConstantSequenceMatchType.FirstLineExactMatch),
             };
 
             while (true)
@@ -900,15 +898,17 @@ namespace IsengardClient
                                 sNewLine = sNewLine.Substring(0, lastParenthesisLocation);
                         }
 
-                        string[] sNewLines = sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
+                        if (!string.IsNullOrEmpty(sNewLine))
                         {
-                            nextProcessingSequence.FeedLine(sNewLines);
-                        }
-
-                        lock (_consoleTextLock)
-                        {
-                            _newConsoleText.Add(sNewLineRaw);
+                            string[] sNewLines = sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                            foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
+                            {
+                                nextProcessingSequence.FeedLine(sNewLines);
+                            }
+                            lock (_consoleTextLock)
+                            {
+                                _newConsoleText.Add(sNewLineRaw);
+                            }
                         }
 
                         currentOutputItemData.Clear();
@@ -1540,18 +1540,56 @@ namespace IsengardClient
                 }
             }
 
-            //Run the pre-exit if present
-            Exit preExit = pms.PreExit;
-            if (preExit != null)
+            if (pms.Exits != null && pms.Exits.Count > 0)
             {
                 WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-                RunPreExitLogic(pms, preExit.PreCommand, preExit.Target);
-                string nextCommand = preExit.ExitText;
-                if (!preExit.OmitGo) nextCommand = "go " + nextCommand;
-                SendCommand(nextCommand, false);
-                pms.CommandsRun++;
-                pms.TargetRoom = preExit.Target;
-                pms.SetTargetRoomIfCancelled = true;
+                foreach (Exit nextExit in pms.Exits)
+                {
+                    RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
+                    string nextCommand = nextExit.ExitText;
+                    if (!nextExit.OmitGo) nextCommand = "go " + nextCommand;
+
+                    currentAttempts = 0;
+                    while (currentAttempts < maxAttempts)
+                    {
+                        if (_fleeing) break;
+                        if (_bw.CancellationPending) break;
+                        _commandResult = null;
+                        SendCommand(nextCommand, false);
+                        pms.CommandsRun++;
+                        CommandResult? currentResult;
+                        while (true)
+                        {
+                            currentResult = _commandResult;
+                            if (currentResult.HasValue) break;
+                            Thread.Sleep(50);
+                            RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                        }
+                        if (currentResult.HasValue)
+                        {
+                            if (currentResult.Value == CommandResult.CommandSuccessful)
+                            {
+                                if (nextExit.Target != null)
+                                {
+                                    pms.TargetRoom = nextExit.Target;
+                                    pms.SetTargetRoomIfCancelled = true;
+                                }
+                                break;
+                            }
+                            else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
+                            {
+                                return;
+                            }
+                            else if (_waitSeconds > 1)
+                            {
+                                int waitMS = 500 + (1000 * (_waitSeconds - 2));
+                                WaitUntilNextCommand(waitMS, false, false);
+                            }
+                        }
+                    }
+                }
             }
 
             if (pms.Flee)
@@ -1559,11 +1597,8 @@ namespace IsengardClient
                 _fleeing = true;
             }
 
-            foreach (var nextCommandInfo in IterateStepCommands(commands, pms, 0))
+            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
             {
-                MacroCommand nextCommand = nextCommandInfo.Key;
-                int? overrideWaitMS = nextCommandInfo.Value;
-
                 if (_bw.CancellationPending) break;
                 oPreviousCommand = oCurrentCommand;
                 oCurrentCommand = nextCommand;
@@ -1571,16 +1606,8 @@ namespace IsengardClient
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
 
-                //wait for an appropriate amount of time for the next command
-                if (nextCommand.CombatCycle == null) //use the wait ms for commands after the first
-                {
-                    if (oPreviousCommand != null)
-                    {
-                        int remainingMS = overrideWaitMS.GetValueOrDefault(pms.WaitMS);
-                        WaitUntilNextCommand(remainingMS, false, false);
-                    }
-                }
-                else if (dtLastCombatCycle.HasValue) //just use the combat cycle to determine the timing
+                //use the combat cycle to determine how long to wait
+                if (nextCommand.CombatCycle != null && dtLastCombatCycle.HasValue)
                 {
                     WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 }
@@ -1646,11 +1673,11 @@ namespace IsengardClient
                         if (!_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
-                    bool? currentResult = _commandResult;
+                    CommandResult? currentResult = _commandResult;
                     int waitSeconds = _waitSeconds;
                     if (currentResult.HasValue)
                     {
-                        if (currentResult.Value)
+                        if (currentResult.Value == CommandResult.CommandSuccessful)
                         {
                             if (singleFleeableExit != null)
                             {
@@ -1682,11 +1709,11 @@ namespace IsengardClient
                         Thread.Sleep(50);
                         if (_bw.CancellationPending) break;
                     }
-                    bool? currentResult = _commandResult;
+                    CommandResult? currentResult = _commandResult;
                     int waitSeconds = _waitSeconds;
                     if (currentResult.HasValue)
                     {
-                        if (currentResult.Value)
+                        if (currentResult.Value == CommandResult.CommandSuccessful)
                         {
                             break;
                         }
@@ -1710,7 +1737,7 @@ namespace IsengardClient
                     pms.CommandsRun++;
                 }
             }
-            if (targetRoom.IsTrapRoom)
+            if (targetRoom != null && targetRoom.IsTrapRoom)
             {
                 SendCommand("prepare", false);
                 if (pms != null)
@@ -1732,7 +1759,7 @@ namespace IsengardClient
                 SendCommand("cast " + spellName, false);
                 _currentBackgroundParameters.CommandsRun++;
                 currentAttempts++;
-                bool? currentResult;
+                CommandResult? currentResult;
                 while (true)
                 {
                     currentResult = _commandResult;
@@ -1744,7 +1771,7 @@ namespace IsengardClient
                 }
                 if (currentResult.HasValue)
                 {
-                    if (currentResult.Value)
+                    if (currentResult.Value == CommandResult.CommandSuccessful)
                     {
                         dtLastCombatCycle = DateTime.UtcNow;
                         if (spellName == "bless" || spellName == "protection")
@@ -1920,7 +1947,7 @@ namespace IsengardClient
         /// <param name="parameters">parameters to the background worker</param>
         /// <param name="loopsPerformed">number of loops already performed</param>
         /// <returns>commands to run</returns>
-        private IEnumerable<KeyValuePair<MacroCommand, int?>> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
+        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
         {
             Dictionary<string, Variable> variables = parameters.Variables;
             foreach (MacroStepBase nextStep in Steps)
@@ -1974,12 +2001,7 @@ namespace IsengardClient
                         break;
                     }
 
-                    bool overrideWaitMS;
-                    if (nextStep is MacroStepSetNextCommandWaitMS)
-                    {
-                        parameters.NextCommandWaitMS = ((MacroStepSetNextCommandWaitMS)nextStep).WaitMS.Value;
-                    }
-                    else if (nextStep is MacroStepSetVariable)
+                    if (nextStep is MacroStepSetVariable)
                     {
                         MacroStepSetVariable mssv = (MacroStepSetVariable)nextStep;
                         if (mssv.Variable.Type == VariableType.Bool)
@@ -2002,32 +2024,9 @@ namespace IsengardClient
                     else if (nextStep is MacroStepSequence)
                     {
                         MacroStepSequence seq = (MacroStepSequence)nextStep;
-                        overrideWaitMS = parameters.NextCommandWaitMS.HasValue;
-                        int overrideWaitMSValue = overrideWaitMS ? parameters.NextCommandWaitMS.Value : 0;
-                        int previousWaitMS = parameters.WaitMS;
-                        bool pastFirst = false;
-                        foreach (var nextStepCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
+                        foreach (MacroCommand nextStepCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
                         {
-                            MacroCommand nextSubCommand = nextStepCommand.Key;
-                            if (pastFirst)
-                            {
-                                yield return nextStepCommand;
-                            }
-                            else
-                            {
-                                if (overrideWaitMS)
-                                {
-                                    yield return new KeyValuePair<MacroCommand, int?>(nextSubCommand, overrideWaitMSValue);
-                                    parameters.NextCommandWaitMS = null;
-                                    SetWaitMS(seq, parameters, variables);
-                                }
-                                else
-                                {
-                                    SetWaitMS(seq, parameters, variables);
-                                    yield return nextStepCommand;
-                                }
-                                pastFirst = true;
-                            }
+                            yield return nextStepCommand;
                         }
                     }
                     else
@@ -2043,17 +2042,7 @@ namespace IsengardClient
                         {
                             nextCommand = (MacroCommand)nextStep;
                         }
-                        overrideWaitMS = parameters.NextCommandWaitMS.HasValue;
-                        if (overrideWaitMS)
-                        {
-                            int overrideWaitMSValue = parameters.NextCommandWaitMS.Value;
-                            yield return new KeyValuePair<MacroCommand, int?>(nextCommand, overrideWaitMSValue);
-                        }
-                        else
-                        {
-                            SetWaitMS(nextCommand, parameters, variables);
-                            yield return new KeyValuePair<MacroCommand, int?>(nextCommand, null);
-                        }
+                        yield return nextCommand;
                     }
                     loopCount++;
 
@@ -2070,18 +2059,6 @@ namespace IsengardClient
                         break; //stop if not in a loop
                     }
                 }
-            }
-        }
-
-        private void SetWaitMS(MacroStepBase nextStep, BackgroundWorkerParameters parameters, Dictionary<string, Variable> variables)
-        {
-            if (nextStep.WaitMS.HasValue)
-            {
-                parameters.WaitMS = nextStep.WaitMS.Value;
-            }
-            else if (nextStep.WaitMSVariable != null)
-            {
-                parameters.WaitMS = ((IntegerVariable)variables[nextStep.WaitMSVariable.Name]).Value;
             }
         }
 
@@ -2396,12 +2373,12 @@ namespace IsengardClient
         {
             if (move)
             {
-                RunPreExitLogic(null, exit.PreCommand, exit.Target);
-                string nextCommand = exit.ExitText;
-                if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                SendCommand(nextCommand, false);
+                NavigateExitsInBackground(exit.Target, new List<Exit>() { exit });
             }
-            SetCurrentRoom(exit.Target);
+            else
+            {
+                SetCurrentRoom(exit.Target);
+            }
         }
 
         private void DoSingleMove(bool move, string direction, string command)
@@ -2432,7 +2409,9 @@ namespace IsengardClient
             }
             if (move)
             {
-                SendCommand(command, false);
+                Exit fakeExit = new Exit(null, null, command);
+                fakeExit.OmitGo = true;
+                NavigateExitsInBackground(null, new List<Exit>() { fakeExit });
             }
         }
 
@@ -2530,10 +2509,8 @@ namespace IsengardClient
         {
             public Room TargetRoom { get; set; }
             public List<MacroStepBase> Commands { get; set; }
-            public Exit PreExit { get; set; }
+            public List<Exit> Exits { get; set; }
             public Dictionary<string, Variable> Variables { get; set; }
-            public int? NextCommandWaitMS { get; set; }
-            public int WaitMS { get; set; }
             public bool Cancelled { get; set; }
             public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
@@ -2555,15 +2532,6 @@ namespace IsengardClient
                 {
                     yield return v;
                 }
-            }
-        }
-
-        private void Alg_TreeEdge(Exit e)
-        {
-            _pathMapping[e.Target] = e;
-            if (e.Target == _currentBackgroundParameters.TargetRoom)
-            {
-                _currentSearch.Abort();
             }
         }
 
@@ -2672,7 +2640,10 @@ namespace IsengardClient
             if (stop) return;
             _currentBackgroundParameters = GenerateNewBackgroundParameters();
             _currentBackgroundParameters.Macro = m;
-            _currentBackgroundParameters.PreExit = preExit;
+            if (preExit != null)
+            {
+                _currentBackgroundParameters.Exits = new List<Exit>() { preExit };
+            }
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.UsedSkills = activatedSkills;
@@ -2740,15 +2711,13 @@ namespace IsengardClient
                 ret = input;
                 isSameStep = true;
             }
-            else if (input is MacroStepSetNextCommandWaitMS || input is MacroStepSetVariable)
+            else if (input is MacroStepSetVariable)
             {
                 ret = input;
                 isSameStep = true;
             }
             if (!isSameStep)
             {
-                ret.WaitMS = input.WaitMS;
-                ret.WaitMSVariable = input.WaitMSVariable;
                 ret.Loop = input.Loop;
                 ret.LoopCount = input.LoopCount;
                 ret.LoopVariable = input.LoopVariable;
@@ -2760,14 +2729,6 @@ namespace IsengardClient
 
         public class MacroStepBase
         {
-            /// <summary>
-            /// persistent wait milliseconds
-            /// </summary>
-            public int? WaitMS { get; set; }
-            /// <summary>
-            /// persistent wait milliseconds from a variable
-            /// </summary>
-            public IntegerVariable WaitMSVariable { get; set; }
             public bool? Loop { get; set; }
             public int? LoopCount { get; set; }
             public Variable LoopVariable { get; set; }
@@ -2782,8 +2743,6 @@ namespace IsengardClient
 
             public void CopyFrom(MacroStepBase source)
             {
-                this.WaitMS = source.WaitMS;
-                this.WaitMSVariable = source.WaitMSVariable;
                 this.Loop = source.Loop;
                 this.LoopCount = source.LoopCount;
                 this.LoopVariable = source.LoopVariable;
@@ -3369,49 +3328,28 @@ namespace IsengardClient
 
         private void GoToRoom(Room targetRoom)
         {
-            _currentBackgroundParameters = GenerateNewBackgroundParameters();
-            int moveGapMS;
-            if (_variablesByName.TryGetValue(VARIABLE_MOVEGAPMS, out Variable movegapmsvar) && movegapmsvar is IntegerVariable)
-                moveGapMS = ((IntegerVariable)movegapmsvar).Value;
-            else
-                moveGapMS = 260;
-            _currentBackgroundParameters.WaitMS = moveGapMS;
-            _currentBackgroundParameters.TargetRoom = targetRoom;
-            _pathMapping = new Dictionary<Room, Exit>();
-            _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(_gameMap.MapGraph);
-            _currentSearch.TreeEdge += Alg_TreeEdge;
-            _currentSearch.Compute(m_oCurrentRoom);
+            MapComputation mc = new MapComputation(m_oCurrentRoom, targetRoom, _gameMap.MapGraph);
 
-            if (!_pathMapping.ContainsKey(targetRoom))
+            if (!mc.PathMapping.ContainsKey(targetRoom))
             {
                 MessageBox.Show("No path to target room found.");
                 return;
             }
 
-            Room currentRoom = targetRoom;
-            List<Exit> exits = new List<Exit>();
-            while (currentRoom != m_oCurrentRoom)
-            {
-                Exit nextExit = _pathMapping[currentRoom];
-                exits.Add(nextExit);
-                currentRoom = nextExit.Source;
-            }
+            List<Exit> exits = mc.GetExits();
+            NavigateExitsInBackground(targetRoom, exits);
+        }
+
+        private void NavigateExitsInBackground(Room targetRoom, List<Exit> exits)
+        {
+            _currentBackgroundParameters = GenerateNewBackgroundParameters();
+            _currentBackgroundParameters.TargetRoom = targetRoom;
+            _currentBackgroundParameters.Exits = new List<Exit>();
 
             List<MacroStepBase> commands = new List<MacroStepBase>();
             for (int i = exits.Count - 1; i >= 0; i--)
             {
-                Exit exit = exits[i];
-                if (!string.IsNullOrEmpty(exit.PreCommand))
-                {
-                    commands.Add(new MacroCommand(exit.PreCommand, exit.PreCommand));
-                }
-                if (exit.Target.IsTrapRoom)
-                {
-                    commands.Add(new MacroCommand("prepare", "prepare"));
-                }
-                string nextCommand = exit.ExitText;
-                if (!exit.OmitGo) nextCommand = "go " + nextCommand;
-                commands.Add(new MacroCommand(nextCommand, nextCommand));
+                _currentBackgroundParameters.Exits.Add(exits[i]);
             }
 
             RunCommands(commands, _currentBackgroundParameters);
@@ -3438,5 +3376,13 @@ namespace IsengardClient
         None = 0,
         PowerAttack = 1,
         Manashield = 2
+    }
+
+    internal enum CommandResult
+    {
+        CommandSuccessful,
+        CommandUnsuccessfulThisTime,
+        CommandUnsuccessfulAlways,
+        CommandNotAttempted,
     }
 }

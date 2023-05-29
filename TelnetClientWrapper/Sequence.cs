@@ -66,13 +66,14 @@ namespace IsengardClient
 
         public void FeedLine(string[] Lines)
         {
+            int lineIndex = 0;
             foreach (string Line in Lines)
             {
                 bool match;
                 switch (_matchType)
                 {
-                    case ConstantSequenceMatchType.ExactMatch:
-                        match = Line.Equals(_characters);
+                    case ConstantSequenceMatchType.FirstLineExactMatch:
+                        match = lineIndex == 0 && Line.Equals(_characters);
                         break;
                     case ConstantSequenceMatchType.StartsWith:
                         match = Line.StartsWith(_characters);
@@ -88,13 +89,14 @@ namespace IsengardClient
                     _onSatisfied();
                     break;
                 }
+                lineIndex++;
             }
         }
     }
 
     internal enum ConstantSequenceMatchType
     {
-        ExactMatch,
+        FirstLineExactMatch,
         StartsWith,
         Contains,
     }
@@ -496,6 +498,64 @@ namespace IsengardClient
                         currentMatchPoint = -1;
                     }
                 }
+            }
+        }
+    }
+
+    internal enum RoomTransitionType
+    {
+        Move,
+        Flee,
+        Hazy,
+    }
+
+    internal class RoomTransitionSequence : IOutputProcessingSequence
+    {
+        private Action<RoomTransitionType, string> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionType, string> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public void FeedLine(string[] Lines)
+        {
+            RoomTransitionType rtType = RoomTransitionType.Move;
+            int nextLineIndex = 0;
+
+            //skip fleeing messages for scared exits
+            while (nextLineIndex < Lines.Length && Lines[nextLineIndex].StartsWith("Scared of going "))
+            {
+                nextLineIndex++;
+            }
+
+            string sNextLine = Lines[nextLineIndex];
+            if (Lines[nextLineIndex] == "You run like a chicken.")
+            {
+                rtType = RoomTransitionType.Flee;
+                nextLineIndex++;
+            }
+            else if (sNextLine == "You phase in and out of existence.")
+            {
+                rtType = RoomTransitionType.Hazy;
+                nextLineIndex++;
+            }
+
+            //blank line before room name
+            if (Lines[nextLineIndex] != string.Empty) return;
+            nextLineIndex++;
+
+            if (nextLineIndex >= Lines.Length) return;
+            string sRoomName = Lines[nextLineIndex];
+            if (string.IsNullOrEmpty(sRoomName)) return;
+            nextLineIndex++;
+
+            //blank line after room name
+            if (Lines[nextLineIndex] != string.Empty) return;
+            nextLineIndex++;
+
+            sNextLine = Lines[nextLineIndex];
+            if (sNextLine.StartsWith("Obvious exits: "))
+            {
+                _onSatisfied(rtType, sRoomName);
             }
         }
     }

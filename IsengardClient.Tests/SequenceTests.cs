@@ -23,11 +23,11 @@ namespace IsengardClient.Tests
 
             skillActive = false;
             availableDate = DateTime.UtcNow;
-            scs.FeedLine("manashield [ACTIVE]");
+            scs.FeedLine(new string[] { "manashield [ACTIVE]" });
             Assert.IsTrue(skillActive);
             Assert.IsTrue(!availableDate.HasValue);
 
-            scs.FeedLine("manashield [2:34]");
+            scs.FeedLine(new string[] { "manashield [2:34]" });
             Assert.IsFalse(skillActive);
             Assert.IsTrue(availableDate.HasValue);
         }
@@ -44,15 +44,15 @@ namespace IsengardClient.Tests
             PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(waitedAction);
 
             waited = -1;
-            plxss.FeedLine("Please wait 2 seconds.");
+            plxss.FeedLine(new string[] { "Please wait 2 seconds." });
             Assert.IsTrue(waited == 2);
 
             waited = -1;
-            plxss.FeedLine("Please wait 12 seconds.");
+            plxss.FeedLine(new string[] { "Please wait 12 seconds." });
             Assert.IsTrue(waited == 12);
 
             waited = -1;
-            plxss.FeedLine("Please wait 1 more second.");
+            plxss.FeedLine(new string[] { "Please wait 1 more second." });
             Assert.IsTrue(waited == 1);
         }
     }

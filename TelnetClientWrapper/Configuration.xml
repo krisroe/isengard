@@ -1,14 +1,13 @@
 <Configuration defaultrealm="wind" defaultweapon="scimitar" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Red" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
-  <Variable name="movegapms" type="int" value="265"/>
   <Variable name="combatcycleinterval" type="int" value="2550" min="0"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
   <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
-    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
+    <Command text="wield {weapon}" condition="weapon"/>
     <Sequence loop="true">
      <Steps>
       <CombatCycle magic="OffensiveSpell" attack="true"/>
@@ -19,7 +18,7 @@
   </Macro>
   <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
-    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
+    <Command text="wield {weapon}" condition="weapon"/>
     <CombatCycle magic="Stun" attack="true"/>
     <SetVariable variable="attacktype" value="attack"/>
     <Sequence loop="true">
@@ -31,7 +30,7 @@
   </Macro>
   <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
    <Steps>
-    <Command text="wield {weapon}" waitms="0" condition="weapon"/>
+    <Command text="wield {weapon}" condition="weapon"/>
     <CombatCycle magic="Stun" attack="true"/>
     <SetVariable variable="attacktype" value="attack"/>
     <Sequence loop="2">
@@ -84,8 +83,7 @@
   </Macro>
   <Macro name="ATK*" oneclick="true" combatcommandtypes="Melee" skills="true">
    <Steps>
-    <Command text="wield {weapon}" waitms="0"/>
-    <SetNextCommandMS waitms="0"/>
+    <Command text="wield {weapon}"/>
     <Sequence loop="true">
      <Steps>
       <CombatCycle magic="None" attack="true"/>

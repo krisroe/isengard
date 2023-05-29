@@ -92,13 +92,6 @@ namespace IsengardClient
         }
     }
 
-    internal class MacroStepSetNextCommandWaitMS : MacroStepBase
-    {
-        public MacroStepSetNextCommandWaitMS()
-        {
-        }
-    }
-
     internal enum ManaDrainType
     {
         None = 0,
