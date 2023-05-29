@@ -61,7 +61,8 @@ namespace IsengardClient
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
         private object _writeToNetworkStreamLock = new object();
-        private List<string> _newConsoleText = new List<string>();
+        private ConsoleOutput _previousConsoleOutput = null;
+        private List<ConsoleOutput> _newConsoleText = new List<ConsoleOutput>();
         private Dictionary<char, int> _asciiMapping;
 
         private List<EmoteButton> _emoteButtons = new List<EmoteButton>();
@@ -909,7 +910,7 @@ namespace IsengardClient
 
                         lock (_consoleTextLock)
                         {
-                            _newConsoleText.Add(sNewLineRaw);
+                            _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, false));
                         }
 
                         currentOutputItemData.Clear();
@@ -2219,8 +2220,7 @@ namespace IsengardClient
                 }
                 lock (_consoleTextLock)
                 {
-                    _newConsoleText.Add(sToConsole);
-                    _newConsoleText.Add(Environment.NewLine);
+                    _newConsoleText.Add(new ConsoleOutput(sToConsole + Environment.NewLine, true));
                 }
             }
         }
@@ -2801,7 +2801,25 @@ namespace IsengardClient
             {
                 if (_newConsoleText.Count > 0)
                 {
-                    textToAdd.AddRange(_newConsoleText);
+                    foreach (ConsoleOutput nextConsoleOutput in _newConsoleText)
+                    {
+                        bool add = true;
+                        if (!nextConsoleOutput.IsInput)
+                        {
+                            if (_previousConsoleOutput == null || !string.Equals(_previousConsoleOutput.Text, nextConsoleOutput.Text))
+                            {
+                                _previousConsoleOutput = nextConsoleOutput;
+                            }
+                            else
+                            {
+                                add = false;
+                            }
+                        }
+                        if (add)
+                        {
+                            textToAdd.Add(nextConsoleOutput.Text);
+                        }
+                    }
                     _newConsoleText.Clear();
                 }
             }
@@ -3368,6 +3386,17 @@ namespace IsengardClient
             {
                 GoToRoom(frm.GoToRoom);
             }
+        }
+
+        internal class ConsoleOutput
+        {
+            public ConsoleOutput(string Text, bool IsInput)
+            {
+                this.Text = Text;
+                this.IsInput = IsInput;
+            }
+            public bool IsInput { get; set; }
+            public string Text { get; set; }
         }
     }
 
