@@ -481,6 +481,28 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain");
             tharbadGraph.Rooms[oOliphaunt] = new System.Windows.Point(8, 2);
 
+            Room oCrimsonBridge = AddRoom("Crimson Bridge");
+            AddBidirectionalExits(sabre2, oCrimsonBridge, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[oCrimsonBridge] = new System.Windows.Point(4, 8.25);
+
+            Room oCrimsonTowerBase = AddRoom("Tower Base");
+            AddBidirectionalExits(oCrimsonBridge, oCrimsonTowerBase, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[oCrimsonTowerBase] = new System.Windows.Point(4, 8.5);
+
+            Room oClingingToIvy1 = AddRoom("Clinging to Ivy");
+            e = AddExit(oCrimsonTowerBase, oClingingToIvy1, "ivy");
+            e.Hidden = true;
+            AddExit(oClingingToIvy1, oCrimsonTowerBase, "down");
+            tharbadGraph.Rooms[oClingingToIvy1] = new System.Windows.Point(4, 8.75);
+
+            Room oClingingToIvy2 = AddRoom("Clinging to Ivy");
+            AddBidirectionalExits(oClingingToIvy2, oClingingToIvy1, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oClingingToIvy2] = new System.Windows.Point(4, 9);
+
+            Room oTopOfTheTower = AddRoom("Tower Top");
+            AddBidirectionalExits(oTopOfTheTower, oClingingToIvy2, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oTopOfTheTower] = new System.Windows.Point(4, 9.25);
+
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);
