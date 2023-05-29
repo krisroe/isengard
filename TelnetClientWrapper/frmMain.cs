@@ -905,10 +905,11 @@ namespace IsengardClient
                             {
                                 nextProcessingSequence.FeedLine(sNewLines);
                             }
-                            lock (_consoleTextLock)
-                            {
-                                _newConsoleText.Add(sNewLineRaw);
-                            }
+                        }
+
+                        lock (_consoleTextLock)
+                        {
+                            _newConsoleText.Add(sNewLineRaw);
                         }
 
                         currentOutputItemData.Clear();
