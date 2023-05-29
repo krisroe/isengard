@@ -30,7 +30,6 @@ namespace IsengardClient
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
-        private const string AREA_BREE = "Bree";
         private const string AREA_MISC = "Misc";
         private const string AREA_SHIPS = "Ships";
         private const string AREA_INTANGIBLE = "Intangible";
@@ -45,7 +44,6 @@ namespace IsengardClient
 
             _aBreePerms = AddArea(AREA_BREE_PERMS);
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
-            AddArea(AREA_BREE);
             _aMisc = AddArea(AREA_MISC);
             _aShips = AddArea(AREA_SHIPS);
             AddArea(AREA_INTANGIBLE);
