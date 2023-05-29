@@ -503,6 +503,67 @@ namespace IsengardClient
             AddBidirectionalExits(oTopOfTheTower, oClingingToIvy2, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oTopOfTheTower] = new System.Windows.Point(4, 9.25);
 
+            Room oPalaceGates = AddRoom("Palace Gates");
+            AddBidirectionalExits(sabreIllusion, oPalaceGates, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[oPalaceGates] = new System.Windows.Point(5, 9);
+
+            Room oPalaceOfIllusion = AddRoom("Illusion Palace");
+            AddBidirectionalSameNameExit(oPalaceGates, oPalaceOfIllusion, "gate");
+            tharbadGraph.Rooms[oPalaceOfIllusion] = new System.Windows.Point(4.5, 12);
+
+            Room oImperialKitchens = AddRoom("Imperial Kitchens");
+            AddBidirectionalExits(oImperialKitchens, oPalaceOfIllusion, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[oImperialKitchens] = new System.Windows.Point(3.5, 12);
+
+            Room oHallOfRainbows1 = AddRoom("Rainbow Hall");
+            AddBidirectionalExits(oHallOfRainbows1, oPalaceOfIllusion, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[oHallOfRainbows1] = new System.Windows.Point(4.5, 11);
+
+            Room oHallOfRainbows2 = AddRoom("Rainbow Hall");
+            AddBidirectionalExits(oHallOfRainbows1, oHallOfRainbows2, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[oHallOfRainbows2] = new System.Windows.Point(5.5, 11);
+
+            Room oHallOfRainbows3 = AddRoom("Rainbow Hall");
+            AddBidirectionalExits(oHallOfRainbows2, oHallOfRainbows3, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[oHallOfRainbows3] = new System.Windows.Point(6.5, 11);
+
+            Room oEmptyGuestRoom = AddRoom("Guest Room");
+            AddBidirectionalSameNameExit(oHallOfRainbows3, oEmptyGuestRoom, "door");
+            tharbadGraph.Rooms[oEmptyGuestRoom] = new System.Windows.Point(6.5, 12);
+
+            Room oChancellorsDesk = AddRoom("Chancellor's Desk");
+            AddExit(oHallOfRainbows1, oChancellorsDesk, "arch");
+            AddExit(oChancellorsDesk, oHallOfRainbows1, "east");
+            tharbadGraph.Rooms[oChancellorsDesk] = new System.Windows.Point(3.5, 11);
+
+            Room oMainAudienceChamber = AddRoom("Audience Chamber");
+            AddBidirectionalExits(oMainAudienceChamber, oChancellorsDesk, BidirectionalExitType.NorthSouth);
+            tharbadGraph.Rooms[oMainAudienceChamber] = new System.Windows.Point(3.5, 10);
+
+            Room oCaptainRenton = AddRoom("Throne Room");
+            AddBidirectionalExits(oCaptainRenton, oMainAudienceChamber, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[oCaptainRenton] = new System.Windows.Point(2.5, 10);
+
+            Room oAdvisorsSecretChamber = AddRoom("Advisor's Chamber");
+            e = AddExit(oCaptainRenton, oAdvisorsSecretChamber, "tapestry");
+            e.Hidden = true;
+            AddExit(oAdvisorsSecretChamber, oCaptainRenton, "tapestry");
+            tharbadGraph.Rooms[oAdvisorsSecretChamber] = new System.Windows.Point(2.5, 11);
+
+            Room oStepsToAzureTower = AddRoom("Azure Steps");
+            e = AddExit(oAdvisorsSecretChamber, oStepsToAzureTower, "passage");
+            e.Hidden = true;
+            AddExit(oStepsToAzureTower, oHallOfRainbows2, "corridor");
+            tharbadGraph.Rooms[oStepsToAzureTower] = new System.Windows.Point(1.5, 12);
+
+            Room oAzureTowerStaircase1 = AddRoom("Azure Staircase");
+            AddBidirectionalExits(oAzureTowerStaircase1, oStepsToAzureTower, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oAzureTowerStaircase1] = new System.Windows.Point(1.5, 11);
+
+            Room oAzureTowerStaircase2 = AddRoom("Azure Tower Staircase");
+            AddBidirectionalExits(oAzureTowerStaircase2, oAzureTowerStaircase1, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oAzureTowerStaircase2] = new System.Windows.Point(1.5, 10);
+
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);
