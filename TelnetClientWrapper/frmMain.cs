@@ -3326,14 +3326,15 @@ namespace IsengardClient
                 }
                 else
                 {
+                    Room currentRoom = m_oCurrentRoom;
                     Room r = node.Tag as Room;
-                    if (r == null)
+                    if (r == null || currentRoom == r)
                     {
                         cancel = true;
                     }
                     else
                     {
-                        tsmiGoToLocation.Visible = m_oCurrentRoom != null;
+                        tsmiGoToLocation.Visible = currentRoom != null;
                     }
                 }
             }
