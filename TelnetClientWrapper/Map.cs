@@ -20,6 +20,7 @@ namespace IsengardClient
         private Room _breeDocks = null;
         private Room _boatswain = null;
         private Room _treeOfLife = null;
+        private Room _healingHand = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
@@ -626,6 +627,10 @@ namespace IsengardClient
             AddBidirectionalExits(oOuterRingWest, oOuterRingSouth, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oOuterRingEast, oOuterRingSouth, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oOuterRingSouth] = new System.Windows.Point(9, 12);
+
+            Room oEastGate = AddRoom("East Gate Outside");
+            AddBidirectionalSameNameExit(sabreEvard, oEastGate, "gate");
+            tharbadGraph.Rooms[oEastGate] = new System.Windows.Point(11, 8);
 
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
@@ -2033,10 +2038,10 @@ namespace IsengardClient
             e.Hidden = true;
             imladrisGraph.Rooms[oImladrisCityDump] = new System.Windows.Point(5, 8);
 
-            Room oImladrisHealingHand = AddRoom("Healing Hand");
-            oImladrisHealingHand.IsHealingRoom = true;
-            AddBidirectionalExits(oImladrisHealingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
-            imladrisGraph.Rooms[oImladrisHealingHand] = new System.Windows.Point(5, 4.5);
+            _healingHand = AddRoom("Healing Hand");
+            _healingHand.IsHealingRoom = true;
+            AddBidirectionalExits(_healingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[_healingHand] = new System.Windows.Point(5, 4.5);
 
             Room oTyriesPriestSupplies = AddRoom("Tyrie's Priest Supplies");
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
@@ -2061,7 +2066,7 @@ namespace IsengardClient
             AddExit(oMountainTrail2, oIorlas, "shack");
             AddExit(oIorlas, oMountainTrail2, "door");
 
-            AddLocation(_aImladrisTharbadPerms, oImladrisHealingHand);
+            AddLocation(_aImladrisTharbadPerms, _healingHand);
             AddLocation(_aImladrisTharbadPerms, oIorlas);
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
@@ -2447,6 +2452,11 @@ namespace IsengardClient
             Room oLimbo = AddRoom("Limbo");
             Exit e = AddExit(oLimbo, _treeOfLife, "green");
             e.PreCommand = "open green";
+
+            Room oDarkTunnel = AddRoom("Dark Tunnel");
+            e = AddExit(oLimbo, oDarkTunnel, "blue");
+            e.PreCommand = "open blue";
+            AddExit(oDarkTunnel, _healingHand, "light");
 
             AddLocation(oIntangible, _treeOfLife);
             AddLocation(oIntangible, oLimbo);
