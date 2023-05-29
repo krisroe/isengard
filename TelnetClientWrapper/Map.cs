@@ -291,7 +291,11 @@ namespace IsengardClient
 
             Room evard2 = AddRoom("Evard");
             AddBidirectionalExits(evard1, evard2, BidirectionalExitType.NorthSouth);
-            tharbadGraph.Rooms[evard2] = new System.Windows.Point(10, 5);
+            tharbadGraph.Rooms[evard2] = new System.Windows.Point(10, 7);
+
+            Room alley = AddRoom("Alley");
+            AddBidirectionalExits(alley, evard2, BidirectionalExitType.WestEast);
+            tharbadGraph.Rooms[alley] = new System.Windows.Point(8, 7);
 
             Room sabreEvard = AddRoom("Sabre/Evard");
             AddBidirectionalExits(evard2, sabreEvard, BidirectionalExitType.NorthSouth);
@@ -407,6 +411,10 @@ namespace IsengardClient
 
             Room oGypsyRow1 = AddRoom("Gypsy Row");
             AddBidirectionalExits(oEntranceToGypsyEncampment, oGypsyRow1, BidirectionalExitType.WestEast);
+            e = AddExit(alley, oGypsyRow1, "north");
+            e.Hidden = true;
+            e = AddExit(oGypsyRow1, alley, "south");
+            e.Hidden = true;
             tharbadGraph.Rooms[oGypsyRow1] = new System.Windows.Point(8, 6);
 
             Room oGypsyRow2 = AddRoom("Gypsy Row");
@@ -447,7 +455,7 @@ namespace IsengardClient
             oKingsMoneychanger.Alignment = AlignmentType.Red;
             AddExit(oGypsyRow2, oKingsMoneychanger, "tent");
             AddExit(oKingsMoneychanger, oGypsyRow2, "out");
-            tharbadGraph.Rooms[oKingsMoneychanger] = new System.Windows.Point(9, 7);
+            tharbadGraph.Rooms[oKingsMoneychanger] = new System.Windows.Point(9, 6.5);
 
             Room oMadameNicolov = AddRoom("Nicolov");
             oMadameNicolov.Mob1 = "Madame";
@@ -455,7 +463,7 @@ namespace IsengardClient
             oMadameNicolov.Alignment = AlignmentType.Blue;
             AddExit(oGypsyRow1, oMadameNicolov, "wagon");
             AddExit(oMadameNicolov, oGypsyRow1, "out");
-            tharbadGraph.Rooms[oMadameNicolov] = new System.Windows.Point(8, 7);
+            tharbadGraph.Rooms[oMadameNicolov] = new System.Windows.Point(8, 5.5);
 
             Room gildedApple = AddRoom("Gilded Apple");
             AddBidirectionalSameNameExit(sabre3, gildedApple, "door");
