@@ -900,9 +900,10 @@ namespace IsengardClient
                                 sNewLine = sNewLine.Substring(0, lastParenthesisLocation);
                         }
 
+                        string[] sNewLines = sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
                         {
-                            nextProcessingSequence.FeedLine(sNewLine);
+                            nextProcessingSequence.FeedLine(sNewLines);
                         }
 
                         lock (_consoleTextLock)
