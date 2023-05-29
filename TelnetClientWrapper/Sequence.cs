@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text;
 
 namespace IsengardClient
@@ -57,15 +56,17 @@ namespace IsengardClient
     {
         private Action _onSatisfied;
         private string _characters;
-        public ConstantOutputSequence(string characters, Action onSatisfied)
+        private bool _startsWith;
+        public ConstantOutputSequence(string characters, Action onSatisfied, bool StartsWith)
         {
             _onSatisfied = onSatisfied;
             _characters = characters;
+            _startsWith = StartsWith;
         }
 
         public void FeedLine(string Line)
         {
-            if (Line.Contains(_characters))
+            if (_startsWith ? Line.StartsWith(_characters) : Line.Contains(_characters))
             {
                 _onSatisfied();
             }

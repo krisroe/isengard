@@ -827,22 +827,22 @@ namespace IsengardClient
             {
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore),
-                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight),
-                new ConstantOutputSequence("The sun rises.", OnDay),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, false),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, false),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore, false),
+                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, false),
+                new ConstantOutputSequence("The sun rises.", OnDay, false),
                 new SpellsCastSequence(OnSpellsCastChange),
-                new ConstantOutputSequence("You feel less protected.", DoScore),
-                new ConstantOutputSequence("You feel less holy.", DoScore),
-                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast),
-                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast),
-                new ConstantOutputSequence("You phase in and out of existence.", OnHazy),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee),
-                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee),
+                new ConstantOutputSequence("You feel less protected.", DoScore, false),
+                new ConstantOutputSequence("You feel less holy.", DoScore, false),
+                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast, false),
+                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast, false),
+                new ConstantOutputSequence("You phase in and out of existence.", OnHazy, false),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, false),
+                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee, true), //output includes the room information where fled to
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
-                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled),
-                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast),
+                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, false),
+                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, false),
             };
 
             while (true)
@@ -890,6 +890,16 @@ namespace IsengardClient
                         }
 
                         string sNewLine = sb.ToString();
+                        string sNewLineRaw = sNewLine;
+                        if (oist == OutputItemSequenceType.HPMPStatus) //strip the HP/MP since it was already processed
+                        {
+                            int lastParenthesisLocation = sNewLine.LastIndexOf('(');
+                            if (lastParenthesisLocation == 0)
+                                sNewLine = string.Empty;
+                            else
+                                sNewLine = sNewLine.Substring(0, lastParenthesisLocation);
+                        }
+
                         foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
                         {
                             nextProcessingSequence.FeedLine(sNewLine);
@@ -897,7 +907,7 @@ namespace IsengardClient
 
                         lock (_consoleTextLock)
                         {
-                            _newConsoleText.Add(sNewLine);
+                            _newConsoleText.Add(sNewLineRaw);
                         }
 
                         currentOutputItemData.Clear();
