@@ -910,7 +910,7 @@ namespace IsengardClient
 
                         lock (_consoleTextLock)
                         {
-                            _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, false));
+                            _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, sNewLine, false));
                         }
 
                         currentOutputItemData.Clear();
@@ -2220,7 +2220,8 @@ namespace IsengardClient
                 }
                 lock (_consoleTextLock)
                 {
-                    _newConsoleText.Add(new ConsoleOutput(sToConsole + Environment.NewLine, true));
+                    string sText = sToConsole + Environment.NewLine;
+                    _newConsoleText.Add(new ConsoleOutput(sText, sText, true));
                 }
             }
         }
@@ -2806,7 +2807,7 @@ namespace IsengardClient
                         bool add = true;
                         if (!nextConsoleOutput.IsInput)
                         {
-                            if (_previousConsoleOutput == null || !string.Equals(_previousConsoleOutput.Text, nextConsoleOutput.Text))
+                            if (_previousConsoleOutput == null || !string.IsNullOrWhiteSpace(nextConsoleOutput.Content) || !string.Equals(_previousConsoleOutput.RawText, nextConsoleOutput.RawText))
                             {
                                 _previousConsoleOutput = nextConsoleOutput;
                             }
@@ -2817,7 +2818,7 @@ namespace IsengardClient
                         }
                         if (add)
                         {
-                            textToAdd.Add(nextConsoleOutput.Text);
+                            textToAdd.Add(nextConsoleOutput.RawText);
                         }
                     }
                     _newConsoleText.Clear();
@@ -3390,13 +3391,15 @@ namespace IsengardClient
 
         internal class ConsoleOutput
         {
-            public ConsoleOutput(string Text, bool IsInput)
+            public ConsoleOutput(string RawText, string Content, bool IsInput)
             {
-                this.Text = Text;
+                this.RawText = RawText;
                 this.IsInput = IsInput;
+                this.Content = Content;
             }
             public bool IsInput { get; set; }
-            public string Text { get; set; }
+            public string RawText { get; set; }
+            public string Content { get; set; }
         }
     }
 
