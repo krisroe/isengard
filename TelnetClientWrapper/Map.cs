@@ -564,6 +564,61 @@ namespace IsengardClient
             AddBidirectionalExits(oAzureTowerStaircase2, oAzureTowerStaircase1, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oAzureTowerStaircase2] = new System.Windows.Point(1.5, 10);
 
+            Room oArenaPath = AddRoom("Arena Path");
+            AddBidirectionalExits(sabreEvard, oArenaPath, BidirectionalExitType.SouthwestNortheast);
+            tharbadGraph.Rooms[oArenaPath] = new System.Windows.Point(9, 8.5);
+
+            Room oArenaTunnel1 = AddRoom("Arena Tunnel");
+            e = AddExit(oArenaPath, oArenaTunnel1, "arch");
+            e.Hidden = true;
+            AddExit(oArenaTunnel1, oArenaPath, "arch");
+            tharbadGraph.Rooms[oArenaTunnel1] = new System.Windows.Point(9, 9);
+
+            Room oArenaTunnel2 = AddRoom("Arena Tunnel");
+            AddBidirectionalSameNameExit(oArenaTunnel1, oArenaTunnel2, "slope");
+            tharbadGraph.Rooms[oArenaTunnel2] = new System.Windows.Point(9, 9.5);
+
+            Room oTunnel1 = AddRoom("Tunnel 1");
+            AddBidirectionalExits(oTunnel1, oArenaTunnel2, BidirectionalExitType.SoutheastNorthwest);
+            tharbadGraph.Rooms[oTunnel1] = new System.Windows.Point(8, 9);
+
+            Room oCenterRing = AddRoom("Center Ring");
+            AddBidirectionalExits(oCenterRing, oTunnel1, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oCenterRing] = new System.Windows.Point(7, 9);
+
+            Room oTunnel2 = AddRoom("Tunnel 2");
+            AddBidirectionalExits(oArenaTunnel2, oTunnel2, BidirectionalExitType.SouthwestNortheast);
+            tharbadGraph.Rooms[oTunnel2] = new System.Windows.Point(8, 10);
+
+            Room oMiddleRing1 = AddRoom("Middle Ring");
+            AddBidirectionalExits(oMiddleRing1, oTunnel2, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oMiddleRing1] = new System.Windows.Point(7, 10);
+
+            Room oMiddleRing2 = AddRoom("Middle Ring");
+            AddBidirectionalSameNameExit(oMiddleRing1, oMiddleRing2, "ring");
+            tharbadGraph.Rooms[oMiddleRing2] = new System.Windows.Point(6, 10);
+
+            Room oTunnel3 = AddRoom("Tunnel 3");
+            AddBidirectionalExits(oArenaTunnel2, oTunnel3, BidirectionalExitType.SoutheastNorthwest);
+            tharbadGraph.Rooms[oTunnel3] = new System.Windows.Point(10, 10);
+
+            Room oOuterRingEast = AddRoom("Outer Ring");
+            AddBidirectionalExits(oOuterRingEast, oTunnel3, BidirectionalExitType.UpDown);
+            tharbadGraph.Rooms[oOuterRingEast] = new System.Windows.Point(10, 11);
+
+            Room oOuterRingNorth = AddRoom("Outer Ring");
+            AddBidirectionalExits(oOuterRingNorth, oOuterRingEast, BidirectionalExitType.SoutheastNorthwest);
+            tharbadGraph.Rooms[oOuterRingNorth] = new System.Windows.Point(9, 10);
+
+            Room oOuterRingWest = AddRoom("Outer Ring");
+            AddBidirectionalExits(oOuterRingNorth, oOuterRingWest, BidirectionalExitType.SouthwestNortheast);
+            tharbadGraph.Rooms[oOuterRingWest] = new System.Windows.Point(8, 11);
+
+            Room oOuterRingSouth = AddRoom("Outer Ring");
+            AddBidirectionalExits(oOuterRingWest, oOuterRingSouth, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oOuterRingEast, oOuterRingSouth, BidirectionalExitType.SouthwestNortheast);
+            tharbadGraph.Rooms[oOuterRingSouth] = new System.Windows.Point(9, 12);
+
             AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);
