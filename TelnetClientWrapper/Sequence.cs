@@ -56,21 +56,43 @@ namespace IsengardClient
     {
         private Action _onSatisfied;
         private string _characters;
-        private bool _startsWith;
-        public ConstantOutputSequence(string characters, Action onSatisfied, bool StartsWith)
+        private ConstantSequenceMatchType _matchType;
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType)
         {
             _onSatisfied = onSatisfied;
             _characters = characters;
-            _startsWith = StartsWith;
+            _matchType = MatchType;
         }
 
         public void FeedLine(string Line)
         {
-            if (_startsWith ? Line.StartsWith(_characters) : Line.Contains(_characters))
+            bool match;
+            switch (_matchType)
+            {
+                case ConstantSequenceMatchType.ExactMatch:
+                    match = Line.Equals(_characters);
+                    break;
+                case ConstantSequenceMatchType.StartsWith:
+                    match = Line.StartsWith(_characters);
+                    break;
+                case ConstantSequenceMatchType.Contains:
+                    match = Line.Contains(_characters);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            if (match)
             {
                 _onSatisfied();
             }
         }
+    }
+
+    internal enum ConstantSequenceMatchType
+    {
+        ExactMatch,
+        StartsWith,
+        Contains,
     }
 
     internal class ConstantSequence

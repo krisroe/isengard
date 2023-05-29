@@ -827,22 +827,22 @@ namespace IsengardClient
             {
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, false),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, false),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore, false),
-                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, false),
-                new ConstantOutputSequence("The sun rises.", OnDay, false),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.Contains),
                 new SpellsCastSequence(OnSpellsCastChange),
-                new ConstantOutputSequence("You feel less protected.", DoScore, false),
-                new ConstantOutputSequence("You feel less holy.", DoScore, false),
-                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast, false),
-                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast, false),
-                new ConstantOutputSequence("You phase in and out of existence.", OnHazy, false),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee, false),
-                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee, true), //output includes the room information where fled to
+                new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("You phase in and out of existence.", OnHazy, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains), //could be prefixed by "Scared of going X"*
+                new ConstantOutputSequence("You run like a chicken.", OnSuccessfulFlee, ConstantSequenceMatchType.Contains), //could be prefixed by "Scared of going X"*, output includes the room information where fled to
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
-                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, false),
-                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, false),
+                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
             };
 
             while (true)
