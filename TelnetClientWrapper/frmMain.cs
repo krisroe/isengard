@@ -1481,12 +1481,14 @@ namespace IsengardClient
 
                 //cast bless if has enough mana and not currently blessed
                 List<string> spellsCast = _currentSpellsCast;
-                if (_totalmp > 8 && spellsCast != null && !spellsCast.Contains("bless"))
+                automp = _autoMana;
+                if (automp.HasValue && automp.Value > 8 && spellsCast != null && !spellsCast.Contains("bless"))
                 {
                     CastLifeSpell("bless", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
                 }
                 //cast protection if has enough mana and not curently protected
-                if (_totalmp > 8 && spellsCast != null && !spellsCast.Contains("protection"))
+                automp = _autoMana;
+                if (automp.HasValue && automp.Value > 8 && spellsCast != null && !spellsCast.Contains("protection"))
                 {
                     CastLifeSpell("protection", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
                 }

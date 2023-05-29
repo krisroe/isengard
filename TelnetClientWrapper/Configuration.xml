@@ -1,4 +1,4 @@
-<Configuration defaultrealm="wind" defaultweapon="hand" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Red" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
+<Configuration defaultrealm="wind" defaultweapon="scimitar" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Red" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
  <Variables>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="movegapms" type="int" value="265"/>
