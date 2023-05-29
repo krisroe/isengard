@@ -1998,6 +1998,10 @@ namespace IsengardClient
             AddBidirectionalExits(oMistyTrail13, oMistyTrail14, BidirectionalExitType.SouthwestNortheast);
             imladrisToTharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(0, 13);
 
+            Room oGrassyField = AddRoom("Grassy Field");
+            AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
+            imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
+
             oTharbadGateOutside = AddRoom("North Gate");
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(0, 14);

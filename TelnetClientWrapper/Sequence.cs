@@ -552,10 +552,13 @@ namespace IsengardClient
             if (Lines[nextLineIndex] != string.Empty) return;
             nextLineIndex++;
 
-            sNextLine = Lines[nextLineIndex];
-            if (sNextLine.StartsWith("Obvious exits: "))
+            if (nextLineIndex < Lines.Length)
             {
-                _onSatisfied(rtType, sRoomName);
+                sNextLine = Lines[nextLineIndex];
+                if (sNextLine.StartsWith("Obvious exits: "))
+                {
+                    _onSatisfied(rtType, sRoomName);
+                }
             }
         }
     }
