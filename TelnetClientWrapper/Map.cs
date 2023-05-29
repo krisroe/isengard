@@ -8,7 +8,7 @@ namespace IsengardClient
         private AdjacencyGraph<Room, Exit> _map;
         private List<Area> _areas;
         private Dictionary<string, Area> _areasByName;
-        private List<RoomGraph> _graphs;
+        private Dictionary<MapType, RoomGraph> _graphs;
 
         private RoomGraph _breeStreetsGraph;
 
@@ -38,7 +38,7 @@ namespace IsengardClient
 
         public IsengardMap(AlignmentType preferredAlignment, int level)
         {
-            _graphs = new List<RoomGraph>();
+            _graphs = new Dictionary<MapType, RoomGraph>();
             _map = new AdjacencyGraph<Room, Exit>();
             _areas = new List<Area>();
             _areasByName = new Dictionary<string, Area>();
@@ -69,8 +69,9 @@ namespace IsengardClient
             AddTharbadCity(oTharbadGateOutside);
             AddIntangible(oBreeTownSquare);
 
-            foreach (RoomGraph g in _graphs)
+            foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
             {
+                RoomGraph g = nextGraph.Value;
                 var oldRooms = g.Rooms;
                 g.Rooms = new Dictionary<Room, System.Windows.Point>();
                 foreach (KeyValuePair<Room, System.Windows.Point> next in oldRooms)
@@ -104,7 +105,7 @@ namespace IsengardClient
             }
         }
 
-        public List<RoomGraph> Graphs
+        public Dictionary<MapType, RoomGraph> Graphs
         {
             get
             {
@@ -116,7 +117,7 @@ namespace IsengardClient
         {
             RoomGraph tharbadGraph = new RoomGraph("Tharbad");
             tharbadGraph.ScalingFactor = 100;
-            _graphs.Add(tharbadGraph);
+            _graphs[MapType.Tharbad] = tharbadGraph;
 
             tharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(3, 0);
 
@@ -356,7 +357,7 @@ namespace IsengardClient
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
-            _graphs.Add(_breeStreetsGraph);
+            _graphs[MapType.BreeStreets] = _breeStreetsGraph;
 
             //Bree's road structure is a 15x11 grid
             Room[,] breeStreets = new Room[16, 11];
@@ -705,7 +706,7 @@ namespace IsengardClient
         {
             RoomGraph underBreeGraph = new RoomGraph("Under Bree");
             underBreeGraph.ScalingFactor = 100;
-            _graphs.Add(underBreeGraph);
+            _graphs[MapType.UnderBree] = underBreeGraph;
 
             underBreeGraph.Rooms[droolie] = new System.Windows.Point(0, 0);
             underBreeGraph.Rooms[oOuthouse] = new System.Windows.Point(8, 12);
@@ -871,7 +872,7 @@ namespace IsengardClient
         {
             RoomGraph breeSewersGraph = new RoomGraph("Bree Sewers");
             breeSewersGraph.ScalingFactor = 100;
-            _graphs.Add(breeSewersGraph);
+            _graphs[MapType.BreeSewers] = breeSewersGraph;
 
             //add exits for the sewers. due to screwiness on periwinkle this can't be done automatically.
             AddBidirectionalExits(breeSewers[0, 10], breeSewers[0, 9], BidirectionalExitType.NorthSouth);
@@ -1022,7 +1023,7 @@ namespace IsengardClient
         /// <param name="graphMillwoodMansion">millwood mansion graph</param>
         private void AddMayorMillwoodMansion(Room oIxell, RoomGraph graphMillwoodMansion)
         {
-            _graphs.Add(graphMillwoodMansion);
+            _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
             string sWarriorBard = "Warrior bard";
 
@@ -1223,7 +1224,7 @@ namespace IsengardClient
         {
             RoomGraph millwoodMansionUpstairsGraph = new RoomGraph("Millwood Mansion Upstairs");
             millwoodMansionUpstairsGraph.ScalingFactor = 100;
-            _graphs.Add(millwoodMansionUpstairsGraph);
+            _graphs[MapType.MillwoodMansionUpstairs] = millwoodMansionUpstairsGraph;
             millwoodMansionUpstairsGraph.Rooms[northStairwell] = new System.Windows.Point(1, 0);
             millwoodMansionUpstairsGraph.Rooms[southStairwell] = new System.Windows.Point(1, 12);
             millwoodMansionUpstairsGraph.Rooms[eastStairwell] = new System.Windows.Point(5, 5);
@@ -1346,7 +1347,7 @@ namespace IsengardClient
         {
             RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
-            _graphs.Add(breeToImladrisGraph);
+            _graphs[MapType.BreeToImladris] = breeToImladrisGraph;
 
             _breeEastGateOutside = AddRoom("East Gate Outside");
             AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
@@ -1614,7 +1615,7 @@ namespace IsengardClient
         {
             imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
-            _graphs.Add(imladrisGraph);
+            _graphs[MapType.Imladris] = imladrisGraph;
 
             _imladrisWestGateInside = AddRoom("West Gate Inside");
             AddExit(_imladrisWestGateInside, _imladrisWestGateOutside, "gate");
@@ -1899,7 +1900,7 @@ namespace IsengardClient
         {
             RoomGraph imladrisToTharbadGraph = new RoomGraph("Imladris/Tharbad");
             imladrisToTharbadGraph.ScalingFactor = 100;
-            _graphs.Add(imladrisToTharbadGraph);
+            _graphs[MapType.ImladrisToTharbad] = imladrisToTharbadGraph;
 
             Room oMistyTrail1 = AddRoom("South Gate Outside");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
@@ -2006,7 +2007,7 @@ namespace IsengardClient
         {
             RoomGraph oShantyTownGraph = new RoomGraph("Shanty Town");
             oShantyTownGraph.ScalingFactor = 100;
-            _graphs.Add(oShantyTownGraph);
+            _graphs[MapType.ShantyTown] = oShantyTownGraph;
 
             oShantyTownGraph.Rooms[oMistyTrail8] = new System.Windows.Point(5, 0);
 
@@ -2290,5 +2291,19 @@ namespace IsengardClient
         Blue,
         Grey,
         Red,
+    }
+
+    internal enum MapType
+    {
+        BreeStreets,
+        BreeSewers,
+        UnderBree,
+        MillwoodMansion,
+        MillwoodMansionUpstairs,
+        BreeToImladris,
+        Imladris,
+        ImladrisToTharbad,
+        ShantyTown,
+        Tharbad
     }
 }

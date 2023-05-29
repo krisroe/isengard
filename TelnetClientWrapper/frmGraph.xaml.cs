@@ -1,6 +1,7 @@
 ﻿using GraphSharp.Algorithms.Layout;
 using GraphSharp.Controls;
 using QuickGraph;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,9 +14,9 @@ namespace IsengardClient
     {
         private AdjacencyGraph<Room, Exit> _map;
         private VertexControl _currentVertexControl;
-        private List<RoomGraph> _graphs;
+        private Dictionary<MapType, RoomGraph> _graphs;
 
-        internal frmGraph(AdjacencyGraph<Room, Exit> map, List<RoomGraph> graphs, Room currentRoom)
+        internal frmGraph(AdjacencyGraph<Room, Exit> map, Dictionary<MapType, RoomGraph> graphs, Room currentRoom)
         {
             InitializeComponent();
 
@@ -26,8 +27,9 @@ namespace IsengardClient
             CurrentRoom = currentRoom;
 
             Dictionary<RoomGraph, ComboBoxItem> graphItems = new Dictionary<RoomGraph, ComboBoxItem>();
-            foreach (RoomGraph nextGraph in graphs)
+            foreach (MapType mt in Enum.GetValues(typeof(MapType)))
             {
+                RoomGraph nextGraph = _graphs[mt];
                 ComboBoxItem cbi = new ComboBoxItem();
                 cbi.Content = nextGraph.Name;
                 cbi.Tag = nextGraph;
@@ -39,8 +41,9 @@ namespace IsengardClient
             if (currentRoom != null)
             {
                 txtCurrentRoom.Text = currentRoom.ToString();
-                foreach (var nextRoomGraph in graphs)
+                foreach (KeyValuePair<MapType, RoomGraph> next in graphs)
                 {
+                    RoomGraph nextRoomGraph = next.Value;
                     if (nextRoomGraph.Rooms.ContainsKey(currentRoom))
                     {
                         startingGraph = nextRoomGraph;
@@ -122,8 +125,9 @@ namespace IsengardClient
 
                 //add menu items for other graphs containing the room
                 RoomGraph currentRoomGraph = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
-                foreach (RoomGraph rg in _graphs)
+                foreach (KeyValuePair<MapType, RoomGraph> next in _graphs)
                 {
+                    RoomGraph rg = next.Value;
                     if (rg != currentRoomGraph && rg.Rooms.ContainsKey((Room)vc.Vertex))
                     {
                         mnu = new MenuItem();
@@ -133,7 +137,6 @@ namespace IsengardClient
                         ctx.Items.Add(mnu);
                     }
                 }
-
 
                 vc.ContextMenu = ctx;
                 vc.ContextMenuClosing += Vc_ContextMenuClosing;
