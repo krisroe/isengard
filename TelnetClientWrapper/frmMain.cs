@@ -1577,6 +1577,11 @@ namespace IsengardClient
                                 {
                                     pms.TargetRoom = nextExit.Target;
                                     pms.SetTargetRoomIfCancelled = true;
+                                    if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
+                                    {
+                                        SendCommand(nextExit.Target.PostMoveCommand, false);
+                                        pms.CommandsRun++;
+                                    }
                                 }
                                 break;
                             }

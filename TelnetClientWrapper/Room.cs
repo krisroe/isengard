@@ -63,6 +63,7 @@ namespace IsengardClient
         public int? Experience3 { get; set; }
         public bool IsHealingRoom { get; set; }
         public bool IsTrapRoom { get; set; }
+        public string PostMoveCommand { get; set; }
 
         public string GetDefaultMob()
         {

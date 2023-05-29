@@ -522,7 +522,8 @@ namespace IsengardClient
             int nextLineIndex = 0;
 
             //skip fleeing messages for scared exits
-            while (nextLineIndex < Lines.Length && Lines[nextLineIndex].StartsWith("Scared of going "))
+            while (nextLineIndex < Lines.Length && 
+                (Lines[nextLineIndex].StartsWith("Scared of going ") || Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
             {
                 nextLineIndex++;
             }
