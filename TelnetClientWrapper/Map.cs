@@ -13,10 +13,7 @@ namespace IsengardClient
 
         private RoomGraph _breeStreetsGraph;
 
-        private Room _breeEastGateInside = null;
-        private Room _breeEastGateOutside = null;
-        private Room _imladrisWestGateInside = null;
-        private Room _imladrisWestGateOutside = null;
+        private List<Tuple<Room, Room, string, string>> _nightEdgeList = new List<Tuple<Room, Room, string, string>>();
         private Room _breeDocks = null;
         private Room _boatswain = null;
         private Room _spindrilsCastleOutside;
@@ -64,12 +61,12 @@ namespace IsengardClient
             graphMillwoodMansion.ScalingFactor = 100;
             _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside);
             AddMayorMillwoodMansion(oIxell);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
-            AddBreeToImladris(level, out Room oOuthouse);
+            AddBreeToImladris(level, out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
-            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside);
+            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside);
             AddEastOfImladris(oEastGateOfImladrisOutside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
@@ -649,7 +646,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -743,7 +740,7 @@ namespace IsengardClient
             breeStreets[11, 7] = AddRoom("Leviathan"); //12x8
             Room oLeviathanPoorAlley = breeStreets[12, 7] = AddRoom("Leviathan"); //13x8
             Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Leviathan"); //14x8
-            _breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate Inside"); //15x8
+            breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate Inside"); //15x8
             breeStreets[0, 8] = AddRoom("Wain"); //1x9
             breeSewers[0, 8] = AddRoom("Sewers Wain"); //1x9
             breeStreets[3, 8] = AddRoom("High"); //4x9
@@ -1637,19 +1634,20 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oMayorMillwood);
         }
 
-        private void AddBreeToImladris(int level, out Room oOuthouse)
+        private void AddBreeToImladris(int level, out Room oOuthouse, Room breeEastGateInside, out Room imladrisWestGateOutside)
         {
             RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
             _graphs[MapType.BreeToImladris] = breeToImladrisGraph;
 
-            _breeEastGateOutside = AddRoom("East Gate Outside");
-            AddExit(_breeEastGateInside, _breeEastGateOutside, "gate");
-            _breeStreetsGraph.Rooms[_breeEastGateOutside] = new System.Windows.Point(15, 3);
-            breeToImladrisGraph.Rooms[_breeEastGateOutside] = new System.Windows.Point(3, 4);
+            Room breeEastGateOutside = AddRoom("East Gate Outside");
+            AddExit(breeEastGateInside, breeEastGateOutside, "gate");
+            _breeStreetsGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(15, 3);
+            breeToImladrisGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(3, 4);
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(breeEastGateOutside, breeEastGateInside, "gate", null));
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
-            AddBidirectionalExits(_breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
             AddToFarmHouseAndUglies(oGreatEastRoad1, out oOuthouse, breeToImladrisGraph, level);
             breeToImladrisGraph.Rooms[oGreatEastRoad1] = new System.Windows.Point(4, 4);
 
@@ -1710,9 +1708,9 @@ namespace IsengardClient
             AddBidirectionalExits(oGreatEastRoad13, oGreatEastRoad14, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad14] = new System.Windows.Point(17, 4);
 
-            _imladrisWestGateOutside = _imladrisWestGateOutside = AddRoom("West Gate Outside");
-            AddBidirectionalExits(oGreatEastRoad14, _imladrisWestGateOutside, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(18, 4);
+            imladrisWestGateOutside = imladrisWestGateOutside = AddRoom("West Gate Outside");
+            AddBidirectionalExits(oGreatEastRoad14, imladrisWestGateOutside, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[imladrisWestGateOutside] = new System.Windows.Point(18, 4);
 
             Room oNorthBrethilForest1 = AddRoom("North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest1, oGreatEastRoadGoblinAmbushGobLrgLrg, BidirectionalExitType.NorthSouth);
@@ -1766,7 +1764,6 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
             AddLocation(_aBreePerms, oNorthBrethilForest5GobAmbush);
             AddLocation(_aBreePerms, oSpriteGuards);
-            AddLocation(_aMisc, _breeEastGateOutside);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph, int level)
@@ -1905,19 +1902,20 @@ namespace IsengardClient
             AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside)
         {
             RoomGraph imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
             _graphs[MapType.Imladris] = imladrisGraph;
 
-            _imladrisWestGateInside = AddRoom("West Gate Inside");
-            AddExit(_imladrisWestGateInside, _imladrisWestGateOutside, "gate");
-            imladrisGraph.Rooms[_imladrisWestGateOutside] = new System.Windows.Point(-1, 5);
-            imladrisGraph.Rooms[_imladrisWestGateInside] = new System.Windows.Point(0, 5);
+            Room imladrisWestGateInside = AddRoom("West Gate Inside");
+            AddExit(imladrisWestGateInside, imladrisWestGateOutside, "gate");
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(imladrisWestGateOutside, imladrisWestGateInside, "gate", null));
+            imladrisGraph.Rooms[imladrisWestGateOutside] = new System.Windows.Point(-1, 5);
+            imladrisGraph.Rooms[imladrisWestGateInside] = new System.Windows.Point(0, 5);
 
             Room oImladrisCircle1 = AddRoom("Circle");
-            AddBidirectionalExits(oImladrisCircle1, _imladrisWestGateInside, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oImladrisCircle1, imladrisWestGateInside, BidirectionalExitType.SouthwestNortheast);
             imladrisGraph.Rooms[oImladrisCircle1] = new System.Windows.Point(5D / 3, 5 - (4D / 3));
 
             Room oImladrisCircle2 = AddRoom("Circle");
@@ -1937,7 +1935,7 @@ namespace IsengardClient
             imladrisGraph.Rooms[oImladrisCircle5] = new System.Windows.Point(5 + (8D / 3), 1 + (8D / 3));
 
             Room oImladrisMainStreet1 = AddRoom("Main");
-            AddBidirectionalExits(_imladrisWestGateInside, oImladrisMainStreet1, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(imladrisWestGateInside, oImladrisMainStreet1, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oImladrisMainStreet1] = new System.Windows.Point(1, 5);
 
             Room oImladrisMainStreet2 = AddRoom("Main");
@@ -2007,7 +2005,7 @@ namespace IsengardClient
             imladrisGraph.Rooms[oImladrisCircle7] = new System.Windows.Point(9 - (8D / 3), 5 + (8D / 3));
 
             Room oImladrisCircle10 = AddRoom("Circle");
-            AddBidirectionalExits(_imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);
             imladrisGraph.Rooms[oImladrisCircle10] = new System.Windows.Point(5 - (10D / 3), 9 - (8D / 3));
 
             Room oImladrisCircle9 = AddRoom("Circle");
@@ -2679,8 +2677,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandyPath3] = new System.Windows.Point(9.5, 2.3);
 
             Room oMarketplace = AddRoom("Marketplace");
-            Exit e = AddExit(oSandyPath3, oMarketplace, "door");
-            e.PreCommand = "open door";
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oSandyPath3, oMarketplace, "door", "open door"));
             AddExit(oMarketplace, oSandyPath3, "door");
             nindamosGraph.Rooms[oMarketplace] = new System.Windows.Point(9.5, 2.6);
 
@@ -2701,7 +2698,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandstoneSouth2] = new System.Windows.Point(8, 6);
 
             Room oKKsIronWorksKosta = AddRoom("Kosta");
-            AddExit(oSandstoneSouth2, oKKsIronWorksKosta, "path");
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oSandstoneSouth2, oKKsIronWorksKosta, "path", null));
             AddExit(oKKsIronWorksKosta, oSandstoneSouth2, "out");
             nindamosGraph.Rooms[oKKsIronWorksKosta] = new System.Windows.Point(7, 6);
 
@@ -2871,7 +2868,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oElysia2] = new System.Windows.Point(11, 3);
 
             Room oHestasMarket = AddRoom("Hesta");
-            AddExit(oElysia2, oHestasMarket, "market");
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oElysia2, oHestasMarket, "market", null));
             AddExit(oHestasMarket, oElysia2, "out");
             nindamosGraph.Rooms[oHestasMarket] = new System.Windows.Point(10, 3);
 
@@ -3025,8 +3022,12 @@ namespace IsengardClient
             }
             else
             {
-                _nightEdges.Add(AddExit(_breeEastGateOutside, _breeEastGateInside, "gate"));
-                _nightEdges.Add(AddExit(_imladrisWestGateOutside, _imladrisWestGateInside, "gate"));
+                foreach (var nextExitInfo in _nightEdgeList)
+                {
+                    Exit e = AddExit(nextExitInfo.Item1, nextExitInfo.Item2, nextExitInfo.Item3);
+                    e.PreCommand = nextExitInfo.Item4;
+                    _nightEdges.Add(e);
+                }
             }
         }
 
