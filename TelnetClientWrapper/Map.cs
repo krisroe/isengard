@@ -2786,7 +2786,9 @@ namespace IsengardClient
             AddBidirectionalExits(oLimestone1, oLimestone2, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oLimestone2] = new System.Windows.Point(10, 7);
 
-            Room oLimestoneElysia = AddRoom("Limestone/Elysia"); //Numenorean Warder
+            Room oLimestoneElysia = AddRoom("Limestone/Elysia");
+            oLimestoneElysia.Mob1 = "warder";
+            oLimestoneElysia.Experience1 = 450;
             AddBidirectionalExits(oLimestone2, oLimestoneElysia, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oLimestoneElysia] = new System.Windows.Point(11, 7);
 
@@ -2916,11 +2918,24 @@ namespace IsengardClient
             nindamosGraph.Rooms[oGranitePath7] = new System.Windows.Point(1, 2);
 
             Room oSouthernJunction = AddRoom("Southern Junction");
+            oSouthernJunction.Mob1 = "warder";
+            oSouthernJunction.Experience1 = 450;
             AddBidirectionalExits(oSouthernJunction, oGranitePath7, BidirectionalExitType.SoutheastNorthwest);
             //CSRTODO: northeast
-            //CSRTODO: southwest
             //CSRTODO: west
             nindamosGraph.Rooms[oSouthernJunction] = new System.Windows.Point(0, 1);
+
+            Room oPathToArmenelos1 = AddRoom("Valley Path");
+            AddBidirectionalExits(oPathToArmenelos1, oSouthernJunction, BidirectionalExitType.SouthwestNortheast);
+            nindamosGraph.Rooms[oPathToArmenelos1] = new System.Windows.Point(1, 0);
+
+            Room oPathToArmenelos2 = AddRoom("Valley Path");
+            AddBidirectionalExits(oPathToArmenelos2, oPathToArmenelos1, BidirectionalExitType.SouthwestNortheast);
+            nindamosGraph.Rooms[oPathToArmenelos2] = new System.Windows.Point(2, -1);
+
+            Room oArmenelosGatesOutside = AddRoom("Gate Outside");
+            AddBidirectionalExits(oArmenelosGatesOutside, oPathToArmenelos2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(2, -2);
         }
 
         private Room AddRoom(string roomName)
