@@ -71,7 +71,8 @@ namespace IsengardClient
             AddWestOfTharbad(tharbadWestGateOutside);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath);
             AddArmenelos(oArmenelosGatesOutside);
-            AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath);
+            AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
+            AddEldemondeCity(oEldemondeEastGateOutside);
             AddIntangible(oBreeTownSquare);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
@@ -3364,7 +3365,7 @@ namespace IsengardClient
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
         }
 
-        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley)
+        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley, out Room oEldemondeEastGateOutside)
         {
             Room r;
             Exit e;
@@ -3562,13 +3563,344 @@ namespace IsengardClient
             Room oNisimaldar10 = AddRoom("Nisimaldar");
             AddBidirectionalExits(oNisimaldar10, oNisimaldar9, BidirectionalExitType.WestEast);
 
-            Room oEastGateOutside = AddRoom("East Gate Outside");
-            AddBidirectionalExits(oEastGateOutside, oNisimaldar10, BidirectionalExitType.SoutheastNorthwest);
+            oEldemondeEastGateOutside = AddRoom("East Gate Outside");
+            AddBidirectionalExits(oEldemondeEastGateOutside, oNisimaldar10, BidirectionalExitType.SoutheastNorthwest);
  
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
             AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
-            AddLocation(_aNindamosArmenelos, oEastGateOutside);
+            AddLocation(_aNindamosArmenelos, oEldemondeEastGateOutside);
+        }
+
+        private void AddEldemondeCity(Room oEldemondeEastGateOutside)
+        {
+            RoomGraph eldemondeGraph = new RoomGraph("Eldemonde");
+            eldemondeGraph.ScalingFactor = 100;
+            _graphs[MapType.Eldemonde] = eldemondeGraph;
+
+            eldemondeGraph.Rooms[oEldemondeEastGateOutside] = new System.Windows.Point(10, 7);
+
+            Room oEldemondeEastGateInside = AddRoom("East Gate Inside");
+            AddBidirectionalSameNameExit(oEldemondeEastGateOutside, oEldemondeEastGateInside, "gate");
+            eldemondeGraph.Rooms[oEldemondeEastGateInside] = new System.Windows.Point(9, 7);
+
+            Room oCebe1 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe1, oEldemondeEastGateInside, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oCebe1] = new System.Windows.Point(9, 6);
+
+            Room oDori1 = AddRoom("Dori");
+            AddBidirectionalExits(oEldemondeEastGateInside, oDori1, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oDori1] = new System.Windows.Point(9, 8);
+
+            Room oCebe2 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe2, oCebe1, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe2] = new System.Windows.Point(8, 6);
+
+            Room oElros2 = AddRoom("Elros");
+            AddBidirectionalExits(oElros2, oEldemondeEastGateInside, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros2] = new System.Windows.Point(8, 7);
+
+            Room oDori2 = AddRoom("Dori");
+            AddBidirectionalExits(oDori2, oDori1, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori2] = new System.Windows.Point(8, 8);
+
+            Room oGuardHall = AddRoom("Guard Hall");
+            AddBidirectionalExits(oGuardHall, oDori2, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oGuardHall] = new System.Windows.Point(8, 7.7);
+
+            Room oBarracks = AddRoom("Barracks");
+            AddBidirectionalExits(oBarracks, oGuardHall, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oBarracks] = new System.Windows.Point(7.6, 7.4);
+
+            Room oGuardHQ = AddRoom("Guard HQ");
+            AddBidirectionalExits(oGuardHall, oGuardHQ, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oGuardHQ] = new System.Windows.Point(8.4, 7.4);
+
+            Room oCebe3 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe3, oCebe2, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe3] = new System.Windows.Point(7, 6);
+
+            Room oTower = AddRoom("Tower");
+            AddBidirectionalSameNameExit(oCebe3, oTower, "door");
+            eldemondeGraph.Rooms[oTower] = new System.Windows.Point(7, 5.5);
+
+            Room oElementsChamber = AddRoom("Elements Chamber");
+            AddBidirectionalExits(oElementsChamber, oTower, BidirectionalExitType.UpDown);
+            eldemondeGraph.Rooms[oElementsChamber] = new System.Windows.Point(8, 5.5);
+
+            Room oGolemsChamber = AddRoom("Golems Chamber");
+            AddBidirectionalExits(oGolemsChamber, oElementsChamber, BidirectionalExitType.UpDown);
+            eldemondeGraph.Rooms[oGolemsChamber] = new System.Windows.Point(9, 5.5);
+
+            Room oMorgatha = AddRoom("Morgatha");
+            AddBidirectionalExits(oMorgatha, oGolemsChamber, BidirectionalExitType.UpDown);
+            eldemondeGraph.Rooms[oMorgatha] = new System.Windows.Point(10, 5.5);
+
+            Room oElros3 = AddRoom("Elros");
+            AddBidirectionalExits(oElros3, oElros2, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros3] = new System.Windows.Point(7, 7);
+
+            Room oDori3 = AddRoom("Dori");
+            AddBidirectionalExits(oDori3, oDori2, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori3] = new System.Windows.Point(7, 8);
+
+            Room oPostOffice = AddRoom("Post Office");
+            AddBidirectionalExits(oPostOffice, oDori3, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oPostOffice] = new System.Windows.Point(7, 7.5);
+
+            Room oIothCandol = AddRoom("Ioth/Candol");
+            eldemondeGraph.Rooms[oIothCandol] = new System.Windows.Point(6, 4);
+
+            Room oCandol1 = AddRoom("Candol");
+            AddBidirectionalExits(oIothCandol, oCandol1, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oCandol1] = new System.Windows.Point(6, 5);
+
+            Room oUniversityHall = AddRoom("University Hall");
+            AddBidirectionalExits(oCandol1, oUniversityHall, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oUniversityHall] = new System.Windows.Point(7, 4);
+
+            Room oUniversityHallSouth = AddRoom("University Hall");
+            AddBidirectionalExits(oUniversityHall, oUniversityHallSouth, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oUniversityHallSouth] = new System.Windows.Point(7, 4.5);
+
+            Room oUniversityHallSE = AddRoom("University Hall");
+            AddBidirectionalExits(oUniversityHallSouth, oUniversityHallSE, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oUniversityHallSE] = new System.Windows.Point(8, 4.5);
+
+            Room oAlchemy = AddRoom("Alchemy");
+            AddBidirectionalSameNameExit(oUniversityHallSE, oAlchemy, "door");
+            eldemondeGraph.Rooms[oAlchemy] = new System.Windows.Point(8, 5);
+
+            Room oAurelius = AddRoom("Aurelius");
+            AddBidirectionalSameNameExit(oUniversityHallSouth, oAurelius, "door");
+            eldemondeGraph.Rooms[oAurelius] = new System.Windows.Point(7, 5);
+
+            Room oUniversityHallNorth = AddRoom("University Hall");
+            AddBidirectionalExits(oUniversityHallNorth, oUniversityHall, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oUniversityHallNorth] = new System.Windows.Point(7, 4);
+
+            Room oMathemathics = AddRoom("Mathemathics");
+            AddExit(oUniversityHallNorth, oMathemathics, "door");
+            AddExit(oMathemathics, oUniversityHallNorth, "out");
+            eldemondeGraph.Rooms[oMathemathics] = new System.Windows.Point(8, 4);
+
+            Room oCebeCandol = AddRoom("Cebe/Candol");
+            AddBidirectionalExits(oCebeCandol, oCebe3, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oCandol1, oCebeCandol, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oCebeCandol] = new System.Windows.Point(6, 6);
+
+            Room oElrosCandol = AddRoom("Elros/Candol");
+            AddBidirectionalExits(oCebeCandol, oElrosCandol, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oElrosCandol, oElros3, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElrosCandol] = new System.Windows.Point(6, 7);
+
+            Room oDoriCandol = AddRoom("Dori/Candol");
+            AddBidirectionalExits(oElrosCandol, oDoriCandol, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oDoriCandol, oDori3, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDoriCandol] = new System.Windows.Point(6, 8);
+
+            Room oIoth1 = AddRoom("Ioth");
+            AddBidirectionalExits(oIoth1, oIothCandol, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oIoth1] = new System.Windows.Point(5, 4);
+
+            Room oCebe4 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe4, oCebeCandol, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe4] = new System.Windows.Point(5, 6);
+
+            Room oIsildur = AddRoom("Isildur");
+            AddExit(oCebe4, oIsildur, "shop");
+            AddExit(oIsildur, oCebe4, "out");
+            eldemondeGraph.Rooms[oIsildur] = new System.Windows.Point(5, 5.5);
+
+            Room oElros4 = AddRoom("Elros");
+            AddBidirectionalExits(oElros4, oElrosCandol, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros4] = new System.Windows.Point(5, 7);
+
+            Room oGate = AddRoom("Palace Gate");
+            AddBidirectionalSameNameExit(oElros4, oGate, "gate");
+            eldemondeGraph.Rooms[oGate] = new System.Windows.Point(4.6, 6.5);
+            //CSRTODO: rest of palace
+
+            Room oPalaceSouth = AddRoom("Palace");
+            AddBidirectionalSameNameExit(oGate, oPalaceSouth, "stairway");
+            eldemondeGraph.Rooms[oPalaceSouth] = new System.Windows.Point(4.6, 3);
+
+            Room oPalaceSouthwest = AddRoom("Palace");
+            AddBidirectionalExits(oPalaceSouthwest, oPalaceSouth, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oPalaceSouthwest] = new System.Windows.Point(3.6, 3);
+
+            Room oFaeldor = AddRoom("Faeldor");
+            AddBidirectionalSameNameExit(oPalaceSouthwest, oFaeldor, "door");
+            eldemondeGraph.Rooms[oFaeldor] = new System.Windows.Point(2.6, 3);
+
+            Room oPalaceSoutheast = AddRoom("Palace");
+            AddBidirectionalExits(oPalaceSouth, oPalaceSoutheast, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oPalaceSoutheast] = new System.Windows.Point(5.6, 3);
+
+            Room oGrimaxeGrimson = AddRoom("Grimaxe Grimson");
+            AddBidirectionalSameNameExit(oPalaceSoutheast, oGrimaxeGrimson, "door");
+            eldemondeGraph.Rooms[oGrimaxeGrimson] = new System.Windows.Point(6.6, 3);
+
+            Room oMirrorHallEast = AddRoom("Mirror Hall");
+            AddBidirectionalExits(oMirrorHallEast, oPalaceSoutheast, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oMirrorHallEast] = new System.Windows.Point(5.6, 2);
+
+            Room oMirrorHallCenter = AddRoom("Mirror Hall");
+            AddBidirectionalExits(oMirrorHallCenter, oMirrorHallEast, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oMirrorHallCenter, oPalaceSouth, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oMirrorHallCenter] = new System.Windows.Point(4.6, 2);
+
+            Room oMirrorHallWest = AddRoom("Mirror Hall");
+            AddBidirectionalExits(oMirrorHallWest, oMirrorHallCenter, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oMirrorHallWest, oPalaceSouthwest, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oMirrorHallWest] = new System.Windows.Point(3.6, 2);
+
+            Room oThroneHallWest = AddRoom("Throne Hall");
+            AddExit(oMirrorHallWest, oThroneHallWest, "hall");
+            AddExit(oThroneHallWest, oMirrorHallWest, "south");
+            eldemondeGraph.Rooms[oThroneHallWest] = new System.Windows.Point(3.6, 1);
+
+            Room oThroneHallCenter = AddRoom("Throne Hall");
+            AddBidirectionalExits(oThroneHallWest, oThroneHallCenter, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oThroneHallCenter] = new System.Windows.Point(4.6, 1);
+
+            Room oThroneHallEast = AddRoom("Throne Hall");
+            AddBidirectionalExits(oThroneHallCenter, oThroneHallEast, BidirectionalExitType.WestEast);
+            AddExit(oMirrorHallEast, oThroneHallEast, "hall");
+            AddExit(oThroneHallEast, oMirrorHallEast, "south");
+            eldemondeGraph.Rooms[oThroneHallEast] = new System.Windows.Point(5.6, 1);
+
+            Room oThroneHall = AddRoom("Throne Hall");
+            AddBidirectionalSameNameExit(oThroneHallCenter, oThroneHall, "stairs");
+            eldemondeGraph.Rooms[oThroneHall] = new System.Windows.Point(4.6, 0);
+
+            Room oDori4 = AddRoom("Dori");
+            AddBidirectionalExits(oDori4, oDoriCandol, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori4] = new System.Windows.Point(5, 8);
+
+            Room oIoth2 = AddRoom("Ioth");
+            AddBidirectionalExits(oIoth2, oIoth1, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oIoth2] = new System.Windows.Point(4, 4);
+
+            Room oCebe5 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe5, oCebe4, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe5] = new System.Windows.Point(4, 6);
+
+            Room oSssreth = AddRoom("Sssreth");
+            AddExit(oCebe5, oSssreth, "south");
+            AddExit(oSssreth, oCebe5, "out");
+            eldemondeGraph.Rooms[oSssreth] = new System.Windows.Point(4, 6.5);
+
+            Room oElros5 = AddRoom("Elros");
+            AddBidirectionalExits(oElros5, oElros4, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros5] = new System.Windows.Point(4, 7);
+
+            Room oDori5 = AddRoom("Elros Statue");
+            AddBidirectionalExits(oDori5, oDori4, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori5] = new System.Windows.Point(4, 8);
+
+            Room oIothNundine = AddRoom("North Gate Inside");
+            AddBidirectionalExits(oIothNundine, oIoth2, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oIothNundine] = new System.Windows.Point(3, 4);
+
+            Room oNundine1 = AddRoom("Nundine");
+            AddBidirectionalExits(oIothNundine, oNundine1, BidirectionalExitType.NorthSouth);
+            eldemondeGraph.Rooms[oNundine1] = new System.Windows.Point(3, 5);
+
+            Room oKegTavern = AddRoom("Keg Tavern");
+            AddExit(oNundine1, oKegTavern, "west");
+            AddExit(oKegTavern, oNundine1, "out");
+            eldemondeGraph.Rooms[oKegTavern] = new System.Windows.Point(2, 5.3);
+
+            Room oTavernKitchen = AddRoom("Tavern Kitchen");
+            Exit e = AddExit(oKegTavern, oTavernKitchen, "door");
+            e.Hidden = true;
+            AddExit(oTavernKitchen, oKegTavern, "door");
+            eldemondeGraph.Rooms[oTavernKitchen] = new System.Windows.Point(2, 4.7);
+
+            Room oCebeNundine = AddRoom("Cebe/Nundine");
+            AddBidirectionalExits(oNundine1, oCebeNundine, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oCebeNundine, oCebe5, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebeNundine] = new System.Windows.Point(3, 6);
+
+            Room oElrosNundine = AddRoom("Elros/Nundine");
+            AddBidirectionalExits(oCebeNundine, oElrosNundine, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oElrosNundine, oElros5, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElrosNundine] = new System.Windows.Point(3, 7);
+
+            Room oDoriNundine = AddRoom("Dori/Nundine");
+            AddBidirectionalExits(oElrosNundine, oDoriNundine, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oDoriNundine, oDori5, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDoriNundine] = new System.Windows.Point(3, 8);
+
+            Room oIoth3 = AddRoom("Ioth");
+            AddBidirectionalExits(oIoth3, oIothNundine, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oIoth3] = new System.Windows.Point(2, 4);
+
+            Room oCebe6 = AddRoom("Cebe");
+            AddBidirectionalExits(oCebe6, oCebeNundine, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe6] = new System.Windows.Point(2, 6);
+
+            Room oElros6 = AddRoom("Wish Fountain");
+            AddBidirectionalExits(oElros6, oElrosNundine, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros6] = new System.Windows.Point(2, 7);
+
+            Room oDori6 = AddRoom("Dark Lord Taunting");
+            AddBidirectionalExits(oDori6, oDoriNundine, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori6] = new System.Windows.Point(2, 8);
+
+            Room oIoth4 = AddRoom("Ioth");
+            AddBidirectionalExits(oIoth4, oIoth3, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oIoth4] = new System.Windows.Point(1, 4);
+
+            Room oSmallPath = AddRoom("Small Path");
+            e = AddExit(oIoth4, oSmallPath, "south");
+            e.Hidden = true;
+            e = AddExit(oSmallPath, oTavernKitchen, "backdoor");
+            e.Hidden = true;
+            AddExit(oSmallPath, oIoth4, "north");
+            eldemondeGraph.Rooms[oSmallPath] = new System.Windows.Point(1, 5);
+
+            Room oCebe7 = AddRoom("Cebe");
+            AddBidirectionalExits(oSmallPath, oCebe7, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oCebe7, oCebe6, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCebe7] = new System.Windows.Point(1, 6);
+
+            Room oBezanthi = AddRoom("Bezanthi");
+            AddExit(oCebe7, oBezanthi, "shop");
+            AddExit(oBezanthi, oCebe7, "out");
+            eldemondeGraph.Rooms[oBezanthi] = new System.Windows.Point(0, 6);
+
+            Room oElros7 = AddRoom("Elros");
+            AddBidirectionalExits(oElros7, oElros6, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oElros7] = new System.Windows.Point(1, 7);
+
+            Room oDori7 = AddRoom("Dori");
+            AddBidirectionalExits(oDori7, oDori6, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oDori7] = new System.Windows.Point(1, 8);
+
+            Room oElros8 = AddRoom("Elros");
+            AddBidirectionalExits(oCebe7, oElros8, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oElros8, oElros7, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oElros8, oDori7, BidirectionalExitType.SoutheastNorthwest);
+            eldemondeGraph.Rooms[oElros8] = new System.Windows.Point(0, 7);
+
+            Room oCityWalkway1 = AddRoom("City Walkway");
+            AddBidirectionalExits(oDori1, oCityWalkway1, BidirectionalExitType.SouthwestNortheast);
+            eldemondeGraph.Rooms[oCityWalkway1] = new System.Windows.Point(8, 9);
+
+            Room oCityWalkway2 = AddRoom("City Walkway");
+            AddBidirectionalExits(oCityWalkway2, oCityWalkway1, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCityWalkway2] = new System.Windows.Point(6, 9);
+
+            Room oCityWalkway3 = AddRoom("City Walkway");
+            AddBidirectionalExits(oCityWalkway3, oCityWalkway2, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCityWalkway3] = new System.Windows.Point(4, 9);
+
+            Room oCityWalkway4 = AddRoom("City Walkway");
+            AddBidirectionalExits(oDori7, oCityWalkway4, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oCityWalkway4, oCityWalkway3, BidirectionalExitType.WestEast);
+            eldemondeGraph.Rooms[oCityWalkway4] = new System.Windows.Point(2, 9);
         }
 
         private Room AddRoom(string roomName)
@@ -3757,6 +4089,7 @@ namespace IsengardClient
         Tharbad,
         Nindamos,
         Armenelos,
+        Eldemonde,
     }
 
     internal class MapComputation
