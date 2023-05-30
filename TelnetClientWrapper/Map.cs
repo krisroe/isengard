@@ -25,6 +25,7 @@ namespace IsengardClient
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
         private Area _aMisc;
+        private Area _aNindamosArmenelos;
         private Area _aInaccessible;
 
         private List<Exit> _nightEdges = new List<Exit>();
@@ -35,6 +36,7 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_MISC = "Misc";
         private const string AREA_SHIPS = "Ships";
+        private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
         private const string AREA_INTANGIBLE = "Intangible";
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
@@ -49,13 +51,9 @@ namespace IsengardClient
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
             _aMisc = AddArea(AREA_MISC);
             _aShips = AddArea(AREA_SHIPS);
+            _aNindamosArmenelos = AddArea(AREA_NINDAMOS_ARMENELOS);
             AddArea(AREA_INTANGIBLE);
             _aInaccessible = AddArea(AREA_INACCESSIBLE);
-
-            foreach (Area a in _areas)
-            {
-                a.Locations.Clear();
-            }
 
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
             graphMillwoodMansion.ScalingFactor = 100;
@@ -71,8 +69,9 @@ namespace IsengardClient
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
             AddWestOfTharbad(tharbadWestGateOutside);
-            AddNindamos(out Room oArmenelosGatesOutside);
+            AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction);
             AddArmenelos(oArmenelosGatesOutside);
+            AddWestOfNindamosAndArmenelos(oSouthernJunction);
             AddIntangible(oBreeTownSquare);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
@@ -2648,7 +2647,7 @@ namespace IsengardClient
             AddLocation(oIntangible, oLimbo);
         }
 
-        private void AddNindamos(out Room oArmenelosGatesOutside)
+        private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction)
         {
             RoomGraph nindamosGraph = new RoomGraph("Nindamos");
             nindamosGraph.ScalingFactor = 100;
@@ -2915,12 +2914,10 @@ namespace IsengardClient
             AddBidirectionalExits(oGranitePath7, oGranitePath6, BidirectionalExitType.SoutheastNorthwest);
             nindamosGraph.Rooms[oGranitePath7] = new System.Windows.Point(1, 2);
 
-            Room oSouthernJunction = AddRoom("Southern Junction");
+            oSouthernJunction = AddRoom("Southern Junction");
             oSouthernJunction.Mob1 = "warder";
             oSouthernJunction.Experience1 = 450;
             AddBidirectionalExits(oSouthernJunction, oGranitePath7, BidirectionalExitType.SoutheastNorthwest);
-            //CSRTODO: northeast
-            //CSRTODO: west
             nindamosGraph.Rooms[oSouthernJunction] = new System.Windows.Point(0, 1);
 
             Room oPathToArmenelos1 = AddRoom("Valley Path");
@@ -3365,6 +3362,53 @@ namespace IsengardClient
             AddExit(oGateInside, oArmenelosGatesOutside, "gate");
             _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oArmenelosGatesOutside, oGateInside, "gate", null));
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
+        }
+
+        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction)
+        {
+            //CSRTODO: handle southern junction southwest exit
+
+            Room r;
+            Exit e;
+            Room previousRoom = oSouthernJunction;
+            for (int i = 0; i < 7; i++)
+            {
+                r = AddRoom("Laiquendi");
+                AddBidirectionalExits(r, previousRoom, BidirectionalExitType.WestEast);
+                previousRoom = r;
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                r = AddRoom("Liara");
+                e = AddExit(r, previousRoom, "south");
+                if (i == 4)
+                {
+                    e.OmitGo = true;
+                }
+                AddExit(previousRoom, r, "north");
+                previousRoom = r;
+            }
+            r = AddRoom("Liara");
+            AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
+            previousRoom = r;
+            r = AddRoom("Liara");
+            AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
+            previousRoom = r;
+            r = AddRoom("Liara");
+            AddBidirectionalExits(r, previousRoom, BidirectionalExitType.NorthSouth);
+            previousRoom = r;
+            r = AddRoom("Liara");
+            e = AddExit(r, previousRoom, "south");
+            e.OmitGo = true;
+            AddExit(previousRoom, r, "north");
+            previousRoom = r;
+
+            Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma");
+            oBaseOfMenelTarma.Mob1 = "warder";
+            oBaseOfMenelTarma.Experience1 = 450;
+            AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
+
+            AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
         }
 
         private Room AddRoom(string roomName)
