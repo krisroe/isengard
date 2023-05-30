@@ -3408,7 +3408,70 @@ namespace IsengardClient
             oBaseOfMenelTarma.Experience1 = 450;
             AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
 
+            Room oGrasslands1 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oSouthernJunction, oGrasslands1, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrasslands2 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands2, oGrasslands1, BidirectionalExitType.WestEast);
+
+            Room oHostaEncampment = AddRoom("Hosta Encampment");
+            AddBidirectionalExits(oHostaEncampment, oGrasslands2, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oGrasslands3 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands2, oGrasslands3, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrasslands4 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands4, oGrasslands3, BidirectionalExitType.WestEast);
+
+            Room oGrasslands5 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands5, oGrasslands4, BidirectionalExitType.NorthSouth);
+
+            Room oGrasslands6 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands5, oGrasslands6, BidirectionalExitType.WestEast);
+
+            Room oGrasslands7 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands6, oGrasslands7, BidirectionalExitType.NorthSouth);
+            AddExit(oGrasslands7, oGrasslands3, "south");
+
+            Room oGrasslands8 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands4, oGrasslands8, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrasslands9 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands9, oGrasslands4, BidirectionalExitType.WestEast);
+            e = AddExit(oGrasslands8, oGrasslands9, "north");
+            e.OmitGo = true;
+            AddExit(oGrasslands9, oGrasslands8, "north");
+
+            Room oGrasslands10 = AddRoom("Mittalmar Grasslands");
+            e = AddExit(oGrasslands4, oGrasslands10, "south");
+            e.OmitGo = true;
+            AddExit(oGrasslands10, oGrasslands4, "north");
+
+            Room oGrasslands11 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands10, oGrasslands11, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrasslands12 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands12, oGrasslands11, BidirectionalExitType.WestEast);
+
+            Room oGrasslands13 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands13, oGrasslands12, BidirectionalExitType.NorthSouth);
+
+            Room oGrasslands14 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands14, oGrasslands13, BidirectionalExitType.NorthSouth);
+
+            Room oGrasslands15 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands15, oGrasslands14, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oGrasslands15, oGrasslands5, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oGrasslands16 = AddRoom("Mittalmar Grasslands");
+            AddBidirectionalExits(oGrasslands16, oGrasslands13, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oDeathValleyEntrance = AddRoom("Death Valley Entrance");
+            AddBidirectionalExits(oGrasslands16, oDeathValleyEntrance, BidirectionalExitType.NorthSouth);
+
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
+            AddLocation(_aNindamosArmenelos, oHostaEncampment);
+            AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
         }
 
         private Room AddRoom(string roomName)
