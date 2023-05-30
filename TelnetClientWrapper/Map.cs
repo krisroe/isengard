@@ -69,9 +69,9 @@ namespace IsengardClient
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
             AddWestOfTharbad(tharbadWestGateOutside);
-            AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction);
+            AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath);
             AddArmenelos(oArmenelosGatesOutside);
-            AddWestOfNindamosAndArmenelos(oSouthernJunction);
+            AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath);
             AddIntangible(oBreeTownSquare);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
@@ -2647,7 +2647,7 @@ namespace IsengardClient
             AddLocation(oIntangible, oLimbo);
         }
 
-        private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction)
+        private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath)
         {
             RoomGraph nindamosGraph = new RoomGraph("Nindamos");
             nindamosGraph.ScalingFactor = 100;
@@ -2924,12 +2924,12 @@ namespace IsengardClient
             AddBidirectionalExits(oPathToArmenelos1, oSouthernJunction, BidirectionalExitType.SouthwestNortheast);
             nindamosGraph.Rooms[oPathToArmenelos1] = new System.Windows.Point(1, 0);
 
-            Room oPathToArmenelos2 = AddRoom("Valley Path");
-            AddBidirectionalExits(oPathToArmenelos2, oPathToArmenelos1, BidirectionalExitType.SouthwestNortheast);
-            nindamosGraph.Rooms[oPathToArmenelos2] = new System.Windows.Point(2, -1);
+            oPathThroughTheValleyHiddenPath = AddRoom("Valley Path");
+            AddBidirectionalExits(oPathThroughTheValleyHiddenPath, oPathToArmenelos1, BidirectionalExitType.SouthwestNortheast);
+            nindamosGraph.Rooms[oPathThroughTheValleyHiddenPath] = new System.Windows.Point(2, -1);
 
             oArmenelosGatesOutside = AddRoom("Gate Outside");
-            AddBidirectionalExits(oArmenelosGatesOutside, oPathToArmenelos2, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oArmenelosGatesOutside, oPathThroughTheValleyHiddenPath, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(2, -2);
         }
 
@@ -3364,7 +3364,7 @@ namespace IsengardClient
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
         }
 
-        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction)
+        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley)
         {
             Room r;
             Exit e;
@@ -3438,7 +3438,6 @@ namespace IsengardClient
             AddBidirectionalExits(oHiddenPath13, oHiddenPath14, BidirectionalExitType.WestEast, true);
             Room oHiddenPath15 = AddRoom("Hidden Path");
             AddBidirectionalExits(oHiddenPath14, oHiddenPath15, BidirectionalExitType.WestEast, true);
-            Room oPathThroughTheValley = AddRoom("Valley Path");
             AddBidirectionalExits(oHiddenPath15, oPathThroughTheValley, BidirectionalExitType.SoutheastNorthwest, true);
 
             Room oGrasslands1 = AddRoom("Mittalmar Grasslands");
@@ -3505,7 +3504,6 @@ namespace IsengardClient
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
             AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
-            AddLocation(_aNindamosArmenelos, oPathThroughTheValley);
         }
 
         private Room AddRoom(string roomName)
