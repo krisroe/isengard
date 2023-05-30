@@ -3581,20 +3581,33 @@ namespace IsengardClient
 
             Room oDeathValleyWest2 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest2, oDeathValleyWest1, BidirectionalExitType.NorthSouth);
-            //CSRTODO: tomb
+
+            Room oAmlug = AddRoom("Amlug");
+            oAmlug.Mob1 = "Amlug";
+            AddExit(oDeathValleyWest2, oAmlug, "tomb");
+            AddExit(oAmlug, oDeathValleyWest2, "out");
 
             Room oDeathValleyWest3 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest3, oDeathValleyWest2, BidirectionalExitType.SouthwestNortheast);
 
             Room oDeathValleyWest4 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest4, oDeathValleyWest3, BidirectionalExitType.NorthSouth);
-            //CSRTODO: tomb
+
+            Room oKallo = AddRoom("Kallo");
+            oKallo.Mob1 = "Kallo";
+            AddExit(oDeathValleyWest4, oKallo, "tomb");
+            AddExit(oKallo, oDeathValleyWest4, "out");
 
             Room oDeathValleyWest5 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest5, oDeathValleyWest4, BidirectionalExitType.SoutheastNorthwest);
 
             Room oDeathValleyWest6 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest6, oDeathValleyWest5, BidirectionalExitType.NorthSouth);
+
+            Room oWizard = AddRoom("Wizard of the First Order");
+            oWizard.Mob1 = "Wizard";
+            AddExit(oDeathValleyWest6, oWizard, "vault");
+            AddExit(oWizard, oDeathValleyWest6, "out");
 
             Room oDeathValleyWest7 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest7, oDeathValleyWest6, BidirectionalExitType.SouthwestNortheast);
