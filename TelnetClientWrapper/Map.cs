@@ -3375,12 +3375,14 @@ namespace IsengardClient
                 AddBidirectionalExits(r, previousRoom, BidirectionalExitType.WestEast);
                 previousRoom = r;
             }
+            Room hiddenPathRoom = null;
             for (int i = 0; i < 9; i++)
             {
                 r = AddRoom("Liara");
                 e = AddExit(r, previousRoom, "south");
                 if (i == 4)
                 {
+                    hiddenPathRoom = r;
                     e.OmitGo = true;
                 }
                 AddExit(previousRoom, r, "north");
@@ -3405,6 +3407,39 @@ namespace IsengardClient
             oBaseOfMenelTarma.Mob1 = "warder";
             oBaseOfMenelTarma.Experience1 = 450;
             AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
+
+            Room oHiddenPath1 = AddRoom("Hidden Path");
+            AddBidirectionalExits(hiddenPathRoom, oHiddenPath1, BidirectionalExitType.SoutheastNorthwest, true);
+            Room oHiddenPath2 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath1, oHiddenPath2, BidirectionalExitType.SoutheastNorthwest, true);
+            Room oHiddenPath3 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath2, oHiddenPath3, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath4 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath3, oHiddenPath4, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath5 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath4, oHiddenPath5, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath6 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath5, oHiddenPath6, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath7 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath6, oHiddenPath7, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath8 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath7, oHiddenPath8, BidirectionalExitType.NorthSouth, true);
+            Room oHiddenPath9 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath8, oHiddenPath9, BidirectionalExitType.SoutheastNorthwest, true);
+            Room oHiddenPath10 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath9, oHiddenPath10, BidirectionalExitType.WestEast, true);
+            Room oHiddenPath11 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath10, oHiddenPath11, BidirectionalExitType.WestEast, true);
+            Room oHiddenPath12 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath12, oHiddenPath11, BidirectionalExitType.SouthwestNortheast, true);
+            Room oHiddenPath13 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath12, oHiddenPath13, BidirectionalExitType.WestEast, true);
+            Room oHiddenPath14 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath13, oHiddenPath14, BidirectionalExitType.WestEast, true);
+            Room oHiddenPath15 = AddRoom("Hidden Path");
+            AddBidirectionalExits(oHiddenPath14, oHiddenPath15, BidirectionalExitType.WestEast, true);
+            Room oPathThroughTheValley = AddRoom("Valley Path");
+            AddBidirectionalExits(oHiddenPath15, oPathThroughTheValley, BidirectionalExitType.SoutheastNorthwest, true);
 
             Room oGrasslands1 = AddRoom("Mittalmar Grasslands");
             AddBidirectionalExits(oSouthernJunction, oGrasslands1, BidirectionalExitType.SouthwestNortheast);
@@ -3470,6 +3505,7 @@ namespace IsengardClient
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
             AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
+            AddLocation(_aNindamosArmenelos, oPathThroughTheValley);
         }
 
         private Room AddRoom(string roomName)
@@ -3508,6 +3544,11 @@ namespace IsengardClient
 
         private void AddBidirectionalExits(Room aRoom, Room bRoom, BidirectionalExitType exitType)
         {
+            AddBidirectionalExits(aRoom, bRoom, exitType, false);
+        }
+
+        private void AddBidirectionalExits(Room aRoom, Room bRoom, BidirectionalExitType exitType, bool hidden)
+        {
             string exitAtoB = string.Empty;
             string exitBtoA = string.Empty;
             switch (exitType)
@@ -3535,8 +3576,12 @@ namespace IsengardClient
                 default:
                     throw new InvalidOperationException();
             }
-            _map.AddEdge(new Exit(aRoom, bRoom, exitAtoB));
-            _map.AddEdge(new Exit(bRoom, aRoom, exitBtoA));
+            Exit e = new Exit(aRoom, bRoom, exitAtoB);
+            e.Hidden = hidden;
+            _map.AddEdge(e);
+            e = new Exit(bRoom, aRoom, exitBtoA);
+            _map.AddEdge(e);
+            e.Hidden = hidden;
         }
 
         private Area AddArea(string areaName)
