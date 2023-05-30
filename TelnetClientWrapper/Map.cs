@@ -3402,6 +3402,7 @@ namespace IsengardClient
             e.OmitGo = true;
             AddExit(previousRoom, r, "north");
             previousRoom = r;
+            Room oLastLiara = r;
 
             Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma");
             oBaseOfMenelTarma.Mob1 = "warder";
@@ -3501,9 +3502,73 @@ namespace IsengardClient
             Room oDeathValleyEntrance = AddRoom("Death Valley Entrance");
             AddBidirectionalExits(oGrasslands16, oDeathValleyEntrance, BidirectionalExitType.NorthSouth);
 
+            Room oGrassCoveredField1 = AddRoom("Grass Field");
+            AddBidirectionalExits(oLastLiara, oGrassCoveredField1, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrassCoveredField2 = AddRoom("Grass Field");
+            AddBidirectionalExits(oGrassCoveredField2, oGrassCoveredField1, BidirectionalExitType.WestEast);
+
+            Room oGrassCoveredField3 = AddRoom("Grass Field");
+            AddBidirectionalExits(oGrassCoveredField3, oGrassCoveredField2, BidirectionalExitType.WestEast);
+
+            Room oGrassCoveredField4 = AddRoom("Grass Field");
+            AddBidirectionalExits(oGrassCoveredField4, oGrassCoveredField3, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oRiverPath1 = AddRoom("River Path");
+            AddBidirectionalExits(oRiverPath1, oGrassCoveredField4, BidirectionalExitType.WestEast);
+
+            Room oRiverPath2 = AddRoom("River Path");
+            AddBidirectionalExits(oRiverPath2, oRiverPath1, BidirectionalExitType.WestEast);
+
+            Room oRiverBank = AddRoom("River Bank");
+            AddBidirectionalExits(oRiverBank, oRiverPath2, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oGrassCoveredField5 = AddRoom("Grass Field");
+            AddBidirectionalExits(oGrassCoveredField3, oGrassCoveredField5, BidirectionalExitType.SouthwestNortheast);
+
+            Room oGrassCoveredField6 = AddRoom("Grass Field");
+            AddBidirectionalExits(oGrassCoveredField6, oGrassCoveredField5, BidirectionalExitType.WestEast);
+
+            Room oEdgeOfNisimaldar = AddRoom("Nisimaldar Edge");
+            AddBidirectionalExits(oGrassCoveredField6, oEdgeOfNisimaldar, BidirectionalExitType.SouthwestNortheast);
+
+            Room oNisimaldar1 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar1, oEdgeOfNisimaldar, BidirectionalExitType.WestEast);
+
+            Room oNisimaldar2 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar2, oNisimaldar1, BidirectionalExitType.WestEast);
+
+            Room oNisimaldar3 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar3, oNisimaldar2, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oNisimaldar4 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar4, oNisimaldar3, BidirectionalExitType.WestEast);
+
+            Room oNisimaldar5 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar4, oNisimaldar5, BidirectionalExitType.SouthwestNortheast);
+
+            Room oNisimaldar6 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar6, oNisimaldar5, BidirectionalExitType.WestEast);
+
+            Room oNisimaldar7 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar6, oNisimaldar7, BidirectionalExitType.SouthwestNortheast);
+
+            Room oNisimaldar8 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar8, oNisimaldar7, BidirectionalExitType.WestEast);
+
+            Room oNisimaldar9 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar9, oNisimaldar8, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oNisimaldar10 = AddRoom("Nisimaldar");
+            AddBidirectionalExits(oNisimaldar10, oNisimaldar9, BidirectionalExitType.WestEast);
+
+            Room oEastGateOutside = AddRoom("East Gate Outside");
+            AddBidirectionalExits(oEastGateOutside, oNisimaldar10, BidirectionalExitType.SoutheastNorthwest);
+ 
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
             AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
+            AddLocation(_aNindamosArmenelos, oEastGateOutside);
         }
 
         private Room AddRoom(string roomName)
