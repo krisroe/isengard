@@ -3366,8 +3366,6 @@ namespace IsengardClient
 
         private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction)
         {
-            //CSRTODO: handle southern junction southwest exit
-
             Room r;
             Exit e;
             Room previousRoom = oSouthernJunction;
