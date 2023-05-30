@@ -84,6 +84,7 @@ namespace IsengardClient
             ret['Y'] = 89;
             ret['Z'] = 90;
             ret['['] = ASCII_LEFT_BRACKET;
+            ret['\\'] = 92;
             ret[']'] = ASCII_RIGHT_BRACKET;
             ret['_'] = 95;
             ret['`'] = 96;

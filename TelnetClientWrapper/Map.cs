@@ -3565,11 +3565,74 @@ namespace IsengardClient
 
             oEldemondeEastGateOutside = AddRoom("East Gate Outside");
             AddBidirectionalExits(oEldemondeEastGateOutside, oNisimaldar10, BidirectionalExitType.SoutheastNorthwest);
- 
+
+            AddDeathValley(oDeathValleyEntrance);
+
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
             AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
             AddLocation(_aNindamosArmenelos, oEldemondeEastGateOutside);
+        }
+
+        private void AddDeathValley(Room oDeathValleyEntrance)
+        {
+            Room oDeathValleyWest1 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest1, oDeathValleyEntrance, BidirectionalExitType.WestEast);
+
+            Room oDeathValleyWest2 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest2, oDeathValleyWest1, BidirectionalExitType.NorthSouth);
+            //CSRTODO: tomb
+
+            Room oDeathValleyWest3 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest3, oDeathValleyWest2, BidirectionalExitType.SouthwestNortheast);
+
+            Room oDeathValleyWest4 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest4, oDeathValleyWest3, BidirectionalExitType.NorthSouth);
+            //CSRTODO: tomb
+
+            Room oDeathValleyWest5 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest5, oDeathValleyWest4, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oDeathValleyWest6 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest6, oDeathValleyWest5, BidirectionalExitType.NorthSouth);
+
+            Room oDeathValleyWest7 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyWest7, oDeathValleyWest6, BidirectionalExitType.SouthwestNortheast);
+            //CSRTODO: doorway
+
+            Room oDeathValleyEast1 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEntrance, oDeathValleyEast1, BidirectionalExitType.WestEast);
+
+            Room oDeathValleyEast2 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast2, oDeathValleyEast1, BidirectionalExitType.NorthSouth);
+
+            Room oDeathValleyEast3 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast3, oDeathValleyEast2, BidirectionalExitType.NorthSouth);
+
+            Room oTranquilParkKaivo = AddRoom("Kaivo");
+            oTranquilParkKaivo.Mob1 = "Kaivo";
+            oTranquilParkKaivo.IsHealingRoom = true;
+            AddBidirectionalExits(oTranquilParkKaivo, oDeathValleyEast3, BidirectionalExitType.WestEast);
+
+            Room oDeathValleyEast4 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast4, oDeathValleyEast3, BidirectionalExitType.SouthwestNortheast);
+
+            Room oDeathValleyEast5 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast4, oDeathValleyEast5, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oDeathValleyEast6 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast6, oDeathValleyEast5, BidirectionalExitType.SouthwestNortheast);
+
+            Room oDeathValleyEast7 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast7, oDeathValleyEast6, BidirectionalExitType.WestEast);
+
+            Room oDeathValleyEast8 = AddRoom("Death Valley");
+            AddBidirectionalExits(oDeathValleyEast8, oDeathValleyEast7, BidirectionalExitType.WestEast);
+
+            Room oStorageRoom = AddRoom("Storage Room");
+            Exit e = AddExit(oDeathValleyEast8, oStorageRoom, "rocky");
+            e.Hidden = true;
+            AddExit(oStorageRoom, oDeathValleyEast8, "out");
         }
 
         private void AddEldemondeCity(Room oEldemondeEastGateOutside)

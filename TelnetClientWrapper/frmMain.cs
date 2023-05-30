@@ -1196,6 +1196,9 @@ namespace IsengardClient
                     case AsciiMapping.ASCII_LEFT_BRACKET:
                         c = '[';
                         break;
+                    case 92:
+                        c = '\\';
+                        break;
                     case AsciiMapping.ASCII_RIGHT_BRACKET:
                         c = ']';
                         break;
