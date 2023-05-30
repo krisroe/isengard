@@ -19,8 +19,11 @@ namespace IsengardClient
         private Room _imladrisWestGateOutside = null;
         private Room _breeDocks = null;
         private Room _boatswain = null;
+        private Room _spindrilsCastleOutside;
+        private Room _spindrilsCastleInside;
         private Room _treeOfLife = null;
         private Room _healingHand = null;
+        private Room _nindamosVillageCenter = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aShips;
@@ -29,6 +32,7 @@ namespace IsengardClient
 
         private List<Exit> _nightEdges = new List<Exit>();
         private List<Exit> _celduinExpressEdges = new List<Exit>();
+        private List<Exit> _flyEdges = new List<Exit>();
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
@@ -65,10 +69,12 @@ namespace IsengardClient
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
             AddBreeToImladris(level, out Room oOuthouse);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
-            AddImladrisCity(out Room oImladrisSouthGateInside);
+            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside);
+            AddEastOfImladris(oEastGateOfImladrisOutside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
             AddWestOfTharbad(tharbadWestGateOutside);
+            AddNindamos();
             AddIntangible(oBreeTownSquare);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
@@ -1899,7 +1905,7 @@ namespace IsengardClient
             AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside)
         {
             RoomGraph imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
@@ -1988,7 +1994,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(9, 5);
 
-            Room oEastGateOfImladrisOutside = AddRoom("East Gate Outside");
+            oEastGateOfImladrisOutside = AddRoom("East Gate Outside");
             AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
             imladrisGraph.Rooms[oEastGateOfImladrisOutside] = new System.Windows.Point(10, 5);
 
@@ -2047,28 +2053,73 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oTyriesPriestSupplies] = new System.Windows.Point(5, 5.5);
 
+            AddLocation(_aImladrisTharbadPerms, _healingHand);
+            AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
+        }
+
+        private void AddEastOfImladris(Room oEastGateOfImladrisOutside)
+        {
             Room oMountainPath1 = AddRoom("Mountain Path");
             AddBidirectionalExits(oEastGateOfImladrisOutside, oMountainPath1, BidirectionalExitType.WestEast);
 
             Room oMountainPath2 = AddRoom("Mountain Path");
             AddBidirectionalExits(oMountainPath2, oMountainPath1, BidirectionalExitType.SouthwestNortheast);
+            //CSRTODO: southeast
 
             Room oMountainTrail1 = AddRoom("Mountain Trail");
             AddBidirectionalExits(oMountainTrail1, oMountainPath2, BidirectionalExitType.NorthSouth);
 
-            Room oMountainTrail2 = AddRoom("Mountain Trail");
-            AddBidirectionalExits(oMountainTrail2, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
+            Room oIorlasThreshold = AddRoom("Mountain Trail"); //goes to shack
+            AddBidirectionalExits(oIorlasThreshold, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
+            //CSRTODO: east
+
+            Room oMountainTrail3 = AddRoom("Mountain Trail");
+            AddBidirectionalExits(oMountainTrail3, oIorlasThreshold, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMountainPass1 = AddRoom("Mountain Pass");
+            AddBidirectionalExits(oMountainPass1, oMountainTrail3, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMountainPass2 = AddRoom("Mountain Pass");
+            AddBidirectionalExits(oMountainPass2, oMountainPass1, BidirectionalExitType.SouthwestNortheast);
+
+            Room oMountainPass3 = AddRoom("Mountain Pass");
+            AddBidirectionalExits(oMountainPass1, oMountainPass3, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oMountainPass4 = AddRoom("Mountain Pass");
+            AddBidirectionalExits(oMountainPass2, oMountainPass4, BidirectionalExitType.SoutheastNorthwest);
+            //CSRTODO: down to ituk glacer (hidden)
+
+            Room oLoftyTrail1 = AddRoom("Lofty Trail");
+            AddBidirectionalExits(oLoftyTrail1, oMountainPass2, BidirectionalExitType.NorthSouth);
+
+            Room oLoftyTrail2 = AddRoom("Lofty Trail");
+            AddBidirectionalExits(oLoftyTrail2, oLoftyTrail1, BidirectionalExitType.NorthSouth);
+
+            Room oLoftyTrail3 = AddRoom("Lofty Trail");
+            AddBidirectionalExits(oLoftyTrail3, oLoftyTrail2, BidirectionalExitType.UpDown);
+            //CSRTODO: up (to trap room)
+
+            Room oMountainTrail4 = AddRoom("Mountain Trail");
+            AddBidirectionalExits(oMountainTrail4, oMountainTrail3, BidirectionalExitType.SoutheastNorthwest);
+            //CSRTODO: cave
+
+            Room oMountainTrail5 = AddRoom("Mountain Trail");
+            AddBidirectionalExits(oMountainTrail5, oMountainTrail4, BidirectionalExitType.NorthSouth);
+
+            Room oMountainTrail6 = AddRoom("Mountain Trail");
+            AddBidirectionalExits(oMountainTrail6, oMountainTrail5, BidirectionalExitType.NorthSouth);
+
+            Room oLarsMagnusGrunwald = AddRoom("Lars Magnus Grunwald");
+            AddBidirectionalSameNameExit(oMountainTrail6, oLarsMagnusGrunwald, "gate");
 
             Room oIorlas = AddRoom("Iorlas");
             oIorlas.Mob1 = "Iorlas";
             oIorlas.Experience1 = 200;
             oIorlas.Alignment = AlignmentType.Grey;
-            AddExit(oMountainTrail2, oIorlas, "shack");
-            AddExit(oIorlas, oMountainTrail2, "door");
+            AddExit(oIorlasThreshold, oIorlas, "shack");
+            AddExit(oIorlas, oIorlasThreshold, "door");
 
-            AddLocation(_aImladrisTharbadPerms, _healingHand);
             AddLocation(_aImladrisTharbadPerms, oIorlas);
-            AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage, int level)
@@ -2292,12 +2343,143 @@ namespace IsengardClient
             AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
             imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
 
+            //searching seems to be required to get up here
+            _spindrilsCastleOutside = AddRoom("Dark Clouds");
+            Exit e = AddExit(oGrassyField, _spindrilsCastleOutside, "up");
+            e.Hidden = true;
+            AddExit(_spindrilsCastleOutside, oGrassyField, "down");
+
+            AddSpindrilsCastle();
+
             oTharbadGateOutside = AddRoom("North Gate");
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(0, 14);
 
             AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
+        }
+
+        private void AddSpindrilsCastle()
+        {
+            _spindrilsCastleInside = AddRoom("Dark/Heavy Clouds");
+            AddExit(_spindrilsCastleInside, _spindrilsCastleOutside, "down");
+
+            Room oCloudEdge = AddRoom("Cloud Edge");
+            AddBidirectionalExits(_spindrilsCastleInside, oCloudEdge, BidirectionalExitType.NorthSouth);
+
+            Room oBrokenCastleWall = AddRoom("Broken Castle Wall");
+            AddBidirectionalExits(oBrokenCastleWall, _spindrilsCastleInside, BidirectionalExitType.NorthSouth);
+            //CSRTODO: rubble
+
+            Room oEastCastleWall = AddRoom("East Castle Wall");
+            AddBidirectionalExits(oEastCastleWall, oBrokenCastleWall, BidirectionalExitType.NorthSouth);
+
+            Room oEastCastleWall2 = AddRoom("East Castle Wall");
+            AddBidirectionalExits(oEastCastleWall2, oEastCastleWall, BidirectionalExitType.NorthSouth);
+
+            Room oSewageVault = AddRoom("Sewage Vault");
+            Exit e = AddExit(oEastCastleWall2, oSewageVault, "grate");
+            e.Hidden = true;
+            AddExit(oSewageVault, oEastCastleWall2, "grate");
+
+            Room oSewageShaft1 = AddRoom("Sewage Shaft");
+            AddExit(oSewageVault, oSewageShaft1, "shaft");
+            AddExit(oSewageShaft1, oSewageVault, "east");
+
+            Room oSewageShaft2 = AddRoom("Sewage Shaft");
+            AddBidirectionalExits(oSewageShaft2, oSewageShaft1, BidirectionalExitType.WestEast);
+
+            Room oSewageShaft3 = AddRoom("Sewage Shaft");
+            AddBidirectionalExits(oSewageShaft3, oSewageShaft2, BidirectionalExitType.WestEast);
+
+            Room oSewageShaft4 = AddRoom("Sewage Shaft");
+            AddBidirectionalExits(oSewageShaft4, oSewageShaft3, BidirectionalExitType.WestEast);
+
+            Room oKitchenCorridor = AddRoom("Kitchen Corridor");
+            AddBidirectionalSameNameExit(oSewageShaft4, oKitchenCorridor, "grate");
+
+            Room oServiceCorridor = AddRoom("Service Corridor");
+            AddBidirectionalExits(oKitchenCorridor, oServiceCorridor, BidirectionalExitType.SoutheastNorthwest);
+
+            Room oArieCorridor = AddRoom("Arie Corridor");
+            AddBidirectionalExits(oServiceCorridor, oArieCorridor, BidirectionalExitType.SoutheastNorthwest);
+            //CSRTODO: ladder
+
+            Room oSpindrilsAerie = AddRoom("Spindril's Aerie");
+            AddExit(oArieCorridor, oSpindrilsAerie, "aerie");
+            AddExit(oSpindrilsAerie, oArieCorridor, "entry");
+
+            Room oTuraksAlcove = AddRoom("Turak's Alcove");
+            AddBidirectionalExits(oTuraksAlcove, oKitchenCorridor, BidirectionalExitType.NorthSouth);
+            //CSRTODO: up
+
+            Room oKitchen = AddRoom("Kitchen");
+            AddBidirectionalExits(oKitchen, oKitchenCorridor, BidirectionalExitType.WestEast);
+
+            Room oCastleSpindrilCourtyardNE = AddRoom("Castle Courtyard");
+            AddExit(oArieCorridor, oCastleSpindrilCourtyardNE, "out");
+            AddExit(oCastleSpindrilCourtyardNE, oArieCorridor, "corridor");
+
+            Room oCastleSpindrilCourtyardE = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardNE, oCastleSpindrilCourtyardE, BidirectionalExitType.NorthSouth);
+
+            Room oCastleSpindrilCourtyardSE = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardE, oCastleSpindrilCourtyardSE, BidirectionalExitType.NorthSouth);
+
+            Room oCastleSpindrilCourtyardN = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardNE, BidirectionalExitType.WestEast);
+
+            Room oCastleSpindrilCourtyardMiddle = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardE, BidirectionalExitType.WestEast);
+
+            Room oCastleSpindrilCourtyardS = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardS, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oCastleSpindrilCourtyardS, oCastleSpindrilCourtyardSE, BidirectionalExitType.WestEast);
+
+            Room oCastleSpindrilCourtyardSW = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardSW, oCastleSpindrilCourtyardS, BidirectionalExitType.WestEast);
+            //CSRTODO: tunnel
+
+            Room oCastleSpindrilCourtyardW = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardSW, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.WestEast);
+
+            Room oCastleSpindrilCourtyardNW = AddRoom("Castle Courtyard");
+            AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardN, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardW, BidirectionalExitType.NorthSouth);
+            //CSRTODO: steps
+
+            Room oWeaponsmithShop = AddRoom("Weaponsmith's Shop");
+            AddExit(oCastleSpindrilCourtyardS, oWeaponsmithShop, "door");
+            AddExit(oWeaponsmithShop, oCastleSpindrilCourtyardS, "out");
+
+            Room oGnimbelleGninbalArmory = AddRoom("Gni Armory");
+            AddBidirectionalSameNameExit(oWeaponsmithShop, oGnimbelleGninbalArmory, "door");
+
+            Room oGniPawnShop = AddRoom("Gni Pawn Shop");
+            e = AddExit(oGnimbelleGninbalArmory, oGniPawnShop, "passage");
+            e.Hidden = true;
+            AddExit(oGniPawnShop, oGnimbelleGninbalArmory, "out");
+
+            Room oSouthernStairwellAlcove = AddRoom("South Stairwell Alcove");
+            AddExit(oCastleSpindrilCourtyardSE, oSouthernStairwellAlcove, "alcove");
+            AddExit(oSouthernStairwellAlcove, oCastleSpindrilCourtyardSE, "north");
+            //CSRTODO: up
+
+            Room oBarracksHallway = AddRoom("Barracks Hallway");
+            AddExit(oSouthernStairwellAlcove, oBarracksHallway, "door");
+            AddExit(oBarracksHallway, oSouthernStairwellAlcove, "out");
+
+            Room oCastleBarracks = AddRoom("Castle Barracks");
+            AddExit(oBarracksHallway, oCastleBarracks, "barracks");
+            AddExit(oCastleBarracks, oBarracksHallway, "out");
+
+            Room oCastleArmory = AddRoom("Castle Armory");
+            AddExit(oBarracksHallway, oCastleArmory, "armory");
+            AddExit(oCastleArmory, oBarracksHallway, "out");
+
+            AddLocation(_aMisc, oBrokenCastleWall);
         }
 
         private void AddShantyTown(Room oMistyTrail8)
@@ -2458,8 +2640,18 @@ namespace IsengardClient
             e.PreCommand = "open blue";
             AddExit(oDarkTunnel, _healingHand, "light");
 
+            Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds above Nindamos");
+            e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
+            e.PreCommand = "open white";
+            AddExit(oFluffyCloudsAboveNindamos, _nindamosVillageCenter, "green");
+
             AddLocation(oIntangible, _treeOfLife);
             AddLocation(oIntangible, oLimbo);
+        }
+
+        private void AddNindamos()
+        {
+            _nindamosVillageCenter = AddRoom("Nindamos Village Center");
         }
 
         private Room AddRoom(string roomName)
@@ -2543,7 +2735,11 @@ namespace IsengardClient
             {
                 _map.RemoveEdge(e);
             }
-            if (!isNight)
+            if (isNight)
+            {
+                _nightEdges.Clear();
+            }
+            else
             {
                 _nightEdges.Add(AddExit(_breeEastGateOutside, _breeEastGateInside, "gate"));
                 _nightEdges.Add(AddExit(_imladrisWestGateOutside, _imladrisWestGateInside, "gate"));
@@ -2560,6 +2756,26 @@ namespace IsengardClient
             {
                 _celduinExpressEdges.Add(AddExit(_breeDocks, _boatswain, "steamboat"));
                 _celduinExpressEdges.Add(AddExit(_boatswain, _breeDocks, "dock"));
+            }
+            else
+            {
+                _celduinExpressEdges.Clear();
+            }
+        }
+
+        public void SetFlyEdges(bool canFly)
+        {
+            foreach (Exit e in _flyEdges)
+            {
+                _map.RemoveEdge(e);
+            }
+            if (canFly)
+            {
+                _flyEdges.Add(AddExit(_spindrilsCastleOutside, _spindrilsCastleInside, "up"));
+            }
+            else
+            {
+                _flyEdges.Clear();
             }
         }
     }

@@ -2995,6 +2995,12 @@ namespace IsengardClient
                 {
                     List<string> newSpellsCast = _newSpellsCast;
                     _currentSpellsCast = _newSpellsCast;
+                    bool previousFly = _currentSpellsCast != null && _currentSpellsCast.Contains("fly");
+                    bool newFly = _newSpellsCast != null && _newSpellsCast.Contains("fly");
+                    if (previousFly != newFly)
+                    {
+                        _gameMap.SetFlyEdges(newFly);
+                    }
                     _newSpellsCast = null;
                     flpSpells.Controls.Clear();
                     foreach (string next in newSpellsCast)
