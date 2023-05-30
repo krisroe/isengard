@@ -2651,7 +2651,276 @@ namespace IsengardClient
 
         private void AddNindamos()
         {
-            _nindamosVillageCenter = AddRoom("Nindamos Village Center");
+            RoomGraph nindamosGraph = new RoomGraph("Nindamos");
+            nindamosGraph.ScalingFactor = 100;
+            _graphs[MapType.Nindamos] = nindamosGraph;
+
+            _nindamosVillageCenter = AddRoom("Village Center");
+            nindamosGraph.Rooms[_nindamosVillageCenter] = new System.Windows.Point(8, 4);
+
+            Room oSandstoneNorth1 = AddRoom("Sandstone");
+            AddBidirectionalExits(oSandstoneNorth1, _nindamosVillageCenter, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandstoneNorth1] = new System.Windows.Point(8, 3);
+
+            Room oSandstoneNorth2 = AddRoom("Sandstone");
+            AddBidirectionalExits(oSandstoneNorth2, oSandstoneNorth1, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandstoneNorth2] = new System.Windows.Point(8, 2);
+
+            Room oSandyPath1 = AddRoom("Sandy Path");
+            AddBidirectionalExits(oSandstoneNorth2, oSandyPath1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandyPath1] = new System.Windows.Point(8.75, 2);
+
+            Room oSandyPath2 = AddRoom("Sandy Path");
+            AddBidirectionalExits(oSandyPath1, oSandyPath2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandyPath2] = new System.Windows.Point(9.5, 2);
+
+            Room oSandyPath3 = AddRoom("Sandy Path");
+            AddBidirectionalExits(oSandyPath2, oSandyPath3, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyPath3] = new System.Windows.Point(9.5, 2.3);
+
+            Room oMarketplace = AddRoom("Marketplace");
+            Exit e = AddExit(oSandyPath3, oMarketplace, "door");
+            e.PreCommand = "open door";
+            AddExit(oMarketplace, oSandyPath3, "door");
+            nindamosGraph.Rooms[oMarketplace] = new System.Windows.Point(9.5, 2.6);
+
+            Room oSmithy = AddRoom("Smithy");
+            AddBidirectionalExits(oSmithy, oMarketplace, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSmithy] = new System.Windows.Point(8.5, 2.6);
+
+            Room oSandstoneDrivel = AddRoom("Drivel/Sandstone");
+            AddBidirectionalExits(oSandstoneDrivel, oSandstoneNorth2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandstoneDrivel] = new System.Windows.Point(8, 1);
+
+            Room oSandstoneSouth1 = AddRoom("Sandstone");
+            AddBidirectionalExits(_nindamosVillageCenter, oSandstoneSouth1, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandstoneSouth1] = new System.Windows.Point(8, 5);
+
+            Room oSandstoneSouth2 = AddRoom("Sandstone");
+            AddBidirectionalExits(oSandstoneSouth1, oSandstoneSouth2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandstoneSouth2] = new System.Windows.Point(8, 6);
+
+            Room oKKsIronWorksKosta = AddRoom("Kosta");
+            AddExit(oSandstoneSouth2, oKKsIronWorksKosta, "path");
+            AddExit(oKKsIronWorksKosta, oSandstoneSouth2, "out");
+            nindamosGraph.Rooms[oKKsIronWorksKosta] = new System.Windows.Point(7, 6);
+
+            Room oKauka = AddRoom("Kauka");
+            AddExit(oKKsIronWorksKosta, oKauka, "doorway");
+            AddExit(oKauka, oKKsIronWorksKosta, "out");
+            nindamosGraph.Rooms[oKauka] = new System.Windows.Point(7, 7);
+
+            Room oLimestoneSandstone = AddRoom("Limestone/Sandstone");
+            AddBidirectionalExits(oSandstoneSouth2, oLimestoneSandstone, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oLimestoneSandstone] = new System.Windows.Point(8, 7);
+
+            Room oDrivel1 = AddRoom("Drivel");
+            AddBidirectionalExits(oSandstoneDrivel, oDrivel1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oDrivel1] = new System.Windows.Point(9, 1);
+
+            Room oDrivel2 = AddRoom("Drivel");
+            AddBidirectionalExits(oDrivel1, oDrivel2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oDrivel2] = new System.Windows.Point(10, 1);
+
+            Room oDrivelElysia = AddRoom("Drivel/Elysia");
+            AddBidirectionalExits(oDrivel2, oDrivelElysia, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oDrivelElysia] = new System.Windows.Point(11, 1);
+
+            Room oSandyBeach1 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oDrivelElysia, oSandyBeach1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandyBeach1] = new System.Windows.Point(12, 1);
+
+            Room oPaledasenta1 = AddRoom("Paledasenta");
+            AddBidirectionalExits(_nindamosVillageCenter, oPaledasenta1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oPaledasenta1] = new System.Windows.Point(9, 4);
+
+            Room oNindamosPostOffice = AddRoom("Post Office");
+            AddExit(oPaledasenta1, oNindamosPostOffice, "south");
+            AddExit(oNindamosPostOffice, oPaledasenta1, "out");
+            nindamosGraph.Rooms[oNindamosPostOffice] = new System.Windows.Point(9, 5);
+
+            Room oPaledasenta2 = AddRoom("Paledasenta");
+            AddBidirectionalExits(oPaledasenta1, oPaledasenta2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oPaledasenta2] = new System.Windows.Point(10, 4);
+
+            Room oHealthCenter = AddRoom("Health Center");
+            oHealthCenter.IsHealingRoom = true;
+            AddBidirectionalExits(oHealthCenter, oPaledasenta2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oHealthCenter] = new System.Windows.Point(10, 3.5);
+
+            Room oPaledasentaElysia = AddRoom("Paledasenta/Elysia");
+            AddBidirectionalExits(oPaledasenta2, oPaledasentaElysia, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oPaledasentaElysia] = new System.Windows.Point(11, 4);
+
+            Room oSandyBeach4 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oPaledasentaElysia, oSandyBeach4, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandyBeach4] = new System.Windows.Point(12, 4);
+
+            Room oLimestone1 = AddRoom("Limestone");
+            AddBidirectionalExits(oLimestoneSandstone, oLimestone1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oLimestone1] = new System.Windows.Point(9, 7);
+
+            Room oSandPlaygroundSW = AddRoom("Sand Playground"); //Malika
+            AddBidirectionalExits(oSandPlaygroundSW, oLimestone1, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandPlaygroundSW] = new System.Windows.Point(9, 6.5);
+
+            Room oSandPlaygroundNW = AddRoom("Sand Playground");
+            AddBidirectionalExits(oSandPlaygroundNW, oSandPlaygroundSW, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandPlaygroundNW] = new System.Windows.Point(9, 6);
+
+            Room oSandPlaygroundNE = AddRoom("Sand Playground");
+            AddBidirectionalExits(oSandPlaygroundNW, oSandPlaygroundNE, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandPlaygroundNE] = new System.Windows.Point(10, 6);
+
+            Room oSandPlaygroundSE = AddRoom("Sand Playground");
+            AddBidirectionalExits(oSandPlaygroundNE, oSandPlaygroundSE, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandPlaygroundSW, oSandPlaygroundSE, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandPlaygroundSE] = new System.Windows.Point(10, 6.5);
+
+            Room oSandcastle = AddRoom("Sandcastle"); //sobbing girl
+            AddExit(oSandPlaygroundNE, oSandcastle, "sandcastle");
+            AddExit(oSandcastle, oSandPlaygroundNE, "out");
+            nindamosGraph.Rooms[oSandcastle] = new System.Windows.Point(10, 5.5);
+
+            Room oLimestone2 = AddRoom("Limestone");
+            AddBidirectionalExits(oLimestone1, oLimestone2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oLimestone2] = new System.Windows.Point(10, 7);
+
+            Room oLimestoneElysia = AddRoom("Limestone/Elysia"); //Numenorean Warder
+            AddBidirectionalExits(oLimestone2, oLimestoneElysia, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oLimestoneElysia] = new System.Windows.Point(11, 7);
+
+            Room oSandyBeach7 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oLimestoneElysia, oSandyBeach7, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSandyBeach7] = new System.Windows.Point(12, 7);
+
+            Room oSandyBeach2 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeach1, oSandyBeach2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeach2] = new System.Windows.Point(12, 2);
+
+            Room oSandyBeach3 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeach2, oSandyBeach3, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandyBeach3, oSandyBeach4, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeach3] = new System.Windows.Point(12, 3);
+
+            Room oSandyBeach5 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeach4, oSandyBeach5, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeach5] = new System.Windows.Point(12, 5);
+
+            Room oSandyBeach6 = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeach5, oSandyBeach6, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandyBeach6, oSandyBeach7, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeach6] = new System.Windows.Point(12, 6);
+
+            Room oSandyBeachNorth = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeachNorth, oSandyBeach1, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeachNorth] = new System.Windows.Point(12, 0);
+
+            Room oSandyBeachSouth = AddRoom("Sandy Beach");
+            AddBidirectionalExits(oSandyBeach7, oSandyBeachSouth, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oSandyBeachSouth] = new System.Windows.Point(12, 8);
+
+            Room oShoreline1 = AddRoom("Shoreline");
+            AddBidirectionalExits(oSandyBeachNorth, oShoreline1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oShoreline1] = new System.Windows.Point(13, 0);
+
+            Room oShoreline2 = AddRoom("Shoreline");
+            AddBidirectionalExits(oSandyBeach1, oShoreline2, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oShoreline1, oShoreline2, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline2] = new System.Windows.Point(13, 1);
+
+            Room oShoreline3 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline2, oShoreline3, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline3] = new System.Windows.Point(13, 2);
+
+            Room oShoreline4 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline3, oShoreline4, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline4] = new System.Windows.Point(13, 3);
+
+            Room oShoreline5 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline4, oShoreline5, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandyBeach4, oShoreline5, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oShoreline5] = new System.Windows.Point(13, 4);
+
+            Room oShoreline6 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline5, oShoreline6, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline6] = new System.Windows.Point(13, 5);
+
+            Room oShoreline7 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline6, oShoreline7, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline7] = new System.Windows.Point(13, 6);
+
+            Room oShoreline8 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline7, oShoreline8, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oShoreline8] = new System.Windows.Point(13, 7);
+
+            Room oShoreline9 = AddRoom("Shoreline");
+            AddBidirectionalExits(oShoreline8, oShoreline9, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandyBeachSouth, oShoreline9, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oShoreline9] = new System.Windows.Point(13, 8);
+
+            Room oElysia1 = AddRoom("Elysia");
+            AddBidirectionalExits(oDrivelElysia, oElysia1, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oElysia1] = new System.Windows.Point(11, 2);
+
+            Room oElysia2 = AddRoom("Elysia");
+            AddBidirectionalExits(oElysia1, oElysia2, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oElysia2, oPaledasentaElysia, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oElysia2] = new System.Windows.Point(11, 3);
+
+            Room oHestasMarket = AddRoom("Hesta");
+            AddExit(oElysia2, oHestasMarket, "market");
+            AddExit(oHestasMarket, oElysia2, "out");
+            nindamosGraph.Rooms[oHestasMarket] = new System.Windows.Point(10, 3);
+
+            Room oElysia3 = AddRoom("Elysia");
+            AddBidirectionalExits(oPaledasentaElysia, oElysia3, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oElysia3] = new System.Windows.Point(11, 5);
+
+            Room oElysia4 = AddRoom("Elysia");
+            AddBidirectionalExits(oElysia3, oElysia4, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oElysia4, oLimestoneElysia, BidirectionalExitType.NorthSouth);
+            nindamosGraph.Rooms[oElysia4] = new System.Windows.Point(11, 6);
+
+            Room oGranitePath1 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath1, _nindamosVillageCenter, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oGranitePath1] = new System.Windows.Point(7, 4);
+
+            Room oGranitePath2 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath2, oGranitePath1, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oGranitePath2] = new System.Windows.Point(6, 4);
+
+            Room oAlasse = AddRoom("Alasse");
+            AddExit(oGranitePath2, oAlasse, "south");
+            AddExit(oAlasse, oGranitePath2, "out");
+            nindamosGraph.Rooms[oAlasse] = new System.Windows.Point(6, 5);
+
+            Room oGranitePath3 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath3, oGranitePath2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oGranitePath3] = new System.Windows.Point(5, 4);
+
+            Room oGranitePath4 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath4, oGranitePath3, BidirectionalExitType.SoutheastNorthwest);
+            nindamosGraph.Rooms[oGranitePath4] = new System.Windows.Point(4, 3);
+
+            Room oGranitePath5 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath5, oGranitePath4, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oGranitePath5] = new System.Windows.Point(3, 3);
+
+            Room oGranitePath6 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath6, oGranitePath5, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oGranitePath6] = new System.Windows.Point(2, 3);
+
+            Room oGranitePath7 = AddRoom("Granite Path");
+            AddBidirectionalExits(oGranitePath7, oGranitePath6, BidirectionalExitType.SoutheastNorthwest);
+            nindamosGraph.Rooms[oGranitePath7] = new System.Windows.Point(1, 2);
+
+            Room oSouthernJunction = AddRoom("Southern Junction");
+            AddBidirectionalExits(oSouthernJunction, oGranitePath7, BidirectionalExitType.SoutheastNorthwest);
+            //CSRTODO: northeast
+            //CSRTODO: southwest
+            //CSRTODO: west
+            nindamosGraph.Rooms[oSouthernJunction] = new System.Windows.Point(0, 1);
         }
 
         private Room AddRoom(string roomName)
@@ -2824,7 +3093,8 @@ namespace IsengardClient
         Imladris,
         ImladrisToTharbad,
         ShantyTown,
-        Tharbad
+        Tharbad,
+        Nindamos,
     }
 
     internal class MapComputation
