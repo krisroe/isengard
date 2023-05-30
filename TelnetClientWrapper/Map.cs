@@ -2891,7 +2891,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oGranitePath2] = new System.Windows.Point(6, 4);
 
             Room oAlasse = AddRoom("Alasse");
-            AddExit(oGranitePath2, oAlasse, "south");
+            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oGranitePath2, oAlasse, "south", null));
             AddExit(oAlasse, oGranitePath2, "out");
             nindamosGraph.Rooms[oAlasse] = new System.Windows.Point(6, 5);
 
