@@ -809,6 +809,11 @@ namespace IsengardClient
             _commandResult = CommandResult.CommandUnsuccessfulAlways;
         }
 
+        private void OnBlocksYourExit()
+        {
+            _commandResult = CommandResult.CommandUnsuccessfulAlways;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<int> currentOutputItemData = new List<int>();
@@ -842,6 +847,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
                 new ConstantOutputSequence("You can't go that way.", OnCantMoveThatWay, ConstantSequenceMatchType.FirstLineExactMatch),
+                new ConstantOutputSequence(" blocks your exit.", OnBlocksYourExit, ConstantSequenceMatchType.FirstLineContains),
             };
 
             while (true)

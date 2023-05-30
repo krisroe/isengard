@@ -81,6 +81,9 @@ namespace IsengardClient
                     case ConstantSequenceMatchType.Contains:
                         match = Line.Contains(_characters);
                         break;
+                    case ConstantSequenceMatchType.FirstLineContains:
+                        match = lineIndex == 0 && Line.Contains(_characters);
+                        break;
                     default:
                         throw new InvalidOperationException();
                 }
@@ -99,6 +102,7 @@ namespace IsengardClient
         FirstLineExactMatch,
         StartsWith,
         Contains,
+        FirstLineContains,
     }
 
     internal class ConstantSequence
