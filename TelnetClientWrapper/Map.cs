@@ -65,9 +65,9 @@ namespace IsengardClient
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside);
             AddEastOfImladris(oEastGateOfImladrisOutside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
-            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
+            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph);
             AddWestOfTharbad(tharbadWestGateOutside);
-            AddMithlond(boatswain);
+            AddMithlond(boatswain, tharbadDocks, tharbadGraph);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
@@ -224,7 +224,7 @@ namespace IsengardClient
             AddLocation(_aMisc, oPrehistoricJungle);
         }
 
-        private void AddMithlond(Room boatswain)
+        private void AddMithlond(Room boatswain, Room tharbadDocks, RoomGraph tharbadGraph)
         {
             RoomGraph mithlondGraph = new RoomGraph("Mithlond");
             _graphs[MapType.Mithlond] = mithlondGraph;
@@ -250,6 +250,11 @@ namespace IsengardClient
             Room oHarbringerSlip = AddRoom("Harbringer Slip");
             AddBidirectionalExits(oOmaniPrincessSlip, oHarbringerSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oHarbringerSlip] = new System.Windows.Point(2, 8);
+
+            Room oHarbringerGangplank = AddRoom("Gangplank");
+            AddExit(oHarbringerSlip, oHarbringerGangplank, "gangplank");
+            AddExit(oHarbringerGangplank, oHarbringerSlip, "pier");
+            mithlondGraph.Rooms[oHarbringerGangplank] = new System.Windows.Point(3, 8);
 
             Room oMithlondPort = AddRoom("Mithlond Port");
             AddExit(oCelduinExpressSlip, oMithlondPort, "north");
@@ -308,6 +313,65 @@ namespace IsengardClient
             Room oMithlondGateOutside = AddRoom("Gate Outside");
             AddBidirectionalSameNameExit(oMithlondGateInside, oMithlondGateOutside, "gate");
             mithlondGraph.Rooms[oMithlondGateOutside] = new System.Windows.Point(2, 0);
+
+            AddHarbringer(mithlondGraph, oHarbringerGangplank, tharbadDocks, tharbadGraph);
+        }
+
+        /// <summary>
+        /// harbringer allows travel from Tharbad to Mithlond (but not the reverse?)
+        /// </summary>
+        private void AddHarbringer(RoomGraph mithlondGraph, Room mithlondEntrance, Room tharbadDocks, RoomGraph tharbadGraph)
+        {
+            Room oHarbringerTop = AddRoom("Bluejacket");
+            mithlondGraph.Rooms[oHarbringerTop] = new System.Windows.Point(4.5, 5.5);
+
+            Room oHarbringerWest1 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerTop, oHarbringerWest1, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oHarbringerWest1] = new System.Windows.Point(4, 6);
+
+            Room oHarbringerEast1 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerTop, oHarbringerEast1, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oHarbringerWest1, oHarbringerEast1, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oHarbringerEast1] = new System.Windows.Point(5, 6);
+
+            Room oHarbringerMithlondEntrance = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerWest1, oHarbringerMithlondEntrance, BidirectionalExitType.NorthSouth);
+            Exit e = AddExit(mithlondEntrance, oHarbringerMithlondEntrance, "ship");
+            e.Periodic = true;
+            e = AddExit(oHarbringerMithlondEntrance, mithlondEntrance, "gangplank");
+            e.Periodic = true;
+            e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
+            e.Periodic = true;
+            mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(4, 6.5);
+            tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(0, 9);
+
+            Room oHarbringerEast2 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerMithlondEntrance, oHarbringerEast2, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oHarbringerEast1, oHarbringerEast2, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oHarbringerEast2] = new System.Windows.Point(5, 6.5);
+
+            Room oHarbringerWest3 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerMithlondEntrance, oHarbringerWest3, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oHarbringerWest3] = new System.Windows.Point(4, 7);
+
+            Room oHarbringerEast3 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerEast2, oHarbringerEast3, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oHarbringerWest3, oHarbringerEast3, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oHarbringerEast3] = new System.Windows.Point(5, 7);
+
+            Room oHarbringerWest4 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerWest3, oHarbringerWest4, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oHarbringerWest4] = new System.Windows.Point(4, 7.5);
+
+            Room oHarbringerEast4 = AddRoom("Harbringer");
+            AddBidirectionalExits(oHarbringerEast3, oHarbringerEast4, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oHarbringerWest4, oHarbringerEast4, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oHarbringerEast4] = new System.Windows.Point(5, 7.5);
+
+            Room oKralle = AddRoom("Kralle");
+            AddBidirectionalExits(oHarbringerWest4, oKralle, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oHarbringerEast4, oKralle, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oKralle] = new System.Windows.Point(4.5, 8);
         }
 
         public AdjacencyGraph<Room, Exit> MapGraph
@@ -342,9 +406,9 @@ namespace IsengardClient
             }
         }
 
-        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside)
+        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph)
         {
-            RoomGraph tharbadGraph = new RoomGraph("Tharbad");
+            tharbadGraph = new RoomGraph("Tharbad");
             tharbadGraph.ScalingFactor = 100;
             _graphs[MapType.Tharbad] = tharbadGraph;
 
@@ -469,7 +533,7 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(tharbadWestGateInside, tharbadWestGateOutside, "gate");
             tharbadGraph.Rooms[tharbadWestGateOutside] = new System.Windows.Point(-1, 8);
 
-            Room tharbadDocks = AddRoom("Docks");
+            tharbadDocks = AddRoom("Docks");
             AddBidirectionalExits(tharbadWestGateOutside, tharbadDocks, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[tharbadDocks] = new System.Windows.Point(-1, 9);
 
@@ -2943,6 +3007,16 @@ namespace IsengardClient
             Room oShoreline8 = AddRoom("Shoreline");
             AddBidirectionalExits(oShoreline7, oShoreline8, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oShoreline8] = new System.Windows.Point(13, 7);
+
+            Room oSmallDock = AddRoom("Small Dock");
+            Exit e = AddExit(oShoreline8, oSmallDock, "east");
+            e.Hidden = true;
+            AddExit(oSmallDock, oShoreline8, "west");
+            nindamosGraph.Rooms[oSmallDock] = new System.Windows.Point(14, 7);
+
+            Room oSmallDock2 = AddRoom("Small Dock");
+            AddBidirectionalExits(oSmallDock, oSmallDock2, BidirectionalExitType.WestEast);
+            nindamosGraph.Rooms[oSmallDock2] = new System.Windows.Point(15, 7);
 
             Room oShoreline9 = AddRoom("Shoreline");
             AddBidirectionalExits(oShoreline8, oShoreline9, BidirectionalExitType.NorthSouth);
