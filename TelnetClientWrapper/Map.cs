@@ -14,8 +14,6 @@ namespace IsengardClient
         private RoomGraph _breeStreetsGraph;
 
         private List<Tuple<Room, Room, string, string>> _nightEdgeList = new List<Tuple<Room, Room, string, string>>();
-        private Room _breeDocks = null;
-        private Room _boatswain = null;
         private Room _spindrilsCastleOutside;
         private Room _spindrilsCastleInside;
         private Room _treeOfLife = null;
@@ -664,7 +662,7 @@ namespace IsengardClient
             breeStreets[5, 0] = AddRoom("Thalion"); //6x1
             breeStreets[6, 0] = AddRoom("Thalion"); //7x1
             breeStreets[7, 0] = AddRoom("Thalion/Main"); //8x1
-            _breeDocks = breeStreets[9, 0] = AddRoom("Docks"); //10x1
+            Room breeDocks = breeStreets[9, 0] = AddRoom("Docks"); //10x1
             oSewerPipeExit = breeStreets[10, 0] = AddRoom("Thalion/Crissaegrim"); //11x1
             breeStreets[11, 0] = AddRoom("Thalion"); //12x1
             breeStreets[12, 0] = AddRoom("Thalion"); //13x1
@@ -969,10 +967,15 @@ namespace IsengardClient
             AddExit(oScranlin, oScranlinThreshold, "out");
             _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
-            _boatswain = AddRoom("Boatswain");
-            _boatswain.Mob1 = "Boatswain";
-            _boatswain.Experience1 = 350;
-            AddLocation(_aShips, _boatswain);
+            Room boatswain = AddRoom("Boatswain");
+            boatswain.Mob1 = "Boatswain";
+            boatswain.Experience1 = 350;
+            _breeStreetsGraph.Rooms[boatswain] = new System.Windows.Point(9, 9.5);
+            AddLocation(_aShips, boatswain);
+            e = AddExit(breeDocks, boatswain, "steamboat");
+            e.Periodic = true;
+            e = AddExit(boatswain, breeDocks, "dock");
+            e.Periodic = true;
 
             Room oPearlAlley = AddRoom("Pearl Alley");
             AddExit(oBreeTownSquare, oPearlAlley, "alley");
@@ -4081,23 +4084,6 @@ namespace IsengardClient
                     e.PreCommand = nextExitInfo.Item4;
                     _nightEdges.Add(e);
                 }
-            }
-        }
-
-        public void SetCelduinExpressEdges(string selectedItem)
-        {
-            foreach (Exit e in _celduinExpressEdges)
-            {
-                _map.RemoveEdge(e);
-            }
-            if (selectedItem == "Bree")
-            {
-                _celduinExpressEdges.Add(AddExit(_breeDocks, _boatswain, "steamboat"));
-                _celduinExpressEdges.Add(AddExit(_boatswain, _breeDocks, "dock"));
-            }
-            else
-            {
-                _celduinExpressEdges.Clear();
             }
         }
 

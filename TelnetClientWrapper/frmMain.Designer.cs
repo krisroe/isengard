@@ -101,6 +101,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnGraph = new System.Windows.Forms.Button();
             this.btnClearCurrentLocation = new System.Windows.Forms.Button();
             this.grpSingleMove = new System.Windows.Forms.GroupBox();
             this.btnExitSingleMove = new System.Windows.Forms.Button();
@@ -127,8 +128,6 @@
             this.btnManaSet = new System.Windows.Forms.Button();
             this.txtMana = new System.Windows.Forms.TextBox();
             this.lblMana = new System.Windows.Forms.Label();
-            this.cboCelduinExpress = new System.Windows.Forms.ComboBox();
-            this.lblCelduinExpressLocation = new System.Windows.Forms.Label();
             this.btnRemoveAll = new System.Windows.Forms.Button();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.btnStunMob = new System.Windows.Forms.Button();
@@ -167,7 +166,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.btnGraph = new System.Windows.Forms.Button();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -426,7 +424,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(611, 520);
+            this.btnAbort.Location = new System.Drawing.Point(611, 460);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(116, 21);
@@ -449,7 +447,7 @@
             // txtCurrentRoom
             // 
             this.txtCurrentRoom.Enabled = false;
-            this.txtCurrentRoom.Location = new System.Drawing.Point(512, 470);
+            this.txtCurrentRoom.Location = new System.Drawing.Point(512, 410);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
             this.txtCurrentRoom.Size = new System.Drawing.Size(216, 20);
@@ -458,7 +456,7 @@
             // lblCurrentRoom
             // 
             this.lblCurrentRoom.AutoSize = true;
-            this.lblCurrentRoom.Location = new System.Drawing.Point(442, 473);
+            this.lblCurrentRoom.Location = new System.Drawing.Point(442, 413);
             this.lblCurrentRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCurrentRoom.Name = "lblCurrentRoom";
             this.lblCurrentRoom.Size = new System.Drawing.Size(70, 13);
@@ -766,7 +764,7 @@
             // grpOneClickMacros
             // 
             this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
-            this.grpOneClickMacros.Location = new System.Drawing.Point(4, 495);
+            this.grpOneClickMacros.Location = new System.Drawing.Point(5, 462);
             this.grpOneClickMacros.Name = "grpOneClickMacros";
             this.grpOneClickMacros.Size = new System.Drawing.Size(601, 111);
             this.grpOneClickMacros.TabIndex = 65;
@@ -977,8 +975,6 @@
             this.pnlMain.Controls.Add(this.btnManaSet);
             this.pnlMain.Controls.Add(this.txtMana);
             this.pnlMain.Controls.Add(this.lblMana);
-            this.pnlMain.Controls.Add(this.cboCelduinExpress);
-            this.pnlMain.Controls.Add(this.lblCelduinExpressLocation);
             this.pnlMain.Controls.Add(this.btnRemoveAll);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
@@ -1036,9 +1032,19 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // btnGraph
+            // 
+            this.btnGraph.Location = new System.Drawing.Point(429, 137);
+            this.btnGraph.Name = "btnGraph";
+            this.btnGraph.Size = new System.Drawing.Size(92, 24);
+            this.btnGraph.TabIndex = 119;
+            this.btnGraph.Text = "Graph";
+            this.btnGraph.UseVisualStyleBackColor = true;
+            this.btnGraph.Click += new System.EventHandler(this.btnGraph_Click);
+            // 
             // btnClearCurrentLocation
             // 
-            this.btnClearCurrentLocation.Location = new System.Drawing.Point(611, 495);
+            this.btnClearCurrentLocation.Location = new System.Drawing.Point(611, 435);
             this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
             this.btnClearCurrentLocation.Size = new System.Drawing.Size(116, 21);
@@ -1062,7 +1068,7 @@
             this.grpSingleMove.Controls.Add(this.btnSoutheast);
             this.grpSingleMove.Controls.Add(this.btnSouth);
             this.grpSingleMove.Controls.Add(this.btnSouthwest);
-            this.grpSingleMove.Location = new System.Drawing.Point(542, 612);
+            this.grpSingleMove.Location = new System.Drawing.Point(543, 579);
             this.grpSingleMove.Name = "grpSingleMove";
             this.grpSingleMove.Size = new System.Drawing.Size(181, 168);
             this.grpSingleMove.TabIndex = 117;
@@ -1283,7 +1289,7 @@
             "3",
             "2",
             "1"});
-            this.cboMaxOffLevel.Location = new System.Drawing.Point(354, 425);
+            this.cboMaxOffLevel.Location = new System.Drawing.Point(360, 436);
             this.cboMaxOffLevel.Margin = new System.Windows.Forms.Padding(2);
             this.cboMaxOffLevel.Name = "cboMaxOffLevel";
             this.cboMaxOffLevel.Size = new System.Drawing.Size(98, 21);
@@ -1292,7 +1298,7 @@
             // lblMaxOffensiveLevel
             // 
             this.lblMaxOffensiveLevel.AutoSize = true;
-            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(286, 428);
+            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(286, 439);
             this.lblMaxOffensiveLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
             this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(70, 13);
@@ -1329,31 +1335,6 @@
             this.lblMana.TabIndex = 92;
             this.lblMana.Text = "Mana:";
             this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cboCelduinExpress
-            // 
-            this.cboCelduinExpress.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboCelduinExpress.FormattingEnabled = true;
-            this.cboCelduinExpress.Items.AddRange(new object[] {
-            "At Sea",
-            "Bree",
-            "Mithlond"});
-            this.cboCelduinExpress.Location = new System.Drawing.Point(611, 426);
-            this.cboCelduinExpress.Margin = new System.Windows.Forms.Padding(2);
-            this.cboCelduinExpress.Name = "cboCelduinExpress";
-            this.cboCelduinExpress.Size = new System.Drawing.Size(119, 21);
-            this.cboCelduinExpress.TabIndex = 80;
-            this.cboCelduinExpress.SelectedIndexChanged += new System.EventHandler(this.cboCelduinExpress_SelectedIndexChanged);
-            // 
-            // lblCelduinExpressLocation
-            // 
-            this.lblCelduinExpressLocation.AutoSize = true;
-            this.lblCelduinExpressLocation.Location = new System.Drawing.Point(524, 429);
-            this.lblCelduinExpressLocation.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblCelduinExpressLocation.Name = "lblCelduinExpressLocation";
-            this.lblCelduinExpressLocation.Size = new System.Drawing.Size(85, 13);
-            this.lblCelduinExpressLocation.TabIndex = 90;
-            this.lblCelduinExpressLocation.Text = "Celduin Express:";
             // 
             // btnRemoveAll
             // 
@@ -1777,16 +1758,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // btnGraph
-            // 
-            this.btnGraph.Location = new System.Drawing.Point(429, 137);
-            this.btnGraph.Name = "btnGraph";
-            this.btnGraph.Size = new System.Drawing.Size(92, 24);
-            this.btnGraph.TabIndex = 119;
-            this.btnGraph.Text = "Graph";
-            this.btnGraph.UseVisualStyleBackColor = true;
-            this.btnGraph.Click += new System.EventHandler(this.btnGraph_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1914,8 +1885,6 @@
         private System.Windows.Forms.Button btnStunMob;
         private System.Windows.Forms.Button btnLevel3OffensiveSpell;
         private System.Windows.Forms.Button btnRemoveAll;
-        private System.Windows.Forms.Label lblCelduinExpressLocation;
-        private System.Windows.Forms.ComboBox cboCelduinExpress;
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
         private System.Windows.Forms.TextBox txtMana;

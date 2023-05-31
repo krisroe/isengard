@@ -515,8 +515,8 @@ namespace IsengardClient
 
     internal class RoomTransitionSequence : IOutputProcessingSequence
     {
-        private Action<RoomTransitionType, string> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionType, string> onSatisfied)
+        private Action<RoomTransitionType, string, List<string>> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionType, string, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -562,7 +562,29 @@ namespace IsengardClient
                 sNextLine = Lines[nextLineIndex];
                 if (sNextLine.StartsWith("Obvious exits: "))
                 {
-                    _onSatisfied(rtType, sRoomName);
+                    sNextLine = sNextLine.Substring("Obvious exits: ".Length);
+                    StringBuilder sbExits = new StringBuilder();
+                    while (true)
+                    {
+                        if (sNextLine.Contains("."))
+                        {
+                            sNextLine = sNextLine.Substring(0, sNextLine.IndexOf("."));
+                            sbExits.Append(sNextLine);
+                            break;
+                        }
+                        else
+                        {
+                            sbExits.Append(sNextLine);
+                            nextLineIndex++;
+                            sNextLine = Lines[nextLineIndex];
+                        }
+                    }
+                    string allExits = sbExits.ToString().Replace(" ", string.Empty);
+                    string[] allExitsList = allExits.Split(',');
+                    List<string> allExitsList2 = new List<string>();
+                    allExitsList2.AddRange(allExitsList);
+
+                    _onSatisfied(rtType, sRoomName, allExitsList2);
                 }
             }
         }

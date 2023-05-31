@@ -75,6 +75,8 @@ namespace IsengardClient
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
+        private Exit _currentBackgroundExit;
+        private List<string> _currentObviousExits;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -161,7 +163,6 @@ namespace IsengardClient
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
-            cboCelduinExpress.SelectedIndex = 0;
             cboMaxOffLevel.SelectedIndex = 0;
 
             DoConnect();
@@ -763,10 +764,11 @@ namespace IsengardClient
             _waitSeconds = 0;
         }
 
-        private void OnRoomTransition(RoomTransitionType rtType, string roomName)
+        private void OnRoomTransition(RoomTransitionType rtType, string roomName, List<string> obviousExits)
         {
             _commandResult = CommandResult.CommandSuccessful;
             _waitSeconds = 0;
+            _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
                 _fleeing = false;
@@ -1476,6 +1478,7 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
+            CommandResult? currentResult;
 
             int maxAttempts = 20;
             int currentAttempts;
@@ -1559,6 +1562,51 @@ namespace IsengardClient
                 WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 foreach (Exit nextExit in pms.Exits)
                 {
+                    _currentBackgroundExit = nextExit;
+
+                    //for periodic exits, verify the exit actually exists
+                    if (nextExit.Periodic)
+                    {
+                        bool foundExit = false;
+                        do
+                        {
+                            _currentObviousExits = null;
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            _commandResult = null;
+                            SendCommand("look", false);
+                            pms.CommandsRun++;
+                            while (true)
+                            {
+                                currentResult = _commandResult;
+                                if (currentResult.HasValue) break;
+                                Thread.Sleep(50);
+                                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                            }
+                            if (currentResult.HasValue)
+                            {
+                                if (currentResult.Value == CommandResult.CommandSuccessful)
+                                {
+                                    if (_currentObviousExits.Contains(nextExit.ExitText))
+                                    {
+                                        foundExit = true;
+                                    }
+                                    else
+                                    {
+                                        WaitUntilNextCommand(5000, false, false);
+                                    }
+                                }
+                                else //look is not supposed to fail
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        while (!foundExit);
+                    }
+
                     RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
                     string nextCommand = nextExit.ExitText;
                     if (!nextExit.OmitGo) nextCommand = "go " + nextCommand;
@@ -1571,7 +1619,6 @@ namespace IsengardClient
                         _commandResult = null;
                         SendCommand(nextCommand, false);
                         pms.CommandsRun++;
-                        CommandResult? currentResult;
                         while (true)
                         {
                             currentResult = _commandResult;
@@ -1692,7 +1739,7 @@ namespace IsengardClient
                         if (!_fleeing) break;
                         if (_bw.CancellationPending) break;
                     }
-                    CommandResult? currentResult = _commandResult;
+                    currentResult = _commandResult;
                     int waitSeconds = _waitSeconds;
                     if (currentResult.HasValue)
                     {
@@ -1728,7 +1775,7 @@ namespace IsengardClient
                         Thread.Sleep(50);
                         if (_bw.CancellationPending) break;
                     }
-                    CommandResult? currentResult = _commandResult;
+                    currentResult = _commandResult;
                     int waitSeconds = _waitSeconds;
                     if (currentResult.HasValue)
                     {
@@ -2798,11 +2845,6 @@ namespace IsengardClient
             Melee = 1,
             Magic = 2,
             Potions = 4,
-        }
-
-        private void cboCelduinExpress_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _gameMap.SetCelduinExpressEdges(cboCelduinExpress.SelectedItem.ToString());
         }
 
         private void tmr_Tick(object sender, EventArgs e)

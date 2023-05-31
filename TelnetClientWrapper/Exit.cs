@@ -33,6 +33,10 @@ namespace IsengardClient
         /// whether flee is permitted
         /// </summary>
         public bool NoFlee { get; set; }
+        /// <summary>
+        /// set to indicate the exit is periodically visible
+        /// </summary>
+        public bool Periodic { get; set; }
         public Exit(Room source, Room target, string exitText) : base(source, target)
         {
             this.ExitText = exitText;
