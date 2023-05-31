@@ -1525,13 +1525,13 @@ namespace IsengardClient
                 //cast bless if has enough mana and not currently blessed
                 List<string> spellsCast = _currentSpellsCast;
                 automp = _autoMana;
-                if (automp.HasValue && automp.Value > 8 && spellsCast != null && !spellsCast.Contains("bless"))
+                if (automp.HasValue && automp.Value >= 8 && spellsCast != null && !spellsCast.Contains("bless"))
                 {
                     CastLifeSpell("bless", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
                 }
                 //cast protection if has enough mana and not curently protected
                 automp = _autoMana;
-                if (automp.HasValue && automp.Value > 8 && spellsCast != null && !spellsCast.Contains("protection"))
+                if (automp.HasValue && automp.Value >= 8 && spellsCast != null && !spellsCast.Contains("protection"))
                 {
                     CastLifeSpell("protection", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
                 }
