@@ -57,7 +57,7 @@ namespace IsengardClient
             graphMillwoodMansion.ScalingFactor = 100;
             _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
             AddMayorMillwoodMansion(oIxell);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
             AddBreeToImladris(level, out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
@@ -67,6 +67,7 @@ namespace IsengardClient
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside);
             AddWestOfTharbad(tharbadWestGateOutside);
+            AddMithlond(boatswain);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
@@ -221,6 +222,92 @@ namespace IsengardClient
             AddLocation(_aMisc, oShroudedTunnel);
             AddLocation(_aMisc, oWildmanVillage);
             AddLocation(_aMisc, oPrehistoricJungle);
+        }
+
+        private void AddMithlond(Room boatswain)
+        {
+            RoomGraph mithlondGraph = new RoomGraph("Mithlond");
+            _graphs[MapType.Mithlond] = mithlondGraph;
+            mithlondGraph.ScalingFactor = 100;
+
+            mithlondGraph.Rooms[boatswain] = new System.Windows.Point(1, 5);
+
+            Room oCelduinExpressSlip = AddRoom("Celduin Express Slip");
+            Exit e = AddExit(boatswain, oCelduinExpressSlip, "pier");
+            e.Periodic = true;
+            e = AddExit(oCelduinExpressSlip, boatswain, "gangway");
+            e.Periodic = true;
+            mithlondGraph.Rooms[oCelduinExpressSlip] = new System.Windows.Point(2, 5);
+
+            Room oBullroarerSlip = AddRoom("Bullroarer Slip");
+            AddBidirectionalExits(oCelduinExpressSlip, oBullroarerSlip, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oBullroarerSlip] = new System.Windows.Point(2, 6);
+
+            Room oOmaniPrincessSlip = AddRoom("Omani Princess Slip");
+            AddBidirectionalExits(oBullroarerSlip, oOmaniPrincessSlip, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oOmaniPrincessSlip] = new System.Windows.Point(2, 7);
+
+            Room oHarbringerSlip = AddRoom("Harbringer Slip");
+            AddBidirectionalExits(oOmaniPrincessSlip, oHarbringerSlip, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oHarbringerSlip] = new System.Windows.Point(2, 8);
+
+            Room oMithlondPort = AddRoom("Mithlond Port");
+            AddExit(oCelduinExpressSlip, oMithlondPort, "north");
+            AddExit(oMithlondPort, oCelduinExpressSlip, "pier");
+            mithlondGraph.Rooms[oMithlondPort] = new System.Windows.Point(2, 4);
+
+            Room oEvendimTrailEnd = AddRoom("Evendim Trail");
+            AddBidirectionalExits(oMithlondPort, oEvendimTrailEnd, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oEvendimTrailEnd] = new System.Windows.Point(3, 5);
+
+            Room oMithlondPort2 = AddRoom("Mithlond Port");
+            AddBidirectionalExits(oMithlondPort2, oMithlondPort, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oMithlondPort2] = new System.Windows.Point(2, 3);
+
+            Room oMusicianSchool = AddRoom("Musician School");
+            AddBidirectionalExits(oMithlondPort2, oMusicianSchool, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oMusicianSchool] = new System.Windows.Point(3, 3);
+
+            Room oMithlondPort3 = AddRoom("Mithlond Port");
+            AddBidirectionalExits(oMithlondPort3, oMithlondPort2, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oMithlondPort3] = new System.Windows.Point(2, 2);
+
+            Room oDarkAlley = AddRoom("Dark Alley");
+            AddBidirectionalExits(oDarkAlley, oMithlondPort3, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oDarkAlley] = new System.Windows.Point(1, 2);
+
+            Room oDeadEnd = AddRoom("Dead End");
+            AddBidirectionalExits(oDeadEnd, oDarkAlley, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oDeadEnd] = new System.Windows.Point(1, 1.5);
+
+            Room oSharkey = AddRoom("Sharkey");
+            AddBidirectionalExits(oSharkey, oDeadEnd, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oSharkey] = new System.Windows.Point(0, 1.5);
+
+            Room oPicadilyAvenue = AddRoom("Picadily");
+            AddBidirectionalExits(oMithlondPort3, oPicadilyAvenue, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oPicadilyAvenue] = new System.Windows.Point(3, 2);
+
+            Room oHosuan = AddRoom("Ho-suan");
+            AddExit(oPicadilyAvenue, oHosuan, "north");
+            AddExit(oHosuan, oPicadilyAvenue, "out");
+            mithlondGraph.Rooms[oHosuan] = new System.Windows.Point(3, 1);
+
+            Room oMithlondGateInside = AddRoom("Gate Inside");
+            AddBidirectionalExits(oMithlondGateInside, oMithlondPort3, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oMithlondGateInside] = new System.Windows.Point(2, 1);
+
+            Room oGrunkillCharters = AddRoom("Grunkill Charters");
+            AddBidirectionalExits(oGrunkillCharters, oMithlondGateInside, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oGrunkillCharters] = new System.Windows.Point(1, 1);
+
+            Room oGrunkillQuarters = AddRoom("Grunkill Quarters");
+            AddBidirectionalSameNameExit(oGrunkillCharters, oGrunkillQuarters, "curtain");
+            mithlondGraph.Rooms[oGrunkillQuarters] = new System.Windows.Point(0, 1);
+
+            Room oMithlondGateOutside = AddRoom("Gate Outside");
+            AddBidirectionalSameNameExit(oMithlondGateInside, oMithlondGateOutside, "gate");
+            mithlondGraph.Rooms[oMithlondGateOutside] = new System.Windows.Point(2, 0);
         }
 
         public AdjacencyGraph<Room, Exit> MapGraph
@@ -645,7 +732,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -967,7 +1054,7 @@ namespace IsengardClient
             AddExit(oScranlin, oScranlinThreshold, "out");
             _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
-            Room boatswain = AddRoom("Boatswain");
+            boatswain = AddRoom("Boatswain");
             boatswain.Mob1 = "Boatswain";
             boatswain.Experience1 = 350;
             _breeStreetsGraph.Rooms[boatswain] = new System.Windows.Point(9, 9.5);
@@ -4149,6 +4236,7 @@ namespace IsengardClient
         ImladrisToTharbad,
         ShantyTown,
         Tharbad,
+        Mithlond,
         Nindamos,
         Armenelos,
         Eldemonde,
