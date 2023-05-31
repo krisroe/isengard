@@ -2708,7 +2708,7 @@ namespace IsengardClient
             RunMacro((Macro)cboMacros.SelectedItem, null);
         }
 
-        private void RunMacro(Macro m, Exit preExit)
+        private void RunMacro(Macro m, List<Exit> preExits)
         {
             bool isMeleeMacro = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee);
             bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
@@ -2763,10 +2763,7 @@ namespace IsengardClient
             if (stop) return;
             _currentBackgroundParameters = GenerateNewBackgroundParameters();
             _currentBackgroundParameters.Macro = m;
-            if (preExit != null)
-            {
-                _currentBackgroundParameters.Exits = new List<Exit>() { preExit };
-            }
+            _currentBackgroundParameters.Exits = preExits;
             _currentBackgroundParameters.FinalCommand = sFinalCommand;
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.UsedSkills = activatedSkills;
@@ -3284,16 +3281,16 @@ namespace IsengardClient
             }
             else
             {
-                bool hasEdges = false;
                 foreach (Exit nextEdge in edges)
                 {
                     ToolStripMenuItem tsmi = new ToolStripMenuItem();
                     tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
                     tsmi.Tag = nextEdge;
                     ctxRoomExits.Items.Add(tsmi);
-                    hasEdges = true;
                 }
-                e.Cancel = !hasEdges;
+                ToolStripMenuItem tsmiGraph = new ToolStripMenuItem();
+                tsmiGraph.Text = "Graph";
+                ctxRoomExits.Items.Add(tsmiGraph);
             }
         }
 
@@ -3309,8 +3306,24 @@ namespace IsengardClient
             }
             else //one click macro button
             {
+                List<Exit> exits;
+                if (clickedItem.Text == "Graph")
+                {
+                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true);
+                    bool? result = graphForm.ShowDialog();
+                    if (!result.GetValueOrDefault(false))
+                    {
+                        return;
+                    }
+                    exits = CalculateRouteExits(graphForm.GoToOrSelectRoom);
+                    if (exits == null) return;
+                }
+                else
+                {
+                    exits = new List<Exit>() { exit };
+                }
                 Macro m = (Macro)sourceButton.Tag;
-                RunMacro(m, exit);
+                RunMacro(m, exits);
             }
         }
 
@@ -3468,46 +3481,47 @@ namespace IsengardClient
             }
         }
 
-        private void GoToRoom(Room targetRoom)
+        private List<Exit> CalculateRouteExits(Room targetRoom)
         {
             MapComputation mc = new MapComputation(m_oCurrentRoom, targetRoom, _gameMap.MapGraph);
-
             if (!mc.PathMapping.ContainsKey(targetRoom))
             {
                 MessageBox.Show("No path to target room found.");
-                return;
+                return null;
             }
-
             List<Exit> exits = mc.GetExits();
-            NavigateExitsInBackground(targetRoom, exits);
+            exits.Reverse();
+            return exits;
+        }
+
+        private void GoToRoom(Room targetRoom)
+        {
+            List<Exit> exits = CalculateRouteExits(targetRoom);
+            if (exits != null)
+            {
+                NavigateExitsInBackground(targetRoom, exits);
+            }
         }
 
         private void NavigateExitsInBackground(Room targetRoom, List<Exit> exits)
         {
             _currentBackgroundParameters = GenerateNewBackgroundParameters();
             _currentBackgroundParameters.TargetRoom = targetRoom;
-            _currentBackgroundParameters.Exits = new List<Exit>();
-
-            List<MacroStepBase> commands = new List<MacroStepBase>();
-            for (int i = exits.Count - 1; i >= 0; i--)
-            {
-                _currentBackgroundParameters.Exits.Add(exits[i]);
-            }
-
-            RunCommands(commands, _currentBackgroundParameters);
+            _currentBackgroundParameters.Exits = exits;
+            RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
         }
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            frmGraph frm = new frmGraph(_gameMap.MapGraph, _gameMap.Graphs, m_oCurrentRoom);
+            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false);
             frm.ShowDialog();
             if (m_oCurrentRoom != frm.CurrentRoom)
             {
                 SetCurrentRoom(frm.CurrentRoom);
             }
-            if (frm.GoToRoom != null)
+            if (frm.GoToOrSelectRoom != null)
             {
-                GoToRoom(frm.GoToRoom);
+                GoToRoom(frm.GoToOrSelectRoom);
             }
         }
 

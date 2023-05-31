@@ -15,16 +15,18 @@ namespace IsengardClient
         private AdjacencyGraph<Room, Exit> _map;
         private VertexControl _currentVertexControl;
         private Dictionary<MapType, RoomGraph> _graphs;
+        private bool _forVertexSelection;
 
-        internal frmGraph(AdjacencyGraph<Room, Exit> map, Dictionary<MapType, RoomGraph> graphs, Room currentRoom)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection)
         {
             InitializeComponent();
 
-            _graphs = graphs;
+            _graphs = fullMap.Graphs;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
-            _map = map;
+            _map = fullMap.MapGraph;
             CurrentRoom = currentRoom;
+            _forVertexSelection = forVertexSelection;
 
             Dictionary<RoomGraph, ComboBoxItem> graphItems = new Dictionary<RoomGraph, ComboBoxItem>();
             foreach (MapType mt in Enum.GetValues(typeof(MapType)))
@@ -41,7 +43,7 @@ namespace IsengardClient
             if (currentRoom != null)
             {
                 txtCurrentRoom.Text = currentRoom.ToString();
-                foreach (KeyValuePair<MapType, RoomGraph> next in graphs)
+                foreach (KeyValuePair<MapType, RoomGraph> next in _graphs)
                 {
                     RoomGraph nextRoomGraph = next.Value;
                     if (nextRoomGraph.Rooms.ContainsKey(currentRoom))
@@ -53,7 +55,7 @@ namespace IsengardClient
             }
             if (startingGraph == null)
             {
-                startingGraph = graphs[0];
+                startingGraph = _graphs[0];
             }
             cboGraphs.SelectedItem = graphItems[startingGraph];
         }
@@ -98,7 +100,7 @@ namespace IsengardClient
             set;
         }
 
-        public Room GoToRoom
+        public Room GoToOrSelectRoom
         {
             get;
             set;
@@ -109,26 +111,33 @@ namespace IsengardClient
             VertexControl vc = e.Source as VertexControl;
             if (vc != null)
             {
+                Room oRoom = (Room)vc.Vertex;
                 ContextMenu ctx = new ContextMenu();
                 MenuItem mnu;
-                if (CurrentRoom != null)
+                if (CurrentRoom != oRoom)
                 {
-                    mnu = new MenuItem();
-                    mnu.Header = "Go";
-                    mnu.Click += mnuGoToRoom_Click;
-                    ctx.Items.Add(mnu);
+                    if (_forVertexSelection || CurrentRoom != null)
+                    {
+                        mnu = new MenuItem();
+                        mnu.Header = _forVertexSelection ? "Select" : "Go";
+                        mnu.Click += mnuGoToOrSelectRoom_Click;
+                        ctx.Items.Add(mnu);
+                    }
+                    if (!_forVertexSelection)
+                    {
+                        mnu = new MenuItem();
+                        mnu.Header = "Set";
+                        mnu.Click += mnuSetRoom_Click;
+                        ctx.Items.Add(mnu);
+                    }
                 }
-                mnu = new MenuItem();
-                mnu.Header = "Set";
-                mnu.Click += mnuSetRoom_Click;
-                ctx.Items.Add(mnu);
 
                 //add menu items for other graphs containing the room
                 RoomGraph currentRoomGraph = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
                 foreach (KeyValuePair<MapType, RoomGraph> next in _graphs)
                 {
                     RoomGraph rg = next.Value;
-                    if (rg != currentRoomGraph && rg.Rooms.ContainsKey((Room)vc.Vertex))
+                    if (rg != currentRoomGraph && rg.Rooms.ContainsKey(oRoom))
                     {
                         mnu = new MenuItem();
                         mnu.Header = rg.Name;
@@ -138,9 +147,16 @@ namespace IsengardClient
                     }
                 }
 
-                vc.ContextMenu = ctx;
-                vc.ContextMenuClosing += Vc_ContextMenuClosing;
-                _currentVertexControl = vc;
+                if (ctx.Items.Count == 0)
+                {
+                    e.Handled = true;
+                }
+                else
+                {
+                    vc.ContextMenu = ctx;
+                    vc.ContextMenuClosing += Vc_ContextMenuClosing;
+                    _currentVertexControl = vc;
+                }
             }
         }
 
@@ -158,9 +174,10 @@ namespace IsengardClient
             }
         }
 
-        private void mnuGoToRoom_Click(object sender, RoutedEventArgs e)
+        private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
-            GoToRoom = (Room)_currentVertexControl.Vertex;
+            GoToOrSelectRoom = (Room)_currentVertexControl.Vertex;
+            DialogResult = true;
             Close();
         }
 
