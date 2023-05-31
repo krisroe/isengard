@@ -1150,7 +1150,6 @@ namespace IsengardClient
 
             Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo");
             e = AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
-            e.OmitGo = true;
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
             _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.5);
 
@@ -1415,7 +1414,6 @@ namespace IsengardClient
             Room oLatrine = AddRoom("Latrine");
             AddExit(oTunnel, oLatrine, "south");
             e = AddExit(oLatrine, oTunnel, "north");
-            e.OmitGo = true;
             e.Hidden = true;
             breeSewersGraph.Rooms[oLatrine] = new System.Windows.Point(4, 3);
 
@@ -2242,7 +2240,6 @@ namespace IsengardClient
 
             Room oImladrisCityDump = AddRoom("City Dump");
             Exit e = AddExit(oImladrisCircle8, oImladrisCityDump, "north");
-            e.OmitGo = true;
             AddExit(oImladrisCityDump, oImladrisCircle8, "south");
             e = AddExit(oImladrisCityDump, oRearAlley, "north");
             e.Hidden = true;
@@ -3599,7 +3596,6 @@ namespace IsengardClient
                 if (i == 4)
                 {
                     hiddenPathRoom = r;
-                    e.OmitGo = true;
                 }
                 AddExit(previousRoom, r, "north");
                 previousRoom = r;
@@ -3615,7 +3611,6 @@ namespace IsengardClient
             previousRoom = r;
             r = AddRoom("Liara");
             e = AddExit(r, previousRoom, "south");
-            e.OmitGo = true;
             AddExit(previousRoom, r, "north");
             previousRoom = r;
             Room oLastLiara = r;
@@ -3688,12 +3683,10 @@ namespace IsengardClient
             Room oGrasslands9 = AddRoom("Mittalmar Grasslands");
             AddBidirectionalExits(oGrasslands9, oGrasslands4, BidirectionalExitType.WestEast);
             e = AddExit(oGrasslands8, oGrasslands9, "north");
-            e.OmitGo = true;
             AddExit(oGrasslands9, oGrasslands8, "north");
 
             Room oGrasslands10 = AddRoom("Mittalmar Grasslands");
             e = AddExit(oGrasslands4, oGrasslands10, "south");
-            e.OmitGo = true;
             AddExit(oGrasslands10, oGrasslands4, "north");
 
             Room oGrasslands11 = AddRoom("Mittalmar Grasslands");

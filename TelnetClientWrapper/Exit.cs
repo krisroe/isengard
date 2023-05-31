@@ -18,10 +18,6 @@ namespace IsengardClient
         /// </summary>
         public string ExitText { get; set; }
         /// <summary>
-        /// whether to omit go for the exit
-        /// </summary>
-        public bool OmitGo { get; set; }
-        /// <summary>
         /// command to run before using the exit
         /// </summary>
         public string PreCommand { get; set; }

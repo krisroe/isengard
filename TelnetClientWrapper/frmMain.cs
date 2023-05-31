@@ -1608,8 +1608,7 @@ namespace IsengardClient
                     }
 
                     RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
-                    string nextCommand = nextExit.ExitText;
-                    if (!nextExit.OmitGo) nextCommand = "go " + nextCommand;
+                    string nextCommand = GetExitCommand(nextExit.ExitText);
 
                     currentAttempts = 0;
                     while (currentAttempts < maxAttempts)
@@ -1791,6 +1790,30 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private string GetExitCommand(string target)
+        {
+            string ret;
+            switch (target)
+            {
+                case "north":
+                case "northeast":
+                case "northwest":
+                case "west":
+                case "east":
+                case "south":
+                case "southeast":
+                case "southwest":
+                case "up":
+                case "down":
+                    ret = target;
+                    break;
+                default:
+                    ret = "go " + target;
+                    break;
+            }
+            return ret;
         }
 
         private void RunPreExitLogic(BackgroundWorkerParameters pms, string preCommand, Room targetRoom)
@@ -2475,9 +2498,7 @@ namespace IsengardClient
             }
             if (move)
             {
-                Exit fakeExit = new Exit(null, null, command);
-                fakeExit.OmitGo = true;
-                NavigateExitsInBackground(null, new List<Exit>() { fakeExit });
+                NavigateExitsInBackground(null, new List<Exit>() { new Exit(null, null, command) });
             }
         }
 
