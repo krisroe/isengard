@@ -76,6 +76,7 @@ namespace IsengardClient
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
         private Exit _currentBackgroundExit;
+        private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
@@ -910,6 +911,20 @@ namespace IsengardClient
                         if (!string.IsNullOrEmpty(sNewLine))
                         {
                             string[] sNewLines = sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                            Exit exit = _currentBackgroundExit;
+                            if (exit != null && !string.IsNullOrEmpty(exit.WaitForMessage))
+                            {
+                                foreach (string s in sNewLines)
+                                {
+                                    if (s.StartsWith(exit.WaitForMessage))
+                                    {
+                                        _currentBackgroundExitMessageReceived = true;
+                                        break;
+                                    }
+                                }
+                            }
+
                             foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
                             {
                                 nextProcessingSequence.FeedLine(sNewLines);
@@ -1563,18 +1578,76 @@ namespace IsengardClient
                 foreach (Exit nextExit in pms.Exits)
                 {
                     _currentBackgroundExit = nextExit;
+                    _currentBackgroundExitMessageReceived = false;
 
-                    //for periodic exits, verify the exit actually exists
-                    if (nextExit.Periodic)
+                    try
                     {
-                        bool foundExit = false;
-                        do
+                        //for periodic exits, verify the exit actually exists
+                        if (nextExit.Periodic)
                         {
-                            _currentObviousExits = null;
+                            bool foundExit = false;
+                            do
+                            {
+                                _currentObviousExits = null;
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                _commandResult = null;
+                                SendCommand("look", false);
+                                pms.CommandsRun++;
+                                while (true)
+                                {
+                                    currentResult = _commandResult;
+                                    if (currentResult.HasValue) break;
+                                    Thread.Sleep(50);
+                                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                                    if (_fleeing) break;
+                                    if (_bw.CancellationPending) break;
+                                }
+                                if (currentResult.HasValue)
+                                {
+                                    if (currentResult.Value == CommandResult.CommandSuccessful)
+                                    {
+                                        if (_currentObviousExits.Contains(nextExit.ExitText))
+                                        {
+                                            foundExit = true;
+                                        }
+                                        else
+                                        {
+                                            WaitUntilNextCommand(5000, false, false);
+                                        }
+                                    }
+                                    else //look is not supposed to fail
+                                    {
+                                        return;
+                                    }
+                                }
+                            }
+                            while (!foundExit);
+                        }
+
+                        if (!string.IsNullOrEmpty(nextExit.WaitForMessage))
+                        {
+                            while (!_currentBackgroundExitMessageReceived)
+                            {
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                Thread.Sleep(50);
+                                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                            }
+                        }
+
+                        if (_fleeing) break;
+                        if (_bw.CancellationPending) break;
+                        RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
+                        string nextCommand = GetExitCommand(nextExit.ExitText);
+
+                        currentAttempts = 0;
+                        while (currentAttempts < maxAttempts)
+                        {
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             _commandResult = null;
-                            SendCommand("look", false);
+                            SendCommand(nextCommand, false);
                             pms.CommandsRun++;
                             while (true)
                             {
@@ -1589,70 +1662,33 @@ namespace IsengardClient
                             {
                                 if (currentResult.Value == CommandResult.CommandSuccessful)
                                 {
-                                    if (_currentObviousExits.Contains(nextExit.ExitText))
+                                    if (nextExit.Target != null)
                                     {
-                                        foundExit = true;
+                                        pms.TargetRoom = nextExit.Target;
+                                        pms.SetTargetRoomIfCancelled = true;
+                                        if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
+                                        {
+                                            SendCommand(nextExit.Target.PostMoveCommand, false);
+                                            pms.CommandsRun++;
+                                        }
                                     }
-                                    else
-                                    {
-                                        WaitUntilNextCommand(5000, false, false);
-                                    }
+                                    break;
                                 }
-                                else //look is not supposed to fail
+                                else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
                                 {
                                     return;
                                 }
-                            }
-                        }
-                        while (!foundExit);
-                    }
-
-                    RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
-                    string nextCommand = GetExitCommand(nextExit.ExitText);
-
-                    currentAttempts = 0;
-                    while (currentAttempts < maxAttempts)
-                    {
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                        _commandResult = null;
-                        SendCommand(nextCommand, false);
-                        pms.CommandsRun++;
-                        while (true)
-                        {
-                            currentResult = _commandResult;
-                            if (currentResult.HasValue) break;
-                            Thread.Sleep(50);
-                            RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                        }
-                        if (currentResult.HasValue)
-                        {
-                            if (currentResult.Value == CommandResult.CommandSuccessful)
-                            {
-                                if (nextExit.Target != null)
+                                else if (_waitSeconds > 1)
                                 {
-                                    pms.TargetRoom = nextExit.Target;
-                                    pms.SetTargetRoomIfCancelled = true;
-                                    if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
-                                    {
-                                        SendCommand(nextExit.Target.PostMoveCommand, false);
-                                        pms.CommandsRun++;
-                                    }
+                                    int waitMS = 500 + (1000 * (_waitSeconds - 2));
+                                    WaitUntilNextCommand(waitMS, false, false);
                                 }
-                                break;
-                            }
-                            else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
-                            {
-                                return;
-                            }
-                            else if (_waitSeconds > 1)
-                            {
-                                int waitMS = 500 + (1000 * (_waitSeconds - 2));
-                                WaitUntilNextCommand(waitMS, false, false);
                             }
                         }
+                    }
+                    finally
+                    {
+                        _currentBackgroundExit = null;
                     }
                 }
             }

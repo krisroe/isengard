@@ -382,6 +382,10 @@ namespace IsengardClient
             e.Periodic = true;
             e = AddExit(nindamosDocks, bullroarerSE, "gangway");
             e.Periodic = true;
+            e = AddExit(bullroarerSE, mithlondEntrance, "plank");
+            e.WaitForMessage = "The Bullroarer has arrived in Mithlond.";
+            e = AddExit(bullroarerSE, nindamosDocks, "plank");
+            e.WaitForMessage = "The Bullroarer has arrived in Nindamos.";
             nindamosGraph.Rooms[bullroarerSE] = new System.Windows.Point(15, 6);
             mithlondGraph.Rooms[bullroarerSE] = new System.Windows.Point(5, 5);
 

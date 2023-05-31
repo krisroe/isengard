@@ -33,6 +33,10 @@ namespace IsengardClient
         /// set to indicate the exit is periodically visible
         /// </summary>
         public bool Periodic { get; set; }
+        /// <summary>
+        /// wait for a specific message before leaving
+        /// </summary>
+        public string WaitForMessage { get; set; }
         public Exit(Room source, Room target, string exitText) : base(source, target)
         {
             this.ExitText = exitText;
