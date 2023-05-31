@@ -1449,6 +1449,10 @@ namespace IsengardClient
                 {
                     _doScore = true;
                 }
+                if (_currentBackgroundParameters.ReachedTargetRoom && !string.IsNullOrEmpty(_currentBackgroundParameters.TargetRoomMob))
+                {
+                    txtMob.Text = _currentBackgroundParameters.TargetRoomMob;
+                }
                 ToggleBackgroundProcess(false);
                 _currentBackgroundParameters = null;
             }
@@ -1625,6 +1629,7 @@ namespace IsengardClient
                             while (!foundExit);
                         }
 
+                        //for wait for message exits, wait until the message is received
                         if (!string.IsNullOrEmpty(nextExit.WaitForMessage))
                         {
                             while (!_currentBackgroundExitMessageReceived)
@@ -1638,9 +1643,14 @@ namespace IsengardClient
 
                         if (_fleeing) break;
                         if (_bw.CancellationPending) break;
+
+                        //run preexit logic
                         RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
+
+                        //determine the exit command
                         string nextCommand = GetExitCommand(nextExit.ExitText);
 
+                        bool exitSuccessful = false;
                         currentAttempts = 0;
                         while (currentAttempts < maxAttempts)
                         {
@@ -1672,6 +1682,7 @@ namespace IsengardClient
                                             pms.CommandsRun++;
                                         }
                                     }
+                                    exitSuccessful = true;
                                     break;
                                 }
                                 else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
@@ -1685,12 +1696,20 @@ namespace IsengardClient
                                 }
                             }
                         }
+                        if (!exitSuccessful)
+                        {
+                            return;
+                        }
                     }
                     finally
                     {
                         _currentBackgroundExit = null;
                     }
                 }
+
+                //if we got here that means all exits were traversed successfully
+                _currentBackgroundParameters.ReachedTargetRoom = true;
+                ((StringVariable)_currentBackgroundParameters.Variables["mob"]).Value = _currentBackgroundParameters.TargetRoomMob;
             }
 
             if (pms.Flee)
@@ -2356,12 +2375,6 @@ namespace IsengardClient
             string value = string.Empty;
             switch (objType)
             {
-                case ObjectType.Mob:
-                    txt = txtMob;
-                    break;
-                case ObjectType.Weapon:
-                    txt = txtWeapon;
-                    break;
                 case ObjectType.Wand:
                     txt = txtWand;
                     break;
@@ -2648,6 +2661,8 @@ namespace IsengardClient
             public bool Flee { get; set; }
             public bool Quit { get; set; }
             public bool DoScore { get; set; }
+            public string TargetRoomMob { get; set; }
+            public bool ReachedTargetRoom { get; set; }
 
             public IEnumerable<Variable> GetVariables()
             {
@@ -2719,8 +2734,9 @@ namespace IsengardClient
             }
 
             PromptedSkills activatedSkills = PromptedSkills.None;
+            string targetRoomMob = txtMob.Text;
 
-            if (m.DoSkills)
+            if (m.ShowPreForm)
             {
                 bool promptPowerAttack = isMeleeMacro && txtPowerAttackTime.Text == "0:00";
                 bool promptManashield = txtManashieldTime.Text == "0:00";
@@ -2729,16 +2745,16 @@ namespace IsengardClient
                 if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
                 if (promptManashield) skills |= PromptedSkills.Manashield;
 
-                if (skills != PromptedSkills.None)
+                Room targetRoom = preExits == null ? null : preExits[preExits.Count - 1].Target;
+
+                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtCurrentRoom.Text))
                 {
-                    using (frmPromptSkills frmSkills = new frmPromptSkills(skills))
+                    if (frmSkills.ShowDialog(this) != DialogResult.OK)
                     {
-                        if (frmSkills.ShowDialog(this) != DialogResult.OK)
-                        {
-                            return;
-                        }
-                        activatedSkills = frmSkills.SelectedSkills;
+                        return;
                     }
+                    activatedSkills = frmSkills.SelectedSkills;
+                    targetRoomMob = frmSkills.Mob;
                 }
             }
 
@@ -2768,6 +2784,7 @@ namespace IsengardClient
             _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
             _currentBackgroundParameters.UsedSkills = activatedSkills;
             _currentBackgroundParameters.Flee = m.Flee;
+            _currentBackgroundParameters.TargetRoomMob = targetRoomMob;
             RunCommands(stepsToRun, _currentBackgroundParameters);
         }
 
@@ -3160,6 +3177,11 @@ namespace IsengardClient
         private void txtWeapon_TextChanged(object sender, EventArgs e)
         {
             ((StringVariable)_variablesByName["weapon"]).Value = txtWeapon.Text;
+        }
+
+        private void txtMob_TextChanged(object sender, EventArgs e)
+        {
+            ((StringVariable)_variablesByName["mob"]).Value = txtWeapon.Text;
         }
 
         private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)

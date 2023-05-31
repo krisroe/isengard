@@ -447,13 +447,13 @@ namespace IsengardClient
                         }
                     }
 
-                    string sSkills = elemMacro.GetAttribute("skills");
-                    bool bSkills = false;
-                    if (!string.IsNullOrEmpty(sSkills))
+                    string sPreForm = elemMacro.GetAttribute("preform");
+                    bool bPreForm = false;
+                    if (!string.IsNullOrEmpty(sPreForm))
                     {
-                        if (!bool.TryParse(sSkills, out bSkills))
+                        if (!bool.TryParse(sPreForm, out bPreForm))
                         {
-                            errorMessages.Add("Invalid skills for " + macroName + " " + sSkills);
+                            errorMessages.Add("Invalid pre form for " + macroName + " " + sPreForm);
                             continue;
                         }
                     }
@@ -468,7 +468,7 @@ namespace IsengardClient
                     oMacro.FinalCommand2 = sFinalCommand2;
                     oMacro.Flee = bFlee;
                     oMacro.Heal = bHeal;
-                    oMacro.DoSkills = bSkills;
+                    oMacro.ShowPreForm = bPreForm;
                     List<MacroStepBase> foundSteps = ProcessStepsParentElement(elemMacro, macroName, errorMessages, variablesByName);
                     if (foundSteps == null)
                     {

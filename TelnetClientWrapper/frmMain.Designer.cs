@@ -212,6 +212,7 @@
             this.txtMob.Name = "txtMob";
             this.txtMob.Size = new System.Drawing.Size(179, 20);
             this.txtMob.TabIndex = 4;
+            this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
             // 
             // ctxMob
             // 

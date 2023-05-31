@@ -1,6 +1,6 @@
 ﻿namespace IsengardClient
 {
-    partial class frmPromptSkills
+    partial class frmPreMacroPrompt
     {
         /// <summary>
         /// Required designer variable.
@@ -33,13 +33,17 @@
             this.flp = new System.Windows.Forms.FlowLayoutPanel();
             this.chkPowerAttack = new System.Windows.Forms.CheckBox();
             this.chkManashield = new System.Windows.Forms.CheckBox();
+            this.grpSkills = new System.Windows.Forms.GroupBox();
+            this.lblMob = new System.Windows.Forms.Label();
+            this.cboMob = new System.Windows.Forms.ComboBox();
             this.flp.SuspendLayout();
+            this.grpSkills.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(53, 109);
+            this.btnOK.Location = new System.Drawing.Point(200, 198);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 1;
@@ -49,7 +53,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(134, 109);
+            this.btnCancel.Location = new System.Drawing.Point(281, 198);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -60,10 +64,11 @@
             // 
             this.flp.Controls.Add(this.chkPowerAttack);
             this.flp.Controls.Add(this.chkManashield);
+            this.flp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flp.Location = new System.Drawing.Point(12, 3);
+            this.flp.Location = new System.Drawing.Point(3, 16);
             this.flp.Name = "flp";
-            this.flp.Size = new System.Drawing.Size(197, 100);
+            this.flp.Size = new System.Drawing.Size(322, 126);
             this.flp.TabIndex = 0;
             // 
             // chkPowerAttack
@@ -88,21 +93,52 @@
             this.chkManashield.Text = "Manashield";
             this.chkManashield.UseVisualStyleBackColor = true;
             // 
-            // frmPromptSkills
+            // grpSkills
+            // 
+            this.grpSkills.Controls.Add(this.flp);
+            this.grpSkills.Location = new System.Drawing.Point(39, 47);
+            this.grpSkills.Name = "grpSkills";
+            this.grpSkills.Size = new System.Drawing.Size(328, 145);
+            this.grpSkills.TabIndex = 3;
+            this.grpSkills.TabStop = false;
+            this.grpSkills.Text = "Skills";
+            // 
+            // lblMob
+            // 
+            this.lblMob.AutoSize = true;
+            this.lblMob.Location = new System.Drawing.Point(36, 23);
+            this.lblMob.Name = "lblMob";
+            this.lblMob.Size = new System.Drawing.Size(31, 13);
+            this.lblMob.TabIndex = 4;
+            this.lblMob.Text = "Mob:";
+            // 
+            // cboMob
+            // 
+            this.cboMob.FormattingEnabled = true;
+            this.cboMob.Location = new System.Drawing.Point(73, 20);
+            this.cboMob.Name = "cboMob";
+            this.cboMob.Size = new System.Drawing.Size(283, 21);
+            this.cboMob.TabIndex = 5;
+            // 
+            // frmPreMacroPrompt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(221, 139);
+            this.ClientSize = new System.Drawing.Size(451, 238);
             this.ControlBox = false;
-            this.Controls.Add(this.flp);
+            this.Controls.Add(this.cboMob);
+            this.Controls.Add(this.lblMob);
+            this.Controls.Add(this.grpSkills);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Name = "frmPromptSkills";
+            this.Name = "frmPreMacroPrompt";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Skills";
             this.flp.ResumeLayout(false);
             this.flp.PerformLayout();
+            this.grpSkills.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -112,5 +148,8 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.CheckBox chkManashield;
         private System.Windows.Forms.CheckBox chkPowerAttack;
+        private System.Windows.Forms.GroupBox grpSkills;
+        private System.Windows.Forms.Label lblMob;
+        private System.Windows.Forms.ComboBox cboMob;
     }
 }

@@ -26,13 +26,13 @@ namespace IsengardClient
         public bool OneClick { get; set; }
         public bool Flee { get; set; }
         public bool Heal { get; set; }
-        public bool DoSkills { get; set; }
+        public bool ShowPreForm { get; set; }
 
         public static bool IsValidMacroName(string name)
         {
             foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
             {
-                if (ot != ObjectType.Weapon && ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                if (ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
@@ -101,8 +101,6 @@ namespace IsengardClient
 
     internal enum ObjectType
     {
-        Mob,
-        Weapon,
         Wand,
         Potion,
         Realm1Spell,

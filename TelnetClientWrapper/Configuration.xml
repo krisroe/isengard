@@ -1,11 +1,12 @@
 <Configuration defaultrealm="wind" defaultweapon="scimitar" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Red" username="despug" startupcommands="remove all;score" autohazythreshold="19" autohazydefault="true">
  <Variables>
+  <Variable name="mob" type="string" value=""/>
   <Variable name="weapon" type="string" value=""/>
   <Variable name="combatcycleinterval" type="int" value="2550" min="0"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>
-  <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
+  <Macro name="C*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" preform="true">
    <Steps>
     <Command text="wield {weapon}" condition="weapon"/>
     <Sequence loop="true">
@@ -16,7 +17,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
+  <Macro name="SC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" preform="true">
    <Steps>
     <Command text="wield {weapon}" condition="weapon"/>
     <CombatCycle magic="Stun" attack="true"/>
@@ -28,7 +29,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" skills="true">
+  <Macro name="SCCSC*+ATK" oneclick="true" combatcommandtypes="Magic,Melee" preform="true">
    <Steps>
     <Command text="wield {weapon}" condition="weapon"/>
     <CombatCycle magic="Stun" attack="true"/>
@@ -46,7 +47,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="C*" oneclick="true" combatcommandtypes="Magic" skills="true">
+  <Macro name="C*" oneclick="true" combatcommandtypes="Magic" preform="true">
    <Steps>
     <Sequence loop="true">
      <Steps>
@@ -55,7 +56,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SC*" oneclick="true" combatcommandtypes="Magic" skills="true">
+  <Macro name="SC*" oneclick="true" combatcommandtypes="Magic" preform="true">
    <Steps>
     <CombatCycle magic="Stun" attack="false"/>
     <Sequence loop="true">
@@ -65,7 +66,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic" skills="true">
+  <Macro name="SCCSC*" oneclick="true" combatcommandtypes="Magic" preform="true">
    <Steps>
     <CombatCycle magic="Stun" attack="false"/>
     <Sequence loop="2">
@@ -81,7 +82,7 @@
     </Sequence>
    </Steps>
   </Macro>
-  <Macro name="ATK*" oneclick="true" combatcommandtypes="Melee" skills="true">
+  <Macro name="ATK*" oneclick="true" combatcommandtypes="Melee" preform="true">
    <Steps>
     <Command text="wield {weapon}"/>
     <Sequence loop="true">
@@ -93,7 +94,7 @@
    </Steps>
   </Macro>
   <Macro name="Flee" oneclick="true" flee="true"/>
-  <Macro name="Skills" oneclick="true" skills="true"/>
+  <Macro name="Skills" oneclick="true" preform="true"/>
   <Macro name="Heal" oneclick="true" heal="true"/>
  </Macros>
 </Configuration>
