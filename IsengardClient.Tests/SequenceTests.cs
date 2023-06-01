@@ -61,36 +61,45 @@ namespace IsengardClient.Tests
         {
             bool success = false;
             bool fumbled = false;
-            Action<bool> a = (f) =>
+            int damage = 0;
+            Action<bool, int> a = (f, d) =>
             {
                 success = true;
                 fumbled = f;
+                damage = d;
             };
             AttackSequence aseq = new AttackSequence(a);
 
             success = false;
             fumbled = false;
+            damage = 0;
             aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." });
             Assert.IsTrue(success);
+            Assert.AreEqual(damage, 10);
 
             success = false;
             fumbled = false;
+            damage = 10;
             aseq.FeedLine(new string[] { "You FUMBLED your weapon." });
             Assert.IsTrue(success);
             Assert.IsTrue(fumbled);
+            Assert.AreEqual(damage, 0);
         }
 
         [TestMethod]
         public void TestCastOffensiveSpellSequence()
         {
             bool success = false;
-            Action a = () =>
+            int damage = 0;
+            Action<int> a = (d) =>
             {
                 success = true;
+                damage = d;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
             cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." });
             Assert.IsTrue(success);
+            Assert.AreEqual(damage, 10);
         }
     }
 }

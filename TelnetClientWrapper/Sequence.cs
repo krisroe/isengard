@@ -594,8 +594,8 @@ namespace IsengardClient
 
     public class CastOffensiveSpellSequence : IOutputProcessingSequence
     {
-        public Action _onSatisfied;
-        public CastOffensiveSpellSequence(Action onSatisfied)
+        public Action<int> _onSatisfied;
+        public CastOffensiveSpellSequence(Action<int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -606,6 +606,7 @@ namespace IsengardClient
             string sMiddle1 = " spell on ";
             string sMiddle2 = " for ";
             string sEnd = " damage.";
+            int damage = 0;
             foreach (string nextLine in Lines)
             {
                 if (nextLine == "You missed.")
@@ -620,31 +621,26 @@ namespace IsengardClient
                 int findIndex = nextLine.IndexOf(sMiddle1, sStart.Length);
                 if (findIndex < 0)
                 {
-                    break;
-                }
-                findIndex = nextLine.IndexOf(sMiddle2, findIndex + sMiddle1.Length);
-                if (findIndex < 0)
-                {
-                    break;
-                }
-                if (!nextLine.EndsWith(sEnd))
-                {
                     continue;
                 }
-                satisfied = true;
-                break;
+                damage = AttackSequence.GetDamage(nextLine, findIndex + sMiddle1.Length, sMiddle2, sEnd);
+                if (damage > 0)
+                {
+                    satisfied = true;
+                    break;
+                }
             }
             if (satisfied)
             {
-                _onSatisfied();
+                _onSatisfied(damage);
             }
         }
     }
 
     public class AttackSequence : IOutputProcessingSequence
     {
-        public Action<bool> _onSatisfied;
-        public AttackSequence(Action<bool> onSatisfied)
+        public Action<bool, int> _onSatisfied;
+        public AttackSequence(Action<bool, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -652,6 +648,7 @@ namespace IsengardClient
         {
             bool fumbled = false;
             bool satisfied = false;
+            int damage = 0;
             foreach (string nextLine in Lines)
             {
                 if (nextLine == "You missed.")
@@ -680,20 +677,24 @@ namespace IsengardClient
                     satisfied = true;
                     break;
                 }
-                else if (MatchesHitPattern(nextLine))
-                {
-                    satisfied = true;
-                    break;
-                }
                 else if (MatchesPowerAttackMissPattern(nextLine))
                 {
                     satisfied = true;
                     break;
                 }
+                else
+                {
+                    damage = MatchesHitPattern(nextLine);
+                    if (damage > 0)
+                    {
+                        satisfied = true;
+                        break;
+                    }
+                }
             }
             if (satisfied)
             {
-                _onSatisfied(fumbled);
+                _onSatisfied(fumbled, damage);
             }
         }
 
@@ -702,21 +703,119 @@ namespace IsengardClient
             return nextLine.StartsWith("Your power attack ") && nextLine.EndsWith(" missed.");
         }
 
-        public bool MatchesHitPattern(string nextLine)
+        public int MatchesHitPattern(string nextLine)
         {
             string sStart = "Your ";
             string sMiddle1 = " hits for ";
             string sEnd = " damage.";
             if (!nextLine.StartsWith(sStart))
             {
-                return false;
+                return 0;
             }
-            int findIndex = nextLine.IndexOf(sMiddle1, sStart.Length);
+            return GetDamage(nextLine, sStart.Length, sMiddle1, sEnd);
+        }
+
+        public static int GetDamage(string nextLine, int start, string beforeDamageText, string afterDamageText)
+        {
+            int findIndex = nextLine.IndexOf(beforeDamageText, start);
             if (findIndex < 0)
             {
-                return false;
+                return 0;
             }
-            return nextLine.EndsWith(sEnd);
+            int damageStart = findIndex + beforeDamageText.Length;
+            int endDamageIndex = nextLine.IndexOf(afterDamageText, damageStart);
+            if (endDamageIndex < 0)
+            {
+                return 0;
+            }
+            if (damageStart == endDamageIndex) //make sure there actually is text for the damage number
+            {
+                return 0;
+            }
+            if (endDamageIndex + afterDamageText.Length != nextLine.Length) //make sure the text ends with the after damage text
+            {
+                return 0;
+            }
+            if (!int.TryParse(nextLine.Substring(damageStart, endDamageIndex - damageStart), out int damageCount))
+            {
+                return 0;
+            }
+            return damageCount;
+        }
+    }
+
+    internal class MobStatusSequence : IOutputProcessingSequence
+    {
+        private Action<MonsterStatus> _onSatisfied;
+
+        public MobStatusSequence(Action<MonsterStatus> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(string[] Lines)
+        {
+            bool firstLine = true;
+            MonsterStatus? status = null;
+            foreach (string nextLine in Lines)
+            {
+                if (firstLine)
+                {
+                    if (!nextLine.StartsWith("You see "))
+                    {
+                        return;
+                    }
+                    firstLine = false;
+                }
+                else
+                {
+                    if (nextLine.EndsWith(" is in excellent condition."))
+                    {
+                        status = MonsterStatus.ExcellentCondition;
+                    }
+                    else if (nextLine.EndsWith(" has a few small scratches."))
+                    {
+                        status = MonsterStatus.FewSmallScratches;
+                    }
+                    else if (nextLine.EndsWith(" is wincing in pain."))
+                    {
+                        status = MonsterStatus.WincingInPain;
+                    }
+                    else if (nextLine.EndsWith(" is slightly bruised and battered."))
+                    {
+                        status = MonsterStatus.SlightlyBruisedAndBattered;
+                    }
+                    else if (nextLine.EndsWith(" has some minor wounds."))
+                    {
+                        status = MonsterStatus.SomeMinorWounds;
+                    }
+                    else if (nextLine.EndsWith(" is bleeding profusely."))
+                    {
+                        status = MonsterStatus.BleedingProfusely;
+                    }
+                    else if (nextLine.EndsWith(" has a nasty and gaping wound."))
+                    {
+                        status = MonsterStatus.NastyAndGapingWound;
+                    }
+                    else if (nextLine.EndsWith(" has many grevious wounds."))
+                    {
+                        status = MonsterStatus.ManyGreviousWounds;
+                    }
+                    else if (nextLine.EndsWith(" is mortally wounded."))
+                    {
+                        status = MonsterStatus.MortallyWounded;
+                    }
+                    else if (nextLine.EndsWith(" is barely clinging to life."))
+                    {
+                        status = MonsterStatus.BarelyClingingToLife;
+                    }
+                    if (status.HasValue)
+                    {
+                        _onSatisfied(status.Value);
+                        return;
+                    }
+                }
+            }
         }
     }
 

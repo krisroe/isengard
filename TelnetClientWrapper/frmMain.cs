@@ -79,6 +79,8 @@ namespace IsengardClient
         private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
         private string _currentlyFightingMob;
+        private MonsterStatus? _currentMonsterStatus;
+        private int _monsterDamage;
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
@@ -901,7 +903,7 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled)
+        private void OnAttack(bool fumbled, int damage)
         {
             BackgroundCommandType? bct = _backgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
@@ -910,15 +912,17 @@ namespace IsengardClient
                 {
                     _fumbled = true;
                 }
+                _monsterDamage += damage;
                 _commandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnCastOffensiveSpell()
+        private void OnCastOffensiveSpell(int damage)
         {
             BackgroundCommandType? bct = _backgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
             {
+                _monsterDamage += damage;
                 _commandResult = CommandResult.CommandSuccessful;
             }
         }
@@ -938,6 +942,15 @@ namespace IsengardClient
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
             {
                 _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private void OnMobStatusSequence(MonsterStatus status)
+        {
+            string sCurrentMonster = _currentlyFightingMob;
+            if (!string.IsNullOrEmpty(sCurrentMonster))
+            {
+                _currentMonsterStatus = status;
             }
         }
 
@@ -978,6 +991,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
+                new MobStatusSequence(OnMobStatusSequence),
                 new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
             };
@@ -1792,6 +1806,8 @@ namespace IsengardClient
             try
             {
                 _currentlyFightingMob = _currentBackgroundParameters.TargetRoomMob;
+                _monsterDamage = 0;
+                _currentMonsterStatus = null;
                 foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
                 {
                     if (_bw.CancellationPending) break;
@@ -1859,6 +1875,7 @@ namespace IsengardClient
             finally
             {
                 _currentlyFightingMob = null;
+                _currentMonsterStatus = null;
             }
 
             if (pms.Quit)
@@ -2037,6 +2054,12 @@ namespace IsengardClient
             {
                 stop = true; //not much we can do here except stop
                 return;
+            }
+
+            if (oCombatCycle != null)
+            {
+                SendCommand(TranslateCommand("look {mob}", _currentBackgroundParameters.GetVariables(), out string _), false);
+                pms.CommandsRun++;
             }
 
             if (oCombatCycle == null)
@@ -3142,6 +3165,22 @@ namespace IsengardClient
             {
                 _woe.Play();
             }
+            string sMonster = _currentlyFightingMob;
+            int iMonsterDamage = _monsterDamage;
+            MonsterStatus? monsterStatus = _currentMonsterStatus;
+            if (string.IsNullOrEmpty(sMonster))
+            {
+                grpMob.Text = "Mob";
+                txtMobStatus.Text = string.Empty;
+                txtMobStatus.Text = string.Empty;
+            }
+            else
+            {
+                grpMob.Text = sMonster;
+                txtMobDamage.Text = iMonsterDamage.ToString();
+                txtMobStatus.Text = GetMonsterStatusText(monsterStatus);
+            }
+
             if (!btnAbort.Enabled)
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
@@ -3219,6 +3258,48 @@ namespace IsengardClient
             }
             _previoustickautohp = autohpforthistick;
             _previoustickautomp = autompforthistick;
+        }
+
+        private string GetMonsterStatusText(MonsterStatus? status)
+        {
+            string ret = string.Empty;
+            if (status.HasValue)
+            {
+                switch (status.Value)
+                {
+                    case MonsterStatus.ExcellentCondition:
+                        ret = "90-100%";
+                        break;
+                    case MonsterStatus.FewSmallScratches:
+                        ret = "81-89%";
+                        break;
+                    case MonsterStatus.WincingInPain:
+                        ret = "71-79%";
+                        break;
+                    case MonsterStatus.SlightlyBruisedAndBattered:
+                        ret = "61-69%";
+                        break;
+                    case MonsterStatus.SomeMinorWounds:
+                        ret = "51-59%";
+                        break;
+                    case MonsterStatus.BleedingProfusely:
+                        ret = "41-49%";
+                        break;
+                    case MonsterStatus.NastyAndGapingWound:
+                        ret = "31-39%";
+                        break;
+                    case MonsterStatus.ManyGreviousWounds:
+                        ret = "21-29%";
+                        break;
+                    case MonsterStatus.MortallyWounded:
+                        ret = "11-19%";
+                        break;
+                    case MonsterStatus.BarelyClingingToLife:
+                        ret = "1-9%";
+                        break;
+                }
+            }
+            return ret;
         }
 
         private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow, int? autoHitpoints)
@@ -3670,5 +3751,19 @@ namespace IsengardClient
         Attack,
         Flee,
         Quit,
+    }
+
+    internal enum MonsterStatus
+    {
+        ExcellentCondition,
+        FewSmallScratches,
+        WincingInPain,
+        SlightlyBruisedAndBattered,
+        SomeMinorWounds,
+        BleedingProfusely,
+        NastyAndGapingWound,
+        ManyGreviousWounds,
+        MortallyWounded,
+        BarelyClingingToLife,
     }
 }

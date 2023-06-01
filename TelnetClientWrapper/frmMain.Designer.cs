@@ -166,6 +166,11 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.grpMob = new System.Windows.Forms.GroupBox();
+            this.lblMobDamage = new System.Windows.Forms.Label();
+            this.txtMobDamage = new System.Windows.Forms.TextBox();
+            this.lblMobStatus = new System.Windows.Forms.Label();
+            this.txtMobStatus = new System.Windows.Forms.TextBox();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -191,6 +196,7 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
+            this.grpMob.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -725,7 +731,7 @@
             this.treeLocations.HideSelection = false;
             this.treeLocations.Location = new System.Drawing.Point(3, 16);
             this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(277, 862);
+            this.treeLocations.Size = new System.Drawing.Size(277, 541);
             this.treeLocations.TabIndex = 63;
             this.treeLocations.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeLocations_NodeMouseClick);
             // 
@@ -757,7 +763,7 @@
             this.grpLocations.Controls.Add(this.treeLocations);
             this.grpLocations.Location = new System.Drawing.Point(731, 13);
             this.grpLocations.Name = "grpLocations";
-            this.grpLocations.Size = new System.Drawing.Size(283, 881);
+            this.grpLocations.Size = new System.Drawing.Size(283, 560);
             this.grpLocations.TabIndex = 64;
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
@@ -956,6 +962,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.grpMob);
             this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
             this.pnlMain.Controls.Add(this.grpSingleMove);
@@ -1759,6 +1766,53 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // grpMob
+            // 
+            this.grpMob.Controls.Add(this.txtMobStatus);
+            this.grpMob.Controls.Add(this.lblMobStatus);
+            this.grpMob.Controls.Add(this.txtMobDamage);
+            this.grpMob.Controls.Add(this.lblMobDamage);
+            this.grpMob.Location = new System.Drawing.Point(734, 579);
+            this.grpMob.Name = "grpMob";
+            this.grpMob.Size = new System.Drawing.Size(277, 89);
+            this.grpMob.TabIndex = 120;
+            this.grpMob.TabStop = false;
+            this.grpMob.Text = "Mob";
+            // 
+            // lblMobDamage
+            // 
+            this.lblMobDamage.AutoSize = true;
+            this.lblMobDamage.Location = new System.Drawing.Point(6, 20);
+            this.lblMobDamage.Name = "lblMobDamage";
+            this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
+            this.lblMobDamage.TabIndex = 0;
+            this.lblMobDamage.Text = "Damage:";
+            // 
+            // txtMobDamage
+            // 
+            this.txtMobDamage.Location = new System.Drawing.Point(69, 16);
+            this.txtMobDamage.Name = "txtMobDamage";
+            this.txtMobDamage.ReadOnly = true;
+            this.txtMobDamage.Size = new System.Drawing.Size(193, 20);
+            this.txtMobDamage.TabIndex = 1;
+            // 
+            // lblMobStatus
+            // 
+            this.lblMobStatus.AutoSize = true;
+            this.lblMobStatus.Location = new System.Drawing.Point(6, 50);
+            this.lblMobStatus.Name = "lblMobStatus";
+            this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
+            this.lblMobStatus.TabIndex = 2;
+            this.lblMobStatus.Text = "Status:";
+            // 
+            // txtMobStatus
+            // 
+            this.txtMobStatus.Location = new System.Drawing.Point(69, 47);
+            this.txtMobStatus.Name = "txtMobStatus";
+            this.txtMobStatus.ReadOnly = true;
+            this.txtMobStatus.Size = new System.Drawing.Size(193, 20);
+            this.txtMobStatus.TabIndex = 3;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1803,6 +1857,8 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
+            this.grpMob.ResumeLayout(false);
+            this.grpMob.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1946,6 +2002,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetLocation;
         private System.Windows.Forms.ToolStripMenuItem tsmiGoToLocation;
         private System.Windows.Forms.Button btnGraph;
+        private System.Windows.Forms.GroupBox grpMob;
+        private System.Windows.Forms.TextBox txtMobDamage;
+        private System.Windows.Forms.Label lblMobDamage;
+        private System.Windows.Forms.TextBox txtMobStatus;
+        private System.Windows.Forms.Label lblMobStatus;
     }
 }
 
