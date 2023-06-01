@@ -1632,9 +1632,6 @@ namespace IsengardClient
             List<MacroStepBase> commands = pms.Commands;
             MacroCommand oPreviousCommand;
             MacroCommand oCurrentCommand = null;
-            CommandResult? currentResult;
-
-            int currentAttempts;
 
             //Heal
             if (m != null && m.Heal)
@@ -1780,6 +1777,10 @@ namespace IsengardClient
 
                 //if we got here that means all exits were traversed successfully
                 _currentBackgroundParameters.ReachedTargetRoom = true;
+                ((StringVariable)_currentBackgroundParameters.Variables["mob"]).Value = _currentBackgroundParameters.TargetRoomMob;
+            }
+            else if (!string.IsNullOrEmpty(_currentBackgroundParameters.TargetRoomMob))
+            {
                 ((StringVariable)_currentBackgroundParameters.Variables["mob"]).Value = _currentBackgroundParameters.TargetRoomMob;
             }
 
@@ -2776,7 +2777,10 @@ namespace IsengardClient
 
         private void RunMacro(Macro m, List<Exit> preExits)
         {
-            bool isMeleeMacro = ((m.CombatCommandTypes & CommandType.Melee) == CommandType.Melee);
+            CommandType eMacroCombatCommandType = m.CombatCommandTypes;
+            bool isMagicMacro = (eMacroCombatCommandType & CommandType.Magic) == CommandType.Magic;
+            bool isMeleeMacro = (eMacroCombatCommandType & CommandType.Melee) == CommandType.Melee;
+            bool isCombatMacro = isMagicMacro || isMeleeMacro;
             bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
             if (isMeleeMacro && !hasWeapon)
             {
@@ -2796,9 +2800,17 @@ namespace IsengardClient
                 if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
                 if (promptManashield) skills |= PromptedSkills.Manashield;
 
-                Room targetRoom = preExits == null ? null : preExits[preExits.Count - 1].Target;
+                Room targetRoom;
+                if (preExits == null)
+                {
+                    targetRoom = m_oCurrentRoom;
+                }
+                else
+                {
+                    targetRoom = preExits[preExits.Count - 1].Target;
+                }
 
-                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text))
+                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text, isCombatMacro))
                 {
                     if (frmSkills.ShowDialog(this) != DialogResult.OK)
                     {

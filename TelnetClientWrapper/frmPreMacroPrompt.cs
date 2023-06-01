@@ -4,9 +4,13 @@ namespace IsengardClient
 {
     internal partial class frmPreMacroPrompt : Form
     {
-        public frmPreMacroPrompt(PromptedSkills skills, Room targetRoom, string currentMob)
+        private bool _isCombatMacro;
+
+        public frmPreMacroPrompt(PromptedSkills skills, Room targetRoom, string currentMob, bool isCombatMacro)
         {
             InitializeComponent();
+
+            _isCombatMacro = isCombatMacro;
 
             string sCurrentMob;
             if (targetRoom == null || string.IsNullOrEmpty(targetRoom.Mob1))
@@ -94,6 +98,17 @@ namespace IsengardClient
                 }
                 return ret;
             }
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            if (_isCombatMacro && string.IsNullOrEmpty(this.Mob))
+            {
+                MessageBox.Show("No mob specified.");
+                return;
+            }
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
     }
 }
