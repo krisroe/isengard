@@ -675,6 +675,11 @@ namespace IsengardClient
                     fumbled = true;
                     break;
                 }
+                else if (nextLine == "You STUMBLE and miss your unarmed attack.")
+                {
+                    satisfied = true;
+                    break;
+                }
                 else if (MatchesHitPattern(nextLine))
                 {
                     satisfied = true;

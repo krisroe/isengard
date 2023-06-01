@@ -78,6 +78,7 @@ namespace IsengardClient
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
+        private string _currentlyFightingMob;
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
@@ -979,7 +980,6 @@ namespace IsengardClient
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
-                //CSRTODO: weapon has no effect
             };
 
             while (true)
@@ -1789,68 +1789,76 @@ namespace IsengardClient
                 _fleeing = true;
             }
 
-            foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
+            try
             {
-                if (_bw.CancellationPending) break;
-                oPreviousCommand = oCurrentCommand;
-                oCurrentCommand = nextCommand;
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                if (_fleeing) break;
-                if (_bw.CancellationPending) break;
-
-                if (_bw.CancellationPending) break;
-                if (_fleeing) break;
-
-                bool stop;
-                ProcessCommand(nextCommand, pms, out stop);
-                if (stop) break;
-                if (_fleeing) break;
-                if (_bw.CancellationPending) break;
-
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                if (_fleeing) break;
-                if (_bw.CancellationPending) break;
-            }
-            if (_fleeing)
-            {
-                string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
-                if (!string.IsNullOrEmpty(sWeapon))
+                _currentlyFightingMob = _currentBackgroundParameters.TargetRoomMob;
+                foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
                 {
-                    SendCommand("remove " + sWeapon, false);
-                    _currentBackgroundParameters.CommandsRun++;
-                    if (!_fleeing) return;
-                    if (_bw.CancellationPending) return;
+                    if (_bw.CancellationPending) break;
+                    oPreviousCommand = oCurrentCommand;
+                    oCurrentCommand = nextCommand;
+                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
+
+                    if (_bw.CancellationPending) break;
+                    if (_fleeing) break;
+
+                    bool stop;
+                    ProcessCommand(nextCommand, pms, out stop);
+                    if (stop) break;
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
+
+                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
+                    if (_fleeing) break;
+                    if (_bw.CancellationPending) break;
                 }
-
-                //determine the flee exit if there is only one place to flee to
-                Exit singleFleeableExit = null;
-                Room r = m_oCurrentRoom;
-                if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                if (_fleeing)
                 {
-                    List<Exit> fleeableExits = new List<Exit>();
-                    foreach (Exit nextExit in exits)
+                    string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
+                    if (!string.IsNullOrEmpty(sWeapon))
                     {
-                        if (!nextExit.Hidden && !nextExit.NoFlee)
+                        SendCommand("remove " + sWeapon, false);
+                        _currentBackgroundParameters.CommandsRun++;
+                        if (!_fleeing) return;
+                        if (_bw.CancellationPending) return;
+                    }
+
+                    //determine the flee exit if there is only one place to flee to
+                    Exit singleFleeableExit = null;
+                    Room r = m_oCurrentRoom;
+                    if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                    {
+                        List<Exit> fleeableExits = new List<Exit>();
+                        foreach (Exit nextExit in exits)
                         {
-                            fleeableExits.Add(nextExit);
+                            if (!nextExit.Hidden && !nextExit.NoFlee)
+                            {
+                                fleeableExits.Add(nextExit);
+                            }
+                        }
+                        if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
+                        {
+                            singleFleeableExit = fleeableExits[0];
+                            RunPreExitLogic(pms, singleFleeableExit.PreCommand, singleFleeableExit.Target);
                         }
                     }
-                    if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
-                    {
-                        singleFleeableExit = fleeableExits[0];
-                        RunPreExitLogic(pms, singleFleeableExit.PreCommand, singleFleeableExit.Target);
-                    }
-                }
 
-                bool fleeSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
-                if (fleeSuccess)
-                {
-                    if (singleFleeableExit != null)
+                    bool fleeSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
+                    if (fleeSuccess)
                     {
-                        _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
+                        if (singleFleeableExit != null)
+                        {
+                            _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
+                        }
+                        _fleeing = false;
                     }
-                    _fleeing = false;
                 }
+            }
+            finally
+            {
+                _currentlyFightingMob = null;
             }
 
             if (pms.Quit)
@@ -2533,7 +2541,16 @@ namespace IsengardClient
                 }
                 else if (v.Type == VariableType.String)
                 {
-                    sValue = ((StringVariable)v).Value;
+                    StringVariable sv = (StringVariable)v;
+                    sValue = sv.Value;
+                    if (sv.Name == "mob")
+                    {
+                        string currentFightingMob = _currentlyFightingMob;
+                        if (!string.IsNullOrEmpty(currentFightingMob))
+                        {
+                            sValue = currentFightingMob;
+                        }
+                    }
                 }
                 else
                 {
