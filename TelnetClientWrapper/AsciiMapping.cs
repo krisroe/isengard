@@ -117,6 +117,7 @@ namespace IsengardClient
             ret['{'] = 123;
             ret['|'] = 124;
             ret['}'] = 125;
+            ret['ë'] = 235;
             return ret;
         }
     }

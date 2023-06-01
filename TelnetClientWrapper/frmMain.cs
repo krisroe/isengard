@@ -557,6 +557,7 @@ namespace IsengardClient
                 "revive",
                 "rogue",
                 "rumble",
+                "rumors",
                 "sanctuary",
                 "say",
                 "scout",
@@ -1446,8 +1447,14 @@ namespace IsengardClient
                     case 173:
                         isUnknown = true;
                         break;
-                    case 235:
+                    case 187:
                         isUnknown = true;
+                        break;
+                    case 195:
+                        isUnknown = true;
+                        break;
+                    case 235:
+                        c = 'ë';
                         break;
                     case 251:
                         isUnknown = true;
@@ -1459,7 +1466,7 @@ namespace IsengardClient
                         isUnknown = true;
                         break;
                     default:
-                        throw new InvalidOperationException();
+                       throw new InvalidOperationException();
                 }
                 string sNewString = isUnknown ? "<" + nextByte + ">" : c.ToString();
                 textBuilder.Append(sNewString);

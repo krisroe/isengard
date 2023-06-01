@@ -659,6 +659,16 @@ namespace IsengardClient
                     satisfied = true;
                     break;
                 }
+                else if (nextLine.StartsWith("Your attack has no effect on "))
+                {
+                    satisfied = true;
+                    break;
+                }
+                else if (nextLine.StartsWith("Your power attack has no effect on "))
+                {
+                    satisfied = true;
+                    break;
+                }
                 else if (nextLine == "You FUMBLED your weapon.")
                 {
                     satisfied = true;
