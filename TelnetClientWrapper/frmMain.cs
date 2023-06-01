@@ -69,15 +69,16 @@ namespace IsengardClient
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
         private bool _fleeing;
-        private bool? _manashieldResult;
         private int _waitSeconds = 0;
         private bool _fumbled;
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
+        private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
+        private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -761,60 +762,181 @@ namespace IsengardClient
 
         private void OnFailFlee()
         {
-            _commandResult = CommandResult.CommandUnsuccessfulThisTime;
-            _waitSeconds = 0;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+                _waitSeconds = 0;
+            }
         }
 
         private void OnRoomTransition(RoomTransitionType rtType, string roomName, List<string> obviousExits)
         {
-            _commandResult = CommandResult.CommandSuccessful;
-            _waitSeconds = 0;
+            BackgroundCommandType? bct = _backgroundCommandType;
             _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
-                _fleeing = false;
+                if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
+                {
+                    _commandResult = CommandResult.CommandSuccessful;
+                    _waitSeconds = 0;
+                    _fleeing = false;
+                }
             }
             else if (rtType == RoomTransitionType.Hazy)
             {
                 _autoHazied = true;
                 _fleeing = false;
+                if (bct.HasValue) //hazy aborts whatever background command is currently running
+                {
+                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
+            }
+            else
+            {
+                if (bct.HasValue)
+                {
+                    BackgroundCommandType bctValue = bct.Value;
+                    if (bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement)
+                    {
+                        _commandResult = CommandResult.CommandSuccessful;
+                        _waitSeconds = 0;
+                    }
+                }
             }
         }
 
         private void OnFailManashield()
         {
-            _manashieldResult = false;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
         }
 
         private void OnSuccessfulManashield()
         {
-            _manashieldResult = true;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
         }
 
         private void OnWaitXSeconds(int waitSeconds)
         {
-            _commandResult = CommandResult.CommandNotAttempted;
-            _waitSeconds = waitSeconds;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue)
+            {
+                _commandResult = CommandResult.CommandMustWait;
+                _waitSeconds = waitSeconds;
+            }
         }
 
-        private void OnFumbled()
+        private void OnVigorSpellCast()
         {
-            _fumbled = true;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Vigor)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
         }
 
-        private void OnLifeSpellCast()
+        private void OnBlessSpellCast()
         {
-            _commandResult = CommandResult.CommandSuccessful;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Bless)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
         }
 
-        private void OnCantMoveThatWay()
+        private void OnProtectionSpellCast()
         {
-            _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Protection)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
         }
 
-        private void OnBlocksYourExit()
+        private void FailMovement()
         {
-            _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Movement)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private void OnStun()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        /// <summary>
+        /// when a spell fails (e.g. alignment out of whack)
+        /// </summary>
+        private void OnSpellFails()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue)
+            {
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.Vigor ||
+                    bctValue == BackgroundCommandType.Bless ||
+                    bctValue == BackgroundCommandType.Protection ||
+                    bctValue == BackgroundCommandType.Stun ||
+                    bctValue == BackgroundCommandType.OffensiveSpell)
+                {
+                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
+            }
+        }
+        
+        private void OnAttack(bool fumbled)
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            {
+                if (fumbled)
+                {
+                    _fumbled = true;
+                }
+                _commandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private void OnCastOffensiveSpell()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private void OnAttackMobNotPresent()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private void OnCastOffensiveSpellMobNotPresent()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
         }
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
@@ -835,22 +957,28 @@ namespace IsengardClient
                 new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.Contains),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.ExactMatch, true),
                 new SpellsCastSequence(OnSpellsCastChange),
-                new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("Bless spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("Protection spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains), //could be prefixed by "Scared of going X"*
+                new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, true),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, false), //could be prefixed by "Scared of going X"*
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
-                new ConstantOutputSequence("You FUMBLED your weapon.", OnFumbled, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("Vigor spell cast.", OnLifeSpellCast, ConstantSequenceMatchType.Contains),
-                new ConstantOutputSequence("You can't go that way.", OnCantMoveThatWay, ConstantSequenceMatchType.FirstLineExactMatch),
-                new ConstantOutputSequence(" blocks your exit.", OnBlocksYourExit, ConstantSequenceMatchType.FirstLineContains),
+                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, true),
+                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, true),
+                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, true),
+                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true),
+                new AttackSequence(OnAttack),
+                new CastOffensiveSpellSequence(OnCastOffensiveSpell),
+                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
+                //CSRTODO: weapon has no effect
             };
 
             while (true)
@@ -1499,10 +1627,7 @@ namespace IsengardClient
             MacroCommand oCurrentCommand = null;
             CommandResult? currentResult;
 
-            int maxAttempts = 20;
             int currentAttempts;
-            DateTime? dtLastCombatCycle = null;
-            int combatCycleInterval = ((IntegerVariable)pms.Variables["combatcycleinterval"]).Value;
 
             //Heal
             if (m != null && m.Heal)
@@ -1516,7 +1641,10 @@ namespace IsengardClient
                     if (autohp.Value >= _totalhp) break;
                     if (!automp.HasValue) break;
                     if (automp.Value < 2) break; //out of mana for vigor cast
-                    CastLifeSpell("vigor", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
+                    if (!CastLifeSpell("vigor", pms))
+                    {
+                        return;
+                    }
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
                     autohp = _autoHitpoints;
@@ -1531,54 +1659,38 @@ namespace IsengardClient
                 automp = _autoMana;
                 if (automp.HasValue && automp.Value >= 8 && spellsCast != null && !spellsCast.Contains("bless"))
                 {
-                    CastLifeSpell("bless", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
+                    if (!CastLifeSpell("bless", pms))
+                    {
+                        return;
+                    }
                 }
                 //cast protection if has enough mana and not curently protected
                 automp = _autoMana;
                 if (automp.HasValue && automp.Value >= 8 && spellsCast != null && !spellsCast.Contains("protection"))
                 {
-                    CastLifeSpell("protection", maxAttempts, ref dtLastCombatCycle, combatCycleInterval, pms);
+                    if (!CastLifeSpell("protection", pms))
+                    {
+                        return;
+                    }
                 }
             }
 
             //Activate skills
             if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
             {
-                currentAttempts = 0;
-                WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-                while (currentAttempts < maxAttempts)
+                bool manashieldSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, BeforeFleeCommandAbortLogic, false, false);
+                if (manashieldSuccess)
                 {
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-                    _manashieldResult = null;
-                    SendCommand("manashield", false);
-                    _currentBackgroundParameters.CommandsRun++;
-                    currentAttempts++;
-                    while (!_manashieldResult.HasValue)
-                    {
-                        Thread.Sleep(50);
-                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                        if (_fleeing) break;
-                        if (_bw.CancellationPending) break;
-                    }
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-
-                    if (_manashieldResult.HasValue)
-                    {
-                        dtLastCombatCycle = DateTime.UtcNow;
-                        if (_manashieldResult.Value) //stop if successful
-                        {
-                            pms.DoScore = true;
-                            break;
-                        }
-                    }
+                    pms.DoScore = true;
+                }
+                else
+                {
+                    return;
                 }
             }
 
             if (pms.Exits != null && pms.Exits.Count > 0)
             {
-                WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
                 foreach (Exit nextExit in pms.Exits)
                 {
                     _currentBackgroundExit = nextExit;
@@ -1593,37 +1705,21 @@ namespace IsengardClient
                             do
                             {
                                 _currentObviousExits = null;
-                                if (_fleeing) break;
-                                if (_bw.CancellationPending) break;
-                                _commandResult = null;
-                                SendCommand("look", false);
-                                pms.CommandsRun++;
-                                while (true)
+                                bool successfullyLooked = RunSingleCommand(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false, false);
+                                if (successfullyLooked)
                                 {
-                                    currentResult = _commandResult;
-                                    if (currentResult.HasValue) break;
-                                    Thread.Sleep(50);
-                                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                                    if (_fleeing) break;
-                                    if (_bw.CancellationPending) break;
+                                    if (_currentObviousExits.Contains(nextExit.ExitText))
+                                    {
+                                        foundExit = true;
+                                    }
+                                    else
+                                    {
+                                        WaitUntilNextCommand(5000, false, false);
+                                    }
                                 }
-                                if (currentResult.HasValue)
+                                else //look is not supposed to fail
                                 {
-                                    if (currentResult.Value == CommandResult.CommandSuccessful)
-                                    {
-                                        if (_currentObviousExits.Contains(nextExit.ExitText))
-                                        {
-                                            foundExit = true;
-                                        }
-                                        else
-                                        {
-                                            WaitUntilNextCommand(5000, false, false);
-                                        }
-                                    }
-                                    else //look is not supposed to fail
-                                    {
-                                        return;
-                                    }
+                                    return;
                                 }
                             }
                             while (!foundExit);
@@ -1650,53 +1746,21 @@ namespace IsengardClient
                         //determine the exit command
                         string nextCommand = GetExitCommand(nextExit.ExitText);
 
-                        bool exitSuccessful = false;
-                        currentAttempts = 0;
-                        while (currentAttempts < maxAttempts)
+                        bool exitSuccessful = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, BeforeFleeCommandAbortLogic, false, false);
+                        if (exitSuccessful)
                         {
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                            _commandResult = null;
-                            SendCommand(nextCommand, false);
-                            pms.CommandsRun++;
-                            while (true)
+                            if (nextExit.Target != null)
                             {
-                                currentResult = _commandResult;
-                                if (currentResult.HasValue) break;
-                                Thread.Sleep(50);
-                                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                                if (_fleeing) break;
-                                if (_bw.CancellationPending) break;
-                            }
-                            if (currentResult.HasValue)
-                            {
-                                if (currentResult.Value == CommandResult.CommandSuccessful)
+                                pms.TargetRoom = nextExit.Target;
+                                pms.SetTargetRoomIfCancelled = true;
+                                if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
                                 {
-                                    if (nextExit.Target != null)
-                                    {
-                                        pms.TargetRoom = nextExit.Target;
-                                        pms.SetTargetRoomIfCancelled = true;
-                                        if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
-                                        {
-                                            SendCommand(nextExit.Target.PostMoveCommand, false);
-                                            pms.CommandsRun++;
-                                        }
-                                    }
-                                    exitSuccessful = true;
-                                    break;
-                                }
-                                else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
-                                {
-                                    return;
-                                }
-                                else if (_waitSeconds > 1)
-                                {
-                                    int waitMS = 500 + (1000 * (_waitSeconds - 2));
-                                    WaitUntilNextCommand(waitMS, false, false);
+                                    SendCommand(nextExit.Target.PostMoveCommand, false);
+                                    pms.CommandsRun++;
                                 }
                             }
                         }
-                        if (!exitSuccessful)
+                        else
                         {
                             return;
                         }
@@ -1726,21 +1790,11 @@ namespace IsengardClient
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
 
-                //use the combat cycle to determine how long to wait
-                if (nextCommand.CombatCycle != null && dtLastCombatCycle.HasValue)
-                {
-                    WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-                }
-
                 if (_bw.CancellationPending) break;
                 if (_fleeing) break;
 
                 bool stop;
                 ProcessCommand(nextCommand, pms, out stop);
-                if (nextCommand.CombatCycle != null)
-                {
-                    dtLastCombatCycle = DateTime.UtcNow;
-                }
                 if (stop) break;
                 if (_fleeing) break;
                 if (_bw.CancellationPending) break;
@@ -1780,70 +1834,20 @@ namespace IsengardClient
                     }
                 }
 
-                currentAttempts = 0;
-                while (_fleeing && currentAttempts < maxAttempts)
+                bool fleeSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
+                if (fleeSuccess)
                 {
-                    _commandResult = null;
-                    SendCommand("flee", false);
-                    _currentBackgroundParameters.CommandsRun++;
-                    currentAttempts++;
-                    while (!_commandResult.HasValue) //wait for the result
+                    if (singleFleeableExit != null)
                     {
-                        Thread.Sleep(50);
-                        if (!_fleeing) break;
-                        if (_bw.CancellationPending) break;
+                        _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
                     }
-                    currentResult = _commandResult;
-                    int waitSeconds = _waitSeconds;
-                    if (currentResult.HasValue)
-                    {
-                        if (currentResult.Value == CommandResult.CommandSuccessful)
-                        {
-                            if (singleFleeableExit != null)
-                            {
-                                _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
-                            }
-                            _fleeing = false;
-                        }
-                        else if (waitSeconds > 1)
-                        {
-                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), true, false);
-                            if (!_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                        }
-                    }
+                    _fleeing = false;
                 }
             }
 
             if (pms.Quit)
             {
-                currentAttempts = 0;
-                while (currentAttempts < maxAttempts)
-                {
-                    _commandResult = null;
-                    SendCommand("quit", false);
-                    _currentBackgroundParameters.CommandsRun++;
-                    currentAttempts++;
-                    while (!_commandResult.HasValue) //wait for the result
-                    {
-                        Thread.Sleep(50);
-                        if (_bw.CancellationPending) break;
-                    }
-                    currentResult = _commandResult;
-                    int waitSeconds = _waitSeconds;
-                    if (currentResult.HasValue)
-                    {
-                        if (currentResult.Value == CommandResult.CommandSuccessful)
-                        {
-                            break;
-                        }
-                        else if (waitSeconds > 1)
-                        {
-                            WaitUntilNextCommand(500 + (1000 * (waitSeconds - 2)), false, true);
-                            if (_bw.CancellationPending) break;
-                        }
-                    }
-                }
+                RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false, true);
             }
         }
 
@@ -1891,62 +1895,32 @@ namespace IsengardClient
             }
         }
 
-        private void CastLifeSpell(string spellName, int maxAttempts, ref DateTime? dtLastCombatCycle, int combatCycleInterval, BackgroundWorkerParameters bwp)
+        private bool CastLifeSpell(string spellName, BackgroundWorkerParameters bwp)
         {
-            int currentAttempts = 0;
-            WaitUntilNextCombatCycle(dtLastCombatCycle, combatCycleInterval);
-            while (currentAttempts < maxAttempts)
+            BackgroundCommandType bct;
+            switch (spellName)
             {
-                if (_fleeing) break;
-                if (_bw.CancellationPending) break;
-                _commandResult = null;
-                SendCommand("cast " + spellName, false);
-                _currentBackgroundParameters.CommandsRun++;
-                currentAttempts++;
-                CommandResult? currentResult;
-                while (true)
-                {
-                    currentResult = _commandResult;
-                    if (currentResult.HasValue) break;
-                    Thread.Sleep(50);
-                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-                }
-                if (currentResult.HasValue)
-                {
-                    if (currentResult.Value == CommandResult.CommandSuccessful)
-                    {
-                        dtLastCombatCycle = DateTime.UtcNow;
-                        if (spellName == "bless" || spellName == "protection")
-                        {
-                            bwp.DoScore = true;
-                        }
-                    }
-                    else if (_waitSeconds > 1)
-                    {
-                        int waitMS = 500 + (1000 * (_waitSeconds - 2));
-                        WaitUntilNextCommand(waitMS, false, false);
-                    }
+                case "vigor":
+                    bct = BackgroundCommandType.Vigor;
                     break;
-                }
-                if (_fleeing) break;
-                if (_bw.CancellationPending) break;
+                case "bless":
+                    bct = BackgroundCommandType.Bless;
+                    break;
+                case "protection":
+                    bct = BackgroundCommandType.Protection;
+                    break;
+                default:
+                    throw new InvalidOperationException();
             }
-        }
-
-        /// <summary>
-        /// spins until the next combat cycle
-        /// </summary>
-        /// <param name="dtLastCombatCycle">timestamp for the last combat cycle, if there was one</param>
-        /// <param name="combatCycleInterval">combat cycle interval milliseconds</param>
-        private void WaitUntilNextCombatCycle(DateTime? dtLastCombatCycle, int combatCycleInterval)
-        {
-            if (dtLastCombatCycle.HasValue) //spin until getting to the next combat cycle
+            bool successfullyCast = RunSingleCommand(bct, "cast " + spellName, bwp, BeforeFleeCommandAbortLogic, false, false);
+            if (successfullyCast)
             {
-                int remainingMS = (int)(dtLastCombatCycle.Value.AddMilliseconds(combatCycleInterval) - DateTime.UtcNow).TotalMilliseconds;
-                WaitUntilNextCommand(remainingMS, false, false);
+                if (bct == BackgroundCommandType.Bless || bct == BackgroundCommandType.Protection)
+                {
+                    bwp.DoScore = true;
+                }
             }
+            return successfullyCast;
         }
 
         private void WaitUntilNextCommand(int remainingMS, bool fleeing, bool quitting)
@@ -2049,38 +2023,117 @@ namespace IsengardClient
                 return;
             }
 
-            SendCommand(actualCommand, false);
-            pms.CommandsRun++;
-            if (manaDrain.HasValue)
+            if (oCombatCycle == null)
             {
-                if (!pms.AutoMana)
-                {
-                    _currentMana -= manaDrain.Value;
-                }
-                if (_currentMana < 3) //no mana left for casting any more offensive spells
-                {
-                    stop = true;
-                }
+                SendCommand(actualCommand, false);
+                pms.CommandsRun++;
             }
-
-            if (oCombatCycle != null && oCombatCycle.Attack)
+            else //combat cycle
             {
-                IEnumerable<Variable> vars = _currentBackgroundParameters.GetVariables();
-                foreach (var nextVar in vars)
+                if (manaDrain.HasValue)
                 {
-                    if (nextVar.Name == "attacktype" && ((StringVariable)nextVar).Value == "power")
+                    BackgroundCommandType bct = oCombatCycle.Magic == MagicCombatCycleType.Stun ? BackgroundCommandType.Stun : BackgroundCommandType.OffensiveSpell;
+                    bool bResult = RunSingleCommand(bct, actualCommand, pms, BeforeFleeCommandAbortLogic, false, false);
+                    if (!bResult)
                     {
-                        pms.DoScore = true;
+                        stop = true;
+                        return;
+                    }
+                    if (!pms.AutoMana)
+                    {
+                        _currentMana -= manaDrain.Value;
+                    }
+                    if (_currentMana < 3) //no mana left for casting any more offensive spells
+                    {
+                        stop = true;
+                        return;
                     }
                 }
-                string attackCommand = TranslateCommand("{attacktype} {mob}", vars, out errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage))
+
+                if (oCombatCycle.Attack)
                 {
-                    stop = true; //not much we can do here except stop
-                    return;
+                    IEnumerable<Variable> vars = _currentBackgroundParameters.GetVariables();
+                    foreach (var nextVar in vars)
+                    {
+                        if (nextVar.Name == "attacktype" && ((StringVariable)nextVar).Value == "power")
+                        {
+                            pms.DoScore = true;
+                        }
+                    }
+                    string attackCommand = TranslateCommand("{attacktype} {mob}", vars, out errorMessage);
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        stop = true; //not much we can do here except stop
+                        return;
+                    }
+                    bool bResult = RunSingleCommand(BackgroundCommandType.Attack, attackCommand, pms, BeforeFleeCommandAbortLogic, false, false);
+                    if (!bResult)
+                    {
+                        stop = true;
+                        return;
+                    }
                 }
-                SendCommand(attackCommand, false);
-                pms.CommandsRun++;
+            }
+        }
+
+        private bool BeforeFleeCommandAbortLogic()
+        {
+            return _fleeing;
+        }
+
+        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing, bool quitting)
+        {
+            int currentAttempts = 0;
+            CommandResult? currentResult = null;
+            bool commandSucceeded = false;
+            _backgroundCommandType = commandType;
+            try
+            {
+                while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND && !commandSucceeded)
+                {
+                    if (_bw.CancellationPending) break;
+                    if (abortLogic != null && abortLogic()) break;
+                    _commandResult = null;
+                    SendCommand(command, false);
+                    pms.CommandsRun++;
+                    while (true)
+                    {
+                        currentResult = _commandResult;
+                        if (currentResult.HasValue) break;
+                        Thread.Sleep(50);
+                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
+                        if (_bw.CancellationPending) break;
+                        if (abortLogic != null && abortLogic()) break;
+                    }
+                    if (currentResult.HasValue)
+                    {
+                        if (currentResult.Value == CommandResult.CommandSuccessful)
+                        {
+                            commandSucceeded = true;
+                        }
+                        else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
+                        {
+                            break;
+                        }
+                        else if (currentResult.Value == CommandResult.CommandMustWait)
+                        {
+                            if (_waitSeconds > 1)
+                            {
+                                int waitMS = 400 + (1000 * (_waitSeconds - 2));
+                                WaitUntilNextCommand(waitMS, fleeing, quitting);
+                            }
+                        }
+                        else if (currentResult.Value == CommandResult.CommandUnsuccessfulThisTime)
+                        {
+                            //do nothing, try again
+                        }
+                    }
+                }
+                return currentResult.GetValueOrDefault(CommandResult.CommandUnsuccessfulAlways) == CommandResult.CommandSuccessful;
+            }
+            finally
+            {
+                _backgroundCommandType = null;
             }
         }
 
@@ -2488,23 +2541,14 @@ namespace IsengardClient
             string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
             if (!string.IsNullOrEmpty(move))
             {
-                DoSingleMove(chkExecuteMove.Checked, move, "go " + move);
+                DoSingleMove(chkExecuteMove.Checked, move);
             }
         }
 
         private void btnDoSingleMove_Click(object sender, EventArgs e)
         {
             string direction = ((Button)sender).Tag.ToString();
-            string cmd;
-            if (direction == "north" || direction == "south")
-            {
-                cmd = direction;
-            }
-            else
-            {
-                cmd = "go " + direction;
-            }
-            DoSingleMove(chkExecuteMove.Checked, direction, cmd);
+            DoSingleMove(chkExecuteMove.Checked, direction);
         }
 
         private void DoSingleMove(bool move, Exit exit)
@@ -2519,7 +2563,7 @@ namespace IsengardClient
             }
         }
 
-        private void DoSingleMove(bool move, string direction, string command)
+        private void DoSingleMove(bool move, string direction)
         {
             if (m_oCurrentRoom != null)
             {
@@ -2547,7 +2591,7 @@ namespace IsengardClient
             }
             if (move)
             {
-                NavigateExitsInBackground(null, new List<Exit>() { new Exit(null, null, command) });
+                NavigateExitsInBackground(null, new List<Exit>() { new Exit(null, null, direction) });
             }
         }
 
@@ -2747,7 +2791,7 @@ namespace IsengardClient
 
                 Room targetRoom = preExits == null ? null : preExits[preExits.Count - 1].Target;
 
-                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtCurrentRoom.Text))
+                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text))
                 {
                     if (frmSkills.ShowDialog(this) != DialogResult.OK)
                     {
@@ -3181,7 +3225,7 @@ namespace IsengardClient
 
         private void txtMob_TextChanged(object sender, EventArgs e)
         {
-            ((StringVariable)_variablesByName["mob"]).Value = txtWeapon.Text;
+            ((StringVariable)_variablesByName["mob"]).Value = txtMob.Text;
         }
 
         private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)
@@ -3574,6 +3618,21 @@ namespace IsengardClient
         CommandSuccessful,
         CommandUnsuccessfulThisTime,
         CommandUnsuccessfulAlways,
-        CommandNotAttempted,
+        CommandMustWait,
+    }
+
+    internal enum BackgroundCommandType
+    {
+        Movement,
+        Look,
+        Vigor,
+        Bless,
+        Protection,
+        Manashield,
+        Stun,
+        OffensiveSpell,
+        Attack,
+        Flee,
+        Quit,
     }
 }

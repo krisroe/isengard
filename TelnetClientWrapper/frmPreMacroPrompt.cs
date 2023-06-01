@@ -29,19 +29,29 @@ namespace IsengardClient
             {
                 sCurrentMob = targetRoom.Mob1;
             }
-            if (!string.IsNullOrEmpty(targetRoom.Mob1))
+            if (targetRoom != null)
             {
-                cboMob.Items.Add(targetRoom.Mob1);
+                if (!string.IsNullOrEmpty(targetRoom.Mob1))
+                {
+                    cboMob.Items.Add(targetRoom.Mob1);
+                }
+                if (!string.IsNullOrEmpty(targetRoom.Mob2))
+                {
+                    cboMob.Items.Add(targetRoom.Mob2);
+                }
+                if (!string.IsNullOrEmpty(targetRoom.Mob3))
+                {
+                    cboMob.Items.Add(targetRoom.Mob3);
+                }
             }
-            if (!string.IsNullOrEmpty(targetRoom.Mob2))
+            if (cboMob.Items.Contains(sCurrentMob))
             {
-                cboMob.Items.Add(targetRoom.Mob2);
+                cboMob.SelectedItem = sCurrentMob;
             }
-            if (!string.IsNullOrEmpty(targetRoom.Mob3))
+            else
             {
-                cboMob.Items.Add(targetRoom.Mob3);
+                cboMob.Text = sCurrentMob;
             }
-            cboMob.SelectedItem = sCurrentMob;
 
             bool showPowerAttack = (skills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
             chkPowerAttack.Visible = showPowerAttack;
@@ -56,7 +66,16 @@ namespace IsengardClient
         {
             get
             {
-                return cboMob.SelectedItem.ToString();
+                string ret;
+                if (cboMob.SelectedItem == null)
+                {
+                    ret = cboMob.Text;
+                }
+                else
+                {
+                    ret = cboMob.SelectedItem.ToString();
+                }
+                return ret;
             }
         }
 

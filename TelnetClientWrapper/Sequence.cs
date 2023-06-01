@@ -57,11 +57,13 @@ namespace IsengardClient
         private Action _onSatisfied;
         private string _characters;
         private ConstantSequenceMatchType _matchType;
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType)
+        private bool _firstLineOnly;
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly)
         {
             _onSatisfied = onSatisfied;
             _characters = characters;
             _matchType = MatchType;
+            _firstLineOnly = FirstLineOnly;
         }
 
         public void FeedLine(string[] Lines)
@@ -72,17 +74,14 @@ namespace IsengardClient
                 bool match;
                 switch (_matchType)
                 {
-                    case ConstantSequenceMatchType.FirstLineExactMatch:
-                        match = lineIndex == 0 && Line.Equals(_characters);
+                    case ConstantSequenceMatchType.ExactMatch:
+                        match = Line.Equals(_characters);
                         break;
                     case ConstantSequenceMatchType.StartsWith:
                         match = Line.StartsWith(_characters);
                         break;
                     case ConstantSequenceMatchType.Contains:
                         match = Line.Contains(_characters);
-                        break;
-                    case ConstantSequenceMatchType.FirstLineContains:
-                        match = lineIndex == 0 && Line.Contains(_characters);
                         break;
                     default:
                         throw new InvalidOperationException();
@@ -92,6 +91,10 @@ namespace IsengardClient
                     _onSatisfied();
                     break;
                 }
+                if (_firstLineOnly)
+                {
+                    break;
+                }
                 lineIndex++;
             }
         }
@@ -99,10 +102,9 @@ namespace IsengardClient
 
     internal enum ConstantSequenceMatchType
     {
-        FirstLineExactMatch,
+        ExactMatch,
         StartsWith,
         Contains,
-        FirstLineContains,
     }
 
     internal class ConstantSequence
@@ -587,6 +589,119 @@ namespace IsengardClient
                     _onSatisfied(rtType, sRoomName, allExitsList2);
                 }
             }
+        }
+    }
+
+    public class CastOffensiveSpellSequence : IOutputProcessingSequence
+    {
+        public Action _onSatisfied;
+        public CastOffensiveSpellSequence(Action onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public void FeedLine(string[] Lines)
+        {
+            bool satisfied = false;
+            string sStart = "You cast a ";
+            string sMiddle1 = " spell on ";
+            string sMiddle2 = " for ";
+            string sEnd = " damage.";
+            foreach (string nextLine in Lines)
+            {
+                if (nextLine == "You missed.")
+                {
+                    satisfied = true;
+                    break;
+                }
+                if (!nextLine.StartsWith(sStart))
+                {
+                    continue;
+                }
+                int findIndex = nextLine.IndexOf(sMiddle1, sStart.Length);
+                if (findIndex < 0)
+                {
+                    break;
+                }
+                findIndex = nextLine.IndexOf(sMiddle2, findIndex + sMiddle1.Length);
+                if (findIndex < 0)
+                {
+                    break;
+                }
+                if (!nextLine.EndsWith(sEnd))
+                {
+                    continue;
+                }
+                satisfied = true;
+                break;
+            }
+            if (satisfied)
+            {
+                _onSatisfied();
+            }
+        }
+    }
+
+    public class AttackSequence : IOutputProcessingSequence
+    {
+        public Action<bool> _onSatisfied;
+        public AttackSequence(Action<bool> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public void FeedLine(string[] Lines)
+        {
+            bool fumbled = false;
+            bool satisfied = false;
+            foreach (string nextLine in Lines)
+            {
+                if (nextLine == "You missed.")
+                {
+                    satisfied = true;
+                    break;
+                }
+                else if (nextLine == "You FUMBLED your weapon.")
+                {
+                    satisfied = true;
+                    fumbled = true;
+                    break;
+                }
+                else if (MatchesHitPattern(nextLine))
+                {
+                    satisfied = true;
+                    break;
+                }
+                else if (MatchesPowerAttackMissPattern(nextLine))
+                {
+                    satisfied = true;
+                    break;
+                }
+            }
+            if (satisfied)
+            {
+                _onSatisfied(fumbled);
+            }
+        }
+
+        public bool MatchesPowerAttackMissPattern(string nextLine)
+        {
+            return nextLine.StartsWith("Your power attack ") && nextLine.EndsWith(" missed.");
+        }
+
+        public bool MatchesHitPattern(string nextLine)
+        {
+            string sStart = "Your ";
+            string sMiddle1 = " hits for ";
+            string sEnd = " damage.";
+            if (!nextLine.StartsWith(sStart))
+            {
+                return false;
+            }
+            int findIndex = nextLine.IndexOf(sMiddle1, sStart.Length);
+            if (findIndex < 0)
+            {
+                return false;
+            }
+            return nextLine.EndsWith(sEnd);
         }
     }
 

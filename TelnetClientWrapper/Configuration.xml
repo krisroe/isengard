@@ -2,7 +2,6 @@
  <Variables>
   <Variable name="mob" type="string" value=""/>
   <Variable name="weapon" type="string" value=""/>
-  <Variable name="combatcycleinterval" type="int" value="2550" min="0"/>
   <Variable name="attacktype" type="string" value="attack"/>
  </Variables>
  <Macros>

@@ -55,5 +55,42 @@ namespace IsengardClient.Tests
             plxss.FeedLine(new string[] { "Please wait 1 more second." });
             Assert.IsTrue(waited == 1);
         }
+
+        [TestMethod]
+        public void TestAttackSequence()
+        {
+            bool success = false;
+            bool fumbled = false;
+            Action<bool> a = (f) =>
+            {
+                success = true;
+                fumbled = f;
+            };
+            AttackSequence aseq = new AttackSequence(a);
+
+            success = false;
+            fumbled = false;
+            aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." });
+            Assert.IsTrue(success);
+
+            success = false;
+            fumbled = false;
+            aseq.FeedLine(new string[] { "You FUMBLED your weapon." });
+            Assert.IsTrue(success);
+            Assert.IsTrue(fumbled);
+        }
+
+        [TestMethod]
+        public void TestCastOffensiveSpellSequence()
+        {
+            bool success = false;
+            Action a = () =>
+            {
+                success = true;
+            };
+            CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
+            cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." });
+            Assert.IsTrue(success);
+        }
     }
 }

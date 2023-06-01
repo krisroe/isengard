@@ -1038,11 +1038,11 @@ namespace IsengardClient
             Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden");
             AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate");
             Room oFallon = AddRoom("Fallon");
+            oFallon.Mob1 = "Fallon";
             oFallon.Experience1 = 350;
             oFallon.Alignment = AlignmentType.Blue;
             AddExit(oChurchsEnglishGarden, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGarden, "out");
-            oChurchsEnglishGarden.Mob1 = oFallon.Mob1 = "Fallon";
             _breeStreetsGraph.Rooms[oChurchsEnglishGarden] = new System.Windows.Point(13, -1);
             _breeStreetsGraph.Rooms[oFallon] = new System.Windows.Point(13, -1.5);
 
@@ -1153,23 +1153,23 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo] = new System.Windows.Point(2, -1);
 
             Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo");
-            e = AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
+            AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
             _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.5);
 
-            Room oScranlinThreshold = AddRoom("Scranlin's Training Area");
-            e = AddExit(oScranlinsPettingZoo, oScranlinThreshold, "clearing");
+            Room oScranlinsTrainingArea = AddRoom("Scranlin's Training Area");
+            e = AddExit(oScranlinsPettingZoo, oScranlinsTrainingArea, "clearing");
             e.Hidden = true;
-            AddExit(oScranlinThreshold, oScranlinsPettingZoo, "gate");
-            _breeStreetsGraph.Rooms[oScranlinThreshold] = new System.Windows.Point(2, -2);
+            AddExit(oScranlinsTrainingArea, oScranlinsPettingZoo, "gate");
+            _breeStreetsGraph.Rooms[oScranlinsTrainingArea] = new System.Windows.Point(2, -2);
 
             Room oScranlin = AddRoom("Scranlin");
-            oScranlin.Mob1 = oScranlinThreshold.Mob1 = "Scranlin";
+            oScranlin.Mob1 = "Scranlin";
             oScranlin.Experience1 = 500;
             oScranlin.Alignment = AlignmentType.Red;
-            e = AddExit(oScranlinThreshold, oScranlin, "outhouse");
+            e = AddExit(oScranlinsTrainingArea, oScranlin, "outhouse");
             e.Hidden = true;
-            AddExit(oScranlin, oScranlinThreshold, "out");
+            AddExit(oScranlin, oScranlinsTrainingArea, "out");
             _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
             boatswain = AddRoom("Boatswain");
@@ -1338,7 +1338,8 @@ namespace IsengardClient
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 3);
 
             Room oSewerOrcChamber = AddRoom("Sewer Orc Guards");
-            oSewerOrcChamber.Mob1 = "Guard";
+            oSewerOrcChamber.Mob1 = "Guard 2";
+            oSewerOrcChamber.Mob2 = "Guard 1";
             oSewerOrcChamber.Experience1 = 70;
             oSewerOrcChamber.Experience2 = 70;
             Exit e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
@@ -1447,7 +1448,8 @@ namespace IsengardClient
             breeSewersGraph.Rooms[aqueduct] = new System.Windows.Point(1, 2);
 
             Room oShirriff = breeSewers[7, 3];
-            oShirriff.Mob1 = "shirriff";
+            oShirriff.Mob1 = "shirriff 2";
+            oShirriff.Mob2 = "shirriff 1";
             oShirriff.Experience1 = 325;
             oShirriff.Experience2 = 325;
 
@@ -1540,8 +1542,10 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oPathToMansion3] = new System.Windows.Point(1, 3);
 
             Room oPathToMansion4WarriorBardsx2 = AddRoom("Warrior Bards (Path)");
-            oPathToMansion4WarriorBardsx2.Mob1 = sWarriorBard;
+            oPathToMansion4WarriorBardsx2.Mob1 = sWarriorBard + " 2";
+            oPathToMansion4WarriorBardsx2.Mob2 = sWarriorBard + " 1";
             oPathToMansion4WarriorBardsx2.Experience1 = 100;
+            oPathToMansion4WarriorBardsx2.Experience2 = 100;
             oPathToMansion4WarriorBardsx2.Alignment = AlignmentType.Red;
             AddExit(oPathToMansion3, oPathToMansion4WarriorBardsx2, "stone");
             AddExit(oPathToMansion4WarriorBardsx2, oPathToMansion3, "north");
@@ -1821,21 +1825,21 @@ namespace IsengardClient
 
             //mayor is immune to stun
             Room oMayorMillwood = AddRoom("Mayor Millwood");
+            oMayorMillwood.Mob1 = "mayor";
             oMayorMillwood.Experience1 = 220;
             oMayorMillwood.Alignment = AlignmentType.Grey;
             e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
             e.PreCommand = "open chamber";
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
-            oMayorMillwood.Mob1 = oRoyalHallwayToMayor.Mob1 = "mayor";
             millwoodMansionUpstairsGraph.Rooms[oMayorMillwood] = new System.Windows.Point(4, 8);
 
             Room oChancellorOfProtection = AddRoom("Chancellor of Protection");
+            oChancellorOfProtection.Mob1 = "chancellor";
             oChancellorOfProtection.Experience1 = 200;
             oChancellorOfProtection.Alignment = AlignmentType.Blue;
             e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
             e.PreCommand = "open chamber";
             AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
-            oChancellorOfProtection.Mob1 = oRoyalHallwayToChancellor.Mob1 = "chancellor";
             millwoodMansionUpstairsGraph.Rooms[oChancellorOfProtection] = new System.Windows.Point(4, 4);
 
             AddLocation(_aBreePerms, oChancellorOfProtection);
@@ -1933,14 +1937,12 @@ namespace IsengardClient
             AddBidirectionalExits(oNorthBrethilForest2, oDarkFootpath, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oDarkFootpath] = new System.Windows.Point(12, 2);
 
-            //North Brethil Forest
-            Room oNorthBrethilForest3 = AddRoom("North Brethil Forest");
+            Room oNorthBrethilForest3 = AddRoom("Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest3, oDarkFootpath, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(12, 1);
 
-            Room oNorthBrethilForest4GobAmbushThreshold = AddRoom("Gob Ambush #2 Threshold");
-            oNorthBrethilForest4GobAmbushThreshold.Mob1 = "goblin";
-            AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
+            Room oNorthBrethilForest4 = AddRoom("Brethil Forest");
+            AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(12, 0);
 
             Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2");
@@ -1948,7 +1950,7 @@ namespace IsengardClient
             oNorthBrethilForest5GobAmbush.Experience1 = 70;
             oNorthBrethilForest5GobAmbush.Experience2 = 50;
             oNorthBrethilForest5GobAmbush.Experience3 = 50;
-            AddBidirectionalExits(oNorthBrethilForest4GobAmbushThreshold, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(12, 0);
 
             //South Brethil Forest
@@ -1961,7 +1963,8 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oBrethilForest] = new System.Windows.Point(12, 6);
 
             Room oSpriteGuards = AddRoom("Sprite Guards");
-            oSpriteGuards.Mob1 = "guard";
+            oSpriteGuards.Mob1 = "guard 2";
+            oSpriteGuards.Mob2 = "guard 1";
             oSpriteGuards.Experience1 = 120;
             oSpriteGuards.Experience2 = 120;
             oSpriteGuards.Alignment = AlignmentType.Blue;
@@ -2232,7 +2235,8 @@ namespace IsengardClient
             imladrisGraph.Rooms[oRearAlley] = new System.Windows.Point(5, 7);
 
             Room oPoisonedDagger = AddRoom("Master Assassins");
-            oPoisonedDagger.Mob1 = oRearAlley.Mob1 = "assassin";
+            oPoisonedDagger.Mob1 = "assassin 2";
+            oPoisonedDagger.Mob2 = "assassin 1";
             oPoisonedDagger.Experience1 = 600;
             oPoisonedDagger.Experience2 = 600;
             AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
@@ -2458,16 +2462,16 @@ namespace IsengardClient
             imladrisGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 11);
             imladrisToTharbadGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 0);
 
-            Room oCutthroatAssassinThreshold = AddRoom("Guildmaster");
-            AddBidirectionalExits(oCutthroatAssassinThreshold, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
-            imladrisGraph.Rooms[oCutthroatAssassinThreshold] = new System.Windows.Point(3, 11);
-            imladrisToTharbadGraph.Rooms[oCutthroatAssassinThreshold] = new System.Windows.Point(3, 0);
+            Room oGuildmaster = AddRoom("Guildmaster");
+            AddBidirectionalExits(oGuildmaster, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 11);
+            imladrisToTharbadGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 0);
 
             Room oCutthroatAssassin = AddRoom("Hiester");
-            AddBidirectionalExits(oCutthroatAssassin, oCutthroatAssassinThreshold, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oCutthroatAssassin, oGuildmaster, BidirectionalExitType.WestEast);
             oCutthroatAssassin.Mob1 = "hiester";
             oCutthroatAssassin.Mob2 = "assassin";
-            oCutthroatAssassin.Mob3 = "cutthroat";
+            oCutthroatAssassin.Mob3 = "cutthroat"; //hiester is also cutthroat
             oCutthroatAssassin.Experience1 = 1200;
             oCutthroatAssassin.Experience2 = 600;
             oCutthroatAssassin.Experience3 = 500;
