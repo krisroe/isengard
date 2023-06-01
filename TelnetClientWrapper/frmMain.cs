@@ -3168,17 +3168,23 @@ namespace IsengardClient
             string sMonster = _currentlyFightingMob;
             int iMonsterDamage = _monsterDamage;
             MonsterStatus? monsterStatus = _currentMonsterStatus;
+            string sCurrentMobGroupText = grpMob.Text;
+            string sNewGroupMobText;
             if (string.IsNullOrEmpty(sMonster))
             {
-                grpMob.Text = "Mob";
+                sNewGroupMobText = "Mob";
                 txtMobStatus.Text = string.Empty;
                 txtMobStatus.Text = string.Empty;
             }
             else
             {
-                grpMob.Text = sMonster;
+                sNewGroupMobText = sMonster;
                 txtMobDamage.Text = iMonsterDamage.ToString();
                 txtMobStatus.Text = GetMonsterStatusText(monsterStatus);
+            }
+            if (!string.Equals(sCurrentMobGroupText, sNewGroupMobText))
+            {
+                grpMob.Text = sNewGroupMobText;
             }
 
             if (!btnAbort.Enabled)
