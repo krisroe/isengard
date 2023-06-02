@@ -23,11 +23,11 @@ namespace IsengardClient.Tests
 
             skillActive = false;
             availableDate = DateTime.UtcNow;
-            scs.FeedLine(new string[] { "manashield [ACTIVE]" });
+            scs.FeedLine(new string[] { "manashield [ACTIVE]" }, null, out _, out _);
             Assert.IsTrue(skillActive);
             Assert.IsTrue(!availableDate.HasValue);
 
-            scs.FeedLine(new string[] { "manashield [2:34]" });
+            scs.FeedLine(new string[] { "manashield [2:34]" }, null, out _, out _);
             Assert.IsFalse(skillActive);
             Assert.IsTrue(availableDate.HasValue);
         }
@@ -44,15 +44,15 @@ namespace IsengardClient.Tests
             PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(waitedAction);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 2 seconds." });
+            plxss.FeedLine(new string[] { "Please wait 2 seconds." }, null, out _, out _);
             Assert.IsTrue(waited == 2);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 12 seconds." });
+            plxss.FeedLine(new string[] { "Please wait 12 seconds." }, null, out _, out _);
             Assert.IsTrue(waited == 12);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 1 more second." });
+            plxss.FeedLine(new string[] { "Please wait 1 more second." }, null, out _, out _);
             Assert.IsTrue(waited == 1);
         }
 
@@ -73,14 +73,14 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = false;
             damage = 0;
-            aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." });
+            aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." }, null, out _, out _);
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
 
             success = false;
             fumbled = false;
             damage = 10;
-            aseq.FeedLine(new string[] { "You FUMBLED your weapon." });
+            aseq.FeedLine(new string[] { "You FUMBLED your weapon." }, null, out _, out _);
             Assert.IsTrue(success);
             Assert.IsTrue(fumbled);
             Assert.AreEqual(damage, 0);
@@ -97,7 +97,7 @@ namespace IsengardClient.Tests
                 damage = d;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
-            cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." });
+            cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." }, null, out _, out _);
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
         }

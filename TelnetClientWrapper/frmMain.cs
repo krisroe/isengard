@@ -640,7 +640,7 @@ namespace IsengardClient
         private void btnHelpCommand_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
-            SendCommand("help " + btn.Text, false);
+            SendCommand("help " + btn.Text, InputEchoType.On);
             txtOneOffCommand.Text = string.Empty;
             txtOneOffCommand.Focus();
         }
@@ -653,7 +653,7 @@ namespace IsengardClient
             {
                 command += " " + txtEmoteTarget.Text;
             }
-            SendCommand(command, false);
+            SendCommand(command, InputEchoType.On);
         }
 
         private class EmoteButton : Button
@@ -969,6 +969,7 @@ namespace IsengardClient
             };
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
+                new MobStatusSequence(OnMobStatusSequence),
                 new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
@@ -991,7 +992,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new MobStatusSequence(OnMobStatusSequence),
                 new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
             };
@@ -1012,6 +1012,7 @@ namespace IsengardClient
                         if (oii != null) break;
                     }
                     currentOutputItemData.Add(nextByte);
+                    InputEchoType echoType = InputEchoType.On;
                     if (oii != null)
                     {
                         OutputItemSequenceType oist = oii.SequenceType;
@@ -1070,13 +1071,26 @@ namespace IsengardClient
 
                             foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
                             {
-                                nextProcessingSequence.FeedLine(sNewLines);
+                                bool finishedProcessing;
+                                bool suppressEcho;
+                                nextProcessingSequence.FeedLine(sNewLines, _currentlyFightingMob, out finishedProcessing, out suppressEcho);
+                                if (suppressEcho)
+                                {
+                                    echoType = InputEchoType.Off;
+                                }
+                                if (finishedProcessing)
+                                {
+                                    break;
+                                }
                             }
                         }
 
-                        lock (_consoleTextLock)
+                        if (echoType == InputEchoType.On)
                         {
-                            _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, sNewLine, false));
+                            lock (_consoleTextLock)
+                            {
+                                _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, sNewLine, false));
+                            }
                         }
 
                         currentOutputItemData.Clear();
@@ -1578,12 +1592,12 @@ namespace IsengardClient
                 _commandResult = null;
                 if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
                 {
-                    SendCommand(_currentBackgroundParameters.FinalCommand, false);
+                    SendCommand(_currentBackgroundParameters.FinalCommand, InputEchoType.On);
                     _currentBackgroundParameters.CommandsRun++;
                 }
                 if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
                 {
-                    SendCommand(_currentBackgroundParameters.FinalCommand2, false);
+                    SendCommand(_currentBackgroundParameters.FinalCommand2, InputEchoType.On);
                     _currentBackgroundParameters.CommandsRun++;
                 }
                 if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
@@ -1773,7 +1787,7 @@ namespace IsengardClient
                                 pms.SetTargetRoomIfCancelled = true;
                                 if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
                                 {
-                                    SendCommand(nextExit.Target.PostMoveCommand, false);
+                                    SendCommand(nextExit.Target.PostMoveCommand, InputEchoType.On);
                                     pms.CommandsRun++;
                                 }
                             }
@@ -1835,7 +1849,7 @@ namespace IsengardClient
                     string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
                     if (!string.IsNullOrEmpty(sWeapon))
                     {
-                        SendCommand("remove " + sWeapon, false);
+                        SendCommand("remove " + sWeapon, InputEchoType.On);
                         _currentBackgroundParameters.CommandsRun++;
                         if (!_fleeing) return;
                         if (_bw.CancellationPending) return;
@@ -1912,7 +1926,7 @@ namespace IsengardClient
         {
             if (!string.IsNullOrEmpty(preCommand))
             {
-                SendCommand(preCommand, false);
+                SendCommand(preCommand, InputEchoType.On);
                 if (pms != null)
                 {
                     pms.CommandsRun++;
@@ -1920,7 +1934,7 @@ namespace IsengardClient
             }
             if (targetRoom != null && targetRoom.IsTrapRoom)
             {
-                SendCommand("prepare", false);
+                SendCommand("prepare", InputEchoType.On);
                 if (pms != null)
                 {
                     pms.CommandsRun++;
@@ -1980,7 +1994,7 @@ namespace IsengardClient
                 string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
                 if (!string.IsNullOrEmpty(sWeapon))
                 {
-                    SendCommand("wield " + sWeapon, false);
+                    SendCommand("wield " + sWeapon, InputEchoType.On);
                     _currentBackgroundParameters.CommandsRun++;
                 }
                 _fumbled = false;
@@ -1990,7 +2004,7 @@ namespace IsengardClient
             {
                 if (pms.QueuedCommand != null)
                 {
-                    SendCommand(pms.QueuedCommand, false);
+                    SendCommand(pms.QueuedCommand, InputEchoType.On);
                     pms.CommandsRun++;
                     pms.QueuedCommand = null;
                 }
@@ -2058,13 +2072,13 @@ namespace IsengardClient
 
             if (oCombatCycle != null)
             {
-                SendCommand(TranslateCommand("look {mob}", _currentBackgroundParameters.GetVariables(), out string _), false);
+                SendCommand(TranslateCommand("look {mob}", _currentBackgroundParameters.GetVariables(), out string _), InputEchoType.Off);
                 pms.CommandsRun++;
             }
 
             if (oCombatCycle == null)
             {
-                SendCommand(actualCommand, false);
+                SendCommand(actualCommand, InputEchoType.On);
                 pms.CommandsRun++;
             }
             else //combat cycle
@@ -2133,7 +2147,7 @@ namespace IsengardClient
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
                     _commandResult = null;
-                    SendCommand(command, false);
+                    SendCommand(command, InputEchoType.On);
                     pms.CommandsRun++;
                     while (true)
                     {
@@ -2410,7 +2424,7 @@ namespace IsengardClient
             r.VariableValues[v] = variableValue;
         }
 
-        private void SendCommand(string command, bool IsPassword)
+        private void SendCommand(string command, InputEchoType echoType)
         {
             List<int> keys = new List<int>();
             foreach (char c in command)
@@ -2436,10 +2450,10 @@ namespace IsengardClient
             {
                 _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
             }
-            if (!string.IsNullOrEmpty(command))
+            if (!string.IsNullOrEmpty(command) && echoType != InputEchoType.Off)
             {
                 string sToConsole;
-                if (IsPassword)
+                if (echoType == InputEchoType.OnPassword)
                 {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < command.Length; i++)
@@ -2690,9 +2704,9 @@ namespace IsengardClient
                         _currentBackgroundParameters.QueuedCommand = command;
                     }
                 }
-                else //send the command to the telnet window
+                else
                 {
-                    SendCommand(command, false);
+                    SendCommand(command, InputEchoType.On);
                 }
             }
             else
@@ -2796,7 +2810,7 @@ namespace IsengardClient
                     command += setValue;
                 }
             }
-            SendCommand(command, false);
+            SendCommand(command, InputEchoType.On);
         }
 
         private void cboSetOption_SelectedIndexChanged(object sender, EventArgs e)
@@ -3064,12 +3078,12 @@ namespace IsengardClient
 
             if (!_enteredUserName && _promptedUserName)
             {
-                SendCommand(_username, false);
+                SendCommand(_username, InputEchoType.On);
                 _enteredUserName = true;
             }
             else if (_enteredUserName && !_enteredPassword && _promptedPassword)
             {
-                SendCommand(_password, true);
+                SendCommand(_password, InputEchoType.OnPassword);
                 _enteredPassword = true;
             }
 
@@ -3169,22 +3183,33 @@ namespace IsengardClient
             int iMonsterDamage = _monsterDamage;
             MonsterStatus? monsterStatus = _currentMonsterStatus;
             string sCurrentMobGroupText = grpMob.Text;
+            string sCurrentMobStatusText = txtMobStatus.Text;
+            string sCurrentMobDamageText = txtMobDamage.Text;
             string sNewGroupMobText;
+            string sNewMobStatusText;
+            string sNewMobDamageText = sCurrentMobDamageText;
             if (string.IsNullOrEmpty(sMonster))
             {
                 sNewGroupMobText = "Mob";
-                txtMobStatus.Text = string.Empty;
-                txtMobStatus.Text = string.Empty;
+                sNewMobStatusText = string.Empty;
             }
             else
             {
                 sNewGroupMobText = sMonster;
-                txtMobDamage.Text = iMonsterDamage.ToString();
-                txtMobStatus.Text = GetMonsterStatusText(monsterStatus);
+                sNewMobStatusText = GetMonsterStatusText(monsterStatus);
+                sNewMobDamageText = iMonsterDamage.ToString();
             }
             if (!string.Equals(sCurrentMobGroupText, sNewGroupMobText))
             {
                 grpMob.Text = sNewGroupMobText;
+            }
+            if (!string.Equals(sCurrentMobStatusText, sNewMobStatusText))
+            {
+                txtMobStatus.Text = sNewMobStatusText;
+            }
+            if (!string.Equals(sCurrentMobDamageText, sNewMobDamageText))
+            {
+                txtMobDamage.Text = sNewMobDamageText;
             }
 
             if (!btnAbort.Enabled)
@@ -3219,20 +3244,20 @@ namespace IsengardClient
                     if (runPollTick)
                     {
                         _lastPollTick = dtUtcNow;
-                        SendCommand(string.Empty, false);
+                        SendCommand(string.Empty, InputEchoType.On);
                     }
                 }
                 if (_doScore)
                 {
                     _doScore = false;
-                    SendCommand("score", false);
+                    SendCommand("score", InputEchoType.On);
                 }
                 if (_currentStatusLastComputed.HasValue && !_ranStartupCommands)
                 {
                     _ranStartupCommands = true;
                     foreach (string nextCommand in _startupCommands)
                     {
-                        SendCommand(nextCommand, false);
+                        SendCommand(nextCommand, InputEchoType.On);
                     }
                 }
                 if (_setDay.HasValue)
@@ -3313,7 +3338,7 @@ namespace IsengardClient
             if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && AutoHazyActive && autoHitpoints.HasValue && autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
-                SendCommand("drink hazy", false);
+                SendCommand("drink hazy", InputEchoType.On);
             }
         }
 
@@ -3355,7 +3380,7 @@ namespace IsengardClient
         {
             if (e.KeyChar == (char)Keys.Return)
             {
-                SendCommand(txtOneOffCommand.Text, false);
+                SendCommand(txtOneOffCommand.Text, InputEchoType.On);
                 txtOneOffCommand.SelectAll();
             }
         }
@@ -3379,14 +3404,14 @@ namespace IsengardClient
 
         private void btnEmote_Click(object sender, EventArgs e)
         {
-            SendCommand("emote " + txtCommandText.Text, false);
+            SendCommand("emote " + txtCommandText.Text, InputEchoType.On);
             txtCommandText.Focus();
             txtCommandText.SelectAll();
         }
 
         private void btnSay_Click(object sender, EventArgs e)
         {
-            SendCommand("say " + txtCommandText.Text, false);
+            SendCommand("say " + txtCommandText.Text, InputEchoType.On);
             txtCommandText.Focus();
             txtCommandText.SelectAll();
         }
@@ -3771,5 +3796,12 @@ namespace IsengardClient
         ManyGreviousWounds,
         MortallyWounded,
         BarelyClingingToLife,
+    }
+
+    internal enum InputEchoType
+    {
+        On,
+        OnPassword,
+        Off,
     }
 }

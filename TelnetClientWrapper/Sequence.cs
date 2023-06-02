@@ -27,7 +27,7 @@ namespace IsengardClient
 
     public interface IOutputProcessingSequence
     {
-        void FeedLine(string[] Lines);
+        void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho);
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -66,9 +66,11 @@ namespace IsengardClient
             _firstLineOnly = FirstLineOnly;
         }
 
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             int lineIndex = 0;
+            finishedProcessing = false;
+            suppressEcho = false;
             foreach (string Line in Lines)
             {
                 bool match;
@@ -327,8 +329,10 @@ namespace IsengardClient
             return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             foreach (string nextLine in Lines)
             {
                 SkillCooldownStep currentStep = SkillCooldownStep.None;
@@ -522,8 +526,10 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int nextLineIndex = 0;
 
@@ -599,8 +605,10 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             bool satisfied = false;
             string sStart = "You cast a ";
             string sMiddle1 = " spell on ";
@@ -644,8 +652,10 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             bool fumbled = false;
             bool satisfied = false;
             int damage = 0;
@@ -753,8 +763,10 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             bool firstLine = true;
             MonsterStatus? status = null;
             foreach (string nextLine in Lines)
@@ -811,6 +823,8 @@ namespace IsengardClient
                     }
                     if (status.HasValue)
                     {
+                        finishedProcessing = true;
+                        suppressEcho = !string.IsNullOrEmpty(currentMonster);
                         _onSatisfied(status.Value);
                         return;
                     }
@@ -854,8 +868,10 @@ namespace IsengardClient
             }
         }
 
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             foreach (string nextLine in Lines)
             {
                 List<int> waitNumbers = new List<int>();
@@ -952,8 +968,10 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines)
+        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
+            finishedProcessing = false;
+            suppressEcho = false;
             foreach (string nextLine in Lines)
             {
                 SpellsCastStep currentStep = SpellsCastStep.None;
