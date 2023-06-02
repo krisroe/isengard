@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Utils;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -25,9 +26,9 @@ namespace IsengardClient
         Goodbye,
     }
 
-    public interface IOutputProcessingSequence
+    internal interface IOutputProcessingSequence
     {
-        void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho);
+        void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho);
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -58,6 +59,8 @@ namespace IsengardClient
         private string _characters;
         private ConstantSequenceMatchType _matchType;
         private bool _firstLineOnly;
+        private List<BackgroundCommandType> _backgroundCommandTypes;
+
         public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly)
         {
             _onSatisfied = onSatisfied;
@@ -66,11 +69,30 @@ namespace IsengardClient
             _firstLineOnly = FirstLineOnly;
         }
 
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly, BackgroundCommandType? backgroundCommandType) :
+            this(characters, onSatisfied, MatchType, FirstLineOnly)
         {
-            int lineIndex = 0;
+            if (backgroundCommandType.HasValue)
+            {
+                _backgroundCommandTypes = new List<BackgroundCommandType>() { backgroundCommandType.Value };
+            }
+        }
+
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly, List<BackgroundCommandType> backgroundCommandTypes) :
+            this(characters, onSatisfied, MatchType, FirstLineOnly)
+        {
+            _backgroundCommandTypes = backgroundCommandTypes;
+        }
+
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        {
             finishedProcessing = false;
             suppressEcho = false;
+            if (_backgroundCommandTypes != null && (!backgroundCommandType.HasValue || !_backgroundCommandTypes.Contains(backgroundCommandType.Value)))
+            {
+                return;
+            }
+            int lineIndex = 0;
             foreach (string Line in Lines)
             {
                 bool match;
@@ -329,7 +351,7 @@ namespace IsengardClient
             return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
@@ -526,7 +548,7 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
@@ -605,10 +627,14 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
+            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.OffensiveSpell)
+            {
+                return;
+            }
             bool satisfied = false;
             string sStart = "You cast a ";
             string sMiddle1 = " spell on ";
@@ -617,11 +643,6 @@ namespace IsengardClient
             int damage = 0;
             foreach (string nextLine in Lines)
             {
-                if (nextLine == "You missed.")
-                {
-                    satisfied = true;
-                    break;
-                }
                 if (!nextLine.StartsWith(sStart))
                 {
                     continue;
@@ -652,10 +673,14 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
+            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Attack)
+            {
+                return;
+            }
             bool fumbled = false;
             bool satisfied = false;
             int damage = 0;
@@ -763,10 +788,14 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
+            if (string.IsNullOrEmpty(currentMonster))
+            {
+                return;
+            }
             bool firstLine = true;
             MonsterStatus? status = null;
             foreach (string nextLine in Lines)
@@ -868,10 +897,14 @@ namespace IsengardClient
             }
         }
 
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;
+            if (!backgroundCommandType.HasValue)
+            {
+                return;
+            }
             foreach (string nextLine in Lines)
             {
                 List<int> waitNumbers = new List<int>();
@@ -954,7 +987,7 @@ namespace IsengardClient
         }
     }
 
-    public class SpellsCastSequence : IOutputProcessingSequence
+    internal class SpellsCastSequence : IOutputProcessingSequence
     {
         private List<char> _chars;
         private Action<List<string>> _onSatisfied;
@@ -968,7 +1001,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
         {
             finishedProcessing = false;
             suppressEcho = false;

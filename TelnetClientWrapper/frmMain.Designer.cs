@@ -42,12 +42,10 @@
             this.btnLookAtMob = new System.Windows.Forms.Button();
             this.btnLook = new System.Windows.Forms.Button();
             this.btnCastVigor = new System.Windows.Forms.Button();
-            this.btnManashield = new System.Windows.Forms.Button();
             this.btnCastCurePoison = new System.Windows.Forms.Button();
             this.btnTime = new System.Windows.Forms.Button();
             this.btnScore = new System.Windows.Forms.Button();
             this.btnInformation = new System.Windows.Forms.Button();
-            this.btnCastProtection = new System.Windows.Forms.Button();
             this.chkIsNight = new System.Windows.Forms.CheckBox();
             this.txtOneOffCommand = new System.Windows.Forms.TextBox();
             this.btnInventory = new System.Windows.Forms.Button();
@@ -60,7 +58,6 @@
             this.txtWeapon = new System.Windows.Forms.TextBox();
             this.lblWeapon = new System.Windows.Forms.Label();
             this.btnWieldWeapon = new System.Windows.Forms.Button();
-            this.btnCastBless = new System.Windows.Forms.Button();
             this.btnSet = new System.Windows.Forms.Button();
             this.cboSetOption = new System.Windows.Forms.ComboBox();
             this.chkSetOn = new System.Windows.Forms.CheckBox();
@@ -101,6 +98,11 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpMob = new System.Windows.Forms.GroupBox();
+            this.txtMobStatus = new System.Windows.Forms.TextBox();
+            this.lblMobStatus = new System.Windows.Forms.Label();
+            this.txtMobDamage = new System.Windows.Forms.TextBox();
+            this.lblMobDamage = new System.Windows.Forms.Label();
             this.btnGraph = new System.Windows.Forms.Button();
             this.btnClearCurrentLocation = new System.Windows.Forms.Button();
             this.grpSingleMove = new System.Windows.Forms.GroupBox();
@@ -166,11 +168,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.grpMob = new System.Windows.Forms.GroupBox();
-            this.lblMobDamage = new System.Windows.Forms.Label();
-            this.txtMobDamage = new System.Windows.Forms.TextBox();
-            this.lblMobStatus = new System.Windows.Forms.Label();
-            this.txtMobStatus = new System.Windows.Forms.TextBox();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -179,6 +176,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpMob.SuspendLayout();
             this.grpSingleMove.SuspendLayout();
             this.grpSpells.SuspendLayout();
             this.tabAncillary.SuspendLayout();
@@ -196,7 +194,6 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
-            this.grpMob.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -319,7 +316,7 @@
             // 
             // btnCastVigor
             // 
-            this.btnCastVigor.Location = new System.Drawing.Point(429, 167);
+            this.btnCastVigor.Location = new System.Drawing.Point(429, 200);
             this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastVigor.Name = "btnCastVigor";
             this.btnCastVigor.Size = new System.Drawing.Size(93, 28);
@@ -328,20 +325,9 @@
             this.btnCastVigor.UseVisualStyleBackColor = true;
             this.btnCastVigor.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // btnManashield
-            // 
-            this.btnManashield.Location = new System.Drawing.Point(64, 300);
-            this.btnManashield.Margin = new System.Windows.Forms.Padding(2);
-            this.btnManashield.Name = "btnManashield";
-            this.btnManashield.Size = new System.Drawing.Size(117, 28);
-            this.btnManashield.TabIndex = 11;
-            this.btnManashield.Text = "Manashield";
-            this.btnManashield.UseVisualStyleBackColor = true;
-            this.btnManashield.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
             // btnCastCurePoison
             // 
-            this.btnCastCurePoison.Location = new System.Drawing.Point(429, 233);
+            this.btnCastCurePoison.Location = new System.Drawing.Point(430, 269);
             this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastCurePoison.Name = "btnCastCurePoison";
             this.btnCastCurePoison.Size = new System.Drawing.Size(93, 28);
@@ -382,17 +368,6 @@
             this.btnInformation.Text = "Information";
             this.btnInformation.UseVisualStyleBackColor = true;
             this.btnInformation.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnCastProtection
-            // 
-            this.btnCastProtection.Location = new System.Drawing.Point(429, 266);
-            this.btnCastProtection.Margin = new System.Windows.Forms.Padding(2);
-            this.btnCastProtection.Name = "btnCastProtection";
-            this.btnCastProtection.Size = new System.Drawing.Size(93, 28);
-            this.btnCastProtection.TabIndex = 26;
-            this.btnCastProtection.Text = "Cast Protection";
-            this.btnCastProtection.UseVisualStyleBackColor = true;
-            this.btnCastProtection.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // chkIsNight
             // 
@@ -472,7 +447,7 @@
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(527, 167);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(527, 200);
             this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(93, 28);
@@ -483,7 +458,7 @@
             // 
             // btnDrinkGreen
             // 
-            this.btnDrinkGreen.Location = new System.Drawing.Point(527, 233);
+            this.btnDrinkGreen.Location = new System.Drawing.Point(527, 269);
             this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkGreen.Name = "btnDrinkGreen";
             this.btnDrinkGreen.Size = new System.Drawing.Size(93, 28);
@@ -521,17 +496,6 @@
             this.btnWieldWeapon.Text = "Wield Weapon";
             this.btnWieldWeapon.UseVisualStyleBackColor = true;
             this.btnWieldWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnCastBless
-            // 
-            this.btnCastBless.Location = new System.Drawing.Point(429, 301);
-            this.btnCastBless.Margin = new System.Windows.Forms.Padding(2);
-            this.btnCastBless.Name = "btnCastBless";
-            this.btnCastBless.Size = new System.Drawing.Size(93, 28);
-            this.btnCastBless.TabIndex = 44;
-            this.btnCastBless.Text = "Cast Bless";
-            this.btnCastBless.UseVisualStyleBackColor = true;
-            this.btnCastBless.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnSet
             // 
@@ -1002,7 +966,6 @@
             this.pnlMain.Controls.Add(this.btnRemoveWeapon);
             this.pnlMain.Controls.Add(this.btnCastVigor);
             this.pnlMain.Controls.Add(this.txtPotion);
-            this.pnlMain.Controls.Add(this.btnManashield);
             this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
             this.pnlMain.Controls.Add(this.btnVariables);
@@ -1012,7 +975,6 @@
             this.pnlMain.Controls.Add(this.grpLocations);
             this.pnlMain.Controls.Add(this.btnInformation);
             this.pnlMain.Controls.Add(this.grpRealm);
-            this.pnlMain.Controls.Add(this.btnCastProtection);
             this.pnlMain.Controls.Add(this.chkIsNight);
             this.pnlMain.Controls.Add(this.btnQuit);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
@@ -1026,7 +988,6 @@
             this.pnlMain.Controls.Add(this.btnAttackMob);
             this.pnlMain.Controls.Add(this.lblWand);
             this.pnlMain.Controls.Add(this.txtCurrentRoom);
-            this.pnlMain.Controls.Add(this.btnCastBless);
             this.pnlMain.Controls.Add(this.lblCurrentRoom);
             this.pnlMain.Controls.Add(this.btnWieldWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkYellow);
@@ -1039,6 +1000,53 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // grpMob
+            // 
+            this.grpMob.Controls.Add(this.txtMobStatus);
+            this.grpMob.Controls.Add(this.lblMobStatus);
+            this.grpMob.Controls.Add(this.txtMobDamage);
+            this.grpMob.Controls.Add(this.lblMobDamage);
+            this.grpMob.Location = new System.Drawing.Point(734, 579);
+            this.grpMob.Name = "grpMob";
+            this.grpMob.Size = new System.Drawing.Size(277, 89);
+            this.grpMob.TabIndex = 120;
+            this.grpMob.TabStop = false;
+            this.grpMob.Text = "Mob";
+            // 
+            // txtMobStatus
+            // 
+            this.txtMobStatus.Location = new System.Drawing.Point(69, 47);
+            this.txtMobStatus.Name = "txtMobStatus";
+            this.txtMobStatus.ReadOnly = true;
+            this.txtMobStatus.Size = new System.Drawing.Size(193, 20);
+            this.txtMobStatus.TabIndex = 3;
+            // 
+            // lblMobStatus
+            // 
+            this.lblMobStatus.AutoSize = true;
+            this.lblMobStatus.Location = new System.Drawing.Point(6, 50);
+            this.lblMobStatus.Name = "lblMobStatus";
+            this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
+            this.lblMobStatus.TabIndex = 2;
+            this.lblMobStatus.Text = "Status:";
+            // 
+            // txtMobDamage
+            // 
+            this.txtMobDamage.Location = new System.Drawing.Point(69, 16);
+            this.txtMobDamage.Name = "txtMobDamage";
+            this.txtMobDamage.ReadOnly = true;
+            this.txtMobDamage.Size = new System.Drawing.Size(193, 20);
+            this.txtMobDamage.TabIndex = 1;
+            // 
+            // lblMobDamage
+            // 
+            this.lblMobDamage.AutoSize = true;
+            this.lblMobDamage.Location = new System.Drawing.Point(6, 20);
+            this.lblMobDamage.Name = "lblMobDamage";
+            this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
+            this.lblMobDamage.TabIndex = 0;
+            this.lblMobDamage.Text = "Damage:";
             // 
             // btnGraph
             // 
@@ -1379,7 +1387,7 @@
             // 
             // btnCastMend
             // 
-            this.btnCastMend.Location = new System.Drawing.Point(430, 200);
+            this.btnCastMend.Location = new System.Drawing.Point(430, 233);
             this.btnCastMend.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastMend.Name = "btnCastMend";
             this.btnCastMend.Size = new System.Drawing.Size(93, 28);
@@ -1390,7 +1398,7 @@
             // 
             // btnReddishOrange
             // 
-            this.btnReddishOrange.Location = new System.Drawing.Point(527, 201);
+            this.btnReddishOrange.Location = new System.Drawing.Point(527, 233);
             this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(2);
             this.btnReddishOrange.Name = "btnReddishOrange";
             this.btnReddishOrange.Size = new System.Drawing.Size(93, 28);
@@ -1766,53 +1774,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // grpMob
-            // 
-            this.grpMob.Controls.Add(this.txtMobStatus);
-            this.grpMob.Controls.Add(this.lblMobStatus);
-            this.grpMob.Controls.Add(this.txtMobDamage);
-            this.grpMob.Controls.Add(this.lblMobDamage);
-            this.grpMob.Location = new System.Drawing.Point(734, 579);
-            this.grpMob.Name = "grpMob";
-            this.grpMob.Size = new System.Drawing.Size(277, 89);
-            this.grpMob.TabIndex = 120;
-            this.grpMob.TabStop = false;
-            this.grpMob.Text = "Mob";
-            // 
-            // lblMobDamage
-            // 
-            this.lblMobDamage.AutoSize = true;
-            this.lblMobDamage.Location = new System.Drawing.Point(6, 20);
-            this.lblMobDamage.Name = "lblMobDamage";
-            this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
-            this.lblMobDamage.TabIndex = 0;
-            this.lblMobDamage.Text = "Damage:";
-            // 
-            // txtMobDamage
-            // 
-            this.txtMobDamage.Location = new System.Drawing.Point(69, 16);
-            this.txtMobDamage.Name = "txtMobDamage";
-            this.txtMobDamage.ReadOnly = true;
-            this.txtMobDamage.Size = new System.Drawing.Size(193, 20);
-            this.txtMobDamage.TabIndex = 1;
-            // 
-            // lblMobStatus
-            // 
-            this.lblMobStatus.AutoSize = true;
-            this.lblMobStatus.Location = new System.Drawing.Point(6, 50);
-            this.lblMobStatus.Name = "lblMobStatus";
-            this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
-            this.lblMobStatus.TabIndex = 2;
-            this.lblMobStatus.Text = "Status:";
-            // 
-            // txtMobStatus
-            // 
-            this.txtMobStatus.Location = new System.Drawing.Point(69, 47);
-            this.txtMobStatus.Name = "txtMobStatus";
-            this.txtMobStatus.ReadOnly = true;
-            this.txtMobStatus.Size = new System.Drawing.Size(193, 20);
-            this.txtMobStatus.TabIndex = 3;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1836,6 +1797,8 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpMob.ResumeLayout(false);
+            this.grpMob.PerformLayout();
             this.grpSingleMove.ResumeLayout(false);
             this.grpSingleMove.PerformLayout();
             this.grpSpells.ResumeLayout(false);
@@ -1857,8 +1820,6 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
-            this.grpMob.ResumeLayout(false);
-            this.grpMob.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1874,12 +1835,10 @@
         private System.Windows.Forms.Button btnLookAtMob;
         private System.Windows.Forms.Button btnLook;
         private System.Windows.Forms.Button btnCastVigor;
-        private System.Windows.Forms.Button btnManashield;
         private System.Windows.Forms.Button btnCastCurePoison;
         private System.Windows.Forms.Button btnTime;
         private System.Windows.Forms.Button btnScore;
         private System.Windows.Forms.Button btnInformation;
-        private System.Windows.Forms.Button btnCastProtection;
         private System.Windows.Forms.CheckBox chkIsNight;
         private System.Windows.Forms.TextBox txtOneOffCommand;
         private System.Windows.Forms.Button btnInventory;
@@ -1892,7 +1851,6 @@
         private System.Windows.Forms.TextBox txtWeapon;
         private System.Windows.Forms.Label lblWeapon;
         private System.Windows.Forms.Button btnWieldWeapon;
-        private System.Windows.Forms.Button btnCastBless;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.ComboBox cboSetOption;
         private System.Windows.Forms.CheckBox chkSetOn;

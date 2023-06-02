@@ -234,9 +234,9 @@ namespace IsengardClient
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip");
             Exit e = AddExit(boatswain, oCelduinExpressSlip, "pier");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(oCelduinExpressSlip, boatswain, "gangway");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             mithlondGraph.Rooms[oCelduinExpressSlip] = new System.Windows.Point(2, 5);
 
             Room oBullroarerSlip = AddRoom("Bullroarer Slip");
@@ -338,11 +338,11 @@ namespace IsengardClient
             Room oHarbringerMithlondEntrance = AddRoom("Harbringer");
             AddBidirectionalExits(oHarbringerWest1, oHarbringerMithlondEntrance, BidirectionalExitType.NorthSouth);
             Exit e = AddExit(mithlondEntrance, oHarbringerMithlondEntrance, "ship");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(oHarbringerMithlondEntrance, mithlondEntrance, "gangplank");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(4, 6.5);
             tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(0, 9);
 
@@ -379,9 +379,9 @@ namespace IsengardClient
         {
             Room bullroarerSE = AddRoom("Bullroarer");
             Exit e = AddExit(mithlondEntrance, bullroarerSE, "gangway");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(nindamosDocks, bullroarerSE, "gangway");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(bullroarerSE, mithlondEntrance, "plank");
             e.WaitForMessage = "The Bullroarer has arrived in Mithlond.";
             e = AddExit(bullroarerSE, nindamosDocks, "plank");
@@ -1178,9 +1178,9 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[boatswain] = new System.Windows.Point(9, 9.5);
             AddLocation(_aShips, boatswain);
             e = AddExit(breeDocks, boatswain, "steamboat");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(boatswain, breeDocks, "dock");
-            e.Periodic = true;
+            e.PresenceType = ExitPresenceType.Periodic;
 
             Room oPearlAlley = AddRoom("Pearl Alley");
             AddExit(oBreeTownSquare, oPearlAlley, "alley");

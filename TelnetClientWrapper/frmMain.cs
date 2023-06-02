@@ -78,10 +78,12 @@ namespace IsengardClient
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
+        private List<string> _foundSearchedExits;
         private string _currentlyFightingMob;
         private MonsterStatus? _currentMonsterStatus;
         private int _monsterDamage;
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
+        private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>() { BackgroundCommandType.Vigor, BackgroundCommandType.Protection, BackgroundCommandType.Bless, BackgroundCommandType.Stun, BackgroundCommandType.OffensiveSpell };
 
         internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
@@ -892,11 +894,7 @@ namespace IsengardClient
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.Vigor ||
-                    bctValue == BackgroundCommandType.Bless ||
-                    bctValue == BackgroundCommandType.Protection ||
-                    bctValue == BackgroundCommandType.Stun ||
-                    bctValue == BackgroundCommandType.OffensiveSpell)
+                if (_backgroundSpells.Contains(bctValue))
                 {
                     _commandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
@@ -939,9 +937,13 @@ namespace IsengardClient
         private void OnCastOffensiveSpellMobNotPresent()
         {
             BackgroundCommandType? bct = _backgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
+            if (bct.HasValue)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun)
+                {
+                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
             }
         }
 
@@ -973,27 +975,27 @@ namespace IsengardClient
                 new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.ExactMatch, true),
                 new SpellsCastSequence(OnSpellsCastChange),
                 new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
                 new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, true),
+                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Bless),
+                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, true, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, false), //could be prefixed by "Scared of going X"*
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
                 new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, true),
-                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, true),
-                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, true),
-                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Movement),
+                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, true, BackgroundCommandType.Movement),
+                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, true, BackgroundCommandType.Stun),
+                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true, _backgroundSpells),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true), //can be triggered by attack or looking at a mob
+                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
             };
 
             while (true)
@@ -1073,7 +1075,7 @@ namespace IsengardClient
                             {
                                 bool finishedProcessing;
                                 bool suppressEcho;
-                                nextProcessingSequence.FeedLine(sNewLines, _currentlyFightingMob, out finishedProcessing, out suppressEcho);
+                                nextProcessingSequence.FeedLine(sNewLines, _backgroundCommandType, _currentlyFightingMob, out finishedProcessing, out suppressEcho);
                                 if (suppressEcho)
                                 {
                                     echoType = InputEchoType.Off;
@@ -1510,18 +1512,15 @@ namespace IsengardClient
             btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None);
             btnLook.Tag = new CommandButtonTag("look", CommandType.None);
             btnCastVigor.Tag = new CommandButtonTag("cast vigor", CommandType.Magic);
-            btnManashield.Tag = new CommandButtonTag("manashield", CommandType.Magic);
             btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic);
             btnTime.Tag = new CommandButtonTag("time", CommandType.None);
             btnScore.Tag = new CommandButtonTag("score", CommandType.None);
             btnInformation.Tag = new CommandButtonTag("information", CommandType.None);
-            btnCastProtection.Tag = new CommandButtonTag("cast protection", CommandType.Magic);
             btnInventory.Tag = new CommandButtonTag("inventory", CommandType.None);
             btnAttackMob.Tag = new CommandButtonTag("kill {mob}", CommandType.Melee);
             btnDrinkYellow.Tag = new CommandButtonTag("drink yellow", CommandType.Potions);
             btnDrinkGreen.Tag = new CommandButtonTag("drink green", CommandType.Potions);
             btnWieldWeapon.Tag = new CommandButtonTag("wield {weapon}", CommandType.None);
-            btnCastBless.Tag = new CommandButtonTag("cast bless", CommandType.Magic);
             btnUseWandOnMob.Tag = new CommandButtonTag("zap {wand} {mob}", CommandType.Magic);
             btnWho.Tag = new CommandButtonTag("who", CommandType.None);
             btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None);
@@ -1725,33 +1724,58 @@ namespace IsengardClient
             {
                 foreach (Exit nextExit in pms.Exits)
                 {
+                    string exitText = nextExit.ExitText;
                     _currentBackgroundExit = nextExit;
                     _currentBackgroundExitMessageReceived = false;
 
                     try
                     {
-                        //for periodic exits, verify the exit actually exists
-                        if (nextExit.Periodic)
+                        //for exits that aren't always present, ensure the exit exists
+                        ExitPresenceType presenceType = nextExit.PresenceType;
+                        if (presenceType != ExitPresenceType.Always)
                         {
                             bool foundExit = false;
                             do
                             {
-                                _currentObviousExits = null;
-                                bool successfullyLooked = RunSingleCommand(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false, false);
-                                if (successfullyLooked)
+                                if (presenceType == ExitPresenceType.Periodic)
                                 {
-                                    if (_currentObviousExits.Contains(nextExit.ExitText))
+                                    _currentObviousExits = null;
+                                    bool successfullyLooked = RunSingleCommand(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false, false);
+                                    if (successfullyLooked)
                                     {
-                                        foundExit = true;
+                                        if (_currentObviousExits.Contains(exitText))
+                                        {
+                                            foundExit = true;
+                                        }
+                                        else
+                                        {
+                                            WaitUntilNextCommand(5000, false, false);
+                                        }
+                                    }
+                                    else //look is not supposed to fail
+                                    {
+                                        return;
+                                    }
+                                }
+                                else if (presenceType == ExitPresenceType.RequiresSearch)
+                                {
+                                    _foundSearchedExits = null;
+                                    bool successfullySearched = RunSingleCommand(BackgroundCommandType.Search, "search", pms, BeforeFleeCommandAbortLogic, false, false);
+                                    if (successfullySearched)
+                                    {
+                                        if (_foundSearchedExits.Contains(exitText))
+                                        {
+                                            foundExit = true;
+                                        }
                                     }
                                     else
                                     {
-                                        WaitUntilNextCommand(5000, false, false);
+                                        return;
                                     }
                                 }
-                                else //look is not supposed to fail
+                                else
                                 {
-                                    return;
+                                    throw new InvalidOperationException();
                                 }
                             }
                             while (!foundExit);
@@ -1776,7 +1800,7 @@ namespace IsengardClient
                         RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
 
                         //determine the exit command
-                        string nextCommand = GetExitCommand(nextExit.ExitText);
+                        string nextCommand = GetExitCommand(exitText);
 
                         bool exitSuccessful = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, BeforeFleeCommandAbortLogic, false, false);
                         if (exitSuccessful)
@@ -3769,10 +3793,11 @@ namespace IsengardClient
         CommandMustWait,
     }
 
-    internal enum BackgroundCommandType
+    public enum BackgroundCommandType
     {
         Movement,
         Look,
+        Search,
         Vigor,
         Bless,
         Protection,

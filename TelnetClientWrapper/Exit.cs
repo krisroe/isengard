@@ -1,10 +1,4 @@
 ﻿using QuickGraph;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace IsengardClient
 {
     internal class Exit : Edge<Room>
@@ -30,9 +24,9 @@ namespace IsengardClient
         /// </summary>
         public bool NoFlee { get; set; }
         /// <summary>
-        /// set to indicate the exit is periodically visible
+        /// set to indicate exits that are not always present
         /// </summary>
-        public bool Periodic { get; set; }
+        public ExitPresenceType PresenceType { get; set; }
         /// <summary>
         /// wait for a specific message before leaving
         /// </summary>
@@ -41,5 +35,12 @@ namespace IsengardClient
         {
             this.ExitText = exitText;
         }
+    }
+
+    internal enum ExitPresenceType
+    {
+        Always,
+        Periodic,
+        RequiresSearch,
     }
 }
