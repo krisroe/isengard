@@ -158,6 +158,11 @@
     </Compile>
     <Compile Include="Macro.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
+    <Compile Include="PriorityQueue\GenericPriorityQueueNode.cs" />
+    <Compile Include="PriorityQueue\IFixedSizePriorityQueue.cs" />
+    <Compile Include="PriorityQueue\IPriorityQueue.cs" />
+    <Compile Include="PriorityQueue\SimplePriorityQueue.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Room.cs" />

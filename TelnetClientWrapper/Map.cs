@@ -1,4 +1,5 @@
-﻿using QuickGraph;
+﻿using Priority_Queue;
+using QuickGraph;
 using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
@@ -4373,51 +4374,61 @@ namespace IsengardClient
         Eldemonde,
     }
 
-    internal class MapComputation
+    internal static class MapComputation
     {
-        private BreadthFirstSearchAlgorithm<Room, Exit> _currentSearch;
-        private Dictionary<Room, Exit> _pathMapping;
-        private Room _targetRoom;
-        private Room _currentRoom;
-
-        public MapComputation(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph)
         {
-            _pathMapping = new Dictionary<Room, Exit>();
-            _currentRoom = currentRoom;
-            _targetRoom = targetRoom;
-            _currentSearch = new BreadthFirstSearchAlgorithm<Room, Exit>(mapGraph);
-            _currentSearch.TreeEdge += Alg_TreeEdge;
-            _currentSearch.Compute(currentRoom);
-        }
+            List<Exit> ret = null;
+            Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
+            GenericPriorityQueue<ExitPriorityNode, int> pq = new GenericPriorityQueue<ExitPriorityNode, int>(2000);
 
-        public Dictionary<Room, Exit> PathMapping
-        {
-            get
+            pathMapping[currentRoom] = null;
+            if (mapGraph.TryGetOutEdges(currentRoom, out IEnumerable<Exit> initialEdges))
             {
-                return _pathMapping;
+                foreach (Exit e in initialEdges)
+                {
+                    pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
+                }
             }
-        }
-
-        public List<Exit> GetExits()
-        {
-            Room currentRoom = _targetRoom;
-            List<Exit> exits = new List<Exit>();
-            while (currentRoom != _currentRoom)
+            while (pq.Count > 0)
             {
-                Exit nextExit = _pathMapping[currentRoom];
-                exits.Add(nextExit);
-                currentRoom = nextExit.Source;
-            }
-            return exits;
-        }
+                ExitPriorityNode nextNode = pq.Dequeue();
+                Exit nextNodeExit = nextNode.Exit;
+                Room nextNodeTarget = nextNodeExit.Target;
+                if (!pathMapping.ContainsKey(nextNodeTarget))
+                {
+                    int iPriority = nextNode.Priority;
+                    pathMapping[nextNodeTarget] = nextNodeExit;
 
-        private void Alg_TreeEdge(Exit e)
-        {
-            _pathMapping[e.Target] = e;
-            if (e.Target == _targetRoom)
-            {
-                _currentSearch.Abort();
+                    if (nextNodeTarget == targetRoom)
+                    {
+                        Room tempRoom = targetRoom;
+                        ret = new List<Exit>();
+                        while (currentRoom != tempRoom)
+                        {
+                            Exit nextExit = pathMapping[tempRoom];
+                            ret.Add(nextExit);
+                            tempRoom = nextExit.Source;
+                        }
+                        ret.Reverse();
+                        break;
+                    }
+                    else
+                    {
+                        if (mapGraph.TryGetOutEdges(nextNodeTarget, out IEnumerable<Exit> edges))
+                        {
+                            foreach (Exit e in edges)
+                            {
+                                if (!pathMapping.ContainsKey(e.Target))
+                                {
+                                    pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            return ret;
         }
     }
 }

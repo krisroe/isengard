@@ -3775,15 +3775,12 @@ namespace IsengardClient
 
         private List<Exit> CalculateRouteExits(Room targetRoom)
         {
-            MapComputation mc = new MapComputation(m_oCurrentRoom, targetRoom, _gameMap.MapGraph);
-            if (!mc.PathMapping.ContainsKey(targetRoom))
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph);
+            if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");
-                return null;
             }
-            List<Exit> exits = mc.GetExits();
-            exits.Reverse();
-            return exits;
+            return pathExits;
         }
 
         private void GoToRoom(Room targetRoom)

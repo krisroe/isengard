@@ -1,4 +1,5 @@
-﻿using QuickGraph;
+﻿using Priority_Queue;
+using QuickGraph;
 namespace IsengardClient
 {
     internal class Exit : Edge<Room>
@@ -45,9 +46,40 @@ namespace IsengardClient
             return this.KeyType == KeyType.GateKey;
         }
 
+        public int GetCost()
+        {
+            int ret;
+            if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
+            {
+                ret = 10000;
+            }
+            else if (PresenceType == ExitPresenceType.RequiresSearch)
+            {
+                ret = 1000;
+            }
+            else if (KeyType != KeyType.None && !RequiresKey())
+            {
+                ret = 1000;
+            }
+            else
+            {
+                ret = 1;
+            }
+            return ret;
+        }
+
         public Exit(Room source, Room target, string exitText) : base(source, target)
         {
             this.ExitText = exitText;
+        }
+    }
+
+    internal class ExitPriorityNode : GenericPriorityQueueNode<int>
+    {
+        public Exit Exit { get; set; }
+        public ExitPriorityNode(Exit e)
+        {
+            Exit = e;
         }
     }
 
