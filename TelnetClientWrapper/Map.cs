@@ -1484,7 +1484,9 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oKasnarTheGuard] = new System.Windows.Point(1, 1);
 
             AddExit(aqueduct, oKasnarTheGuard, "north");
-            //AddExit(oKasnarTheGuard, aqueduct, "south") //Exit is locked and knockable but not treating as an exit for the mapping
+            e = AddExit(oKasnarTheGuard, aqueduct, "south");
+            e.KeyType = KeyType.KasnarsRedKey;
+            e.PreCommand = "open south";
 
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);

@@ -895,6 +895,24 @@ namespace IsengardClient
             }
         }
 
+        private void SuccessfulKnock()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Knock)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private void FailKnock()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Knock)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
         private void OnStun()
         {
             BackgroundCommandType? bct = _backgroundCommandType;
@@ -1016,6 +1034,9 @@ namespace IsengardClient
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //can be triggered by attack or looking at a mob
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
+                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+                new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+                new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
 
                 //the search find failed output has a blank line before the message so use the second line.
                 new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search),
@@ -1818,6 +1839,15 @@ namespace IsengardClient
 
                         if (_fleeing) break;
                         if (_bw.CancellationPending) break;
+
+                        if (nextExit.KeyType != KeyType.None)
+                        {
+                            if (!nextExit.RequiresKey())
+                            {
+                                bool successfullyKnocked = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, BeforeFleeCommandAbortLogic, false, false);
+                                if (!successfullyKnocked) return;
+                            }
+                        }
 
                         //run preexit logic
                         RunPreExitLogic(pms, nextExit.PreCommand, nextExit.Target);
@@ -3822,6 +3852,7 @@ namespace IsengardClient
         Movement,
         Look,
         Search,
+        Knock,
         Vigor,
         Bless,
         Protection,

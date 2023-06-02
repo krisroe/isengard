@@ -31,6 +31,20 @@ namespace IsengardClient
         /// wait for a specific message before leaving
         /// </summary>
         public string WaitForMessage { get; set; }
+        /// <summary>
+        /// what type of key is needed to use the exit
+        /// </summary>
+        public KeyType KeyType { get; set; }
+
+        /// <summary>
+        /// whether the key is required to use the exit (returns false when knockable)
+        /// </summary>
+        /// <returns>true if the key is required, false otherwise</returns>
+        public bool RequiresKey()
+        {
+            return this.KeyType == KeyType.GateKey;
+        }
+
         public Exit(Room source, Room target, string exitText) : base(source, target)
         {
             this.ExitText = exitText;
@@ -42,5 +56,13 @@ namespace IsengardClient
         Always,
         Periodic,
         RequiresSearch,
+    }
+
+    internal enum KeyType
+    {
+        None,
+        GateKey,
+        KasnarsRedKey,
+        SilverKey,
     }
 }
