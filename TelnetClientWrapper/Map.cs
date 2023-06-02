@@ -1,6 +1,5 @@
 ﻿using Priority_Queue;
 using QuickGraph;
-using QuickGraph.Algorithms.Search;
 using System;
 using System.Collections.Generic;
 namespace IsengardClient
@@ -28,7 +27,6 @@ namespace IsengardClient
         private Area _aInaccessible;
 
         private List<Exit> _nightEdges = new List<Exit>();
-        private List<Exit> _celduinExpressEdges = new List<Exit>();
         private List<Exit> _flyEdges = new List<Exit>();
 
         private const string AREA_BREE_PERMS = "Bree Perms";
@@ -934,7 +932,7 @@ namespace IsengardClient
             breeSewers[0, 7] = AddRoom("Sewers West Gate"); //1x8
             AddExit(breeSewers[0, 7], oWestGateInside, "up");
             breeStreets[1, 7] = AddRoom("Leviathan"); //2x8
-            breeStreets[2, 7] = AddRoom("Leviathan"); //3x8
+            Room oHauntedMansionEntrance = breeStreets[2, 7] = AddRoom("Leviathan"); //3x8
             breeStreets[3, 7] = AddRoom("Leviathan/High"); //4x8
             breeStreets[4, 7] = AddRoom("Leviathan"); //5x8
             oBreeTownSquare = breeStreets[5, 7] = AddRoom("Town Square"); //6x8
@@ -1203,6 +1201,111 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oFallon);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
+
+            AddHauntedMansion(oHauntedMansionEntrance, _breeStreetsGraph);
+        }
+
+        private void AddHauntedMansion(Room hauntedMansionEntrance, RoomGraph breeStreetsGraph)
+        {
+            RoomGraph hauntedMansionGraph = new RoomGraph("Bree Haunted Mansion");
+            hauntedMansionGraph.ScalingFactor = 100;
+            _graphs[MapType.BreeHauntedMansion] = hauntedMansionGraph;
+
+            hauntedMansionGraph.Rooms[hauntedMansionEntrance] = new System.Windows.Point(2, 8);
+
+            Room oOldGardener = AddRoom("Old Gardener");
+            Exit e = AddExit(hauntedMansionEntrance, oOldGardener, "gate");
+            e.KeyType = KeyType.SilverKey;
+            e.PreCommand = "open gate";
+            AddExit(oOldGardener, hauntedMansionEntrance, "gate");
+            breeStreetsGraph.Rooms[oOldGardener] = new System.Windows.Point(2, 2.5);
+            hauntedMansionGraph.Rooms[oOldGardener] = new System.Windows.Point(2, 7);
+
+            Room oFoyer = AddRoom("Foyer");
+            e = AddExit(oOldGardener, oFoyer, "door");
+            e.KeyType = KeyType.SilverKey;
+            e.PreCommand = "open door";
+            AddExit(oFoyer, oOldGardener, "out");
+            hauntedMansionGraph.Rooms[oFoyer] = new System.Windows.Point(2, 6);
+
+            Room oDiningHall1 = AddRoom("Dining Hall");
+            AddBidirectionalExits(oDiningHall1, oFoyer, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oDiningHall1] = new System.Windows.Point(1, 6);
+
+            Room oDiningHall2 = AddRoom("Dining Hall");
+            AddBidirectionalExits(oDiningHall2, oDiningHall1, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oDiningHall2] = new System.Windows.Point(1, 5);
+
+            Room oKitchen = AddRoom("Kitchen");
+            AddBidirectionalExits(oDiningHall2, oKitchen, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oKitchen] = new System.Windows.Point(1.5, 5);
+
+            Room oDarkHallway = AddRoom("Dark Hallway");
+            AddBidirectionalExits(oDarkHallway, oDiningHall2, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oDarkHallway] = new System.Windows.Point(1, 4);
+
+            Room oStudy = AddRoom("Damaged Skeleton");
+            e = AddExit(oDarkHallway, oStudy, "door");
+            e.PreCommand = "open door";
+            AddExit(oStudy, oDarkHallway, "door");
+            hauntedMansionGraph.Rooms[oStudy] = new System.Windows.Point(1, 3);
+
+            Room oLivingRoom = AddRoom("Living Room");
+            AddBidirectionalExits(oFoyer, oLivingRoom, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oLivingRoom] = new System.Windows.Point(3, 6);
+
+            Room oHallway = AddRoom("Hallway");
+            AddBidirectionalExits(oHallway, oLivingRoom, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oHallway] = new System.Windows.Point(3, 5);
+
+            Room oBedroom = AddRoom("Bedroom");
+            e = AddExit(oHallway, oBedroom, "door");
+            e.PreCommand = "open door";
+            AddExit(oBedroom, oHallway, "door");
+            hauntedMansionGraph.Rooms[oBedroom] = new System.Windows.Point(3, 4);
+
+            Room oStairwellTop = AddRoom("Stairwell Top");
+            AddBidirectionalExits(oStairwellTop, oFoyer, BidirectionalExitType.UpDown);
+            hauntedMansionGraph.Rooms[oStairwellTop] = new System.Windows.Point(2, 2);
+
+            Room oHallway2 = AddRoom("Hallway");
+            AddBidirectionalExits(oStairwellTop, oHallway2, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oHallway2] = new System.Windows.Point(3, 2);
+
+            Room oEasternHallway = AddRoom("Hallway");
+            AddBidirectionalExits(oEasternHallway, oHallway2, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oEasternHallway] = new System.Windows.Point(3, 1);
+
+            Room oChildsBedroom = AddRoom("Child's Bedroom");
+            e = AddExit(oEasternHallway, oChildsBedroom, "door");
+            e.PreCommand = "open door";
+            AddExit(oChildsBedroom, oEasternHallway, "door");
+            hauntedMansionGraph.Rooms[oChildsBedroom] = new System.Windows.Point(2, 1);
+
+            Room oGhostlyFencer = AddRoom("Ghostly Fencer");
+            AddExit(oEasternHallway, oGhostlyFencer, "north");
+            AddExit(oGhostlyFencer, oEasternHallway, "southeast");
+            hauntedMansionGraph.Rooms[oGhostlyFencer] = new System.Windows.Point(2, 0);
+
+            Room oWesternHallway = AddRoom("Hallway");
+            AddExit(oWesternHallway, oGhostlyFencer, "north");
+            AddExit(oGhostlyFencer, oWesternHallway, "southwest");
+            hauntedMansionGraph.Rooms[oWesternHallway] = new System.Windows.Point(0, 1);
+
+            Room oWesternHallway2 = AddRoom("Hallway");
+            AddBidirectionalExits(oWesternHallway, oWesternHallway2, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oWesternHallway2] = new System.Windows.Point(0, 2);
+
+            Room oWesternHallway3 = AddRoom("Hallway");
+            AddExit(oWesternHallway2, oWesternHallway3, "east");
+            AddBidirectionalExits(oWesternHallway3, oStairwellTop, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oWesternHallway3] = new System.Windows.Point(1, 2);
+
+            Room oDen = AddRoom("Den");
+            e = AddExit(oWesternHallway3, oDen, "door");
+            e.PreCommand = "open door";
+            AddExit(oDen, oWesternHallway3, "door");
+            hauntedMansionGraph.Rooms[oDen] = new System.Windows.Point(1, 1);
         }
 
         private void AddUnderBree(Room droolie, Room oOuthouse, Room oSewerPipeExit)
@@ -4363,6 +4466,7 @@ namespace IsengardClient
         UnderBree,
         MillwoodMansion,
         MillwoodMansionUpstairs,
+        BreeHauntedMansion,
         BreeToImladris,
         Imladris,
         ImladrisToTharbad,
