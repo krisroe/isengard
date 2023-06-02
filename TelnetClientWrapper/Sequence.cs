@@ -1,8 +1,6 @@
-﻿using NAudio.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 namespace IsengardClient
 {
     public interface IOutputItemSequence
@@ -53,24 +51,24 @@ namespace IsengardClient
         }
     }
 
-    internal class ConstantOutputSequence : IOutputProcessingSequence
+    public class ConstantOutputSequence : IOutputProcessingSequence
     {
         private Action _onSatisfied;
         private string _characters;
         private ConstantSequenceMatchType _matchType;
-        private bool _firstLineOnly;
+        private int? _exactLine;
         private List<BackgroundCommandType> _backgroundCommandTypes;
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly)
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine)
         {
             _onSatisfied = onSatisfied;
             _characters = characters;
             _matchType = MatchType;
-            _firstLineOnly = FirstLineOnly;
+            _exactLine = exactLine;
         }
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly, BackgroundCommandType? backgroundCommandType) :
-            this(characters, onSatisfied, MatchType, FirstLineOnly)
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, BackgroundCommandType? backgroundCommandType) :
+            this(characters, onSatisfied, MatchType, exactLine)
         {
             if (backgroundCommandType.HasValue)
             {
@@ -78,8 +76,8 @@ namespace IsengardClient
             }
         }
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, bool FirstLineOnly, List<BackgroundCommandType> backgroundCommandTypes) :
-            this(characters, onSatisfied, MatchType, FirstLineOnly)
+        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes) :
+            this(characters, onSatisfied, MatchType, exactLine)
         {
             _backgroundCommandTypes = backgroundCommandTypes;
         }
@@ -92,39 +90,55 @@ namespace IsengardClient
             {
                 return;
             }
-            int lineIndex = 0;
-            foreach (string Line in Lines)
+            bool match = false;
+            if (_exactLine.HasValue)
             {
-                bool match;
-                switch (_matchType)
+                int exactLineVal = _exactLine.Value;
+                if (Lines.Length < exactLineVal)
                 {
-                    case ConstantSequenceMatchType.ExactMatch:
-                        match = Line.Equals(_characters);
-                        break;
-                    case ConstantSequenceMatchType.StartsWith:
-                        match = Line.StartsWith(_characters);
-                        break;
-                    case ConstantSequenceMatchType.Contains:
-                        match = Line.Contains(_characters);
-                        break;
-                    default:
-                        throw new InvalidOperationException();
+                    return;
                 }
-                if (match)
-                {
-                    _onSatisfied();
-                    break;
-                }
-                if (_firstLineOnly)
-                {
-                    break;
-                }
-                lineIndex++;
+                match = CheckLine(Lines[exactLineVal]);
             }
+            else
+            {
+                foreach (string Line in Lines)
+                {
+                    if (CheckLine(Line))
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if (match)
+            {
+                _onSatisfied();
+            }
+        }
+
+        private bool CheckLine(string Line)
+        {
+            bool ret;
+            switch (_matchType)
+            {
+                case ConstantSequenceMatchType.ExactMatch:
+                    ret = Line.Equals(_characters);
+                    break;
+                case ConstantSequenceMatchType.StartsWith:
+                    ret = Line.StartsWith(_characters);
+                    break;
+                case ConstantSequenceMatchType.Contains:
+                    ret = Line.Contains(_characters);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
     }
 
-    internal enum ConstantSequenceMatchType
+    public enum ConstantSequenceMatchType
     {
         ExactMatch,
         StartsWith,
@@ -1059,6 +1073,45 @@ namespace IsengardClient
         {
             None,
             PastSpellsCast
+        }
+    }
+
+    public class SuccessfulSearchSequence : IOutputProcessingSequence
+    {
+        private const string YOU_FIND_A_HIDDEN_EXIT = "You find a hidden exit: ";
+        private Action<List<string>> _onSatisfied;
+        public SuccessfulSearchSequence(Action<List<string>> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        {
+            finishedProcessing = false;
+            suppressEcho = false;
+            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Search)
+            {
+                return;
+            }
+            List<string> foundExits = null;
+            foreach (string nextLine in Lines)
+            {
+                if (!nextLine.StartsWith(YOU_FIND_A_HIDDEN_EXIT))
+                {
+                    continue;
+                }
+                int beginLength = YOU_FIND_A_HIDDEN_EXIT.Length;
+                int periodIndex = nextLine.IndexOf('.', beginLength);
+                if (periodIndex > 0 && periodIndex != beginLength)
+                {
+                    if (foundExits == null) foundExits = new List<string>();
+                    foundExits.Add(nextLine.Substring(beginLength, periodIndex - beginLength));
+                }
+            }
+            if (foundExits != null && foundExits.Count > 0)
+            {
+                _onSatisfied(foundExits);
+                finishedProcessing = true;
+            }
         }
     }
 

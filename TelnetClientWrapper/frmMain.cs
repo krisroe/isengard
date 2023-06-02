@@ -876,6 +876,25 @@ namespace IsengardClient
             }
         }
 
+        private void FailSearch()
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
+            {
+                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
+        private void SuccessfulSearch(List<string> exits)
+        {
+            BackgroundCommandType? bct = _backgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
+            {
+                _commandResult = CommandResult.CommandSuccessful;
+                _foundSearchedExits = exits;
+            }
+        }
+
         private void OnStun()
         {
             BackgroundCommandType? bct = _backgroundCommandType;
@@ -972,30 +991,34 @@ namespace IsengardClient
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
                 new MobStatusSequence(OnMobStatusSequence),
+                new SuccessfulSearchSequence(SuccessfulSearch),
                 new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
                 new SkillCooldownSequence(SkillWithCooldownType.Manashield, OnGetSkillCooldown),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.ExactMatch, true),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("The sun disappears over the horizon.", OnNight, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("The sun rises.", OnDay, ConstantSequenceMatchType.ExactMatch, 0),
                 new SpellsCastSequence(OnSpellsCastChange),
-                new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.ExactMatch, true),
-                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Bless),
-                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, true, BackgroundCommandType.Protection),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, false), //could be prefixed by "Scared of going X"*
+                new ConstantOutputSequence("You feel less protected.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("You feel less holy.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
+                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new PleaseWaitXSecondsSequence(OnWaitXSeconds),
-                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, true),
-                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, true, BackgroundCommandType.Movement),
-                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, true, BackgroundCommandType.Movement),
-                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, true, BackgroundCommandType.Stun),
-                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, true, _backgroundSpells),
+                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
+                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
+                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, true), //can be triggered by attack or looking at a mob
-                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, true, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
+                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //can be triggered by attack or looking at a mob
+                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
+
+                //the search find failed output has a blank line before the message so use the second line.
+                new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search),
             };
 
             while (true)
@@ -1824,6 +1847,7 @@ namespace IsengardClient
                     finally
                     {
                         _currentBackgroundExit = null;
+                        _foundSearchedExits = null;
                     }
                 }
 

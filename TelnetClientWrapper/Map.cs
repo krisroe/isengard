@@ -2549,14 +2549,17 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(0, 13);
 
             Room oGrassyField = AddRoom("Grassy Field");
+            oGrassyField.Mob1 = "griffon";
+            oGrassyField.Experience1 = 140;
             AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
             imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
 
-            //searching seems to be required to get up here
             _spindrilsCastleOutside = AddRoom("Dark Clouds");
             Exit e = AddExit(oGrassyField, _spindrilsCastleOutside, "up");
             e.Hidden = true;
+            e.PresenceType = ExitPresenceType.RequiresSearch;
             AddExit(_spindrilsCastleOutside, oGrassyField, "down");
+            imladrisToTharbadGraph.Rooms[_spindrilsCastleOutside] = new System.Windows.Point(-1, 11);
 
             AddSpindrilsCastle();
 
