@@ -36,6 +36,7 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
         private bool _verboseMode;
+        private bool _queryMonsterStatus;
         private bool? _setDay;
         private bool _finishedQuit;
         private List<string> _currentSpellsCast;
@@ -98,7 +99,7 @@ namespace IsengardClient
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>() { BackgroundCommandType.Vigor, BackgroundCommandType.Protection, BackgroundCommandType.Bless, BackgroundCommandType.Stun, BackgroundCommandType.OffensiveSpell };
 
-        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode)
+        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
         {
             InitializeComponent();
 
@@ -111,6 +112,7 @@ namespace IsengardClient
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
             _verboseMode = verboseMode;
+            _queryMonsterStatus = queryMonsterStatus;
 
             _startupCommands = startupCommands;
 
@@ -977,16 +979,33 @@ namespace IsengardClient
         /// <summary>
         /// triggered by looking or attacking a mob that is not present
         /// </summary>
-        private static void OnAttackMobNotPresent(FeedLineParameters flParams)
+        private static void OnYouDontSeeThatHere(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.Attack)
+                bool isLookAtMob = bctValue == BackgroundCommandType.LookAtMob;
+                if (isLookAtMob || bctValue == BackgroundCommandType.Attack)
                 {
                     flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                    if (isLookAtMob)
+                    {
+                        flParams.SuppressEcho = true;
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// triggered by failed power attack
+        /// </summary>
+        private static void OnThatIsNotHere(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
         }
 
@@ -1005,10 +1024,15 @@ namespace IsengardClient
 
         private void OnMobStatusSequence(MonsterStatus status, FeedLineParameters flParams)
         {
-            string sCurrentMonster = flParams.CurrentlyFightingMob;
-            if (!string.IsNullOrEmpty(sCurrentMonster))
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue)
             {
-                _currentMonsterStatus = status;
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.LookAtMob)
+                {
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
+                    _currentMonsterStatus = status;
+                }
             }
         }
 
@@ -1052,8 +1076,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //triggered by attack or looking at a mob
-                new ConstantOutputSequence("That is not here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //triggered by power attack
+                new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
+                new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Attack), //triggered by power attack
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
@@ -1791,8 +1815,8 @@ namespace IsengardClient
                                 if (presenceType == ExitPresenceType.Periodic)
                                 {
                                     _currentObviousExits = null;
-                                    bool successfullyLooked = RunSingleCommand(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false, false);
-                                    if (successfullyLooked)
+                                    var lookResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false);
+                                    if (lookResult == CommandResult.CommandSuccessful)
                                     {
                                         if (_currentObviousExits.Contains(exitText))
                                         {
@@ -1803,7 +1827,7 @@ namespace IsengardClient
                                             WaitUntilNextCommand(5000, false, false);
                                         }
                                     }
-                                    else //look is not supposed to fail
+                                    else //look is not supposed to fail (but could be aborted)
                                     {
                                         return;
                                     }
@@ -1946,10 +1970,12 @@ namespace IsengardClient
                         IEnumerator<MeleeCombatStep?> meleeSteps = m.GetMeleeSteps(doPowerAttack).GetEnumerator();
                         MagicCombatStep? nextMagicStep = null;
                         MeleeCombatStep? nextMeleeStep = null;
-                        bool magicFinished = !magicSteps.MoveNext();
-                        bool meleeFinished = !meleeSteps.MoveNext();
-                        if (!magicFinished) nextMagicStep = magicSteps.Current;
-                        if (!meleeFinished) nextMeleeStep = meleeSteps.Current;
+                        bool magicStepsFinished = !magicSteps.MoveNext();
+                        bool meleeStepsFinished = !meleeSteps.MoveNext();
+                        bool magicTotallyFinished = false;
+                        bool meleeTotallyFinished = false;
+                        if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
+                        if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                         DateTime? dtNextMagicCommand = null;
                         DateTime? dtNextMeleeCommand = null;
                         while (true) //combat cycle
@@ -2026,6 +2052,7 @@ namespace IsengardClient
                                     }
                                     else if (result == CommandResult.CommandUnsuccessfulAlways)
                                     {
+                                        magicTotallyFinished = true;
                                         _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                                         nextMagicStep = null;
                                     }
@@ -2056,7 +2083,7 @@ namespace IsengardClient
                                         {
                                             nextMagicStep = null;
                                         }
-                                        else if (magicFinished)
+                                        else if (magicStepsFinished)
                                         {
                                             nextMagicStep = null;
                                         }
@@ -2068,7 +2095,7 @@ namespace IsengardClient
                                         else //no more steps
                                         {
                                             nextMagicStep = null;
-                                            magicFinished = true;
+                                            magicStepsFinished = true;
                                         }
                                     }
                                     else
@@ -2100,6 +2127,7 @@ namespace IsengardClient
                                 }
                                 else if (result == CommandResult.CommandUnsuccessfulAlways)
                                 {
+                                    meleeTotallyFinished = true;
                                     _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                                     nextMeleeStep = null;
                                 }
@@ -2122,7 +2150,7 @@ namespace IsengardClient
                                     {
                                         didDamage = true;
                                     }
-                                    if (meleeFinished)
+                                    if (meleeStepsFinished)
                                     {
                                         nextMeleeStep = null;
                                     }
@@ -2134,7 +2162,7 @@ namespace IsengardClient
                                     else //no more steps
                                     {
                                         nextMeleeStep = null;
-                                        meleeFinished = true;
+                                        meleeStepsFinished = true;
                                     }
                                 }
                                 else
@@ -2148,12 +2176,28 @@ namespace IsengardClient
                             }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
-                            if (didDamage)
+                            if (didDamage && _queryMonsterStatus)
                             {
-                                SendCommand("look " + _mob, GetHiddenMessageEchoType());
-                                pms.CommandsRun++;
+                                CommandResult result = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, BeforeFleeCommandAbortLogic, false);
+                                if (result == CommandResult.CommandAborted)
+                                {
+                                    return;
+                                }
+                                else if (result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    magicTotallyFinished = true;
+                                    meleeTotallyFinished = true;
+                                    nextMagicStep = null;
+                                    nextMeleeStep = null;
+                                    _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                }
+                                else if (result != CommandResult.CommandSuccessful)
+                                {
+                                    throw new InvalidOperationException();
+                                }
                             }
-                            if (!nextMagicStep.HasValue)
+                            if (!magicTotallyFinished && !nextMagicStep.HasValue)
                             {
                                 MagicCombatStep? queuedMagicStep;
                                 lock (_queuedCommandLock)
@@ -2166,7 +2210,7 @@ namespace IsengardClient
                                     nextMagicStep = queuedMagicStep.Value;
                                 }
                             }
-                            if (!nextMeleeStep.HasValue)
+                            if (!meleeTotallyFinished && !nextMeleeStep.HasValue)
                             {
                                 MeleeCombatStep? queuedMeleeStep;
                                 lock (_queuedCommandLock)
@@ -3818,6 +3862,7 @@ namespace IsengardClient
     {
         Movement,
         Look,
+        LookAtMob,
         Search,
         Knock,
         Vigor,
