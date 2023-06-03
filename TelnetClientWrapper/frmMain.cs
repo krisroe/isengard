@@ -1588,6 +1588,9 @@ namespace IsengardClient
                     case 125:
                         c = '}';
                         break;
+                    case 127:
+                        isUnknown = true;
+                        break;
                     case 170:
                         isUnknown = true;
                         break;
