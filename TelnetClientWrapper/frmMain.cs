@@ -2620,13 +2620,11 @@ namespace IsengardClient
                 foreach (Control ctl in p.Controls)
                 {
                     bool regularLogic = false;
-                    bool regularLogicEnabled = !running;
                     if (ctl is Button)
                     {
                         if (ctl == btnFlee)
                         {
-                            regularLogic = true;
-                            regularLogicEnabled = true;
+                            regularLogic = false;
                         }
                         else if (ctl == btnAbort)
                         {
@@ -2661,7 +2659,7 @@ namespace IsengardClient
                         }
                         else
                         {
-                            ctl.Enabled = regularLogicEnabled;
+                            ctl.Enabled = !running;
                         }
                     }
                 }
@@ -2709,43 +2707,38 @@ namespace IsengardClient
                 btnReddishOrange,
                 btnStunMob,
             };
+            bool enabled;
             foreach (Button b in buttons)
             {
-                bool enabled;
                 CommandButtonTag oTag = (CommandButtonTag)b.Tag;
                 if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(_mob))
-                {
                     enabled = false;
-                }
                 else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && string.IsNullOrEmpty(_weapon))
-                {
                     enabled = false;
-                }
                 else if ((oTag.ObjectType & DependentObjectType.Wand) != DependentObjectType.None && string.IsNullOrEmpty(_wand))
-                {
                     enabled = false;
-                }
+                else if (npp == BackgroundProcessPhase.Quit)
+                    enabled = false;
                 else if (inForeground)
-                {
                     enabled = true;
-                }
                 else if (oTag.CommandType == CommandType.None)
-                {
                     enabled = true;
-                }
                 else if (npp != BackgroundProcessPhase.Combat) //combat buttons are only enabled in combat
-                {
                     enabled = false;
-                }
                 else //combat buttons are only enabled if the macro isn't doing that kind of combat
-                {
                     enabled = (oTag.CommandType & eRunningCombatCommandTypes) == CommandType.None;
-                }
                 if (enabled != b.Enabled)
-                {
                     b.Enabled = enabled;
-                }
             }
+
+            if (inForeground)
+                enabled = true;
+            else if (npp == BackgroundProcessPhase.Flee || npp == BackgroundProcessPhase.Quit)
+                enabled = false;
+            else
+                enabled = true;
+            if (enabled != btnFlee.Enabled)
+                btnFlee.Enabled = enabled;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -3139,7 +3132,6 @@ namespace IsengardClient
             bwp.Macro = m;
             bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
-            bwp.Flee = m.Flee;
             bwp.TargetRoomMob = targetRoomMob;
             RunCommands(bwp);
         }

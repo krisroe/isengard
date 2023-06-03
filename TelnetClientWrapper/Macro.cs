@@ -90,7 +90,6 @@ namespace IsengardClient
             yield break;
         }
 
-        public bool Flee { get; set; }
         public bool Heal { get; set; }
         public bool ShowPreForm { get; set; }
         public List<MagicCombatStep> MagicCombatSteps { get; set; }
@@ -143,9 +142,6 @@ namespace IsengardClient
                     m.ShowPreForm = true;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
-                    break;
-                case "Flee":
-                    m.Flee = true;
                     break;
                 case "Skills":
                     m.ShowPreForm = true;
