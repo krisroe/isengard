@@ -20,7 +20,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault);
+            LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,10 +33,10 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon, autoHazyThreshold, autoHazyDefault));
+            Application.Run(new frmMain(defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode));
         }
 
-        private static void LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault)
+        private static void LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode)
         {
             defaultRealm = string.Empty;
             level = 0;
@@ -50,6 +50,7 @@ namespace IsengardClient
             defaultWeapon = string.Empty;
             autoHazyThreshold = 0;
             autoHazyDefault = false;
+            verboseMode = false;
 
             string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
             FileInfo fi = new FileInfo(configurationFile);
@@ -154,6 +155,16 @@ namespace IsengardClient
                 {
                     MessageBox.Show("Invalid auto hazy default: " + sAutoHazyDefault);
                     autoHazyDefault = false;
+                }
+            }
+
+            string sVerbose = docElement.GetAttribute("verbose");
+            if (!string.IsNullOrEmpty(sVerbose))
+            {
+                if (!bool.TryParse(sVerbose, out verboseMode))
+                {
+                    MessageBox.Show("Invalid verbose: " + sVerbose);
+                    verboseMode = false;
                 }
             }
 

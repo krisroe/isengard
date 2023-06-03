@@ -26,7 +26,21 @@ namespace IsengardClient
 
     internal interface IOutputProcessingSequence
     {
-        void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho);
+        void FeedLine(string[] Lines, FeedLineParameters Parameters);
+    }
+
+    public class FeedLineParameters
+    {
+        public FeedLineParameters(BackgroundCommandType? BackgroundCommandType, string CurrentlyFightingMob)
+        {
+            this.BackgroundCommandType = BackgroundCommandType;
+            this.CurrentlyFightingMob = CurrentlyFightingMob;
+        }
+        public BackgroundCommandType? BackgroundCommandType { get; set; }
+        public string CurrentlyFightingMob { get; set; }
+        public bool FinishedProcessing { get; set; }
+        public bool SuppressEcho { get; set; }
+        public CommandResult? CommandResult { get; set; }
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -53,13 +67,13 @@ namespace IsengardClient
 
     public class ConstantOutputSequence : IOutputProcessingSequence
     {
-        private Action _onSatisfied;
+        private Action<FeedLineParameters> _onSatisfied;
         private string _characters;
         private ConstantSequenceMatchType _matchType;
         private int? _exactLine;
         private List<BackgroundCommandType> _backgroundCommandTypes;
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine)
+        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine)
         {
             _onSatisfied = onSatisfied;
             _characters = characters;
@@ -67,7 +81,7 @@ namespace IsengardClient
             _exactLine = exactLine;
         }
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, BackgroundCommandType? backgroundCommandType) :
+        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, BackgroundCommandType? backgroundCommandType) :
             this(characters, onSatisfied, MatchType, exactLine)
         {
             if (backgroundCommandType.HasValue)
@@ -76,16 +90,15 @@ namespace IsengardClient
             }
         }
 
-        public ConstantOutputSequence(string characters, Action onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes) :
+        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes) :
             this(characters, onSatisfied, MatchType, exactLine)
         {
             _backgroundCommandTypes = backgroundCommandTypes;
         }
 
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
+            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (_backgroundCommandTypes != null && (!backgroundCommandType.HasValue || !_backgroundCommandTypes.Contains(backgroundCommandType.Value)))
             {
                 return;
@@ -113,7 +126,7 @@ namespace IsengardClient
             }
             if (match)
             {
-                _onSatisfied();
+                _onSatisfied(flParams);
             }
         }
 
@@ -365,10 +378,8 @@ namespace IsengardClient
             return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
             foreach (string nextLine in Lines)
             {
                 SkillCooldownStep currentStep = SkillCooldownStep.None;
@@ -557,15 +568,13 @@ namespace IsengardClient
 
     internal class RoomTransitionSequence : IOutputProcessingSequence
     {
-        private Action<RoomTransitionType, string, List<string>> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionType, string, List<string>> onSatisfied)
+        private Action<RoomTransitionType, string, List<string>, FeedLineParameters> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionType, string, List<string>, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int nextLineIndex = 0;
 
@@ -628,7 +637,7 @@ namespace IsengardClient
                     List<string> allExitsList2 = new List<string>();
                     allExitsList2.AddRange(allExitsList);
 
-                    _onSatisfied(rtType, sRoomName, allExitsList2);
+                    _onSatisfied(rtType, sRoomName, allExitsList2, flParams);
                 }
             }
         }
@@ -636,15 +645,14 @@ namespace IsengardClient
 
     public class CastOffensiveSpellSequence : IOutputProcessingSequence
     {
-        public Action<int> _onSatisfied;
-        public CastOffensiveSpellSequence(Action<int> onSatisfied)
+        public Action<int, FeedLineParameters> _onSatisfied;
+        public CastOffensiveSpellSequence(Action<int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
+            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.OffensiveSpell)
             {
                 return;
@@ -675,22 +683,21 @@ namespace IsengardClient
             }
             if (satisfied)
             {
-                _onSatisfied(damage);
+                _onSatisfied(damage, flParams);
             }
         }
     }
 
     public class AttackSequence : IOutputProcessingSequence
     {
-        public Action<bool, int> _onSatisfied;
-        public AttackSequence(Action<bool, int> onSatisfied)
+        public Action<bool, int, FeedLineParameters> _onSatisfied;
+        public AttackSequence(Action<bool, int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
+            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Attack)
             {
                 return;
@@ -743,7 +750,7 @@ namespace IsengardClient
             }
             if (satisfied)
             {
-                _onSatisfied(fumbled, damage);
+                _onSatisfied(fumbled, damage, flParams);
             }
         }
 
@@ -795,18 +802,16 @@ namespace IsengardClient
 
     internal class MobStatusSequence : IOutputProcessingSequence
     {
-        private Action<MonsterStatus> _onSatisfied;
+        private Action<MonsterStatus, FeedLineParameters> _onSatisfied;
 
-        public MobStatusSequence(Action<MonsterStatus> onSatisfied)
+        public MobStatusSequence(Action<MonsterStatus, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
-            if (string.IsNullOrEmpty(currentMonster))
+            if (string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 return;
             }
@@ -866,9 +871,9 @@ namespace IsengardClient
                     }
                     if (status.HasValue)
                     {
-                        finishedProcessing = true;
-                        suppressEcho = !string.IsNullOrEmpty(currentMonster);
-                        _onSatisfied(status.Value);
+                        flParams.FinishedProcessing = true;
+                        flParams.SuppressEcho = !string.IsNullOrEmpty(flParams.CurrentlyFightingMob);
+                        _onSatisfied(status.Value, flParams);
                         return;
                     }
                 }
@@ -878,11 +883,23 @@ namespace IsengardClient
 
     public class PleaseWaitXSecondsSequence : IOutputProcessingSequence
     {
-        private Action<int> _onSatisfied;
+        private Action<int, FeedLineParameters> _onSatisfied;
         private List<char> _firstChars;
         private List<char> _secondCharsGreaterThanOne;
         private List<char> _secondCharsOne;
         private List<char> _secondChars;
+        private int? _lastMeleeWaitSeconds;
+        private int? _lastMagicWaitSeconds;
+
+        public void ClearLastMeleeWaitSeconds()
+        {
+            _lastMeleeWaitSeconds = null;
+        }
+
+        public void ClearLastMagicWaitSeconds()
+        {
+            _lastMagicWaitSeconds = null;
+        }
 
         private enum PleaseWaitXSecondsStep
         {
@@ -891,7 +908,7 @@ namespace IsengardClient
             SecondPart,
         }
 
-        public PleaseWaitXSecondsSequence(Action<int> onSatisfied)
+        public PleaseWaitXSecondsSequence(Action<int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
             _firstChars = new List<char>();
@@ -911,14 +928,14 @@ namespace IsengardClient
             }
         }
 
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
+            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue)
             {
                 return;
             }
+            BackgroundCommandType bctValue = backgroundCommandType.Value;
             foreach (string nextLine in Lines)
             {
                 List<int> waitNumbers = new List<int>();
@@ -986,7 +1003,30 @@ namespace IsengardClient
                                 }
                                 currentStep = PleaseWaitXSecondsStep.None;
                                 currentMatchPoint = -1;
-                                _onSatisfied(waitNumber);
+
+                                int? lastWaitSeconds = null;
+                                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                                {
+                                    lastWaitSeconds = _lastMagicWaitSeconds;
+                                }
+                                else if (bctValue == BackgroundCommandType.Attack)
+                                {
+                                    lastWaitSeconds = _lastMeleeWaitSeconds;
+                                }
+                                if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == waitNumber)
+                                {
+                                    flParams.SuppressEcho = true;
+                                }
+                                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                                {
+                                    _lastMagicWaitSeconds = waitNumber;
+                                }
+                                else if (bctValue == BackgroundCommandType.Attack)
+                                {
+                                    _lastMeleeWaitSeconds = waitNumber;
+                                }
+                                flParams.FinishedProcessing = true;
+                                _onSatisfied(waitNumber, flParams);
                                 return;
                             }
                         }
@@ -1015,10 +1055,8 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
             foreach (string nextLine in Lines)
             {
                 SpellsCastStep currentStep = SpellsCastStep.None;
@@ -1079,15 +1117,14 @@ namespace IsengardClient
     public class SuccessfulSearchSequence : IOutputProcessingSequence
     {
         private const string YOU_FIND_A_HIDDEN_EXIT = "You find a hidden exit: ";
-        private Action<List<string>> _onSatisfied;
-        public SuccessfulSearchSequence(Action<List<string>> onSatisfied)
+        private Action<List<string>, FeedLineParameters> _onSatisfied;
+        public SuccessfulSearchSequence(Action<List<string>, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, BackgroundCommandType? backgroundCommandType, string currentMonster, out bool finishedProcessing, out bool suppressEcho)
+        public void FeedLine(string[] Lines, FeedLineParameters flParams)
         {
-            finishedProcessing = false;
-            suppressEcho = false;
+            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Search)
             {
                 return;
@@ -1109,8 +1146,8 @@ namespace IsengardClient
             }
             if (foundExits != null && foundExits.Count > 0)
             {
-                _onSatisfied(foundExits);
-                finishedProcessing = true;
+                _onSatisfied(foundExits, flParams);
+                flParams.FinishedProcessing = true;
             }
         }
     }

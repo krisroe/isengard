@@ -32,8 +32,10 @@ namespace IsengardClient
         private static Color BACK_COLOR_CAUTION = Color.Yellow;
         private static Color BACK_COLOR_STOP = Color.LightSalmon;
         private static Color BACK_COLOR_NEUTRAL = Color.LightGray;
+
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
+        private bool _verboseMode;
         private bool? _setDay;
         private bool _finishedQuit;
         private List<string> _currentSpellsCast;
@@ -64,6 +66,7 @@ namespace IsengardClient
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
+        private PleaseWaitXSecondsSequence _pleaseWaitSequence;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -81,6 +84,9 @@ namespace IsengardClient
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
+        private int _commandResultCounter = 0;
+        private int _lastCommandDamage;
+        private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
@@ -92,7 +98,7 @@ namespace IsengardClient
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>() { BackgroundCommandType.Vigor, BackgroundCommandType.Protection, BackgroundCommandType.Bless, BackgroundCommandType.Stun, BackgroundCommandType.OffensiveSpell };
 
-        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
+        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode)
         {
             InitializeComponent();
 
@@ -104,6 +110,7 @@ namespace IsengardClient
             _woe.Init(_vwr);
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
+            _verboseMode = verboseMode;
 
             _startupCommands = startupCommands;
 
@@ -742,7 +749,7 @@ namespace IsengardClient
             public DateTime? NextAvailableDate { get; set; }
         }
 
-        private void DoScore()
+        private void DoScore(FeedLineParameters flParams)
         {
             _doScore = true;
         }
@@ -754,12 +761,12 @@ namespace IsengardClient
             oStatus.NextAvailableDate = nextAvailableDate;
         }
 
-        private void OnNight()
+        private void OnNight(FeedLineParameters flParams)
         {
             _setDay = false;
         }
 
-        private void OnDay()
+        private void OnDay(FeedLineParameters flParams)
         {
             _setDay = true;
         }
@@ -769,25 +776,25 @@ namespace IsengardClient
             _newSpellsCast = spells;
         }
 
-        private void OnFailFlee()
+        private void OnFailFlee(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
                 _waitSeconds = 0;
             }
         }
 
-        private void OnRoomTransition(RoomTransitionType rtType, string roomName, List<string> obviousExits)
+        private void OnRoomTransition(RoomTransitionType rtType, string roomName, List<string> obviousExits, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
                 if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
                 {
-                    _commandResult = CommandResult.CommandSuccessful;
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
                     _waitSeconds = 0;
                     _fleeing = false;
                 }
@@ -798,7 +805,7 @@ namespace IsengardClient
                 _fleeing = false;
                 if (bct.HasValue) //hazy aborts whatever background command is currently running
                 {
-                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
             }
             else
@@ -808,195 +815,197 @@ namespace IsengardClient
                     BackgroundCommandType bctValue = bct.Value;
                     if (bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement)
                     {
-                        _commandResult = CommandResult.CommandSuccessful;
+                        flParams.CommandResult = CommandResult.CommandSuccessful;
                         _waitSeconds = 0;
                     }
                 }
             }
         }
 
-        private void OnFailManashield()
+        private static void OnFailManashield(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
             }
         }
 
-        private void OnSuccessfulManashield()
+        private static void OnSuccessfulManashield(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnWaitXSeconds(int waitSeconds)
+        private void OnWaitXSeconds(int waitSeconds, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
-                _commandResult = CommandResult.CommandMustWait;
+                flParams.CommandResult = CommandResult.CommandMustWait;
                 _waitSeconds = waitSeconds;
             }
         }
 
-        private void OnVigorSpellCast()
+        private static void OnVigorSpellCast(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Vigor)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnBlessSpellCast()
+        private static void OnBlessSpellCast(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Bless)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnProtectionSpellCast()
+        private static void OnProtectionSpellCast(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Protection)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void FailMovement()
+        private static void FailMovement(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Movement)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
         }
 
-        private void FailSearch()
+        private static void FailSearch(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
             }
         }
 
-        private void SuccessfulSearch(List<string> exits)
+        private void SuccessfulSearch(List<string> exits, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
                 _foundSearchedExits = exits;
             }
         }
 
-        private void SuccessfulKnock()
+        private static void SuccessfulKnock(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Knock)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void FailKnock()
+        private static void FailKnock(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Knock)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulThisTime;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
             }
         }
 
-        private void OnStun()
+        private static void OnStun(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
             {
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
         /// <summary>
         /// when a spell fails (e.g. alignment out of whack)
         /// </summary>
-        private void OnSpellFails()
+        private void OnSpellFails(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
                 if (_backgroundSpells.Contains(bctValue))
                 {
-                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
             }
         }
         
-        private void OnAttack(bool fumbled, int damage)
+        private void OnAttack(bool fumbled, int damage, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
             {
                 if (fumbled)
                 {
                     _fumbled = true;
                 }
+                _lastCommandDamage = damage;
                 _monsterDamage += damage;
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnCastOffensiveSpell(int damage)
+        private void OnCastOffensiveSpell(int damage, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
             {
+                _lastCommandDamage = damage;
                 _monsterDamage += damage;
-                _commandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
         /// <summary>
         /// triggered by looking or attacking a mob that is not present
         /// </summary>
-        private void OnAttackMobNotPresent()
+        private static void OnAttackMobNotPresent(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
                 if (bctValue == BackgroundCommandType.Attack)
                 {
-                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
             }
         }
 
-        private void OnCastOffensiveSpellMobNotPresent()
+        private static void OnCastOffensiveSpellMobNotPresent(FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = _backgroundCommandType;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
                 if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun)
                 {
-                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
             }
         }
 
-        private void OnMobStatusSequence(MonsterStatus status)
+        private void OnMobStatusSequence(MonsterStatus status, FeedLineParameters flParams)
         {
-            string sCurrentMonster = _currentlyFightingMob;
+            string sCurrentMonster = flParams.CurrentlyFightingMob;
             if (!string.IsNullOrEmpty(sCurrentMonster))
             {
                 _currentMonsterStatus = status;
@@ -1016,9 +1025,11 @@ namespace IsengardClient
                 new ConstantOutputItemSequence(OutputItemSequenceType.Goodbye, "Goodbye!", _asciiMapping),
                 new HPMPSequence(),
             };
+            _pleaseWaitSequence = new PleaseWaitXSecondsSequence(OnWaitXSeconds);
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
                 new MobStatusSequence(OnMobStatusSequence),
+                _pleaseWaitSequence,
                 new SuccessfulSearchSequence(SuccessfulSearch),
                 new RoomTransitionSequence(OnRoomTransition),
                 new SkillCooldownSequence(SkillWithCooldownType.PowerAttack, OnGetSkillCooldown),
@@ -1034,7 +1045,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
                 new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
-                new PleaseWaitXSecondsSequence(OnWaitXSeconds),
                 new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
                 new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
@@ -1126,19 +1136,29 @@ namespace IsengardClient
                                 }
                             }
 
+                            FeedLineParameters flParams = new FeedLineParameters(_backgroundCommandType, _currentlyFightingMob);
+                            int previousCommandResultCounter = _commandResultCounter;
+                            CommandResult? previousCommandResult = _commandResult;
                             foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
                             {
-                                bool finishedProcessing;
-                                bool suppressEcho;
-                                nextProcessingSequence.FeedLine(sNewLines, _backgroundCommandType, _currentlyFightingMob, out finishedProcessing, out suppressEcho);
-                                if (suppressEcho)
+                                nextProcessingSequence.FeedLine(sNewLines, flParams);
+                                if (flParams.SuppressEcho && !_verboseMode)
                                 {
                                     echoType = InputEchoType.Off;
                                 }
-                                if (finishedProcessing)
+                                if (flParams.FinishedProcessing)
                                 {
                                     break;
                                 }
+                            }
+                            int newCommandResultCounter = _commandResultCounter;
+                            if (!_verboseMode && previousCommandResultCounter == newCommandResultCounter && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
+                            {
+                                sNewLineRaw = _lastCommand + Environment.NewLine + sNewLineRaw;
+                            }
+                            if (flParams.CommandResult.HasValue)
+                            {
+                                _commandResult = flParams.CommandResult.Value;
                             }
                         }
 
@@ -1646,6 +1666,8 @@ namespace IsengardClient
             {
                 _fleeing = false;
                 _commandResult = null;
+                _lastCommand = null;
+                _lastCommandDamage = 0;
                 if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
                 {
                     Room targetRoom = _currentBackgroundParameters.TargetRoom;
@@ -2004,6 +2026,7 @@ namespace IsengardClient
                                     }
                                     else if (result == CommandResult.CommandUnsuccessfulAlways)
                                     {
+                                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                                         nextMagicStep = null;
                                     }
                                     else if (result == CommandResult.CommandMustWait)
@@ -2020,7 +2043,11 @@ namespace IsengardClient
                                     }
                                     else if (result == CommandResult.CommandSuccessful) //spell was cast
                                     {
-                                        didDamage = true;
+                                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                        if (nextMagicStep.Value != MagicCombatStep.Stun)
+                                        {
+                                            didDamage = true;
+                                        }
                                         if (!pms.AutoMana)
                                         {
                                             _currentMana -= manaDrain;
@@ -2073,6 +2100,7 @@ namespace IsengardClient
                                 }
                                 else if (result == CommandResult.CommandUnsuccessfulAlways)
                                 {
+                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                                     nextMeleeStep = null;
                                 }
                                 else if (result == CommandResult.CommandMustWait)
@@ -2089,7 +2117,11 @@ namespace IsengardClient
                                 }
                                 else if (result == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
                                 {
-                                    didDamage = true;
+                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                    if (_lastCommandDamage != 0)
+                                    {
+                                        didDamage = true;
+                                    }
                                     if (meleeFinished)
                                     {
                                         nextMeleeStep = null;
@@ -2118,7 +2150,7 @@ namespace IsengardClient
                             if (_bw.CancellationPending) break;
                             if (didDamage)
                             {
-                                SendCommand("look " + _mob, InputEchoType.Off);
+                                SendCommand("look " + _mob, GetHiddenMessageEchoType());
                                 pms.CommandsRun++;
                             }
                             if (!nextMagicStep.HasValue)
@@ -2204,6 +2236,8 @@ namespace IsengardClient
                 }
                 finally
                 {
+                    _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                     _currentlyFightingMob = null;
                     _currentMonsterStatus = null;
                 }
@@ -2329,7 +2363,7 @@ namespace IsengardClient
             }
             if (!string.IsNullOrEmpty(sQueuedCommand))
             {
-                SendCommand(pms.QueuedCommand, InputEchoType.On);
+                SendCommand(sQueuedCommand, InputEchoType.On);
                 pms.CommandsRun++;
             }
         }
@@ -2352,12 +2386,21 @@ namespace IsengardClient
             }
         }
 
+        private InputEchoType GetHiddenMessageEchoType()
+        {
+            return _verboseMode ? InputEchoType.On : InputEchoType.Off;
+        }
+
         private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing)
         {
             _commandResult = null;
+            _commandResultCounter++;
+            _lastCommand = null;
+            _lastCommandDamage = 0;
             try
             {
-                SendCommand(command, InputEchoType.On);
+                _lastCommand = command;
+                SendCommand(command, GetHiddenMessageEchoType());
                 pms.CommandsRun++;
                 CommandResult? currentResult;
                 while (true)
@@ -2374,6 +2417,7 @@ namespace IsengardClient
             finally
             {
                 _commandResult = null;
+                _lastCommand = null;
             }
         }
 
@@ -2389,7 +2433,6 @@ namespace IsengardClient
                 {
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
-                    _commandResult = null;
                     result = RunSingleCommandForCommandResult(command, pms, abortLogic, fleeing);
                     if (result.HasValue)
                     {
@@ -3002,7 +3045,7 @@ namespace IsengardClient
                             {
                                 _previousConsoleOutput = nextConsoleOutput;
                             }
-                            else
+                            else //suppresses echo for the current output since it was the same as the previous output (e.g. poll ticks)
                             {
                                 add = false;
                             }
@@ -3702,7 +3745,13 @@ namespace IsengardClient
                 this.Content = Content;
             }
             public bool IsInput { get; set; }
+            /// <summary>
+            /// raw content of the output, which is what is displayed in the console
+            /// </summary>
             public string RawText { get; set; }
+            /// <summary>
+            /// content of the output (not including HP/MP status)
+            /// </summary>
             public string Content { get; set; }
         }
 
@@ -3756,7 +3805,7 @@ namespace IsengardClient
         Manashield = 2
     }
 
-    internal enum CommandResult
+    public enum CommandResult
     {
         CommandSuccessful,
         CommandUnsuccessfulThisTime,

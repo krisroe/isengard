@@ -11,6 +11,7 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestSkillCooldownSequence()
         {
+            CommandResult? result = null;
             bool skillActive;
             DateTime? availableDate;
             Action<SkillWithCooldownType, bool, DateTime?> getcooldown = (type, isActive, date) =>
@@ -23,11 +24,11 @@ namespace IsengardClient.Tests
 
             skillActive = false;
             availableDate = DateTime.UtcNow;
-            scs.FeedLine(new string[] { "manashield [ACTIVE]" }, null, null, out _, out _);
+            scs.FeedLine(new string[] { "manashield [ACTIVE]" }, new FeedLineParameters(null, null));
             Assert.IsTrue(skillActive);
             Assert.IsTrue(!availableDate.HasValue);
 
-            scs.FeedLine(new string[] { "manashield [2:34]" }, null, null, out _, out _);
+            scs.FeedLine(new string[] { "manashield [2:34]" }, new FeedLineParameters(null, null));
             Assert.IsFalse(skillActive);
             Assert.IsTrue(availableDate.HasValue);
         }
@@ -36,7 +37,7 @@ namespace IsengardClient.Tests
         public void TestWaitXSecondsSequence()
         {
             int waited = -1;
-            Action<int> waitedAction = (seconds) =>
+            Action<int, FeedLineParameters> waitedAction = (seconds, flp) =>
             {
                 waited = seconds;
             };
@@ -44,15 +45,15 @@ namespace IsengardClient.Tests
             PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(waitedAction);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 2 seconds." }, BackgroundCommandType.Quit, null, out _, out _);
+            plxss.FeedLine(new string[] { "Please wait 2 seconds." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
             Assert.IsTrue(waited == 2);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 12 seconds." }, BackgroundCommandType.Quit, null, out _, out _);
+            plxss.FeedLine(new string[] { "Please wait 12 seconds." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
             Assert.IsTrue(waited == 12);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 1 more second." }, BackgroundCommandType.Quit, null, out _, out _);
+            plxss.FeedLine(new string[] { "Please wait 1 more second." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
             Assert.IsTrue(waited == 1);
         }
 
@@ -62,7 +63,7 @@ namespace IsengardClient.Tests
             bool success = false;
             bool fumbled = false;
             int damage = 0;
-            Action<bool, int> a = (f, d) =>
+            Action<bool, int, FeedLineParameters> a = (f, d, flp) =>
             {
                 success = true;
                 fumbled = f;
@@ -73,14 +74,14 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = false;
             damage = 0;
-            aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." }, BackgroundCommandType.Attack, null, out _, out _);
+            aseq.FeedLine(new string[] { "Your slash attack hits for 10 damage." }, new FeedLineParameters(BackgroundCommandType.Attack, null));
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
 
             success = false;
             fumbled = false;
             damage = 10;
-            aseq.FeedLine(new string[] { "You FUMBLED your weapon." }, BackgroundCommandType.Attack, null, out _, out _);
+            aseq.FeedLine(new string[] { "You FUMBLED your weapon." }, new FeedLineParameters(BackgroundCommandType.Attack, null));
             Assert.IsTrue(success);
             Assert.IsTrue(fumbled);
             Assert.AreEqual(damage, 0);
@@ -91,13 +92,13 @@ namespace IsengardClient.Tests
         {
             bool success = false;
             int damage = 0;
-            Action<int> a = (d) =>
+            Action<int, FeedLineParameters> a = (d, flp) =>
             {
                 success = true;
                 damage = d;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
-            cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." }, BackgroundCommandType.OffensiveSpell, null, out _, out _);
+            cseq.FeedLine(new string[] { "You cast a rumble spell on the drunk for 10 damage." }, new FeedLineParameters(BackgroundCommandType.OffensiveSpell, null));
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
         }
@@ -106,7 +107,7 @@ namespace IsengardClient.Tests
         public void TestSuccessfulSearch()
         {
             List<string> exits;
-            Action<List<string>> a = (l) =>
+            Action<List<string>, FeedLineParameters> a = (l, flp) =>
             {
                 exits = l;
             };
@@ -114,12 +115,12 @@ namespace IsengardClient.Tests
             SuccessfulSearchSequence sseq = new SuccessfulSearchSequence(a);
 
             exits = null;
-            sseq.FeedLine(new string[] { "You find a hidden exit: test." }, BackgroundCommandType.Search, null, out _, out _);
+            sseq.FeedLine(new string[] { "You find a hidden exit: test." }, new FeedLineParameters(BackgroundCommandType.Search, null));
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
 
             exits = null;
-            sseq.FeedLine(new string[] { "You find a hidden exit: test.", "You find a hidden exit: test2." }, BackgroundCommandType.Search, null, out _, out _);
+            sseq.FeedLine(new string[] { "You find a hidden exit: test.", "You find a hidden exit: test2." }, new FeedLineParameters(BackgroundCommandType.Search, null));
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
             Assert.IsTrue(exits.Contains("test2"));
@@ -130,50 +131,50 @@ namespace IsengardClient.Tests
         {
             bool satisfied;
             ConstantOutputSequence cseq;
-            Action a = () =>
+            Action<FeedLineParameters> a = (flp) =>
             {
                 satisfied = true;
             };
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, null);
             satisfied = false;
-            cseq.FeedLine(new string[] { "test" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "test" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "atest" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "atest" }, new FeedLineParameters(null, null));
             Assert.IsTrue(!satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "testa" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "testa" }, new FeedLineParameters(null, null));
             Assert.IsTrue(!satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.StartsWith, null);
             satisfied = false;
-            cseq.FeedLine(new string[] { "test" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "test" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "atest" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "atest" }, new FeedLineParameters(null, null));
             Assert.IsTrue(!satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "testa" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "testa" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.Contains, null);
             satisfied = false;
-            cseq.FeedLine(new string[] { "test" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "test" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "atest" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "atest" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "testa" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "testa" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, 1);
             satisfied = false;
-            cseq.FeedLine(new string[] { "not", "test" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "not", "test" }, new FeedLineParameters(null, null));
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new string[] { "not", "other" }, null, null, out _, out _);
+            cseq.FeedLine(new string[] { "not", "other" }, new FeedLineParameters(null, null));
             Assert.IsTrue(!satisfied);
         }
     }
