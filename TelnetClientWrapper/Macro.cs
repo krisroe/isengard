@@ -167,6 +167,8 @@ namespace IsengardClient
         OffensiveSpellLevel1,
         OffensiveSpellLevel2,
         OffensiveSpellLevel3,
+        Vigor,
+        MendWounds,
     }
 
     public enum MeleeCombatStep

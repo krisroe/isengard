@@ -97,7 +97,15 @@ namespace IsengardClient
         private MonsterStatus? _currentMonsterStatus;
         private int _monsterDamage;
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
-        private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>() { BackgroundCommandType.Vigor, BackgroundCommandType.Protection, BackgroundCommandType.Bless, BackgroundCommandType.Stun, BackgroundCommandType.OffensiveSpell };
+        private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>()
+        {
+            BackgroundCommandType.Vigor,
+            BackgroundCommandType.MendWounds,
+            BackgroundCommandType.Protection,
+            BackgroundCommandType.Bless,
+            BackgroundCommandType.Stun,
+            BackgroundCommandType.OffensiveSpell
+        };
 
         internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
         {
@@ -861,6 +869,15 @@ namespace IsengardClient
             }
         }
 
+        private static void OnMendWoundsSpellCast(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.MendWounds)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
         private static void OnBlessSpellCast(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -1070,6 +1087,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
+                new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
                 new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
@@ -1602,7 +1620,8 @@ namespace IsengardClient
             }
         }
 
-       
+        private const string CAST_VIGOR_SPELL = "cast vigor";
+        private const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
 
         private void SetButtonTags()
         {
@@ -1612,7 +1631,7 @@ namespace IsengardClient
             btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions, DependentObjectType.None);
             btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None, DependentObjectType.Mob);
             btnLook.Tag = new CommandButtonTag("look", CommandType.None, DependentObjectType.None);
-            btnCastVigor.Tag = new CommandButtonTag("cast vigor", CommandType.Magic, DependentObjectType.None);
+            btnCastVigor.Tag = new CommandButtonTag(CAST_VIGOR_SPELL, CommandType.Magic, DependentObjectType.None);
             btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic, DependentObjectType.None);
             btnTime.Tag = new CommandButtonTag("time", CommandType.None, DependentObjectType.None);
             btnScore.Tag = new CommandButtonTag("score", CommandType.None, DependentObjectType.None);
@@ -1630,7 +1649,7 @@ namespace IsengardClient
             btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None, DependentObjectType.None);
             btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnCastMend.Tag = new CommandButtonTag("cast mend-wounds", CommandType.Magic, DependentObjectType.None);
+            btnCastMend.Tag = new CommandButtonTag(CAST_MENDWOUNDS_SPELL, CommandType.Magic, DependentObjectType.None);
             btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag("cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
         }
@@ -1984,8 +2003,11 @@ namespace IsengardClient
                             if (_bw.CancellationPending) break;
                             bool didDamage = false;
                             string command = null;
+                            bool skipMagicStep = false;
                             if (nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
                             {
+                                int? currentMana = _currentMana;
+                                int? currentHP = _autoHitpoints;
                                 int manaDrain = 0;
                                 BackgroundCommandType? bct = null;
                                 if (nextMagicStep == MagicCombatStep.Stun)
@@ -1994,20 +2016,46 @@ namespace IsengardClient
                                     manaDrain = 10;
                                     bct = BackgroundCommandType.Stun;
                                 }
+                                else if (nextMagicStep == MagicCombatStep.Vigor)
+                                {
+                                    if (currentHP.HasValue && currentHP.Value >= _totalhp)
+                                    {
+                                        skipMagicStep = true;
+                                    }
+                                    else
+                                    {
+                                        command = CAST_VIGOR_SPELL;
+                                        manaDrain = 2;
+                                        bct = BackgroundCommandType.Vigor;
+                                    }
+                                }
+                                else if (nextMagicStep == MagicCombatStep.MendWounds)
+                                {
+                                    if (currentHP.HasValue && currentHP.Value >= _totalhp)
+                                    {
+                                        skipMagicStep = true;
+                                    }
+                                    else
+                                    {
+                                        command = CAST_MENDWOUNDS_SPELL;
+                                        manaDrain = 6;
+                                        bct = BackgroundCommandType.MendWounds;
+                                    }
+                                }
                                 else
                                 {
                                     if (nextMagicStep == MagicCombatStep.OffensiveSpellAuto)
                                     {
                                         int iMaxOffLevel = pms.MaxOffensiveLevel;
-                                        if (_currentMana >= 10 && iMaxOffLevel >= 3)
+                                        if (currentMana >= 10 && iMaxOffLevel >= 3)
                                         {
                                             nextMagicStep = MagicCombatStep.OffensiveSpellLevel3;
                                         }
-                                        else if (_currentMana >= 7 && iMaxOffLevel >= 2)
+                                        else if (currentMana >= 7 && iMaxOffLevel >= 2)
                                         {
                                             nextMagicStep = MagicCombatStep.OffensiveSpellLevel2;
                                         }
-                                        else if (_currentMana >= 3)
+                                        else if (currentMana >= 3)
                                         {
                                             nextMagicStep = MagicCombatStep.OffensiveSpellLevel1;
                                         }
@@ -2043,51 +2091,11 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (nextMagicStep.HasValue)
+                                if (skipMagicStep)
                                 {
-                                    CommandResult result = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
-                                    if (result == CommandResult.CommandAborted)
+                                    if (!magicStepsFinished)
                                     {
-                                        return;
-                                    }
-                                    else if (result == CommandResult.CommandUnsuccessfulAlways)
-                                    {
-                                        magicTotallyFinished = true;
-                                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                        nextMagicStep = null;
-                                    }
-                                    else if (result == CommandResult.CommandMustWait)
-                                    {
-                                        int waitMS = GetWaitMilliseconds(_waitSeconds);
-                                        if (waitMS > 0)
-                                        {
-                                            dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
-                                        }
-                                        else
-                                        {
-                                            dtNextMagicCommand = null;
-                                        }
-                                    }
-                                    else if (result == CommandResult.CommandSuccessful) //spell was cast
-                                    {
-                                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                        if (nextMagicStep.Value != MagicCombatStep.Stun)
-                                        {
-                                            didDamage = true;
-                                        }
-                                        if (!pms.AutoMana)
-                                        {
-                                            _currentMana -= manaDrain;
-                                        }
-                                        if (_currentMana < 3) //no mana left for casting any more offensive spells
-                                        {
-                                            nextMagicStep = null;
-                                        }
-                                        else if (magicStepsFinished)
-                                        {
-                                            nextMagicStep = null;
-                                        }
-                                        else if (magicSteps.MoveNext())
+                                        if (magicSteps.MoveNext())
                                         {
                                             nextMagicStep = magicSteps.Current;
                                             dtNextMagicCommand = null;
@@ -2098,9 +2106,72 @@ namespace IsengardClient
                                             magicStepsFinished = true;
                                         }
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    if (manaDrain > currentMana) //out of mana
                                     {
-                                        throw new InvalidOperationException();
+                                        nextMagicStep = null;
+                                    }
+                                    if (nextMagicStep.HasValue)
+                                    {
+                                        CommandResult result = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
+                                        if (result == CommandResult.CommandAborted)
+                                        {
+                                            return;
+                                        }
+                                        else if (result == CommandResult.CommandUnsuccessfulAlways)
+                                        {
+                                            magicTotallyFinished = true;
+                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                            nextMagicStep = null;
+                                        }
+                                        else if (result == CommandResult.CommandMustWait)
+                                        {
+                                            int waitMS = GetWaitMilliseconds(_waitSeconds);
+                                            if (waitMS > 0)
+                                            {
+                                                dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                            }
+                                            else
+                                            {
+                                                dtNextMagicCommand = null;
+                                            }
+                                        }
+                                        else if (result == CommandResult.CommandSuccessful) //spell was cast
+                                        {
+                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                            if (nextMagicStep.Value != MagicCombatStep.Stun)
+                                            {
+                                                didDamage = true;
+                                            }
+                                            if (!pms.AutoMana)
+                                            {
+                                                _currentMana -= manaDrain;
+                                            }
+                                            if (_currentMana < 3) //no mana left for casting any more offensive spells
+                                            {
+                                                nextMagicStep = null;
+                                            }
+                                            else if (magicStepsFinished)
+                                            {
+                                                nextMagicStep = null;
+                                            }
+                                            else if (magicSteps.MoveNext())
+                                            {
+                                                nextMagicStep = magicSteps.Current;
+                                                dtNextMagicCommand = null;
+                                            }
+                                            else //no more steps
+                                            {
+                                                nextMagicStep = null;
+                                                magicStepsFinished = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            throw new InvalidOperationException();
+                                        }
                                     }
                                 }
                             }
@@ -2345,6 +2416,9 @@ namespace IsengardClient
             {
                 case "vigor":
                     bct = BackgroundCommandType.Vigor;
+                    break;
+                case "mend-wounds":
+                    bct = BackgroundCommandType.MendWounds;
                     break;
                 case "bless":
                     bct = BackgroundCommandType.Bless;
@@ -2809,6 +2883,16 @@ namespace IsengardClient
         private void btnStun_Click(object sender, EventArgs e)
         {
             RunOrQueueMagicStep(sender, MagicCombatStep.Stun);
+        }
+
+        private void btnVigor_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.Vigor);
+        }
+
+        private void btnMendWounds_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.MendWounds);
         }
 
         private void btnAttackMob_Click(object sender, EventArgs e)
@@ -3866,6 +3950,7 @@ namespace IsengardClient
         Search,
         Knock,
         Vigor,
+        MendWounds,
         Bless,
         Protection,
         Manashield,
