@@ -150,12 +150,6 @@
     <Compile Include="frmPreMacroPrompt.Designer.cs">
       <DependentUpon>frmPreMacroPrompt.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmVariables.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmVariables.Designer.cs">
-      <DependentUpon>frmVariables.cs</DependentUpon>
-    </Compile>
     <Compile Include="Macro.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
@@ -168,7 +162,6 @@
     <Compile Include="Room.cs" />
     <Compile Include="RoomGraph.cs" />
     <Compile Include="Sequence.cs" />
-    <Compile Include="Variable.cs" />
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>
@@ -177,9 +170,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmPreMacroPrompt.resx">
       <DependentUpon>frmPreMacroPrompt.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmVariables.resx">
-      <DependentUpon>frmVariables.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

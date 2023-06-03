@@ -82,7 +82,6 @@
             this.grpLocations = new System.Windows.Forms.GroupBox();
             this.grpOneClickMacros = new System.Windows.Forms.GroupBox();
             this.flpOneClickMacros = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnVariables = new System.Windows.Forms.Button();
             this.txtPotion = new System.Windows.Forms.TextBox();
             this.lblPotion = new System.Windows.Forms.Label();
             this.btnRemoveWeapon = new System.Windows.Forms.Button();
@@ -143,9 +142,6 @@
             this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
             this.lblLevel = new System.Windows.Forms.Label();
             this.txtLevel = new System.Windows.Forms.TextBox();
-            this.lblMacro = new System.Windows.Forms.Label();
-            this.cboMacros = new System.Windows.Forms.ComboBox();
-            this.btnRunMacro = new System.Windows.Forms.Button();
             this.tabEmotes = new System.Windows.Forms.TabPage();
             this.pnlEmotes = new System.Windows.Forms.Panel();
             this.btnSay = new System.Windows.Forms.Button();
@@ -205,7 +201,7 @@
             this.btnLevel1OffensiveSpell.TabIndex = 0;
             this.btnLevel1OffensiveSpell.Text = "Level 1 Offensive Spell";
             this.btnLevel1OffensiveSpell.UseVisualStyleBackColor = true;
-            this.btnLevel1OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLevel1OffensiveSpell.Click += new System.EventHandler(this.btnLevel1OffensiveSpell_Click);
             // 
             // txtMob
             // 
@@ -268,7 +264,7 @@
             this.btnLevel2OffensiveSpell.TabIndex = 5;
             this.btnLevel2OffensiveSpell.Text = "Level 2 Offensive Spell";
             this.btnLevel2OffensiveSpell.UseVisualStyleBackColor = true;
-            this.btnLevel2OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLevel2OffensiveSpell.Click += new System.EventHandler(this.btnLevel2OffensiveSpell_Click);
             // 
             // btnFlee
             // 
@@ -424,7 +420,7 @@
             this.btnAttackMob.TabIndex = 35;
             this.btnAttackMob.Text = "Attack Mob";
             this.btnAttackMob.UseVisualStyleBackColor = true;
-            this.btnAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnAttackMob.Click += new System.EventHandler(this.btnAttackMob_Click);
             // 
             // txtCurrentRoom
             // 
@@ -545,6 +541,7 @@
             this.txtWand.Name = "txtWand";
             this.txtWand.Size = new System.Drawing.Size(179, 20);
             this.txtWand.TabIndex = 49;
+            this.txtWand.TextChanged += new System.EventHandler(this.txtWand_TextChanged);
             // 
             // lblWand
             // 
@@ -609,7 +606,7 @@
             this.btnPowerAttackMob.TabIndex = 54;
             this.btnPowerAttackMob.Text = "Power Attack Mob";
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
-            this.btnPowerAttackMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnPowerAttackMob.Click += new System.EventHandler(this.btnPowerAttackMob_Click);
             // 
             // btnQuit
             // 
@@ -653,6 +650,7 @@
             this.radFire.TabStop = true;
             this.radFire.Text = "Fire";
             this.radFire.UseVisualStyleBackColor = true;
+            this.radFire.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
             // 
             // radWater
             // 
@@ -664,6 +662,7 @@
             this.radWater.TabStop = true;
             this.radWater.Text = "Water";
             this.radWater.UseVisualStyleBackColor = true;
+            this.radWater.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
             // 
             // radWind
             // 
@@ -676,6 +675,7 @@
             this.radWind.TabStop = true;
             this.radWind.Text = "Wind";
             this.radWind.UseVisualStyleBackColor = true;
+            this.radWind.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
             // 
             // radEarth
             // 
@@ -687,6 +687,7 @@
             this.radEarth.TabStop = true;
             this.radEarth.Text = "Earth";
             this.radEarth.UseVisualStyleBackColor = true;
+            this.radEarth.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
             // 
             // treeLocations
             // 
@@ -749,17 +750,6 @@
             this.flpOneClickMacros.Name = "flpOneClickMacros";
             this.flpOneClickMacros.Size = new System.Drawing.Size(595, 92);
             this.flpOneClickMacros.TabIndex = 0;
-            // 
-            // btnVariables
-            // 
-            this.btnVariables.Location = new System.Drawing.Point(527, 137);
-            this.btnVariables.Margin = new System.Windows.Forms.Padding(2);
-            this.btnVariables.Name = "btnVariables";
-            this.btnVariables.Size = new System.Drawing.Size(93, 24);
-            this.btnVariables.TabIndex = 66;
-            this.btnVariables.Text = "Variables";
-            this.btnVariables.UseVisualStyleBackColor = true;
-            this.btnVariables.Click += new System.EventHandler(this.btnVariables_Click);
             // 
             // txtPotion
             // 
@@ -968,7 +958,6 @@
             this.pnlMain.Controls.Add(this.txtPotion);
             this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
-            this.pnlMain.Controls.Add(this.btnVariables);
             this.pnlMain.Controls.Add(this.btnTime);
             this.pnlMain.Controls.Add(this.grpOneClickMacros);
             this.pnlMain.Controls.Add(this.btnScore);
@@ -1372,7 +1361,7 @@
             this.btnLevel3OffensiveSpell.TabIndex = 84;
             this.btnLevel3OffensiveSpell.Text = "Level 3 Offensive Spell";
             this.btnLevel3OffensiveSpell.UseVisualStyleBackColor = true;
-            this.btnLevel3OffensiveSpell.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLevel3OffensiveSpell.Click += new System.EventHandler(this.btnLevel3OffensiveSpell_Click);
             // 
             // btnStunMob
             // 
@@ -1383,7 +1372,7 @@
             this.btnStunMob.TabIndex = 83;
             this.btnStunMob.Text = "Stun Mob";
             this.btnStunMob.UseVisualStyleBackColor = true;
-            this.btnStunMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnStunMob.Click += new System.EventHandler(this.btnStun_Click);
             // 
             // btnCastMend
             // 
@@ -1449,9 +1438,6 @@
             this.pnlAncillary.Controls.Add(this.txtPreferredAlignment);
             this.pnlAncillary.Controls.Add(this.lblLevel);
             this.pnlAncillary.Controls.Add(this.txtLevel);
-            this.pnlAncillary.Controls.Add(this.lblMacro);
-            this.pnlAncillary.Controls.Add(this.cboMacros);
-            this.pnlAncillary.Controls.Add(this.btnRunMacro);
             this.pnlAncillary.Controls.Add(this.txtSetValue);
             this.pnlAncillary.Controls.Add(this.btnSet);
             this.pnlAncillary.Controls.Add(this.cboSetOption);
@@ -1502,37 +1488,6 @@
             this.txtLevel.Name = "txtLevel";
             this.txtLevel.Size = new System.Drawing.Size(102, 20);
             this.txtLevel.TabIndex = 91;
-            // 
-            // lblMacro
-            // 
-            this.lblMacro.AutoSize = true;
-            this.lblMacro.Location = new System.Drawing.Point(12, 54);
-            this.lblMacro.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblMacro.Name = "lblMacro";
-            this.lblMacro.Size = new System.Drawing.Size(40, 13);
-            this.lblMacro.TabIndex = 64;
-            this.lblMacro.Text = "Macro:";
-            // 
-            // cboMacros
-            // 
-            this.cboMacros.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMacros.FormattingEnabled = true;
-            this.cboMacros.Location = new System.Drawing.Point(72, 50);
-            this.cboMacros.Name = "cboMacros";
-            this.cboMacros.Size = new System.Drawing.Size(324, 21);
-            this.cboMacros.TabIndex = 63;
-            // 
-            // btnRunMacro
-            // 
-            this.btnRunMacro.Enabled = false;
-            this.btnRunMacro.Location = new System.Drawing.Point(401, 49);
-            this.btnRunMacro.Margin = new System.Windows.Forms.Padding(2);
-            this.btnRunMacro.Name = "btnRunMacro";
-            this.btnRunMacro.Size = new System.Drawing.Size(86, 24);
-            this.btnRunMacro.TabIndex = 62;
-            this.btnRunMacro.Text = "Run Macro";
-            this.btnRunMacro.UseVisualStyleBackColor = true;
-            this.btnRunMacro.Click += new System.EventHandler(this.btnRunMacro_Click);
             // 
             // tabEmotes
             // 
@@ -1872,7 +1827,6 @@
         private System.Windows.Forms.GroupBox grpLocations;
         private System.Windows.Forms.GroupBox grpOneClickMacros;
         private System.Windows.Forms.FlowLayoutPanel flpOneClickMacros;
-        private System.Windows.Forms.Button btnVariables;
         private System.Windows.Forms.TextBox txtPotion;
         private System.Windows.Forms.Label lblPotion;
         private System.Windows.Forms.Button btnRemoveWeapon;
@@ -1892,9 +1846,6 @@
         private System.Windows.Forms.Panel pnlAncillary;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button btnHide;
-        private System.Windows.Forms.Label lblMacro;
-        private System.Windows.Forms.ComboBox cboMacros;
-        private System.Windows.Forms.Button btnRunMacro;
         private System.Windows.Forms.Button btnReddishOrange;
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;

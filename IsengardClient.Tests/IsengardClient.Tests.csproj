@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MacroTests.cs" />
     <Compile Include="SequenceTests.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>

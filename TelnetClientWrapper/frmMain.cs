@@ -20,6 +20,14 @@ namespace IsengardClient
         private VorbisWaveReader _vwr;
         private WaveOutEvent _woe;
 
+        private string _realm1Spell;
+        private string _realm2Spell;
+        private string _realm3Spell;
+        private string _mob;
+        private bool _newMob;
+        private string _weapon;
+        private string _wand;
+
         private static Color BACK_COLOR_GO = Color.LightGreen;
         private static Color BACK_COLOR_CAUTION = Color.Yellow;
         private static Color BACK_COLOR_STOP = Color.LightSalmon;
@@ -55,8 +63,7 @@ namespace IsengardClient
         private Room m_oCurrentRoom;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
-        private List<Variable> _variables;
-        private Dictionary<string, Variable> _variablesByName;
+        private BackgroundProcessPhase _backgroundProcessPhase;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -85,9 +92,11 @@ namespace IsengardClient
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>() { BackgroundCommandType.Vigor, BackgroundCommandType.Protection, BackgroundCommandType.Bless, BackgroundCommandType.Stun, BackgroundCommandType.OffensiveSpell };
 
-        internal frmMain(List<Variable> variables, Dictionary<string, Variable> variablesByName, string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
+        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault)
         {
             InitializeComponent();
+
+            SetButtonTags();
 
             string sFullSoundPath = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "En-us-full.ogg");
             _vwr = new VorbisWaveReader(sFullSoundPath);
@@ -96,8 +105,6 @@ namespace IsengardClient
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
 
-            _variables = variables;
-            _variablesByName = variablesByName;
             _startupCommands = startupCommands;
 
             _skillCooldowns = new Dictionary<SkillWithCooldownType, SkillCooldownStatus>();
@@ -106,21 +113,26 @@ namespace IsengardClient
 
             if (!string.IsNullOrEmpty(defaultRealm))
             {
+                RadioButton defaultRealmButton;
                 switch (defaultRealm)
                 {
                     case "earth":
-                        radEarth.Checked = true;
+                        defaultRealmButton = radEarth;
                         break;
                     case "fire":
-                        radFire.Checked = true;
+                        defaultRealmButton = radFire;
                         break;
                     case "water":
-                        radWater.Checked = true;
+                        defaultRealmButton = radWater;
                         break;
                     case "wind":
-                        radWind.Checked = true;
+                        defaultRealmButton = radWind;
                         break;
+                    default:
+                        throw new InvalidOperationException();
                 }
+                defaultRealmButton.Checked = true;
+                SetCurrentRealmButton(defaultRealmButton);
             }
 
             txtLevel.Text = level.ToString();
@@ -137,26 +149,18 @@ namespace IsengardClient
             _username = userName;
             _password = password;
 
-            cboMacros.Items.Add(string.Empty);
             int iOneClickTabIndex = 0;
             foreach (Macro oMacro in allMacros)
             {
-                if (oMacro.OneClick)
-                {
-                    Button btnOneClick = new Button();
-                    btnOneClick.AutoSize = true;
-                    btnOneClick.TabIndex = iOneClickTabIndex++;
-                    btnOneClick.Tag = oMacro;
-                    btnOneClick.Text = oMacro.Name;
-                    btnOneClick.UseVisualStyleBackColor = true;
-                    btnOneClick.Click += btnOneClick_Click;
-                    btnOneClick.ContextMenuStrip = ctxRoomExits;
-                    flpOneClickMacros.Controls.Add(btnOneClick);
-                }
-                else
-                {
-                    cboMacros.Items.Add(oMacro);
-                }
+                Button btnOneClick = new Button();
+                btnOneClick.AutoSize = true;
+                btnOneClick.TabIndex = iOneClickTabIndex++;
+                btnOneClick.Tag = oMacro;
+                btnOneClick.Text = oMacro.Name;
+                btnOneClick.UseVisualStyleBackColor = true;
+                btnOneClick.Click += btnOneClick_Click;
+                btnOneClick.ContextMenuStrip = ctxRoomExits;
+                flpOneClickMacros.Controls.Add(btnOneClick);
             }
 
             _bw = new BackgroundWorker();
@@ -164,7 +168,6 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            SetButtonTags();
             _gameMap = new IsengardMap(preferredAlignment, level);
             _gameMap.SetNightEdges(false);
             PopulateTree();
@@ -962,12 +965,19 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// triggered by looking or attacking a mob that is not present
+        /// </summary>
         private void OnAttackMobNotPresent()
         {
             BackgroundCommandType? bct = _backgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            if (bct.HasValue)
             {
-                _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.Attack)
+                {
+                    _commandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
             }
         }
 
@@ -1032,7 +1042,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //can be triggered by attack or looking at a mob
+                new ConstantOutputSequence("You don't see that here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //triggered by attack or looking at a mob
+                new ConstantOutputSequence("That is not here.", OnAttackMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0), //triggered by power attack
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
@@ -1547,35 +1558,37 @@ namespace IsengardClient
             }
         }
 
+       
+
         private void SetButtonTags()
         {
-            btnLevel1OffensiveSpell.Tag = new CommandButtonTag("cast {realm1spell} {mob}", CommandType.Magic);
-            btnLevel2OffensiveSpell.Tag = new CommandButtonTag("cast {realm2spell} {mob}", CommandType.Magic);
-            btnLevel3OffensiveSpell.Tag = new CommandButtonTag("cast {realm3spell} {mob}", CommandType.Magic);
-            btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions);
-            btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None);
-            btnLook.Tag = new CommandButtonTag("look", CommandType.None);
-            btnCastVigor.Tag = new CommandButtonTag("cast vigor", CommandType.Magic);
-            btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic);
-            btnTime.Tag = new CommandButtonTag("time", CommandType.None);
-            btnScore.Tag = new CommandButtonTag("score", CommandType.None);
-            btnInformation.Tag = new CommandButtonTag("information", CommandType.None);
-            btnInventory.Tag = new CommandButtonTag("inventory", CommandType.None);
-            btnAttackMob.Tag = new CommandButtonTag("kill {mob}", CommandType.Melee);
-            btnDrinkYellow.Tag = new CommandButtonTag("drink yellow", CommandType.Potions);
-            btnDrinkGreen.Tag = new CommandButtonTag("drink green", CommandType.Potions);
-            btnWieldWeapon.Tag = new CommandButtonTag("wield {weapon}", CommandType.None);
-            btnUseWandOnMob.Tag = new CommandButtonTag("zap {wand} {mob}", CommandType.Magic);
-            btnWho.Tag = new CommandButtonTag("who", CommandType.None);
-            btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None);
-            btnEquipment.Tag = new CommandButtonTag("equipment", CommandType.None);
-            btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee);
-            btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None);
-            btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None);
-            btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic);
-            btnCastMend.Tag = new CommandButtonTag("cast mend-wounds", CommandType.Magic);
-            btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions);
-            btnStunMob.Tag = new CommandButtonTag("cast stun {mob}", CommandType.Magic);
+            btnLevel1OffensiveSpell.Tag = new CommandButtonTag("cast {realm1spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel2OffensiveSpell.Tag = new CommandButtonTag("cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel3OffensiveSpell.Tag = new CommandButtonTag("cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions, DependentObjectType.None);
+            btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None, DependentObjectType.Mob);
+            btnLook.Tag = new CommandButtonTag("look", CommandType.None, DependentObjectType.None);
+            btnCastVigor.Tag = new CommandButtonTag("cast vigor", CommandType.Magic, DependentObjectType.None);
+            btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic, DependentObjectType.None);
+            btnTime.Tag = new CommandButtonTag("time", CommandType.None, DependentObjectType.None);
+            btnScore.Tag = new CommandButtonTag("score", CommandType.None, DependentObjectType.None);
+            btnInformation.Tag = new CommandButtonTag("information", CommandType.None, DependentObjectType.None);
+            btnInventory.Tag = new CommandButtonTag("inventory", CommandType.None, DependentObjectType.None);
+            btnAttackMob.Tag = new CommandButtonTag("kill {mob}", CommandType.Melee, DependentObjectType.Mob);
+            btnDrinkYellow.Tag = new CommandButtonTag("drink yellow", CommandType.Potions, DependentObjectType.None);
+            btnDrinkGreen.Tag = new CommandButtonTag("drink green", CommandType.Potions, DependentObjectType.None);
+            btnWieldWeapon.Tag = new CommandButtonTag("wield {weapon}", CommandType.None, DependentObjectType.Weapon);
+            btnUseWandOnMob.Tag = new CommandButtonTag("zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
+            btnWho.Tag = new CommandButtonTag("who", CommandType.None, DependentObjectType.None);
+            btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None, DependentObjectType.None);
+            btnEquipment.Tag = new CommandButtonTag("equipment", CommandType.None, DependentObjectType.None);
+            btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee, DependentObjectType.Mob);
+            btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None, DependentObjectType.Weapon);
+            btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None, DependentObjectType.None);
+            btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnCastMend.Tag = new CommandButtonTag("cast mend-wounds", CommandType.Magic, DependentObjectType.None);
+            btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions, DependentObjectType.None);
+            btnStunMob.Tag = new CommandButtonTag("cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
         }
 
         private void PopulateTree()
@@ -1633,16 +1646,6 @@ namespace IsengardClient
             {
                 _fleeing = false;
                 _commandResult = null;
-                if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand))
-                {
-                    SendCommand(_currentBackgroundParameters.FinalCommand, InputEchoType.On);
-                    _currentBackgroundParameters.CommandsRun++;
-                }
-                if (!string.IsNullOrEmpty(_currentBackgroundParameters.FinalCommand2))
-                {
-                    SendCommand(_currentBackgroundParameters.FinalCommand2, InputEchoType.On);
-                    _currentBackgroundParameters.CommandsRun++;
-                }
                 if ((_currentBackgroundParameters.SetTargetRoomIfCancelled || !_currentBackgroundParameters.Cancelled) && _currentBackgroundParameters.CommandsRun > 0)
                 {
                     Room targetRoom = _currentBackgroundParameters.TargetRoom;
@@ -1659,7 +1662,8 @@ namespace IsengardClient
                 {
                     txtMob.Text = _currentBackgroundParameters.TargetRoomMob;
                 }
-                ToggleBackgroundProcess(false);
+                _backgroundProcessPhase = BackgroundProcessPhase.None;
+                ToggleBackgroundProcess(_currentBackgroundParameters, false);
                 _currentBackgroundParameters = null;
             }
         }
@@ -1673,26 +1677,6 @@ namespace IsengardClient
             }
             m_oCurrentRoom = r;
             txtCurrentRoom.Text = m_oCurrentRoom.Name;
-            if (r.VariableValues != null)
-            {
-                foreach (KeyValuePair<Variable, string> next in r.VariableValues)
-                {
-                    switch (next.Key.Type)
-                    {
-                        case VariableType.Bool:
-                            ((BooleanVariable)next.Key).Value = bool.Parse(next.Value);
-                            break;
-                        case VariableType.Int:
-                            ((IntegerVariable)next.Key).Value = int.Parse(next.Value);
-                            break;
-                        case VariableType.String:
-                            ((StringVariable)next.Key).Value = next.Value;
-                            break;
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                }
-            }
             RefreshEnabledForSingleMoveButtons();
         }
 
@@ -1700,13 +1684,11 @@ namespace IsengardClient
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             Macro m = pms.Macro;
-            List<MacroStepBase> commands = pms.Commands;
-            MacroCommand oPreviousCommand;
-            MacroCommand oCurrentCommand = null;
 
             //Heal
             if (m != null && m.Heal)
             {
+                _backgroundProcessPhase = BackgroundProcessPhase.Heal;
                 int? autohp, automp;
                 while (true)
                 {
@@ -1753,6 +1735,7 @@ namespace IsengardClient
             //Activate skills
             if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
             {
+                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                 bool manashieldSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, BeforeFleeCommandAbortLogic, false, false);
                 if (manashieldSuccess)
                 {
@@ -1764,8 +1747,10 @@ namespace IsengardClient
                 }
             }
 
+            bool setMob = false;
             if (pms.Exits != null && pms.Exits.Count > 0)
             {
+                _backgroundProcessPhase = BackgroundProcessPhase.Movement;
                 foreach (Exit nextExit in pms.Exits)
                 {
                     string exitText = nextExit.ExitText;
@@ -1883,11 +1868,20 @@ namespace IsengardClient
 
                 //if we got here that means all exits were traversed successfully
                 _currentBackgroundParameters.ReachedTargetRoom = true;
-                ((StringVariable)_currentBackgroundParameters.Variables["mob"]).Value = _currentBackgroundParameters.TargetRoomMob;
+                setMob = true;
             }
             else if (!string.IsNullOrEmpty(_currentBackgroundParameters.TargetRoomMob))
             {
-                ((StringVariable)_currentBackgroundParameters.Variables["mob"]).Value = _currentBackgroundParameters.TargetRoomMob;
+                setMob = true;
+            }
+
+            if (setMob)
+            {
+                _mob = _currentBackgroundParameters.TargetRoomMob;
+                if (!string.IsNullOrEmpty(_mob))
+                {
+                    _newMob = true;
+                }
             }
 
             if (pms.Flee)
@@ -1895,83 +1889,329 @@ namespace IsengardClient
                 _fleeing = true;
             }
 
-            try
+            bool haveMeleeSteps = false;
+            bool haveMagicSteps = false;
+            if (m != null)
             {
-                _currentlyFightingMob = _currentBackgroundParameters.TargetRoomMob;
-                _monsterDamage = 0;
-                _currentMonsterStatus = null;
-                foreach (MacroCommand nextCommand in IterateStepCommands(commands, pms, 0))
+                haveMagicSteps = m.MagicCombatSteps != null && m.MagicCombatSteps.Count > 0;
+                haveMeleeSteps = m.MeleeCombatSteps != null && m.MeleeCombatSteps.Count > 0;
+            }
+            if (_fleeing || haveMagicSteps || haveMeleeSteps)
+            {
+                try
                 {
-                    if (_bw.CancellationPending) break;
-                    oPreviousCommand = oCurrentCommand;
-                    oCurrentCommand = nextCommand;
-                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
+                    _currentlyFightingMob = _currentBackgroundParameters.TargetRoomMob;
+                    _monsterDamage = 0;
+                    _currentMonsterStatus = null;
 
-                    if (_bw.CancellationPending) break;
-                    if (_fleeing) break;
+                    string sWeapon = _weapon;
 
-                    bool stop;
-                    ProcessCommand(nextCommand, pms, out stop);
-                    if (stop) break;
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-
-                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, false);
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-                }
-                if (_fleeing)
-                {
-                    string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
-                    if (!string.IsNullOrEmpty(sWeapon))
+                    if (haveMagicSteps || haveMeleeSteps)
                     {
-                        SendCommand("remove " + sWeapon, InputEchoType.On);
-                        _currentBackgroundParameters.CommandsRun++;
-                        if (!_fleeing) return;
-                        if (_bw.CancellationPending) return;
+                        _backgroundProcessPhase = BackgroundProcessPhase.Combat;
+                        bool doPowerAttack = false;
+                        if (haveMeleeSteps)
+                        {
+                            if (!string.IsNullOrEmpty(sWeapon))
+                            {
+                                SendCommand("wield " + sWeapon, InputEchoType.On);
+                                pms.CommandsRun++;
+                            }
+                            doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
+                        }
+
+                        IEnumerator<MagicCombatStep?> magicSteps = m.GetMagicSteps().GetEnumerator();
+                        IEnumerator<MeleeCombatStep?> meleeSteps = m.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                        MagicCombatStep? nextMagicStep = null;
+                        MeleeCombatStep? nextMeleeStep = null;
+                        bool magicFinished = !magicSteps.MoveNext();
+                        bool meleeFinished = !meleeSteps.MoveNext();
+                        if (!magicFinished) nextMagicStep = magicSteps.Current;
+                        if (!meleeFinished) nextMeleeStep = meleeSteps.Current;
+                        DateTime? dtNextMagicCommand = null;
+                        DateTime? dtNextMeleeCommand = null;
+                        while (true) //combat cycle
+                        {
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            bool didDamage = false;
+                            string command = null;
+                            if (nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
+                            {
+                                int manaDrain = 0;
+                                BackgroundCommandType? bct = null;
+                                if (nextMagicStep == MagicCombatStep.Stun)
+                                {
+                                    command = "cast stun " + _currentlyFightingMob;
+                                    manaDrain = 10;
+                                    bct = BackgroundCommandType.Stun;
+                                }
+                                else
+                                {
+                                    if (nextMagicStep == MagicCombatStep.OffensiveSpellAuto)
+                                    {
+                                        int iMaxOffLevel = pms.MaxOffensiveLevel;
+                                        if (_currentMana >= 10 && iMaxOffLevel >= 3)
+                                        {
+                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel3;
+                                        }
+                                        else if (_currentMana >= 7 && iMaxOffLevel >= 2)
+                                        {
+                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel2;
+                                        }
+                                        else if (_currentMana >= 3)
+                                        {
+                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel1;
+                                        }
+                                        else //out of mana
+                                        {
+                                            nextMagicStep = null;
+                                        }
+                                    }
+                                    if (nextMagicStep.HasValue)
+                                    {
+                                        if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel3)
+                                        {
+                                            command = "cast " + _realm3Spell + " " + _currentlyFightingMob;
+                                            manaDrain = 10;
+                                            bct = BackgroundCommandType.OffensiveSpell;
+                                        }
+                                        else if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel2)
+                                        {
+                                            command = "cast " + _realm2Spell + " " + _currentlyFightingMob;
+                                            manaDrain = 7;
+                                            bct = BackgroundCommandType.OffensiveSpell;
+                                        }
+                                        else if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel1)
+                                        {
+                                            command = "cast " + _realm1Spell + " " + _currentlyFightingMob;
+                                            manaDrain = 3;
+                                            bct = BackgroundCommandType.OffensiveSpell;
+                                        }
+                                        else
+                                        {
+                                            throw new InvalidOperationException();
+                                        }
+                                    }
+                                }
+
+                                if (nextMagicStep.HasValue)
+                                {
+                                    CommandResult result = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
+                                    if (result == CommandResult.CommandAborted)
+                                    {
+                                        return;
+                                    }
+                                    else if (result == CommandResult.CommandUnsuccessfulAlways)
+                                    {
+                                        nextMagicStep = null;
+                                    }
+                                    else if (result == CommandResult.CommandMustWait)
+                                    {
+                                        int waitMS = GetWaitMilliseconds(_waitSeconds);
+                                        if (waitMS > 0)
+                                        {
+                                            dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                        }
+                                        else
+                                        {
+                                            dtNextMagicCommand = null;
+                                        }
+                                    }
+                                    else if (result == CommandResult.CommandSuccessful) //spell was cast
+                                    {
+                                        didDamage = true;
+                                        if (!pms.AutoMana)
+                                        {
+                                            _currentMana -= manaDrain;
+                                        }
+                                        if (_currentMana < 3) //no mana left for casting any more offensive spells
+                                        {
+                                            nextMagicStep = null;
+                                        }
+                                        else if (magicFinished)
+                                        {
+                                            nextMagicStep = null;
+                                        }
+                                        else if (magicSteps.MoveNext())
+                                        {
+                                            nextMagicStep = magicSteps.Current;
+                                            dtNextMagicCommand = null;
+                                        }
+                                        else //no more steps
+                                        {
+                                            nextMagicStep = null;
+                                            magicFinished = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException();
+                                    }
+                                }
+                            }
+                            if (!nextMagicStep.HasValue && m.MagicEnd == CombatStepEnd.Flee)
+                            {
+                                _fleeing = true;
+                            }
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            if (nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
+                            {
+                                string sAttackType;
+                                if (nextMeleeStep == MeleeCombatStep.PowerAttack)
+                                    sAttackType = "power";
+                                else if (nextMeleeStep == MeleeCombatStep.RegularAttack)
+                                    sAttackType = "attack";
+                                else
+                                    throw new InvalidOperationException();
+                                command = sAttackType + " " + _mob;
+                                CommandResult result = RunSingleCommandForCommandResult(BackgroundCommandType.Attack, command, pms, BeforeFleeCommandAbortLogic, false);
+                                if (result == CommandResult.CommandAborted)
+                                {
+                                    return;
+                                }
+                                else if (result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    nextMeleeStep = null;
+                                }
+                                else if (result == CommandResult.CommandMustWait)
+                                {
+                                    int waitMS = GetWaitMilliseconds(_waitSeconds);
+                                    if (waitMS > 0)
+                                    {
+                                        dtNextMeleeCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                    }
+                                    else
+                                    {
+                                        dtNextMeleeCommand = null;
+                                    }
+                                }
+                                else if (result == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
+                                {
+                                    didDamage = true;
+                                    if (meleeFinished)
+                                    {
+                                        nextMeleeStep = null;
+                                    }
+                                    else if (meleeSteps.MoveNext())
+                                    {
+                                        nextMeleeStep = meleeSteps.Current;
+                                        dtNextMeleeCommand = null;
+                                    }
+                                    else //no more steps
+                                    {
+                                        nextMeleeStep = null;
+                                        meleeFinished = true;
+                                    }
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException();
+                                }
+                            }
+                            if (!nextMeleeStep.HasValue && m.MeleeEnd == CombatStepEnd.Flee)
+                            {
+                                _fleeing = true;
+                            }
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            if (didDamage)
+                            {
+                                SendCommand("look " + _mob, InputEchoType.Off);
+                                pms.CommandsRun++;
+                            }
+                            if (!nextMagicStep.HasValue)
+                            {
+                                MagicCombatStep? queuedMagicStep;
+                                lock (_queuedCommandLock)
+                                {
+                                    queuedMagicStep = pms.QueuedMagicStep;
+                                    if (queuedMagicStep.HasValue) pms.QueuedMagicStep = null;
+                                }
+                                if (queuedMagicStep.HasValue)
+                                {
+                                    nextMagicStep = queuedMagicStep.Value;
+                                }
+                            }
+                            if (!nextMeleeStep.HasValue)
+                            {
+                                MeleeCombatStep? queuedMeleeStep;
+                                lock (_queuedCommandLock)
+                                {
+                                    queuedMeleeStep = pms.QueuedMeleeStep;
+                                    if (queuedMeleeStep.HasValue) pms.QueuedMeleeStep = null;
+                                }
+                                if (queuedMeleeStep.HasValue)
+                                {
+                                    nextMeleeStep = queuedMeleeStep.Value;
+                                }
+                            }
+                            if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue)
+                            {
+                                break;
+                            }
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            RunAutoCommandsWhenMacroRunning(pms, false);
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+                            Thread.Sleep(50);
+                        }
                     }
 
-                    //determine the flee exit if there is only one place to flee to
-                    Exit singleFleeableExit = null;
-                    Room r = m_oCurrentRoom;
-                    if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                    if (_fleeing)
                     {
-                        List<Exit> fleeableExits = new List<Exit>();
-                        foreach (Exit nextExit in exits)
+                        _backgroundProcessPhase = BackgroundProcessPhase.Flee;
+                        if (!string.IsNullOrEmpty(sWeapon))
                         {
-                            if (!nextExit.Hidden && !nextExit.NoFlee)
+                            SendCommand("remove " + sWeapon, InputEchoType.On);
+                            _currentBackgroundParameters.CommandsRun++;
+                            if (!_fleeing) return;
+                            if (_bw.CancellationPending) return;
+                        }
+
+                        //determine the flee exit if there is only one place to flee to
+                        Exit singleFleeableExit = null;
+                        Room r = m_oCurrentRoom;
+                        if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                        {
+                            List<Exit> fleeableExits = new List<Exit>();
+                            foreach (Exit nextExit in exits)
                             {
-                                fleeableExits.Add(nextExit);
+                                if (!nextExit.Hidden && !nextExit.NoFlee)
+                                {
+                                    fleeableExits.Add(nextExit);
+                                }
+                            }
+                            if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
+                            {
+                                singleFleeableExit = fleeableExits[0];
+                                RunPreExitLogic(pms, singleFleeableExit.PreCommand, singleFleeableExit.Target);
                             }
                         }
-                        if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
-                        {
-                            singleFleeableExit = fleeableExits[0];
-                            RunPreExitLogic(pms, singleFleeableExit.PreCommand, singleFleeableExit.Target);
-                        }
-                    }
 
-                    bool fleeSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
-                    if (fleeSuccess)
-                    {
-                        if (singleFleeableExit != null)
+                        bool fleeSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
+                        if (fleeSuccess)
                         {
-                            _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
+                            if (singleFleeableExit != null)
+                            {
+                                _currentBackgroundParameters.TargetRoom = singleFleeableExit.Target;
+                            }
+                            _fleeing = false;
                         }
-                        _fleeing = false;
                     }
                 }
-            }
-            finally
-            {
-                _currentlyFightingMob = null;
-                _currentMonsterStatus = null;
+                finally
+                {
+                    _currentlyFightingMob = null;
+                    _currentMonsterStatus = null;
+                }
             }
 
             if (pms.Quit)
             {
+                _backgroundProcessPhase = BackgroundProcessPhase.Quit;
                 RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false, true);
             }
         }
@@ -2069,7 +2309,7 @@ namespace IsengardClient
 
             if (!fleeing && _fumbled)
             {
-                string sWeapon = ((StringVariable)_currentBackgroundParameters.Variables["weapon"]).Value;
+                string sWeapon = _weapon;
                 if (!string.IsNullOrEmpty(sWeapon))
                 {
                     SendCommand("wield " + sWeapon, InputEchoType.On);
@@ -2078,132 +2318,19 @@ namespace IsengardClient
                 _fumbled = false;
             }
 
+            string sQueuedCommand;
             lock (_queuedCommandLock)
             {
-                if (pms.QueuedCommand != null)
+                sQueuedCommand = pms.QueuedCommand;
+                if (sQueuedCommand != null)
                 {
-                    SendCommand(pms.QueuedCommand, InputEchoType.On);
-                    pms.CommandsRun++;
                     pms.QueuedCommand = null;
                 }
             }
-        }
-
-        private void ProcessCommand(MacroCommand nextCommand, BackgroundWorkerParameters pms, out bool stop)
-        {
-            MacroStepCombatCycle oCombatCycle = nextCommand.CombatCycle;
-            string rawCommand;
-            int? manaDrain = null;
-            stop = false;
-            if (oCombatCycle == null || oCombatCycle.Magic == MagicCombatCycleType.None)
+            if (!string.IsNullOrEmpty(sQueuedCommand))
             {
-                rawCommand = nextCommand.RawCommand;
-            }
-            else if (oCombatCycle.Magic == MagicCombatCycleType.Stun)
-            {
-                rawCommand = "cast stun {mob}";
-                manaDrain = 10;
-            }
-            else if (oCombatCycle.Magic == MagicCombatCycleType.OffensiveSpell)
-            {
-                int iMaxOffLevel = Convert.ToInt32(pms.MaxOffensiveLevel);
-                if (_currentMana >= 10 && iMaxOffLevel >= 3)
-                {
-                    manaDrain = 10;
-                    rawCommand = "cast {realm3spell} {mob}";
-                }
-                else if (_currentMana >= 7 && iMaxOffLevel >= 2)
-                {
-                    manaDrain = 7;
-                    rawCommand = "cast {realm2spell} {mob}";
-                }
-                else if (_currentMana >= 3)
-                {
-                    manaDrain = 3;
-                    rawCommand = "cast {realm1spell} {mob}";
-                }
-                else //don't have enough mana to cast an offensive spell
-                {
-                    stop = true;
-                    return;
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-
-            //stop processing if out of mana
-            if (oCombatCycle != null && oCombatCycle.Magic != MagicCombatCycleType.None && _currentMana < manaDrain.Value)
-            {
-                stop = true;
-                return;
-            }
-
-            //re-translate the command in case variables have changed
-            string actualCommand = TranslateCommand(rawCommand, _currentBackgroundParameters.GetVariables(), out string errorMessage);
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                stop = true; //not much we can do here except stop
-                return;
-            }
-
-            if (oCombatCycle != null)
-            {
-                SendCommand(TranslateCommand("look {mob}", _currentBackgroundParameters.GetVariables(), out string _), InputEchoType.Off);
+                SendCommand(pms.QueuedCommand, InputEchoType.On);
                 pms.CommandsRun++;
-            }
-
-            if (oCombatCycle == null)
-            {
-                SendCommand(actualCommand, InputEchoType.On);
-                pms.CommandsRun++;
-            }
-            else //combat cycle
-            {
-                if (manaDrain.HasValue)
-                {
-                    BackgroundCommandType bct = oCombatCycle.Magic == MagicCombatCycleType.Stun ? BackgroundCommandType.Stun : BackgroundCommandType.OffensiveSpell;
-                    bool bResult = RunSingleCommand(bct, actualCommand, pms, BeforeFleeCommandAbortLogic, false, false);
-                    if (!bResult)
-                    {
-                        stop = true;
-                        return;
-                    }
-                    if (!pms.AutoMana)
-                    {
-                        _currentMana -= manaDrain.Value;
-                    }
-                    if (_currentMana < 3) //no mana left for casting any more offensive spells
-                    {
-                        stop = true;
-                        return;
-                    }
-                }
-
-                if (oCombatCycle.Attack)
-                {
-                    IEnumerable<Variable> vars = _currentBackgroundParameters.GetVariables();
-                    foreach (var nextVar in vars)
-                    {
-                        if (nextVar.Name == "attacktype" && ((StringVariable)nextVar).Value == "power")
-                        {
-                            pms.DoScore = true;
-                        }
-                    }
-                    string attackCommand = TranslateCommand("{attacktype} {mob}", vars, out errorMessage);
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        stop = true; //not much we can do here except stop
-                        return;
-                    }
-                    bool bResult = RunSingleCommand(BackgroundCommandType.Attack, attackCommand, pms, BeforeFleeCommandAbortLogic, false, false);
-                    if (!bResult)
-                    {
-                        stop = true;
-                        return;
-                    }
-                }
             }
         }
 
@@ -2212,55 +2339,12 @@ namespace IsengardClient
             return _fleeing;
         }
 
-        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing, bool quitting)
+        private CommandResult RunSingleCommandForCommandResult(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing)
         {
-            int currentAttempts = 0;
-            CommandResult? currentResult = null;
-            bool commandSucceeded = false;
             _backgroundCommandType = commandType;
             try
             {
-                while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND && !commandSucceeded)
-                {
-                    if (_bw.CancellationPending) break;
-                    if (abortLogic != null && abortLogic()) break;
-                    _commandResult = null;
-                    SendCommand(command, InputEchoType.On);
-                    pms.CommandsRun++;
-                    while (true)
-                    {
-                        currentResult = _commandResult;
-                        if (currentResult.HasValue) break;
-                        Thread.Sleep(50);
-                        RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
-                        if (_bw.CancellationPending) break;
-                        if (abortLogic != null && abortLogic()) break;
-                    }
-                    if (currentResult.HasValue)
-                    {
-                        if (currentResult.Value == CommandResult.CommandSuccessful)
-                        {
-                            commandSucceeded = true;
-                        }
-                        else if (currentResult.Value == CommandResult.CommandUnsuccessfulAlways)
-                        {
-                            break;
-                        }
-                        else if (currentResult.Value == CommandResult.CommandMustWait)
-                        {
-                            if (_waitSeconds > 1)
-                            {
-                                int waitMS = 400 + (1000 * (_waitSeconds - 2));
-                                WaitUntilNextCommand(waitMS, fleeing, quitting);
-                            }
-                        }
-                        else if (currentResult.Value == CommandResult.CommandUnsuccessfulThisTime)
-                        {
-                            //do nothing, try again
-                        }
-                    }
-                }
-                return currentResult.GetValueOrDefault(CommandResult.CommandUnsuccessfulAlways) == CommandResult.CommandSuccessful;
+                return RunSingleCommandForCommandResult(command, pms, abortLogic, fleeing);
             }
             finally
             {
@@ -2268,134 +2352,87 @@ namespace IsengardClient
             }
         }
 
-        /// <summary>
-        /// iterates through step commands
-        /// </summary>
-        /// <param name="Steps">step commands</param>
-        /// <param name="parameters">parameters to the background worker</param>
-        /// <param name="loopsPerformed">number of loops already performed</param>
-        /// <returns>commands to run</returns>
-        private IEnumerable<MacroCommand> IterateStepCommands(List<MacroStepBase> Steps, BackgroundWorkerParameters parameters, int loopsPerformed)
+        private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing)
         {
-            Dictionary<string, Variable> variables = parameters.Variables;
-            foreach (MacroStepBase nextStep in Steps)
+            _commandResult = null;
+            try
             {
-                Variable conditionV = nextStep.ConditionVariable;
-                if (conditionV != null)
-                {
-                    if (conditionV.Type == VariableType.String)
-                    {
-                        if (string.IsNullOrEmpty(((StringVariable)conditionV).Value))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
-                }
-
-                if (nextStep.SkipRounds > 0 && loopsPerformed < nextStep.SkipRounds)
-                {
-                    continue;
-                }
-
-                int? loopCountMax = null;
-                if (nextStep.LoopCount.HasValue)
-                {
-                    loopCountMax = nextStep.LoopCount.Value;
-                }
-                else if (nextStep.LoopVariable != null && nextStep.LoopVariable.Type == VariableType.Int)
-                {
-                    loopCountMax = ((IntegerVariable)variables[nextStep.LoopVariable.Name]).Value;
-                }
-                bool doInfiniteLoop = false;
-                if (nextStep.Loop.HasValue)
-                {
-                    doInfiniteLoop = nextStep.Loop.Value;
-                }
-                else if (nextStep.LoopVariable != null && nextStep.LoopVariable.Type == VariableType.Bool)
-                {
-                    doInfiniteLoop = ((BooleanVariable)variables[nextStep.LoopVariable.Name]).Value;
-                }
-
-                int loopCount = 0;
+                SendCommand(command, InputEchoType.On);
+                pms.CommandsRun++;
+                CommandResult? currentResult;
                 while (true)
                 {
-                    //do nothing if the loop count is zero
-                    if (loopCountMax.HasValue && loopCountMax.Value == 0)
-                    {
-                        break;
-                    }
+                    currentResult = _commandResult;
+                    if (currentResult.HasValue) break;
+                    Thread.Sleep(50);
+                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
+                    if (_bw.CancellationPending) break;
+                    if (abortLogic != null && abortLogic()) break;
+                }
+                return currentResult.GetValueOrDefault(CommandResult.CommandAborted);
+            }
+            finally
+            {
+                _commandResult = null;
+            }
+        }
 
-                    if (nextStep is MacroStepSetVariable)
+        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing, bool quitting)
+        {
+            int currentAttempts = 0;
+            bool commandSucceeded = false;
+            _backgroundCommandType = commandType;
+            try
+            {
+                CommandResult? result = null;
+                while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND && !commandSucceeded)
+                {
+                    if (_bw.CancellationPending) break;
+                    if (abortLogic != null && abortLogic()) break;
+                    _commandResult = null;
+                    result = RunSingleCommandForCommandResult(command, pms, abortLogic, fleeing);
+                    if (result.HasValue)
                     {
-                        MacroStepSetVariable mssv = (MacroStepSetVariable)nextStep;
-                        if (mssv.Variable.Type == VariableType.Bool)
+                        CommandResult resultValue = result.Value;
+                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways)
                         {
-                            ((BooleanVariable)parameters.Variables[mssv.Variable.Name]).Value = ((BooleanVariable)mssv.Variable).Value;
+                            break;
                         }
-                        else if (mssv.Variable.Type == VariableType.Int)
+                        else if (resultValue == CommandResult.CommandMustWait)
                         {
-                            ((IntegerVariable)parameters.Variables[mssv.Variable.Name]).Value = ((IntegerVariable)mssv.Variable).Value;
+                            int waitMS = GetWaitMilliseconds(_waitSeconds);
+                            if (waitMS > 0)
+                            {
+                                WaitUntilNextCommand(waitMS, fleeing, quitting);
+                            }
                         }
-                        else if (mssv.Variable.Type == VariableType.String)
-                        {
-                            ((StringVariable)parameters.Variables[mssv.Variable.Name]).Value = ((StringVariable)mssv.Variable).Value;
-                        }
-                        else
+                        else if (resultValue != CommandResult.CommandUnsuccessfulThisTime)
                         {
                             throw new InvalidOperationException();
                         }
                     }
-                    else if (nextStep is MacroStepSequence)
-                    {
-                        MacroStepSequence seq = (MacroStepSequence)nextStep;
-                        foreach (MacroCommand nextStepCommand in IterateStepCommands(seq.SubCommands, parameters, loopCount))
-                        {
-                            yield return nextStepCommand;
-                        }
-                    }
-                    else
-                    {
-                        MacroCommand nextCommand;
-                        if (nextStep is MacroStepCombatCycle)
-                        {
-                            nextCommand = new MacroCommand(string.Empty, string.Empty);
-                            nextCommand.CopyFrom(nextStep);
-                            nextCommand.CombatCycle = (MacroStepCombatCycle)nextStep;
-                        }
-                        else
-                        {
-                            nextCommand = (MacroCommand)nextStep;
-                        }
-                        yield return nextCommand;
-                    }
-                    loopCount++;
-
-                    if (loopCountMax.HasValue)
-                    {
-                        //stop if reached the number of times to loop
-                        if (loopCount >= loopCountMax.Value)
-                        {
-                            break;
-                        }
-                    }
-                    else if (!doInfiniteLoop)
-                    {
-                        break; //stop if not in a loop
-                    }
                 }
+                return result.GetValueOrDefault(CommandResult.CommandUnsuccessfulAlways) == CommandResult.CommandSuccessful;
+            }
+            finally
+            {
+                _backgroundCommandType = null;
             }
         }
 
-        private void ToggleBackgroundProcess(bool running)
+        private static int GetWaitMilliseconds(int secondsRemaining)
         {
-            Macro m = _currentBackgroundParameters.Macro;
-            bool quitting = _currentBackgroundParameters.Quit;
-            CommandType eRunningCombatCommandTypes = CommandType.Magic | CommandType.Melee | CommandType.Potions;
-            if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
+            int ret;
+            if (secondsRemaining == 1)
+                ret = 0;
+            else
+                ret = 400 + (1000 * (secondsRemaining - 2));
+            return ret;
+        }
+
+        private void ToggleBackgroundProcess(BackgroundWorkerParameters bwp, bool running)
+        {
+            bool quitting = bwp.Quit;
             List<Panel> topLevelPanels = new List<Panel>
             {
                 pnlMain,
@@ -2420,9 +2457,7 @@ namespace IsengardClient
                         }
                         else if (ctl.Tag is CommandButtonTag)
                         {
-                            CommandButtonTag cbt = (CommandButtonTag)ctl.Tag;
-                            regularLogic = true;
-                            regularLogicEnabled = !running || ((eRunningCombatCommandTypes & cbt.CommandType) == CommandType.None);
+                            regularLogic = false;
                         }
                         else if (ctl.Tag is string)
                         {
@@ -2435,10 +2470,7 @@ namespace IsengardClient
                     }
                     else if (ctl is TextBox)
                     {
-                        if (ctl == txtOneOffCommand)
-                        {
-                            regularLogic = true;
-                        }
+                        regularLogic = true;
                     }
                     else if (ctl != grpLocations && ctl != grpConsole)
                     {
@@ -2457,49 +2489,86 @@ namespace IsengardClient
                     }
                 }
             }
+            EnableDisableActionButtons(bwp);
         }
 
-        private void AddRoomVariableValue(Room r, string variableName, string variableValue)
+        private void EnableDisableActionButtons(BackgroundWorkerParameters bwp)
         {
-            if (!_variablesByName.TryGetValue(variableName, out Variable v))
+            BackgroundProcessPhase npp = _backgroundProcessPhase;
+            bool inForeground = bwp == null || npp == BackgroundProcessPhase.None;
+            CommandType eRunningCombatCommandTypes = CommandType.Magic | CommandType.Melee | CommandType.Potions;
+            if (!inForeground)
             {
-                MessageBox.Show("AddRoomVariableValue: failed to find variable " + variableName);
-                return;
+                Macro m = _currentBackgroundParameters.Macro;
+                if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
             }
-            switch (v.Type)
+            List<Button> buttons = new List<Button>()
             {
-                case VariableType.Bool:
-                    if (!bool.TryParse(variableValue, out bool bValue))
-                    {
-                        MessageBox.Show("AddRoomVariableValue: failed to parse boolean for " + variableValue);
-                        return;
-                    }
-                    break;
-                case VariableType.Int:
-                    if (!int.TryParse(variableValue, out int iValue))
-                    {
-                        MessageBox.Show("AddRoomVariableValue: failed to parse int for " + variableValue);
-                        return;
-                    }
-                    IntegerVariable iv = (IntegerVariable)v;
-                    if (iv.Min.HasValue && iValue < iv.Min.Value)
-                    {
-                        MessageBox.Show("AddRoomVariableValue: integer value less than min value " + variableValue);
-                        return;
-                    }
-                    if (iv.Max.HasValue && iValue > iv.Max.Value)
-                    {
-                        MessageBox.Show("AddRoomVariableValue: integer value greater than max value: " + variableValue);
-                        return;
-                    }
-                    break;
-                case VariableType.String:
-                    break;
-                default:
-                    throw new InvalidOperationException();
+                btnLevel1OffensiveSpell,
+                btnLevel2OffensiveSpell,
+                btnLevel3OffensiveSpell,
+                btnDrinkHazy,
+                btnLookAtMob,
+                btnLook,
+                btnCastVigor,
+                btnCastCurePoison,
+                btnTime,
+                btnScore,
+                btnInformation,
+                btnInventory,
+                btnAttackMob,
+                btnDrinkYellow,
+                btnDrinkGreen,
+                btnWieldWeapon,
+                btnUseWandOnMob,
+                btnWho,
+                btnUptime,
+                btnEquipment,
+                btnPowerAttackMob,
+                btnRemoveWeapon,
+                btnRemoveAll,
+                btnFumbleMob,
+                btnCastMend,
+                btnReddishOrange,
+                btnStunMob,
+            };
+            foreach (Button b in buttons)
+            {
+                bool enabled;
+                CommandButtonTag oTag = (CommandButtonTag)b.Tag;
+                if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(_mob))
+                {
+                    enabled = false;
+                }
+                else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && string.IsNullOrEmpty(_weapon))
+                {
+                    enabled = false;
+                }
+                else if ((oTag.ObjectType & DependentObjectType.Wand) != DependentObjectType.None && string.IsNullOrEmpty(_wand))
+                {
+                    enabled = false;
+                }
+                else if (inForeground)
+                {
+                    enabled = true;
+                }
+                else if (oTag.CommandType == CommandType.None)
+                {
+                    enabled = true;
+                }
+                else if (npp != BackgroundProcessPhase.Combat) //combat buttons are only enabled in combat
+                {
+                    enabled = false;
+                }
+                else //combat buttons are only enabled if the macro isn't doing that kind of combat
+                {
+                    enabled = (oTag.CommandType & eRunningCombatCommandTypes) == CommandType.None;
+                }
+                if (enabled != b.Enabled)
+                {
+                    b.Enabled = enabled;
+                }
             }
-            if (r.VariableValues == null) r.VariableValues = new Dictionary<Variable, string>();
-            r.VariableValues[v] = variableValue;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -2550,130 +2619,6 @@ namespace IsengardClient
                     _newConsoleText.Add(new ConsoleOutput(sText, sText, true));
                 }
             }
-        }
-
-        private string ValidateSpecifiedObject(ObjectType objType, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-            TextBox txt = null;
-            string value = string.Empty;
-            switch (objType)
-            {
-                case ObjectType.Wand:
-                    txt = txtWand;
-                    break;
-                case ObjectType.Potion:
-                    txt = txtPotion;
-                    break;
-                case ObjectType.Realm1Spell:
-                    if (radEarth.Checked)
-                        value = "rumble";
-                    else if (radWind.Checked)
-                        value = "hurt";
-                    else if (radFire.Checked)
-                        value = "burn";
-                    else if (radWater.Checked)
-                        value = "blister";
-                    else
-                        throw new InvalidOperationException();
-                    break;
-                case ObjectType.Realm2Spell:
-                    if (radEarth.Checked)
-                        value = "crush";
-                    else if (radWind.Checked)
-                        value = "dustgust";
-                    else if (radFire.Checked)
-                        value = "fireball";
-                    else if (radWater.Checked)
-                        value = "waterbolt";
-                    else
-                        throw new InvalidOperationException();
-                    break;
-                case ObjectType.Realm3Spell:
-                    if (radEarth.Checked)
-                        value = "shatterstone";
-                    else if (radWind.Checked)
-                        value = "shockbolt";
-                    else if (radFire.Checked)
-                        value = "burstflame";
-                    else if (radWater.Checked)
-                        value = "steamblast";
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            if (txt != null)
-            {
-                value = txt.Text;
-                if (string.IsNullOrEmpty(value))
-                {
-                    errorMessage = "No " + objType + " specified.";
-                    value = null;
-                }
-            }
-            return value;
-        }
-
-        private string TranslateCommand(string input, IEnumerable<Variable> variables, out string errorMessage)
-        {
-            input = input ?? string.Empty;
-            string specifiedValue;
-            errorMessage = string.Empty;
-            input = TranslateVariables(input, variables);
-            foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
-            {
-                string lowerOT = ot.ToString().ToLower();
-                string replacement = "{" + lowerOT + "}";
-                if (input.Contains(replacement))
-                {
-                    specifiedValue = ValidateSpecifiedObject(ot, out errorMessage);
-                    if (string.IsNullOrEmpty(specifiedValue))
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        input = input.Replace(replacement, specifiedValue);
-                    }
-                }
-            }
-            input = TranslateVariables(input, variables);
-            return input;
-        }
-
-        private string TranslateVariables(string input, IEnumerable<Variable> variables)
-        {
-            foreach (Variable v in variables)
-            {
-                string sValue;
-                if (v.Type == VariableType.Bool)
-                {
-                    sValue = ((BooleanVariable)v).Value.ToString();
-                }
-                else if (v.Type == VariableType.Int)
-                {
-                    sValue = ((IntegerVariable)v).Value.ToString();
-                }
-                else if (v.Type == VariableType.String)
-                {
-                    StringVariable sv = (StringVariable)v;
-                    sValue = sv.Value;
-                    if (sv.Name == "mob")
-                    {
-                        string currentFightingMob = _currentlyFightingMob;
-                        if (!string.IsNullOrEmpty(currentFightingMob))
-                        {
-                            sValue = currentFightingMob;
-                        }
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
-                input = input.Replace("{" + v.Name.ToLower() + "}", sValue);
-            }
-            return input;
         }
 
         private void btnOtherSingleMove_Click(object sender, EventArgs e)
@@ -2754,9 +2699,73 @@ namespace IsengardClient
 
         private void btnQuit_Click(object sender, EventArgs e)
         {
-            _currentBackgroundParameters = GenerateNewBackgroundParameters();
-            _currentBackgroundParameters.Quit = true;
-            RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
+            BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+            bwp.Quit = true;
+            RunCommands(bwp);
+        }
+
+        private void btnLevel1OffensiveSpell_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel1);
+        }
+
+        private void btnLevel2OffensiveSpell_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel2);
+        }
+
+        private void btnLevel3OffensiveSpell_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel3);
+        }
+
+        private void btnStun_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMagicStep(sender, MagicCombatStep.Stun);
+        }
+
+        private void btnAttackMob_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMeleeStep(sender, MeleeCombatStep.RegularAttack);
+        }
+
+        public void btnPowerAttackMob_Click(object sender, EventArgs e)
+        {
+            RunOrQueueMeleeStep(sender, MeleeCombatStep.PowerAttack);
+        }
+
+        private void RunOrQueueMagicStep(object sender, MagicCombatStep step)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                CommandButtonTag cbt = (CommandButtonTag)((Button)sender).Tag;
+                RunCommand(TranslateCommand(cbt.Command));
+            }
+            else
+            {
+                lock (_queuedCommandLock)
+                {
+                    bwp.QueuedMagicStep = step;
+                }
+            }
+        }
+
+        private void RunOrQueueMeleeStep(object sender, MeleeCombatStep step)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                CommandButtonTag cbt = (CommandButtonTag)((Button)sender).Tag;
+                RunCommand(TranslateCommand(cbt.Command));
+            }
+            else
+            {
+                lock (_queuedCommandLock)
+                {
+                    bwp.QueuedMeleeStep = step;
+                }
+            }
         }
 
         private void btnDoAction_Click(object sender, EventArgs e)
@@ -2765,30 +2774,35 @@ namespace IsengardClient
             string command;
             CommandButtonTag cmdButtonTag = btn.Tag as CommandButtonTag;
             if (cmdButtonTag != null)
-            {
                 command = cmdButtonTag.Command;
-            }
             else
-            {
                 command = btn.Tag.ToString();
-            }
-            command = TranslateCommand(command, _variables, out string errorMessage);
-            if (string.IsNullOrEmpty(errorMessage))
+            RunCommand(TranslateCommand(command));
+        }
+
+        private string TranslateCommand(string command)
+        {
+            return command.Replace("{realm1spell}", _realm1Spell)
+                          .Replace("{realm2spell}", _realm2Spell)
+                          .Replace("{realm3spell}", _realm3Spell)
+                          .Replace("{mob}", _mob)
+                          .Replace("{weapon}", _weapon)
+                          .Replace("{wand}", _wand);
+        }
+
+        private void RunCommand(string command)
+        {
+            if (_currentBackgroundParameters != null) //queue to background process
             {
-                if (_currentBackgroundParameters != null) //queue to background process
+                lock (_queuedCommandLock)
                 {
-                    lock (_queuedCommandLock)
-                    {
-                        _currentBackgroundParameters.QueuedCommand = command;
-                    }
-                }
-                else
-                {
-                    SendCommand(command, InputEchoType.On);
+                    _currentBackgroundParameters.QueuedCommand = command;
                 }
             }
             else
-                MessageBox.Show(errorMessage);
+            {
+                SendCommand(command, InputEchoType.On);
+            }
         }
 
         private void btnClearCurrentLocation_Click(object sender, EventArgs e)
@@ -2812,32 +2826,26 @@ namespace IsengardClient
             return ret;
         }
 
-        private void RunCommands(List<MacroStepBase> commands, BackgroundWorkerParameters backgroundParameters)
+        private void RunCommands(BackgroundWorkerParameters backgroundParameters)
         {
-            Dictionary<string, Variable> copyVariables = new Dictionary<string, Variable>(StringComparer.OrdinalIgnoreCase);
-            foreach (Variable v in _variables)
-            {
-                copyVariables[v.Name] = Variable.CopyVariable(v);
-            }
-            backgroundParameters.Commands = commands;
-            backgroundParameters.Variables = copyVariables;
+            _currentBackgroundParameters = backgroundParameters;
+            _backgroundProcessPhase = BackgroundProcessPhase.Initialization;
             _bw.RunWorkerAsync(backgroundParameters);
-            ToggleBackgroundProcess(true);
+            ToggleBackgroundProcess(backgroundParameters, true);
         }
 
         private class BackgroundWorkerParameters
         {
             public Room TargetRoom { get; set; }
-            public List<MacroStepBase> Commands { get; set; }
+
             public List<Exit> Exits { get; set; }
-            public Dictionary<string, Variable> Variables { get; set; }
             public bool Cancelled { get; set; }
             public bool SetTargetRoomIfCancelled { get; set; }
             public int CommandsRun { get; set; }
             public Macro Macro { get; set; }
             public string QueuedCommand { get; set; }
-            public string FinalCommand { get; set; }
-            public string FinalCommand2 { get; set; }
+            public MagicCombatStep? QueuedMagicStep { get; set; }
+            public MeleeCombatStep? QueuedMeleeStep { get; set; }
             public int MaxOffensiveLevel { get; set; }
             public bool AutoMana { get; set; }
             public PromptedSkills UsedSkills { get; set; }
@@ -2847,14 +2855,6 @@ namespace IsengardClient
             public bool DoScore { get; set; }
             public string TargetRoomMob { get; set; }
             public bool ReachedTargetRoom { get; set; }
-
-            public IEnumerable<Variable> GetVariables()
-            {
-                foreach (Variable v in Variables.Values)
-                {
-                    yield return v;
-                }
-            }
         }
 
         private void chkIsNight_CheckedChanged(object sender, EventArgs e)
@@ -2900,11 +2900,6 @@ namespace IsengardClient
         private void chkSetOn_CheckedChanged(object sender, EventArgs e)
         {
             cboSetOption_SelectedIndexChanged(null, null);
-        }
-
-        private void btnRunMacro_Click(object sender, EventArgs e)
-        {
-            RunMacro((Macro)cboMacros.SelectedItem, null);
         }
 
         private void RunMacro(Macro m, List<Exit> preExits)
@@ -2953,164 +2948,35 @@ namespace IsengardClient
                 }
             }
 
-            bool powerAttack = (activatedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
-            ((StringVariable)_variablesByName["attacktype"]).Value = powerAttack ? "power" : "attack";
-
-            List<MacroStepBase> stepsToRun = new List<MacroStepBase>();
-            string errorMessage;
-            foreach (MacroStepBase nextMacroStep in m.Steps)
-            {
-                stepsToRun.Add(TranslateStep(nextMacroStep, out errorMessage));
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    MessageBox.Show(errorMessage);
-                    return;
-                }
-            }
-            bool stop;
-            string sFinalCommand = GetFinalCommand(m.FinalCommand, m.FinalCommandConditionVariable, out stop);
-            if (stop) return;
-            string sFinalCommand2 = GetFinalCommand(m.FinalCommand2, m.FinalCommand2ConditionVariable, out stop);
-            if (stop) return;
-            _currentBackgroundParameters = GenerateNewBackgroundParameters();
-            _currentBackgroundParameters.Macro = m;
-            _currentBackgroundParameters.Exits = preExits;
-            _currentBackgroundParameters.FinalCommand = sFinalCommand;
-            _currentBackgroundParameters.FinalCommand2 = sFinalCommand2;
-            _currentBackgroundParameters.UsedSkills = activatedSkills;
-            _currentBackgroundParameters.Flee = m.Flee;
-            _currentBackgroundParameters.TargetRoomMob = targetRoomMob;
-            RunCommands(stepsToRun, _currentBackgroundParameters);
-        }
-
-        private string GetFinalCommand(string FinalCommand, Variable FinalCommandConditionVariable, out bool stop)
-        {
-            stop = false;
-            string sFinalCommand = string.Empty;
-            if (!string.IsNullOrEmpty(FinalCommand))
-            {
-                bool runFinalCommand = true;
-                if (FinalCommandConditionVariable != null)
-                {
-                    StringVariable cond = (StringVariable)_variablesByName[FinalCommandConditionVariable.Name];
-                    runFinalCommand = !string.IsNullOrEmpty(cond.Value);
-                }
-                if (runFinalCommand)
-                {
-                    string errorMessage;
-                    sFinalCommand = TranslateCommand(FinalCommand, _variables, out errorMessage);
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        MessageBox.Show(errorMessage);
-                        stop = true;
-                        return null;
-                    }
-                }
-            }
-            return sFinalCommand;
-        }
-
-        private MacroStepBase TranslateStep(MacroStepBase input, out string errorMessage)
-        {
-            MacroStepBase ret = null;
-            errorMessage = string.Empty;
-            bool isSameStep = false;
-            string translatedCommand;
-            if (input is MacroStepSequence)
-            {
-                MacroStepSequence sourceSequence = (MacroStepSequence)input;
-                MacroStepSequence translatedSequence = new MacroStepSequence();
-                foreach (MacroStepBase nextStep in sourceSequence.SubCommands)
-                {
-                    translatedSequence.SubCommands.Add(TranslateStep(nextStep, out errorMessage));
-                    if (!string.IsNullOrEmpty(errorMessage)) return null;
-                }
-                ret = translatedSequence;
-            }
-            else if (input is MacroCommand)
-            {
-                string rawCommand = ((MacroCommand)input).Command;
-                translatedCommand = TranslateCommand(rawCommand, _variables, out errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage)) return null;
-                ret = new MacroCommand(rawCommand, translatedCommand);
-            }
-            else if (input is MacroStepCombatCycle)
-            {
-                //the command here doesn't matter as long as it requires a mob, since it
-                //could contain an attack, stun, or offensive spell
-                TranslateCommand("attack {mob}", _variables, out errorMessage);
-                if (!string.IsNullOrEmpty(errorMessage)) return null;
-                ret = input;
-                isSameStep = true;
-            }
-            else if (input is MacroStepSetVariable)
-            {
-                ret = input;
-                isSameStep = true;
-            }
-            if (!isSameStep)
-            {
-                ret.Loop = input.Loop;
-                ret.LoopCount = input.LoopCount;
-                ret.LoopVariable = input.LoopVariable;
-                ret.SkipRounds = input.SkipRounds;
-                ret.ConditionVariable = input.ConditionVariable;
-            }
-            return ret;
-        }
-
-        public class MacroStepBase
-        {
-            public bool? Loop { get; set; }
-            public int? LoopCount { get; set; }
-            public Variable LoopVariable { get; set; }
-            /// <summary>
-            /// number of times through a loop to skip
-            /// </summary>
-            public int SkipRounds { get; set; }
-            /// <summary>
-            /// variable controlling whether the step executes
-            /// </summary>
-            public Variable ConditionVariable { get; set; }
-
-            public void CopyFrom(MacroStepBase source)
-            {
-                this.Loop = source.Loop;
-                this.LoopCount = source.LoopCount;
-                this.LoopVariable = source.LoopVariable;
-                this.SkipRounds = source.SkipRounds;
-                this.ConditionVariable = source.ConditionVariable;
-            }
-        }
-
-        private void cboMacros_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            btnRunMacro.Enabled = cboMacros.SelectedIndex > 0;
-        }
-
-        private void btnVariables_Click(object sender, EventArgs e)
-        {
-            new frmVariables(_variables).ShowDialog(this);
+            BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+            bwp.Macro = m;
+            bwp.Exits = preExits;
+            bwp.UsedSkills = activatedSkills;
+            bwp.Flee = m.Flee;
+            bwp.TargetRoomMob = targetRoomMob;
+            RunCommands(bwp);
         }
 
         public class CommandButtonTag
         {
-            public CommandButtonTag(string Command, CommandType CommandType)
+            public CommandButtonTag(string Command, CommandType CommandType, DependentObjectType ObjectType)
             {
                 this.Command = Command;
                 this.CommandType = CommandType;
+                this.ObjectType = ObjectType;
             }
             public string Command { get; set; }
             public CommandType CommandType { get; set; }
+            public DependentObjectType ObjectType { get; set; }
         }
 
         [Flags]
-        public enum CommandType
+        public enum DependentObjectType
         {
             None = 0,
-            Melee = 1,
-            Magic = 2,
-            Potions = 4,
+            Mob = 1,
+            Weapon = 2,
+            Wand = 4,
         }
 
         private void tmr_Tick(object sender, EventArgs e)
@@ -3289,8 +3155,16 @@ namespace IsengardClient
             {
                 txtMobDamage.Text = sNewMobDamageText;
             }
-
-            if (!btnAbort.Enabled)
+            if (_newMob)
+            {
+                txtMob.Text = _mob;
+                _newMob = false;
+            }
+            if (btnAbort.Enabled)
+            {
+                EnableDisableActionButtons(_currentBackgroundParameters);
+            }
+            else
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
 
@@ -3446,12 +3320,20 @@ namespace IsengardClient
 
         private void txtWeapon_TextChanged(object sender, EventArgs e)
         {
-            ((StringVariable)_variablesByName["weapon"]).Value = txtWeapon.Text;
+            _weapon = txtWeapon.Text;
+            EnableDisableActionButtons(_currentBackgroundParameters);
         }
 
         private void txtMob_TextChanged(object sender, EventArgs e)
         {
-            ((StringVariable)_variablesByName["mob"]).Value = txtMob.Text;
+            _mob = txtMob.Text;
+            EnableDisableActionButtons(_currentBackgroundParameters);
+        }
+
+        private void txtWand_TextChanged(object sender, EventArgs e)
+        {
+            _wand = txtWand.Text;
+            EnableDisableActionButtons(_currentBackgroundParameters);
         }
 
         private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)
@@ -3549,12 +3431,9 @@ namespace IsengardClient
         {
             if (_currentBackgroundParameters == null)
             {
-                _currentBackgroundParameters = new BackgroundWorkerParameters();
-                _currentBackgroundParameters.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
-                _currentBackgroundParameters.AutoMana = chkAutoMana.Checked;
-                _currentBackgroundParameters.AutoHazy = chkAutoHazy.Checked;
-                _currentBackgroundParameters.Flee = true;
-                RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
+                BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+                bwp.Flee = true;
+                RunCommands(bwp);
             }
             else
             {
@@ -3794,10 +3673,10 @@ namespace IsengardClient
 
         private void NavigateExitsInBackground(Room targetRoom, List<Exit> exits)
         {
-            _currentBackgroundParameters = GenerateNewBackgroundParameters();
-            _currentBackgroundParameters.TargetRoom = targetRoom;
-            _currentBackgroundParameters.Exits = exits;
-            RunCommands(new List<MacroStepBase>(), _currentBackgroundParameters);
+            BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+            bwp.TargetRoom = targetRoom;
+            bwp.Exits = exits;
+            RunCommands(bwp);
         }
 
         private void btnGraph_Click(object sender, EventArgs e)
@@ -3826,6 +3705,47 @@ namespace IsengardClient
             public string RawText { get; set; }
             public string Content { get; set; }
         }
+
+        private void radRealm_CheckedChanged(object sender, System.EventArgs e)
+        {
+            RadioButton radRealm = (RadioButton)sender;
+            if (radRealm.Checked)
+            {
+                SetCurrentRealmButton(radRealm);
+            }
+        }
+
+        private void SetCurrentRealmButton(RadioButton radRealm)
+        {
+            if (radRealm == radEarth)
+            {
+                _realm1Spell = "rumble";
+                _realm2Spell = "crush";
+                _realm3Spell = "shatterstone";
+            }
+            else if (radRealm == radFire)
+            {
+                _realm1Spell = "burn";
+                _realm2Spell = "fireball";
+                _realm3Spell = "burstflame";
+            }
+            else if (radRealm == radWater)
+            {
+                _realm1Spell = "blister";
+                _realm2Spell = "waterbolt";
+                _realm3Spell = "steamblast";
+            }
+            else if (radRealm == radWind)
+            {
+                _realm1Spell = "hurt";
+                _realm2Spell = "dustgust";
+                _realm3Spell = "shockbolt";
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 
     [Flags]
@@ -3842,6 +3762,7 @@ namespace IsengardClient
         CommandUnsuccessfulThisTime,
         CommandUnsuccessfulAlways,
         CommandMustWait,
+        CommandAborted,
     }
 
     public enum BackgroundCommandType
@@ -3880,5 +3801,26 @@ namespace IsengardClient
         On,
         OnPassword,
         Off,
+    }
+
+    internal enum BackgroundProcessPhase
+    {
+        None,
+        Initialization,
+        Heal,
+        ActivateSkills,
+        Movement,
+        Combat,
+        Flee,
+        Quit,
+    }
+
+    [Flags]
+    public enum CommandType
+    {
+        None = 0,
+        Melee = 1,
+        Magic = 2,
+        Potions = 4,
     }
 }

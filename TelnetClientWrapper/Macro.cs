@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using static IsengardClient.frmMain;
-
 namespace IsengardClient
 {
-    internal class Macro
+    public class Macro
     {
         public Macro(string Name)
         {
             this.Name = Name;
-            this.Steps = new List<MacroStepBase>();
         }
         public override string ToString()
         {
@@ -17,60 +14,172 @@ namespace IsengardClient
         }
 
         public string Name { get; set; }
-        public List<MacroStepBase> Steps { get; set; }
-        public CommandType CombatCommandTypes { get; set; }
-        public string FinalCommand { get; set; }
-        public Variable FinalCommandConditionVariable { get; set; }
-        public string FinalCommand2 { get; set; }
-        public Variable FinalCommand2ConditionVariable { get; set; }
-        public bool OneClick { get; set; }
+        public CommandType CombatCommandTypes
+        {
+            get
+            {
+                CommandType types = CommandType.None;
+
+                if (MagicCombatSteps != null)
+                {
+                    types |= CommandType.Magic;
+                }
+                if (MeleeCombatSteps != null)
+                {
+                    types |= CommandType.Melee;
+                }
+                if (MagicEnd == CombatStepEnd.Flee || MeleeEnd == CombatStepEnd.Flee)
+                {
+                    types |= CommandType.Melee | CommandType.Magic | CommandType.Potions;
+                }
+                return types;
+            }
+        }
+
+        public IEnumerable<MagicCombatStep?> GetMagicSteps()
+        {
+            MagicCombatStep? lastStep = null;
+            if (MagicCombatSteps != null)
+            {
+                foreach (MagicCombatStep next in MagicCombatSteps)
+                {
+                    yield return next;
+                    lastStep = next;
+                }
+            }
+            if (MagicEnd == CombatStepEnd.RepeatLastStep)
+            {
+                MagicCombatStep lastStepValue = lastStep.Value;
+                while (true)
+                {
+                    yield return lastStepValue;
+                }
+            }
+            yield break;
+        }
+
+        public IEnumerable<MeleeCombatStep?> GetMeleeSteps(bool powerAttack)
+        {
+            MeleeCombatStep? lastStep = null;
+            if (MeleeCombatSteps != null)
+            {
+                foreach (MeleeCombatStep next in MeleeCombatSteps)
+                {
+                    MeleeCombatStep nextStepActual;
+                    if (next == MeleeCombatStep.RegularAttack && powerAttack)
+                    {
+                        powerAttack = false;
+                        nextStepActual =  MeleeCombatStep.PowerAttack;
+                    }
+                    else
+                    {
+                        nextStepActual = next;
+                    }
+                    lastStep = next; //never power attack
+                    yield return nextStepActual; //could be power attack or regular attack
+                }
+            }
+            if (MeleeEnd == CombatStepEnd.RepeatLastStep)
+            {
+                MeleeCombatStep lastStepValue = lastStep.Value;
+                while (true)
+                {
+                    yield return lastStepValue;
+                }
+            }
+            yield break;
+        }
+
         public bool Flee { get; set; }
         public bool Heal { get; set; }
         public bool ShowPreForm { get; set; }
+        public List<MagicCombatStep> MagicCombatSteps { get; set; }
+        public List<MeleeCombatStep> MeleeCombatSteps { get; set; }
+        public CombatStepEnd MagicEnd { get; set; }
+        public CombatStepEnd MeleeEnd { get; set; }
 
-        public static bool IsValidMacroName(string name)
+        public static Macro GenerateCannedMacro(string Name)
         {
-            foreach (ObjectType ot in Enum.GetValues(typeof(ObjectType)))
+            Macro m = new Macro(Name);
+            switch (Name)
             {
-                if (ot.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
+                case "C*+A*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
+                    m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "SC*+A*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
+                    m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "SCCSC*+A*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
+                    m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "C*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "SC*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "SCCSC*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "A*":
+                    m.ShowPreForm = true;
+                    m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
+                    m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "Flee":
+                    m.Flee = true;
+                    break;
+                case "Skills":
+                    m.ShowPreForm = true;
+                    break;
+                case "Heal":
+                    m.Heal = true;
+                    break;
+                default:
+                    throw new InvalidOperationException();
             }
-            if (bool.TryParse(name, out _))
-            {
-                return false;
-            }
-            if (int.TryParse(name, out _))
-            {
-                return false;
-            }
-            return true;
+            return m;
         }
     }
 
-    internal class MacroStepSequence : MacroStepBase
+    public enum MagicCombatStep
     {
-        public List<MacroStepBase> SubCommands { get; set; }
-        public MacroStepSequence()
-        {
-            this.SubCommands = new List<MacroStepBase>();
-        }
+        Stun,
+        OffensiveSpellAuto,
+        OffensiveSpellLevel1,
+        OffensiveSpellLevel2,
+        OffensiveSpellLevel3,
     }
 
-    internal class MacroStepSetVariable : MacroStepBase
+    public enum MeleeCombatStep
     {
-        public Variable Variable { get; set; }
-
-        public MacroStepSetVariable()
-        {
-        }
+        PowerAttack,
+        RegularAttack,
     }
 
-    internal class MacroStepCombatCycle : MacroStepBase
+    public enum CombatStepEnd
     {
-        public bool Attack { get; set; }
-        public MagicCombatCycleType Magic { get; set; }
+        None,
+        Flee,
+        RepeatLastStep,
     }
 
     internal enum MagicCombatCycleType
@@ -78,33 +187,5 @@ namespace IsengardClient
         None,
         Stun,
         OffensiveSpell
-    }
-
-    internal class MacroCommand : MacroStepBase
-    {
-        public string RawCommand { get; set; }
-        public string Command { get; set; }
-        public MacroStepCombatCycle CombatCycle { get; set; }
-        public MacroCommand(string RawCommand, string Command)
-        {
-            this.RawCommand = RawCommand;
-            this.Command = Command;
-        }
-    }
-
-    internal enum ManaDrainType
-    {
-        None = 0,
-        Stun = 1,
-        Offensive = 2,
-    }
-
-    internal enum ObjectType
-    {
-        Wand,
-        Potion,
-        Realm1Spell,
-        Realm2Spell,
-        Realm3Spell,
     }
 }
