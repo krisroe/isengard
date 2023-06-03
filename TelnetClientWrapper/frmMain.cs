@@ -1092,6 +1092,7 @@ namespace IsengardClient
                 new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
+                new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
@@ -2336,7 +2337,8 @@ namespace IsengardClient
 
                         //determine the flee exit if there is only one place to flee to
                         Exit singleFleeableExit = null;
-                        Room r = m_oCurrentRoom;
+                        Room r = pms.TargetRoom;
+                        if (r == null) r = m_oCurrentRoom;
                         if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
                         {
                             List<Exit> fleeableExits = new List<Exit>();

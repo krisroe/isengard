@@ -19,19 +19,10 @@ namespace IsengardClient
             get
             {
                 CommandType types = CommandType.None;
-
                 if (MagicCombatSteps != null)
-                {
                     types |= CommandType.Magic;
-                }
                 if (MeleeCombatSteps != null)
-                {
                     types |= CommandType.Melee;
-                }
-                if (MagicEnd == CombatStepEnd.Flee || MeleeEnd == CombatStepEnd.Flee)
-                {
-                    types |= CommandType.Melee | CommandType.Magic | CommandType.Potions;
-                }
                 return types;
             }
         }
@@ -120,6 +111,13 @@ namespace IsengardClient
                     m.ShowPreForm = true;
                     m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto };
                     m.MagicEnd = CombatStepEnd.RepeatLastStep;
+                    m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
+                    m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    break;
+                case "SCCSCCF+A*":
+                    m.ShowPreForm = true;
+                    m.MagicCombatSteps = new List<MagicCombatStep>() { MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.Stun, MagicCombatStep.OffensiveSpellAuto, MagicCombatStep.OffensiveSpellAuto };
+                    m.MagicEnd = CombatStepEnd.Flee;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
                     break;

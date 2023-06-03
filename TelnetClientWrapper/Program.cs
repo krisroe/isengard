@@ -201,6 +201,7 @@ namespace IsengardClient
             allMacros.Add(Macro.GenerateCannedMacro("C*+A*"));
             allMacros.Add(Macro.GenerateCannedMacro("SC*+A*"));
             allMacros.Add(Macro.GenerateCannedMacro("SCCSC*+A*"));
+            allMacros.Add(Macro.GenerateCannedMacro("SCCSCCF+A*"));
             allMacros.Add(Macro.GenerateCannedMacro("C*"));
             allMacros.Add(Macro.GenerateCannedMacro("SC*"));
             allMacros.Add(Macro.GenerateCannedMacro("SCCSC*"));

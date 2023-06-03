@@ -428,6 +428,7 @@
             this.txtCurrentRoom.Location = new System.Drawing.Point(512, 410);
             this.txtCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
             this.txtCurrentRoom.Name = "txtCurrentRoom";
+            this.txtCurrentRoom.ReadOnly = true;
             this.txtCurrentRoom.Size = new System.Drawing.Size(216, 20);
             this.txtCurrentRoom.TabIndex = 37;
             // 
