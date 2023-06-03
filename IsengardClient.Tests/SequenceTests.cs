@@ -42,19 +42,24 @@ namespace IsengardClient.Tests
                 waited = seconds;
             };
 
-            PleaseWaitXSecondsSequence plxss = new PleaseWaitXSecondsSequence(waitedAction);
+            PleaseWaitSequence plxss = new PleaseWaitSequence(waitedAction);
+            FeedLineParameters oFLP = new FeedLineParameters(BackgroundCommandType.Quit, null);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 2 seconds." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
+            plxss.FeedLine(new string[] { "Please wait 2 seconds." }, oFLP);
             Assert.IsTrue(waited == 2);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 12 seconds." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
+            plxss.FeedLine(new string[] { "Please wait 12 seconds." }, oFLP);
             Assert.IsTrue(waited == 12);
 
             waited = -1;
-            plxss.FeedLine(new string[] { "Please wait 1 more second." }, new FeedLineParameters(BackgroundCommandType.Quit, null));
+            plxss.FeedLine(new string[] { "Please wait 1 more second." }, oFLP);
             Assert.IsTrue(waited == 1);
+
+            waited = -1;
+            plxss.FeedLine(new string[] { "Please wait 1:05 minutes." }, oFLP);
+            Assert.IsTrue(waited == 65);
         }
 
         [TestMethod]

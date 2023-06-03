@@ -67,7 +67,7 @@ namespace IsengardClient
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
-        private PleaseWaitXSecondsSequence _pleaseWaitSequence;
+        private PleaseWaitSequence _pleaseWaitSequence;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -1066,7 +1066,7 @@ namespace IsengardClient
                 new ConstantOutputItemSequence(OutputItemSequenceType.Goodbye, "Goodbye!", _asciiMapping),
                 new HPMPSequence(),
             };
-            _pleaseWaitSequence = new PleaseWaitXSecondsSequence(OnWaitXSeconds);
+            _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
                 new MobStatusSequence(OnMobStatusSequence),
@@ -1091,7 +1091,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
-                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
+                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
+                new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
@@ -2186,13 +2187,21 @@ namespace IsengardClient
                             if (_bw.CancellationPending) break;
                             if (nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                             {
+                                bool isPowerAttack = false;
                                 string sAttackType;
                                 if (nextMeleeStep == MeleeCombatStep.PowerAttack)
+                                {
                                     sAttackType = "power";
+                                    isPowerAttack = true;
+                                }
                                 else if (nextMeleeStep == MeleeCombatStep.RegularAttack)
+                                {
                                     sAttackType = "attack";
+                                }
                                 else
+                                {
                                     throw new InvalidOperationException();
+                                }
                                 command = sAttackType + " " + _mob;
                                 CommandResult result = RunSingleCommandForCommandResult(BackgroundCommandType.Attack, command, pms, BeforeFleeCommandAbortLogic, false);
                                 if (result == CommandResult.CommandAborted)
@@ -2222,6 +2231,10 @@ namespace IsengardClient
                                     _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                                     if (_lastCommandDamage != 0)
                                     {
+                                        if (isPowerAttack) //refresh power attack cooldown when macro finishes
+                                        {
+                                            pms.DoScore = true;
+                                        }
                                         didDamage = true;
                                     }
                                     if (meleeStepsFinished)
@@ -2558,7 +2571,7 @@ namespace IsengardClient
                     if (result.HasValue)
                     {
                         CommandResult resultValue = result.Value;
-                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways)
+                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted)
                         {
                             break;
                         }

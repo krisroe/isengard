@@ -881,13 +881,12 @@ namespace IsengardClient
         }
     }
 
-    public class PleaseWaitXSecondsSequence : IOutputProcessingSequence
+    public class PleaseWaitSequence : IOutputProcessingSequence
     {
+        private const string PLEASE_WAIT_PREFIX = "Please wait ";
+        private const string ENDS_WITH_MINUTES_SUFFIX = " minutes.";
+        private const string ENDS_WITH_SECONDS_SUFFIX = " seconds.";
         private Action<int, FeedLineParameters> _onSatisfied;
-        private List<char> _firstChars;
-        private List<char> _secondCharsGreaterThanOne;
-        private List<char> _secondCharsOne;
-        private List<char> _secondChars;
         private int? _lastMeleeWaitSeconds;
         private int? _lastMagicWaitSeconds;
 
@@ -901,31 +900,9 @@ namespace IsengardClient
             _lastMagicWaitSeconds = null;
         }
 
-        private enum PleaseWaitXSecondsStep
-        {
-            None,
-            PastPleaseWait,
-            SecondPart,
-        }
-
-        public PleaseWaitXSecondsSequence(Action<int, FeedLineParameters> onSatisfied)
+        public PleaseWaitSequence(Action<int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
-            _firstChars = new List<char>();
-            foreach (char c in "Please wait ")
-            {
-                _firstChars.Add(c);
-            }
-            _secondCharsGreaterThanOne = new List<char>();
-            foreach (char c in "seconds.")
-            {
-                _secondCharsGreaterThanOne.Add(c);
-            }
-            _secondCharsOne = new List<char>();
-            foreach (char c in "more second.")
-            {
-                _secondCharsOne.Add(c);
-            }
         }
 
         public void FeedLine(string[] Lines, FeedLineParameters flParams)
@@ -936,107 +913,83 @@ namespace IsengardClient
                 return;
             }
             BackgroundCommandType bctValue = backgroundCommandType.Value;
+            int? waitSeconds = null;
             foreach (string nextLine in Lines)
             {
-                List<int> waitNumbers = new List<int>();
-                int currentMatchPoint = -1;
-                PleaseWaitXSecondsStep currentStep = PleaseWaitXSecondsStep.None;
-                foreach (char nextCharacter in nextLine)
+                //skip empty lines. I don't have evidence this ever happens, but adding to be safer.
+                if (string.IsNullOrEmpty(nextLine))
                 {
-                    if (currentStep == PleaseWaitXSecondsStep.None)
+                    continue;
+                }
+                if (!nextLine.StartsWith(PLEASE_WAIT_PREFIX) || nextLine.Length == PLEASE_WAIT_PREFIX.Length)
+                {
+                    break;
+                }
+                string remainder = nextLine.Substring(PLEASE_WAIT_PREFIX.Length);
+                if (remainder == "1 more second.")
+                {
+                    waitSeconds = 1;
+                    break;
+                }
+                if (remainder.EndsWith(ENDS_WITH_MINUTES_SUFFIX))
+                {
+                    if (remainder.Length == ENDS_WITH_MINUTES_SUFFIX.Length)
                     {
-                        char nextCharToMatch = _firstChars[currentMatchPoint + 1];
-                        if (nextCharToMatch == nextCharacter)
-                        {
-                            currentMatchPoint++;
-                            if (currentMatchPoint == _firstChars.Count - 1) //finished start pattern
-                            {
-                                currentStep = PleaseWaitXSecondsStep.PastPleaseWait;
-                                currentMatchPoint = -1;
-                                waitNumbers.Clear();
-                            }
-                        }
-                        else //start over
-                        {
-                            currentMatchPoint = -1;
-                        }
+                        break;
                     }
-                    else if (currentStep == PleaseWaitXSecondsStep.PastPleaseWait)
+                    string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_MINUTES_SUFFIX.Length);
+                    if (!rest.Contains(":"))
                     {
-                        if (nextCharacter == ' ')
-                        {
-                            if (waitNumbers.Count == 0)
-                            {
-                                currentStep = PleaseWaitXSecondsStep.None;
-                            }
-                            else
-                            {
-                                if (waitNumbers.Count == 1 && waitNumbers[0] == 1)
-                                {
-                                    _secondChars = _secondCharsOne;
-                                }
-                                else
-                                {
-                                    _secondChars = _secondCharsGreaterThanOne;
-                                }
-                                currentStep = PleaseWaitXSecondsStep.SecondPart;
-                                currentMatchPoint = -1;
-                            }
-                        }
-                        else if (nextCharacter >= '0' && nextCharacter <= '9')
-                        {
-                            waitNumbers.Add(nextCharacter - '0');
-                        }
+                        break;
                     }
-                    else if (currentStep == PleaseWaitXSecondsStep.SecondPart)
+                    string[] sPieces = rest.Split(new string[] { ":" }, StringSplitOptions.None);
+                    int iMinutes;
+                    int iSeconds;
+                    if (sPieces.Length == 2 && int.TryParse(sPieces[0], out iMinutes) && int.TryParse(sPieces[1], out iSeconds))
                     {
-                        char nextCharToMatch = _secondChars[currentMatchPoint + 1];
-                        if (nextCharToMatch == nextCharacter)
-                        {
-                            currentMatchPoint++;
-                            if (currentMatchPoint == _secondChars.Count - 1) //finished pattern
-                            {
-                                int waitNumber = 0;
-                                foreach (int nextWaitNumber in waitNumbers)
-                                {
-                                    waitNumber = (waitNumber * 10) + nextWaitNumber;
-                                }
-                                currentStep = PleaseWaitXSecondsStep.None;
-                                currentMatchPoint = -1;
-
-                                int? lastWaitSeconds = null;
-                                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
-                                {
-                                    lastWaitSeconds = _lastMagicWaitSeconds;
-                                }
-                                else if (bctValue == BackgroundCommandType.Attack)
-                                {
-                                    lastWaitSeconds = _lastMeleeWaitSeconds;
-                                }
-                                if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == waitNumber)
-                                {
-                                    flParams.SuppressEcho = true;
-                                }
-                                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
-                                {
-                                    _lastMagicWaitSeconds = waitNumber;
-                                }
-                                else if (bctValue == BackgroundCommandType.Attack)
-                                {
-                                    _lastMeleeWaitSeconds = waitNumber;
-                                }
-                                flParams.FinishedProcessing = true;
-                                _onSatisfied(waitNumber, flParams);
-                                return;
-                            }
-                        }
-                        else //start over
-                        {
-                            currentStep = PleaseWaitXSecondsStep.None;
-                            currentMatchPoint = -1;
-                        }
+                        waitSeconds = (iMinutes * 60) + iSeconds;
                     }
                 }
+                else if (remainder.EndsWith(ENDS_WITH_SECONDS_SUFFIX))
+                {
+                    if (remainder.Length == ENDS_WITH_SECONDS_SUFFIX.Length)
+                    {
+                        break;
+                    }
+                    string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_SECONDS_SUFFIX.Length);
+                    if (int.TryParse(rest, out int iSeconds))
+                    {
+                        waitSeconds = iSeconds;
+                    }
+                }
+                break;
+            }
+            if (waitSeconds.HasValue)
+            {
+                int? lastWaitSeconds = null;
+                int newWaitSeconds = waitSeconds.Value;
+                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                {
+                    lastWaitSeconds = _lastMagicWaitSeconds;
+                }
+                else if (bctValue == BackgroundCommandType.Attack)
+                {
+                    lastWaitSeconds = _lastMeleeWaitSeconds;
+                }
+                if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds)
+                {
+                    flParams.SuppressEcho = true;
+                }
+                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                {
+                    _lastMagicWaitSeconds = newWaitSeconds;
+                }
+                else if (bctValue == BackgroundCommandType.Attack)
+                {
+                    _lastMeleeWaitSeconds = newWaitSeconds;
+                }
+                flParams.FinishedProcessing = true;
+                _onSatisfied(newWaitSeconds, flParams);
             }
         }
     }
