@@ -28,6 +28,8 @@ namespace IsengardClient
         private string _weapon;
         private string _wand;
 
+        private bool _isNight;
+
         private static Color BACK_COLOR_GO = Color.LightGreen;
         private static Color BACK_COLOR_CAUTION = Color.Yellow;
         private static Color BACK_COLOR_STOP = Color.LightSalmon;
@@ -37,7 +39,6 @@ namespace IsengardClient
         private static DateTime? _lastPollTick;
         private bool _verboseMode;
         private bool _queryMonsterStatus;
-        private bool? _setDay;
         private bool _finishedQuit;
         private bool _doScore;
 
@@ -189,7 +190,6 @@ namespace IsengardClient
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
             _gameMap = new IsengardMap(preferredAlignment, level);
-            _gameMap.SetNightEdges(false);
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
@@ -1086,11 +1086,11 @@ namespace IsengardClient
             {
                 if (ims.Contains(InformationalMessages.DayStart))
                 {
-                    _setDay = true;
+                    _isNight = false;
                 }
                 else if (ims.Contains(InformationalMessages.NightStart))
                 {
-                    _setDay = false;
+                    _isNight = true;
                 }
                 Exit currentBackgroundExit = _currentBackgroundExit;
                 if (currentBackgroundExit != null)
@@ -1144,6 +1144,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
                 new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
                 new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence("That exit is closed for the night.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
@@ -3122,7 +3123,7 @@ namespace IsengardClient
 
         private void chkIsNight_CheckedChanged(object sender, EventArgs e)
         {
-            _gameMap.SetNightEdges(chkIsNight.Checked);
+            _isNight = chkIsNight.Checked;
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -3469,6 +3470,10 @@ namespace IsengardClient
                     _broadcastMessages.Clear();
                 }
             }
+            if (chkIsNight.Checked != _isNight)
+            {
+                chkIsNight.Checked = _isNight;
+            }
             EnableDisableActionButtons(_currentBackgroundParameters);
             if (!btnAbort.Enabled)
             {
@@ -3517,12 +3522,6 @@ namespace IsengardClient
                     {
                         SendCommand(nextCommand, InputEchoType.On);
                     }
-                }
-                if (_setDay.HasValue)
-                {
-                    bool setDayValue = _setDay.Value;
-                    _setDay = null;
-                    chkIsNight.Checked = !setDayValue;
                 }
             }
             _previoustickautohp = autohpforthistick;
@@ -3975,7 +3974,7 @@ namespace IsengardClient
             {
                 flying = _spellsCast != null && _spellsCast.Contains("fly");
             }
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, !_isNight);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");

@@ -40,6 +40,15 @@ namespace IsengardClient
         /// whether the exit requires fly
         /// </summary>
         public bool RequiresFly { get; set; }
+        /// <summary>
+        /// whether the exit requires day
+        /// </summary>
+        public bool RequiresDay { get; set; }
+
+        public bool ExitIsUsable(bool flying, bool isDay)
+        {
+            return (!RequiresFly || flying) && (!RequiresDay || isDay);
+        }
 
         /// <summary>
         /// whether the key is required to use the exit (returns false when knockable)

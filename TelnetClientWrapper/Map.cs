@@ -13,7 +13,6 @@ namespace IsengardClient
 
         private RoomGraph _breeStreetsGraph;
 
-        private List<Tuple<Room, Room, string, string>> _nightEdgeList = new List<Tuple<Room, Room, string, string>>();
         private Room _treeOfLife = null;
         private Room _healingHand = null;
         private Room _nindamosVillageCenter = null;
@@ -1960,7 +1959,8 @@ namespace IsengardClient
             AddExit(breeEastGateInside, breeEastGateOutside, "gate");
             _breeStreetsGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(15, 3);
             breeToImladrisGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(3, 4);
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(breeEastGateOutside, breeEastGateInside, "gate", null));
+            Exit e = AddExit(breeEastGateOutside, breeEastGateInside, "gate");
+            e.RequiresDay = true;
 
             Room oGreatEastRoad1 = AddRoom("Great East Road");
             AddBidirectionalExits(breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
@@ -2225,7 +2225,8 @@ namespace IsengardClient
 
             Room imladrisWestGateInside = AddRoom("West Gate Inside");
             AddExit(imladrisWestGateInside, imladrisWestGateOutside, "gate");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(imladrisWestGateOutside, imladrisWestGateInside, "gate", null));
+            Exit e = AddExit(imladrisWestGateOutside, imladrisWestGateInside, "gate");
+            e.RequiresDay = true;
             imladrisGraph.Rooms[imladrisWestGateOutside] = new System.Windows.Point(-1, 5);
             imladrisGraph.Rooms[imladrisWestGateInside] = new System.Windows.Point(0, 5);
 
@@ -2351,8 +2352,7 @@ namespace IsengardClient
             imladrisGraph.Rooms[oImladrisSouthGateInside] = new System.Windows.Point(5, 10);
 
             Room oImladrisCityDump = AddRoom("City Dump");
-            Exit e = AddExit(oImladrisCircle8, oImladrisCityDump, "north");
-            AddExit(oImladrisCityDump, oImladrisCircle8, "south");
+            AddBidirectionalExits(oImladrisCityDump, oImladrisCircle8, BidirectionalExitType.NorthSouth);
             e = AddExit(oImladrisCityDump, oRearAlley, "north");
             e.Hidden = true;
             imladrisGraph.Rooms[oImladrisCityDump] = new System.Windows.Point(5, 8);
@@ -2998,7 +2998,9 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandyPath3] = new System.Windows.Point(9.5, 2.3);
 
             Room oMarketplace = AddRoom("Marketplace");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oSandyPath3, oMarketplace, "door", "open door"));
+            Exit e = AddExit(oSandyPath3, oMarketplace, "door");
+            e.PreCommand = "open door";
+            e.RequiresDay = true;
             AddExit(oMarketplace, oSandyPath3, "door");
             nindamosGraph.Rooms[oMarketplace] = new System.Windows.Point(9.5, 2.6);
 
@@ -3019,7 +3021,8 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandstoneSouth2] = new System.Windows.Point(8, 6);
 
             Room oKKsIronWorksKosta = AddRoom("Kosta");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oSandstoneSouth2, oKKsIronWorksKosta, "path", null));
+            e = AddExit(oSandstoneSouth2, oKKsIronWorksKosta, "path");
+            e.RequiresDay = true;
             AddExit(oKKsIronWorksKosta, oSandstoneSouth2, "out");
             nindamosGraph.Rooms[oKKsIronWorksKosta] = new System.Windows.Point(7, 6);
 
@@ -3175,7 +3178,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oShoreline8] = new System.Windows.Point(13, 7);
 
             Room oSmallDock = AddRoom("Small Dock");
-            Exit e = AddExit(oShoreline8, oSmallDock, "east");
+            e = AddExit(oShoreline8, oSmallDock, "east");
             e.Hidden = true;
             AddExit(oSmallDock, oShoreline8, "west");
             nindamosGraph.Rooms[oSmallDock] = new System.Windows.Point(14, 7);
@@ -3199,7 +3202,8 @@ namespace IsengardClient
             nindamosGraph.Rooms[oElysia2] = new System.Windows.Point(11, 3);
 
             Room oHestasMarket = AddRoom("Hesta");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oElysia2, oHestasMarket, "market", null));
+            e = AddExit(oElysia2, oHestasMarket, "market");
+            e.RequiresDay = true;
             AddExit(oHestasMarket, oElysia2, "out");
             nindamosGraph.Rooms[oHestasMarket] = new System.Windows.Point(10, 3);
 
@@ -3221,7 +3225,8 @@ namespace IsengardClient
             nindamosGraph.Rooms[oGranitePath2] = new System.Windows.Point(6, 4);
 
             Room oAlasse = AddRoom("Alasse");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oGranitePath2, oAlasse, "south", null));
+            e = AddExit(oGranitePath2, oAlasse, "south");
+            e.RequiresDay = true;
             AddExit(oAlasse, oGranitePath2, "out");
             nindamosGraph.Rooms[oAlasse] = new System.Windows.Point(6, 5);
 
@@ -3691,7 +3696,8 @@ namespace IsengardClient
             armenelosGraph.Rooms[oGateInside] = new System.Windows.Point(8, 12);
 
             AddExit(oGateInside, oArmenelosGatesOutside, "gate");
-            _nightEdgeList.Add(new Tuple<Room, Room, string, string>(oArmenelosGatesOutside, oGateInside, "gate", null));
+            Exit e = AddExit(oArmenelosGatesOutside, oGateInside, "gate");
+            e.RequiresDay = true;
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
         }
 
@@ -4388,27 +4394,6 @@ namespace IsengardClient
             _areasByName[a.Name] = a;
             return a;
         }
-
-        public void SetNightEdges(bool isNight)
-        {
-            foreach (Exit e in _nightEdges)
-            {
-                _map.RemoveEdge(e);
-            }
-            if (isNight)
-            {
-                _nightEdges.Clear();
-            }
-            else
-            {
-                foreach (var nextExitInfo in _nightEdgeList)
-                {
-                    Exit e = AddExit(nextExitInfo.Item1, nextExitInfo.Item2, nextExitInfo.Item3);
-                    e.PreCommand = nextExitInfo.Item4;
-                    _nightEdges.Add(e);
-                }
-            }
-        }
     }
 
     internal enum BidirectionalExitType
@@ -4465,7 +4450,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool isDay)
         {
             List<Exit> ret = null;
             Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
@@ -4476,7 +4461,7 @@ namespace IsengardClient
             {
                 foreach (Exit e in initialEdges)
                 {
-                    if (!e.RequiresFly || flying)
+                    if (e.ExitIsUsable(flying, isDay))
                     {
                         pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
                     }
@@ -4511,7 +4496,7 @@ namespace IsengardClient
                         {
                             foreach (Exit e in edges)
                             {
-                                if (!pathMapping.ContainsKey(e.Target) && (!e.RequiresFly || flying))
+                                if (!pathMapping.ContainsKey(e.Target) && e.ExitIsUsable(flying, isDay))
                                 {
                                     pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
                                 }
