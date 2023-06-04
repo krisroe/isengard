@@ -26,16 +26,18 @@ namespace IsengardClient
 
     internal interface IOutputProcessingSequence
     {
-        void FeedLine(string[] Lines, FeedLineParameters Parameters);
+        void FeedLine(FeedLineParameters Parameters);
     }
 
     public class FeedLineParameters
     {
-        public FeedLineParameters(BackgroundCommandType? BackgroundCommandType, string CurrentlyFightingMob)
+        public FeedLineParameters(List<string> Lines, BackgroundCommandType? BackgroundCommandType, string CurrentlyFightingMob)
         {
+            this.Lines = Lines;
             this.BackgroundCommandType = BackgroundCommandType;
             this.CurrentlyFightingMob = CurrentlyFightingMob;
         }
+        public List<string> Lines { get; set; }
         public BackgroundCommandType? BackgroundCommandType { get; set; }
         public string CurrentlyFightingMob { get; set; }
         public bool FinishedProcessing { get; set; }
@@ -96,8 +98,9 @@ namespace IsengardClient
             _backgroundCommandTypes = backgroundCommandTypes;
         }
 
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (_backgroundCommandTypes != null && (!backgroundCommandType.HasValue || !_backgroundCommandTypes.Contains(backgroundCommandType.Value)))
             {
@@ -107,7 +110,7 @@ namespace IsengardClient
             if (_exactLine.HasValue)
             {
                 int exactLineVal = _exactLine.Value;
-                if (Lines.Length < exactLineVal)
+                if (Lines.Count < exactLineVal)
                 {
                     return;
                 }
@@ -378,8 +381,9 @@ namespace IsengardClient
             return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             foreach (string nextLine in Lines)
             {
                 SkillCooldownStep currentStep = SkillCooldownStep.None;
@@ -573,13 +577,14 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int nextLineIndex = 0;
 
             //skip fleeing messages for scared exits
-            while (nextLineIndex < Lines.Length && 
+            while (nextLineIndex < Lines.Count && 
                 (Lines[nextLineIndex].StartsWith("Scared of going ") || Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
             {
                 nextLineIndex++;
@@ -601,7 +606,7 @@ namespace IsengardClient
             if (Lines[nextLineIndex] != string.Empty) return;
             nextLineIndex++;
 
-            if (nextLineIndex >= Lines.Length) return;
+            if (nextLineIndex >= Lines.Count) return;
             string sRoomName = Lines[nextLineIndex];
             if (string.IsNullOrEmpty(sRoomName)) return;
             nextLineIndex++;
@@ -610,7 +615,7 @@ namespace IsengardClient
             if (Lines[nextLineIndex] != string.Empty) return;
             nextLineIndex++;
 
-            if (nextLineIndex < Lines.Length)
+            if (nextLineIndex < Lines.Count)
             {
                 sNextLine = Lines[nextLineIndex];
                 if (sNextLine.StartsWith("Obvious exits: "))
@@ -650,8 +655,9 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.OffensiveSpell)
             {
@@ -695,8 +701,9 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Attack)
             {
@@ -809,8 +816,9 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             if (string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 return;
@@ -905,8 +913,9 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue)
             {
@@ -1008,8 +1017,9 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             foreach (string nextLine in Lines)
             {
                 SpellsCastStep currentStep = SpellsCastStep.None;
@@ -1075,8 +1085,9 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(string[] Lines, FeedLineParameters flParams)
+        public void FeedLine(FeedLineParameters flParams)
         {
+            List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
             if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Search)
             {
@@ -1105,35 +1116,130 @@ namespace IsengardClient
         }
     }
 
-    public class GlobalSuppressionSequence : IOutputProcessingSequence
+    public class InformationalMessagesSequence : IOutputProcessingSequence
     {
-        public void FeedLine(string[] Lines, FeedLineParameters Parameters)
+        public Action<List<InformationalMessages>, List<string>> _onSatisfied;
+
+        public InformationalMessagesSequence(Action<List<InformationalMessages>, List<string>> onSatisfied)
         {
-            if (Lines.Length > 0)
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(FeedLineParameters Parameters)
+        {
+            List<InformationalMessages> messages = null;
+            List<string> broadcastMessages = null;
+            List<string> Lines = Parameters.Lines;
+            List<int> linesToRemove = null;
+            bool haveDataToDisplay = false;
+            for (int i = 0; i < Lines.Count; i++)
             {
-                string sFirstLine = Lines[0];
-                bool matches = false;
-                if (sFirstLine == "The air is still and quiet.")
-                    matches = true;
-                else if (sFirstLine == "The glaring sun beats down upon the inhabitants of the world.")
-                    matches = true;
-                else if (sFirstLine == "Clear, blue skies cover the land.")
-                    matches = true;
-                else if (sFirstLine == "The sky is dark as pitch.")
-                    matches = true;
-                else if (sFirstLine == "The earth trembles under your feet.")
-                    matches = true;
-                else if (sFirstLine == "Light clouds appear over the mountains.")
-                    matches = true;
-                else if (sFirstLine == "### The Celduin Express is ready for boarding in Bree.")
-                    matches = true;
-                if (matches)
+                bool whitespaceLine = false;
+                InformationalMessages? im = null;
+                string sLine = Lines[i];
+                if (sLine == "The sun rises.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.DayStart;
+                }
+                else if (sLine == "The sun disappears over the horizon.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.NightStart;
+                }
+                else if (sLine == "The Bullroarer has arrived in Mithlond.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BullroarerInMithlond;
+                }
+                else if (sLine == "The Bullroarer has arrived in Nindamos.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BullroarerInNindamos;
+                }
+                else if (sLine == "The air is still and quiet." ||
+                         sLine == "The glaring sun beats down upon the inhabitants of the world." ||
+                         sLine == "Clear, blue skies cover the land." ||
+                         sLine == "The sky is dark as pitch." ||
+                         sLine == "The earth trembles under your feet." ||
+                         sLine == "Light clouds appear over the mountains." ||
+                         sLine == "A light breeze blows from the south." ||
+                         sLine == "### The Celduin Express is ready for boarding in Bree.")
+                {
+                    //These lines will be removed.
+                }
+                else if (sLine.StartsWith("###"))
+                {
+                    im = InformationalMessages.Broadcast;
+                    if (broadcastMessages == null)
+                        broadcastMessages = new List<string>();
+                }
+                else if (!string.IsNullOrWhiteSpace(sLine))
+                {
+                    haveDataToDisplay = true;
+                    break;
+                }
+                else //whitespace
+                {
+                    whitespaceLine = true;
+                }
+                if (!whitespaceLine)
+                {
+                    bool removeLine = false;
+                    if (im.HasValue)
+                    {
+                        InformationalMessages imValue = im.Value;
+                        if (imValue == InformationalMessages.Broadcast)
+                        {
+                            broadcastMessages.Add(sLine);
+                            removeLine = true;
+                        }
+                        else
+                        {
+                            if (messages == null)
+                                messages = new List<InformationalMessages>();
+                            messages.Add(im.Value);
+                        }
+                    }
+                    else
+                    {
+                        removeLine = true;
+                    }
+                    if (removeLine)
+                    {
+                        if (linesToRemove == null)
+                            linesToRemove = new List<int>();
+                        linesToRemove.Add(i);
+                    }
+                }
+            }
+            if (linesToRemove != null)
+            {
+                linesToRemove.Reverse();
+                foreach (int i in linesToRemove)
+                {
+                    Lines.RemoveAt(i);
+                }
+                if (!haveDataToDisplay)
                 {
                     Parameters.SuppressEcho = true;
                     Parameters.FinishedProcessing = true;
                 }
             }
+            if (messages != null || broadcastMessages != null)
+            {
+                _onSatisfied(messages, broadcastMessages);
+            }
         }
+    }
+
+    public enum InformationalMessages
+    {
+        DayStart,
+        NightStart,
+        Broadcast,
+        BullroarerInMithlond,
+        BullroarerInNindamos,
     }
 
     public enum SkillWithCooldownType

@@ -31,7 +31,7 @@ namespace IsengardClient
         /// <summary>
         /// wait for a specific message before leaving
         /// </summary>
-        public string WaitForMessage { get; set; }
+        public InformationalMessages? WaitForMessage { get; set; }
         /// <summary>
         /// what type of key is needed to use the exit
         /// </summary>
