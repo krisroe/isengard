@@ -1054,6 +1054,7 @@ namespace IsengardClient
                          sLine == "The earth trembles under your feet." ||
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||
+                         sLine == "Thunderheads roll in from the east." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
                     //These lines will be removed.
