@@ -1111,6 +1111,11 @@ namespace IsengardClient
             }
         }
 
+        private void OnTime(bool isNight)
+        {
+            _isNight = isNight;
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<int> currentOutputItemData = new List<int>();
@@ -1130,6 +1135,7 @@ namespace IsengardClient
                 new InformationalMessagesSequence(OnInformationalMessages),
                 new ScoreOutputSequence(_username, OnScore),
                 new MobStatusSequence(OnMobStatusSequence),
+                new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
                 new SuccessfulSearchSequence(SuccessfulSearch),
                 new RoomTransitionSequence(OnRoomTransition),
@@ -2723,7 +2729,7 @@ namespace IsengardClient
                     {
                         regularLogic = true;
                     }
-                    else if (ctl != grpLocations && ctl != grpConsole)
+                    else if (ctl != grpLocations && ctl != grpConsole && ctl != chkIsNight)
                     {
                         regularLogic = true;
                     }

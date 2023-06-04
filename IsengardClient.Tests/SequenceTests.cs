@@ -96,6 +96,140 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestTimeSequence()
+        {
+            bool? isNight = null;
+            Action<bool> a = (isn) =>
+            {
+                isNight = isn;
+            };
+
+            TimeOutputSequence tos = new TimeOutputSequence(a);
+            List<string> info = new List<string>() { string.Empty };
+            FeedLineParameters flp = new FeedLineParameters(info, null, null);
+
+            isNight = null;
+            info[0] = "Game-Time: 12 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 1 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 2 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 3 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 4 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 5 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 6 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 7 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 8 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 9 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 10 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 11 o'clock AM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 12 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 1 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 2 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 3 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 4 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 5 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 6 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 7 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == false);
+
+            isNight = null;
+            info[0] = "Game-Time: 8 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 9 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 10 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+
+            isNight = null;
+            info[0] = "Game-Time: 11 o'clock PM.";
+            tos.FeedLine(flp);
+            Assert.IsTrue(isNight == true);
+        }
+
+        [TestMethod]
         public void TestWaitXSecondsSequence()
         {
             int waited = -1;

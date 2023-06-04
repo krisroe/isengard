@@ -329,6 +329,105 @@ namespace IsengardClient
         }
     }
 
+    public class TimeOutputSequence : IOutputProcessingSequence
+    {
+        private Action<bool> _onSatisfied;
+        private const string PREFIX = "Game-Time: ";
+
+        public TimeOutputSequence(Action<bool> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0)
+            {
+                string sFirstLine = Lines[0];
+                if (!sFirstLine.StartsWith(PREFIX))
+                {
+                    return;
+                }
+                DayHalf dayHalf;
+                if (sFirstLine.EndsWith(" o'clock PM."))
+                {
+                    dayHalf = DayHalf.PM;
+                }
+                else if (sFirstLine.EndsWith(" o'clock AM."))
+                {
+                    dayHalf = DayHalf.AM;
+                }
+                else
+                {
+                    return;
+                }
+                int iNumber;
+                int iIndex = PREFIX.Length;
+                char cFirstNumber = sFirstLine[iIndex++];
+                char cSecondNumber = sFirstLine[iIndex];
+                switch (cFirstNumber)
+                {
+                    case '1':
+                        if (cSecondNumber == ' ')
+                            iNumber = 1;
+                        else if (cSecondNumber == '0')
+                            iNumber = 10;
+                        else if (cSecondNumber == '1')
+                            iNumber = 11;
+                        else if (cSecondNumber == '2')
+                            iNumber = 12;
+                        else
+                            return;
+                        break;
+                    case '2':
+                        iNumber = 2;
+                        break;
+                    case '3':
+                        iNumber = 3;
+                        break;
+                    case '4':
+                        iNumber = 4;
+                        break;
+                    case '5':
+                        iNumber = 5;
+                        break;
+                    case '6':
+                        iNumber = 6;
+                        break;
+                    case '7':
+                        iNumber = 7;
+                        break;
+                    case '8':
+                        iNumber = 8;
+                        break;
+                    case '9':
+                        iNumber = 9;
+                        break;
+                    default:
+                        return;
+                }
+                bool isNight;
+                if (dayHalf == DayHalf.AM)
+                {
+                    isNight = iNumber == 12 || iNumber <= 7;
+                }
+                else //PM
+                {
+                    isNight = iNumber != 12 && iNumber >= 8;
+                }
+                _onSatisfied(isNight);
+                flParams.FinishedProcessing = true;
+            }
+        }
+
+        private enum DayHalf
+        {
+            AM,
+            PM,
+        }
+    }
+
     public class ScoreOutputSequence : IOutputProcessingSequence
     {
         public Action<FeedLineParameters, List<SkillCooldown>, List<string>> _onSatisfied;

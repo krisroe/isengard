@@ -97,6 +97,8 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpMessages = new System.Windows.Forms.GroupBox();
+            this.lstMessages = new System.Windows.Forms.ListBox();
             this.grpMob = new System.Windows.Forms.GroupBox();
             this.txtMobStatus = new System.Windows.Forms.TextBox();
             this.lblMobStatus = new System.Windows.Forms.Label();
@@ -164,8 +166,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.grpMessages = new System.Windows.Forms.GroupBox();
-            this.lstMessages = new System.Windows.Forms.ListBox();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -174,6 +174,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpMessages.SuspendLayout();
             this.grpMob.SuspendLayout();
             this.grpSingleMove.SuspendLayout();
             this.grpSpells.SuspendLayout();
@@ -192,7 +193,6 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
-            this.grpMessages.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -371,6 +371,7 @@
             // chkIsNight
             // 
             this.chkIsNight.AutoSize = true;
+            this.chkIsNight.Enabled = false;
             this.chkIsNight.Location = new System.Drawing.Point(562, 306);
             this.chkIsNight.Margin = new System.Windows.Forms.Padding(2);
             this.chkIsNight.Name = "chkIsNight";
@@ -994,6 +995,25 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // grpMessages
+            // 
+            this.grpMessages.Controls.Add(this.lstMessages);
+            this.grpMessages.Location = new System.Drawing.Point(8, 579);
+            this.grpMessages.Name = "grpMessages";
+            this.grpMessages.Size = new System.Drawing.Size(529, 168);
+            this.grpMessages.TabIndex = 121;
+            this.grpMessages.TabStop = false;
+            this.grpMessages.Text = "Messages";
+            // 
+            // lstMessages
+            // 
+            this.lstMessages.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstMessages.FormattingEnabled = true;
+            this.lstMessages.Location = new System.Drawing.Point(3, 16);
+            this.lstMessages.Name = "lstMessages";
+            this.lstMessages.Size = new System.Drawing.Size(523, 149);
+            this.lstMessages.TabIndex = 0;
             // 
             // grpMob
             // 
@@ -1734,25 +1754,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // grpMessages
-            // 
-            this.grpMessages.Controls.Add(this.lstMessages);
-            this.grpMessages.Location = new System.Drawing.Point(8, 579);
-            this.grpMessages.Name = "grpMessages";
-            this.grpMessages.Size = new System.Drawing.Size(529, 168);
-            this.grpMessages.TabIndex = 121;
-            this.grpMessages.TabStop = false;
-            this.grpMessages.Text = "Messages";
-            // 
-            // lstMessages
-            // 
-            this.lstMessages.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstMessages.FormattingEnabled = true;
-            this.lstMessages.Location = new System.Drawing.Point(3, 16);
-            this.lstMessages.Name = "lstMessages";
-            this.lstMessages.Size = new System.Drawing.Size(523, 149);
-            this.lstMessages.TabIndex = 0;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1776,6 +1777,7 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpMessages.ResumeLayout(false);
             this.grpMob.ResumeLayout(false);
             this.grpMob.PerformLayout();
             this.grpSingleMove.ResumeLayout(false);
@@ -1799,7 +1801,6 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
-            this.grpMessages.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
