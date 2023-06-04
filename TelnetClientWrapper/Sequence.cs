@@ -329,238 +329,191 @@ namespace IsengardClient
         }
     }
 
-    public class SkillCooldownSequence : IOutputProcessingSequence
+    public class ScoreOutputSequence : IOutputProcessingSequence
     {
-        private enum SkillCooldownStep
-        {
-            None,
-            FinishedStartPattern,
-            LeftBracket,
-            Minute,
-            Colon,
-            TensOfSeconds,
-            Seconds,
-            A,
-            C,
-            T,
-            I,
-            V,
-            E
-        }
+        public Action<FeedLineParameters, List<SkillCooldown>, List<string>> _onSatisfied;
+        private const string SKILLS_PREFIX = "Skills: ";
+        private const string SPELLS_PREFIX = "Spells cast: ";
+        private const string POWER_ATTACK_PREFIX = "(power) attack ";
+        private const string MANASHIELD_PREFIX = "manashield ";
 
-        private SkillWithCooldownType _skillWithCooldownType;
-        private List<char> _chars;
-        private Action<SkillWithCooldownType, bool, DateTime?> _onSatisfied;
-
-        public SkillCooldownSequence(SkillWithCooldownType skillWithCooldownType, Action<SkillWithCooldownType, bool, DateTime?> onSatisfied)
+        private string _username;
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, List<SkillCooldown>, List<string>> onSatisfied)
         {
-            _skillWithCooldownType = skillWithCooldownType;
+            _username = username;
             _onSatisfied = onSatisfied;
-            string sPattern;
-            switch (_skillWithCooldownType)
-            {
-                case SkillWithCooldownType.PowerAttack:
-                    sPattern = "(power) attack";
-                    break;
-                case SkillWithCooldownType.Manashield:
-                    sPattern = "manashield";
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            sPattern += " ";
-            _chars = new List<char>();
-            foreach (char c in sPattern)
-            {
-                _chars.Add(c);
-            }
-        }
-
-        private bool CanBeActive()
-        {
-            return _skillWithCooldownType == SkillWithCooldownType.Manashield;
         }
 
         public void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            foreach (string nextLine in Lines)
+            bool firstLine = true;
+            if (Lines.Count > 0)
             {
-                SkillCooldownStep currentStep = SkillCooldownStep.None;
-                int currentMatchPoint = -1;
-                int minutes = 0;
-                int tensOfSeconds = 0;
-                int seconds = 0;
-                foreach (char nextCharacter in nextLine)
+                StringBuilder oSkills = null;
+                StringBuilder oSpells = null;
+                bool foundSkills = false;
+                bool finishedSkills = false;
+                bool foundSpells = false;
+                bool finishedSpells = false;
+                foreach (string nextLine in Lines)
                 {
-                    bool startedAtNone = false;
-                    if (currentStep == SkillCooldownStep.None)
+                    if (firstLine)
                     {
-                        startedAtNone = true;
-                        char nextCharToMatch = _chars[currentMatchPoint + 1];
-                        if (nextCharToMatch == nextCharacter)
+                        if (!nextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
                         {
-                            currentMatchPoint++;
-                            if (currentMatchPoint == _chars.Count - 1) //finished start pattern
-                            {
-                                currentStep = SkillCooldownStep.FinishedStartPattern;
-                                currentMatchPoint = -1;
-                            }
-                        }
-                        else //start over
-                        {
-                            currentMatchPoint = -1;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.FinishedStartPattern)
-                    {
-                        if (nextCharacter == '[')
-                        {
-                            currentStep = SkillCooldownStep.LeftBracket;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.LeftBracket)
-                    {
-                        if (nextCharacter == 'A' && CanBeActive())
-                        {
-                            currentStep = SkillCooldownStep.A;
-                        }
-                        else if (nextCharacter >= '0' && nextCharacter <= '9')
-                        {
-                            minutes = nextCharacter - '0';
-                            currentStep = SkillCooldownStep.Minute;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.Minute)
-                    {
-                        if (nextCharacter == ':')
-                        {
-                            currentStep = SkillCooldownStep.Colon;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.Colon)
-                    {
-                        if (nextCharacter >= '0' && nextCharacter <= '9')
-                        {
-                            tensOfSeconds = nextCharacter - '0';
-                            currentStep = SkillCooldownStep.TensOfSeconds;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.TensOfSeconds)
-                    {
-                        if (nextCharacter >= '0' && nextCharacter <= '9')
-                        {
-                            seconds = nextCharacter - '0';
-                            currentStep = SkillCooldownStep.Seconds;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.Seconds || currentStep == SkillCooldownStep.E)
-                    {
-                        if (nextCharacter == ']')
-                        {
-                            bool isActive;
-                            DateTime? nextAvailableDate;
-                            if (currentStep == SkillCooldownStep.Seconds)
-                            {
-                                isActive = false;
-                                nextAvailableDate = DateTime.UtcNow.Add(new TimeSpan(0, minutes, tensOfSeconds * 10 + seconds));
-                            }
-                            else
-                            {
-                                isActive = true;
-                                nextAvailableDate = null;
-                            }
-                            currentStep = SkillCooldownStep.None;
-                            _onSatisfied(_skillWithCooldownType, isActive, nextAvailableDate);
                             return;
                         }
-                        else
+                        firstLine = false;
+                    }
+                    string nextLineTemp = nextLine;
+                    if (!foundSkills)
+                    {
+                        if (nextLineTemp.StartsWith(SKILLS_PREFIX))
                         {
-                            currentStep = SkillCooldownStep.None;
+                            oSkills = new StringBuilder();
+                            foundSkills = true;
+                            nextLineTemp = nextLineTemp.Substring(SKILLS_PREFIX.Length);
                         }
                     }
-                    else if (currentStep == SkillCooldownStep.A)
+                    if (foundSkills && !finishedSkills)
                     {
-                        if (nextCharacter == 'C')
+                        int iPeriodIndex = nextLineTemp.IndexOf(".");
+                        if (iPeriodIndex == 0)
                         {
-                            currentStep = SkillCooldownStep.C;
+                            finishedSkills = true;
+                            continue; //spells always starts on a new line so skip this line
                         }
-                        else
+                        else if (iPeriodIndex < 0)
                         {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.C)
-                    {
-                        if (nextCharacter == 'T')
-                        {
-                            currentStep = SkillCooldownStep.T;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    else if (currentStep == SkillCooldownStep.T)
-                    {
-                        if (nextCharacter == 'I')
-                        {
-                            currentStep = SkillCooldownStep.I;
+                            oSkills.Append(nextLineTemp);
                         }
                         else
                         {
-                            currentStep = SkillCooldownStep.None;
+                            oSkills.Append(nextLineTemp.Substring(0, iPeriodIndex));
+                            finishedSkills = true;
+                            continue; //spells always starts on a new line so skip this line
                         }
                     }
-                    else if (currentStep == SkillCooldownStep.I)
+                    if (finishedSkills && !foundSpells)
                     {
-                        if (nextCharacter == 'V')
+                        if (nextLineTemp.StartsWith(SPELLS_PREFIX))
                         {
-                            currentStep = SkillCooldownStep.V;
+                            oSpells = new StringBuilder();
+                            foundSpells = true;
+                            nextLineTemp = nextLineTemp.Substring(SPELLS_PREFIX.Length);
+                        }
+                    }
+                    if (foundSpells && !finishedSpells)
+                    {
+                        int iPeriodIndex = nextLineTemp.IndexOf(".");
+                        if (iPeriodIndex == 0)
+                        {
+                            finishedSpells = true;
+                            break;
+                        }
+                        else if (iPeriodIndex < 0)
+                        {
+                            oSpells.Append(nextLineTemp);
                         }
                         else
                         {
-                            currentStep = SkillCooldownStep.None;
+                            oSpells.Append(nextLineTemp.Substring(0, iPeriodIndex));
+                            finishedSpells = true;
+                            break;
                         }
-                    }
-                    else if (currentStep == SkillCooldownStep.V)
-                    {
-                        if (nextCharacter == 'E')
-                        {
-                            currentStep = SkillCooldownStep.E;
-                        }
-                        else
-                        {
-                            currentStep = SkillCooldownStep.None;
-                        }
-                    }
-                    if (!startedAtNone && currentStep == SkillCooldownStep.None)
-                    {
-                        currentMatchPoint = -1;
                     }
                 }
+
+                if (!finishedSpells)
+                {
+                    return;
+                }
+
+                List<SkillCooldown> cooldowns = new List<SkillCooldown>();
+
+                string sSkills = oSkills.ToString();
+                string[] sSkillList = sSkills.Split(new char[] { ',' });
+                foreach (string sNextSkill in sSkillList)
+                {
+                    string sTempSkill = sNextSkill.Trim();
+                    SkillWithCooldownType? eType = null;
+                    int iIndex = sTempSkill.IndexOf(POWER_ATTACK_PREFIX);
+                    if (iIndex >= 0)
+                    {
+                        eType = SkillWithCooldownType.PowerAttack;
+                        if (sTempSkill.Length == POWER_ATTACK_PREFIX.Length)
+                        {
+                            return;
+                        }
+                        sTempSkill = sTempSkill.Substring(POWER_ATTACK_PREFIX.Length);
+                    }
+                    if (!eType.HasValue)
+                    {
+                        iIndex = sTempSkill.IndexOf(MANASHIELD_PREFIX);
+                        if (iIndex >= 0)
+                        {
+                            eType = SkillWithCooldownType.Manashield;
+                            if (sTempSkill.Length == MANASHIELD_PREFIX.Length)
+                            {
+                                return;
+                            }
+                            sTempSkill = sTempSkill.Substring(MANASHIELD_PREFIX.Length);
+                        }
+                    }
+                    if (!eType.HasValue || sTempSkill.Length <= 2 || !sTempSkill.StartsWith("[") || !sTempSkill.EndsWith("]"))
+                    {
+                        return;
+                    }
+                    sTempSkill = sTempSkill.Substring(1, sTempSkill.Length - 2); //remove the brackets
+                    SkillWithCooldownType eTypeValue = eType.Value;
+                    SkillCooldown cooldown = new SkillCooldown();
+                    cooldown.SkillType = eTypeValue;
+                    if (sTempSkill == "ACTIVE")
+                    {
+                        cooldown.Active = true;
+                    }
+                    else //parse timing
+                    {
+                        int? iSeconds = PleaseWaitSequence.ParseMinutesAndSecondsToSeconds(sTempSkill);
+                        if (!iSeconds.HasValue) return;
+                        int iSecondsValue = iSeconds.Value;
+                        if (iSecondsValue > 0)
+                        {
+                            cooldown.NextAvailable = DateTime.UtcNow.AddSeconds(iSecondsValue);
+                        }
+                    }
+                    cooldowns.Add(cooldown);
+                }
+
+                List<string> spells = new List<string>();
+                string sSpells = oSpells.ToString();
+                string[] sSpellsList = sSpells.Split(new char[] { ',' }, StringSplitOptions.None);
+                foreach (string sNextSpell in sSpellsList)
+                {
+                    string sNext = sNextSpell.Trim();
+                    if (string.IsNullOrEmpty(sNext))
+                    {
+                        return;
+                    }
+                    spells.Add(sNext);
+                }
+                if (spells.Count == 0)
+                {
+                    return;
+                }
+
+                _onSatisfied(flParams, cooldowns, spells);
+                flParams.FinishedProcessing = true;
             }
         }
+    }
+
+    public class SkillCooldown
+    {
+        public SkillWithCooldownType SkillType { get; set; }
+        public bool Active { get; set; }
+        public DateTime? NextAvailable { get; set; }
     }
 
     internal enum RoomTransitionType
@@ -947,17 +900,12 @@ namespace IsengardClient
                         break;
                     }
                     string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_MINUTES_SUFFIX.Length);
-                    if (!rest.Contains(":"))
+                    int? iParsedSeconds = ParseMinutesAndSecondsToSeconds(rest);
+                    if (!iParsedSeconds.HasValue)
                     {
                         break;
                     }
-                    string[] sPieces = rest.Split(new string[] { ":" }, StringSplitOptions.None);
-                    int iMinutes;
-                    int iSeconds;
-                    if (sPieces.Length == 2 && int.TryParse(sPieces[0], out iMinutes) && int.TryParse(sPieces[1], out iSeconds))
-                    {
-                        waitSeconds = (iMinutes * 60) + iSeconds;
-                    }
+                    waitSeconds = iParsedSeconds.Value;
                 }
                 else if (remainder.EndsWith(ENDS_WITH_SECONDS_SUFFIX))
                 {
@@ -1001,79 +949,21 @@ namespace IsengardClient
                 _onSatisfied(newWaitSeconds, flParams);
             }
         }
-    }
 
-    internal class SpellsCastSequence : IOutputProcessingSequence
-    {
-        private List<char> _chars;
-        private Action<List<string>> _onSatisfied;
-        public SpellsCastSequence(Action<List<string>> onSatisfied)
+        internal static int? ParseMinutesAndSecondsToSeconds(string input)
         {
-            _chars = new List<char>();
-            foreach (char c in "Spells cast: ")
+            int? ret = null;
+            if (input != null && input.Contains(":"))
             {
-                _chars.Add(c);
-            }
-            _onSatisfied = onSatisfied;
-        }
-
-        public void FeedLine(FeedLineParameters flParams)
-        {
-            List<string> Lines = flParams.Lines;
-            foreach (string nextLine in Lines)
-            {
-                SpellsCastStep currentStep = SpellsCastStep.None;
-                int currentMatchPoint = -1;
-                List<char> spellText = new List<char>();
-                foreach (char nextChar in nextLine)
+                string[] sPieces = input.Split(new string[] { ":" }, StringSplitOptions.None);
+                int iMinutes;
+                int iSeconds;
+                if (sPieces.Length == 2 && int.TryParse(sPieces[0], out iMinutes) && int.TryParse(sPieces[1], out iSeconds))
                 {
-                    if (currentStep == SpellsCastStep.None)
-                    {
-                        char nextCharToMatch = _chars[currentMatchPoint + 1];
-                        if (nextCharToMatch == nextChar)
-                        {
-                            currentMatchPoint++;
-                            if (currentMatchPoint == _chars.Count - 1) //finished start pattern
-                            {
-                                currentStep = SpellsCastStep.PastSpellsCast;
-                                currentMatchPoint = -1;
-                                spellText = new List<char>();
-                            }
-                        }
-                        else //start over
-                        {
-                            currentMatchPoint = -1;
-                        }
-                    }
-                    else if (currentStep == SpellsCastStep.PastSpellsCast)
-                    {
-                        if (nextChar == '.')
-                        {
-                            currentStep = SpellsCastStep.None;
-                            currentMatchPoint = -1;
-                            StringBuilder sb = new StringBuilder();
-                            foreach (char nextCharacter in spellText)
-                            {
-                                sb.Append(nextCharacter);
-                            }
-                            List<string> ret = new List<string>();
-                            ret.AddRange(sb.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries));
-                            _onSatisfied(ret);
-                            return;
-                        }
-                        else
-                        {
-                            spellText.Add(nextChar);
-                        }
-                    }
+                    ret = (iMinutes * 60) + iSeconds;
                 }
             }
-        }
-
-        private enum SpellsCastStep
-        {
-            None,
-            PastSpellsCast
+            return ret;
         }
     }
 

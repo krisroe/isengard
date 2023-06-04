@@ -36,6 +36,10 @@ namespace IsengardClient
         /// what type of key is needed to use the exit
         /// </summary>
         public KeyType KeyType { get; set; }
+        /// <summary>
+        /// whether the exit requires fly
+        /// </summary>
+        public bool RequiresFly { get; set; }
 
         /// <summary>
         /// whether the key is required to use the exit (returns false when knockable)

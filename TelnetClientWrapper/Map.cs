@@ -14,8 +14,6 @@ namespace IsengardClient
         private RoomGraph _breeStreetsGraph;
 
         private List<Tuple<Room, Room, string, string>> _nightEdgeList = new List<Tuple<Room, Room, string, string>>();
-        private Room _spindrilsCastleOutside;
-        private Room _spindrilsCastleInside;
         private Room _treeOfLife = null;
         private Room _healingHand = null;
         private Room _nindamosVillageCenter = null;
@@ -2661,14 +2659,14 @@ namespace IsengardClient
             AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
             imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
 
-            _spindrilsCastleOutside = AddRoom("Dark Clouds");
-            Exit e = AddExit(oGrassyField, _spindrilsCastleOutside, "up");
+            Room spindrilsCastleOutside = AddRoom("Dark Clouds");
+            Exit e = AddExit(oGrassyField,spindrilsCastleOutside, "up");
             e.Hidden = true;
             e.PresenceType = ExitPresenceType.RequiresSearch;
-            AddExit(_spindrilsCastleOutside, oGrassyField, "down");
-            imladrisToTharbadGraph.Rooms[_spindrilsCastleOutside] = new System.Windows.Point(-1, 11);
+            AddExit(spindrilsCastleOutside, oGrassyField, "down");
+            imladrisToTharbadGraph.Rooms[spindrilsCastleOutside] = new System.Windows.Point(-1, 11);
 
-            AddSpindrilsCastle();
+            AddSpindrilsCastle(spindrilsCastleOutside);
 
             oTharbadGateOutside = AddRoom("North Gate");
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
@@ -2678,16 +2676,18 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
         }
 
-        private void AddSpindrilsCastle()
+        private void AddSpindrilsCastle(Room spindrilsCastleOutside)
         {
-            _spindrilsCastleInside = AddRoom("Dark/Heavy Clouds");
-            AddExit(_spindrilsCastleInside, _spindrilsCastleOutside, "down");
+            Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds");
+            Exit e = AddExit(spindrilsCastleOutside, spindrilsCastleInside, "up");
+            e.RequiresFly = true;
+            AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
 
             Room oCloudEdge = AddRoom("Cloud Edge");
-            AddBidirectionalExits(_spindrilsCastleInside, oCloudEdge, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(spindrilsCastleInside, oCloudEdge, BidirectionalExitType.NorthSouth);
 
             Room oBrokenCastleWall = AddRoom("Broken Castle Wall");
-            AddBidirectionalExits(oBrokenCastleWall, _spindrilsCastleInside, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oBrokenCastleWall, spindrilsCastleInside, BidirectionalExitType.NorthSouth);
             //CSRTODO: rubble
 
             Room oEastCastleWall = AddRoom("East Castle Wall");
@@ -2697,7 +2697,7 @@ namespace IsengardClient
             AddBidirectionalExits(oEastCastleWall2, oEastCastleWall, BidirectionalExitType.NorthSouth);
 
             Room oSewageVault = AddRoom("Sewage Vault");
-            Exit e = AddExit(oEastCastleWall2, oSewageVault, "grate");
+            e = AddExit(oEastCastleWall2, oSewageVault, "grate");
             e.Hidden = true;
             AddExit(oSewageVault, oEastCastleWall2, "grate");
 
@@ -4409,22 +4409,6 @@ namespace IsengardClient
                 }
             }
         }
-
-        public void SetFlyEdges(bool canFly)
-        {
-            foreach (Exit e in _flyEdges)
-            {
-                _map.RemoveEdge(e);
-            }
-            if (canFly)
-            {
-                _flyEdges.Add(AddExit(_spindrilsCastleOutside, _spindrilsCastleInside, "up"));
-            }
-            else
-            {
-                _flyEdges.Clear();
-            }
-        }
     }
 
     internal enum BidirectionalExitType
@@ -4481,7 +4465,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying)
         {
             List<Exit> ret = null;
             Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
@@ -4492,7 +4476,10 @@ namespace IsengardClient
             {
                 foreach (Exit e in initialEdges)
                 {
-                    pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
+                    if (!e.RequiresFly || flying)
+                    {
+                        pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
+                    }
                 }
             }
             while (pq.Count > 0)
@@ -4524,7 +4511,7 @@ namespace IsengardClient
                         {
                             foreach (Exit e in edges)
                             {
-                                if (!pathMapping.ContainsKey(e.Target))
+                                if (!pathMapping.ContainsKey(e.Target) && (!e.RequiresFly || flying))
                                 {
                                     pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
                                 }

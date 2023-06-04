@@ -355,7 +355,7 @@
             this.btnScore.TabIndex = 20;
             this.btnScore.Text = "Score";
             this.btnScore.UseVisualStyleBackColor = true;
-            this.btnScore.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnScore.Click += new System.EventHandler(this.btnScore_Click);
             // 
             // btnInformation
             // 

@@ -2,34 +2,97 @@
 using System.Collections.Generic;
 using IsengardClient;
 using System;
-
 namespace IsengardClient.Tests
 {
     [TestClass]
     public class SequenceTests
     {
         [TestMethod]
-        public void TestSkillCooldownSequence()
+        public void TestScoreSequence()
         {
-            bool skillActive;
-            DateTime? availableDate;
-            Action<SkillWithCooldownType, bool, DateTime?> getcooldown = (type, isActive, date) =>
+            List<SkillCooldown> cooldowns = null;
+            List<string> spells = null;
+            Action<FeedLineParameters, List<SkillCooldown>, List<string>> a = (flpparam, cs, ss) =>
             {
-                skillActive = isActive;
-                availableDate = date;
+                cooldowns = cs;
+                spells = ss;
             };
 
-            SkillCooldownSequence scs = new SkillCooldownSequence(SkillWithCooldownType.Manashield, getcooldown);
+            ScoreOutputSequence sos = new ScoreOutputSequence("despug", a);
 
-            skillActive = false;
-            availableDate = DateTime.UtcNow;
-            scs.FeedLine(new FeedLineParameters(new List<string>() { "manashield [ACTIVE]" }, null, null));
-            Assert.IsTrue(skillActive);
-            Assert.IsTrue(!availableDate.HasValue);
+            List<string> input = new List<string>();
+            FeedLineParameters flp = new FeedLineParameters(input, null, null);
 
-            scs.FeedLine(new FeedLineParameters(new List<string> { "manashield [2:34]" }, null, null));
-            Assert.IsFalse(skillActive);
-            Assert.IsTrue(availableDate.HasValue);
+            input.Clear();
+            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("Skills: (power) attack [2:15], ");
+            input.Add("manashield [0:00]");
+            input.Add(".");
+            input.Add("Spells cast: ");
+            input.Add("None");
+            input.Add(".");
+            cooldowns = null;
+            spells = null;
+            sos.FeedLine(flp);
+            Assert.IsNotNull(cooldowns);
+            Assert.IsNotNull(spells);
+            Assert.IsTrue(cooldowns.Count == 2);
+            Assert.IsTrue(spells.Count == 1);
+            Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
+            Assert.IsTrue(cooldowns[0].NextAvailable.HasValue);
+            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
+            Assert.IsTrue(!cooldowns[1].NextAvailable.HasValue);
+            Assert.IsTrue(!cooldowns[1].Active);
+            Assert.IsTrue(spells[0] == "None");
+
+            input.Clear();
+            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("Skills: (power) attack [0:00], ");
+            input.Add("manashield [0:45]");
+            input.Add(".");
+            input.Add("Spells cast: ");
+            input.Add("bless");
+            input.Add(",protection.");
+            cooldowns = null;
+            spells = null;
+            sos.FeedLine(flp);
+            Assert.IsNotNull(cooldowns);
+            Assert.IsNotNull(spells);
+            Assert.IsTrue(cooldowns.Count == 2);
+            Assert.IsTrue(spells.Count == 2);
+            Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
+            Assert.IsTrue(!cooldowns[0].NextAvailable.HasValue);
+            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
+            Assert.IsTrue(cooldowns[1].NextAvailable.HasValue);
+            Assert.IsTrue(!cooldowns[1].Active);
+            Assert.IsTrue(spells[0] == "bless");
+            Assert.IsTrue(spells[1] == "protection");
+
+            input.Clear();
+            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("Skills: (power) attack [12:13], manashield [ACTIVE].");
+            input.Add("Spells cast: ");
+            input.Add("bless");
+            input.Add(",");
+            input.Add("protection");
+            input.Add(".");
+            cooldowns = null;
+            spells = null;
+            sos.FeedLine(flp);
+            Assert.IsNotNull(cooldowns);
+            Assert.IsNotNull(spells);
+            Assert.IsTrue(cooldowns.Count == 2);
+            Assert.IsTrue(spells.Count == 2);
+            Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
+            Assert.IsTrue(cooldowns[0].NextAvailable.HasValue);
+            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
+            Assert.IsTrue(!cooldowns[1].NextAvailable.HasValue);
+            Assert.IsTrue(cooldowns[1].Active);
+            Assert.IsTrue(spells[0] == "bless");
+            Assert.IsTrue(spells[1] == "protection");
         }
 
         [TestMethod]
