@@ -410,7 +410,7 @@ namespace IsengardClient
                 bool isNight;
                 if (dayHalf == DayHalf.AM)
                 {
-                    isNight = iNumber == 12 || iNumber <= 7;
+                    isNight = iNumber == 12 || iNumber <= 5;
                 }
                 else //PM
                 {
@@ -446,96 +446,32 @@ namespace IsengardClient
         public void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            bool firstLine = true;
             if (Lines.Count > 0)
             {
-                StringBuilder oSkills = null;
-                StringBuilder oSpells = null;
-                bool foundSkills = false;
-                bool finishedSkills = false;
-                bool foundSpells = false;
-                bool finishedSpells = false;
-                foreach (string nextLine in Lines)
+                string sNextLine = Lines[0];
+                if (!sNextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (firstLine)
-                    {
-                        if (!nextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return;
-                        }
-                        firstLine = false;
-                    }
-                    string nextLineTemp = nextLine;
-                    if (!foundSkills)
-                    {
-                        if (nextLineTemp.StartsWith(SKILLS_PREFIX))
-                        {
-                            oSkills = new StringBuilder();
-                            foundSkills = true;
-                            nextLineTemp = nextLineTemp.Substring(SKILLS_PREFIX.Length);
-                        }
-                    }
-                    if (foundSkills && !finishedSkills)
-                    {
-                        int iPeriodIndex = nextLineTemp.IndexOf(".");
-                        if (iPeriodIndex == 0)
-                        {
-                            finishedSkills = true;
-                            continue; //spells always starts on a new line so skip this line
-                        }
-                        else if (iPeriodIndex < 0)
-                        {
-                            oSkills.Append(nextLineTemp);
-                        }
-                        else
-                        {
-                            oSkills.Append(nextLineTemp.Substring(0, iPeriodIndex));
-                            finishedSkills = true;
-                            continue; //spells always starts on a new line so skip this line
-                        }
-                    }
-                    if (finishedSkills && !foundSpells)
-                    {
-                        if (nextLineTemp.StartsWith(SPELLS_PREFIX))
-                        {
-                            oSpells = new StringBuilder();
-                            foundSpells = true;
-                            nextLineTemp = nextLineTemp.Substring(SPELLS_PREFIX.Length);
-                        }
-                    }
-                    if (foundSpells && !finishedSpells)
-                    {
-                        int iPeriodIndex = nextLineTemp.IndexOf(".");
-                        if (iPeriodIndex == 0)
-                        {
-                            finishedSpells = true;
-                            break;
-                        }
-                        else if (iPeriodIndex < 0)
-                        {
-                            oSpells.Append(nextLineTemp);
-                        }
-                        else
-                        {
-                            oSpells.Append(nextLineTemp.Substring(0, iPeriodIndex));
-                            finishedSpells = true;
-                            break;
-                        }
-                    }
+                    return;
                 }
 
-                if (!finishedSpells)
+                int iNextIndex;
+                List<string> skillsRaw = StringProcessing.GetList(Lines, 1, SKILLS_PREFIX, false, out iNextIndex);
+                if (skillsRaw == null)
+                {
+                    return;
+                }
+
+                List<string> spellsRaw = StringProcessing.GetList(Lines, iNextIndex, SPELLS_PREFIX, false, out iNextIndex);
+                if (spellsRaw == null)
                 {
                     return;
                 }
 
                 List<SkillCooldown> cooldowns = new List<SkillCooldown>();
 
-                string sSkills = oSkills.ToString();
-                string[] sSkillList = sSkills.Split(new char[] { ',' });
-                foreach (string sNextSkill in sSkillList)
+                foreach (string sNextSkill in skillsRaw)
                 {
-                    string sTempSkill = sNextSkill.Trim();
+                    string sTempSkill = sNextSkill;
                     SkillWithCooldownType? eType = null;
                     int iIndex = sTempSkill.IndexOf(POWER_ATTACK_PREFIX);
                     if (iIndex >= 0)
@@ -586,9 +522,7 @@ namespace IsengardClient
                 }
 
                 List<string> spells = new List<string>();
-                string sSpells = oSpells.ToString();
-                string[] sSpellsList = sSpells.Split(new char[] { ',' }, StringSplitOptions.None);
-                foreach (string sNextSpell in sSpellsList)
+                foreach (string sNextSpell in spellsRaw)
                 {
                     string sNext = sNextSpell.Trim();
                     if (string.IsNullOrEmpty(sNext))
@@ -667,35 +601,11 @@ namespace IsengardClient
             if (Lines[nextLineIndex] != string.Empty) return;
             nextLineIndex++;
 
-            if (nextLineIndex < Lines.Count)
+            int followingLineIndex;
+            List<string> exitsList = StringProcessing.GetList(Lines, nextLineIndex, "Obvious exits: ", true, out followingLineIndex);
+            if (exitsList != null)
             {
-                sNextLine = Lines[nextLineIndex];
-                if (sNextLine.StartsWith("Obvious exits: "))
-                {
-                    sNextLine = sNextLine.Substring("Obvious exits: ".Length);
-                    StringBuilder sbExits = new StringBuilder();
-                    while (true)
-                    {
-                        if (sNextLine.Contains("."))
-                        {
-                            sNextLine = sNextLine.Substring(0, sNextLine.IndexOf("."));
-                            sbExits.Append(sNextLine);
-                            break;
-                        }
-                        else
-                        {
-                            sbExits.Append(sNextLine);
-                            nextLineIndex++;
-                            sNextLine = Lines[nextLineIndex];
-                        }
-                    }
-                    string allExits = sbExits.ToString().Replace(" ", string.Empty);
-                    string[] allExitsList = allExits.Split(',');
-                    List<string> allExitsList2 = new List<string>();
-                    allExitsList2.AddRange(allExitsList);
-
-                    _onSatisfied(rtType, sRoomName, allExitsList2, flParams);
-                }
+                _onSatisfied(rtType, sRoomName, exitsList, flParams);
             }
         }
     }
@@ -1220,6 +1130,103 @@ namespace IsengardClient
             {
                 _onSatisfied(messages, broadcastMessages);
             }
+        }
+    }
+
+    public static class StringProcessing
+    {
+        public static List<string> GetList(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
+        {
+            nextLineIndex = 0;
+            bool foundStartsWith = false;
+            bool finished = false;
+            StringBuilder sb = null;
+            string sNextLine;
+            while (!foundStartsWith)
+            {
+                if (lineIndex >= inputs.Count) //reached the end of the list
+                {
+                    return null;
+                }
+                sNextLine = inputs[lineIndex];
+                if (sNextLine == null || !sNextLine.StartsWith(startsWith))
+                {
+                    if (requireExactStartsWith)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        lineIndex++;
+                        continue;
+                    }
+                }
+                foundStartsWith = true;
+                sb = new StringBuilder();
+                int startsWithLength = startsWith.Length;
+                if (sNextLine.Length != startsWithLength)
+                {
+                    int iPeriodIndex = sNextLine.IndexOf('.', startsWithLength);
+                    if (iPeriodIndex == 0)
+                    {
+                        return null;
+                    }
+                    else if (iPeriodIndex < 0)
+                    {
+                        sb.AppendLine(sNextLine.Substring(startsWithLength));
+                    }
+                    else
+                    {
+                        sb.AppendLine(sNextLine.Substring(startsWithLength, iPeriodIndex - startsWithLength));
+                        finished = true;
+                        nextLineIndex = lineIndex + 1;
+                    }
+                }
+            }
+            if (!finished)
+            {
+                while (true)
+                {
+                    lineIndex++;
+                    if (lineIndex >= inputs.Count)
+                    {
+                        return null;
+                    }
+                    sNextLine = inputs[lineIndex];
+                    if (sNextLine != null)
+                    {
+                        int iPeriodIndex = sNextLine.IndexOf('.');
+                        if (iPeriodIndex == 0)
+                        {
+                            nextLineIndex = lineIndex + 1;
+                            break;
+                        }
+                        else if (iPeriodIndex < 0)
+                        {
+                            sb.AppendLine(sNextLine);
+                        }
+                        else if (iPeriodIndex > 0)
+                        {
+                            nextLineIndex = lineIndex + 1;
+                            sb.AppendLine(sNextLine.Substring(0, iPeriodIndex));
+                            break;
+                        }
+                    }
+                }
+            }
+            string sFullContent = sb.ToString().Replace(Environment.NewLine, " ");
+            string[] allEntries = sFullContent.Split(new char[] { ',' });
+            List<string> ret = new List<string>();
+            foreach (string next in allEntries)
+            {
+                string nextEntry = next.Trim();
+                if (string.IsNullOrEmpty(nextEntry))
+                {
+                    return null;
+                }
+                ret.Add(nextEntry);
+            }
+            return ret;
         }
     }
 

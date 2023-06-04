@@ -1,12 +1,40 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using IsengardClient;
 using System;
 namespace IsengardClient.Tests
 {
     [TestClass]
     public class SequenceTests
     {
+        [TestMethod]
+        public void TestStringProcessing()
+        {
+            List<string> list = new List<string>();
+            List<string> output;
+            int nextLineIndex;
+
+            list.Clear();
+            list.Add("Stuff: a.");
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            Assert.IsTrue(output.Count == 1);
+            Assert.IsTrue(output[0] == "a");
+
+            list.Clear();
+            list.Add("Stuff: a,b.");
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            Assert.IsTrue(output.Count == 2);
+            Assert.IsTrue(output[0] == "a");
+            Assert.IsTrue(output[1] == "b");
+
+            list.Clear();
+            list.Add("Stuff: a,");
+            list.Add("b.");
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            Assert.IsTrue(output.Count == 2);
+            Assert.IsTrue(output[0] == "a");
+            Assert.IsTrue(output[1] == "b");
+        }
+
         [TestMethod]
         public void TestScoreSequence()
         {
@@ -141,12 +169,12 @@ namespace IsengardClient.Tests
             isNight = null;
             info[0] = "Game-Time: 6 o'clock AM.";
             tos.FeedLine(flp);
-            Assert.IsTrue(isNight == true);
+            Assert.IsTrue(isNight == false);
 
             isNight = null;
             info[0] = "Game-Time: 7 o'clock AM.";
             tos.FeedLine(flp);
-            Assert.IsTrue(isNight == true);
+            Assert.IsTrue(isNight == false);
 
             isNight = null;
             info[0] = "Game-Time: 8 o'clock AM.";
