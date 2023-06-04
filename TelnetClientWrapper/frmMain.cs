@@ -1168,6 +1168,9 @@ namespace IsengardClient
                         {
                             string[] sNewLines = sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
+                            //process the wait for message. Note that the ship in/out of port messages
+                            //sometimes come with suppressed weather messages, so this procesing needs
+                            //to take place before global suppression happens.
                             Exit exit = _currentBackgroundExit;
                             if (exit != null && !string.IsNullOrEmpty(exit.WaitForMessage))
                             {
