@@ -1105,6 +1105,37 @@ namespace IsengardClient
         }
     }
 
+    public class GlobalSuppressionSequence : IOutputProcessingSequence
+    {
+        public void FeedLine(string[] Lines, FeedLineParameters Parameters)
+        {
+            if (Lines.Length > 0)
+            {
+                string sFirstLine = Lines[0];
+                bool matches = false;
+                if (sFirstLine == "The air is still and quiet.")
+                    matches = true;
+                else if (sFirstLine == "The glaring sun beats down upon the inhabitants of the world.")
+                    matches = true;
+                else if (sFirstLine == "Clear, blue skies cover the land.")
+                    matches = true;
+                else if (sFirstLine == "The sky is dark as pitch.")
+                    matches = true;
+                else if (sFirstLine == "The earth trembles under your feet.")
+                    matches = true;
+                else if (sFirstLine == "Light clouds appear over the mountains.")
+                    matches = true;
+                else if (sFirstLine == "### The Celduin Express is ready for boarding in Bree.")
+                    matches = true;
+                if (matches)
+                {
+                    Parameters.SuppressEcho = true;
+                    Parameters.FinishedProcessing = true;
+                }
+            }
+        }
+    }
+
     public enum SkillWithCooldownType
     {
         PowerAttack,

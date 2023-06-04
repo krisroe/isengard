@@ -1069,6 +1069,7 @@ namespace IsengardClient
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
             List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
             {
+                new GlobalSuppressionSequence(),
                 new MobStatusSequence(OnMobStatusSequence),
                 _pleaseWaitSequence,
                 new SuccessfulSearchSequence(SuccessfulSearch),
@@ -3341,11 +3342,8 @@ namespace IsengardClient
                 txtMob.Text = _mob;
                 _newMob = false;
             }
-            if (btnAbort.Enabled)
-            {
-                EnableDisableActionButtons(_currentBackgroundParameters);
-            }
-            else
+            EnableDisableActionButtons(_currentBackgroundParameters);
+            if (!btnAbort.Enabled)
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
 

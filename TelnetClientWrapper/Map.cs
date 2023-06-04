@@ -2569,6 +2569,7 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 0);
 
             Room oGuildmaster = AddRoom("Guildmaster");
+            oGuildmaster.Mob1 = "Guildmaster";
             AddBidirectionalExits(oGuildmaster, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 11);
             imladrisToTharbadGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 0);
