@@ -591,6 +591,14 @@ namespace IsengardClient
         //CSRTODO: no plural
         BilboBaggins,
 
+        [SingularName("black pegasus")]
+        //CSRTODO: plural?
+        BlackPegasus,
+
+        [SingularName("blue flying snake")]
+        [PluralName("blue flying snakes")]
+        BlueFlyingSnake,
+
         [SingularName("book of knowledge")]
         [PluralName("books of knowledge")]
         BookOfKnowledge,
@@ -615,9 +623,21 @@ namespace IsengardClient
         [PluralName("elven guards")]
         ElvenGuard,
 
+        [SingularName("Eugene the Executioner")]
+        //CSRTODO: no plural?
+        EugeneTheExecutioner,
+
+        [SingularName("field laborer")]
+        [PluralName("field laborers")]
+        FieldLaborer,
+
         [SingularName("Frodo Baggins")]
-        //CSRTODO: no plural
+        //CSRTODO: no plural?
         FrodoBaggins,
+
+        [SingularName("goat")]
+        [PluralName("goats")]
+        Goat,
 
         [SingularName("goblin")]
         [PluralName("goblins")]
@@ -635,6 +655,10 @@ namespace IsengardClient
         //CSRTODO: no plural?
         GregoryHiester,
 
+        [SingularName("griffon")]
+        [PluralName("griffons")]
+        Griffon,
+
         [SingularName("grizzly bear")]
         [PluralName("grizzly bears")]
         GrizzlyBear,
@@ -650,6 +674,22 @@ namespace IsengardClient
         [SingularName("guildmaster")]
         [PluralName("guildmasters")]
         Guildmaster,
+
+        [SingularName("gypsy-bard")]
+        [PluralName("gypsy-bards")]
+        GypsyBard,
+
+        [SingularName("gypsy blademaster")]
+        [PluralName("gypsy blademasters")]
+        GypsyBlademaster,
+
+        [SingularName("gypsy dancer")]
+        [PluralName("gypsy dancers")]
+        GypsyDancer,
+
+        [SingularName("gypsy fighter")]
+        [PluralName("gypsy fighters")]
+        GypsyFighter,
 
         [SingularName("Fallon")]
         //CSRTODO: no plural?
@@ -667,6 +707,10 @@ namespace IsengardClient
         [PluralName("hobbitish doctors")]
         HobbitishDoctor,
 
+        [SingularName("hobbit mother")]
+        [PluralName("hobbit mothers")]
+        HobbitMother,
+
         [SingularName("hunchback servant")]
         [PluralName("hunchback servants")]
         HunchbackServant,
@@ -678,6 +722,18 @@ namespace IsengardClient
         [SingularName("Ixell DeSantis")]
         //CSRTODO: no plural
         IxellDeSantis,
+
+        [SingularName("Kasnar the Guard")]
+        //CSRTODO: no plural
+        KasnarTheGuard,
+
+        [SingularName("King Brunden")]
+        //CSRTODO: no plural
+        KingBrunden,
+
+        [SingularName("king's moneychanger")]
+        [PluralName("king's moneychangers")]
+        KingsMoneychanger,
 
         [SingularName("knight")]
         [PluralName("knights")]
@@ -695,13 +751,25 @@ namespace IsengardClient
         [PluralName("little mice")]
         LittleMouse,
 
+        [SingularName("Madame Nicolov")]
+        //CSRTODO: no plural?
+        MadameNicolov,
+
         [SingularName("Mark Frey")]
         //CSRTODO: no plural?
         MarkFrey,
 
+        [SingularName("Master Jeweler")]
+        //CSRTODO: no plural
+        MasterJeweler,
+
         [SingularName("nobleman")]
         [PluralName("noblemen")]
         Nobleman,
+
+        [SingularName("Oliphaunt the Tattoo Artist")]
+        //CSRTODO: no plural
+        OliphauntTheTattooArtist,
 
         [SingularName("paladin")]
         [PluralName("paladins")]
@@ -711,9 +779,17 @@ namespace IsengardClient
         //CSRTODO: no plural?
         PansySmallburrows,
 
+        [SingularName("pixie")]
+        [PluralName("pixies")]
+        Pixie,
+
         [SingularName("rabbit")]
         [PluralName("rabbits")]
         Rabbit,
+
+        [SingularName("ram")]
+        [PluralName("rams")]
+        Ram,
 
         [SingularName("ranger")]
         [PluralName("rangers")]
@@ -726,6 +802,10 @@ namespace IsengardClient
         [SingularName("sailor")]
         [PluralName("sailors")]
         Sailor,
+
+        [SingularName("Scranlin")]
+        //CSRTODO: no plural
+        Scranlin,
 
         [SingularName("scribe")]
         [PluralName("scribes")]
@@ -755,9 +835,17 @@ namespace IsengardClient
         //CSRTODO: no plural?
         TheTownCrier,
 
+        [SingularName("tourist")]
+        [PluralName("tourists")]
+        Tourist,
+
         [SingularName("traveler")]
         [PluralName("travelers")]
         Traveler,
+
+        [SingularName("traveling horse")]
+        [PluralName("traveling horses")]
+        TravelingHorse,
 
         [SingularName("Tyrie")]
         //CSRTODO: no plural
@@ -766,6 +854,10 @@ namespace IsengardClient
         [SingularName("vagrant")]
         [PluralName("vagrants")]
         Vagrant,
+
+        [SingularName("villager's ghost")]
+        [PluralName("villager's ghosts")]
+        VillagersGhost,
 
         [SingularName("waitress")]
         [PluralName("waitresses")]
@@ -778,10 +870,22 @@ namespace IsengardClient
         [SingularName("wolf")]
         [PluralName("wolves")]
         Wolf,
+
+        [SingularName("Zathriel the Minstrel")]
+        //CSRTODO: no plural?
+        ZathrielTheMinstrel,
     }
 
     public enum ItemTypeEnum
     {
+        [SingularName("broad sword")]
+        [PluralName("broad swords")]
+        BroadSword,
+
+        [SingularName("carved ivory key")]
+        [PluralName("carved ivory keys")]
+        CarvedIvoryKey,
+
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]
         ClothHat,

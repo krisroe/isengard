@@ -113,5 +113,24 @@ namespace IsengardClient.Tests
             Assert.IsTrue(mob.Count == 2);
             Assert.IsTrue(mob.MobType == MobTypeEnum.Vagrant);
         }
+
+        public void TestRoomProcessing()
+        {
+            RoomTransitionInfo oRTI = null;
+            Action<RoomTransitionInfo> a = (rti) =>
+            {
+                oRTI = rti;
+            };
+
+            FeedLineParameters flp = new FeedLineParameters(null);
+            flp.PlayerNames = new HashSet<string>();
+            oRTI = null;
+            RoomTransitionSequence.ProcessRoom("Room", "None", "a BOGUS,elven guard", null, null, a, flp, RoomTransitionType.Initial);
+            Assert.IsTrue(oRTI != null);
+            Assert.IsTrue(oRTI.Mobs.Count == 2);
+            Assert.IsTrue(oRTI.Mobs[0] is UnknownMobEntity);
+            Assert.IsTrue(oRTI.Mobs[1] is MobEntity);
+            Assert.IsTrue(oRTI.Mobs[1].MobType.Value == MobTypeEnum.ElvenGuard);
+        }
     }
 }

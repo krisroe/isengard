@@ -640,7 +640,7 @@ namespace IsengardClient
         public DateTime? NextAvailable { get; set; }
     }
 
-    internal enum RoomTransitionType
+    public enum RoomTransitionType
     {
         Initial,
         Move,
@@ -657,7 +657,7 @@ namespace IsengardClient
         public string List3 { get; set; }
     }
 
-    internal class RoomTransitionInfo
+    public class RoomTransitionInfo
     {
         public RoomTransitionType TransitionType { get; set; }
         public string RoomName { get; set; }
@@ -711,7 +711,7 @@ namespace IsengardClient
         }
     }
 
-    internal class RoomTransitionSequence : IOutputProcessingSequence
+    public class RoomTransitionSequence : IOutputProcessingSequence
     {
         private Action<RoomTransitionInfo> _onSatisfied;
         public RoomTransitionSequence(Action<RoomTransitionInfo> onSatisfied)
@@ -736,6 +736,12 @@ namespace IsengardClient
             {
                 rtType = RoomTransitionType.Flee;
                 nextLineIndex++;
+
+                //check if didn't actually flee
+                if (Lines[nextLineIndex] == "You are thrown back by an invisible force.")
+                {
+                    return;
+                }
             }
             else if (sNextLine == "You phase in and out of existence.")
             {
@@ -744,7 +750,7 @@ namespace IsengardClient
             }
 
             //blank line before room name
-            if (Lines[nextLineIndex] != string.Empty) return;
+            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return;
 
             if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied))
             {
@@ -792,7 +798,7 @@ namespace IsengardClient
             return ili;
         }
 
-        internal static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -983,7 +989,7 @@ namespace IsengardClient
 
         internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo> onSatisfied)
         {
-            if (Lines[nextLineIndex] != string.Empty) return false;
+            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
             nextLineIndex++;
 
             if (nextLineIndex >= Lines.Count) return false;
@@ -992,7 +998,7 @@ namespace IsengardClient
             nextLineIndex++;
 
             //blank line after room name
-            if (Lines[nextLineIndex] != string.Empty) return false;
+            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
             nextLineIndex++;
 
             string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
@@ -1518,6 +1524,16 @@ namespace IsengardClient
                     haveDataToDisplay = true;
                     im = InformationalMessages.BullroarerInNindamos;
                 }
+                else if (sLine == "You feel less holy.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BlessOver;
+                }
+                else if (sLine == "You feel less protected.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.ProtectionOver;
+                }
                 else if (sLine == "The air is still and quiet." ||
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||
@@ -1729,31 +1745,34 @@ namespace IsengardClient
 
         public static List<string> ParseList(string sFullContent)
         {
-            string[] allEntries = sFullContent.Split(new char[] { ',' });
             List<string> ret = new List<string>();
-            StringBuilder sb = new StringBuilder();
-            foreach (string next in allEntries)
+            if (sFullContent != null)
             {
-                string nextEntry = next.Trim();
-                if (nextEntry.Contains("  "))
+                string[] allEntries = sFullContent.Split(new char[] { ',' });
+                StringBuilder sb = new StringBuilder();
+                foreach (string next in allEntries)
                 {
-                    sb.Clear();
-                    char prevChar = 'X';
-                    foreach (char nextChar in nextEntry)
+                    string nextEntry = next.Trim();
+                    if (nextEntry.Contains("  "))
                     {
-                        if (nextChar != ' ' || prevChar != ' ')
+                        sb.Clear();
+                        char prevChar = 'X';
+                        foreach (char nextChar in nextEntry)
                         {
-                            sb.Append(nextChar);
+                            if (nextChar != ' ' || prevChar != ' ')
+                            {
+                                sb.Append(nextChar);
+                            }
+                            prevChar = nextChar;
                         }
-                        prevChar = nextChar;
+                        nextEntry = sb.ToString();
                     }
-                    nextEntry = sb.ToString();
+                    if (string.IsNullOrEmpty(nextEntry))
+                    {
+                        return null;
+                    }
+                    ret.Add(nextEntry);
                 }
-                if (string.IsNullOrEmpty(nextEntry))
-                {
-                    return null;
-                }
-                ret.Add(nextEntry);
             }
             return ret;
         }
@@ -1772,6 +1791,8 @@ namespace IsengardClient
         Broadcast,
         BullroarerInMithlond,
         BullroarerInNindamos,
+        BlessOver,
+        ProtectionOver,
     }
 
     public enum SkillWithCooldownType

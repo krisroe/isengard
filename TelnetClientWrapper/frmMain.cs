@@ -768,30 +768,6 @@ namespace IsengardClient
             }
         }
 
-        private void OnBlessOff(FeedLineParameters flParams)
-        {
-            lock (_spellsCast)
-            {
-                if (_spellsCast.Contains("bless"))
-                {
-                    _spellsCast.Remove("bless");
-                    _refreshSpellsCast = true;
-                }
-            }
-        }
-
-        private void OnProtectionOff(FeedLineParameters flParams)
-        {
-            lock (_spellsCast)
-            {
-                if (_spellsCast.Contains("protection"))
-                {
-                    _spellsCast.Remove("protection");
-                    _refreshSpellsCast = true;
-                }
-            }
-        }
-
         /// <summary>
         /// force a score after a cooldown skill goes off
         /// </summary>
@@ -1218,13 +1194,40 @@ namespace IsengardClient
         {
             if (ims != null)
             {
-                if (ims.Contains(InformationalMessages.DayStart))
+                List<string> spellsOff = null;
+                foreach (InformationalMessages nextMessage in ims)
                 {
-                    _isNight = false;
+                    switch (nextMessage)
+                    {
+                        case InformationalMessages.DayStart:
+                            _isNight = false;
+                            break;
+                        case InformationalMessages.NightStart:
+                            _isNight = true;
+                            break;
+                        case InformationalMessages.BlessOver:
+                            if (spellsOff == null) spellsOff = new List<string>();
+                            spellsOff.Add("bless");
+                            break;
+                        case InformationalMessages.ProtectionOver:
+                            if (spellsOff == null) spellsOff = new List<string>();
+                            spellsOff.Add("protection");
+                            break;
+                    }
                 }
-                else if (ims.Contains(InformationalMessages.NightStart))
+                if (spellsOff != null)
                 {
-                    _isNight = true;
+                    lock (_spellsCast)
+                    {
+                        foreach (string nextSpell in spellsOff)
+                        {
+                            if (_spellsCast.Contains(nextSpell))
+                            {
+                                _spellsCast.Remove(nextSpell);
+                                _refreshSpellsCast = true;
+                            }
+                        }
+                    }
                 }
                 Exit currentBackgroundExit = _currentBackgroundExit;
                 if (currentBackgroundExit != null)
@@ -1443,8 +1446,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("You feel less protected.", OnProtectionOff, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("You feel less holy.", OnBlessOff, ConstantSequenceMatchType.ExactMatch, 0),
                 new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
                 new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
