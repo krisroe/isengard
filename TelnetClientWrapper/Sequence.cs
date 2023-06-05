@@ -898,7 +898,21 @@ namespace IsengardClient
                         foundType = eType;
                         break;
                     }
-                    if (next.Contains(" ") || !playerNames.Contains(next))
+                    int index = 0;
+                    foreach (char c in next)
+                    {
+                        bool ok;
+                        if (index == 0)
+                            ok = char.IsUpper(c);
+                        else
+                            ok = char.IsLower(c);
+                        if (!ok)
+                        {
+                            canBePlayers = false;
+                            break;
+                        }
+                    }
+                    if (!playerNames.Contains(next))
                     {
                         canBePlayers = false;
                     }
@@ -942,7 +956,7 @@ namespace IsengardClient
                 UnknownItemEntity uie = nextItem as UnknownItemEntity;
                 if (uie != null)
                 {
-                    errorMessages.Add("Unknown item: " + uie.Name);
+                    errorMessages.Add("Unknown mob/item: " + uie.Name);
                 }
             }
             foreach (var nextMob in mobs)
@@ -950,7 +964,7 @@ namespace IsengardClient
                 UnknownMobEntity ume = nextMob as UnknownMobEntity;
                 if (ume != null)
                 {
-                    errorMessages.Add("Unknown mob: " + ume.Name);
+                    errorMessages.Add("Unknown mob/item: " + ume.Name);
                 }
             }
 
@@ -1462,9 +1476,9 @@ namespace IsengardClient
 
     public class InformationalMessagesSequence : IOutputProcessingSequence
     {
-        public Action<List<InformationalMessages>, List<string>> _onSatisfied;
+        public Action<List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
 
-        public InformationalMessagesSequence(Action<List<InformationalMessages>, List<string>> onSatisfied)
+        public InformationalMessagesSequence(Action<List<InformationalMessages>, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1474,6 +1488,8 @@ namespace IsengardClient
             List<InformationalMessages> messages = null;
             List<string> broadcastMessages = null;
             List<string> Lines = Parameters.Lines;
+            List<string> addedPlayers = null;
+            List<string> removedPlayers = null;
             List<int> linesToRemove = null;
             bool haveDataToDisplay = false;
             for (int i = 0; i < Lines.Count; i++)
@@ -1481,6 +1497,7 @@ namespace IsengardClient
                 bool whitespaceLine = false;
                 InformationalMessages? im = null;
                 string sLine = Lines[i];
+                bool isBroadcast = false;
                 if (sLine == "The sun rises.")
                 {
                     haveDataToDisplay = true;
@@ -1502,23 +1519,64 @@ namespace IsengardClient
                     im = InformationalMessages.BullroarerInNindamos;
                 }
                 else if (sLine == "The air is still and quiet." ||
-                         sLine == "The glaring sun beats down upon the inhabitants of the world." ||
-                         sLine == "Clear, blue skies cover the land." ||
-                         sLine == "The sky is dark as pitch." ||
-                         sLine == "The earth trembles under your feet." ||
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||
-                         sLine == "Thunderheads roll in from the east." ||
+                         sLine == "Clear, blue skies cover the land." ||
+                         sLine == "It's a beautiful day today." ||
+                         sLine == "The glaring sun beats down upon the inhabitants of the world." ||
+                         sLine == "The sun shines brightly across the land." ||
+                         sLine == "The earth trembles under your feet." ||
+                         sLine == "The sky is dark as pitch." ||
                          sLine == "The full moon shines across the land." ||
+                         sLine == "A sliver of silver can be seen in the night sky." ||
+                         sLine == "Thunderheads roll in from the east." ||
+                         sLine == "A heavy fog blankets the earth." ||
+                         sLine == "A light rain falls quietly." ||
+                         sLine == "Sheets of rain pour down from the skies." ||
+                         sLine == "A torrent soaks the ground." ||
+                         sLine == "A strong wind blows across the land." ||
+                         sLine == "Player saved." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
                     //These lines will be removed.
                 }
-                else if (sLine.StartsWith("###") || sLine.StartsWith(" ###"))
+                else if (sLine.StartsWith("###"))
                 {
-                    im = InformationalMessages.Broadcast;
-                    if (broadcastMessages == null)
-                        broadcastMessages = new List<string>();
+                    if (sLine.StartsWith("### "))
+                    {
+                        bool? logFlag = null;
+                        if (sLine.EndsWith(" just logged in."))
+                        {
+                            logFlag = true;
+                        }
+                        else if (sLine.EndsWith(" just logged off."))
+                        {
+                            logFlag = false;
+                        }
+                        if (logFlag.HasValue)
+                        {
+                            bool logFlagValue = logFlag.Value;
+                            int startCharacters = "### ".Length;
+                            int iSpaceIndex = sLine.IndexOf(' ', startCharacters);
+                            List<string> playerList;
+                            if (logFlagValue)
+                            {
+                                if (addedPlayers == null) addedPlayers = new List<string>();
+                                playerList = addedPlayers;
+                            }
+                            else
+                            {
+                                if (removedPlayers == null) removedPlayers = new List<string>();
+                                playerList = removedPlayers;
+                            }
+                            playerList.Add(sLine.Substring(startCharacters, iSpaceIndex - startCharacters));
+                        }
+                    }
+                    isBroadcast = true;
+                }
+                else if (sLine.StartsWith(" ###"))
+                {
+                    isBroadcast = true;
                 }
                 else if (!string.IsNullOrWhiteSpace(sLine))
                 {
@@ -1528,6 +1586,12 @@ namespace IsengardClient
                 else //whitespace
                 {
                     whitespaceLine = true;
+                }
+                if (isBroadcast)
+                {
+                    im = InformationalMessages.Broadcast;
+                    if (broadcastMessages == null)
+                        broadcastMessages = new List<string>();
                 }
                 if (!whitespaceLine)
                 {
@@ -1574,7 +1638,7 @@ namespace IsengardClient
             }
             if (messages != null || broadcastMessages != null)
             {
-                _onSatisfied(messages, broadcastMessages);
+                _onSatisfied(messages, broadcastMessages, addedPlayers, removedPlayers);
             }
         }
     }

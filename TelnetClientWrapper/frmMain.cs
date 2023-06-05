@@ -24,7 +24,6 @@ namespace IsengardClient
         private string _realm2Spell;
         private string _realm3Spell;
         private string _mob;
-        private bool _newMob;
         private string _weapon;
         private string _wand;
 
@@ -1215,7 +1214,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnInformationalMessages(List<InformationalMessages> ims, List<string> broadcasts)
+        private void OnInformationalMessages(List<InformationalMessages> ims, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
         {
             if (ims != null)
             {
@@ -1242,6 +1241,40 @@ namespace IsengardClient
                 lock (_broadcastMessagesLock)
                 {
                     _broadcastMessages.AddRange(broadcasts);
+                }
+            }
+            if (addedPlayers != null)
+            {
+                foreach (string s in addedPlayers)
+                {
+                    if (_players.Contains(s))
+                    {
+                        lock (_broadcastMessagesLock)
+                        {
+                            _broadcastMessages.Add("Player unexpectedly present: " + s);
+                        }
+                    }
+                    else
+                    {
+                        _players.Add(s);
+                    }
+                }
+            }
+            if (removedPlayers != null)
+            {
+                foreach (string s in removedPlayers)
+                {
+                    if (_players.Contains(s))
+                    {
+                        _players.Remove(s);
+                    }
+                    else
+                    {
+                        lock (_broadcastMessagesLock)
+                        {
+                            _broadcastMessages.Add("Player unexpectedly missing: " + s);
+                        }
+                    }
                 }
             }
         }
@@ -1332,16 +1365,26 @@ namespace IsengardClient
                             flParams.PlayerNames = _players;
                             int previousCommandResultCounter = _commandResultCounter;
                             CommandResult? previousCommandResult = _commandResult;
-                            foreach (IOutputProcessingSequence nextProcessingSequence in seqs)
+                            try
                             {
-                                nextProcessingSequence.FeedLine(flParams);
-                                if (flParams.SuppressEcho && !_verboseMode)
+                                foreach (IOutputProcessingSequence nextProcessingSequence in seqs)
                                 {
-                                    echoType = InputEchoType.Off;
+                                    nextProcessingSequence.FeedLine(flParams);
+                                    if (flParams.SuppressEcho && !_verboseMode)
+                                    {
+                                        echoType = InputEchoType.Off;
+                                    }
+                                    if (flParams.FinishedProcessing)
+                                    {
+                                        break;
+                                    }
                                 }
-                                if (flParams.FinishedProcessing)
+                            }
+                            catch (Exception ex)
+                            {
+                                lock (_broadcastMessagesLock)
                                 {
-                                    break;
+                                    _broadcastMessages.Add("SPE: " + ex.ToString());
                                 }
                             }
                             //recompute the lines if they were changed by sequence logic
@@ -2035,7 +2078,7 @@ namespace IsengardClient
                 }
             }
 
-            bool setMob = false;
+            bool atDestination = false;
             if (pms.Exits != null && pms.Exits.Count > 0)
             {
                 _backgroundProcessPhase = BackgroundProcessPhase.Movement;
@@ -2154,19 +2197,19 @@ namespace IsengardClient
 
                 //if we got here that means all exits were traversed successfully
                 pms.ReachedTargetRoom = true;
-                setMob = true;
+                atDestination = true;
             }
             else if (!string.IsNullOrEmpty(pms.TargetRoomMob))
             {
-                setMob = true;
+                atDestination = true;
             }
 
-            if (setMob)
+            if (atDestination)
             {
-                _mob = pms.TargetRoomMob;
-                if (!string.IsNullOrEmpty(_mob))
+                string sTargetRoomMob = pms.TargetRoomMob;
+                if (!string.IsNullOrEmpty(sTargetRoomMob))
                 {
-                    _newMob = true;
+                    _mob = sTargetRoomMob;
                 }
             }
 
@@ -3564,7 +3607,7 @@ namespace IsengardClient
                     }
                 }
             }
-            if ((initStep & InitializationStep.Time) != InitializationStep.Time)
+            if ((initStep & InitializationStep.Time) != InitializationStep.None)
             {
                 if (chkIsNight.Checked != _isNight)
                 {
@@ -3609,10 +3652,10 @@ namespace IsengardClient
             {
                 txtMobDamage.Text = sNewMobDamageText;
             }
-            if (_newMob)
+            string sMob = _mob ?? string.Empty;
+            if (!string.Equals(sMob, txtMob.Text))
             {
-                txtMob.Text = _mob;
-                _newMob = false;
+                txtMob.Text = sMob;
             }
             lock (_broadcastMessagesLock)
             {
@@ -3621,7 +3664,7 @@ namespace IsengardClient
                     foreach (string nextMessage in _broadcastMessages)
                     {
                         DateTime dtNow = DateTime.Now;
-                        lstMessages.Items.Add(dtNow.ToShortDateString() + " " + dtNow.ToShortTimeString() + " " + nextMessage);
+                        lstMessages.Items.Add(dtNow.Day.ToString().PadLeft(2, '0') + "/" + dtNow.Month.ToString().PadLeft(2, '0') + "/" + dtNow.Year.ToString().Substring(2, 2) + " " + dtNow.Hour.ToString().PadLeft(2, '0') + ":" + dtNow.Minute.ToString().PadLeft(2, '0') + ":" + dtNow.Second.ToString().PadLeft(2, '0') + " " + nextMessage);
                     }
                     lstMessages.TopIndex = lstMessages.Items.Count - 1;
                     _broadcastMessages.Clear();

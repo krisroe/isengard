@@ -48,11 +48,13 @@ namespace IsengardClient
             return ret;
         }
 
-        public Room(string name)
+        public Room(string name, string backendName)
         {
             this.Name = name;
+            this.BackendName = backendName;
         }
         public string Name { get; set; }
+        public string BackendName { get; set; }
         public string Mob1 { get; set; }
         public string Mob2 { get; set; }
         public string Mob3 { get; set; }

@@ -63,6 +63,7 @@ namespace IsengardClient.Tests
         {
             List<string> errorMessages = new List<string>();
             ItemEntity item;
+            MobEntity mob;
 
             errorMessages.Clear();
             item = Entity.GetEntity("21 sets of 2 gold coins", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
@@ -95,6 +96,22 @@ namespace IsengardClient.Tests
             Assert.IsTrue(item.SetCount == 1);
             Assert.IsTrue(item.Count == 2);
             Assert.IsTrue(item.ItemType == ItemTypeEnum.ClothHat);
+
+            errorMessages.Clear();
+            mob = Entity.GetEntity("a vagrant", EntityTypeFlags.Mob, errorMessages, null) as MobEntity;
+            Assert.IsTrue(mob != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(mob.SetCount == 1);
+            Assert.IsTrue(mob.Count == 1);
+            Assert.IsTrue(mob.MobType == MobTypeEnum.Vagrant);
+
+            errorMessages.Clear();
+            mob = Entity.GetEntity("two vagrants", EntityTypeFlags.Mob, errorMessages, null) as MobEntity;
+            Assert.IsTrue(mob != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(mob.SetCount == 1);
+            Assert.IsTrue(mob.Count == 2);
+            Assert.IsTrue(mob.MobType == MobTypeEnum.Vagrant);
         }
     }
 }
