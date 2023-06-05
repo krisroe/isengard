@@ -23,9 +23,6 @@ namespace IsengardClient
         private Area _aNindamosArmenelos;
         private Area _aInaccessible;
 
-        private List<Exit> _nightEdges = new List<Exit>();
-        private List<Exit> _flyEdges = new List<Exit>();
-
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_MISC = "Misc";

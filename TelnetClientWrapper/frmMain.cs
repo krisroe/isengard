@@ -30,6 +30,9 @@ namespace IsengardClient
 
         private bool _isNight;
 
+        private InitializationStep _initializationSteps;
+        private InitialLoginInfo _loginInfo;
+
         private static Color BACK_COLOR_GO = Color.LightGreen;
         private static Color BACK_COLOR_CAUTION = Color.Yellow;
         private static Color BACK_COLOR_STOP = Color.LightSalmon;
@@ -45,6 +48,7 @@ namespace IsengardClient
         private object _spellsLock = new object();
         private List<string> _spellsCast = new List<string>();
         private bool _refreshSpellsCast = false;
+        private HashSet<string> _players = null;
 
         private object _skillsLock = new object();
         private List<SkillCooldown> _cooldowns = new List<SkillCooldown>();
@@ -66,8 +70,6 @@ namespace IsengardClient
         private static int? _autoMana;
         private static int? _autoHitpoints;
         private int? _currentMana;
-        private List<string> _startupCommands;
-        private bool _ranStartupCommands;
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
         private BackgroundWorker _bw;
@@ -115,9 +117,11 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, List<string> startupCommands, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
+        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
         {
             InitializeComponent();
+
+            _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
 
             SetButtonTags();
 
@@ -129,8 +133,6 @@ namespace IsengardClient
             _asciiMapping = AsciiMapping.GetAsciiMapping();
             _verboseMode = verboseMode;
             _queryMonsterStatus = queryMonsterStatus;
-
-            _startupCommands = startupCommands;
 
             if (!string.IsNullOrEmpty(defaultRealm))
             {
@@ -723,16 +725,27 @@ namespace IsengardClient
 
         private void DoConnect()
         {
+            _initializationSteps = InitializationStep.None;
+            _loginInfo = null;
+            _players = null;
+            lock (_skillsLock)
+            {
+                _cooldowns.Clear();
+            }
+            lock (_spellsLock)
+            {
+                _spellsCast.Clear();
+                _refreshSpellsCast = true;
+            }
             ClearConsole();
             _finishedQuit = false;
             _currentStatusLastComputed = null;
-            _ranStartupCommands = false;
             _promptedUserName = false;
             _promptedPassword = false;
             _enteredUserName = false;
             _enteredPassword = false;
 
-            _tcpClient = new TcpClient("isengard.nazgul.com", 4040);
+            _tcpClient = new TcpClient(Program.HOST_NAME, Program.PORT);
             _tcpClientNetworkStream = _tcpClient.GetStream();
             BackgroundWorker _bwNetwork = new BackgroundWorker();
             _bwNetwork.DoWork += _bwNetwork_DoWork;
@@ -793,6 +806,11 @@ namespace IsengardClient
         /// </summary>
         private void OnScore(FeedLineParameters flParams, List<SkillCooldown> cooldowns, List<string> spells)
         {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
+
+            bool suppressEcho = forInit;
+
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -805,11 +823,80 @@ namespace IsengardClient
                 _refreshSpellsCast = true;
             }
 
+            if (forInit)
+            {
+                currentStep |= InitializationStep.Score;
+                _initializationSteps = currentStep;
+                if (currentStep == InitializationStep.BeforeFinalization)
+                {
+                    ProcessInitialLogin(flParams);
+                }
+            }
+
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Score)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
-                flParams.SuppressEcho = true; //suppress output for scores done in the background
+                suppressEcho = true; //suppress output for scores done in the background
+            }
+
+            flParams.SuppressEcho = suppressEcho;
+        }
+
+        private void OnWho(FeedLineParameters flParams, HashSet<string> playerNames)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Who) == InitializationStep.None;
+
+            _players = playerNames;
+
+            if (forInit)
+            {
+                currentStep |= InitializationStep.Who;
+                _initializationSteps = currentStep;
+                if (currentStep == InitializationStep.BeforeFinalization)
+                {
+                    ProcessInitialLogin(flParams);
+                }
+                flParams.SuppressEcho = true;
+            }
+        }
+
+        private void OnTime(FeedLineParameters flParams, bool isNight)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Time) == InitializationStep.None;
+
+            _isNight = isNight;
+
+            if (forInit)
+            {
+                currentStep |= InitializationStep.Time;
+                _initializationSteps = currentStep;
+                if (currentStep == InitializationStep.BeforeFinalization)
+                {
+                    ProcessInitialLogin(flParams);
+                }
+                flParams.SuppressEcho = true;
+            }
+        }
+
+        private void OnRemoveEquipment(FeedLineParameters flParams)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
+
+            //currently there is no processing of removing equipment
+
+            if (forInit)
+            {
+                currentStep |= InitializationStep.RemoveAll;
+                _initializationSteps = currentStep;
+                if (currentStep == InitializationStep.BeforeFinalization)
+                {
+                    ProcessInitialLogin(flParams);
+                }
+                flParams.SuppressEcho = true;
             }
         }
 
@@ -823,9 +910,44 @@ namespace IsengardClient
             }
         }
 
-        private void OnRoomTransition(RoomTransitionType rtType, string roomName, List<string> obviousExits, FeedLineParameters flParams)
+        private void OnInitialLogin(InitialLoginInfo initialLoginInfo)
         {
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            SendCommand("score", InputEchoType.Off);
+            SendCommand("who", InputEchoType.Off);
+            SendCommand("remove all", InputEchoType.Off);
+            SendCommand("time", InputEchoType.Off);
+            _initializationSteps |= InitializationStep.Initialization;
+            _loginInfo = initialLoginInfo;
+        }
+
+        private void ProcessInitialLogin(FeedLineParameters flp)
+        {
+            InitialLoginInfo info = _loginInfo;
+            if (RoomTransitionSequence.ProcessRoom(info.RoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
+            {
+                _initializationSteps |= InitializationStep.Finalization;
+            }
+            else
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.Add("Initial login failed!");
+                }
+            }
+        }
+
+        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo)
+        {
+            RoomTransitionType rtType = roomTransitionInfo.TransitionType;
+            string roomName = roomTransitionInfo.RoomName;
+            List<string> obviousExits = roomTransitionInfo.ObviousExits;
+            FeedLineParameters flParams = roomTransitionInfo.FeedLineParameters;
+
+            BackgroundCommandType? bct = null;
+            if (flParams != null)
+            {
+                bct = flParams.BackgroundCommandType;
+            }
             _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
@@ -845,6 +967,10 @@ namespace IsengardClient
                     flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
             }
+            else if (rtType == RoomTransitionType.Initial)
+            {
+                //Nothing to do here
+            }
             else
             {
                 if (bct.HasValue)
@@ -855,6 +981,15 @@ namespace IsengardClient
                         flParams.CommandResult = CommandResult.CommandSuccessful;
                         _waitSeconds = 0;
                     }
+                }
+            }
+
+            List<string> errorMessages = roomTransitionInfo.ErrorMessages;
+            if (errorMessages.Count > 0)
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.AddRange(errorMessages);
                 }
             }
         }
@@ -1111,11 +1246,6 @@ namespace IsengardClient
             }
         }
 
-        private void OnTime(bool isNight)
-        {
-            _isNight = isNight;
-        }
-
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<int> currentOutputItemData = new List<int>();
@@ -1129,46 +1259,7 @@ namespace IsengardClient
                 new ConstantOutputItemSequence(OutputItemSequenceType.Goodbye, "Goodbye!", _asciiMapping),
                 new HPMPSequence(),
             };
-            _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
-            List<IOutputProcessingSequence> outputProcessingSequences = new List<IOutputProcessingSequence>()
-            {
-                new InformationalMessagesSequence(OnInformationalMessages),
-                new ScoreOutputSequence(_username, OnScore),
-                new MobStatusSequence(OnMobStatusSequence),
-                new TimeOutputSequence(OnTime),
-                _pleaseWaitSequence,
-                new SuccessfulSearchSequence(SuccessfulSearch),
-                new RoomTransitionSequence(OnRoomTransition),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("You feel less protected.", OnProtectionOff, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("You feel less holy.", OnBlessOff, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
-                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
-                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
-                new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
-                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
-                new ConstantOutputSequence("That exit is closed for the night.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
-                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
-                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
-                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
-                new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
-                new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
-                new AttackSequence(OnAttack),
-                new CastOffensiveSpellSequence(OnCastOffensiveSpell),
-                new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
-                new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Attack), //triggered by power attack
-                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType> () { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
-                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-
-                //the search find failed output has a blank line before the message so use the second line.
-                new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search),
-            };
-
+            List<IOutputProcessingSequence> seqs = GetProcessingSequences();
             while (true)
             {
                 int nextByte = _tcpClientNetworkStream.ReadByte();
@@ -1235,10 +1326,13 @@ namespace IsengardClient
                         {
                             List<string> sNewLinesList = new List<string>(sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
                             int initialCount = sNewLinesList.Count;
-                            FeedLineParameters flParams = new FeedLineParameters(sNewLinesList, _backgroundCommandType, _currentlyFightingMob);
+                            FeedLineParameters flParams = new FeedLineParameters(sNewLinesList);
+                            flParams.BackgroundCommandType = _backgroundCommandType;
+                            flParams.CurrentlyFightingMob = _currentlyFightingMob;
+                            flParams.PlayerNames = _players;
                             int previousCommandResultCounter = _commandResultCounter;
                             CommandResult? previousCommandResult = _commandResult;
-                            foreach (IOutputProcessingSequence nextProcessingSequence in outputProcessingSequences)
+                            foreach (IOutputProcessingSequence nextProcessingSequence in seqs)
                             {
                                 nextProcessingSequence.FeedLine(flParams);
                                 if (flParams.SuppressEcho && !_verboseMode)
@@ -1287,6 +1381,52 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private List<IOutputProcessingSequence> GetProcessingSequences()
+        {
+            List<IOutputProcessingSequence> seqs = new List<IOutputProcessingSequence>
+            {
+                new InitialLoginSequence(OnInitialLogin),
+                new InformationalMessagesSequence(OnInformationalMessages),
+                new ScoreOutputSequence(_username, OnScore),
+                new WhoOutputSequence(OnWho),
+                new RemoveEquipmentSequence(OnRemoveEquipment),
+                new MobStatusSequence(OnMobStatusSequence),
+                new TimeOutputSequence(OnTime),
+                _pleaseWaitSequence,
+                new SuccessfulSearchSequence(SuccessfulSearch),
+                new RoomTransitionSequence(OnRoomTransition),
+                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("You feel less protected.", OnProtectionOff, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("You feel less holy.", OnBlessOff, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
+                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
+                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
+                new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
+                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence("That exit is closed for the night.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
+                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
+                new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
+                new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
+                new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
+                new AttackSequence(OnAttack),
+                new CastOffensiveSpellSequence(OnCastOffensiveSpell),
+                new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
+                new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Attack), //triggered by power attack
+                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
+                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+                new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+                new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+
+                //the search find failed output has a blank line before the message so use the second line.
+                new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search)
+            };
+            return seqs;
         }
 
         private void ProcessInputCharacter(int nextByte, List<int> queue, StringBuilder textBuilder)
@@ -3250,6 +3390,7 @@ namespace IsengardClient
 
         private void tmr_Tick(object sender, EventArgs e)
         {
+            InitializationStep initStep = _initializationSteps;
             int? autohpforthistick = _autoHitpoints;
             int? autompforthistick = _autoMana;
             if (_finishedQuit)
@@ -3300,124 +3441,134 @@ namespace IsengardClient
                 _enteredPassword = true;
             }
 
-            bool autoMana = chkAutoMana.Checked;
-            if (autoMana)
+            if ((initStep & InitializationStep.Score) != InitializationStep.None)
             {
-                _currentMana = autompforthistick;
-            }
-            else
-            {
-                txtMana.BackColor = BACK_COLOR_NEUTRAL;
-            }
-            if (_currentMana.HasValue)
-            {
-                string sText = _currentMana.Value.ToString();
+                bool autoMana = chkAutoMana.Checked;
                 if (autoMana)
                 {
-                    sText += "/" + _totalmp;
+                    _currentMana = autompforthistick;
                 }
-                txtMana.Text = sText;
-                if (autoMana)
+                else
                 {
+                    txtMana.BackColor = BACK_COLOR_NEUTRAL;
+                }
+                if (_currentMana.HasValue)
+                {
+                    string sText = _currentMana.Value.ToString();
+                    if (autoMana)
+                    {
+                        sText += "/" + _totalmp;
+                    }
+                    txtMana.Text = sText;
+                    if (autoMana)
+                    {
+                        Color backColor;
+                        if (_currentMana == _totalmp)
+                            backColor = BACK_COLOR_GO;
+                        else if (_currentMana + _healtickmp > _totalmp)
+                            backColor = BACK_COLOR_CAUTION;
+                        else
+                            backColor = BACK_COLOR_STOP;
+                        txtMana.BackColor = backColor;
+                    }
+                }
+                if (autohpforthistick.HasValue)
+                {
+                    int autohpvalue = autohpforthistick.Value;
+                    txtHitpoints.Text = autohpvalue.ToString() + "/" + _totalhp;
                     Color backColor;
-                    if (_currentMana == _totalmp)
+                    if (autohpvalue == _totalhp)
                         backColor = BACK_COLOR_GO;
-                    else if (_currentMana + _healtickmp > _totalmp)
-                        backColor = BACK_COLOR_CAUTION;
                     else
                         backColor = BACK_COLOR_STOP;
-                    txtMana.BackColor = backColor;
+                    txtHitpoints.BackColor = backColor;
                 }
-            }
-            if (autohpforthistick.HasValue)
-            {
-                int autohpvalue = autohpforthistick.Value;
-                txtHitpoints.Text = autohpvalue.ToString() + "/" + _totalhp;
-                Color backColor;
-                if (autohpvalue == _totalhp)
-                    backColor = BACK_COLOR_GO;
-                else
-                    backColor = BACK_COLOR_STOP;
-                txtHitpoints.BackColor = backColor;
-            }
 
-            //refresh cooldowns (active and timers)
-            List<SkillCooldown> cooldowns = new List<SkillCooldown>();
-            lock (_skillsLock)
-            {
-                cooldowns.AddRange(_cooldowns);
-            }
-            foreach (SkillCooldown nextCooldown in cooldowns)
-            {
-                SkillWithCooldownType eType = nextCooldown.SkillType;
-                DateTime dtUTCNow = DateTime.UtcNow;
-                TextBox txt;
-                switch (eType)
+                //refresh cooldowns (active and timers)
+                List<SkillCooldown> cooldowns = new List<SkillCooldown>();
+                lock (_skillsLock)
                 {
-                    case SkillWithCooldownType.PowerAttack:
-                        txt = txtPowerAttackTime;
-                        break;
-                    case SkillWithCooldownType.Manashield:
-                        txt = txtManashieldTime;
-                        break;
-                    default:
-                        throw new InvalidOperationException();
+                    cooldowns.AddRange(_cooldowns);
                 }
-                string sText;
-                Color backColor;
-                if (nextCooldown.Active)
+                foreach (SkillCooldown nextCooldown in cooldowns)
                 {
-                    sText = "ACTIVE";
-                    backColor = BACK_COLOR_GO;
-                }
-                else //not currently active
-                {
-                    DateTime? dtNextAvailable = nextCooldown.NextAvailable;
-                    if (dtNextAvailable.HasValue)
+                    SkillWithCooldownType eType = nextCooldown.SkillType;
+                    DateTime dtUTCNow = DateTime.UtcNow;
+                    TextBox txt;
+                    switch (eType)
                     {
-                        DateTime dtDateValue = nextCooldown.NextAvailable.Value;
-                        if (dtUTCNow >= dtDateValue)
-                        {
-                            sText = "0:00";
-                        }
-                        else
-                        {
-                            TimeSpan ts = dtDateValue - dtUTCNow;
-                            sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
-                        }
-                        backColor = sText == "0:00" ? BACK_COLOR_GO : BACK_COLOR_STOP;
+                        case SkillWithCooldownType.PowerAttack:
+                            txt = txtPowerAttackTime;
+                            break;
+                        case SkillWithCooldownType.Manashield:
+                            txt = txtManashieldTime;
+                            break;
+                        default:
+                            throw new InvalidOperationException();
                     }
-                    else //available now
+                    string sText;
+                    Color backColor;
+                    if (nextCooldown.Active)
                     {
-                        sText = "0:00";
+                        sText = "ACTIVE";
                         backColor = BACK_COLOR_GO;
                     }
+                    else //not currently active
+                    {
+                        DateTime? dtNextAvailable = nextCooldown.NextAvailable;
+                        if (dtNextAvailable.HasValue)
+                        {
+                            DateTime dtDateValue = nextCooldown.NextAvailable.Value;
+                            if (dtUTCNow >= dtDateValue)
+                            {
+                                sText = "0:00";
+                            }
+                            else
+                            {
+                                TimeSpan ts = dtDateValue - dtUTCNow;
+                                sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
+                            }
+                            backColor = sText == "0:00" ? BACK_COLOR_GO : BACK_COLOR_STOP;
+                        }
+                        else //available now
+                        {
+                            sText = "0:00";
+                            backColor = BACK_COLOR_GO;
+                        }
+                    }
+                    if (!string.Equals(sText, txt.Text))
+                    {
+                        txt.Text = sText;
+                    }
+                    if (backColor != txt.BackColor)
+                    {
+                        txt.BackColor = backColor;
+                    }
                 }
-                if (!string.Equals(sText, txt.Text))
+
+                if (_refreshSpellsCast)
                 {
-                    txt.Text = sText;
-                }
-                if (backColor != txt.BackColor)
-                {
-                    txt.BackColor = backColor;
+                    List<string> spells = new List<string>();
+                    lock (_spellsLock)
+                    {
+                        spells.AddRange(_spellsCast);
+                        _refreshSpellsCast = false;
+                    }
+                    flpSpells.Controls.Clear();
+                    foreach (string next in spells)
+                    {
+                        Label l = new Label();
+                        l.AutoSize = true;
+                        l.Text = next;
+                        flpSpells.Controls.Add(l);
+                    }
                 }
             }
-
-            if (_refreshSpellsCast)
+            if ((initStep & InitializationStep.Time) != InitializationStep.Time)
             {
-                List<string> spells = new List<string>();
-                lock (_spellsLock)
+                if (chkIsNight.Checked != _isNight)
                 {
-                    spells.AddRange(_spellsCast);
-                    _refreshSpellsCast = false;
-                }
-                flpSpells.Controls.Clear();
-                foreach (string next in spells)
-                {
-                    Label l = new Label();
-                    l.AutoSize = true;
-                    l.Text = next;
-                    flpSpells.Controls.Add(l);
+                    chkIsNight.Checked = _isNight;
                 }
             }
             if (autohpforthistick.HasValue && autompforthistick.HasValue && autohpforthistick.Value == _totalhp && autompforthistick.Value == _totalmp &&
@@ -3476,10 +3627,6 @@ namespace IsengardClient
                     _broadcastMessages.Clear();
                 }
             }
-            if (chkIsNight.Checked != _isNight)
-            {
-                chkIsNight.Checked = _isNight;
-            }
             EnableDisableActionButtons(_currentBackgroundParameters);
             if (!btnAbort.Enabled)
             {
@@ -3520,14 +3667,6 @@ namespace IsengardClient
                 {
                     _doScore = false;
                     SendCommand("score", InputEchoType.On);
-                }
-                if (_currentStatusLastComputed.HasValue && !_ranStartupCommands)
-                {
-                    _ranStartupCommands = true;
-                    foreach (string nextCommand in _startupCommands)
-                    {
-                        SendCommand(nextCommand, InputEchoType.On);
-                    }
                 }
             }
             _previoustickautohp = autohpforthistick;
@@ -4157,5 +4296,19 @@ namespace IsengardClient
         Melee = 1,
         Magic = 2,
         Potions = 4,
+    }
+
+    [Flags]
+    internal enum InitializationStep
+    {
+        None = 0,
+        Initialization = 1,
+        RemoveAll = 2,
+        Score = 4,
+        Time = 8,
+        Who = 16,
+        BeforeFinalization = 31,
+        Finalization = 32,
+        All = 63,
     }
 }

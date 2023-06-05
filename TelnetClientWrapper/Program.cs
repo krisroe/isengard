@@ -1,26 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Windows.Forms;
-using static IsengardClient.frmMain;
-
 using System.Xml;
-
 namespace IsengardClient
 {
     internal static class Program
     {
+        internal const string HOST_NAME = "isengard.nazgul.com";
+        internal const int PORT = 4040;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
+            Ping p = new Ping();
+            PingReply pr = p.Send(HOST_NAME);
+            if (pr.Status != IPStatus.Success)
+            {
+                MessageBox.Show("Ping failed: " + pr.Status);
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
+            LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -33,10 +42,10 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, startupCommands, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
+            Application.Run(new frmMain(defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
         }
 
-        private static void LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out List<string> startupCommands, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
+        private static void LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
         {
             defaultRealm = string.Empty;
             level = 0;
@@ -46,7 +55,6 @@ namespace IsengardClient
             preferredAlignment = AlignmentType.Grey;
             userName = string.Empty;
             allMacros = new List<Macro>();
-            startupCommands = new List<string>();
             defaultWeapon = string.Empty;
             autoHazyThreshold = 0;
             autoHazyDefault = false;
@@ -188,12 +196,6 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid preferred alignment type");
                 preferredAlignment = AlignmentType.Grey;
-            }
-
-            string sStartupCommands = docElement.GetAttribute("startupcommands");
-            if (!string.IsNullOrEmpty(sStartupCommands))
-            {
-                startupCommands.AddRange(sStartupCommands.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
             }
 
             userName = docElement.GetAttribute("username");

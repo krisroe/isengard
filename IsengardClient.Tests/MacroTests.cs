@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IsengardClient;
 namespace IsengardClient.Tests
 {
     [TestClass]

@@ -49,7 +49,7 @@ namespace IsengardClient.Tests
             ScoreOutputSequence sos = new ScoreOutputSequence("despug", a);
 
             List<string> input = new List<string>();
-            FeedLineParameters flp = new FeedLineParameters(input, null, null);
+            FeedLineParameters flp = new FeedLineParameters(input);
 
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
@@ -127,14 +127,14 @@ namespace IsengardClient.Tests
         public void TestTimeSequence()
         {
             bool? isNight = null;
-            Action<bool> a = (isn) =>
+            Action<FeedLineParameters, bool> a = (flParams, isn) =>
             {
                 isNight = isn;
             };
 
             TimeOutputSequence tos = new TimeOutputSequence(a);
             List<string> info = new List<string>() { string.Empty };
-            FeedLineParameters flp = new FeedLineParameters(info, null, null);
+            FeedLineParameters flp = new FeedLineParameters(info);
 
             isNight = null;
             info[0] = "Game-Time: 12 o'clock AM.";
@@ -267,7 +267,8 @@ namespace IsengardClient.Tests
             };
 
             PleaseWaitSequence plxss = new PleaseWaitSequence(waitedAction);
-            FeedLineParameters oFLP = new FeedLineParameters(null, BackgroundCommandType.Quit, null);
+            FeedLineParameters oFLP = new FeedLineParameters(null);
+            oFLP.BackgroundCommandType = BackgroundCommandType.Quit;
 
             waited = -1;
             oFLP.Lines = new List<string>() { "Please wait 2 seconds." };
@@ -304,17 +305,22 @@ namespace IsengardClient.Tests
             };
             AttackSequence aseq = new AttackSequence(a);
 
+            FeedLineParameters flParams = new FeedLineParameters(null);
+            flParams.BackgroundCommandType = BackgroundCommandType.Attack;
+
             success = false;
             fumbled = false;
             damage = 0;
-            aseq.FeedLine(new FeedLineParameters(new List<string>() { "Your slash attack hits for 10 damage." }, BackgroundCommandType.Attack, null));
+            flParams.Lines = new List<string>() { "Your slash attack hits for 10 damage." };
+            aseq.FeedLine(flParams);
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
 
             success = false;
             fumbled = false;
             damage = 10;
-            aseq.FeedLine(new FeedLineParameters(new List<string>() { "You FUMBLED your weapon." }, BackgroundCommandType.Attack, null));
+            flParams.Lines = new List<string>() { "You FUMBLED your weapon." };
+            aseq.FeedLine(flParams);
             Assert.IsTrue(success);
             Assert.IsTrue(fumbled);
             Assert.AreEqual(damage, 0);
@@ -331,7 +337,9 @@ namespace IsengardClient.Tests
                 damage = d;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "You cast a rumble spell on the drunk for 10 damage." }, BackgroundCommandType.OffensiveSpell, null));
+            FeedLineParameters flParams = new FeedLineParameters(new List<string>() { "You cast a rumble spell on the drunk for 10 damage." });
+            flParams.BackgroundCommandType = BackgroundCommandType.OffensiveSpell;
+            cseq.FeedLine(flParams);
             Assert.IsTrue(success);
             Assert.AreEqual(damage, 10);
         }
@@ -340,20 +348,25 @@ namespace IsengardClient.Tests
         public void TestSuccessfulSearch()
         {
             List<string> exits;
-            Action<List<string>, FeedLineParameters> a = (l, flp) =>
+            Action<List<string>, FeedLineParameters> a = (l, flParams) =>
             {
                 exits = l;
             };
 
             SuccessfulSearchSequence sseq = new SuccessfulSearchSequence(a);
 
+            FeedLineParameters flp = new FeedLineParameters(null);
+            flp.BackgroundCommandType = BackgroundCommandType.Search;
+
             exits = null;
-            sseq.FeedLine(new FeedLineParameters(new List<string>() { "You find a hidden exit: test." }, BackgroundCommandType.Search, null));
+            flp.Lines = new List<string>() { "You find a hidden exit: test." };
+            sseq.FeedLine(flp);
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
 
             exits = null;
-            sseq.FeedLine(new FeedLineParameters(new List<string>() { "You find a hidden exit: test.", "You find a hidden exit: test2." }, BackgroundCommandType.Search, null));
+            flp.Lines = new List<string>() { "You find a hidden exit: test.", "You find a hidden exit: test2." };
+            sseq.FeedLine(flp);
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
             Assert.IsTrue(exits.Contains("test2"));
@@ -370,44 +383,57 @@ namespace IsengardClient.Tests
             };
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, null);
+            FeedLineParameters flParams = new FeedLineParameters(null);
+
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "test" }, null, null));
+            flParams.Lines = new List<string>() { "test" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "atest" }, null, null));
+            flParams.Lines = new List<string>() { "atest" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(!satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "testa" }, null, null));
+            flParams.Lines = new List<string>() { "testa" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(!satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.StartsWith, null);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "test" }, null, null));
+            flParams.Lines = new List<string>() { "test" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "atest" }, null, null));
+            flParams.Lines = new List<string>() { "atest" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(!satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "testa" }, null, null));
+            flParams.Lines = new List<string>() { "testa" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.Contains, null);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "test" }, null, null));
+            flParams.Lines = new List<string>() { "test" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "atest" }, null, null));
+            flParams.Lines = new List<string>() { "atest" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "testa" }, null, null));
+            flParams.Lines = new List<string>() { "testa" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
 
             cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, 1);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "not", "test" }, null, null));
+            flParams.Lines = new List<string>() { "not", "test" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
             satisfied = false;
-            cseq.FeedLine(new FeedLineParameters(new List<string>() { "not", "other" }, null, null));
+            flParams.Lines = new List<string>() { "not", "other" };
+            cseq.FeedLine(flParams);
             Assert.IsTrue(!satisfied);
         }
     }

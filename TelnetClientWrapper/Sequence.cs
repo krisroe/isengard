@@ -31,11 +31,9 @@ namespace IsengardClient
 
     public class FeedLineParameters
     {
-        public FeedLineParameters(List<string> Lines, BackgroundCommandType? BackgroundCommandType, string CurrentlyFightingMob)
+        public FeedLineParameters(List<string> Lines)
         {
             this.Lines = Lines;
-            this.BackgroundCommandType = BackgroundCommandType;
-            this.CurrentlyFightingMob = CurrentlyFightingMob;
         }
         public List<string> Lines { get; set; }
         public BackgroundCommandType? BackgroundCommandType { get; set; }
@@ -43,6 +41,7 @@ namespace IsengardClient
         public bool FinishedProcessing { get; set; }
         public bool SuppressEcho { get; set; }
         public CommandResult? CommandResult { get; set; }
+        public HashSet<string> PlayerNames { get; set; }
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -172,7 +171,7 @@ namespace IsengardClient
             _chars = GenerateBytesForPattern(characters, asciiMapping);
         }
 
-        public static List<int> GenerateBytesForPattern(string pattern, Dictionary<char,int> asciiMapping)
+        public static List<int> GenerateBytesForPattern(string pattern, Dictionary<char, int> asciiMapping)
         {
             List<int> ret = new List<int>(pattern.Length);
             foreach (char c in pattern)
@@ -331,10 +330,10 @@ namespace IsengardClient
 
     public class TimeOutputSequence : IOutputProcessingSequence
     {
-        private Action<bool> _onSatisfied;
+        private Action<FeedLineParameters, bool> _onSatisfied;
         private const string PREFIX = "Game-Time: ";
 
-        public TimeOutputSequence(Action<bool> onSatisfied)
+        public TimeOutputSequence(Action<FeedLineParameters, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -416,7 +415,7 @@ namespace IsengardClient
                 {
                     isNight = iNumber != 12 && iNumber >= 8;
                 }
-                _onSatisfied(isNight);
+                _onSatisfied(flParams, isNight);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -542,6 +541,98 @@ namespace IsengardClient
         }
     }
 
+    public class RemoveEquipmentSequence : IOutputProcessingSequence
+    {
+        private Action<FeedLineParameters> _onSatisfied;
+        public RemoveEquipmentSequence(Action<FeedLineParameters> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0)
+            {
+                string sFirstLine = Lines[0];
+                if (sFirstLine.StartsWith ("You remove ") || sFirstLine == "You aren't wearing anything that can be removed.")
+                {
+                    _onSatisfied(flParams);
+                    flParams.FinishedProcessing = true;
+                }
+            }
+        }
+    }
+
+    public class WhoOutputSequence : IOutputProcessingSequence
+    {
+        private Action<FeedLineParameters, HashSet<string>> _onSatisfied;
+        public WhoOutputSequence(Action<FeedLineParameters, HashSet<string>> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            int index = 0;
+            HashSet<string> playerNames = null;
+            foreach (string nextLine in Lines)
+            {
+                if (index == 0)
+                {
+                    if (!string.IsNullOrEmpty(nextLine)) break;
+                }
+                else if (index == 1)
+                {
+                    if (!nextLine.StartsWith("Player ")) break;
+                }
+                else if (index == 2)
+                {
+                    foreach (char c in nextLine)
+                    {
+                        if (c != '-')
+                        {
+                            return;
+                        }
+                    }
+                }
+                else if (nextLine.StartsWith("-"))
+                {
+                    break;
+                }
+                else
+                {
+                    int iSpaceIndex = nextLine.IndexOf(' ');
+                    if (iSpaceIndex <= 0) break;
+                    string playerName = nextLine.Substring(0, iSpaceIndex);
+                    foreach (char c in playerName)
+                    {
+                        if (!char.IsLetter(c))
+                        {
+                            return;
+                        }
+                    }
+                    if (playerNames == null)
+                    {
+                        playerNames = new HashSet<string>();
+                    }
+                    if (playerNames.Contains(playerName))
+                    {
+                        return;
+                    }
+                    playerNames.Add(playerName);
+                }
+                index++;
+            }
+            if (playerNames != null)
+            {
+                flParams.FinishedProcessing = true;
+                _onSatisfied(flParams, playerNames);
+            }
+        }
+    }
+
     public class SkillCooldown
     {
         public SkillWithCooldownType SkillType { get; set; }
@@ -551,15 +642,79 @@ namespace IsengardClient
 
     internal enum RoomTransitionType
     {
+        Initial,
         Move,
         Flee,
         Hazy,
     }
 
+    internal class InitialLoginInfo
+    {
+        public string RoomName { get; set; }
+        public string ObviousExits { get; set; }
+        public string List1 { get; set; }
+        public string List2 { get; set; }
+        public string List3 { get; set; }
+    }
+
+    internal class RoomTransitionInfo
+    {
+        public RoomTransitionType TransitionType { get; set; }
+        public string RoomName { get; set; }
+        public List<string> ObviousExits { get; set; }
+        public FeedLineParameters FeedLineParameters { get; set; }
+        public List<PlayerEntity> Players { get; set; }
+        public List<ItemEntity> Items { get; set; }
+        public List<MobEntity> Mobs { get; set; }
+        public List<string> ErrorMessages { get; set; }
+    }
+
+    internal class InitialLoginSequence : IOutputProcessingSequence
+    {
+        public Action<InitialLoginInfo> _onSatisfied;
+
+        public InitialLoginSequence(Action<InitialLoginInfo> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> lines = flParams.Lines;
+            bool foundLoggedInBroadcast = false;
+            int? foundBlankLine = null;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string nextLine = lines[i];
+                if (foundLoggedInBroadcast)
+                {
+                    if (string.IsNullOrEmpty(nextLine))
+                    {
+                        foundBlankLine = i;
+                        break;
+                    }
+                }
+                else if (nextLine.StartsWith("###") && nextLine.EndsWith(" just logged in."))
+                {
+                    foundLoggedInBroadcast = true;
+                }
+            }
+            if (foundBlankLine.HasValue)
+            {
+                InitialLoginInfo ili = RoomTransitionSequence.ProcessRoomForInitialization(lines, foundBlankLine.Value);
+                if (ili != null)
+                {
+                    _onSatisfied(ili);
+                    flParams.FinishedProcessing = true;
+                }
+            }
+        }
+    }
+
     internal class RoomTransitionSequence : IOutputProcessingSequence
     {
-        private Action<RoomTransitionType, string, List<string>, FeedLineParameters> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionType, string, List<string>, FeedLineParameters> onSatisfied)
+        private Action<RoomTransitionInfo> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionInfo> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -570,7 +725,7 @@ namespace IsengardClient
             int nextLineIndex = 0;
 
             //skip fleeing messages for scared exits
-            while (nextLineIndex < Lines.Count && 
+            while (nextLineIndex < Lines.Count &&
                 (Lines[nextLineIndex].StartsWith("Scared of going ") || Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
             {
                 nextLineIndex++;
@@ -590,22 +745,312 @@ namespace IsengardClient
 
             //blank line before room name
             if (Lines[nextLineIndex] != string.Empty) return;
+
+            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied))
+            {
+                flParams.FinishedProcessing = true;
+            }
+        }
+
+        internal static InitialLoginInfo ProcessRoomForInitialization(List<string> Lines, int nextLineIndex)
+        {
+            if (Lines[nextLineIndex] != string.Empty) return null;
             nextLineIndex++;
 
-            if (nextLineIndex >= Lines.Count) return;
+            if (nextLineIndex >= Lines.Count) return null;
             string sRoomName = Lines[nextLineIndex];
-            if (string.IsNullOrEmpty(sRoomName)) return;
+            if (string.IsNullOrEmpty(sRoomName)) return null;
             nextLineIndex++;
 
             //blank line after room name
-            if (Lines[nextLineIndex] != string.Empty) return;
+            if (Lines[nextLineIndex] != string.Empty) return null;
             nextLineIndex++;
 
-            int followingLineIndex;
-            List<string> exitsList = StringProcessing.GetList(Lines, nextLineIndex, "Obvious exits: ", true, out followingLineIndex);
-            if (exitsList != null)
+            string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
+            if (exitsString == null)
             {
-                _onSatisfied(rtType, sRoomName, exitsList, flParams);
+                return null;
+            }
+            string room1List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+            string room2List = null;
+            string room3List = null;
+            if (room1List != null)
+            {
+                room2List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+                if (room2List != null)
+                {
+                    room3List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+                }
+            }
+
+            InitialLoginInfo ili = new InitialLoginInfo();
+            ili.RoomName = sRoomName;
+            ili.ObviousExits = exitsString;
+            ili.List1 = room1List;
+            ili.List2 = room2List;
+            ili.List3 = room3List;
+            return ili;
+        }
+
+        internal static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType)
+        {
+            List<string> exits = StringProcessing.ParseList(exitsList);
+            if (exits == null)
+            {
+                return false;
+            }
+
+            List<ItemEntity> items = new List<ItemEntity>();
+            List<MobEntity> mobs = new List<MobEntity>();
+            List<PlayerEntity> players = new List<PlayerEntity>();
+            List<string> errorMessages = new List<string>();
+            HashSet<string> playerNames = flParams.PlayerNames;
+
+            List<string> roomList3 = null;
+            List<string> roomList2 = null;
+            List<string> roomList1 = null;
+            if (list3 != null)
+            {
+                roomList3 = StringProcessing.ParseList(list3);
+            }
+            if (list2 != null)
+            {
+                roomList2 = StringProcessing.ParseList(list2);
+            }
+            if (list1 != null)
+            {
+                roomList1 = StringProcessing.ParseList(list1);
+            }
+
+            if (roomList3 != null) //this is known to be the item list
+            {
+                LoadItems(items, roomList3, errorMessages);
+            }
+            if (roomList2 != null)
+            {
+                EntityTypeFlags possibleTypes = roomList3 != null ? EntityTypeFlags.Mob : EntityTypeFlags.Mob | EntityTypeFlags.Item;
+                EntityType? foundType = null;
+                foreach (string next in roomList2)
+                {
+                    Entity e = Entity.GetEntity(next, possibleTypes, errorMessages, playerNames);
+                    EntityType eType = e.Type;
+                    if (eType != EntityType.Unknown)
+                    {
+                        foundType = eType;
+                        break;
+                    }
+                }
+                if (foundType.HasValue)
+                {
+                    EntityType foundTypeValue = foundType.Value;
+                    if (foundTypeValue == EntityType.Mob)
+                    {
+                        LoadMobs(mobs, roomList2, errorMessages);
+                    }
+                    else if (foundTypeValue == EntityType.Item)
+                    {
+                        LoadItems(items, roomList2, errorMessages);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+                else //could not identity anything
+                {
+                    foreach (string s in roomList2)
+                    {
+                        errorMessages.Add("Failed to identify " + s);
+                    }
+                }
+            }
+            if (roomList1 != null)
+            {
+                EntityTypeFlags possibleTypes;
+                if (roomList3 != null)
+                {
+                    possibleTypes = EntityTypeFlags.Player;
+                }
+                else if (roomList2 != null)
+                {
+                    if (mobs.Count > 0)
+                        possibleTypes = EntityTypeFlags.Player;
+                    else
+                        possibleTypes = EntityTypeFlags.Player | EntityTypeFlags.Mob;
+                }
+                else
+                {
+                    if (mobs.Count > 0)
+                        possibleTypes = EntityTypeFlags.Player;
+                    else if (items.Count > 0)
+                        possibleTypes = EntityTypeFlags.Player | EntityTypeFlags.Mob;
+                    else
+                        possibleTypes = EntityTypeFlags.Player | EntityTypeFlags.Mob | EntityTypeFlags.Item;
+                }
+                EntityType? foundType = null;
+                bool canBePlayers = true;
+                foreach (string next in roomList1)
+                {
+                    Entity e = Entity.GetEntity(next, possibleTypes, errorMessages, playerNames);
+                    EntityType eType = e.Type;
+                    if (eType != EntityType.Unknown)
+                    {
+                        foundType = eType;
+                        break;
+                    }
+                    if (next.Contains(" ") || !playerNames.Contains(next))
+                    {
+                        canBePlayers = false;
+                    }
+                }
+                if (foundType.HasValue)
+                {
+                    EntityType foundTypeValue = foundType.Value;
+                    if (foundTypeValue == EntityType.Player)
+                    {
+                        LoadPlayers(players, roomList1, errorMessages, playerNames);
+                    }
+                    else if (foundTypeValue == EntityType.Mob)
+                    {
+                        LoadMobs(mobs, roomList1, errorMessages);
+                    }
+                    else if (foundTypeValue == EntityType.Item)
+                    {
+                        LoadItems(items, roomList1, errorMessages);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+                else if (canBePlayers) //presumably players
+                {
+                    LoadPlayers(players, roomList1, errorMessages, playerNames);
+                }
+                else if (mobs.Count == 0)
+                {
+                    LoadMobs(mobs, roomList1, errorMessages);
+                }
+                else
+                {
+                    LoadItems(items, roomList1, errorMessages);
+                }
+            }
+
+            foreach (var nextItem in items)
+            {
+                UnknownItemEntity uie = nextItem as UnknownItemEntity;
+                if (uie != null)
+                {
+                    errorMessages.Add("Unknown item: " + uie.Name);
+                }
+            }
+            foreach (var nextMob in mobs)
+            {
+                UnknownMobEntity ume = nextMob as UnknownMobEntity;
+                if (ume != null)
+                {
+                    errorMessages.Add("Unknown mob: " + ume.Name);
+                }
+            }
+
+            RoomTransitionInfo rti = new RoomTransitionInfo();
+            rti.TransitionType = rtType;
+            rti.RoomName = sRoomName;
+            rti.ObviousExits = exits;
+            rti.FeedLineParameters = flParams;
+            rti.Players = players;
+            rti.Mobs = mobs;
+            rti.Items = items;
+            rti.ErrorMessages = errorMessages;
+            onSatisfied(rti);
+            return true;
+        }
+
+        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo> onSatisfied)
+        {
+            if (Lines[nextLineIndex] != string.Empty) return false;
+            nextLineIndex++;
+
+            if (nextLineIndex >= Lines.Count) return false;
+            string sRoomName = Lines[nextLineIndex];
+            if (string.IsNullOrEmpty(sRoomName)) return false;
+            nextLineIndex++;
+
+            //blank line after room name
+            if (Lines[nextLineIndex] != string.Empty) return false;
+            nextLineIndex++;
+
+            string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
+            string list1String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+            string list2String = null;
+            string list3String = null;
+            if (list1String != null)
+            {
+                list2String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+            }
+            if (list2String != null)
+            {
+                list3String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+            }
+
+            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType);
+        }
+
+        private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages)
+        {
+            foreach (string next in itemNames)
+            {
+                Entity e = Entity.GetEntity(next, EntityTypeFlags.Item, errorMessages, null);
+                if (e != null)
+                {
+                    if (e is ItemEntity)
+                    {
+                        items.Add((ItemEntity)e);
+                    }
+                    else
+                    {
+                        errorMessages.Add("Nonitem found in item list: " + next);
+                    }
+                }
+            }
+        }
+        private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages)
+        {
+            foreach (string next in mobNames)
+            {
+                Entity e = Entity.GetEntity(next, EntityTypeFlags.Mob, errorMessages, null);
+                if (e != null)
+                {
+                    if (e is MobEntity)
+                    {
+                        mobs.Add((MobEntity)e);
+                    }
+                    else
+                    {
+                        errorMessages.Add("Nonmob found in mob list: " + next);
+                    }
+                }
+            }
+        }
+
+        private static void LoadPlayers(List<PlayerEntity> players, List<string> currentPlayerNames, List<string> errorMessages, HashSet<string> allPlayerNames)
+        {
+            foreach (string next in currentPlayerNames)
+            {
+                PlayerEntity pEntity = (PlayerEntity)Entity.GetEntity(next, EntityTypeFlags.Player, errorMessages, allPlayerNames);
+                if (pEntity != null)
+                {
+                    if (pEntity.Name.Contains(" "))
+                    {
+                        errorMessages.Add("Unexpected player name: " + next);
+                    }
+                    players.Add(pEntity);
+                }
+                else
+                {
+                    errorMessages.Add("Failed to process player: " + next);
+                }
             }
         }
     }
@@ -1064,11 +1509,12 @@ namespace IsengardClient
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||
                          sLine == "Thunderheads roll in from the east." ||
+                         sLine == "The full moon shines across the land." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
                     //These lines will be removed.
                 }
-                else if (sLine.StartsWith("###"))
+                else if (sLine.StartsWith("###") || sLine.StartsWith(" ###"))
                 {
                     im = InformationalMessages.Broadcast;
                     if (broadcastMessages == null)
@@ -1135,7 +1581,7 @@ namespace IsengardClient
 
     public static class StringProcessing
     {
-        public static List<string> GetList(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
+        public static string GetListAsString(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
         {
             nextLineIndex = 0;
             bool foundStartsWith = false;
@@ -1214,12 +1660,31 @@ namespace IsengardClient
                     }
                 }
             }
-            string sFullContent = sb.ToString().Replace(Environment.NewLine, " ");
+            return sb.ToString().Replace(Environment.NewLine, " ");
+        }
+
+        public static List<string> ParseList(string sFullContent)
+        {
             string[] allEntries = sFullContent.Split(new char[] { ',' });
             List<string> ret = new List<string>();
+            StringBuilder sb = new StringBuilder();
             foreach (string next in allEntries)
             {
                 string nextEntry = next.Trim();
+                if (nextEntry.Contains("  "))
+                {
+                    sb.Clear();
+                    char prevChar = 'X';
+                    foreach (char nextChar in nextEntry)
+                    {
+                        if (nextChar != ' ' || prevChar != ' ')
+                        {
+                            sb.Append(nextChar);
+                        }
+                        prevChar = nextChar;
+                    }
+                    nextEntry = sb.ToString();
+                }
                 if (string.IsNullOrEmpty(nextEntry))
                 {
                     return null;
@@ -1227,6 +1692,12 @@ namespace IsengardClient
                 ret.Add(nextEntry);
             }
             return ret;
+        }
+
+        public static List<string> GetList(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
+        {
+            string sFullContent = GetListAsString(inputs, lineIndex, startsWith, requireExactStartsWith, out nextLineIndex);
+            return ParseList(sFullContent);
         }
     }
 
