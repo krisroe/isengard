@@ -44,10 +44,14 @@ namespace IsengardClient
         /// whether the exit requires day
         /// </summary>
         public bool RequiresDay { get; set; }
+        /// <summary>
+        /// maximum level
+        /// </summary>
+        public int? MaximumLevel { get; set; }
 
-        public bool ExitIsUsable(bool flying, bool isDay)
+        public bool ExitIsUsable(bool flying, bool isDay, int level)
         {
-            return (!RequiresFly || flying) && (!RequiresDay || isDay);
+            return (!RequiresFly || flying) && (!RequiresDay || isDay) && (!MaximumLevel.HasValue || level <= MaximumLevel.Value);
         }
 
         /// <summary>

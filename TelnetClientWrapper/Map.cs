@@ -35,7 +35,7 @@ namespace IsengardClient
         private const string AREA_INTANGIBLE = "Intangible";
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
-        public IsengardMap(AlignmentType preferredAlignment, int level)
+        public IsengardMap(AlignmentType preferredAlignment)
         {
             _graphs = new Dictionary<MapType, RoomGraph>();
             _map = new AdjacencyGraph<Room, Exit>();
@@ -54,10 +54,10 @@ namespace IsengardClient
             graphMillwoodMansion.ScalingFactor = 100;
             _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
             AddMayorMillwoodMansion(oIxell);
-            AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, level);
-            AddBreeToImladris(level, out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
+            AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
+            AddBreeToImladris(out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside);
             AddEastOfImladris(oEastGateOfImladrisOutside);
@@ -849,7 +849,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, int level, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -1045,10 +1045,8 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oFallon] = new System.Windows.Point(13, -1.5);
 
             Room oGrantsStables = AddRoom("Grant's stables");
-            if (level < 11)
-            {
-                AddExit(oToGrantsStables, oGrantsStables, "stable");
-            }
+            e = AddExit(oToGrantsStables, oGrantsStables, "stable");
+            e.MaximumLevel = 10;
             AddExit(oGrantsStables, oToGrantsStables, "south");
 
             Room oGrant = AddRoom("Grant");
@@ -1957,7 +1955,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oMayorMillwood);
         }
 
-        private void AddBreeToImladris(int level, out Room oOuthouse, Room breeEastGateInside, out Room imladrisWestGateOutside)
+        private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, out Room imladrisWestGateOutside)
         {
             RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
@@ -1972,7 +1970,7 @@ namespace IsengardClient
 
             Room oGreatEastRoad1 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
-            AddToFarmHouseAndUglies(oGreatEastRoad1, out oOuthouse, breeToImladrisGraph, level);
+            AddToFarmHouseAndUglies(oGreatEastRoad1, out oOuthouse, breeToImladrisGraph);
             breeToImladrisGraph.Rooms[oGreatEastRoad1] = new System.Windows.Point(4, 4);
 
             Room oGreatEastRoad2 = AddRoom("Great East Road", "Great East Road");
@@ -2089,7 +2087,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oSpriteGuards);
         }
 
-        private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph, int level)
+        private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
         {
             Room oRoadToFarm1 = AddRoom("Farmland", "Farmland");
             AddBidirectionalExits(oGreatEastRoad1, oRoadToFarm1, BidirectionalExitType.NorthSouth);
@@ -2125,20 +2123,22 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oSwimmingPond] = new System.Windows.Point(6, 8);
 
             Room oMuddyPath = AddRoom("Muddy Path");
-            AddExit(oSwimmingPond, oMuddyPath, "path");
+            Exit e = AddExit(oSwimmingPond, oMuddyPath, "path");
+            e.Hidden = true;
             AddExit(oMuddyPath, oSwimmingPond, "pond");
+            breeToImladrisGraph.Rooms[oMuddyPath] = new System.Windows.Point(7, 8);
 
             Room oSmallPlayground = AddRoom("Small Playground");
             AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oSmallPlayground] = new System.Windows.Point(8, 7);
 
             Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance");
             AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
+            breeToImladrisGraph.Rooms[oUglyKidSchoolEntrance] = new System.Windows.Point(9, 7);
 
             Room oMuddyFoyer = AddRoom("Muddy Foyer");
-            if (level < 11)
-            {
-                AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
-            }
+            e = AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
+            e.MaximumLevel = 10;
             AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
 
             Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
@@ -2183,7 +2183,7 @@ namespace IsengardClient
             oFarmCat.Mob1 = "cat";
             oFarmCat.Experience1 = 550;
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
-            Exit e = AddExit(oFarmCat, oFarmBackPorch, "out");
+            e = AddExit(oFarmCat, oFarmBackPorch, "out");
             e.NoFlee = true;
             breeToImladrisGraph.Rooms[oFarmCat] = new System.Windows.Point(1, 7);
 
@@ -2443,7 +2443,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oIorlas);
         }
 
-        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage, int level)
+        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage)
         {
             Room oBreeWestGateOutside = AddRoom("West Gate Outside", "West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
@@ -2533,11 +2533,9 @@ namespace IsengardClient
             Room oSomething = AddRoom("Something");
             oSomething.Mob1 = "Something";
             oSomething.Experience1 = 140;
-            if (level < 11)
-            {
-                Exit e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
-                e.Hidden = true;
-            }
+            Exit e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
+            e.MaximumLevel = 10;
+            e.Hidden = true;
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
 
             Room oShepherd = AddRoom("Shepherd", "Pasture");
@@ -4480,7 +4478,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool isDay)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool isDay, int level)
         {
             List<Exit> ret = null;
             Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
@@ -4491,7 +4489,7 @@ namespace IsengardClient
             {
                 foreach (Exit e in initialEdges)
                 {
-                    if (e.ExitIsUsable(flying, isDay))
+                    if (e.ExitIsUsable(flying, isDay, level))
                     {
                         pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
                     }
@@ -4526,7 +4524,7 @@ namespace IsengardClient
                         {
                             foreach (Exit e in edges)
                             {
-                                if (!pathMapping.ContainsKey(e.Target) && e.ExitIsUsable(flying, isDay))
+                                if (!pathMapping.ContainsKey(e.Target) && e.ExitIsUsable(flying, isDay, level))
                                 {
                                     pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
                                 }

@@ -40,8 +40,10 @@ namespace IsengardClient.Tests
         {
             List<SkillCooldown> cooldowns = null;
             List<string> spells = null;
-            Action<FeedLineParameters, List<SkillCooldown>, List<string>> a = (flpparam, cs, ss) =>
+            int iLevel = -1;
+            Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> a = (flpparam, l, cs, ss) =>
             {
+                iLevel = l;
                 cooldowns = cs;
                 spells = ss;
             };
@@ -62,6 +64,7 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.IsTrue(iLevel == 12);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);

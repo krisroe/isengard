@@ -29,6 +29,9 @@ namespace IsengardClient
 
         private int _time = -1; //time from 0 (midnight) to 23 (11 PM)
         private int _timeUI = -1;
+        private int _level = 0;
+        private string _currentPlayerHeader = null;
+        private string _currentPlayerHeaderUI = null;
 
         private InitializationStep _initializationSteps;
         private InitialLoginInfo _loginInfo;
@@ -123,7 +126,7 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(string defaultRealm, int level, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
+        internal frmMain(string defaultRealm, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
         {
             InitializeComponent();
 
@@ -165,7 +168,6 @@ namespace IsengardClient
                 SetCurrentRealmButton(defaultRealmButton);
             }
 
-            txtLevel.Text = level.ToString();
             _totalhp = totalhp;
             _totalmp = totalmp;
             _healtickmp = healtickmp;
@@ -175,6 +177,26 @@ namespace IsengardClient
 
             txtPreferredAlignment.Text = preferredAlignment.ToString();
             txtWeapon.Text = defaultWeapon;
+
+            //prettify user name to be Pascal case
+            StringBuilder sb = new StringBuilder();
+            bool isFirst = true;
+            foreach (char c in userName)
+            {
+                string sChar = c.ToString();
+                string sAppend;
+                if (isFirst)
+                {
+                    isFirst = false;
+                    sAppend = sChar.ToUpper();
+                }
+                else
+                {
+                    sAppend = sChar.ToLower();
+                }
+                sb.Append(sAppend);
+            }
+            _username = sb.ToString();
 
             _username = userName;
             _password = password;
@@ -198,7 +220,7 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            _gameMap = new IsengardMap(preferredAlignment, level);
+            _gameMap = new IsengardMap(preferredAlignment);
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
@@ -648,6 +670,7 @@ namespace IsengardClient
                 "vampyric",
                 "vigor",
                 "volley",
+                "warrior",
                 "waterbolt",
                 "weapons",
                 "wear",
@@ -738,6 +761,8 @@ namespace IsengardClient
             _players = null;
             _time = -1;
             _timeUI = -1;
+            _level = 0;
+            _currentPlayerHeaderUI = null;
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -790,7 +815,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, List<SkillCooldown> cooldowns, List<string> spells)
+        private void OnScore(FeedLineParameters flParams, int level, List<SkillCooldown> cooldowns, List<string> spells)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -808,6 +833,9 @@ namespace IsengardClient
                 _spellsCast.AddRange(spells);
                 _refreshSpellsCast = true;
             }
+
+            _level = level;
+            _currentPlayerHeader = _username + "(lvl " + level + ")";
 
             if (forInit)
             {
@@ -1453,6 +1481,7 @@ namespace IsengardClient
                 _pleaseWaitSequence,
                 new SuccessfulSearchSequence(SuccessfulSearch),
                 new RoomTransitionSequence(OnRoomTransition),
+                new FailMovementSequence(FailMovement),
                 new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
@@ -1461,9 +1490,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
                 new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
-                new ConstantOutputSequence("You can't go that way.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
-                new ConstantOutputSequence("That exit is closed for the night.", FailMovement, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Movement),
-                new ConstantOutputSequence(" blocks your exit.", FailMovement, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Movement),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
@@ -3690,6 +3716,12 @@ namespace IsengardClient
                 sNewMobStatusText = GetMonsterStatusText(monsterStatus);
                 sNewMobDamageText = iMonsterDamage.ToString();
             }
+            string sCurrentPlayerHeader = _currentPlayerHeader;
+            if (!string.Equals(sCurrentPlayerHeader, _currentPlayerHeaderUI))
+            {
+                grpCurrentPlayer.Text = sCurrentPlayerHeader;
+                _currentPlayerHeaderUI = sCurrentPlayerHeader;
+            }
             if (!string.Equals(sCurrentMobGroupText, sNewGroupMobText))
             {
                 grpMob.Text = sNewGroupMobText;
@@ -4213,7 +4245,7 @@ namespace IsengardClient
             {
                 flying = _spellsCast != null && _spellsCast.Contains("fly");
             }
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, TimeOutputSequence.IsDay(_time));
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, TimeOutputSequence.IsDay(_time), _level);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");

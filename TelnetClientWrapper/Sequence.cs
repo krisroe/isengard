@@ -445,14 +445,14 @@ namespace IsengardClient
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, List<SkillCooldown>, List<string>> _onSatisfied;
+        public Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string POWER_ATTACK_PREFIX = "(power) attack ";
         private const string MANASHIELD_PREFIX = "manashield ";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, List<SkillCooldown>, List<string>> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -461,13 +461,51 @@ namespace IsengardClient
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
+            int iLevel = 0;
             if (Lines.Count > 0)
             {
                 string sNextLine = Lines[0];
+                if (sNextLine.Length < 17) return;
                 if (!sNextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
+                if (!sNextLine.EndsWith(")"))
+                {
+                    return;
+                }
+                int iSpaceIndex = -1;
+                int iPlace = 1;
+                for (int i = sNextLine.Length - 2; i >= 0; i--)
+                {
+                    char cChar = sNextLine[i];
+                    if (cChar == ' ')
+                    {
+                        if (iLevel == 0)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            iSpaceIndex = i;
+                            break;
+                        }
+                    }
+                    else if (!char.IsDigit(cChar))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        iLevel += int.Parse(cChar.ToString()) * iPlace;
+                        iPlace *= 10;
+                    }
+                }
+                if (sNextLine[--iSpaceIndex] != 'l') return;
+                if (sNextLine[--iSpaceIndex] != 'v') return;
+                if (sNextLine[--iSpaceIndex] != 'l') return;
+                if (sNextLine[--iSpaceIndex] != '(') return;
+                if (sNextLine[--iSpaceIndex] != ' ') return;
 
                 int iNextIndex;
                 List<string> skillsRaw = StringProcessing.GetList(Lines, 1, SKILLS_PREFIX, false, out iNextIndex);
@@ -551,7 +589,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, cooldowns, spells);
+                _onSatisfied(flParams, iLevel, cooldowns, spells);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -1503,6 +1541,39 @@ namespace IsengardClient
         }
     }
 
+    public class FailMovementSequence : AOutputProcessingSequence
+    {
+        public Action<FeedLineParameters> _onSatisfied;
+
+        public FailMovementSequence(Action<FeedLineParameters> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public override void FeedLine(FeedLineParameters Parameters)
+        {
+            List<string> Lines = Parameters.Lines;
+            if (Lines.Count > 0)
+            {
+                string firstLine = Lines[0];
+                bool matches = false;
+                if (firstLine == "You can't go that way.")
+                    matches = true;
+                else if (firstLine == "That exit is closed for the night.")
+                    matches = true;
+                else if (firstLine.EndsWith(" blocks your exit."))
+                    matches = true;
+                else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
+                    matches = true;
+                if (matches)
+                {
+                    Parameters.FinishedProcessing = true;
+                    _onSatisfied(Parameters);
+                }
+            }
+        }
+    }
+
     public class InformationalMessagesSequence : AOutputProcessingSequence
     {
         public Action<List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
@@ -1570,6 +1641,7 @@ namespace IsengardClient
                          sLine == "The full moon shines across the land." ||
                          sLine == "A sliver of silver can be seen in the night sky." ||
                          sLine == "Thunderheads roll in from the east." ||
+                         sLine == "Half a moon lights the evening skies." ||
                          sLine == "A heavy fog blankets the earth." ||
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||

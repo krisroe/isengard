@@ -741,6 +741,10 @@ namespace IsengardClient
         [PluralName("half-elves")]
         HalfElf,
 
+        [SingularName("hippie")]
+        [PluralName("hippies")]
+        Hippie,
+
         [SingularName("hobbit")]
         [PluralName("hobbits")]
         Hobbit,
@@ -816,6 +820,10 @@ namespace IsengardClient
         [SingularName("mistress")]
         [PluralName("mistresses")]
         Mistress,
+
+        [SingularName("mosquito")]
+        [PluralName("mosquitos")] //CSRTODO: dictionary has plural as either mosquito or mosquitoes
+        Mosquito,
 
         [SingularName("Naugrim")]
         //CSRTODO: no plural
@@ -921,6 +929,10 @@ namespace IsengardClient
         //CSRTODO: no plural
         Tyrie,
 
+        [SingularName("ugly kid")]
+        [PluralName("ugly kids")]
+        UglyKid,
+
         [SingularName("vagrant")]
         [PluralName("vagrants")]
         Vagrant,
@@ -936,6 +948,10 @@ namespace IsengardClient
         [SingularName("warrior bard")]
         [PluralName("warrior bards")]
         WarriorBard,
+
+        [SingularName("water turtle")]
+        [PluralName("water turtles")]
+        WaterTurtle,
 
         [SingularName("wolf")]
         [PluralName("wolves")]
@@ -1040,6 +1056,10 @@ namespace IsengardClient
         [PluralName("lollipops")]
         Lollipop,
 
+        [SingularName("marble chess set")]
+        [PluralName("marble chess sets")]
+        MarbleChessSet,
+
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
         MithronHelmet,
@@ -1051,6 +1071,10 @@ namespace IsengardClient
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
         MOMTattoo,
+
+        [SingularName("out of order sign")]
+        [PluralName("out of order signs")]
+        OutOfOrderSign,
 
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
@@ -1083,6 +1107,10 @@ namespace IsengardClient
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
         SilverScimitar,
+
+        [SingularName("sling")]
+        [PluralName("slings")]
+        Sling,
 
         [SingularName("small bag")]
         [PluralName("small bags")]

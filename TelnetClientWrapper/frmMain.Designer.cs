@@ -136,8 +136,6 @@
             this.pnlAncillary = new System.Windows.Forms.Panel();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
             this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
-            this.lblLevel = new System.Windows.Forms.Label();
-            this.txtLevel = new System.Windows.Forms.TextBox();
             this.tabEmotes = new System.Windows.Forms.TabPage();
             this.pnlEmotes = new System.Windows.Forms.Panel();
             this.btnSay = new System.Windows.Forms.Button();
@@ -169,6 +167,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.pnlTabControl = new System.Windows.Forms.Panel();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -198,6 +197,7 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
+            this.pnlTabControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -807,7 +807,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1029, 930);
+            this.tcMain.Size = new System.Drawing.Size(1029, 905);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -818,7 +818,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(1021, 904);
+            this.tabMain.Size = new System.Drawing.Size(1021, 879);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -876,7 +876,6 @@
             this.pnlMain.Controls.Add(this.txtWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkGreen);
             this.pnlMain.Controls.Add(this.lblWeapon);
-            this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMain.Location = new System.Drawing.Point(2, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(2);
             this.pnlMain.Name = "pnlMain";
@@ -1367,7 +1366,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(1021, 904);
+            this.tabAncillary.Size = new System.Drawing.Size(1021, 879);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1376,8 +1375,6 @@
             // 
             this.pnlAncillary.Controls.Add(this.lblPreferredAlignment);
             this.pnlAncillary.Controls.Add(this.txtPreferredAlignment);
-            this.pnlAncillary.Controls.Add(this.lblLevel);
-            this.pnlAncillary.Controls.Add(this.txtLevel);
             this.pnlAncillary.Controls.Add(this.txtSetValue);
             this.pnlAncillary.Controls.Add(this.btnSet);
             this.pnlAncillary.Controls.Add(this.cboSetOption);
@@ -1386,13 +1383,13 @@
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1017, 900);
+            this.pnlAncillary.Size = new System.Drawing.Size(1017, 875);
             this.pnlAncillary.TabIndex = 0;
             // 
             // lblPreferredAlignment
             // 
             this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(782, 50);
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(778, 19);
             this.lblPreferredAlignment.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
             this.lblPreferredAlignment.Size = new System.Drawing.Size(77, 13);
@@ -1403,31 +1400,11 @@
             // txtPreferredAlignment
             // 
             this.txtPreferredAlignment.Enabled = false;
-            this.txtPreferredAlignment.Location = new System.Drawing.Point(872, 48);
+            this.txtPreferredAlignment.Location = new System.Drawing.Point(868, 17);
             this.txtPreferredAlignment.Margin = new System.Windows.Forms.Padding(2);
             this.txtPreferredAlignment.Name = "txtPreferredAlignment";
             this.txtPreferredAlignment.Size = new System.Drawing.Size(102, 20);
             this.txtPreferredAlignment.TabIndex = 93;
-            // 
-            // lblLevel
-            // 
-            this.lblLevel.AutoSize = true;
-            this.lblLevel.Location = new System.Drawing.Point(782, 21);
-            this.lblLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblLevel.Name = "lblLevel";
-            this.lblLevel.Size = new System.Drawing.Size(36, 13);
-            this.lblLevel.TabIndex = 90;
-            this.lblLevel.Text = "Level:";
-            this.lblLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtLevel
-            // 
-            this.txtLevel.Enabled = false;
-            this.txtLevel.Location = new System.Drawing.Point(872, 20);
-            this.txtLevel.Margin = new System.Windows.Forms.Padding(2);
-            this.txtLevel.Name = "txtLevel";
-            this.txtLevel.Size = new System.Drawing.Size(102, 20);
-            this.txtLevel.TabIndex = 91;
             // 
             // tabEmotes
             // 
@@ -1596,8 +1573,8 @@
             // 
             // scMain.Panel1
             // 
+            this.scMain.Panel1.Controls.Add(this.pnlTabControl);
             this.scMain.Panel1.Controls.Add(this.tsTopMenu);
-            this.scMain.Panel1.Controls.Add(this.tcMain);
             // 
             // scMain.Panel2
             // 
@@ -1773,6 +1750,15 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // pnlTabControl
+            // 
+            this.pnlTabControl.Controls.Add(this.tcMain);
+            this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
+            this.pnlTabControl.Name = "pnlTabControl";
+            this.pnlTabControl.Size = new System.Drawing.Size(1029, 905);
+            this.pnlTabControl.TabIndex = 81;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1825,6 +1811,7 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
+            this.pnlTabControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1900,8 +1887,6 @@
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.TextBox txtPreferredAlignment;
-        private System.Windows.Forms.Label lblLevel;
-        private System.Windows.Forms.TextBox txtLevel;
         private System.Windows.Forms.TextBox txtHitpoints;
         private System.Windows.Forms.Label lblHitpoints;
         private System.Windows.Forms.CheckBox chkAutoMana;
@@ -1970,6 +1955,7 @@
         private System.Windows.Forms.ToolStripButton tsbQuit;
         private System.Windows.Forms.GroupBox grpCurrentPlayer;
         private System.Windows.Forms.TextBox txtTime;
+        private System.Windows.Forms.Panel pnlTabControl;
     }
 }
 

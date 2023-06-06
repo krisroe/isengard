@@ -29,7 +29,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
+            LoadConfiguration(out string defaultRealm, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -42,13 +42,12 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(defaultRealm, level, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
+            Application.Run(new frmMain(defaultRealm, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
         }
 
-        private static void LoadConfiguration(out string defaultRealm, out int level, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
+        private static void LoadConfiguration(out string defaultRealm, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
         {
             defaultRealm = string.Empty;
-            level = 0;
             totalhp = 0;
             totalmp = 0;
             healtickmp = 0;
@@ -98,18 +97,6 @@ namespace IsengardClient
             }
 
             defaultWeapon = docElement.GetAttribute("defaultweapon");
-
-            string sLevel = docElement.GetAttribute("level");
-            if (string.IsNullOrEmpty(sLevel))
-            {
-                MessageBox.Show("No level specified");
-                level = 1;
-            }
-            else if (!int.TryParse(sLevel, out level))
-            {
-                MessageBox.Show("Invalid level specified: " + sLevel);
-                level = 1;
-            }
 
             string sTotalHP = docElement.GetAttribute("totalhp");
             if (string.IsNullOrEmpty(sTotalHP))
