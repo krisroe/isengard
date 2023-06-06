@@ -152,6 +152,7 @@
             this.flpHelp = new System.Windows.Forms.FlowLayoutPanel();
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.scMain = new System.Windows.Forms.SplitContainer();
+            this.pnlTabControl = new System.Windows.Forms.Panel();
             this.tsTopMenu = new System.Windows.Forms.ToolStrip();
             this.tsbInformation = new System.Windows.Forms.ToolStripButton();
             this.tsbInventory = new System.Windows.Forms.ToolStripButton();
@@ -167,7 +168,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.pnlTabControl = new System.Windows.Forms.Panel();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -192,12 +192,12 @@
             this.scMain.Panel1.SuspendLayout();
             this.scMain.Panel2.SuspendLayout();
             this.scMain.SuspendLayout();
+            this.pnlTabControl.SuspendLayout();
             this.tsTopMenu.SuspendLayout();
             this.grpConsole.SuspendLayout();
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
-            this.pnlTabControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -884,10 +884,11 @@
             // 
             // txtTime
             // 
+            this.txtTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtTime.Location = new System.Drawing.Point(610, 430);
             this.txtTime.Name = "txtTime";
             this.txtTime.ReadOnly = true;
-            this.txtTime.Size = new System.Drawing.Size(115, 20);
+            this.txtTime.Size = new System.Drawing.Size(115, 13);
             this.txtTime.TabIndex = 123;
             this.txtTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -905,24 +906,26 @@
             this.grpCurrentPlayer.Controls.Add(this.txtManashieldTime);
             this.grpCurrentPlayer.Location = new System.Drawing.Point(820, 579);
             this.grpCurrentPlayer.Name = "grpCurrentPlayer";
-            this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 154);
+            this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 139);
             this.grpCurrentPlayer.TabIndex = 122;
             this.grpCurrentPlayer.TabStop = false;
             this.grpCurrentPlayer.Text = "Current Player";
             // 
             // txtHitpoints
             // 
+            this.txtHitpoints.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtHitpoints.Location = new System.Drawing.Point(97, 18);
             this.txtHitpoints.Margin = new System.Windows.Forms.Padding(2);
             this.txtHitpoints.Name = "txtHitpoints";
             this.txtHitpoints.ReadOnly = true;
-            this.txtHitpoints.Size = new System.Drawing.Size(86, 20);
+            this.txtHitpoints.Size = new System.Drawing.Size(86, 13);
             this.txtHitpoints.TabIndex = 101;
+            this.txtHitpoints.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblMana
             // 
             this.lblMana.AutoSize = true;
-            this.lblMana.Location = new System.Drawing.Point(22, 45);
+            this.lblMana.Location = new System.Drawing.Point(36, 42);
             this.lblMana.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMana.Name = "lblMana";
             this.lblMana.Size = new System.Drawing.Size(37, 13);
@@ -932,17 +935,19 @@
             // 
             // txtMana
             // 
+            this.txtMana.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtMana.Location = new System.Drawing.Point(97, 42);
             this.txtMana.Margin = new System.Windows.Forms.Padding(2);
             this.txtMana.Name = "txtMana";
             this.txtMana.ReadOnly = true;
-            this.txtMana.Size = new System.Drawing.Size(86, 20);
+            this.txtMana.Size = new System.Drawing.Size(86, 13);
             this.txtMana.TabIndex = 95;
+            this.txtMana.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblHitpoints
             // 
             this.lblHitpoints.AutoSize = true;
-            this.lblHitpoints.Location = new System.Drawing.Point(22, 23);
+            this.lblHitpoints.Location = new System.Drawing.Point(36, 18);
             this.lblHitpoints.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblHitpoints.Name = "lblHitpoints";
             this.lblHitpoints.Size = new System.Drawing.Size(51, 13);
@@ -955,7 +960,7 @@
             this.chkAutoMana.AutoSize = true;
             this.chkAutoMana.Checked = true;
             this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoMana.Location = new System.Drawing.Point(20, 72);
+            this.chkAutoMana.Location = new System.Drawing.Point(9, 67);
             this.chkAutoMana.Margin = new System.Windows.Forms.Padding(2);
             this.chkAutoMana.Name = "chkAutoMana";
             this.chkAutoMana.Size = new System.Drawing.Size(78, 17);
@@ -965,7 +970,7 @@
             // 
             // btnManaSet
             // 
-            this.btnManaSet.Location = new System.Drawing.Point(97, 67);
+            this.btnManaSet.Location = new System.Drawing.Point(96, 62);
             this.btnManaSet.Margin = new System.Windows.Forms.Padding(2);
             this.btnManaSet.Name = "btnManaSet";
             this.btnManaSet.Size = new System.Drawing.Size(40, 24);
@@ -976,17 +981,19 @@
             // 
             // txtPowerAttackTime
             // 
-            this.txtPowerAttackTime.Location = new System.Drawing.Point(97, 96);
+            this.txtPowerAttackTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtPowerAttackTime.Location = new System.Drawing.Point(96, 91);
             this.txtPowerAttackTime.Margin = new System.Windows.Forms.Padding(2);
             this.txtPowerAttackTime.Name = "txtPowerAttackTime";
             this.txtPowerAttackTime.ReadOnly = true;
-            this.txtPowerAttackTime.Size = new System.Drawing.Size(86, 20);
+            this.txtPowerAttackTime.Size = new System.Drawing.Size(86, 13);
             this.txtPowerAttackTime.TabIndex = 105;
+            this.txtPowerAttackTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblPowerAttackCooldown
             // 
             this.lblPowerAttackCooldown.AutoSize = true;
-            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(7, 96);
+            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(6, 91);
             this.lblPowerAttackCooldown.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPowerAttackCooldown.Name = "lblPowerAttackCooldown";
             this.lblPowerAttackCooldown.Size = new System.Drawing.Size(90, 13);
@@ -997,7 +1004,7 @@
             // lblManashieldTime
             // 
             this.lblManashieldTime.AutoSize = true;
-            this.lblManashieldTime.Location = new System.Drawing.Point(7, 119);
+            this.lblManashieldTime.Location = new System.Drawing.Point(6, 114);
             this.lblManashieldTime.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblManashieldTime.Name = "lblManashieldTime";
             this.lblManashieldTime.Size = new System.Drawing.Size(80, 13);
@@ -1007,12 +1014,14 @@
             // 
             // txtManashieldTime
             // 
-            this.txtManashieldTime.Location = new System.Drawing.Point(97, 119);
+            this.txtManashieldTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtManashieldTime.Location = new System.Drawing.Point(96, 114);
             this.txtManashieldTime.Margin = new System.Windows.Forms.Padding(2);
             this.txtManashieldTime.Name = "txtManashieldTime";
             this.txtManashieldTime.ReadOnly = true;
-            this.txtManashieldTime.Size = new System.Drawing.Size(86, 20);
+            this.txtManashieldTime.Size = new System.Drawing.Size(86, 13);
             this.txtManashieldTime.TabIndex = 107;
+            this.txtManashieldTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // grpMessages
             // 
@@ -1039,9 +1048,9 @@
             this.grpMob.Controls.Add(this.lblMobStatus);
             this.grpMob.Controls.Add(this.txtMobDamage);
             this.grpMob.Controls.Add(this.lblMobDamage);
-            this.grpMob.Location = new System.Drawing.Point(820, 739);
+            this.grpMob.Location = new System.Drawing.Point(820, 724);
             this.grpMob.Name = "grpMob";
-            this.grpMob.Size = new System.Drawing.Size(188, 75);
+            this.grpMob.Size = new System.Drawing.Size(191, 75);
             this.grpMob.TabIndex = 120;
             this.grpMob.TabStop = false;
             this.grpMob.Text = "Mob";
@@ -1057,7 +1066,7 @@
             // lblMobStatus
             // 
             this.lblMobStatus.AutoSize = true;
-            this.lblMobStatus.Location = new System.Drawing.Point(17, 46);
+            this.lblMobStatus.Location = new System.Drawing.Point(36, 47);
             this.lblMobStatus.Name = "lblMobStatus";
             this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
             this.lblMobStatus.TabIndex = 2;
@@ -1074,7 +1083,7 @@
             // lblMobDamage
             // 
             this.lblMobDamage.AutoSize = true;
-            this.lblMobDamage.Location = new System.Drawing.Point(17, 22);
+            this.lblMobDamage.Location = new System.Drawing.Point(36, 22);
             this.lblMobDamage.Name = "lblMobDamage";
             this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
             this.lblMobDamage.TabIndex = 0;
@@ -1412,7 +1421,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 22);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1021, 904);
+            this.tabEmotes.Size = new System.Drawing.Size(1021, 879);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1431,7 +1440,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1021, 904);
+            this.pnlEmotes.Size = new System.Drawing.Size(1021, 879);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1511,7 +1520,7 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, 57);
+            this.grpEmotes.Location = new System.Drawing.Point(0, 32);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
@@ -1534,7 +1543,7 @@
             this.tabHelp.Controls.Add(this.grpHelp);
             this.tabHelp.Location = new System.Drawing.Point(4, 22);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1021, 904);
+            this.tabHelp.Size = new System.Drawing.Size(1021, 879);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1545,7 +1554,7 @@
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(1021, 904);
+            this.grpHelp.Size = new System.Drawing.Size(1021, 879);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1555,7 +1564,7 @@
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpHelp.Location = new System.Drawing.Point(3, 16);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1015, 885);
+            this.flpHelp.Size = new System.Drawing.Size(1015, 860);
             this.flpHelp.TabIndex = 0;
             // 
             // tmr
@@ -1583,6 +1592,15 @@
             this.scMain.SplitterDistance = 1029;
             this.scMain.SplitterWidth = 3;
             this.scMain.TabIndex = 81;
+            // 
+            // pnlTabControl
+            // 
+            this.pnlTabControl.Controls.Add(this.tcMain);
+            this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
+            this.pnlTabControl.Name = "pnlTabControl";
+            this.pnlTabControl.Size = new System.Drawing.Size(1029, 905);
+            this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
             // 
@@ -1750,15 +1768,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // pnlTabControl
-            // 
-            this.pnlTabControl.Controls.Add(this.tcMain);
-            this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
-            this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1029, 905);
-            this.pnlTabControl.TabIndex = 81;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1804,6 +1813,7 @@
             this.scMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).EndInit();
             this.scMain.ResumeLayout(false);
+            this.pnlTabControl.ResumeLayout(false);
             this.tsTopMenu.ResumeLayout(false);
             this.tsTopMenu.PerformLayout();
             this.grpConsole.ResumeLayout(false);
@@ -1811,7 +1821,6 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
-            this.pnlTabControl.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
