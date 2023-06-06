@@ -1689,11 +1689,8 @@ namespace IsengardClient
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
-                         sLine == "A strong wind blows across the land.")
-                {
-                    im = InformationalMessages.IncrementHour;
-                }
-                else if (sLine == "Player saved." ||
+                         sLine == "A strong wind blows across the land." ||
+                         sLine == "Player saved." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
                     //These lines are ignored
@@ -1761,11 +1758,6 @@ namespace IsengardClient
                     else if (im.HasValue)
                     {
                         InformationalMessages imVal = im.Value;
-                        if (imVal == InformationalMessages.IncrementHour)
-                        {
-                            removeLine = true;
-                        }
-                        
                         if (messages == null)
                             messages = new List<InformationalMessages>();
                         messages.Add(imVal);
@@ -1940,8 +1932,7 @@ namespace IsengardClient
         BullroarerInMithlond,
         BullroarerInNindamos,
         BlessOver,
-        ProtectionOver,
-        IncrementHour,
+        ProtectionOver
     }
 
     public enum SkillWithCooldownType

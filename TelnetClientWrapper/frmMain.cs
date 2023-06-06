@@ -27,8 +27,13 @@ namespace IsengardClient
         private string _weapon;
         private string _wand;
 
+        private const int SECONDS_PER_GAME_HOUR = 150;
+        private const int SUNRISE_GAME_HOUR = 6;
+        private const int SUNSET_GAME_HOUR = 20;
         private int _time = -1; //time from 0 (midnight) to 23 (11 PM)
+        private DateTime _timeLastUpdatedUTC = DateTime.MinValue;
         private int _timeUI = -1;
+        private object _timeLock = new object();
         private string _hp = null;
         private string _hpUI = null;
         private Color _hpColor = Color.Transparent;
@@ -773,7 +778,11 @@ namespace IsengardClient
             _initializationLoginSequence.Active = true;
             _loginInfo = null;
             _players = null;
-            _time = -1;
+            lock (_timeLock)
+            {
+                _time = -1;
+                _timeLastUpdatedUTC = DateTime.MinValue;
+            }
             _timeUI = -1;
             _hp = null;
             _hpUI = null;
@@ -913,8 +922,11 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Time) == InitializationStep.None;
 
-            _time = hour;
-
+            lock (_timeLock)
+            {
+                _time = hour;
+                _timeLastUpdatedUTC = DateTime.UtcNow;
+            }
             if (forInit)
             {
                 currentStep |= InitializationStep.Time;
@@ -1272,16 +1284,12 @@ namespace IsengardClient
                     switch (nextMessage)
                     {
                         case InformationalMessages.DayStart:
-                            _time = 6;
+                            _time = SUNRISE_GAME_HOUR;
+                            _timeLastUpdatedUTC = DateTime.UtcNow;
                             break;
                         case InformationalMessages.NightStart:
-                            _time = 20;
-                            break;
-                        case InformationalMessages.IncrementHour:
-                            int iTime = _time;
-                            iTime++;
-                            if (iTime == 24) iTime = 0;
-                            _time = iTime;
+                            _time = SUNSET_GAME_HOUR;
+                            _timeLastUpdatedUTC = DateTime.UtcNow;
                             break;
                         case InformationalMessages.BlessOver:
                             if (spellsOff == null) spellsOff = new List<string>();
@@ -3704,11 +3712,24 @@ namespace IsengardClient
             if ((initStep & InitializationStep.Time) != InitializationStep.None)
             {
                 int iTime = _time;
+                lock (_timeLock) //auto-advance the hour if an hour's worth of game time has elapsed
+                {
+                    DateTime dtTimeLastUpdatedUTC = _timeLastUpdatedUTC;
+                    if ((DateTime.UtcNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
+                    {
+                        if (iTime == 23)
+                            iTime = 0;
+                        else
+                            iTime++;
+                        _time = iTime;
+                        _timeLastUpdatedUTC = dtTimeLastUpdatedUTC.AddSeconds(SECONDS_PER_GAME_HOUR);
+                    }
+                }
                 if (iTime != _timeUI)
                 {
                     _timeUI = iTime;
                     Color backColor, foreColor;
-                    if (_time >= 6 && _time < 20) //day
+                    if (_time >= SUNRISE_GAME_HOUR && _time < SUNSET_GAME_HOUR) //day
                     {
                         backColor = Color.White;
                         foreColor = Color.Black;
