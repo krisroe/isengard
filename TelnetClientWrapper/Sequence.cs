@@ -24,9 +24,14 @@ namespace IsengardClient
         Goodbye,
     }
 
-    internal interface IOutputProcessingSequence
+    public abstract class AOutputProcessingSequence
     {
-        void FeedLine(FeedLineParameters Parameters);
+        public virtual bool IsActive()
+        {
+            return true;
+        }
+
+        public abstract void FeedLine(FeedLineParameters Parameters);
     }
 
     public class FeedLineParameters
@@ -66,7 +71,7 @@ namespace IsengardClient
         }
     }
 
-    public class ConstantOutputSequence : IOutputProcessingSequence
+    public class ConstantOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters> _onSatisfied;
         private string _characters;
@@ -97,7 +102,7 @@ namespace IsengardClient
             _backgroundCommandTypes = backgroundCommandTypes;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -328,17 +333,17 @@ namespace IsengardClient
         }
     }
 
-    public class TimeOutputSequence : IOutputProcessingSequence
+    public class TimeOutputSequence : AOutputProcessingSequence
     {
-        private Action<FeedLineParameters, bool> _onSatisfied;
+        private Action<FeedLineParameters, int> _onSatisfied;
         private const string PREFIX = "Game-Time: ";
 
-        public TimeOutputSequence(Action<FeedLineParameters, bool> onSatisfied)
+        public TimeOutputSequence(Action<FeedLineParameters, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0)
@@ -406,16 +411,22 @@ namespace IsengardClient
                     default:
                         return;
                 }
-                bool isNight;
+                int iNight;
                 if (dayHalf == DayHalf.AM)
                 {
-                    isNight = iNumber == 12 || iNumber <= 5;
+                    if (iNumber == 12)
+                        iNight = 0;
+                    else
+                        iNight = iNumber;
                 }
                 else //PM
                 {
-                    isNight = iNumber != 12 && iNumber >= 8;
+                    if (iNumber == 12)
+                        iNight = 12;
+                    else
+                        iNight = 12 + iNumber;
                 }
-                _onSatisfied(flParams, isNight);
+                _onSatisfied(flParams, iNight);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -425,9 +436,14 @@ namespace IsengardClient
             AM,
             PM,
         }
+
+        public static bool IsDay(int hour)
+        {
+            return hour >= 6 && hour < 20;
+        }
     }
 
-    public class ScoreOutputSequence : IOutputProcessingSequence
+    public class ScoreOutputSequence : AOutputProcessingSequence
     {
         public Action<FeedLineParameters, List<SkillCooldown>, List<string>> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
@@ -442,7 +458,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0)
@@ -541,7 +557,7 @@ namespace IsengardClient
         }
     }
 
-    public class RemoveEquipmentSequence : IOutputProcessingSequence
+    public class RemoveEquipmentSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters> _onSatisfied;
         public RemoveEquipmentSequence(Action<FeedLineParameters> onSatisfied)
@@ -549,7 +565,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0)
@@ -564,7 +580,7 @@ namespace IsengardClient
         }
     }
 
-    public class WhoOutputSequence : IOutputProcessingSequence
+    public class WhoOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, HashSet<string>> _onSatisfied;
         public WhoOutputSequence(Action<FeedLineParameters, HashSet<string>> onSatisfied)
@@ -572,7 +588,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             int index = 0;
@@ -669,16 +685,23 @@ namespace IsengardClient
         public List<string> ErrorMessages { get; set; }
     }
 
-    internal class InitialLoginSequence : IOutputProcessingSequence
+    internal class InitialLoginSequence : AOutputProcessingSequence
     {
         public Action<InitialLoginInfo> _onSatisfied;
+        public bool Active { get; set; }
 
         public InitialLoginSequence(Action<InitialLoginInfo> onSatisfied)
         {
             _onSatisfied = onSatisfied;
+            this.Active = true;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override bool IsActive()
+        {
+            return this.Active;
+        }
+
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> lines = flParams.Lines;
             bool foundLoggedInBroadcast = false;
@@ -711,14 +734,14 @@ namespace IsengardClient
         }
     }
 
-    public class RoomTransitionSequence : IOutputProcessingSequence
+    public class RoomTransitionSequence : AOutputProcessingSequence
     {
         private Action<RoomTransitionInfo> _onSatisfied;
         public RoomTransitionSequence(Action<RoomTransitionInfo> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             RoomTransitionType rtType = RoomTransitionType.Move;
@@ -830,7 +853,7 @@ namespace IsengardClient
 
             if (roomList3 != null) //this is known to be the item list
             {
-                LoadItems(items, roomList3, errorMessages);
+                LoadItems(items, roomList3, errorMessages, EntityTypeFlags.Item);
             }
             if (roomList2 != null)
             {
@@ -851,11 +874,11 @@ namespace IsengardClient
                     EntityType foundTypeValue = foundType.Value;
                     if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList2, errorMessages);
+                        LoadMobs(mobs, roomList2, errorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList2, errorMessages);
+                        LoadItems(items, roomList2, errorMessages, EntityTypeFlags.Item);
                     }
                     else
                     {
@@ -904,21 +927,7 @@ namespace IsengardClient
                         foundType = eType;
                         break;
                     }
-                    int index = 0;
-                    foreach (char c in next)
-                    {
-                        bool ok;
-                        if (index == 0)
-                            ok = char.IsUpper(c);
-                        else
-                            ok = char.IsLower(c);
-                        if (!ok)
-                        {
-                            canBePlayers = false;
-                            break;
-                        }
-                    }
-                    if (!playerNames.Contains(next))
+                    if (canBePlayers && !PlayerEntity.IsValidPlayerName(next))
                     {
                         canBePlayers = false;
                     }
@@ -928,15 +937,15 @@ namespace IsengardClient
                     EntityType foundTypeValue = foundType.Value;
                     if (foundTypeValue == EntityType.Player)
                     {
-                        LoadPlayers(players, roomList1, errorMessages, playerNames);
+                        LoadPlayers(players, roomList1, errorMessages, playerNames, EntityTypeFlags.Player);
                     }
                     else if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList1, errorMessages);
+                        LoadMobs(mobs, roomList1, errorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList1, errorMessages);
+                        LoadItems(items, roomList1, errorMessages, EntityTypeFlags.Item);
                     }
                     else
                     {
@@ -945,15 +954,19 @@ namespace IsengardClient
                 }
                 else if (canBePlayers) //presumably players
                 {
-                    LoadPlayers(players, roomList1, errorMessages, playerNames);
-                }
-                else if (mobs.Count == 0)
-                {
-                    LoadMobs(mobs, roomList1, errorMessages);
+                    LoadPlayers(players, roomList1, errorMessages, playerNames, possibleTypes);
                 }
                 else
                 {
-                    LoadItems(items, roomList1, errorMessages);
+                    possibleTypes &= ~EntityTypeFlags.Player;
+                    if (mobs.Count == 0)
+                    {
+                        LoadMobs(mobs, roomList1, errorMessages, possibleTypes);
+                    }
+                    else
+                    {
+                        LoadItems(items, roomList1, errorMessages, possibleTypes);
+                    }
                 }
             }
 
@@ -1017,11 +1030,11 @@ namespace IsengardClient
             return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType);
         }
 
-        private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages)
+        private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in itemNames)
             {
-                Entity e = Entity.GetEntity(next, EntityTypeFlags.Item, errorMessages, null);
+                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null);
                 if (e != null)
                 {
                     if (e is ItemEntity)
@@ -1030,16 +1043,23 @@ namespace IsengardClient
                     }
                     else
                     {
-                        errorMessages.Add("Nonitem found in item list: " + next);
+                        if (possibleEntityTypes == EntityTypeFlags.Item)
+                        {
+                            errorMessages.Add("Nonitem found in item list: " + next);
+                        }
+                        else
+                        {
+                            errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
+                        }
                     }
                 }
             }
         }
-        private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages)
+        private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in mobNames)
             {
-                Entity e = Entity.GetEntity(next, EntityTypeFlags.Mob, errorMessages, null);
+                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null);
                 if (e != null)
                 {
                     if (e is MobEntity)
@@ -1048,23 +1068,26 @@ namespace IsengardClient
                     }
                     else
                     {
-                        errorMessages.Add("Nonmob found in mob list: " + next);
+                        if (possibleEntityTypes == EntityTypeFlags.Mob)
+                        {
+                            errorMessages.Add("Nonmob found in mob list: " + next);
+                        }
+                        else
+                        {
+                            errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
+                        }
                     }
                 }
             }
         }
 
-        private static void LoadPlayers(List<PlayerEntity> players, List<string> currentPlayerNames, List<string> errorMessages, HashSet<string> allPlayerNames)
+        private static void LoadPlayers(List<PlayerEntity> players, List<string> currentPlayerNames, List<string> errorMessages, HashSet<string> allPlayerNames, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in currentPlayerNames)
             {
-                PlayerEntity pEntity = (PlayerEntity)Entity.GetEntity(next, EntityTypeFlags.Player, errorMessages, allPlayerNames);
+                PlayerEntity pEntity = (PlayerEntity)Entity.GetEntity(next, possibleEntityTypes, errorMessages, allPlayerNames);
                 if (pEntity != null)
                 {
-                    if (pEntity.Name.Contains(" "))
-                    {
-                        errorMessages.Add("Unexpected player name: " + next);
-                    }
                     players.Add(pEntity);
                 }
                 else
@@ -1075,14 +1098,14 @@ namespace IsengardClient
         }
     }
 
-    public class CastOffensiveSpellSequence : IOutputProcessingSequence
+    public class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
         public Action<int, FeedLineParameters> _onSatisfied;
         public CastOffensiveSpellSequence(Action<int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -1121,14 +1144,14 @@ namespace IsengardClient
         }
     }
 
-    public class AttackSequence : IOutputProcessingSequence
+    public class AttackSequence : AOutputProcessingSequence
     {
         public Action<bool, int, FeedLineParameters> _onSatisfied;
         public AttackSequence(Action<bool, int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -1234,7 +1257,7 @@ namespace IsengardClient
         }
     }
 
-    internal class MobStatusSequence : IOutputProcessingSequence
+    internal class MobStatusSequence : AOutputProcessingSequence
     {
         private Action<MonsterStatus, FeedLineParameters> _onSatisfied;
 
@@ -1243,7 +1266,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
@@ -1316,7 +1339,7 @@ namespace IsengardClient
         }
     }
 
-    public class PleaseWaitSequence : IOutputProcessingSequence
+    public class PleaseWaitSequence : AOutputProcessingSequence
     {
         private const string PLEASE_WAIT_PREFIX = "Please wait ";
         private const string ENDS_WITH_MINUTES_SUFFIX = " minutes.";
@@ -1340,7 +1363,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -1441,7 +1464,7 @@ namespace IsengardClient
         }
     }
 
-    public class SuccessfulSearchSequence : IOutputProcessingSequence
+    public class SuccessfulSearchSequence : AOutputProcessingSequence
     {
         private const string YOU_FIND_A_HIDDEN_EXIT = "You find a hidden exit: ";
         private Action<List<string>, FeedLineParameters> _onSatisfied;
@@ -1449,7 +1472,7 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public void FeedLine(FeedLineParameters flParams)
+        public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -1480,7 +1503,7 @@ namespace IsengardClient
         }
     }
 
-    public class InformationalMessagesSequence : IOutputProcessingSequence
+    public class InformationalMessagesSequence : AOutputProcessingSequence
     {
         public Action<List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
 
@@ -1489,7 +1512,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public void FeedLine(FeedLineParameters Parameters)
+        public override void FeedLine(FeedLineParameters Parameters)
         {
             List<InformationalMessages> messages = null;
             List<string> broadcastMessages = null;
@@ -1551,11 +1574,14 @@ namespace IsengardClient
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
-                         sLine == "A strong wind blows across the land." ||
-                         sLine == "Player saved." ||
+                         sLine == "A strong wind blows across the land.")
+                {
+                    im = InformationalMessages.IncrementHour;
+                }
+                else if (sLine == "Player saved." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
-                    //These lines will be removed.
+                    //These lines are ignored
                 }
                 else if (sLine.StartsWith("###"))
                 {
@@ -1794,6 +1820,7 @@ namespace IsengardClient
         BullroarerInNindamos,
         BlessOver,
         ProtectionOver,
+        IncrementHour,
     }
 
     public enum SkillWithCooldownType

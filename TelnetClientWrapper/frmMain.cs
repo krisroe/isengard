@@ -27,7 +27,8 @@ namespace IsengardClient
         private string _weapon;
         private string _wand;
 
-        private bool _isNight;
+        private int _time = -1; //time from 0 (midnight) to 23 (11 PM)
+        private int _timeUI = -1;
 
         private InitializationStep _initializationSteps;
         private InitialLoginInfo _loginInfo;
@@ -47,6 +48,11 @@ namespace IsengardClient
         private object _spellsLock = new object();
         private List<string> _spellsCast = new List<string>();
         private bool _refreshSpellsCast = false;
+
+        /// <summary>
+        /// current list of players. This list is not necessarily accurate since invisible players
+        /// are hidden from the who output when you cannot detect them.
+        /// </summary>
         private HashSet<string> _players = null;
 
         private object _skillsLock = new object();
@@ -75,6 +81,7 @@ namespace IsengardClient
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
         private PleaseWaitSequence _pleaseWaitSequence;
+        private InitialLoginSequence _initializationLoginSequence;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -121,6 +128,7 @@ namespace IsengardClient
             InitializeComponent();
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
+            _initializationLoginSequence = new InitialLoginSequence(OnInitialLogin);
 
             SetButtonTags();
 
@@ -725,8 +733,11 @@ namespace IsengardClient
         private void DoConnect()
         {
             _initializationSteps = InitializationStep.None;
+            _initializationLoginSequence.Active = true;
             _loginInfo = null;
             _players = null;
+            _time = -1;
+            _timeUI = -1;
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -838,12 +849,12 @@ namespace IsengardClient
             }
         }
 
-        private void OnTime(FeedLineParameters flParams, bool isNight)
+        private void OnTime(FeedLineParameters flParams, int hour)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Time) == InitializationStep.None;
 
-            _isNight = isNight;
+            _time = hour;
 
             if (forInit)
             {
@@ -888,6 +899,7 @@ namespace IsengardClient
 
         private void OnInitialLogin(InitialLoginInfo initialLoginInfo)
         {
+            _initializationLoginSequence.Active = false;
             SendCommand("score", InputEchoType.Off);
             SendCommand("who", InputEchoType.Off);
             SendCommand("remove all", InputEchoType.Off);
@@ -1201,10 +1213,16 @@ namespace IsengardClient
                     switch (nextMessage)
                     {
                         case InformationalMessages.DayStart:
-                            _isNight = false;
+                            _time = 6;
                             break;
                         case InformationalMessages.NightStart:
-                            _isNight = true;
+                            _time = 20;
+                            break;
+                        case InformationalMessages.IncrementHour:
+                            int iTime = _time;
+                            iTime++;
+                            if (iTime == 24) iTime = 0;
+                            _time = iTime;
                             break;
                         case InformationalMessages.BlessOver:
                             if (spellsOff == null) spellsOff = new List<string>();
@@ -1247,18 +1265,13 @@ namespace IsengardClient
                     _broadcastMessages.AddRange(broadcasts);
                 }
             }
+            //add/remove players logging in or out
+            //don't worry if the list doesn't match up since the player list isn't necessarily accurate
             if (addedPlayers != null)
             {
                 foreach (string s in addedPlayers)
                 {
-                    if (_players.Contains(s))
-                    {
-                        lock (_broadcastMessagesLock)
-                        {
-                            _broadcastMessages.Add("Player unexpectedly present: " + s);
-                        }
-                    }
-                    else
+                    if (!_players.Contains(s))
                     {
                         _players.Add(s);
                     }
@@ -1271,13 +1284,6 @@ namespace IsengardClient
                     if (_players.Contains(s))
                     {
                         _players.Remove(s);
-                    }
-                    else
-                    {
-                        lock (_broadcastMessagesLock)
-                        {
-                            _broadcastMessages.Add("Player unexpectedly missing: " + s);
-                        }
                     }
                 }
             }
@@ -1296,7 +1302,7 @@ namespace IsengardClient
                 new ConstantOutputItemSequence(OutputItemSequenceType.Goodbye, "Goodbye!", _asciiMapping),
                 new HPMPSequence(),
             };
-            List<IOutputProcessingSequence> seqs = GetProcessingSequences();
+            List<AOutputProcessingSequence> seqs = GetProcessingSequences();
             while (true)
             {
                 int nextByte = _tcpClientNetworkStream.ReadByte();
@@ -1371,16 +1377,19 @@ namespace IsengardClient
                             CommandResult? previousCommandResult = _commandResult;
                             try
                             {
-                                foreach (IOutputProcessingSequence nextProcessingSequence in seqs)
+                                foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
                                 {
-                                    nextProcessingSequence.FeedLine(flParams);
-                                    if (flParams.SuppressEcho && !_verboseMode)
+                                    if (nextProcessingSequence.IsActive())
                                     {
-                                        echoType = InputEchoType.Off;
-                                    }
-                                    if (flParams.FinishedProcessing)
-                                    {
-                                        break;
+                                        nextProcessingSequence.FeedLine(flParams);
+                                        if (flParams.SuppressEcho && !_verboseMode)
+                                        {
+                                            echoType = InputEchoType.Off;
+                                        }
+                                        if (flParams.FinishedProcessing)
+                                        {
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -1430,11 +1439,11 @@ namespace IsengardClient
             }
         }
 
-        private List<IOutputProcessingSequence> GetProcessingSequences()
+        private List<AOutputProcessingSequence> GetProcessingSequences()
         {
-            List<IOutputProcessingSequence> seqs = new List<IOutputProcessingSequence>
+            List<AOutputProcessingSequence> seqs = new List<AOutputProcessingSequence>
             {
-                new InitialLoginSequence(OnInitialLogin),
+                _initializationLoginSequence,
                 new InformationalMessagesSequence(OnInformationalMessages),
                 new ScoreOutputSequence(_username, OnScore),
                 new WhoOutputSequence(OnWho),
@@ -2912,9 +2921,9 @@ namespace IsengardClient
                     }
                     else if (ctl is TextBox)
                     {
-                        regularLogic = true;
+                        regularLogic = !((TextBox)ctl).ReadOnly;
                     }
-                    else if (ctl != grpLocations && ctl != grpConsole && ctl != chkIsNight)
+                    else if (ctl != grpLocations && ctl != grpConsole)
                     {
                         regularLogic = true;
                     }
@@ -3337,11 +3346,6 @@ namespace IsengardClient
             public bool Foreground { get; set; }
         }
 
-        private void chkIsNight_CheckedChanged(object sender, EventArgs e)
-        {
-            _isNight = chkIsNight.Checked;
-        }
-
         private void btnAbort_Click(object sender, EventArgs e)
         {
             _currentBackgroundParameters.Cancelled = true;
@@ -3640,9 +3644,24 @@ namespace IsengardClient
             }
             if ((initStep & InitializationStep.Time) != InitializationStep.None)
             {
-                if (chkIsNight.Checked != _isNight)
+                int iTime = _time;
+                if (iTime != _timeUI)
                 {
-                    chkIsNight.Checked = _isNight;
+                    _timeUI = iTime;
+                    Color backColor, foreColor;
+                    if (_time >= 6 && _time < 20) //day
+                    {
+                        backColor = Color.White;
+                        foreColor = Color.Black;
+                    }
+                    else //night
+                    {
+                        backColor = Color.Black;
+                        foreColor = Color.White;
+                    }
+                    txtTime.BackColor = backColor;
+                    txtTime.ForeColor = foreColor;
+                    txtTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
                 }
             }
             if (autohpforthistick.HasValue && autompforthistick.HasValue && autohpforthistick.Value == _totalhp && autompforthistick.Value == _totalmp &&
@@ -4194,7 +4213,7 @@ namespace IsengardClient
             {
                 flying = _spellsCast != null && _spellsCast.Contains("fly");
             }
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, !_isNight);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, TimeOutputSequence.IsDay(_time));
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");

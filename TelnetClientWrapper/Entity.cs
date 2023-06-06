@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 namespace IsengardClient
 {
     public class Entity
@@ -518,6 +517,37 @@ namespace IsengardClient
             this.Count = 1;
             this.SetCount = 1;
         }
+
+        /// <summary>
+        /// checks if a player name is valid.
+        /// Player names always start with an uppercase letter and the remainder
+        /// of the letters are lowercase
+        /// </summary>
+        /// <param name="input">input player name</param>
+        /// <returns>true if the player name is valid, false otherwise</returns>
+        public static bool IsValidPlayerName(string input)
+        {
+            bool ret = false;
+            if (!string.IsNullOrEmpty(input))
+            {
+                ret = true;
+                int index = 0;
+                foreach (char c in input)
+                {
+                    bool ok;
+                    if (index == 0)
+                        ok = char.IsUpper(c);
+                    else
+                        ok = char.IsLower(c);
+                    if (!ok)
+                    {
+                        ret = false;
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
     }
 
     public class UnknownMobEntity : MobEntity
@@ -969,6 +999,10 @@ namespace IsengardClient
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         DarkGreenPotion,
+
+        [SingularName("engagement ring")]
+        [PluralName("engagement rings")]
+        EngagementRing,
 
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
