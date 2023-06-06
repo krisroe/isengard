@@ -603,6 +603,10 @@ namespace IsengardClient
         [PluralName("books of knowledge")]
         BookOfKnowledge,
 
+        [SingularName("dancing bear")]
+        [PluralName("dancing bears")]
+        DancingBear,
+
         [SingularName("Denethore the Wise")]
         //CSRTODO: no plural?
         DenethoreTheWise,
@@ -626,6 +630,10 @@ namespace IsengardClient
         [SingularName("Eugene the Executioner")]
         //CSRTODO: no plural?
         EugeneTheExecutioner,
+
+        [SingularName("Faornil the Seer")]
+        //CSRTODO: no plural?
+        FaornilTheSeer,
 
         [SingularName("field laborer")]
         [PluralName("field laborers")]
@@ -675,6 +683,10 @@ namespace IsengardClient
         [PluralName("guildmasters")]
         Guildmaster,
 
+        [SingularName("Guildmaster Ansette")]
+        //CSRTODO: no plural?
+        GuildmasterAnsette,
+
         [SingularName("gypsy-bard")]
         [PluralName("gypsy-bards")]
         GypsyBard,
@@ -710,6 +722,14 @@ namespace IsengardClient
         [SingularName("hobbit mother")]
         [PluralName("hobbit mothers")]
         HobbitMother,
+
+        [SingularName("Hogoth")]
+        //CSRTODO: no plural?
+        Hogoth,
+
+        [SingularName("hound dog")]
+        [PluralName("hound dogs")]
+        HoundDog,
 
         [SingularName("hunchback servant")]
         [PluralName("hunchback servants")]
@@ -763,6 +783,14 @@ namespace IsengardClient
         //CSRTODO: no plural
         MasterJeweler,
 
+        [SingularName("mistress")]
+        [PluralName("mistresses")]
+        Mistress,
+
+        [SingularName("Naugrim")]
+        //CSRTODO: no plural
+        Naugrim,
+
         [SingularName("nobleman")]
         [PluralName("noblemen")]
         Nobleman,
@@ -782,6 +810,14 @@ namespace IsengardClient
         [SingularName("pixie")]
         [PluralName("pixies")]
         Pixie,
+
+        [SingularName("Prince Brunden")]
+        //CSRTODO: no plural?
+        PrinceBrunden,
+
+        [SingularName("Prucilla the Groupie")]
+        //CSRTODO: no plural?
+        PrucillaTheGroupie,
 
         [SingularName("rabbit")]
         [PluralName("rabbits")]
@@ -835,6 +871,10 @@ namespace IsengardClient
         //CSRTODO: no plural?
         TheTownCrier,
 
+        [SingularName("thief")]
+        [PluralName("thiefs")]
+        Thief,
+
         [SingularName("tourist")]
         [PluralName("tourists")]
         Tourist,
@@ -878,6 +918,30 @@ namespace IsengardClient
 
     public enum ItemTypeEnum
     {
+        [SingularName("adamantine scale mail gloves")]
+        //CSRTODO: plural
+        AdamantineScaleMailGloves,
+
+        [SingularName("adamantine scale mail leggings")]
+        //CSRTODO: plural
+        AdamantineScaleMailLeggings,
+
+        [SingularName("adamantine scale mail sleeves")]
+        //CSRTODO: plural
+        AdamantineScaleMailSleeves,
+
+        [SingularName("aquamarine potion")]
+        [PluralName("aquamarine potions")]
+        AquamarinePotion,
+
+        [SingularName("blue bubbly potion")]
+        [PluralName("blue bubbly potions")]
+        BlueBubblyPotion,
+
+        [SingularName("bone armor")]
+        //CSRTODO: plural
+        BoneArmor,
+
         [SingularName("broad sword")]
         [PluralName("broad swords")]
         BroadSword,
@@ -902,13 +966,29 @@ namespace IsengardClient
         [PluralName("daggers")]
         Dagger,
 
+        [SingularName("dark green potion")]
+        [PluralName("dark green potions")]
+        DarkGreenPotion,
+
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
         GateWarning,
 
+        [SingularName("gawdy ear hoop")]
+        [PluralName("gawdy ear hoops")]
+        GawdyEarHoop,
+
+        [SingularName("glitter")]
+        //CSRTODO: glitter (does not use some)
+        Glitter,
+
         [SingularName("gold coins")]
         [PluralName("gold coins")]
         GoldCoin,
+
+        [SingularName("green potion")]
+        [PluralName("green potions")]
+        GreenPotion,
 
         [SingularName("hardwood shield")]
         [PluralName("hardwood shields")]
@@ -918,17 +998,53 @@ namespace IsengardClient
         [PluralName("hazy potions")]
         HazyPotion,
 
+        [SingularName("ice blue potion")]
+        [PluralName("ice blue potions")]
+        IceBluePotion,
+
+        [SingularName("lollipop")]
+        [PluralName("lollipops")]
+        Lollipop,
+
+        [SingularName("mithron helmet")]
+        [PluralName("mithron helmets")]
+        MithronHelmet,
+
+        [SingularName("mithron shield")]
+        [PluralName("mithron shields")]
+        MithronShield,
+
+        [SingularName("MOM tattoo")]
+        [PluralName("MOM tattoos")]
+        MOMTattoo,
+
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
         Quarterstaff,
+
+        [SingularName("quartz stone")]
+        [PluralName("quartz stones")]
+        QuartzStone,
 
         [SingularName("repair kit")]
         [PluralName("repair kits")]
         RepairKit,
 
+        [SingularName("ring of invisibility")]
+        [PluralName("rings of invisibility")]
+        RingOfInvisibility,
+
         [SingularName("rusty key")]
         [PluralName("rusty key")]
         RustyKey,
+
+        [SingularName("signet ring")]
+        [PluralName("signet rings")]
+        SignetRing,
+
+        [SingularName("Silver-blue scale")]
+        [PluralName("Silver-blue scales")]
+        SilverBlueScale,
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
@@ -946,9 +1062,29 @@ namespace IsengardClient
         [PluralName("statuettes of Balthazar")]
         StatuetteOfBalthazar,
 
+        [SingularName("steel-chain armor")]
+        //CSRTODO: plural
+        SteelChainArmor,
+
+        [SingularName("T-bone")]
+        [PluralName("T-bone")]
+        TBone,
+
+        [SingularName("tiger shark leather armor")]
+        //CSRTODO: plural
+        TigerSharkLeatherArmor,
+
+        [SingularName("war harness")]
+        [PluralName("war harnesses")]
+        WarHarness,
+
         [SingularName("welcome sign")]
         [PluralName("welcome signs")]
         WelcomeSign,
+
+        [SingularName("yellow beholder's eye")]
+        [PluralName("yellow beholder's eyes")]
+        YellowBeholdersEye,
 
         [SingularName("yellow potion")]
         [PluralName("yellow potions")]

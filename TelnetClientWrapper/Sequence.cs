@@ -1540,6 +1540,7 @@ namespace IsengardClient
                          sLine == "Clear, blue skies cover the land." ||
                          sLine == "It's a beautiful day today." ||
                          sLine == "The glaring sun beats down upon the inhabitants of the world." ||
+                         sLine == "The heat today is unbearable." ||
                          sLine == "The sun shines brightly across the land." ||
                          sLine == "The earth trembles under your feet." ||
                          sLine == "The sky is dark as pitch." ||
