@@ -811,8 +811,9 @@ namespace IsengardClient
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Score)
             {
+                BackgroundWorkerParameters bwp = _currentBackgroundParameters;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
-                suppressEcho = true; //suppress output for scores done in the background
+                suppressEcho = forInit || (bwp != null && !bwp.Foreground); //suppress output if not initiated explicitly by the user
             }
 
             flParams.SuppressEcho = suppressEcho;
@@ -1882,32 +1883,32 @@ namespace IsengardClient
 
         private void SetButtonTags()
         {
-            btnLevel1OffensiveSpell.Tag = new CommandButtonTag("cast {realm1spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnLevel2OffensiveSpell.Tag = new CommandButtonTag("cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnLevel3OffensiveSpell.Tag = new CommandButtonTag("cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnDrinkHazy.Tag = new CommandButtonTag("drink hazy", CommandType.Potions, DependentObjectType.None);
-            btnLookAtMob.Tag = new CommandButtonTag("look {mob}", CommandType.None, DependentObjectType.Mob);
-            btnLook.Tag = new CommandButtonTag("look", CommandType.None, DependentObjectType.None);
-            btnCastVigor.Tag = new CommandButtonTag(CAST_VIGOR_SPELL, CommandType.Magic, DependentObjectType.None);
-            btnCastCurePoison.Tag = new CommandButtonTag("cast cure-poison", CommandType.Magic, DependentObjectType.None);
-            btnTime.Tag = new CommandButtonTag("time", CommandType.None, DependentObjectType.None);
-            btnInformation.Tag = new CommandButtonTag("information", CommandType.None, DependentObjectType.None);
-            btnInventory.Tag = new CommandButtonTag("inventory", CommandType.None, DependentObjectType.None);
-            btnAttackMob.Tag = new CommandButtonTag("kill {mob}", CommandType.Melee, DependentObjectType.Mob);
-            btnDrinkYellow.Tag = new CommandButtonTag("drink yellow", CommandType.Potions, DependentObjectType.None);
-            btnDrinkGreen.Tag = new CommandButtonTag("drink green", CommandType.Potions, DependentObjectType.None);
-            btnWieldWeapon.Tag = new CommandButtonTag("wield {weapon}", CommandType.None, DependentObjectType.Weapon);
-            btnUseWandOnMob.Tag = new CommandButtonTag("zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
-            btnWho.Tag = new CommandButtonTag("who", CommandType.None, DependentObjectType.None);
-            btnUptime.Tag = new CommandButtonTag("uptime", CommandType.None, DependentObjectType.None);
-            btnEquipment.Tag = new CommandButtonTag("equipment", CommandType.None, DependentObjectType.None);
-            btnPowerAttackMob.Tag = new CommandButtonTag("power {mob}", CommandType.Melee, DependentObjectType.Mob);
-            btnRemoveWeapon.Tag = new CommandButtonTag("remove {weapon}", CommandType.None, DependentObjectType.Weapon);
-            btnRemoveAll.Tag = new CommandButtonTag("remove all", CommandType.None, DependentObjectType.None);
-            btnFumbleMob.Tag = new CommandButtonTag("cast fumble {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnCastMend.Tag = new CommandButtonTag(CAST_MENDWOUNDS_SPELL, CommandType.Magic, DependentObjectType.None);
-            btnReddishOrange.Tag = new CommandButtonTag("drink reddish-orange", CommandType.Potions, DependentObjectType.None);
-            btnStunMob.Tag = new CommandButtonTag("cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel1OffensiveSpell.Tag = new CommandButtonTag(btnLevel1OffensiveSpell, "cast {realm1spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, "cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, "cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnDrinkHazy.Tag = new CommandButtonTag(btnDrinkHazy, "drink hazy", CommandType.Potions, DependentObjectType.None);
+            btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
+            btnLook.Tag = new CommandButtonTag(btnLook, "look", CommandType.None, DependentObjectType.None);
+            btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, CAST_VIGOR_SPELL, CommandType.Magic, DependentObjectType.None);
+            btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, "cast cure-poison", CommandType.Magic, DependentObjectType.None);
+            btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
+            btnDrinkYellow.Tag = new CommandButtonTag(btnDrinkYellow, "drink yellow", CommandType.Potions, DependentObjectType.None);
+            btnDrinkGreen.Tag = new CommandButtonTag(btnDrinkGreen, "drink green", CommandType.Potions, DependentObjectType.None);
+            btnWieldWeapon.Tag = new CommandButtonTag(btnWieldWeapon, "wield {weapon}", CommandType.None, DependentObjectType.Weapon);
+            btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, "zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
+            btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
+            btnRemoveWeapon.Tag = new CommandButtonTag(btnRemoveWeapon, "remove {weapon}", CommandType.None, DependentObjectType.Weapon);
+            btnRemoveAll.Tag = new CommandButtonTag(btnRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
+            btnFumbleMob.Tag = new CommandButtonTag(btnFumbleMob, "cast fumble {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnCastMend.Tag = new CommandButtonTag(btnCastMend, CAST_MENDWOUNDS_SPELL, CommandType.Magic, DependentObjectType.None);
+            btnReddishOrange.Tag = new CommandButtonTag(btnReddishOrange, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
+            btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
+            tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
+            tsbInformation.Tag = new CommandButtonTag(tsbInformation, "information", CommandType.None, DependentObjectType.None);
+            tsbInventory.Tag = new CommandButtonTag(tsbInventory, "inventory", CommandType.None, DependentObjectType.None);
+            tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
+            tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
+            tsbEquipment.Tag = new CommandButtonTag(tsbEquipment, "equipment", CommandType.None, DependentObjectType.None);
         }
 
         private void PopulateTree()
@@ -2943,39 +2944,11 @@ namespace IsengardClient
                 Macro m = _currentBackgroundParameters.Macro;
                 if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
             }
-            List<Button> buttons = new List<Button>()
-            {
-                btnLevel1OffensiveSpell,
-                btnLevel2OffensiveSpell,
-                btnLevel3OffensiveSpell,
-                btnDrinkHazy,
-                btnLookAtMob,
-                btnLook,
-                btnCastVigor,
-                btnCastCurePoison,
-                btnTime,
-                btnInformation,
-                btnInventory,
-                btnAttackMob,
-                btnDrinkYellow,
-                btnDrinkGreen,
-                btnWieldWeapon,
-                btnUseWandOnMob,
-                btnWho,
-                btnUptime,
-                btnEquipment,
-                btnPowerAttackMob,
-                btnRemoveWeapon,
-                btnRemoveAll,
-                btnFumbleMob,
-                btnCastMend,
-                btnReddishOrange,
-                btnStunMob,
-            };
+            ToolStripButton tsb = null;
+            Button btn = null;
             bool enabled;
-            foreach (Button b in buttons)
+            foreach (CommandButtonTag oTag in GetButtonsForEnablingDisabling())
             {
-                CommandButtonTag oTag = (CommandButtonTag)b.Tag;
                 if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(_mob))
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && string.IsNullOrEmpty(_weapon))
@@ -2992,8 +2965,26 @@ namespace IsengardClient
                     enabled = false;
                 else //combat buttons are only enabled if the macro isn't doing that kind of combat
                     enabled = (oTag.CommandType & eRunningCombatCommandTypes) == CommandType.None;
-                if (enabled != b.Enabled)
-                    b.Enabled = enabled;
+                object oControl = oTag.Control;
+                bool isToolStripButton = oTag.IsToolStripButton;
+                bool isEnabled;
+                if (isToolStripButton)
+                {
+                    tsb = (ToolStripButton)oControl;
+                    isEnabled = tsb.Enabled;
+                }
+                else
+                {
+                    btn = (Button)oControl;
+                    isEnabled = btn.Enabled;
+                }
+                if (enabled != isEnabled)
+                {
+                    if (isToolStripButton)
+                        tsb.Enabled = enabled;
+                    else
+                        btn.Enabled = enabled;
+                }
             }
 
             if (inForeground)
@@ -3011,8 +3002,8 @@ namespace IsengardClient
                 enabled = false;
             else
                 enabled = true;
-            if (enabled != btnScore.Enabled)
-                btnScore.Enabled = enabled;
+            if (enabled != tsbScore.Enabled)
+                tsbScore.Enabled = enabled;
 
             if (inForeground)
                 enabled = true;
@@ -3020,8 +3011,38 @@ namespace IsengardClient
                 enabled = false;
             else
                 enabled = true;
-            if (enabled != btnQuit.Enabled)
-                btnQuit.Enabled = enabled;
+            if (enabled != tsbQuit.Enabled)
+                tsbQuit.Enabled = enabled;
+        }
+
+        private IEnumerable<CommandButtonTag> GetButtonsForEnablingDisabling()
+        {
+            yield return (CommandButtonTag)btnLevel1OffensiveSpell.Tag;
+            yield return (CommandButtonTag)btnLevel2OffensiveSpell.Tag;
+            yield return (CommandButtonTag)btnLevel3OffensiveSpell.Tag;
+            yield return (CommandButtonTag)btnDrinkHazy.Tag;
+            yield return (CommandButtonTag)btnLookAtMob.Tag;
+            yield return (CommandButtonTag)btnLook.Tag;
+            yield return (CommandButtonTag)btnCastVigor.Tag;
+            yield return (CommandButtonTag)btnCastCurePoison.Tag;
+            yield return (CommandButtonTag)btnAttackMob.Tag;
+            yield return (CommandButtonTag)btnDrinkYellow.Tag;
+            yield return (CommandButtonTag)btnDrinkGreen.Tag;
+            yield return (CommandButtonTag)btnWieldWeapon.Tag;
+            yield return (CommandButtonTag)btnUseWandOnMob.Tag;
+            yield return (CommandButtonTag)btnPowerAttackMob.Tag;
+            yield return (CommandButtonTag)btnRemoveWeapon.Tag;
+            yield return (CommandButtonTag)btnRemoveAll.Tag;
+            yield return (CommandButtonTag)btnFumbleMob.Tag;
+            yield return (CommandButtonTag)btnCastMend.Tag;
+            yield return (CommandButtonTag)btnReddishOrange.Tag;
+            yield return (CommandButtonTag)btnStunMob.Tag;
+            yield return (CommandButtonTag)tsbTime.Tag;
+            yield return (CommandButtonTag)tsbInformation.Tag;
+            yield return (CommandButtonTag)tsbInventory.Tag;
+            yield return (CommandButtonTag)tsbWho.Tag;
+            yield return (CommandButtonTag)tsbUptime.Tag;
+            yield return (CommandButtonTag)tsbEquipment.Tag;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -3226,13 +3247,17 @@ namespace IsengardClient
 
         private void btnDoAction_Click(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
+            object oButtonTag;
+            if (sender is ToolStripButton)
+                oButtonTag = ((ToolStripButton)sender).Tag;
+            else
+                oButtonTag = ((Button)sender).Tag;
+            CommandButtonTag cmdButtonTag = oButtonTag as CommandButtonTag;
             string command;
-            CommandButtonTag cmdButtonTag = btn.Tag as CommandButtonTag;
             if (cmdButtonTag != null)
                 command = cmdButtonTag.Command;
             else
-                command = btn.Tag.ToString();
+                command = oButtonTag.ToString();
             RunCommand(TranslateCommand(command));
         }
 
@@ -3309,6 +3334,7 @@ namespace IsengardClient
             public bool DoScore { get; set; }
             public string TargetRoomMob { get; set; }
             public bool ReachedTargetRoom { get; set; }
+            public bool Foreground { get; set; }
         }
 
         private void chkIsNight_CheckedChanged(object sender, EventArgs e)
@@ -3412,15 +3438,19 @@ namespace IsengardClient
 
         public class CommandButtonTag
         {
-            public CommandButtonTag(string Command, CommandType CommandType, DependentObjectType ObjectType)
+            public CommandButtonTag(object ctl, string Command, CommandType CommandType, DependentObjectType ObjectType)
             {
+                this.Control = ctl;
+                this.IsToolStripButton = ctl is ToolStripButton;
                 this.Command = Command;
                 this.CommandType = CommandType;
                 this.ObjectType = ObjectType;
             }
+            public object Control { get; set; }
             public string Command { get; set; }
             public CommandType CommandType { get; set; }
             public DependentObjectType ObjectType { get; set; }
+            public bool IsToolStripButton { get; set; }
         }
 
         [Flags]
@@ -3923,6 +3953,7 @@ namespace IsengardClient
             {
                 bwp = GenerateNewBackgroundParameters();
                 bwp.DoScore = true;
+                bwp.Foreground = true;
                 RunCommands(bwp);
             }
             else

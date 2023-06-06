@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.txtMob = new System.Windows.Forms.TextBox();
             this.ctxMob = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -43,12 +44,8 @@
             this.btnLook = new System.Windows.Forms.Button();
             this.btnCastVigor = new System.Windows.Forms.Button();
             this.btnCastCurePoison = new System.Windows.Forms.Button();
-            this.btnTime = new System.Windows.Forms.Button();
-            this.btnScore = new System.Windows.Forms.Button();
-            this.btnInformation = new System.Windows.Forms.Button();
             this.chkIsNight = new System.Windows.Forms.CheckBox();
             this.txtOneOffCommand = new System.Windows.Forms.TextBox();
-            this.btnInventory = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnAttackMob = new System.Windows.Forms.Button();
             this.txtCurrentRoom = new System.Windows.Forms.TextBox();
@@ -64,11 +61,7 @@
             this.txtWand = new System.Windows.Forms.TextBox();
             this.lblWand = new System.Windows.Forms.Label();
             this.btnUseWandOnMob = new System.Windows.Forms.Button();
-            this.btnWho = new System.Windows.Forms.Button();
-            this.btnUptime = new System.Windows.Forms.Button();
-            this.btnEquipment = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
-            this.btnQuit = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
             this.grpRealm = new System.Windows.Forms.GroupBox();
             this.radFire = new System.Windows.Forms.RadioButton();
@@ -160,12 +153,21 @@
             this.flpHelp = new System.Windows.Forms.FlowLayoutPanel();
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.scMain = new System.Windows.Forms.SplitContainer();
+            this.tsTopMenu = new System.Windows.Forms.ToolStrip();
+            this.tsbInformation = new System.Windows.Forms.ToolStripButton();
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.tsbInventory = new System.Windows.Forms.ToolStripButton();
+            this.tsbEquipment = new System.Windows.Forms.ToolStripButton();
+            this.tsbWho = new System.Windows.Forms.ToolStripButton();
+            this.tsbUptime = new System.Windows.Forms.ToolStripButton();
+            this.tsbScore = new System.Windows.Forms.ToolStripButton();
+            this.tsbTime = new System.Windows.Forms.ToolStripButton();
+            this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -189,6 +191,7 @@
             this.scMain.Panel1.SuspendLayout();
             this.scMain.Panel2.SuspendLayout();
             this.scMain.SuspendLayout();
+            this.tsTopMenu.SuspendLayout();
             this.grpConsole.SuspendLayout();
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
@@ -335,39 +338,6 @@
             this.btnCastCurePoison.UseVisualStyleBackColor = true;
             this.btnCastCurePoison.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // btnTime
-            // 
-            this.btnTime.Location = new System.Drawing.Point(624, 301);
-            this.btnTime.Margin = new System.Windows.Forms.Padding(2);
-            this.btnTime.Name = "btnTime";
-            this.btnTime.Size = new System.Drawing.Size(102, 28);
-            this.btnTime.TabIndex = 19;
-            this.btnTime.Text = "Time";
-            this.btnTime.UseVisualStyleBackColor = true;
-            this.btnTime.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnScore
-            // 
-            this.btnScore.Location = new System.Drawing.Point(624, 334);
-            this.btnScore.Margin = new System.Windows.Forms.Padding(2);
-            this.btnScore.Name = "btnScore";
-            this.btnScore.Size = new System.Drawing.Size(102, 28);
-            this.btnScore.TabIndex = 20;
-            this.btnScore.Text = "Score";
-            this.btnScore.UseVisualStyleBackColor = true;
-            this.btnScore.Click += new System.EventHandler(this.btnScore_Click);
-            // 
-            // btnInformation
-            // 
-            this.btnInformation.Location = new System.Drawing.Point(624, 267);
-            this.btnInformation.Margin = new System.Windows.Forms.Padding(2);
-            this.btnInformation.Name = "btnInformation";
-            this.btnInformation.Size = new System.Drawing.Size(102, 28);
-            this.btnInformation.TabIndex = 21;
-            this.btnInformation.Text = "Information";
-            this.btnInformation.UseVisualStyleBackColor = true;
-            this.btnInformation.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
             // chkIsNight
             // 
             this.chkIsNight.AutoSize = true;
@@ -391,17 +361,6 @@
             this.txtOneOffCommand.Size = new System.Drawing.Size(724, 26);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
-            // 
-            // btnInventory
-            // 
-            this.btnInventory.Location = new System.Drawing.Point(624, 233);
-            this.btnInventory.Margin = new System.Windows.Forms.Padding(2);
-            this.btnInventory.Name = "btnInventory";
-            this.btnInventory.Size = new System.Drawing.Size(102, 28);
-            this.btnInventory.TabIndex = 31;
-            this.btnInventory.Text = "Inventory";
-            this.btnInventory.UseVisualStyleBackColor = true;
-            this.btnInventory.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnAbort
             // 
@@ -569,39 +528,6 @@
             this.btnUseWandOnMob.UseVisualStyleBackColor = true;
             this.btnUseWandOnMob.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // btnWho
-            // 
-            this.btnWho.Location = new System.Drawing.Point(624, 167);
-            this.btnWho.Margin = new System.Windows.Forms.Padding(2);
-            this.btnWho.Name = "btnWho";
-            this.btnWho.Size = new System.Drawing.Size(102, 28);
-            this.btnWho.TabIndex = 51;
-            this.btnWho.Text = "Who";
-            this.btnWho.UseVisualStyleBackColor = true;
-            this.btnWho.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnUptime
-            // 
-            this.btnUptime.Location = new System.Drawing.Point(624, 137);
-            this.btnUptime.Margin = new System.Windows.Forms.Padding(2);
-            this.btnUptime.Name = "btnUptime";
-            this.btnUptime.Size = new System.Drawing.Size(102, 24);
-            this.btnUptime.TabIndex = 52;
-            this.btnUptime.Text = "Uptime";
-            this.btnUptime.UseVisualStyleBackColor = true;
-            this.btnUptime.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnEquipment
-            // 
-            this.btnEquipment.Location = new System.Drawing.Point(624, 366);
-            this.btnEquipment.Margin = new System.Windows.Forms.Padding(2);
-            this.btnEquipment.Name = "btnEquipment";
-            this.btnEquipment.Size = new System.Drawing.Size(102, 28);
-            this.btnEquipment.TabIndex = 53;
-            this.btnEquipment.Text = "Equipment";
-            this.btnEquipment.UseVisualStyleBackColor = true;
-            this.btnEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
             // btnPowerAttackMob
             // 
             this.btnPowerAttackMob.Location = new System.Drawing.Point(188, 267);
@@ -612,17 +538,6 @@
             this.btnPowerAttackMob.Text = "Power Attack Mob";
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
             this.btnPowerAttackMob.Click += new System.EventHandler(this.btnPowerAttackMob_Click);
-            // 
-            // btnQuit
-            // 
-            this.btnQuit.Location = new System.Drawing.Point(624, 201);
-            this.btnQuit.Margin = new System.Windows.Forms.Padding(2);
-            this.btnQuit.Name = "btnQuit";
-            this.btnQuit.Size = new System.Drawing.Size(102, 28);
-            this.btnQuit.TabIndex = 55;
-            this.btnQuit.Text = "Quit";
-            this.btnQuit.UseVisualStyleBackColor = true;
-            this.btnQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
             // txtSetValue
             // 
@@ -964,19 +879,11 @@
             this.pnlMain.Controls.Add(this.txtPotion);
             this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
-            this.pnlMain.Controls.Add(this.btnTime);
             this.pnlMain.Controls.Add(this.grpOneClickMacros);
-            this.pnlMain.Controls.Add(this.btnScore);
             this.pnlMain.Controls.Add(this.grpLocations);
-            this.pnlMain.Controls.Add(this.btnInformation);
             this.pnlMain.Controls.Add(this.grpRealm);
             this.pnlMain.Controls.Add(this.chkIsNight);
-            this.pnlMain.Controls.Add(this.btnQuit);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
-            this.pnlMain.Controls.Add(this.btnEquipment);
-            this.pnlMain.Controls.Add(this.btnInventory);
-            this.pnlMain.Controls.Add(this.btnUptime);
-            this.pnlMain.Controls.Add(this.btnWho);
             this.pnlMain.Controls.Add(this.btnAbort);
             this.pnlMain.Controls.Add(this.btnUseWandOnMob);
             this.pnlMain.Controls.Add(this.txtWand);
@@ -1681,6 +1588,7 @@
             // 
             // scMain.Panel1
             // 
+            this.scMain.Panel1.Controls.Add(this.tsTopMenu);
             this.scMain.Panel1.Controls.Add(this.tcMain);
             // 
             // scMain.Panel2
@@ -1690,6 +1598,34 @@
             this.scMain.SplitterDistance = 1029;
             this.scMain.SplitterWidth = 3;
             this.scMain.TabIndex = 81;
+            // 
+            // tsTopMenu
+            // 
+            this.tsTopMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbInformation,
+            this.tsbInventory,
+            this.tsbEquipment,
+            this.tsbWho,
+            this.tsbUptime,
+            this.tsbScore,
+            this.tsbTime,
+            this.tsbQuit});
+            this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
+            this.tsTopMenu.Name = "tsTopMenu";
+            this.tsTopMenu.Size = new System.Drawing.Size(1029, 25);
+            this.tsTopMenu.TabIndex = 80;
+            this.tsTopMenu.Text = "toolStrip1";
+            // 
+            // tsbInformation
+            // 
+            this.tsbInformation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
+            this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbInformation.Name = "tsbInformation";
+            this.tsbInformation.Size = new System.Drawing.Size(74, 22);
+            this.tsbInformation.Tag = "information";
+            this.tsbInformation.Text = "Information";
+            this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // grpConsole
             // 
@@ -1754,6 +1690,81 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // tsbInventory
+            // 
+            this.tsbInventory.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbInventory.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventory.Image")));
+            this.tsbInventory.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbInventory.Name = "tsbInventory";
+            this.tsbInventory.Size = new System.Drawing.Size(61, 22);
+            this.tsbInventory.Text = "Inventory";
+            this.tsbInventory.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbEquipment
+            // 
+            this.tsbEquipment.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbEquipment.Image")));
+            this.tsbEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbEquipment.Name = "tsbEquipment";
+            this.tsbEquipment.Size = new System.Drawing.Size(69, 22);
+            this.tsbEquipment.Tag = "equipment";
+            this.tsbEquipment.Text = "Equipment";
+            this.tsbEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbWho
+            // 
+            this.tsbWho.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbWho.Image = ((System.Drawing.Image)(resources.GetObject("tsbWho.Image")));
+            this.tsbWho.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWho.Name = "tsbWho";
+            this.tsbWho.Size = new System.Drawing.Size(36, 22);
+            this.tsbWho.Tag = "who";
+            this.tsbWho.Text = "Who";
+            this.tsbWho.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbUptime
+            // 
+            this.tsbUptime.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbUptime.Image = ((System.Drawing.Image)(resources.GetObject("tsbUptime.Image")));
+            this.tsbUptime.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbUptime.Name = "tsbUptime";
+            this.tsbUptime.Size = new System.Drawing.Size(50, 22);
+            this.tsbUptime.Tag = "uptime";
+            this.tsbUptime.Text = "Uptime";
+            this.tsbUptime.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbScore
+            // 
+            this.tsbScore.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbScore.Image = ((System.Drawing.Image)(resources.GetObject("tsbScore.Image")));
+            this.tsbScore.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbScore.Name = "tsbScore";
+            this.tsbScore.Size = new System.Drawing.Size(40, 22);
+            this.tsbScore.Tag = "";
+            this.tsbScore.Text = "Score";
+            this.tsbScore.Click += new System.EventHandler(this.btnScore_Click);
+            // 
+            // tsbTime
+            // 
+            this.tsbTime.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbTime.Image = ((System.Drawing.Image)(resources.GetObject("tsbTime.Image")));
+            this.tsbTime.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbTime.Name = "tsbTime";
+            this.tsbTime.Size = new System.Drawing.Size(37, 22);
+            this.tsbTime.Tag = "time";
+            this.tsbTime.Text = "Time";
+            this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbQuit
+            // 
+            this.tsbQuit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbQuit.Image = ((System.Drawing.Image)(resources.GetObject("tsbQuit.Image")));
+            this.tsbQuit.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbQuit.Name = "tsbQuit";
+            this.tsbQuit.Size = new System.Drawing.Size(34, 22);
+            this.tsbQuit.Text = "Quit";
+            this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1793,9 +1804,12 @@
             this.tabHelp.ResumeLayout(false);
             this.grpHelp.ResumeLayout(false);
             this.scMain.Panel1.ResumeLayout(false);
+            this.scMain.Panel1.PerformLayout();
             this.scMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).EndInit();
             this.scMain.ResumeLayout(false);
+            this.tsTopMenu.ResumeLayout(false);
+            this.tsTopMenu.PerformLayout();
             this.grpConsole.ResumeLayout(false);
             this.pnlConsoleHolder.ResumeLayout(false);
             this.ctxConsole.ResumeLayout(false);
@@ -1817,12 +1831,8 @@
         private System.Windows.Forms.Button btnLook;
         private System.Windows.Forms.Button btnCastVigor;
         private System.Windows.Forms.Button btnCastCurePoison;
-        private System.Windows.Forms.Button btnTime;
-        private System.Windows.Forms.Button btnScore;
-        private System.Windows.Forms.Button btnInformation;
         private System.Windows.Forms.CheckBox chkIsNight;
         private System.Windows.Forms.TextBox txtOneOffCommand;
-        private System.Windows.Forms.Button btnInventory;
         private System.Windows.Forms.Button btnAbort;
         private System.Windows.Forms.Button btnAttackMob;
         private System.Windows.Forms.TextBox txtCurrentRoom;
@@ -1838,11 +1848,7 @@
         private System.Windows.Forms.TextBox txtWand;
         private System.Windows.Forms.Label lblWand;
         private System.Windows.Forms.Button btnUseWandOnMob;
-        private System.Windows.Forms.Button btnWho;
-        private System.Windows.Forms.Button btnUptime;
-        private System.Windows.Forms.Button btnEquipment;
         private System.Windows.Forms.Button btnPowerAttackMob;
-        private System.Windows.Forms.Button btnQuit;
         private System.Windows.Forms.TextBox txtSetValue;
         private System.Windows.Forms.GroupBox grpRealm;
         private System.Windows.Forms.RadioButton radFire;
@@ -1944,6 +1950,15 @@
         private System.Windows.Forms.Label lblMobStatus;
         private System.Windows.Forms.GroupBox grpMessages;
         private System.Windows.Forms.ListBox lstMessages;
+        private System.Windows.Forms.ToolStrip tsTopMenu;
+        private System.Windows.Forms.ToolStripButton tsbInformation;
+        private System.Windows.Forms.ToolStripButton tsbInventory;
+        private System.Windows.Forms.ToolStripButton tsbEquipment;
+        private System.Windows.Forms.ToolStripButton tsbWho;
+        private System.Windows.Forms.ToolStripButton tsbUptime;
+        private System.Windows.Forms.ToolStripButton tsbScore;
+        private System.Windows.Forms.ToolStripButton tsbTime;
+        private System.Windows.Forms.ToolStripButton tsbQuit;
     }
 }
 

@@ -1054,6 +1054,10 @@ namespace IsengardClient
         [PluralName("small bags")]
         SmallBag,
 
+        [SingularName("small silver chest")]
+        [PluralName("small silver chests")]
+        SmallSilverChest,
+
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
         SmallWoodenShield,
