@@ -41,9 +41,13 @@ namespace IsengardClient.Tests
             List<SkillCooldown> cooldowns = null;
             List<string> spells = null;
             int iLevel = -1;
-            Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> a = (flpparam, l, cs, ss) =>
+            int iMaxHP = -1;
+            int iMaxMP = -1;
+            Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> a = (flpparam, l, hp, mp, cs, ss) =>
             {
                 iLevel = l;
+                iMaxHP = -1;
+                iMaxMP = -1;
                 cooldowns = cs;
                 spells = ss;
             };
@@ -53,8 +57,12 @@ namespace IsengardClient.Tests
             List<string> input = new List<string>();
             FeedLineParameters flp = new FeedLineParameters(input);
 
+            iLevel = iMaxHP = iMaxMP = -1;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add(string.Empty);
+            input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 0");
+            input.Add(string.Empty);
             input.Add("Skills: (power) attack [2:15], ");
             input.Add("manashield [0:00]");
             input.Add(".");
@@ -65,6 +73,8 @@ namespace IsengardClient.Tests
             spells = null;
             sos.FeedLine(flp);
             Assert.IsTrue(iLevel == 12);
+            Assert.AreEqual(iMaxHP, 59);
+            Assert.AreEqual(iMaxMP, 61);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
@@ -77,8 +87,12 @@ namespace IsengardClient.Tests
             Assert.IsTrue(!cooldowns[1].Active);
             Assert.IsTrue(spells[0] == "None");
 
+            iLevel = iMaxHP = iMaxMP = -1;
             input.Clear();
-            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("Despug the Mage Occulate (lvl 1)");
+            input.Add(string.Empty);
+            input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 0");
+            input.Add(string.Empty);
             input.Add("Skills: (power) attack [0:00], ");
             input.Add("manashield [0:45]");
             input.Add(".");
@@ -88,6 +102,9 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.IsTrue(iLevel == 1);
+            Assert.IsTrue(iMaxHP == 159);
+            Assert.IsTrue(iMaxMP == 261);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
@@ -101,8 +118,12 @@ namespace IsengardClient.Tests
             Assert.IsTrue(spells[0] == "bless");
             Assert.IsTrue(spells[1] == "protection");
 
+            iLevel = iMaxHP = iMaxMP = -1;
             input.Clear();
-            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("Despug the Mage Occulate (lvl 62)");
+            input.Add(string.Empty);
+            input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 0");
+            input.Add(string.Empty);
             input.Add("Skills: (power) attack [12:13], manashield [ACTIVE].");
             input.Add("Spells cast: ");
             input.Add("bless");
@@ -112,6 +133,9 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.IsTrue(iLevel == 62);
+            Assert.IsTrue(iMaxHP == 9);
+            Assert.IsTrue(iMaxMP == 9);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);

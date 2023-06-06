@@ -445,14 +445,14 @@ namespace IsengardClient
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> _onSatisfied;
+        public Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string POWER_ATTACK_PREFIX = "(power) attack ";
         private const string MANASHIELD_PREFIX = "manashield ";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, List<SkillCooldown>, List<string>> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -462,8 +462,13 @@ namespace IsengardClient
         {
             List<string> Lines = flParams.Lines;
             int iLevel = 0;
-            if (Lines.Count > 0)
+            int iTotalHP = 0;
+            int iTotalMP = 0;
+            if (Lines.Count >= 7)
             {
+                int iIndex;
+
+                //first line is the player name, title, and level. Parse out the level.
                 string sNextLine = Lines[0];
                 if (sNextLine.Length < 17) return;
                 if (!sNextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
@@ -507,8 +512,40 @@ namespace IsengardClient
                 if (sNextLine[--iSpaceIndex] != '(') return;
                 if (sNextLine[--iSpaceIndex] != ' ') return;
 
+                //second line is blank
+                sNextLine = Lines[1];
+                if (!string.IsNullOrEmpty(sNextLine)) return;
+
+                //third line is
+                //<space><space>[3 character HP]<slash><3 character max HP> Hit Points<space><space>
+                //<space><space>[3 character MP]<slash><3 character max MP> 
+                sNextLine = Lines[2];
+                if (sNextLine.Length < 32) return;
+                iIndex = 0;
+                if (sNextLine[iIndex++] != ' ') return;
+                if (sNextLine[iIndex++] != ' ') return;
+                string sCurrentHitPoints = sNextLine.Substring(iIndex, 3).Trim();
+                iIndex += 3;
+                if (!int.TryParse(sCurrentHitPoints, out _)) return;
+                if (sNextLine[iIndex++] != '/') return;
+                string sTotalHitPoints = sNextLine.Substring(iIndex, 3).Trim();
+                iIndex += 3;
+                if (!int.TryParse(sTotalHitPoints, out iTotalHP)) return;
+                string sMiddleString = " Hit Points    ";
+                int iMiddleStringLen = sMiddleString.Length;
+                if (sNextLine.Substring(iIndex, iMiddleStringLen) != sMiddleString) return;
+                iIndex += iMiddleStringLen;
+                string sCurrentMagicPoints = sNextLine.Substring(iIndex, 3).Trim();
+                iIndex += 3;
+                if (!int.TryParse(sCurrentMagicPoints, out _)) return;
+                if (sNextLine[iIndex++] != '/') return;
+                string sTotalMagicPoints = sNextLine.Substring(iIndex, 3).Trim();
+                iIndex += 3;
+                if (!int.TryParse(sTotalMagicPoints, out iTotalMP)) return;
+                if (sNextLine[iIndex++] != ' ') return;
+
                 int iNextIndex;
-                List<string> skillsRaw = StringProcessing.GetList(Lines, 1, SKILLS_PREFIX, false, out iNextIndex);
+                List<string> skillsRaw = StringProcessing.GetList(Lines, 4, SKILLS_PREFIX, true, out iNextIndex);
                 if (skillsRaw == null)
                 {
                     return;
@@ -526,7 +563,7 @@ namespace IsengardClient
                 {
                     string sTempSkill = sNextSkill;
                     SkillWithCooldownType? eType = null;
-                    int iIndex = sTempSkill.IndexOf(POWER_ATTACK_PREFIX);
+                    iIndex = sTempSkill.IndexOf(POWER_ATTACK_PREFIX);
                     if (iIndex >= 0)
                     {
                         eType = SkillWithCooldownType.PowerAttack;
@@ -589,7 +626,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, iLevel, cooldowns, spells);
+                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, cooldowns, spells);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -1697,7 +1734,7 @@ namespace IsengardClient
                 {
                     haveDataToDisplay = true;
                 }
-                else if (!string.IsNullOrWhiteSpace(sLine))
+                else if (!string.IsNullOrWhiteSpace(sLine)) //not an informational message
                 {
                     haveDataToDisplay = true;
                     break;
@@ -1706,33 +1743,32 @@ namespace IsengardClient
                 {
                     whitespaceLine = true;
                 }
-                if (isBroadcast)
-                {
-                    im = InformationalMessages.Broadcast;
-                    if (broadcastMessages == null)
-                        broadcastMessages = new List<string>();
-                }
                 if (!whitespaceLine)
                 {
                     bool removeLine = false;
-                    if (im.HasValue)
+                    bool addAsBroadcastMessage = false;
+                    if (isBroadcast)
                     {
-                        InformationalMessages imValue = im.Value;
-                        if (imValue == InformationalMessages.Broadcast)
-                        {
-                            broadcastMessages.Add(sLine);
-                            removeLine = true;
-                        }
-                        else
-                        {
-                            if (messages == null)
-                                messages = new List<InformationalMessages>();
-                            messages.Add(im.Value);
-                        }
+                        addAsBroadcastMessage = true;
+                        removeLine = true;
+                    }
+                    else if (im.HasValue)
+                    {
+                        InformationalMessages imVal = im.Value;
+                        addAsBroadcastMessage = im == InformationalMessages.IncrementHour;
+                        if (messages == null)
+                            messages = new List<InformationalMessages>();
+                        messages.Add(imVal);
                     }
                     else
                     {
                         removeLine = true;
+                    }
+                    if (addAsBroadcastMessage)
+                    {
+                        if (broadcastMessages == null)
+                            broadcastMessages = new List<string>();
+                        broadcastMessages.Add(sLine);
                     }
                     if (removeLine)
                     {
@@ -1891,7 +1927,6 @@ namespace IsengardClient
     {
         DayStart,
         NightStart,
-        Broadcast,
         BullroarerInMithlond,
         BullroarerInNindamos,
         BlessOver,

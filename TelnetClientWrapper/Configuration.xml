@@ -1,2 +1,2 @@
-<Configuration defaultrealm="wind" defaultweapon="scimitar" level="12" totalhp="59" totalmp="61" healtickmp="7" preferredalignment="Red" username="despug" autohazythreshold="19" autohazydefault="true" verbose="false" queryMonsterStatus="true">
+<Configuration defaultrealm="wind" defaultweapon="scimitar" healtickmp="7" preferredalignment="Red" username="despug" autohazythreshold="19" autohazydefault="true" verbose="false" queryMonsterStatus="true">
 </Configuration>

@@ -29,6 +29,14 @@ namespace IsengardClient
 
         private int _time = -1; //time from 0 (midnight) to 23 (11 PM)
         private int _timeUI = -1;
+        private string _hp = null;
+        private string _hpUI = null;
+        private Color _hpColor = Color.Transparent;
+        private Color _hpColorUI = Color.Transparent;
+        private string _mp = null;
+        private string _mpUI = null;
+        private Color _mpColor = Color.Transparent;
+        private Color _mpColorUI = Color.Transparent;
         private int _level = 0;
         private string _currentPlayerHeader = null;
         private string _currentPlayerHeaderUI = null;
@@ -67,17 +75,28 @@ namespace IsengardClient
         private bool _promptedPassword;
         private bool _enteredUserName;
         private bool _enteredPassword;
-        private int _totalhp;
-        private int _totalmp;
-        private int? _previoustickautohp;
-        private int? _previoustickautomp;
+        private int _totalhp = 0;
+        private int _totalmp = 0;
+
+        private const int HP_OR_MP_UNKNOWN = -1;
+
+        /// <summary>
+        /// hitpoints from the output. if unknown the value is -1.
+        /// </summary>
+        private int _autohp = HP_OR_MP_UNKNOWN;
+        
+        /// <summary>
+        /// hitpoints from the output. if unknown the value is -1.
+        /// </summary>
+        private int _automp = HP_OR_MP_UNKNOWN;
+
+        private int _previoustickautohp;
+        private int _previoustickautomp;
+        private int _currentMana = HP_OR_MP_UNKNOWN;
         private int _healtickmp;
         private int _autoHazyThreshold;
         private DateTime? _lastTriedToAutoHazy;
         private bool _autoHazied;
-        private static int? _autoMana;
-        private static int? _autoHitpoints;
-        private int? _currentMana;
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
         private BackgroundWorker _bw;
@@ -126,7 +145,7 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(string defaultRealm, int totalhp, int totalmp, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
+        internal frmMain(string defaultRealm, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
         {
             InitializeComponent();
 
@@ -168,8 +187,6 @@ namespace IsengardClient
                 SetCurrentRealmButton(defaultRealmButton);
             }
 
-            _totalhp = totalhp;
-            _totalmp = totalmp;
             _healtickmp = healtickmp;
             _autoHazyThreshold = autoHazyThreshold;
             txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
@@ -759,8 +776,23 @@ namespace IsengardClient
             _players = null;
             _time = -1;
             _timeUI = -1;
+            _hp = null;
+            _hpUI = null;
+            _hpColor = Color.Transparent;
+            _hpColorUI = Color.Transparent;
+            _mp = null;
+            _mpUI = null;
+            _mpColor = Color.Transparent;
+            _hpColorUI = Color.Transparent;
             _level = 0;
+            _totalhp = 0;
+            _totalmp = 0;
+            _autohp = HP_OR_MP_UNKNOWN;
+            _automp = HP_OR_MP_UNKNOWN;
+            _currentMana = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
+
+            chkAutoMana.Checked = true;
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -813,7 +845,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, int level, List<SkillCooldown> cooldowns, List<string> spells)
+        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, List<SkillCooldown> cooldowns, List<string> spells)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -833,6 +865,8 @@ namespace IsengardClient
             }
 
             _level = level;
+            _totalhp = maxHP;
+            _totalmp = maxMP;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
 
             if (forInit)
@@ -1363,8 +1397,8 @@ namespace IsengardClient
                         }
                         else if (oist == OutputItemSequenceType.HPMPStatus)
                         {
-                            _autoHitpoints = oii.HP;
-                            _autoMana = oii.MP;
+                            if (oii.HP.HasValue) _autohp = oii.HP.Value;
+                            if (oii.MP.HasValue) _automp = oii.MP.Value;
                             _currentStatusLastComputed = DateTime.UtcNow;
                         }
 
@@ -2045,27 +2079,25 @@ namespace IsengardClient
             if (m != null && m.Heal)
             {
                 _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                int? autohp, automp;
+                int autohp, automp;
                 while (true)
                 {
-                    autohp = _autoHitpoints;
-                    automp = _autoMana;
-                    if (!autohp.HasValue) break;
-                    if (autohp.Value >= _totalhp) break;
-                    if (!automp.HasValue) break;
-                    if (automp.Value < 2) break; //out of mana for vigor cast
+                    autohp = _autohp;
+                    automp = _automp;
+                    if (autohp >= _totalhp) break;
+                    if (automp < 2) break; //out of mana for vigor cast
                     if (!CastLifeSpell("vigor", pms))
                     {
                         return;
                     }
                     if (_fleeing) break;
                     if (_bw.CancellationPending) break;
-                    autohp = _autoHitpoints;
-                    if (autohp.Value >= _totalhp) break;
+                    autohp = _autohp;
+                    if (autohp >= _totalhp) break;
                 }
                 //stop background processing if failed to get to max hitpoints
-                autohp = _autoHitpoints;
-                if (autohp.Value < _totalhp) return;
+                autohp = _autohp;
+                if (autohp < _totalhp) return;
 
                 //cast bless if has enough mana and not currently blessed
                 bool hasBless;
@@ -2073,8 +2105,8 @@ namespace IsengardClient
                 {
                     hasBless = _spellsCast != null && _spellsCast.Contains("bless");
                 }
-                automp = _autoMana;
-                if (automp.HasValue && automp.Value >= 8 && !hasBless)
+                automp = _automp;
+                if (automp >= 8 && !hasBless)
                 {
                     if (!CastLifeSpell("bless", pms))
                     {
@@ -2088,8 +2120,8 @@ namespace IsengardClient
                 {
                     hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
                 }
-                automp = _autoMana;
-                if (automp.HasValue && automp.Value >= 8 && !hasProtection)
+                automp = _automp;
+                if (automp >= 8 && !hasProtection)
                 {
                     if (!CastLifeSpell("protection", pms))
                     {
@@ -2305,8 +2337,8 @@ namespace IsengardClient
                             bool skipMagicStep = false;
                             if (nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
                             {
-                                int? currentMana = _currentMana;
-                                int? currentHP = _autoHitpoints;
+                                int currentMana = _currentMana;
+                                int currentHP = _autohp;
                                 int manaDrain = 0;
                                 BackgroundCommandType? bct = null;
                                 if (nextMagicStep == MagicCombatStep.Stun)
@@ -2317,7 +2349,7 @@ namespace IsengardClient
                                 }
                                 else if (nextMagicStep == MagicCombatStep.Vigor)
                                 {
-                                    if (currentHP.HasValue && currentHP.Value >= _totalhp)
+                                    if (currentHP >= _totalhp)
                                     {
                                         skipMagicStep = true;
                                     }
@@ -2330,7 +2362,7 @@ namespace IsengardClient
                                 }
                                 else if (nextMagicStep == MagicCombatStep.MendWounds)
                                 {
-                                    if (currentHP.HasValue && currentHP.Value >= _totalhp)
+                                    if (currentHP >= _totalhp)
                                     {
                                         skipMagicStep = true;
                                     }
@@ -2776,7 +2808,7 @@ namespace IsengardClient
 
         private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms, bool fleeing)
         {
-            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow, _autoHitpoints);
+            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow, _autohp);
 
             if (!fleeing && _fumbled)
             {
@@ -3493,8 +3525,8 @@ namespace IsengardClient
         private void tmr_Tick(object sender, EventArgs e)
         {
             InitializationStep initStep = _initializationSteps;
-            int? autohpforthistick = _autoHitpoints;
-            int? autompforthistick = _autoMana;
+            int autohpforthistick = _autohp;
+            int autompforthistick = _automp;
             if (_finishedQuit)
             {
                 this.Close();
@@ -3545,45 +3577,62 @@ namespace IsengardClient
 
             if ((initStep & InitializationStep.Score) != InitializationStep.None)
             {
+                Color backColor;
                 bool autoMana = chkAutoMana.Checked;
                 if (autoMana)
-                {
                     _currentMana = autompforthistick;
-                }
                 else
+                    _mpColor = BACK_COLOR_NEUTRAL;
+                int iCurrentMana = _currentMana;
+                if (iCurrentMana != HP_OR_MP_UNKNOWN)
                 {
-                    txtMana.BackColor = BACK_COLOR_NEUTRAL;
-                }
-                if (_currentMana.HasValue)
-                {
-                    string sText = _currentMana.Value.ToString();
+                    int iTotalMP = _totalmp;
+                    string sText = iCurrentMana.ToString();
+                    if (autoMana) sText += "/" + iTotalMP;
+                    _mp = sText;
                     if (autoMana)
                     {
-                        sText += "/" + _totalmp;
-                    }
-                    txtMana.Text = sText;
-                    if (autoMana)
-                    {
-                        Color backColor;
-                        if (_currentMana == _totalmp)
+                        if (iCurrentMana == iTotalMP)
                             backColor = BACK_COLOR_GO;
-                        else if (_currentMana + _healtickmp > _totalmp)
+                        else if (iCurrentMana + _healtickmp > iTotalMP)
                             backColor = BACK_COLOR_CAUTION;
                         else
                             backColor = BACK_COLOR_STOP;
-                        txtMana.BackColor = backColor;
+                        _mpColor = backColor;
                     }
                 }
-                if (autohpforthistick.HasValue)
+                if (autohpforthistick != HP_OR_MP_UNKNOWN)
                 {
-                    int autohpvalue = autohpforthistick.Value;
-                    txtHitpoints.Text = autohpvalue.ToString() + "/" + _totalhp;
-                    Color backColor;
-                    if (autohpvalue == _totalhp)
+                    _hp = autohpforthistick.ToString() + "/" + _totalhp;
+                    if (autohpforthistick == _totalhp)
                         backColor = BACK_COLOR_GO;
                     else
                         backColor = BACK_COLOR_STOP;
-                    txtHitpoints.BackColor = backColor;
+                    _hpColor = backColor;
+                }
+                string sNewHP = _hp;
+                if (!string.Equals(sNewHP, _hpUI))
+                {
+                    txtHitpoints.Text = sNewHP;
+                    _hpUI = sNewHP;
+                }
+                Color cNewHP = _hpColor;
+                if (cNewHP != _hpColorUI)
+                {
+                    txtHitpoints.BackColor = cNewHP;
+                    _hpColorUI = cNewHP;
+                }
+                string sNewMP = _mp;
+                if (!string.Equals(sNewMP, _mpUI))
+                {
+                    txtMana.Text = sNewMP;
+                    _mpUI = sNewMP;
+                }
+                Color cNewMP = _mpColor;
+                if (cNewMP != _mpColorUI)
+                {
+                    txtMana.BackColor = cNewMP;
+                    _mpColorUI = cNewMP;
                 }
 
                 //refresh cooldowns (active and timers)
@@ -3609,7 +3658,6 @@ namespace IsengardClient
                             throw new InvalidOperationException();
                     }
                     string sText;
-                    Color backColor;
                     if (nextCooldown.Active)
                     {
                         sText = "ACTIVE";
@@ -3688,9 +3736,9 @@ namespace IsengardClient
                     txtTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
                 }
             }
-            if (autohpforthistick.HasValue && autompforthistick.HasValue && autohpforthistick.Value == _totalhp && autompforthistick.Value == _totalmp &&
-                ((_previoustickautohp.HasValue && _previoustickautohp.Value != autohpforthistick.Value) ||
-                (_previoustickautomp.HasValue && _previoustickautomp.Value != autompforthistick.Value)))
+            if (autohpforthistick != HP_OR_MP_UNKNOWN && autompforthistick != HP_OR_MP_UNKNOWN && autohpforthistick == _totalhp && autompforthistick == _totalmp &&
+                ((_previoustickautohp != HP_OR_MP_UNKNOWN && _previoustickautohp != autohpforthistick) ||
+                (_previoustickautomp != HP_OR_MP_UNKNOWN && _previoustickautomp != autompforthistick)))
             {
                 _woe.Play();
             }
@@ -3751,7 +3799,7 @@ namespace IsengardClient
                 }
             }
             EnableDisableActionButtons(_currentBackgroundParameters);
-            if (!btnAbort.Enabled)
+            if (!btnAbort.Enabled) //processing that only happens when a macro is not running
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
 
@@ -3772,8 +3820,8 @@ namespace IsengardClient
                     CheckAutoHazy(chkAutoHazy.Checked, dtUtcNow, autohpforthistick);
                 }
 
-                //check for poll tick if a macro is not running and the first status update has completed and not at full HP+MP
-                if (_currentStatusLastComputed.HasValue && (!autohpforthistick.HasValue || autohpforthistick.Value < _totalhp || !autompforthistick.HasValue || autompforthistick.Value < _totalmp))
+                //check for poll tick if the first status update has completed and not at full HP+MP
+                if (_currentStatusLastComputed.HasValue && (autohpforthistick == HP_OR_MP_UNKNOWN || autohpforthistick < _totalhp || autompforthistick == HP_OR_MP_UNKNOWN || autompforthistick < _totalmp))
                 {
                     bool runPollTick = (dtUtcNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
                     if (runPollTick && _lastPollTick.HasValue)
@@ -3838,9 +3886,9 @@ namespace IsengardClient
             return ret;
         }
 
-        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow, int? autoHitpoints)
+        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow, int autoHitpoints)
         {
-            if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && AutoHazyActive && autoHitpoints.HasValue && autoHitpoints.Value < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
+            if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && AutoHazyActive && autoHitpoints > 0 && autoHitpoints < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
                 SendCommand("drink hazy", InputEchoType.On);
@@ -3850,10 +3898,14 @@ namespace IsengardClient
         private void btnManaSet_Click(object sender, EventArgs e)
         {
             string sNewMana = Interaction.InputBox("New mana:", "Mana", txtMana.Text);
-            if (int.TryParse(sNewMana, out int iNewMana))
+            if (int.TryParse(sNewMana, out int iNewMana) && iNewMana >= 0)
             {
-                chkAutoMana.Checked = false;
                 _currentMana = iNewMana;
+                chkAutoMana.Checked = false;
+            }
+            else
+            {
+                MessageBox.Show("Invalid mana: " + sNewMana, "Change Mana");
             }
         }
 

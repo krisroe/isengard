@@ -29,7 +29,7 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out string defaultRealm, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
+            LoadConfiguration(out string defaultRealm, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
 
             string password;
             using (frmLogin loginForm = new frmLogin(userName))
@@ -42,14 +42,12 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(defaultRealm, totalhp, totalmp, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
+            Application.Run(new frmMain(defaultRealm, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
         }
 
-        private static void LoadConfiguration(out string defaultRealm, out int totalhp, out int totalmp, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
+        private static void LoadConfiguration(out string defaultRealm, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
         {
             defaultRealm = string.Empty;
-            totalhp = 0;
-            totalmp = 0;
             healtickmp = 0;
             preferredAlignment = AlignmentType.Grey;
             userName = string.Empty;
@@ -97,30 +95,6 @@ namespace IsengardClient
             }
 
             defaultWeapon = docElement.GetAttribute("defaultweapon");
-
-            string sTotalHP = docElement.GetAttribute("totalhp");
-            if (string.IsNullOrEmpty(sTotalHP))
-            {
-                MessageBox.Show("No total HP specified.");
-                totalhp = 0;
-            }
-            else if (!int.TryParse(sTotalHP, out totalhp))
-            {
-                MessageBox.Show("Invalid total HP specified: " + sTotalHP);
-                totalhp = 0;
-            }
-
-            string sTotalMP = docElement.GetAttribute("totalmp");
-            if (string.IsNullOrEmpty(sTotalMP))
-            {
-                MessageBox.Show("No total MP specified.");
-                totalmp = 0;
-            }
-            else if (!int.TryParse(sTotalMP, out totalmp))
-            {
-                MessageBox.Show("Invalid total MP specified: " + sTotalMP);
-                totalmp = 0;
-            }
 
             string sHealTickMP = docElement.GetAttribute("healtickmp");
             if (string.IsNullOrEmpty(sHealTickMP))
