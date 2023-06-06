@@ -1028,9 +1028,17 @@ namespace IsengardClient
         [PluralName("gawdy ear hoops")]
         GawdyEarHoop,
 
+        [SingularName("Girion's key")]
+        [PluralName("Girion's keys")]
+        GirionsKey,
+
         [SingularName("glitter")]
         //CSRTODO: glitter (does not use some)
         Glitter,
+
+        [SingularName("godentag")]
+        [PluralName("godentags")]
+        Godentag,
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
@@ -1039,6 +1047,10 @@ namespace IsengardClient
         [SingularName("green potion")]
         [PluralName("green potions")]
         GreenPotion,
+
+        [SingularName("hand axe")]
+        [PluralName("hand axes")]
+        HandAxe,
 
         [SingularName("hardwood shield")]
         [PluralName("hardwood shields")]
@@ -1107,6 +1119,10 @@ namespace IsengardClient
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
         SilverScimitar,
+
+        [SingularName("silver wand")]
+        [PluralName("silver wands")]
+        SilverWand,
 
         [SingularName("sling")]
         [PluralName("slings")]

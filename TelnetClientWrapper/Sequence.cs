@@ -11,8 +11,8 @@ namespace IsengardClient
     public class OutputItemInfo
     {
         public OutputItemSequenceType SequenceType { get; set; }
-        public int? HP { get; set; }
-        public int? MP { get; set; }
+        public int HP { get; set; }
+        public int MP { get; set; }
     }
 
     public enum OutputItemSequenceType
@@ -310,15 +310,21 @@ namespace IsengardClient
                         {
                             hp = (hp * 10) + HPNumbers[i];
                         }
-                        int mp = 0;
-                        for (int i = 0; i < MPNumbers.Count; i++)
+                        if (hp > 0)
                         {
-                            mp = (mp * 10) + MPNumbers[i];
+                            int mp = 0;
+                            for (int i = 0; i < MPNumbers.Count; i++)
+                            {
+                                mp = (mp * 10) + MPNumbers[i];
+                            }
+                            if (mp >= 0)
+                            {
+                                ret = new OutputItemInfo();
+                                ret.SequenceType = OutputItemSequenceType.HPMPStatus;
+                                ret.HP = hp;
+                                ret.MP = mp;
+                            }
                         }
-                        ret = new OutputItemInfo();
-                        ret.SequenceType = OutputItemSequenceType.HPMPStatus;
-                        ret.HP = hp;
-                        ret.MP = mp;
                     }
                     break;
                 default:
@@ -1755,7 +1761,11 @@ namespace IsengardClient
                     else if (im.HasValue)
                     {
                         InformationalMessages imVal = im.Value;
-                        addAsBroadcastMessage = im == InformationalMessages.IncrementHour;
+                        if (imVal == InformationalMessages.IncrementHour)
+                        {
+                            removeLine = true;
+                        }
+                        
                         if (messages == null)
                             messages = new List<InformationalMessages>();
                         messages.Add(imVal);

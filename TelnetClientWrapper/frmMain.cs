@@ -109,8 +109,7 @@ namespace IsengardClient
         private object _consoleTextLock = new object();
         private object _writeToNetworkStreamLock = new object();
         private object _broadcastMessagesLock = new object();
-        private ConsoleOutput _previousConsoleOutput = null;
-        private List<ConsoleOutput> _newConsoleText = new List<ConsoleOutput>();
+        private List<string> _newConsoleText = new List<string>();
         private Dictionary<char, int> _asciiMapping;
         private List<string> _broadcastMessages = new List<string>();
 
@@ -1382,6 +1381,7 @@ namespace IsengardClient
                     InputEchoType echoType = InputEchoType.On;
                     if (oii != null)
                     {
+                        bool hpormpchanged = false;
                         OutputItemSequenceType oist = oii.SequenceType;
                         if (oist == OutputItemSequenceType.UserNamePrompt)
                         {
@@ -1397,8 +1397,11 @@ namespace IsengardClient
                         }
                         else if (oist == OutputItemSequenceType.HPMPStatus)
                         {
-                            if (oii.HP.HasValue) _autohp = oii.HP.Value;
-                            if (oii.MP.HasValue) _automp = oii.MP.Value;
+                            int iNewHP = oii.HP;
+                            int iNewMP = oii.MP;
+                            hpormpchanged = iNewHP != _autohp || iNewMP != _automp;
+                            _autohp = iNewHP;
+                            _automp = iNewMP;
                             _currentStatusLastComputed = DateTime.UtcNow;
                         }
 
@@ -1409,22 +1412,18 @@ namespace IsengardClient
                         }
 
                         string sNewLine = sb.ToString();
-                        string sNewLineRaw = sNewLine;
-                        string hpmpStatus = string.Empty;
-                        if (oist == OutputItemSequenceType.HPMPStatus) //strip the HP/MP since it was already processed
+
+                        bool haveStatus = oist == OutputItemSequenceType.HPMPStatus;
+                        if (haveStatus) //strip status "(HP X, MP Y)"
                         {
                             int lastParenthesisLocation = sNewLine.LastIndexOf('(');
                             if (lastParenthesisLocation == 0)
-                            {
                                 sNewLine = string.Empty;
-                            }
                             else
-                            {
-                                hpmpStatus = sNewLine.Substring(lastParenthesisLocation);
                                 sNewLine = sNewLine.Substring(0, lastParenthesisLocation);
-                            }
                         }
 
+                        bool haveContent = false;
                         if (!string.IsNullOrEmpty(sNewLine))
                         {
                             List<string> sNewLinesList = new List<string>(sNewLine.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
@@ -1466,16 +1465,13 @@ namespace IsengardClient
                             {
                                 sNewLine = string.Join(Environment.NewLine, sNewLinesList);
                             }
-                            if (!string.IsNullOrEmpty(sNewLine))
+                            haveContent = !string.IsNullOrWhiteSpace(sNewLine);
+                            if (haveContent)
                             {
-                                if (linesChanged)
-                                {
-                                    sNewLineRaw = sNewLine + hpmpStatus;
-                                }
                                 int newCommandResultCounter = _commandResultCounter;
                                 if (!_verboseMode && previousCommandResultCounter == newCommandResultCounter && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
                                 {
-                                    sNewLineRaw = _lastCommand + Environment.NewLine + sNewLineRaw;
+                                    sNewLine = _lastCommand + Environment.NewLine + sNewLine;
                                 }
                                 if (flParams.CommandResult.HasValue)
                                 {
@@ -1484,11 +1480,17 @@ namespace IsengardClient
                             }
                         }
 
-                        if (echoType == InputEchoType.On)
+                        bool showMessageWithStatus = haveContent || hpormpchanged;
+                        if (haveStatus && showMessageWithStatus)
+                        {
+                            sNewLine = sNewLine + ": ";
+                        }
+
+                        if (echoType == InputEchoType.On && (!haveStatus || showMessageWithStatus))
                         {
                             lock (_consoleTextLock)
                             {
-                                _newConsoleText.Add(new ConsoleOutput(sNewLineRaw, sNewLine, false));
+                                _newConsoleText.Add(sNewLine);
                             }
                         }
 
@@ -3155,7 +3157,7 @@ namespace IsengardClient
                 lock (_consoleTextLock)
                 {
                     string sText = sToConsole + Environment.NewLine;
-                    _newConsoleText.Add(new ConsoleOutput(sText, sText, true));
+                    _newConsoleText.Add(sText);
                 }
             }
         }
@@ -3537,24 +3539,9 @@ namespace IsengardClient
             {
                 if (_newConsoleText.Count > 0)
                 {
-                    foreach (ConsoleOutput nextConsoleOutput in _newConsoleText)
+                    foreach (string s in _newConsoleText)
                     {
-                        bool add = true;
-                        if (!nextConsoleOutput.IsInput)
-                        {
-                            if (_previousConsoleOutput == null || !string.IsNullOrWhiteSpace(nextConsoleOutput.Content) || !string.Equals(_previousConsoleOutput.RawText, nextConsoleOutput.RawText))
-                            {
-                                _previousConsoleOutput = nextConsoleOutput;
-                            }
-                            else //suppresses echo for the current output since it was the same as the previous output (e.g. poll ticks)
-                            {
-                                add = false;
-                            }
-                        }
-                        if (add)
-                        {
-                            textToAdd.Add(nextConsoleOutput.RawText);
-                        }
+                        textToAdd.Add(s);
                     }
                     _newConsoleText.Clear();
                 }
@@ -4336,25 +4323,6 @@ namespace IsengardClient
             {
                 NavigateExitsInBackground(selectedPath[selectedPath.Count - 1].Target, selectedPath);
             }
-        }
-
-        internal class ConsoleOutput
-        {
-            public ConsoleOutput(string RawText, string Content, bool IsInput)
-            {
-                this.RawText = RawText;
-                this.IsInput = IsInput;
-                this.Content = Content;
-            }
-            public bool IsInput { get; set; }
-            /// <summary>
-            /// raw content of the output, which is what is displayed in the console
-            /// </summary>
-            public string RawText { get; set; }
-            /// <summary>
-            /// content of the output (not including HP/MP status)
-            /// </summary>
-            public string Content { get; set; }
         }
 
         private void radRealm_CheckedChanged(object sender, System.EventArgs e)
