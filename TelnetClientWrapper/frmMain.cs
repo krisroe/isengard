@@ -197,8 +197,6 @@ namespace IsengardClient
                 sb.Append(sAppend);
             }
             _username = sb.ToString();
-
-            _username = userName;
             _password = password;
 
             int iOneClickTabIndex = 0;
@@ -835,7 +833,7 @@ namespace IsengardClient
             }
 
             _level = level;
-            _currentPlayerHeader = _username + "(lvl " + level + ")";
+            _currentPlayerHeader = _username + " (lvl " + level + ")";
 
             if (forInit)
             {
@@ -4066,13 +4064,10 @@ namespace IsengardClient
                 List<Exit> exits;
                 if (clickedItem.Text == "Graph")
                 {
-                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true);
+                    GetGraphInputs(out bool flying, out bool isDay, out int level);
+                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, isDay, level);
                     bool? result = graphForm.ShowDialog();
-                    if (!result.GetValueOrDefault(false))
-                    {
-                        return;
-                    }
-                    exits = CalculateRouteExits(graphForm.GoToOrSelectRoom);
+                    exits = graphForm.SelectedPath;
                     if (exits == null) return;
                 }
                 else
@@ -4238,14 +4233,20 @@ namespace IsengardClient
             }
         }
 
-        private List<Exit> CalculateRouteExits(Room targetRoom)
+        private void GetGraphInputs(out bool flying, out bool isDay, out int level)
         {
-            bool flying = false;
             lock (_spellsLock)
             {
                 flying = _spellsCast != null && _spellsCast.Contains("fly");
             }
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, TimeOutputSequence.IsDay(_time), _level);
+            isDay = TimeOutputSequence.IsDay(_time);
+            level = _level;
+        }
+
+        private List<Exit> CalculateRouteExits(Room targetRoom)
+        {
+            GetGraphInputs(out bool flying, out bool isDay, out int level);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, isDay, level);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");
@@ -4271,15 +4272,17 @@ namespace IsengardClient
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false);
+            GetGraphInputs(out bool flying, out bool isDay, out int level);
+            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, isDay, level);
             frm.ShowDialog();
             if (m_oCurrentRoom != frm.CurrentRoom)
             {
                 SetCurrentRoom(frm.CurrentRoom);
             }
-            if (frm.GoToOrSelectRoom != null)
+            List<Exit> selectedPath = frm.SelectedPath;
+            if (selectedPath != null)
             {
-                GoToRoom(frm.GoToOrSelectRoom);
+                NavigateExitsInBackground(selectedPath[selectedPath.Count - 1].Target, selectedPath);
             }
         }
 

@@ -2140,6 +2140,7 @@ namespace IsengardClient
             e = AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
             e.MaximumLevel = 10;
             AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
+            breeToImladrisGraph.Rooms[oMuddyFoyer] = new System.Windows.Point(9, 6.5);
 
             Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
             AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");

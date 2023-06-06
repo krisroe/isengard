@@ -2,7 +2,7 @@
 using QuickGraph;
 namespace IsengardClient
 {
-    internal class Exit : Edge<Room>
+    internal class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge
     {
         public override string ToString()
         {
@@ -48,6 +48,10 @@ namespace IsengardClient
         /// maximum level
         /// </summary>
         public int? MaximumLevel { get; set; }
+        /// <summary>
+        /// whether the exit is currently deleted for graphing purposes
+        /// </summary>
+        public bool ShowAsRedOnGraph { get; set; }
 
         public bool ExitIsUsable(bool flying, bool isDay, int level)
         {
@@ -83,6 +87,11 @@ namespace IsengardClient
                 ret = 1;
             }
             return ret;
+        }
+
+        public bool IsDeleted()
+        {
+            return ShowAsRedOnGraph;
         }
 
         public Exit(Room source, Room target, string exitText) : base(source, target)

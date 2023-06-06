@@ -1693,6 +1693,10 @@ namespace IsengardClient
                 {
                     isBroadcast = true;
                 }
+                else if (sLine.EndsWith(" just arrived."))
+                {
+                    haveDataToDisplay = true;
+                }
                 else if (!string.IsNullOrWhiteSpace(sLine))
                 {
                     haveDataToDisplay = true;

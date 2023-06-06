@@ -16,11 +16,17 @@ namespace IsengardClient
         private VertexControl _currentVertexControl;
         private Dictionary<MapType, RoomGraph> _graphs;
         private bool _forVertexSelection;
+        private bool _flying;
+        private bool _isDay;
+        private int _level;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, bool flying, bool isDay, int level)
         {
             InitializeComponent();
 
+            _flying = flying;
+            _isDay = isDay;
+            _level = level;
             _graphs = fullMap.Graphs;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
@@ -86,6 +92,7 @@ namespace IsengardClient
                                 rbg.AddVertex(targetRoom);
                                 addedRooms.Add(targetRoom);
                             }
+                            nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _isDay, _level);
                             rbg.AddEdge(nextExit);
                         }
                     }
@@ -100,7 +107,7 @@ namespace IsengardClient
             set;
         }
 
-        public Room GoToOrSelectRoom
+        public List<Exit> SelectedPath
         {
             get;
             set;
@@ -176,7 +183,13 @@ namespace IsengardClient
 
         private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
-            GoToOrSelectRoom = (Room)_currentVertexControl.Vertex;
+            Room selectedRoom = (Room)_currentVertexControl.Vertex;
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _isDay, _level);
+            if (SelectedPath == null)
+            {
+                System.Windows.MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
+                return;
+            }
             DialogResult = true;
             Close();
         }
