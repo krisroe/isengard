@@ -20,6 +20,7 @@ namespace IsengardClient
         private VorbisWaveReader _vwr;
         private WaveOutEvent _woe;
 
+        private string _defaultRealm;
         private string _realm1Spell;
         private string _realm2Spell;
         private string _realm3Spell;
@@ -100,6 +101,7 @@ namespace IsengardClient
         private int _currentMana = HP_OR_MP_UNKNOWN;
         private int _healtickmp;
         private int _autoHazyThreshold;
+        private int _rememberedAutoHazyThreshold;
         private DateTime? _lastTriedToAutoHazy;
         private bool _autoHazied;
         private IsengardMap _gameMap;
@@ -156,7 +158,7 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(string defaultRealm, int healtickmp, AlignmentType preferredAlignment, string userName, string password, List<Macro> allMacros, string defaultWeapon, int autoHazyThreshold, bool autoHazyDefault, bool verboseMode, bool queryMonsterStatus)
+        internal frmMain(int healtickmp, string userName, string password, List<Macro> allMacros)
         {
             InitializeComponent();
 
@@ -171,29 +173,39 @@ namespace IsengardClient
             _woe.Init(_vwr);
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
-            _verboseMode = verboseMode;
-            _queryMonsterStatus = queryMonsterStatus;
 
-            if (!string.IsNullOrEmpty(defaultRealm))
+            IsengardSettings sets = IsengardSettings.Default;
+            _verboseMode = sets.VerboseMode;
+            _queryMonsterStatus = sets.QueryMonsterStatus;
+
+            _defaultRealm = sets.DefaultRealm;
+            if (!string.IsNullOrEmpty(_defaultRealm))
             {
-                RadioButton defaultRealmButton;
-                if (defaultRealm != "earth" &&
-                    defaultRealm != "fire" &&
-                    defaultRealm != "water" &&
-                    defaultRealm != "wind")
+                if (_defaultRealm != "earth" &&
+                    _defaultRealm != "fire" &&
+                    _defaultRealm != "water" &&
+                    _defaultRealm != "wind")
                 {
-                    throw new InvalidOperationException();
+                    _defaultRealm = "earth";
                 }
-                SetCurrentRealmButton(defaultRealm);
+                SetCurrentRealm(_defaultRealm);
+            }
+
+            AlignmentType ePreferredAlignment;
+            if (!Enum.TryParse(sets.PreferredAlignment, out ePreferredAlignment))
+            {
+                ePreferredAlignment = AlignmentType.Blue;
             }
 
             _healtickmp = healtickmp;
-            _autoHazyThreshold = autoHazyThreshold;
-            txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
-            chkAutoHazy.Checked = autoHazyDefault;
+            _autoHazyThreshold = sets.DefaultAutoHazyThreshold;
+            if (_autoHazyThreshold < 0) _autoHazyThreshold = 0;
+            _rememberedAutoHazyThreshold = _autoHazyThreshold;
+            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, 0);
+            tsmiClearAutoHazy.Visible = _autoHazyThreshold > 0;
+            tsmiReactivateAutoHazy.Visible = false;
 
-            txtPreferredAlignment.Text = preferredAlignment.ToString();
-            txtWeapon.Text = defaultWeapon;
+            txtWeapon.Text = sets.DefaultWeapon;
 
             //prettify user name to be Pascal case
             StringBuilder sb = new StringBuilder();
@@ -235,7 +247,7 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            _gameMap = new IsengardMap(preferredAlignment);
+            _gameMap = new IsengardMap(ePreferredAlignment);
             PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
@@ -980,6 +992,10 @@ namespace IsengardClient
 
         private void ProcessInitialLogin(FeedLineParameters flp)
         {
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.UserName = _username;
+            sets.Save();
+
             InitialLoginInfo info = _loginInfo;
             if (RoomTransitionSequence.ProcessRoom(info.RoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
             {
@@ -2839,7 +2855,7 @@ namespace IsengardClient
 
         private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms, bool fleeing)
         {
-            CheckAutoHazy(pms.AutoHazy, DateTime.UtcNow, _autohp);
+            CheckAutoHazy(pms.AutoHazyThreshold, DateTime.UtcNow, _autohp);
 
             if (!fleeing && _fumbled)
             {
@@ -3005,6 +3021,10 @@ namespace IsengardClient
                         {
                             regularLogic = true;
                         }
+                    }
+                    else if (ctl is Label)
+                    {
+                        regularLogic = false;
                     }
                     else if (ctl is TextBox)
                     {
@@ -3397,7 +3417,7 @@ namespace IsengardClient
         private BackgroundWorkerParameters GenerateNewBackgroundParameters()
         {
             BackgroundWorkerParameters ret = new BackgroundWorkerParameters();
-            ret.AutoHazy = chkAutoHazy.Checked;
+            ret.AutoHazyThreshold = _autoHazyThreshold;
             ret.MaxOffensiveLevel = Convert.ToInt32(cboMaxOffLevel.SelectedItem.ToString());
             ret.AutoMana = chkAutoMana.Checked;
             return ret;
@@ -3424,7 +3444,7 @@ namespace IsengardClient
             public int MaxOffensiveLevel { get; set; }
             public bool AutoMana { get; set; }
             public PromptedSkills UsedSkills { get; set; }
-            public bool AutoHazy { get; set; }
+            public int AutoHazyThreshold { get; set; }
             public bool Flee { get; set; }
             public bool Quit { get; set; }
             public bool DoScore { get; set; }
@@ -3825,19 +3845,19 @@ namespace IsengardClient
 
                 if (_autoHazied)
                 {
-                    chkAutoHazy.Checked = false;
+                    ClearAutoHazyThreshold();
                     _lastTriedToAutoHazy = null;
                     _autoHazied = false;
                     if (_currentBackgroundParameters != null)
                     {
                         _bw.CancelAsync();
-                        _currentBackgroundParameters.AutoHazy = false;
+                        _currentBackgroundParameters.AutoHazyThreshold = 0;
                     }
                     SetCurrentRoom(_gameMap.TreeOfLifeRoom);
                 }
                 else
                 {
-                    CheckAutoHazy(chkAutoHazy.Checked, dtUtcNow, autohpforthistick);
+                    CheckAutoHazy(_autoHazyThreshold, dtUtcNow, autohpforthistick);
                 }
 
                 //check for poll tick if the first status update has completed and not at full HP+MP
@@ -3906,9 +3926,9 @@ namespace IsengardClient
             return ret;
         }
 
-        private void CheckAutoHazy(bool AutoHazyActive, DateTime dtUtcNow, int autoHitpoints)
+        private void CheckAutoHazy(int autoHazyThreshold, DateTime dtUtcNow, int autoHitpoints)
         {
-            if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && AutoHazyActive && autoHitpoints > 0 && autoHitpoints < _autoHazyThreshold && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
+            if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && autoHitpoints > 0 && autoHitpoints < autoHazyThreshold && autoHazyThreshold > 0 && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
             {
                 _lastTriedToAutoHazy = dtUtcNow;
                 SendCommand("drink hazy", InputEchoType.On);
@@ -3926,20 +3946,6 @@ namespace IsengardClient
             else
             {
                 MessageBox.Show("Invalid mana: " + sNewMana, "Change Mana");
-            }
-        }
-
-        private void btnSetAutoHazyThreshold_Click(object sender, EventArgs e)
-        {
-            string sNewAutoHazyThreshold = Interaction.InputBox("New auto hazy threshold:", "Auto Hazy Threshold", txtAutoHazyThreshold.Text);
-            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold) && iNewAutoHazyThreshold > 0 && iNewAutoHazyThreshold <= _totalmp)
-            {
-                _autoHazyThreshold = iNewAutoHazyThreshold;
-                txtAutoHazyThreshold.Text = _autoHazyThreshold.ToString();
-            }
-            else
-            {
-                MessageBox.Show("Invalid auto hazy threshold: " + sNewAutoHazyThreshold);
             }
         }
 
@@ -4358,45 +4364,20 @@ namespace IsengardClient
             }
         }
 
-        private void SetCurrentRealmButton(string realm)
+        private void SetCurrentRealm(string realm)
         {
             List<string> spellList;
-            ToolStripMenuItem currentRealmTSMI;
-            System.Drawing.Color backColor;
             if (realm == "earth")
-            {
                 spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
-                currentRealmTSMI = tsmiEarth;
-                backColor = Color.Tan;
-            }
             else if (realm == "fire")
-            {
                 spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
-                currentRealmTSMI = tsmiFire;
-                backColor = Color.LightSalmon;
-            }
             else if (realm == "water")
-            {
                 spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
-                currentRealmTSMI = tsmiWater;
-                backColor = Color.LightBlue;
-            }
-            else if (realm == "wind")
-            {
+            else //wind
                 spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
-                currentRealmTSMI = tsmiWind;
-                backColor = Color.LightGray;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-            foreach (ToolStripMenuItem tsmi in new ToolStripMenuItem[] { tsmiEarth, tsmiFire, tsmiWater, tsmiWind })
-            {
-                tsmi.Checked = tsmi == currentRealmTSMI;
-            }
+            UIShared.UpdateRealmMenu(ctxRealm, realm);
             lblRealm.Text = realm;
-            lblRealm.BackColor = backColor;
+            lblRealm.BackColor = UIShared.GetColorForRealm(realm);
             _realm1Spell = spellList[0];
             _realm2Spell = spellList[1];
             _realm3Spell = spellList[2];
@@ -4404,7 +4385,71 @@ namespace IsengardClient
 
         private void tsmiRealm_Click(object sender, EventArgs e)
         {
-            SetCurrentRealmButton(((ToolStripMenuItem)sender).Text);
+            _defaultRealm = ((ToolStripMenuItem)sender).Text;
+            SetCurrentRealm(_defaultRealm);
+        }
+
+        private void tsbConfiguration_Click(object sender, EventArgs e)
+        {
+            frmConfiguration frm = new frmConfiguration();
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                IsengardSettings sets = IsengardSettings.Default;
+                _queryMonsterStatus = sets.QueryMonsterStatus;
+                _verboseMode = sets.VerboseMode;
+            }
+        }
+
+        private void tsmiSetAutoHazy_Click(object sender, EventArgs e)
+        {
+            string sNewAutoHazyThreshold = Interaction.InputBox("New auto hazy threshold:", "Auto Hazy Threshold", _rememberedAutoHazyThreshold.ToString());
+            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold) && iNewAutoHazyThreshold > 0 && iNewAutoHazyThreshold < _totalhp)
+            {
+                _autoHazyThreshold = iNewAutoHazyThreshold;
+                _rememberedAutoHazyThreshold = iNewAutoHazyThreshold;
+                UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, 0);
+                tsmiReactivateAutoHazy.Visible = false;
+                tsmiClearAutoHazy.Visible = true;
+            }
+            else
+            {
+                MessageBox.Show("Invalid auto hazy threshold: " + sNewAutoHazyThreshold);
+            }
+        }
+
+        private void tsmiClearAutoHazy_Click(object sender, EventArgs e)
+        {
+            ClearAutoHazyThreshold();
+        }
+
+        private void ClearAutoHazyThreshold()
+        {
+            _autoHazyThreshold = 0;
+            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, _rememberedAutoHazyThreshold);
+            tsmiClearAutoHazy.Visible = false;
+            tsmiReactivateAutoHazy.Visible = _rememberedAutoHazyThreshold > 0;
+        }
+
+        private void tsmiSetDefaultAutoHazy_Click(object sender, EventArgs e)
+        {
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.DefaultAutoHazyThreshold = _autoHazyThreshold;
+            sets.Save();
+        }
+
+        private void tsmiSetCurrentRealmAsDefault_Click(object sender, EventArgs e)
+        {
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.DefaultRealm = _defaultRealm;
+            sets.Save();
+        }
+
+        private void tsmiReactivateAutoHazy_Click(object sender, EventArgs e)
+        {
+            _autoHazyThreshold = _rememberedAutoHazyThreshold;
+            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, _rememberedAutoHazyThreshold);
+            tsmiClearAutoHazy.Visible = true;
+            tsmiReactivateAutoHazy.Visible = false;
         }
     }
 

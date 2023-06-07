@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IsengardClient.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.NetworkInformation;
@@ -29,10 +30,12 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out string defaultRealm, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus);
+            LoadConfiguration(out List<Macro> allMacros);
+            int healtickmp = 7;
 
             string password;
-            using (frmLogin loginForm = new frmLogin(userName))
+            string userName;
+            using (frmLogin loginForm = new frmLogin(IsengardSettings.Default.UserName))
             {
                 if (loginForm.ShowDialog() != DialogResult.OK)
                 {
@@ -42,124 +45,14 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(defaultRealm, healtickmp, preferredAlignment, userName, password, allMacros, defaultWeapon, autoHazyThreshold, autoHazyDefault, verboseMode, queryMonsterStatus));
+            Application.Run(new frmMain(healtickmp, userName, password, allMacros));
         }
 
-        private static void LoadConfiguration(out string defaultRealm, out int healtickmp, out AlignmentType preferredAlignment, out string userName, out List<Macro> allMacros, out string defaultWeapon, out int autoHazyThreshold, out bool autoHazyDefault, out bool verboseMode, out bool queryMonsterStatus)
+        private static void LoadConfiguration(out List<Macro> allMacros)
         {
-            defaultRealm = string.Empty;
-            healtickmp = 0;
-            preferredAlignment = AlignmentType.Grey;
-            userName = string.Empty;
             allMacros = new List<Macro>();
-            defaultWeapon = string.Empty;
-            autoHazyThreshold = 0;
-            autoHazyDefault = false;
-            verboseMode = false;
-            queryMonsterStatus = false;
-
-            string configurationFile = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Configuration.xml");
-            FileInfo fi = new FileInfo(configurationFile);
-            if (!fi.Exists)
-            {
-                MessageBox.Show("Configuration.xml does not exist!");
-                return;
-            }
-            XmlDocument doc = new XmlDocument();
-            try
-            {
-                doc.Load(configurationFile);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to load Configuration.xml: " + ex.ToString());
-                return;
-            }
 
             List<string> errorMessages = new List<string>();
-
-            XmlElement docElement = doc.DocumentElement;
-
-            defaultRealm = docElement.GetAttribute("defaultrealm");
-            if (!string.IsNullOrEmpty(defaultRealm))
-            {
-                defaultRealm = defaultRealm.ToLower();
-                if (defaultRealm != "earth" &&
-                    defaultRealm != "fire" &&
-                    defaultRealm != "water" &&
-                    defaultRealm != "wind")
-                {
-                    MessageBox.Show("Invalid default realm: " + defaultRealm);
-                    defaultRealm = string.Empty;
-                }
-            }
-
-            defaultWeapon = docElement.GetAttribute("defaultweapon");
-
-            string sHealTickMP = docElement.GetAttribute("healtickmp");
-            if (string.IsNullOrEmpty(sHealTickMP))
-            {
-                MessageBox.Show("No heal tick MP specified.");
-                healtickmp = 0;
-            }
-            else if (!int.TryParse(sHealTickMP, out healtickmp))
-            {
-                MessageBox.Show("Invalid heal tick MP specified: " + sHealTickMP);
-                healtickmp = 0;
-            }
-
-            string sAutoHazyThreshold = docElement.GetAttribute("autohazythreshold");
-            if (!string.IsNullOrEmpty(sAutoHazyThreshold))
-            {
-                if (!int.TryParse(sAutoHazyThreshold, out autoHazyThreshold))
-                {
-                    MessageBox.Show("Invalid auto hazy threshold: " + sAutoHazyThreshold);
-                    autoHazyThreshold = 0;
-                }
-            }
-
-            string sAutoHazyDefault = docElement.GetAttribute("autohazydefault");
-            if (!string.IsNullOrEmpty(sAutoHazyDefault))
-            {
-                if (!bool.TryParse(sAutoHazyDefault, out autoHazyDefault))
-                {
-                    MessageBox.Show("Invalid auto hazy default: " + sAutoHazyDefault);
-                    autoHazyDefault = false;
-                }
-            }
-
-            string sVerbose = docElement.GetAttribute("verbose");
-            if (!string.IsNullOrEmpty(sVerbose))
-            {
-                if (!bool.TryParse(sVerbose, out verboseMode))
-                {
-                    MessageBox.Show("Invalid verbose: " + sVerbose);
-                    verboseMode = false;
-                }
-            }
-
-            string sQueryMonsterStatus = docElement.GetAttribute("queryMonsterStatus");
-            if (!string.IsNullOrEmpty(sQueryMonsterStatus))
-            {
-                if (!bool.TryParse(sQueryMonsterStatus, out queryMonsterStatus))
-                {
-                    MessageBox.Show("Invalid query monster status: " + sQueryMonsterStatus);
-                    queryMonsterStatus = false;
-                }
-            }
-
-            string sPreferredAlignment = docElement.GetAttribute("preferredalignment");
-            if (Enum.TryParse(sPreferredAlignment, out AlignmentType ePreferredAlignment))
-            {
-                preferredAlignment = ePreferredAlignment;
-            }
-            else
-            {
-                MessageBox.Show("Invalid preferred alignment type");
-                preferredAlignment = AlignmentType.Grey;
-            }
-
-            userName = docElement.GetAttribute("username");
 
             allMacros.Add(Macro.GenerateCannedMacro("C*+A*"));
             allMacros.Add(Macro.GenerateCannedMacro("SC*+A*"));

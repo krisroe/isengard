@@ -84,6 +84,12 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblAutoHazyValue = new System.Windows.Forms.Label();
+            this.ctxAutoHazy = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiReactivateAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiClearAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetDefaultAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.lblTime = new System.Windows.Forms.Label();
             this.lblRealm = new System.Windows.Forms.Label();
             this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -91,6 +97,7 @@
             this.tsmiFire = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetCurrentRealmAsDefault = new System.Windows.Forms.ToolStripMenuItem();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
             this.lblManashieldTimeValue = new System.Windows.Forms.Label();
             this.lblPowerAttackTimeValue = new System.Windows.Forms.Label();
@@ -119,10 +126,6 @@
             this.btnOtherSingleMove = new System.Windows.Forms.Button();
             this.btnDn = new System.Windows.Forms.Button();
             this.btnUp = new System.Windows.Forms.Button();
-            this.btnSetAutoHazyThreshold = new System.Windows.Forms.Button();
-            this.txtAutoHazyThreshold = new System.Windows.Forms.TextBox();
-            this.lblAutoHazyThreshold = new System.Windows.Forms.Label();
-            this.chkAutoHazy = new System.Windows.Forms.CheckBox();
             this.grpSpells = new System.Windows.Forms.GroupBox();
             this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
             this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
@@ -136,8 +139,6 @@
             this.btnSearch = new System.Windows.Forms.Button();
             this.tabAncillary = new System.Windows.Forms.TabPage();
             this.pnlAncillary = new System.Windows.Forms.Panel();
-            this.lblPreferredAlignment = new System.Windows.Forms.Label();
-            this.txtPreferredAlignment = new System.Windows.Forms.TextBox();
             this.tabEmotes = new System.Windows.Forms.TabPage();
             this.pnlEmotes = new System.Windows.Forms.Panel();
             this.btnSay = new System.Windows.Forms.Button();
@@ -163,6 +164,7 @@
             this.tsbUptime = new System.Windows.Forms.ToolStripButton();
             this.tsbScore = new System.Windows.Forms.ToolStripButton();
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
+            this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
@@ -177,6 +179,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.ctxAutoHazy.SuspendLayout();
             this.ctxRealm.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
             this.grpMessages.SuspendLayout();
@@ -311,7 +314,7 @@
             // 
             // btnLook
             // 
-            this.btnLook.Location = new System.Drawing.Point(262, 121);
+            this.btnLook.Location = new System.Drawing.Point(262, 19);
             this.btnLook.Margin = new System.Windows.Forms.Padding(2);
             this.btnLook.Name = "btnLook";
             this.btnLook.Size = new System.Drawing.Size(117, 28);
@@ -322,7 +325,7 @@
             // 
             // btnCastVigor
             // 
-            this.btnCastVigor.Location = new System.Drawing.Point(383, 121);
+            this.btnCastVigor.Location = new System.Drawing.Point(267, 121);
             this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastVigor.Name = "btnCastVigor";
             this.btnCastVigor.Size = new System.Drawing.Size(93, 28);
@@ -333,7 +336,7 @@
             // 
             // btnCastCurePoison
             // 
-            this.btnCastCurePoison.Location = new System.Drawing.Point(384, 190);
+            this.btnCastCurePoison.Location = new System.Drawing.Point(268, 190);
             this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastCurePoison.Name = "btnCastCurePoison";
             this.btnCastCurePoison.Size = new System.Drawing.Size(93, 28);
@@ -398,7 +401,7 @@
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(480, 121);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(364, 121);
             this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
             this.btnDrinkYellow.Size = new System.Drawing.Size(93, 28);
@@ -409,7 +412,7 @@
             // 
             // btnDrinkGreen
             // 
-            this.btnDrinkGreen.Location = new System.Drawing.Point(480, 190);
+            this.btnDrinkGreen.Location = new System.Drawing.Point(364, 190);
             this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrinkGreen.Name = "btnDrinkGreen";
             this.btnDrinkGreen.Size = new System.Drawing.Size(93, 28);
@@ -439,7 +442,7 @@
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(262, 223);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(384, 19);
             this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(117, 28);
@@ -620,7 +623,7 @@
             // 
             // btnRemoveWeapon
             // 
-            this.btnRemoveWeapon.Location = new System.Drawing.Point(262, 255);
+            this.btnRemoveWeapon.Location = new System.Drawing.Point(383, 51);
             this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
             this.btnRemoveWeapon.Size = new System.Drawing.Size(117, 28);
@@ -765,6 +768,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblAutoHazyValue);
             this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.lblRealm);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
@@ -773,10 +777,6 @@
             this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
             this.pnlMain.Controls.Add(this.grpSingleMove);
-            this.pnlMain.Controls.Add(this.btnSetAutoHazyThreshold);
-            this.pnlMain.Controls.Add(this.txtAutoHazyThreshold);
-            this.pnlMain.Controls.Add(this.lblAutoHazyThreshold);
-            this.pnlMain.Controls.Add(this.chkAutoHazy);
             this.pnlMain.Controls.Add(this.grpSpells);
             this.pnlMain.Controls.Add(this.cboMaxOffLevel);
             this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
@@ -822,6 +822,56 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // lblAutoHazyValue
+            // 
+            this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
+            this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
+            this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
+            this.lblAutoHazyValue.Location = new System.Drawing.Point(610, 473);
+            this.lblAutoHazyValue.Name = "lblAutoHazyValue";
+            this.lblAutoHazyValue.Size = new System.Drawing.Size(115, 15);
+            this.lblAutoHazyValue.TabIndex = 134;
+            this.lblAutoHazyValue.Text = "Auto Hazy";
+            this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // ctxAutoHazy
+            // 
+            this.ctxAutoHazy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiReactivateAutoHazy,
+            this.tsmiSetAutoHazy,
+            this.tsmiClearAutoHazy,
+            this.tsmiSetDefaultAutoHazy});
+            this.ctxAutoHazy.Name = "ctxAutoHazy";
+            this.ctxAutoHazy.Size = new System.Drawing.Size(181, 114);
+            // 
+            // tsmiReactivateAutoHazy
+            // 
+            this.tsmiReactivateAutoHazy.Name = "tsmiReactivateAutoHazy";
+            this.tsmiReactivateAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiReactivateAutoHazy.Text = "Reactivate";
+            this.tsmiReactivateAutoHazy.Click += new System.EventHandler(this.tsmiReactivateAutoHazy_Click);
+            // 
+            // tsmiSetAutoHazy
+            // 
+            this.tsmiSetAutoHazy.Name = "tsmiSetAutoHazy";
+            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetAutoHazy.Text = "Set";
+            this.tsmiSetAutoHazy.Click += new System.EventHandler(this.tsmiSetAutoHazy_Click);
+            // 
+            // tsmiClearAutoHazy
+            // 
+            this.tsmiClearAutoHazy.Name = "tsmiClearAutoHazy";
+            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiClearAutoHazy.Text = "Clear";
+            this.tsmiClearAutoHazy.Click += new System.EventHandler(this.tsmiClearAutoHazy_Click);
+            // 
+            // tsmiSetDefaultAutoHazy
+            // 
+            this.tsmiSetDefaultAutoHazy.Name = "tsmiSetDefaultAutoHazy";
+            this.tsmiSetDefaultAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetDefaultAutoHazy.Text = "Set Default";
+            this.tsmiSetDefaultAutoHazy.Click += new System.EventHandler(this.tsmiSetDefaultAutoHazy_Click);
+            // 
             // lblTime
             // 
             this.lblTime.Location = new System.Drawing.Point(610, 429);
@@ -836,7 +886,7 @@
             this.lblRealm.ContextMenuStrip = this.ctxRealm;
             this.lblRealm.Location = new System.Drawing.Point(610, 451);
             this.lblRealm.Name = "lblRealm";
-            this.lblRealm.Size = new System.Drawing.Size(114, 15);
+            this.lblRealm.Size = new System.Drawing.Size(115, 15);
             this.lblRealm.TabIndex = 124;
             this.lblRealm.Text = "Realm";
             this.lblRealm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -847,37 +897,45 @@
             this.tsmiEarth,
             this.tsmiFire,
             this.tsmiWater,
-            this.tsmiWind});
+            this.tsmiWind,
+            this.tsmiSetCurrentRealmAsDefault});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(104, 92);
+            this.ctxRealm.Size = new System.Drawing.Size(189, 114);
             // 
             // tsmiEarth
             // 
             this.tsmiEarth.Name = "tsmiEarth";
-            this.tsmiEarth.Size = new System.Drawing.Size(103, 22);
+            this.tsmiEarth.Size = new System.Drawing.Size(188, 22);
             this.tsmiEarth.Text = "earth";
             this.tsmiEarth.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiFire
             // 
             this.tsmiFire.Name = "tsmiFire";
-            this.tsmiFire.Size = new System.Drawing.Size(103, 22);
+            this.tsmiFire.Size = new System.Drawing.Size(188, 22);
             this.tsmiFire.Text = "fire";
             this.tsmiFire.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiWater
             // 
             this.tsmiWater.Name = "tsmiWater";
-            this.tsmiWater.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWater.Size = new System.Drawing.Size(188, 22);
             this.tsmiWater.Text = "water";
             this.tsmiWater.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiWind
             // 
             this.tsmiWind.Name = "tsmiWind";
-            this.tsmiWind.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWind.Size = new System.Drawing.Size(188, 22);
             this.tsmiWind.Text = "wind";
             this.tsmiWind.Click += new System.EventHandler(this.tsmiRealm_Click);
+            // 
+            // tsmiSetCurrentRealmAsDefault
+            // 
+            this.tsmiSetCurrentRealmAsDefault.Name = "tsmiSetCurrentRealmAsDefault";
+            this.tsmiSetCurrentRealmAsDefault.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetCurrentRealmAsDefault.Text = "Set Current as Default";
+            this.tsmiSetCurrentRealmAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentRealmAsDefault_Click);
             // 
             // grpCurrentPlayer
             // 
@@ -1081,7 +1139,7 @@
             // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(578, 121);
+            this.btnGraph.Location = new System.Drawing.Point(462, 121);
             this.btnGraph.Name = "btnGraph";
             this.btnGraph.Size = new System.Drawing.Size(92, 28);
             this.btnGraph.TabIndex = 119;
@@ -1115,7 +1173,7 @@
             this.grpSingleMove.Controls.Add(this.btnSoutheast);
             this.grpSingleMove.Controls.Add(this.btnSouth);
             this.grpSingleMove.Controls.Add(this.btnSouthwest);
-            this.grpSingleMove.Location = new System.Drawing.Point(392, 223);
+            this.grpSingleMove.Location = new System.Drawing.Point(268, 223);
             this.grpSingleMove.Name = "grpSingleMove";
             this.grpSingleMove.Size = new System.Drawing.Size(244, 123);
             this.grpSingleMove.TabIndex = 117;
@@ -1192,48 +1250,6 @@
             this.btnUp.UseVisualStyleBackColor = true;
             this.btnUp.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
-            // btnSetAutoHazyThreshold
-            // 
-            this.btnSetAutoHazyThreshold.Location = new System.Drawing.Point(385, 37);
-            this.btnSetAutoHazyThreshold.Margin = new System.Windows.Forms.Padding(2);
-            this.btnSetAutoHazyThreshold.Name = "btnSetAutoHazyThreshold";
-            this.btnSetAutoHazyThreshold.Size = new System.Drawing.Size(40, 24);
-            this.btnSetAutoHazyThreshold.TabIndex = 116;
-            this.btnSetAutoHazyThreshold.Text = "Set";
-            this.btnSetAutoHazyThreshold.UseVisualStyleBackColor = true;
-            this.btnSetAutoHazyThreshold.Click += new System.EventHandler(this.btnSetAutoHazyThreshold_Click);
-            // 
-            // txtAutoHazyThreshold
-            // 
-            this.txtAutoHazyThreshold.Location = new System.Drawing.Point(321, 42);
-            this.txtAutoHazyThreshold.Margin = new System.Windows.Forms.Padding(2);
-            this.txtAutoHazyThreshold.Name = "txtAutoHazyThreshold";
-            this.txtAutoHazyThreshold.ReadOnly = true;
-            this.txtAutoHazyThreshold.Size = new System.Drawing.Size(61, 20);
-            this.txtAutoHazyThreshold.TabIndex = 115;
-            // 
-            // lblAutoHazyThreshold
-            // 
-            this.lblAutoHazyThreshold.AutoSize = true;
-            this.lblAutoHazyThreshold.Location = new System.Drawing.Point(259, 42);
-            this.lblAutoHazyThreshold.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblAutoHazyThreshold.Name = "lblAutoHazyThreshold";
-            this.lblAutoHazyThreshold.Size = new System.Drawing.Size(57, 13);
-            this.lblAutoHazyThreshold.TabIndex = 114;
-            this.lblAutoHazyThreshold.Text = "Threshold:";
-            this.lblAutoHazyThreshold.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // chkAutoHazy
-            // 
-            this.chkAutoHazy.AutoSize = true;
-            this.chkAutoHazy.Location = new System.Drawing.Point(265, 21);
-            this.chkAutoHazy.Margin = new System.Windows.Forms.Padding(2);
-            this.chkAutoHazy.Name = "chkAutoHazy";
-            this.chkAutoHazy.Size = new System.Drawing.Size(75, 17);
-            this.chkAutoHazy.TabIndex = 113;
-            this.chkAutoHazy.Text = "Auto Hazy";
-            this.chkAutoHazy.UseVisualStyleBackColor = true;
-            // 
             // grpSpells
             // 
             this.grpSpells.Controls.Add(this.flpSpells);
@@ -1263,7 +1279,7 @@
             "3",
             "2",
             "1"});
-            this.cboMaxOffLevel.Location = new System.Drawing.Point(327, 351);
+            this.cboMaxOffLevel.Location = new System.Drawing.Point(97, 318);
             this.cboMaxOffLevel.Margin = new System.Windows.Forms.Padding(2);
             this.cboMaxOffLevel.Name = "cboMaxOffLevel";
             this.cboMaxOffLevel.Size = new System.Drawing.Size(98, 21);
@@ -1272,7 +1288,7 @@
             // lblMaxOffensiveLevel
             // 
             this.lblMaxOffensiveLevel.AutoSize = true;
-            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(253, 354);
+            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(23, 321);
             this.lblMaxOffensiveLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
             this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(70, 13);
@@ -1281,7 +1297,7 @@
             // 
             // btnRemoveAll
             // 
-            this.btnRemoveAll.Location = new System.Drawing.Point(262, 287);
+            this.btnRemoveAll.Location = new System.Drawing.Point(383, 83);
             this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(2);
             this.btnRemoveAll.Name = "btnRemoveAll";
             this.btnRemoveAll.Size = new System.Drawing.Size(117, 28);
@@ -1314,7 +1330,7 @@
             // 
             // btnCastMend
             // 
-            this.btnCastMend.Location = new System.Drawing.Point(384, 154);
+            this.btnCastMend.Location = new System.Drawing.Point(268, 154);
             this.btnCastMend.Margin = new System.Windows.Forms.Padding(2);
             this.btnCastMend.Name = "btnCastMend";
             this.btnCastMend.Size = new System.Drawing.Size(93, 28);
@@ -1325,7 +1341,7 @@
             // 
             // btnReddishOrange
             // 
-            this.btnReddishOrange.Location = new System.Drawing.Point(480, 154);
+            this.btnReddishOrange.Location = new System.Drawing.Point(364, 154);
             this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(2);
             this.btnReddishOrange.Name = "btnReddishOrange";
             this.btnReddishOrange.Size = new System.Drawing.Size(93, 28);
@@ -1336,7 +1352,7 @@
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(262, 190);
+            this.btnHide.Location = new System.Drawing.Point(262, 82);
             this.btnHide.Margin = new System.Windows.Forms.Padding(2);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(117, 28);
@@ -1348,7 +1364,7 @@
             // 
             // btnSearch
             // 
-            this.btnSearch.Location = new System.Drawing.Point(262, 154);
+            this.btnSearch.Location = new System.Drawing.Point(262, 51);
             this.btnSearch.Margin = new System.Windows.Forms.Padding(2);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(117, 28);
@@ -1372,8 +1388,6 @@
             // 
             // pnlAncillary
             // 
-            this.pnlAncillary.Controls.Add(this.lblPreferredAlignment);
-            this.pnlAncillary.Controls.Add(this.txtPreferredAlignment);
             this.pnlAncillary.Controls.Add(this.txtSetValue);
             this.pnlAncillary.Controls.Add(this.btnSet);
             this.pnlAncillary.Controls.Add(this.cboSetOption);
@@ -1384,26 +1398,6 @@
             this.pnlAncillary.Name = "pnlAncillary";
             this.pnlAncillary.Size = new System.Drawing.Size(1017, 875);
             this.pnlAncillary.TabIndex = 0;
-            // 
-            // lblPreferredAlignment
-            // 
-            this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(778, 19);
-            this.lblPreferredAlignment.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(77, 13);
-            this.lblPreferredAlignment.TabIndex = 92;
-            this.lblPreferredAlignment.Text = "Alignment pref:";
-            this.lblPreferredAlignment.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtPreferredAlignment
-            // 
-            this.txtPreferredAlignment.Enabled = false;
-            this.txtPreferredAlignment.Location = new System.Drawing.Point(868, 17);
-            this.txtPreferredAlignment.Margin = new System.Windows.Forms.Padding(2);
-            this.txtPreferredAlignment.Name = "txtPreferredAlignment";
-            this.txtPreferredAlignment.Size = new System.Drawing.Size(102, 20);
-            this.txtPreferredAlignment.TabIndex = 93;
             // 
             // tabEmotes
             // 
@@ -1602,6 +1596,7 @@
             this.tsbUptime,
             this.tsbScore,
             this.tsbTime,
+            this.tsbConfiguration,
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
@@ -1684,6 +1679,16 @@
             this.tsbTime.Tag = "time";
             this.tsbTime.Text = "Time";
             this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbConfiguration
+            // 
+            this.tsbConfiguration.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbConfiguration.Image = ((System.Drawing.Image)(resources.GetObject("tsbConfiguration.Image")));
+            this.tsbConfiguration.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbConfiguration.Name = "tsbConfiguration";
+            this.tsbConfiguration.Size = new System.Drawing.Size(85, 22);
+            this.tsbConfiguration.Text = "Configuration";
+            this.tsbConfiguration.Click += new System.EventHandler(this.tsbConfiguration_Click);
             // 
             // tsbQuit
             // 
@@ -1770,6 +1775,7 @@
             this.MinimizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Isengard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.ctxMob.ResumeLayout(false);
             this.ctxLocations.ResumeLayout(false);
@@ -1779,6 +1785,7 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.ctxAutoHazy.ResumeLayout(false);
             this.ctxRealm.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
             this.grpCurrentPlayer.PerformLayout();
@@ -1877,8 +1884,6 @@
         private System.Windows.Forms.Button btnManaSet;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
-        private System.Windows.Forms.Label lblPreferredAlignment;
-        private System.Windows.Forms.TextBox txtPreferredAlignment;
         private System.Windows.Forms.Label lblHitpoints;
         private System.Windows.Forms.CheckBox chkAutoMana;
         private System.Windows.Forms.Label lblPowerAttackCooldown;
@@ -1888,10 +1893,6 @@
         private System.Windows.Forms.Button btnDn;
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Button btnOtherSingleMove;
-        private System.Windows.Forms.Button btnSetAutoHazyThreshold;
-        private System.Windows.Forms.TextBox txtAutoHazyThreshold;
-        private System.Windows.Forms.Label lblAutoHazyThreshold;
-        private System.Windows.Forms.CheckBox chkAutoHazy;
         private System.Windows.Forms.TabPage tabEmotes;
         private System.Windows.Forms.Button btnEmote;
         private System.Windows.Forms.GroupBox grpEmotes;
@@ -1956,6 +1957,14 @@
         private System.Windows.Forms.Label lblPowerAttackTimeValue;
         private System.Windows.Forms.Label lblManaValue;
         private System.Windows.Forms.Label lblHitpointsValue;
+        private System.Windows.Forms.ToolStripButton tsbConfiguration;
+        private System.Windows.Forms.Label lblAutoHazyValue;
+        private System.Windows.Forms.ContextMenuStrip ctxAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiReactivateAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetDefaultAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentRealmAsDefault;
     }
 }
 

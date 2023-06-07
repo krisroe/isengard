@@ -116,6 +116,12 @@
     <Compile Include="AsciiMapping.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Exit.cs" />
+    <Compile Include="frmConfiguration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConfiguration.Designer.cs">
+      <DependentUpon>frmConfiguration.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmGraph.xaml.cs">
       <DependentUpon>frmGraph.xaml</DependentUpon>
     </Compile>
@@ -137,6 +143,11 @@
     <Compile Include="frmPreMacroPrompt.Designer.cs">
       <DependentUpon>frmPreMacroPrompt.cs</DependentUpon>
     </Compile>
+    <Compile Include="IsengardSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>IsengardSettings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Macro.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
@@ -149,6 +160,10 @@
     <Compile Include="Room.cs" />
     <Compile Include="RoomGraph.cs" />
     <Compile Include="Sequence.cs" />
+    <Compile Include="UIShared.cs" />
+    <EmbeddedResource Include="frmConfiguration.resx">
+      <DependentUpon>frmConfiguration.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>
@@ -167,6 +182,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="IsengardSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>IsengardSettings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -183,9 +202,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Configuration.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="En-us-full.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

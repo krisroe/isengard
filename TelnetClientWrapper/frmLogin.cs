@@ -57,7 +57,12 @@ namespace IsengardClient
 
         private void frmLogin_Shown(object sender, EventArgs e)
         {
-            txtPassword.Focus();
+            TextBox initialTextBox;
+            if (string.IsNullOrEmpty(txtUserName.Text))
+                initialTextBox = txtUserName;
+            else
+                initialTextBox = txtPassword;
+            initialTextBox.Focus();
         }
     }
 }
