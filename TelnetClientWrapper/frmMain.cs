@@ -2013,7 +2013,6 @@ namespace IsengardClient
             btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
             btnRemoveWeapon.Tag = new CommandButtonTag(btnRemoveWeapon, "remove {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnRemoveAll.Tag = new CommandButtonTag(btnRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
-            btnFumbleMob.Tag = new CommandButtonTag(btnFumbleMob, "cast fumble {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnCastMend.Tag = new CommandButtonTag(btnCastMend, CAST_MENDWOUNDS_SPELL, CommandType.Magic, DependentObjectType.None);
             btnReddishOrange.Tag = new CommandButtonTag(btnReddishOrange, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
@@ -3159,7 +3158,6 @@ namespace IsengardClient
             yield return (CommandButtonTag)btnPowerAttackMob.Tag;
             yield return (CommandButtonTag)btnRemoveWeapon.Tag;
             yield return (CommandButtonTag)btnRemoveAll.Tag;
-            yield return (CommandButtonTag)btnFumbleMob.Tag;
             yield return (CommandButtonTag)btnCastMend.Tag;
             yield return (CommandButtonTag)btnReddishOrange.Tag;
             yield return (CommandButtonTag)btnStunMob.Tag;
@@ -3873,12 +3871,16 @@ namespace IsengardClient
             Room oCurrentRoom = m_oCurrentRoom;
             if (oCurrentRoom != m_oCurrentRoomUI)
             {
-                string sRoomName = string.Empty;
+                string sLocationsText = string.Empty;
                 if (oCurrentRoom != null)
                 {
-                    sRoomName = oCurrentRoom.Name;
+                    sLocationsText = "Locations (" + oCurrentRoom.Name + ")";
                 }
-                txtCurrentRoom.Text = sRoomName;
+                else
+                {
+                    sLocationsText = "Locations (none)";
+                }
+                grpLocations.Text = sLocationsText;
                 m_oCurrentRoomUI = oCurrentRoom;
             }
 
