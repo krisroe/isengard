@@ -51,26 +51,31 @@
             this.lblPreferredAlignmentValue = new System.Windows.Forms.Label();
             this.ctxPreferredAlignment = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiTogglePreferredAlignment = new System.Windows.Forms.ToolStripMenuItem();
+            this.grpDefaults = new System.Windows.Forms.GroupBox();
+            this.grpSettings = new System.Windows.Forms.GroupBox();
             this.ctxDefaultRealm.SuspendLayout();
             this.ctxAutoHazy.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
+            this.grpDefaults.SuspendLayout();
+            this.grpSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblDefaultRealm
             // 
             this.lblDefaultRealm.AutoSize = true;
-            this.lblDefaultRealm.Location = new System.Drawing.Point(15, 11);
+            this.lblDefaultRealm.Location = new System.Drawing.Point(14, 28);
             this.lblDefaultRealm.Name = "lblDefaultRealm";
-            this.lblDefaultRealm.Size = new System.Drawing.Size(72, 13);
+            this.lblDefaultRealm.Size = new System.Drawing.Size(40, 13);
             this.lblDefaultRealm.TabIndex = 0;
-            this.lblDefaultRealm.Text = "Default realm:";
+            this.lblDefaultRealm.Text = "Realm:";
             // 
             // lblRealm
             // 
+            this.lblRealm.BackColor = System.Drawing.Color.White;
             this.lblRealm.ContextMenuStrip = this.ctxDefaultRealm;
-            this.lblRealm.Location = new System.Drawing.Point(127, 9);
+            this.lblRealm.Location = new System.Drawing.Point(129, 26);
             this.lblRealm.Name = "lblRealm";
-            this.lblRealm.Size = new System.Drawing.Size(169, 15);
+            this.lblRealm.Size = new System.Drawing.Size(166, 15);
             this.lblRealm.TabIndex = 125;
             this.lblRealm.Text = "Realm";
             this.lblRealm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -116,15 +121,15 @@
             // lblDefaultWeapon
             // 
             this.lblDefaultWeapon.AutoSize = true;
-            this.lblDefaultWeapon.Location = new System.Drawing.Point(15, 36);
+            this.lblDefaultWeapon.Location = new System.Drawing.Point(14, 53);
             this.lblDefaultWeapon.Name = "lblDefaultWeapon";
-            this.lblDefaultWeapon.Size = new System.Drawing.Size(85, 13);
+            this.lblDefaultWeapon.Size = new System.Drawing.Size(51, 13);
             this.lblDefaultWeapon.TabIndex = 126;
-            this.lblDefaultWeapon.Text = "Default weapon:";
+            this.lblDefaultWeapon.Text = "Weapon:";
             // 
             // txtDefaultWeapon
             // 
-            this.txtDefaultWeapon.Location = new System.Drawing.Point(130, 33);
+            this.txtDefaultWeapon.Location = new System.Drawing.Point(129, 50);
             this.txtDefaultWeapon.Name = "txtDefaultWeapon";
             this.txtDefaultWeapon.Size = new System.Drawing.Size(166, 20);
             this.txtDefaultWeapon.TabIndex = 127;
@@ -132,7 +137,7 @@
             // lblPreferredAlignment
             // 
             this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(15, 64);
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(14, 26);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
             this.lblPreferredAlignment.Size = new System.Drawing.Size(101, 13);
             this.lblPreferredAlignment.TabIndex = 128;
@@ -141,20 +146,20 @@
             // lblAutoHazy
             // 
             this.lblAutoHazy.AutoSize = true;
-            this.lblAutoHazy.Location = new System.Drawing.Point(15, 90);
+            this.lblAutoHazy.Location = new System.Drawing.Point(14, 82);
             this.lblAutoHazy.Name = "lblAutoHazy";
-            this.lblAutoHazy.Size = new System.Drawing.Size(93, 13);
+            this.lblAutoHazy.Size = new System.Drawing.Size(57, 13);
             this.lblAutoHazy.TabIndex = 132;
-            this.lblAutoHazy.Text = "Default auto hazy:";
+            this.lblAutoHazy.Text = "Auto hazy:";
             // 
             // lblAutoHazyValue
             // 
             this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
             this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoHazyValue.Location = new System.Drawing.Point(127, 88);
+            this.lblAutoHazyValue.Location = new System.Drawing.Point(129, 82);
             this.lblAutoHazyValue.Name = "lblAutoHazyValue";
-            this.lblAutoHazyValue.Size = new System.Drawing.Size(169, 15);
+            this.lblAutoHazyValue.Size = new System.Drawing.Size(166, 15);
             this.lblAutoHazyValue.TabIndex = 133;
             this.lblAutoHazyValue.Text = "Auto Hazy";
             this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -184,7 +189,7 @@
             // chkQueryMonsterStatus
             // 
             this.chkQueryMonsterStatus.AutoSize = true;
-            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(127, 111);
+            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(126, 54);
             this.chkQueryMonsterStatus.Name = "chkQueryMonsterStatus";
             this.chkQueryMonsterStatus.Size = new System.Drawing.Size(131, 17);
             this.chkQueryMonsterStatus.TabIndex = 135;
@@ -194,7 +199,7 @@
             // chkVerboseOutput
             // 
             this.chkVerboseOutput.AutoSize = true;
-            this.chkVerboseOutput.Location = new System.Drawing.Point(127, 134);
+            this.chkVerboseOutput.Location = new System.Drawing.Point(126, 77);
             this.chkVerboseOutput.Name = "chkVerboseOutput";
             this.chkVerboseOutput.Size = new System.Drawing.Size(104, 17);
             this.chkVerboseOutput.TabIndex = 136;
@@ -203,7 +208,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(127, 157);
+            this.btnOK.Location = new System.Drawing.Point(139, 262);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(73, 22);
             this.btnOK.TabIndex = 137;
@@ -214,7 +219,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(206, 157);
+            this.btnCancel.Location = new System.Drawing.Point(218, 262);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(73, 22);
             this.btnCancel.TabIndex = 138;
@@ -226,9 +231,9 @@
             this.lblPreferredAlignmentValue.BackColor = System.Drawing.Color.Blue;
             this.lblPreferredAlignmentValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblPreferredAlignmentValue.ForeColor = System.Drawing.Color.White;
-            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(127, 64);
+            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(129, 26);
             this.lblPreferredAlignmentValue.Name = "lblPreferredAlignmentValue";
-            this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(169, 15);
+            this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(166, 15);
             this.lblPreferredAlignmentValue.TabIndex = 139;
             this.lblPreferredAlignmentValue.Text = "Good";
             this.lblPreferredAlignmentValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -247,23 +252,43 @@
             this.tsmiTogglePreferredAlignment.Text = "Toggle";
             this.tsmiTogglePreferredAlignment.Click += new System.EventHandler(this.tsmiTogglePreferredAlignment_Click);
             // 
+            // grpDefaults
+            // 
+            this.grpDefaults.Controls.Add(this.lblRealm);
+            this.grpDefaults.Controls.Add(this.lblDefaultRealm);
+            this.grpDefaults.Controls.Add(this.lblDefaultWeapon);
+            this.grpDefaults.Controls.Add(this.txtDefaultWeapon);
+            this.grpDefaults.Controls.Add(this.lblAutoHazyValue);
+            this.grpDefaults.Controls.Add(this.lblAutoHazy);
+            this.grpDefaults.Location = new System.Drawing.Point(12, 12);
+            this.grpDefaults.Name = "grpDefaults";
+            this.grpDefaults.Size = new System.Drawing.Size(301, 119);
+            this.grpDefaults.TabIndex = 140;
+            this.grpDefaults.TabStop = false;
+            this.grpDefaults.Text = "Defaults";
+            // 
+            // grpSettings
+            // 
+            this.grpSettings.Controls.Add(this.lblPreferredAlignmentValue);
+            this.grpSettings.Controls.Add(this.lblPreferredAlignment);
+            this.grpSettings.Controls.Add(this.chkQueryMonsterStatus);
+            this.grpSettings.Controls.Add(this.chkVerboseOutput);
+            this.grpSettings.Location = new System.Drawing.Point(12, 147);
+            this.grpSettings.Name = "grpSettings";
+            this.grpSettings.Size = new System.Drawing.Size(301, 109);
+            this.grpSettings.TabIndex = 141;
+            this.grpSettings.TabStop = false;
+            this.grpSettings.Text = "Settings";
+            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(321, 193);
-            this.Controls.Add(this.lblPreferredAlignmentValue);
+            this.ClientSize = new System.Drawing.Size(326, 294);
+            this.Controls.Add(this.grpSettings);
+            this.Controls.Add(this.grpDefaults);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.chkVerboseOutput);
-            this.Controls.Add(this.chkQueryMonsterStatus);
-            this.Controls.Add(this.lblAutoHazyValue);
-            this.Controls.Add(this.lblAutoHazy);
-            this.Controls.Add(this.lblPreferredAlignment);
-            this.Controls.Add(this.txtDefaultWeapon);
-            this.Controls.Add(this.lblDefaultWeapon);
-            this.Controls.Add(this.lblRealm);
-            this.Controls.Add(this.lblDefaultRealm);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -273,8 +298,11 @@
             this.ctxDefaultRealm.ResumeLayout(false);
             this.ctxAutoHazy.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
+            this.grpDefaults.ResumeLayout(false);
+            this.grpDefaults.PerformLayout();
+            this.grpSettings.ResumeLayout(false);
+            this.grpSettings.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -302,5 +330,7 @@
         private System.Windows.Forms.Label lblPreferredAlignmentValue;
         private System.Windows.Forms.ContextMenuStrip ctxPreferredAlignment;
         private System.Windows.Forms.ToolStripMenuItem tsmiTogglePreferredAlignment;
+        private System.Windows.Forms.GroupBox grpDefaults;
+        private System.Windows.Forms.GroupBox grpSettings;
     }
 }

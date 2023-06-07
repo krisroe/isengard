@@ -17,6 +17,7 @@ namespace IsengardClient
 
         private RoomGraph _breeStreetsGraph;
 
+        private Room _orderOfLove = null;
         private Room _treeOfLife = null;
         private Room _healingHand = null;
         private Room _nindamosVillageCenter = null;
@@ -54,7 +55,7 @@ namespace IsengardClient
             graphMillwoodMansion.ScalingFactor = 100;
             _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, preferredAlignment, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
             AddMayorMillwoodMansion(oIxell);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
             AddBreeToImladris(out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
@@ -70,6 +71,8 @@ namespace IsengardClient
             AddEldemondeCity(oEldemondeEastGateOutside);
             AddMithlond(boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare);
+
+            SetAlignment(preferredAlignment);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
             {
@@ -849,7 +852,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, AlignmentType preferredAlignment, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -950,17 +953,8 @@ namespace IsengardClient
             breeStreets[7, 8] = AddRoom("Main", "Main Street"); //8x9
             breeStreets[10, 8] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x9
             breeStreets[14, 8] = AddRoom("Brownhaven", "Brownhaven Road"); //15x9
-            Room oOrderOfLove = breeStreets[15, 8] = AddRoom("Order of Love", "Order of Love"); //16x9
-            oOrderOfLove.IsHealingRoom = true;
-            switch (preferredAlignment)
-            {
-                case AlignmentType.Blue:
-                    oOrderOfLove.Mob1 = "Drunk";
-                    break;
-                case AlignmentType.Red:
-                    oOrderOfLove.Mob1 = "Doctor";
-                    break;
-            }
+            _orderOfLove = breeStreets[15, 8] = AddRoom("Order of Love", "Order of Love"); //16x9
+            _orderOfLove.IsHealingRoom = true;
             breeStreets[0, 9] = AddRoom("Wain", "Wain Road North"); //1x10
             breeSewers[0, 9] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x10
             breeStreets[3, 9] = AddRoom("High", "North High Street"); //4x10
@@ -1191,7 +1185,7 @@ namespace IsengardClient
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
 
-            AddLocation(_aBreePerms, oOrderOfLove);
+            AddLocation(_aBreePerms, _orderOfLove);
             AddLocation(_aInaccessible, oGrant);
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
@@ -1200,6 +1194,19 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oScranlin);
 
             AddHauntedMansion(oHauntedMansionEntrance, _breeStreetsGraph);
+        }
+
+        public void SetAlignment(AlignmentType preferredAlignment)
+        {
+            switch (preferredAlignment)
+            {
+                case AlignmentType.Blue:
+                    _orderOfLove.Mob1 = "Drunk";
+                    break;
+                case AlignmentType.Red:
+                    _orderOfLove.Mob1 = "Doctor";
+                    break;
+            }
         }
 
         private void AddHauntedMansion(Room hauntedMansionEntrance, RoomGraph breeStreetsGraph)

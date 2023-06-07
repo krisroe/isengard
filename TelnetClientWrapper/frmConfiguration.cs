@@ -28,11 +28,7 @@ namespace IsengardClient
             RefreshRealmUI();
 
             txtDefaultWeapon.Text = sets.DefaultWeapon;
-
-            if (!Enum.TryParse(sets.PreferredAlignment, out _preferredAlignment))
-            {
-                _preferredAlignment = AlignmentType.Blue;
-            }
+            _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
             RefreshAlignmentTypeUI();
 
             _autoHazyThreshold = sets.DefaultAutoHazyThreshold;
@@ -41,6 +37,23 @@ namespace IsengardClient
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
             chkVerboseOutput.Checked = sets.VerboseMode;
+        }
+
+        internal AlignmentType PreferredAlignment
+        {
+            get
+            {
+                return _preferredAlignment;
+            }
+        }
+
+        private static AlignmentType ParseAlignment(string alignment)
+        {
+            if (!Enum.TryParse(alignment, out AlignmentType at))
+            {
+                at = AlignmentType.Blue;
+            }
+            return at;
         }
 
         private void RefreshRealmUI()

@@ -4397,6 +4397,7 @@ namespace IsengardClient
                 IsengardSettings sets = IsengardSettings.Default;
                 _queryMonsterStatus = sets.QueryMonsterStatus;
                 _verboseMode = sets.VerboseMode;
+                _gameMap.SetAlignment(frm.PreferredAlignment);
             }
         }
 
