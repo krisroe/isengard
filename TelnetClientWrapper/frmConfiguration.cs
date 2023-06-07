@@ -9,6 +9,8 @@ namespace IsengardClient
         private int _autoHazyThreshold;
         private AlignmentType _preferredAlignment;
         private string _defaultRealm;
+        private Color _fullColor;
+        private Color _emptyColor;
 
         public frmConfiguration()
         {
@@ -37,6 +39,28 @@ namespace IsengardClient
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
             chkVerboseOutput.Checked = sets.VerboseMode;
+
+            _fullColor = sets.FullColor;
+            SetColorUI(lblFullColorValue, _fullColor);
+            _emptyColor = sets.EmptyColor;
+            SetColorUI(lblEmptyColorValue, _emptyColor);
+        }
+
+        private void SetColorUI(Label lbl, Color c)
+        {
+            lbl.BackColor = c;
+            GetRGBString(c, out string colorText, out Color fgColor);
+            lbl.Text = colorText;
+            lbl.ForeColor = fgColor;
+        }
+
+        internal void GetRGBString(Color c, out string text, out Color foregroundColor)
+        {
+            text = c.R + "," + c.G + "," + c.B;
+            int iForegroundR = c.R <= 127 ? 255 : 0;
+            int iForegroundG = c.G <= 127 ? 255 : 0;
+            int iForegroundB = c.B <= 127 ? 255 : 0;
+            foregroundColor = Color.FromArgb(iForegroundR, iForegroundG, iForegroundB);
         }
 
         internal AlignmentType PreferredAlignment
@@ -90,6 +114,8 @@ namespace IsengardClient
             sets.DefaultAutoHazyThreshold = _autoHazyThreshold;
             sets.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
             sets.VerboseMode = chkVerboseOutput.Checked;
+            sets.FullColor = _fullColor;
+            sets.EmptyColor = _emptyColor;
             IsengardSettings.Default.Save();
 
             this.DialogResult = DialogResult.OK;
@@ -130,6 +156,38 @@ namespace IsengardClient
             ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
             _defaultRealm = tsmi.Text;
             RefreshRealmUI();
+        }
+
+        private void btnSelectFullColor_Click(object sender, EventArgs e)
+        {
+            Color? selected = PromptColor(_fullColor);
+            if (selected.HasValue)
+            {
+                _fullColor = selected.Value;
+                SetColorUI(lblFullColorValue, _fullColor);
+            }
+        }
+
+        private void btnSelectEmptyColor_Click(object sender, EventArgs e)
+        {
+            Color? selected = PromptColor(_emptyColor);
+            if (selected.HasValue)
+            {
+                _emptyColor = selected.Value;
+                SetColorUI(lblEmptyColorValue, _emptyColor);
+            }
+        }
+
+        private Color? PromptColor(Color initColor)
+        {
+            Color? ret = null;
+            ColorDialog clg = new ColorDialog();
+            clg.Color = initColor;
+            if (clg.ShowDialog(this) == DialogResult.OK)
+            {
+                ret = clg.Color;
+            }
+            return ret;
         }
     }
 }

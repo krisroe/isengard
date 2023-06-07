@@ -31,7 +31,6 @@ namespace IsengardClient
             Application.SetCompatibleTextRenderingDefault(false);
 
             LoadConfiguration(out List<Macro> allMacros);
-            int healtickmp = 7;
 
             string password;
             string userName;
@@ -45,7 +44,7 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(healtickmp, userName, password, allMacros));
+            Application.Run(new frmMain(userName, password, allMacros));
         }
 
         private static void LoadConfiguration(out List<Macro> allMacros)

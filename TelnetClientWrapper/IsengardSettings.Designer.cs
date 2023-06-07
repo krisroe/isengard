@@ -106,5 +106,29 @@ namespace IsengardClient {
                 this["QueryMonsterStatus"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Green")]
+        public global::System.Drawing.Color FullColor {
+            get {
+                return ((global::System.Drawing.Color)(this["FullColor"]));
+            }
+            set {
+                this["FullColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color EmptyColor {
+            get {
+                return ((global::System.Drawing.Color)(this["EmptyColor"]));
+            }
+            set {
+                this["EmptyColor"] = value;
+            }
+        }
     }
 }

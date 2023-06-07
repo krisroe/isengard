@@ -37,23 +37,26 @@ namespace IsengardClient
         private object _timeLock = new object();
         private string _hp = null;
         private string _hpUI = null;
-        private Color _hpColor = Color.Transparent;
-        private Color _hpColorUI = Color.Transparent;
+        private byte _hpColorR;
+        private byte _hpColorG;
+        private byte _hpColorB;
+        private byte _hpColorRUI;
+        private byte _hpColorGUI;
+        private byte _hpColorBUI;
         private string _mp = null;
         private string _mpUI = null;
-        private Color _mpColor = Color.Transparent;
-        private Color _mpColorUI = Color.Transparent;
+        private byte _mpColorR;
+        private byte _mpColorG;
+        private byte _mpColorB;
+        private byte _mpColorRUI;
+        private byte _mpColorGUI;
+        private byte _mpColorBUI;
         private int _level = 0;
         private string _currentPlayerHeader = null;
         private string _currentPlayerHeaderUI = null;
 
         private InitializationStep _initializationSteps;
         private InitialLoginInfo _loginInfo;
-
-        private static Color BACK_COLOR_GO = Color.LightGreen;
-        private static Color BACK_COLOR_CAUTION = Color.Yellow;
-        private static Color BACK_COLOR_STOP = Color.LightSalmon;
-        private static Color BACK_COLOR_NEUTRAL = Color.LightGray;
 
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
@@ -99,7 +102,6 @@ namespace IsengardClient
         private int _previoustickautohp;
         private int _previoustickautomp;
         private int _currentMana = HP_OR_MP_UNKNOWN;
-        private int _healtickmp;
         private int _autoHazyThreshold;
         private int _rememberedAutoHazyThreshold;
         private DateTime? _lastTriedToAutoHazy;
@@ -111,6 +113,8 @@ namespace IsengardClient
         private BackgroundProcessPhase _backgroundProcessPhase;
         private PleaseWaitSequence _pleaseWaitSequence;
         private InitialLoginSequence _initializationLoginSequence;
+        private Color _fullColor;
+        private Color _emptyColor;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -158,7 +162,7 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(int healtickmp, string userName, string password, List<Macro> allMacros)
+        internal frmMain(string userName, string password, List<Macro> allMacros)
         {
             InitializeComponent();
 
@@ -177,6 +181,8 @@ namespace IsengardClient
             IsengardSettings sets = IsengardSettings.Default;
             _verboseMode = sets.VerboseMode;
             _queryMonsterStatus = sets.QueryMonsterStatus;
+            _fullColor = sets.FullColor;
+            _emptyColor = sets.EmptyColor;
 
             _defaultRealm = sets.DefaultRealm;
             if (!string.IsNullOrEmpty(_defaultRealm))
@@ -197,7 +203,6 @@ namespace IsengardClient
                 ePreferredAlignment = AlignmentType.Blue;
             }
 
-            _healtickmp = healtickmp;
             _autoHazyThreshold = sets.DefaultAutoHazyThreshold;
             if (_autoHazyThreshold < 0) _autoHazyThreshold = 0;
             _rememberedAutoHazyThreshold = _autoHazyThreshold;
@@ -794,12 +799,8 @@ namespace IsengardClient
             _timeUI = -1;
             _hp = null;
             _hpUI = null;
-            _hpColor = Color.Transparent;
-            _hpColorUI = Color.Transparent;
             _mp = null;
             _mpUI = null;
-            _mpColor = Color.Transparent;
-            _hpColorUI = Color.Transparent;
             _level = 0;
             _totalhp = 0;
             _totalmp = 0;
@@ -3616,9 +3617,15 @@ namespace IsengardClient
                 Color backColor;
                 bool autoMana = chkAutoMana.Checked;
                 if (autoMana)
+                {
                     _currentMana = autompforthistick;
+                }
                 else
-                    _mpColor = BACK_COLOR_NEUTRAL;
+                {
+                    _mpColorR = 100;
+                    _mpColorG = 100;
+                    _mpColorB = 100;
+                }
                 int iCurrentMana = _currentMana;
                 if (iCurrentMana != HP_OR_MP_UNKNOWN)
                 {
@@ -3628,23 +3635,19 @@ namespace IsengardClient
                     _mp = sText;
                     if (autoMana)
                     {
-                        if (iCurrentMana == iTotalMP)
-                            backColor = BACK_COLOR_GO;
-                        else if (iCurrentMana + _healtickmp > iTotalMP)
-                            backColor = BACK_COLOR_CAUTION;
-                        else
-                            backColor = BACK_COLOR_STOP;
-                        _mpColor = backColor;
+                        ComputeColor(iCurrentMana, iTotalMP, out byte r, out byte g, out byte b);
+                        _mpColorR = r;
+                        _mpColorG = g;
+                        _mpColorB = b;
                     }
                 }
                 if (autohpforthistick != HP_OR_MP_UNKNOWN)
                 {
                     _hp = autohpforthistick.ToString() + "/" + _totalhp;
-                    if (autohpforthistick == _totalhp)
-                        backColor = BACK_COLOR_GO;
-                    else
-                        backColor = BACK_COLOR_STOP;
-                    _hpColor = backColor;
+                    ComputeColor(autohpforthistick, _totalhp, out byte r, out byte g, out byte b);
+                    _hpColorR = r;
+                    _hpColorG = g;
+                    _hpColorB = b;
                 }
                 string sNewHP = _hp;
                 if (!string.Equals(sNewHP, _hpUI))
@@ -3652,11 +3655,17 @@ namespace IsengardClient
                     lblHitpointsValue.Text = sNewHP;
                     _hpUI = sNewHP;
                 }
-                Color cNewHP = _hpColor;
-                if (cNewHP != _hpColorUI)
+                byte newHPR = _hpColorR;
+                byte newHPG = _hpColorG;
+                byte newHPB = _hpColorB;
+                if (newHPR != _hpColorRUI || newHPG != _hpColorGUI || newHPB != _hpColorBUI)
                 {
-                    lblHitpointsValue.BackColor = cNewHP;
-                    _hpColorUI = cNewHP;
+                    GetForegroundColor(newHPR, newHPG, newHPB, out byte forer, out byte foreg, out byte foreb);
+                    lblHitpointsValue.BackColor = Color.FromArgb(newHPR, newHPG, newHPB);
+                    lblHitpointsValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
+                    _hpColorRUI = newHPR;
+                    _hpColorGUI = newHPG;
+                    _hpColorBUI = newHPB;
                 }
                 string sNewMP = _mp;
                 if (!string.Equals(sNewMP, _mpUI))
@@ -3664,11 +3673,17 @@ namespace IsengardClient
                     lblManaValue.Text = sNewMP;
                     _mpUI = sNewMP;
                 }
-                Color cNewMP = _mpColor;
-                if (cNewMP != _mpColorUI)
+                byte newMPR = _mpColorR;
+                byte newMPG = _mpColorG;
+                byte newMPB = _mpColorB;
+                if (newMPR != _mpColorRUI || newMPG != _mpColorGUI || newMPB != _mpColorBUI)
                 {
-                    lblManaValue.BackColor = cNewMP;
-                    _mpColorUI = cNewMP;
+                    GetForegroundColor(newMPR, newMPG, newMPB, out byte forer, out byte foreg, out byte foreb);
+                    lblManaValue.BackColor = Color.FromArgb(newMPR, newMPG, newMPB);
+                    lblManaValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
+                    _mpColorRUI = newMPR;
+                    _mpColorGUI = newMPG;
+                    _mpColorBUI = newMPB;
                 }
 
                 //refresh cooldowns (active and timers)
@@ -3697,7 +3712,7 @@ namespace IsengardClient
                     if (nextCooldown.Active)
                     {
                         sText = "ACTIVE";
-                        backColor = BACK_COLOR_GO;
+                        backColor = _fullColor;
                     }
                     else //not currently active
                     {
@@ -3714,12 +3729,12 @@ namespace IsengardClient
                                 TimeSpan ts = dtDateValue - dtUTCNow;
                                 sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
                             }
-                            backColor = sText == "0:00" ? BACK_COLOR_GO : BACK_COLOR_STOP;
+                            backColor = sText == "0:00" ? _fullColor : _emptyColor;
                         }
                         else //available now
                         {
                             sText = "0:00";
-                            backColor = BACK_COLOR_GO;
+                            backColor = _fullColor;
                         }
                     }
                     if (!string.Equals(sText, lbl.Text))
@@ -3728,7 +3743,9 @@ namespace IsengardClient
                     }
                     if (backColor != lbl.BackColor)
                     {
+                        GetForegroundColor(backColor.R, backColor.G, backColor.B, out byte forer, out byte foreg, out byte foreb);
                         lbl.BackColor = backColor;
+                        lbl.ForeColor = Color.FromArgb(forer, foreg, foreb);
                     }
                 }
 
@@ -3882,6 +3899,28 @@ namespace IsengardClient
             }
             _previoustickautohp = autohpforthistick;
             _previoustickautomp = autompforthistick;
+        }
+
+        private void ComputeColor(int current, int max, out byte r, out byte g, out byte b)
+        {
+            byte iFullR = _fullColor.R;
+            byte iFullG = _fullColor.G;
+            byte iFullB = _fullColor.B;
+            byte iEmptyR = _emptyColor.R;
+            byte iEmptyG = _emptyColor.G;
+            byte iEmptyB = _emptyColor.B;
+            double multiplier = ((double)current) / max;
+
+            r = (byte)(iEmptyR + Math.Round(multiplier * (iFullR - iEmptyR), 0));
+            g = (byte)(iEmptyG + Math.Round(multiplier * (iFullG - iEmptyG), 0));
+            b = (byte)(iEmptyB + Math.Round(multiplier * (iFullB - iEmptyB), 0));
+        }
+
+        private void GetForegroundColor(byte r, byte g, byte b, out byte forer, out byte foreg, out byte foreb)
+        {
+            forer = (byte)(r <= 128 ? 255 : 0);
+            foreg = (byte)(g <= 128 ? 255 : 0);
+            foreb = (byte)(b <= 128 ? 255 : 0);
         }
 
         private string GetMonsterStatusText(MonsterStatus? status)
@@ -4398,6 +4437,8 @@ namespace IsengardClient
                 _queryMonsterStatus = sets.QueryMonsterStatus;
                 _verboseMode = sets.VerboseMode;
                 _gameMap.SetAlignment(frm.PreferredAlignment);
+                _fullColor = sets.FullColor;
+                _emptyColor = sets.EmptyColor;
             }
         }
 

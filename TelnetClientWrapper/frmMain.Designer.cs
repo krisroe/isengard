@@ -842,33 +842,33 @@
             this.tsmiClearAutoHazy,
             this.tsmiSetDefaultAutoHazy});
             this.ctxAutoHazy.Name = "ctxAutoHazy";
-            this.ctxAutoHazy.Size = new System.Drawing.Size(181, 114);
+            this.ctxAutoHazy.Size = new System.Drawing.Size(132, 92);
             // 
             // tsmiReactivateAutoHazy
             // 
             this.tsmiReactivateAutoHazy.Name = "tsmiReactivateAutoHazy";
-            this.tsmiReactivateAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiReactivateAutoHazy.Size = new System.Drawing.Size(131, 22);
             this.tsmiReactivateAutoHazy.Text = "Reactivate";
             this.tsmiReactivateAutoHazy.Click += new System.EventHandler(this.tsmiReactivateAutoHazy_Click);
             // 
             // tsmiSetAutoHazy
             // 
             this.tsmiSetAutoHazy.Name = "tsmiSetAutoHazy";
-            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(131, 22);
             this.tsmiSetAutoHazy.Text = "Set";
             this.tsmiSetAutoHazy.Click += new System.EventHandler(this.tsmiSetAutoHazy_Click);
             // 
             // tsmiClearAutoHazy
             // 
             this.tsmiClearAutoHazy.Name = "tsmiClearAutoHazy";
-            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(131, 22);
             this.tsmiClearAutoHazy.Text = "Clear";
             this.tsmiClearAutoHazy.Click += new System.EventHandler(this.tsmiClearAutoHazy_Click);
             // 
             // tsmiSetDefaultAutoHazy
             // 
             this.tsmiSetDefaultAutoHazy.Name = "tsmiSetDefaultAutoHazy";
-            this.tsmiSetDefaultAutoHazy.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetDefaultAutoHazy.Size = new System.Drawing.Size(131, 22);
             this.tsmiSetDefaultAutoHazy.Text = "Set Default";
             this.tsmiSetDefaultAutoHazy.Click += new System.EventHandler(this.tsmiSetDefaultAutoHazy_Click);
             // 

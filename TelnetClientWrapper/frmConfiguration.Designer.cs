@@ -53,6 +53,12 @@
             this.tsmiTogglePreferredAlignment = new System.Windows.Forms.ToolStripMenuItem();
             this.grpDefaults = new System.Windows.Forms.GroupBox();
             this.grpSettings = new System.Windows.Forms.GroupBox();
+            this.lblFullColorValue = new System.Windows.Forms.Label();
+            this.lblFullColor = new System.Windows.Forms.Label();
+            this.lblEmptyColorValue = new System.Windows.Forms.Label();
+            this.lblEmptyColor = new System.Windows.Forms.Label();
+            this.btnSelectFullColor = new System.Windows.Forms.Button();
+            this.btnSelectEmptyColor = new System.Windows.Forms.Button();
             this.ctxDefaultRealm.SuspendLayout();
             this.ctxAutoHazy.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -137,7 +143,7 @@
             // lblPreferredAlignment
             // 
             this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(14, 26);
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(14, 68);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
             this.lblPreferredAlignment.Size = new System.Drawing.Size(101, 13);
             this.lblPreferredAlignment.TabIndex = 128;
@@ -189,7 +195,7 @@
             // chkQueryMonsterStatus
             // 
             this.chkQueryMonsterStatus.AutoSize = true;
-            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(126, 54);
+            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(126, 96);
             this.chkQueryMonsterStatus.Name = "chkQueryMonsterStatus";
             this.chkQueryMonsterStatus.Size = new System.Drawing.Size(131, 17);
             this.chkQueryMonsterStatus.TabIndex = 135;
@@ -199,7 +205,7 @@
             // chkVerboseOutput
             // 
             this.chkVerboseOutput.AutoSize = true;
-            this.chkVerboseOutput.Location = new System.Drawing.Point(126, 77);
+            this.chkVerboseOutput.Location = new System.Drawing.Point(126, 119);
             this.chkVerboseOutput.Name = "chkVerboseOutput";
             this.chkVerboseOutput.Size = new System.Drawing.Size(104, 17);
             this.chkVerboseOutput.TabIndex = 136;
@@ -208,7 +214,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(139, 262);
+            this.btnOK.Location = new System.Drawing.Point(139, 300);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(73, 22);
             this.btnOK.TabIndex = 137;
@@ -219,7 +225,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(218, 262);
+            this.btnCancel.Location = new System.Drawing.Point(218, 300);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(73, 22);
             this.btnCancel.TabIndex = 138;
@@ -231,7 +237,7 @@
             this.lblPreferredAlignmentValue.BackColor = System.Drawing.Color.Blue;
             this.lblPreferredAlignmentValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblPreferredAlignmentValue.ForeColor = System.Drawing.Color.White;
-            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(129, 26);
+            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(129, 68);
             this.lblPreferredAlignmentValue.Name = "lblPreferredAlignmentValue";
             this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(166, 15);
             this.lblPreferredAlignmentValue.TabIndex = 139;
@@ -262,29 +268,95 @@
             this.grpDefaults.Controls.Add(this.lblAutoHazy);
             this.grpDefaults.Location = new System.Drawing.Point(12, 12);
             this.grpDefaults.Name = "grpDefaults";
-            this.grpDefaults.Size = new System.Drawing.Size(301, 119);
+            this.grpDefaults.Size = new System.Drawing.Size(366, 119);
             this.grpDefaults.TabIndex = 140;
             this.grpDefaults.TabStop = false;
             this.grpDefaults.Text = "Defaults";
             // 
             // grpSettings
             // 
+            this.grpSettings.Controls.Add(this.btnSelectEmptyColor);
+            this.grpSettings.Controls.Add(this.btnSelectFullColor);
+            this.grpSettings.Controls.Add(this.lblEmptyColorValue);
+            this.grpSettings.Controls.Add(this.lblEmptyColor);
+            this.grpSettings.Controls.Add(this.lblFullColorValue);
+            this.grpSettings.Controls.Add(this.lblFullColor);
             this.grpSettings.Controls.Add(this.lblPreferredAlignmentValue);
             this.grpSettings.Controls.Add(this.lblPreferredAlignment);
             this.grpSettings.Controls.Add(this.chkQueryMonsterStatus);
             this.grpSettings.Controls.Add(this.chkVerboseOutput);
             this.grpSettings.Location = new System.Drawing.Point(12, 147);
             this.grpSettings.Name = "grpSettings";
-            this.grpSettings.Size = new System.Drawing.Size(301, 109);
+            this.grpSettings.Size = new System.Drawing.Size(366, 147);
             this.grpSettings.TabIndex = 141;
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
+            // 
+            // lblFullColorValue
+            // 
+            this.lblFullColorValue.BackColor = System.Drawing.Color.Green;
+            this.lblFullColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
+            this.lblFullColorValue.ForeColor = System.Drawing.Color.Black;
+            this.lblFullColorValue.Location = new System.Drawing.Point(129, 16);
+            this.lblFullColorValue.Name = "lblFullColorValue";
+            this.lblFullColorValue.Size = new System.Drawing.Size(166, 15);
+            this.lblFullColorValue.TabIndex = 141;
+            this.lblFullColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblFullColor
+            // 
+            this.lblFullColor.AutoSize = true;
+            this.lblFullColor.Location = new System.Drawing.Point(14, 16);
+            this.lblFullColor.Name = "lblFullColor";
+            this.lblFullColor.Size = new System.Drawing.Size(52, 13);
+            this.lblFullColor.TabIndex = 140;
+            this.lblFullColor.Text = "Full color:";
+            // 
+            // lblEmptyColorValue
+            // 
+            this.lblEmptyColorValue.BackColor = System.Drawing.Color.Red;
+            this.lblEmptyColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
+            this.lblEmptyColorValue.ForeColor = System.Drawing.Color.Black;
+            this.lblEmptyColorValue.Location = new System.Drawing.Point(129, 41);
+            this.lblEmptyColorValue.Name = "lblEmptyColorValue";
+            this.lblEmptyColorValue.Size = new System.Drawing.Size(166, 15);
+            this.lblEmptyColorValue.TabIndex = 143;
+            this.lblEmptyColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblEmptyColor
+            // 
+            this.lblEmptyColor.AutoSize = true;
+            this.lblEmptyColor.Location = new System.Drawing.Point(14, 41);
+            this.lblEmptyColor.Name = "lblEmptyColor";
+            this.lblEmptyColor.Size = new System.Drawing.Size(65, 13);
+            this.lblEmptyColor.TabIndex = 142;
+            this.lblEmptyColor.Text = "Empty color:";
+            // 
+            // btnSelectFullColor
+            // 
+            this.btnSelectFullColor.Location = new System.Drawing.Point(301, 13);
+            this.btnSelectFullColor.Name = "btnSelectFullColor";
+            this.btnSelectFullColor.Size = new System.Drawing.Size(55, 23);
+            this.btnSelectFullColor.TabIndex = 144;
+            this.btnSelectFullColor.Text = "Select";
+            this.btnSelectFullColor.UseVisualStyleBackColor = true;
+            this.btnSelectFullColor.Click += new System.EventHandler(this.btnSelectFullColor_Click);
+            // 
+            // btnSelectEmptyColor
+            // 
+            this.btnSelectEmptyColor.Location = new System.Drawing.Point(301, 37);
+            this.btnSelectEmptyColor.Name = "btnSelectEmptyColor";
+            this.btnSelectEmptyColor.Size = new System.Drawing.Size(55, 23);
+            this.btnSelectEmptyColor.TabIndex = 145;
+            this.btnSelectEmptyColor.Text = "Select";
+            this.btnSelectEmptyColor.UseVisualStyleBackColor = true;
+            this.btnSelectEmptyColor.Click += new System.EventHandler(this.btnSelectEmptyColor_Click);
             // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(326, 294);
+            this.ClientSize = new System.Drawing.Size(412, 347);
             this.Controls.Add(this.grpSettings);
             this.Controls.Add(this.grpDefaults);
             this.Controls.Add(this.btnCancel);
@@ -332,5 +404,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiTogglePreferredAlignment;
         private System.Windows.Forms.GroupBox grpDefaults;
         private System.Windows.Forms.GroupBox grpSettings;
+        private System.Windows.Forms.Label lblFullColorValue;
+        private System.Windows.Forms.Label lblFullColor;
+        private System.Windows.Forms.Label lblEmptyColorValue;
+        private System.Windows.Forms.Label lblEmptyColor;
+        private System.Windows.Forms.Button btnSelectFullColor;
+        private System.Windows.Forms.Button btnSelectEmptyColor;
     }
 }
