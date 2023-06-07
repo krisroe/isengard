@@ -84,24 +84,24 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblTime = new System.Windows.Forms.Label();
             this.lblRealm = new System.Windows.Forms.Label();
             this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiEarth = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiFire = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
-            this.txtTime = new System.Windows.Forms.TextBox();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
-            this.txtHitpoints = new System.Windows.Forms.TextBox();
+            this.lblManashieldTimeValue = new System.Windows.Forms.Label();
+            this.lblPowerAttackTimeValue = new System.Windows.Forms.Label();
+            this.lblManaValue = new System.Windows.Forms.Label();
+            this.lblHitpointsValue = new System.Windows.Forms.Label();
             this.lblMana = new System.Windows.Forms.Label();
-            this.txtMana = new System.Windows.Forms.TextBox();
             this.lblHitpoints = new System.Windows.Forms.Label();
             this.chkAutoMana = new System.Windows.Forms.CheckBox();
             this.btnManaSet = new System.Windows.Forms.Button();
-            this.txtPowerAttackTime = new System.Windows.Forms.TextBox();
             this.lblPowerAttackCooldown = new System.Windows.Forms.Label();
             this.lblManashieldTime = new System.Windows.Forms.Label();
-            this.txtManashieldTime = new System.Windows.Forms.TextBox();
             this.grpMessages = new System.Windows.Forms.GroupBox();
             this.lstMessages = new System.Windows.Forms.ListBox();
             this.grpMob = new System.Windows.Forms.GroupBox();
@@ -765,8 +765,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.lblRealm);
-            this.pnlMain.Controls.Add(this.txtTime);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
             this.pnlMain.Controls.Add(this.grpMessages);
             this.pnlMain.Controls.Add(this.grpMob);
@@ -822,12 +822,21 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // lblTime
+            // 
+            this.lblTime.Location = new System.Drawing.Point(610, 429);
+            this.lblTime.Name = "lblTime";
+            this.lblTime.Size = new System.Drawing.Size(115, 15);
+            this.lblTime.TabIndex = 125;
+            this.lblTime.Text = "Time";
+            this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // lblRealm
             // 
             this.lblRealm.ContextMenuStrip = this.ctxRealm;
             this.lblRealm.Location = new System.Drawing.Point(610, 451);
             this.lblRealm.Name = "lblRealm";
-            this.lblRealm.Size = new System.Drawing.Size(115, 13);
+            this.lblRealm.Size = new System.Drawing.Size(114, 15);
             this.lblRealm.TabIndex = 124;
             this.lblRealm.Text = "Realm";
             this.lblRealm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -870,28 +879,18 @@
             this.tsmiWind.Text = "wind";
             this.tsmiWind.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
-            // txtTime
-            // 
-            this.txtTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtTime.Location = new System.Drawing.Point(610, 430);
-            this.txtTime.Name = "txtTime";
-            this.txtTime.ReadOnly = true;
-            this.txtTime.Size = new System.Drawing.Size(115, 13);
-            this.txtTime.TabIndex = 123;
-            this.txtTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // grpCurrentPlayer
             // 
-            this.grpCurrentPlayer.Controls.Add(this.txtHitpoints);
+            this.grpCurrentPlayer.Controls.Add(this.lblManashieldTimeValue);
+            this.grpCurrentPlayer.Controls.Add(this.lblPowerAttackTimeValue);
+            this.grpCurrentPlayer.Controls.Add(this.lblManaValue);
+            this.grpCurrentPlayer.Controls.Add(this.lblHitpointsValue);
             this.grpCurrentPlayer.Controls.Add(this.lblMana);
-            this.grpCurrentPlayer.Controls.Add(this.txtMana);
             this.grpCurrentPlayer.Controls.Add(this.lblHitpoints);
             this.grpCurrentPlayer.Controls.Add(this.chkAutoMana);
             this.grpCurrentPlayer.Controls.Add(this.btnManaSet);
-            this.grpCurrentPlayer.Controls.Add(this.txtPowerAttackTime);
             this.grpCurrentPlayer.Controls.Add(this.lblPowerAttackCooldown);
             this.grpCurrentPlayer.Controls.Add(this.lblManashieldTime);
-            this.grpCurrentPlayer.Controls.Add(this.txtManashieldTime);
             this.grpCurrentPlayer.Location = new System.Drawing.Point(820, 579);
             this.grpCurrentPlayer.Name = "grpCurrentPlayer";
             this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 139);
@@ -899,16 +898,41 @@
             this.grpCurrentPlayer.TabStop = false;
             this.grpCurrentPlayer.Text = "Current Player";
             // 
-            // txtHitpoints
+            // lblManashieldTimeValue
             // 
-            this.txtHitpoints.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtHitpoints.Location = new System.Drawing.Point(97, 18);
-            this.txtHitpoints.Margin = new System.Windows.Forms.Padding(2);
-            this.txtHitpoints.Name = "txtHitpoints";
-            this.txtHitpoints.ReadOnly = true;
-            this.txtHitpoints.Size = new System.Drawing.Size(86, 13);
-            this.txtHitpoints.TabIndex = 101;
-            this.txtHitpoints.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.lblManashieldTimeValue.Location = new System.Drawing.Point(96, 113);
+            this.lblManashieldTimeValue.Name = "lblManashieldTimeValue";
+            this.lblManashieldTimeValue.Size = new System.Drawing.Size(86, 15);
+            this.lblManashieldTimeValue.TabIndex = 129;
+            this.lblManashieldTimeValue.Text = "Value";
+            this.lblManashieldTimeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblPowerAttackTimeValue
+            // 
+            this.lblPowerAttackTimeValue.Location = new System.Drawing.Point(97, 90);
+            this.lblPowerAttackTimeValue.Name = "lblPowerAttackTimeValue";
+            this.lblPowerAttackTimeValue.Size = new System.Drawing.Size(86, 15);
+            this.lblPowerAttackTimeValue.TabIndex = 128;
+            this.lblPowerAttackTimeValue.Text = "Value";
+            this.lblPowerAttackTimeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblManaValue
+            // 
+            this.lblManaValue.Location = new System.Drawing.Point(97, 41);
+            this.lblManaValue.Name = "lblManaValue";
+            this.lblManaValue.Size = new System.Drawing.Size(86, 15);
+            this.lblManaValue.TabIndex = 127;
+            this.lblManaValue.Text = "Value";
+            this.lblManaValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblHitpointsValue
+            // 
+            this.lblHitpointsValue.Location = new System.Drawing.Point(97, 17);
+            this.lblHitpointsValue.Name = "lblHitpointsValue";
+            this.lblHitpointsValue.Size = new System.Drawing.Size(86, 15);
+            this.lblHitpointsValue.TabIndex = 126;
+            this.lblHitpointsValue.Text = "Value";
+            this.lblHitpointsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblMana
             // 
@@ -920,17 +944,6 @@
             this.lblMana.TabIndex = 92;
             this.lblMana.Text = "Mana:";
             this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtMana
-            // 
-            this.txtMana.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtMana.Location = new System.Drawing.Point(97, 42);
-            this.txtMana.Margin = new System.Windows.Forms.Padding(2);
-            this.txtMana.Name = "txtMana";
-            this.txtMana.ReadOnly = true;
-            this.txtMana.Size = new System.Drawing.Size(86, 13);
-            this.txtMana.TabIndex = 95;
-            this.txtMana.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblHitpoints
             // 
@@ -967,17 +980,6 @@
             this.btnManaSet.UseVisualStyleBackColor = true;
             this.btnManaSet.Click += new System.EventHandler(this.btnManaSet_Click);
             // 
-            // txtPowerAttackTime
-            // 
-            this.txtPowerAttackTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtPowerAttackTime.Location = new System.Drawing.Point(96, 91);
-            this.txtPowerAttackTime.Margin = new System.Windows.Forms.Padding(2);
-            this.txtPowerAttackTime.Name = "txtPowerAttackTime";
-            this.txtPowerAttackTime.ReadOnly = true;
-            this.txtPowerAttackTime.Size = new System.Drawing.Size(86, 13);
-            this.txtPowerAttackTime.TabIndex = 105;
-            this.txtPowerAttackTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // lblPowerAttackCooldown
             // 
             this.lblPowerAttackCooldown.AutoSize = true;
@@ -999,17 +1001,6 @@
             this.lblManashieldTime.TabIndex = 106;
             this.lblManashieldTime.Text = "To Manashield:";
             this.lblManashieldTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // txtManashieldTime
-            // 
-            this.txtManashieldTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtManashieldTime.Location = new System.Drawing.Point(96, 114);
-            this.txtManashieldTime.Margin = new System.Windows.Forms.Padding(2);
-            this.txtManashieldTime.Name = "txtManashieldTime";
-            this.txtManashieldTime.ReadOnly = true;
-            this.txtManashieldTime.Size = new System.Drawing.Size(86, 13);
-            this.txtManashieldTime.TabIndex = 107;
-            this.txtManashieldTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // grpMessages
             // 
@@ -1883,18 +1874,14 @@
         private System.Windows.Forms.Button btnRemoveAll;
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
-        private System.Windows.Forms.TextBox txtMana;
         private System.Windows.Forms.Button btnManaSet;
         private System.Windows.Forms.ComboBox cboMaxOffLevel;
         private System.Windows.Forms.Label lblMaxOffensiveLevel;
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.TextBox txtPreferredAlignment;
-        private System.Windows.Forms.TextBox txtHitpoints;
         private System.Windows.Forms.Label lblHitpoints;
         private System.Windows.Forms.CheckBox chkAutoMana;
         private System.Windows.Forms.Label lblPowerAttackCooldown;
-        private System.Windows.Forms.TextBox txtPowerAttackTime;
-        private System.Windows.Forms.TextBox txtManashieldTime;
         private System.Windows.Forms.Label lblManashieldTime;
         private System.Windows.Forms.GroupBox grpSpells;
         private System.Windows.Forms.FlowLayoutPanel flpSpells;
@@ -1956,7 +1943,6 @@
         private System.Windows.Forms.ToolStripButton tsbTime;
         private System.Windows.Forms.ToolStripButton tsbQuit;
         private System.Windows.Forms.GroupBox grpCurrentPlayer;
-        private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.Panel pnlTabControl;
         private System.Windows.Forms.CheckBox chkMobStunned;
         private System.Windows.Forms.Label lblRealm;
@@ -1965,6 +1951,11 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiFire;
         private System.Windows.Forms.ToolStripMenuItem tsmiWater;
         private System.Windows.Forms.ToolStripMenuItem tsmiWind;
+        private System.Windows.Forms.Label lblTime;
+        private System.Windows.Forms.Label lblManashieldTimeValue;
+        private System.Windows.Forms.Label lblPowerAttackTimeValue;
+        private System.Windows.Forms.Label lblManaValue;
+        private System.Windows.Forms.Label lblHitpointsValue;
     }
 }
 

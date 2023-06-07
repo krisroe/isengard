@@ -3491,8 +3491,8 @@ namespace IsengardClient
 
             if (m.ShowPreForm)
             {
-                bool promptPowerAttack = isMeleeMacro && txtPowerAttackTime.Text == "0:00";
-                bool promptManashield = txtManashieldTime.Text == "0:00";
+                bool promptPowerAttack = isMeleeMacro && lblPowerAttackTimeValue.Text == "0:00";
+                bool promptManashield = lblManashieldTimeValue.Text == "0:00";
 
                 PromptedSkills skills = PromptedSkills.None;
                 if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
@@ -3629,25 +3629,25 @@ namespace IsengardClient
                 string sNewHP = _hp;
                 if (!string.Equals(sNewHP, _hpUI))
                 {
-                    txtHitpoints.Text = sNewHP;
+                    lblHitpointsValue.Text = sNewHP;
                     _hpUI = sNewHP;
                 }
                 Color cNewHP = _hpColor;
                 if (cNewHP != _hpColorUI)
                 {
-                    txtHitpoints.BackColor = cNewHP;
+                    lblHitpointsValue.BackColor = cNewHP;
                     _hpColorUI = cNewHP;
                 }
                 string sNewMP = _mp;
                 if (!string.Equals(sNewMP, _mpUI))
                 {
-                    txtMana.Text = sNewMP;
+                    lblManaValue.Text = sNewMP;
                     _mpUI = sNewMP;
                 }
                 Color cNewMP = _mpColor;
                 if (cNewMP != _mpColorUI)
                 {
-                    txtMana.BackColor = cNewMP;
+                    lblManaValue.BackColor = cNewMP;
                     _mpColorUI = cNewMP;
                 }
 
@@ -3661,14 +3661,14 @@ namespace IsengardClient
                 {
                     SkillWithCooldownType eType = nextCooldown.SkillType;
                     DateTime dtUTCNow = DateTime.UtcNow;
-                    TextBox txt;
+                    Label lbl;
                     switch (eType)
                     {
                         case SkillWithCooldownType.PowerAttack:
-                            txt = txtPowerAttackTime;
+                            lbl = lblPowerAttackTimeValue;
                             break;
                         case SkillWithCooldownType.Manashield:
-                            txt = txtManashieldTime;
+                            lbl = lblManashieldTimeValue;
                             break;
                         default:
                             throw new InvalidOperationException();
@@ -3702,13 +3702,13 @@ namespace IsengardClient
                             backColor = BACK_COLOR_GO;
                         }
                     }
-                    if (!string.Equals(sText, txt.Text))
+                    if (!string.Equals(sText, lbl.Text))
                     {
-                        txt.Text = sText;
+                        lbl.Text = sText;
                     }
-                    if (backColor != txt.BackColor)
+                    if (backColor != lbl.BackColor)
                     {
-                        txt.BackColor = backColor;
+                        lbl.BackColor = backColor;
                     }
                 }
 
@@ -3753,7 +3753,7 @@ namespace IsengardClient
                     Color backColor, foreColor;
                     if (_time >= SUNRISE_GAME_HOUR && _time < SUNSET_GAME_HOUR) //day
                     {
-                        backColor = Color.White;
+                        backColor = Color.Yellow;
                         foreColor = Color.Black;
                     }
                     else //night
@@ -3761,9 +3761,9 @@ namespace IsengardClient
                         backColor = Color.Black;
                         foreColor = Color.White;
                     }
-                    txtTime.BackColor = backColor;
-                    txtTime.ForeColor = foreColor;
-                    txtTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
+                    lblTime.BackColor = backColor;
+                    lblTime.ForeColor = foreColor;
+                    lblTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
                 }
             }
             if (autohpforthistick != HP_OR_MP_UNKNOWN && autompforthistick != HP_OR_MP_UNKNOWN && autohpforthistick == _totalhp && autompforthistick == _totalmp &&
@@ -3917,7 +3917,7 @@ namespace IsengardClient
 
         private void btnManaSet_Click(object sender, EventArgs e)
         {
-            string sNewMana = Interaction.InputBox("New mana:", "Mana", txtMana.Text);
+            string sNewMana = Interaction.InputBox("New mana:", "Mana", _currentMana.ToString());
             if (int.TryParse(sNewMana, out int iNewMana) && iNewMana >= 0)
             {
                 _currentMana = iNewMana;
@@ -4385,7 +4385,7 @@ namespace IsengardClient
             {
                 spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
                 currentRealmTSMI = tsmiWind;
-                backColor = Color.White;
+                backColor = Color.LightGray;
             }
             else
             {
