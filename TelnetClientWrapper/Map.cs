@@ -12,8 +12,8 @@ namespace IsengardClient
         private Dictionary<MapType, RoomGraph> _graphs;
 
         private string UNKNOWN_ROOM_NAME = "!@#UNKNOWN$%^";
-        private Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
-        private Dictionary<string, List<Room>> AmbiguousRooms = new Dictionary<string, List<Room>>();
+        public Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
+        public Dictionary<string, List<Room>> AmbiguousRooms = new Dictionary<string, List<Room>>();
 
         private RoomGraph _breeStreetsGraph;
 

@@ -108,6 +108,7 @@ namespace IsengardClient
         private bool _autoHazied;
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
+        private Room m_oCurrentRoomUI;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
@@ -998,9 +999,14 @@ namespace IsengardClient
             sets.Save();
 
             InitialLoginInfo info = _loginInfo;
-            if (RoomTransitionSequence.ProcessRoom(info.RoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
+            string sRoomName = info.RoomName;
+            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
             {
                 _initializationSteps |= InitializationStep.Finalization;
+                if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out Room initialRoom))
+                {
+                    m_oCurrentRoom = initialRoom;
+                }
             }
             else
             {
@@ -2105,7 +2111,6 @@ namespace IsengardClient
                 txtMob.Text = defaultMob;
             }
             m_oCurrentRoom = r;
-            txtCurrentRoom.Text = m_oCurrentRoom.Name;
             RefreshEnabledForSingleMoveButtons();
         }
 
@@ -3411,7 +3416,6 @@ namespace IsengardClient
         private void DoClearCurrentLocation()
         {
             m_oCurrentRoom = null;
-            txtCurrentRoom.Text = string.Empty;
             RefreshEnabledForSingleMoveButtons();
         }
 
@@ -3840,6 +3844,13 @@ namespace IsengardClient
             {
                 grpCurrentPlayer.Text = sCurrentPlayerHeader;
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
+            }
+
+            Room oCurrentRoom = m_oCurrentRoom;
+            if (oCurrentRoom != m_oCurrentRoomUI)
+            {
+                txtCurrentRoom.Text = oCurrentRoom.Name;
+                m_oCurrentRoomUI = oCurrentRoom;
             }
 
             lock (_broadcastMessagesLock)
