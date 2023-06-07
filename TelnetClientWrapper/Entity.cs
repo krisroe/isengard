@@ -609,6 +609,10 @@ namespace IsengardClient
         [PluralName("aristocrats")]
         Aristocrat,
 
+        [SingularName("barmaid")]
+        [PluralName("barmaids")]
+        Barmaid,
+
         [SingularName("bartender")]
         [PluralName("bartenders")]
         Bartender,
@@ -984,10 +988,6 @@ namespace IsengardClient
         [PluralName("aquamarine potions")]
         AquamarinePotion,
 
-        [SingularName("barmaid")]
-        [PluralName("barmaids")]
-        Barmaid,
-
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
         BlueBubblyPotion,
@@ -1080,6 +1080,14 @@ namespace IsengardClient
         [PluralName("ice blue potions")]
         IceBluePotion,
 
+        [SingularName("Iorlas the hermit")]
+        //CSRTODO: no plural?
+        IorlasTheHermit,
+
+        [SingularName("little brown jug")]
+        [PluralName("little brown jugs")]
+        LittleBrownJug,
+
         [SingularName("lollipop")]
         [PluralName("lollipops")]
         Lollipop,
@@ -1087,6 +1095,10 @@ namespace IsengardClient
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
         MarbleChessSet,
+
+        [SingularName("mithril jo stick")]
+        [PluralName("mithril jo sticks")]
+        MithrilJoStick,
 
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
@@ -1159,6 +1171,10 @@ namespace IsengardClient
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
         SmallWoodenShield,
+
+        [SingularName("sprite boots")]
+        //CSRTODO: plural
+        SpriteBoots,
 
         [SingularName("statuette of Balthazar")]
         [PluralName("statuettes of Balthazar")]
