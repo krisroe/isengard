@@ -2122,7 +2122,7 @@ namespace IsengardClient
             CommandResult backgroundCommandResult;
 
             //Heal
-            if (m != null && m.Heal)
+            if (pms.Heal)
             {
                 _backgroundProcessPhase = BackgroundProcessPhase.Heal;
                 int autohp, automp;
@@ -3036,7 +3036,11 @@ namespace IsengardClient
                     {
                         regularLogic = !((TextBox)ctl).ReadOnly;
                     }
-                    else if (ctl != grpLocations && ctl != grpConsole)
+                    else if (ctl is GroupBox)
+                    {
+                        regularLogic = ctl == grpOneClickMacros;
+                    }
+                    else
                     {
                         regularLogic = true;
                     }
@@ -3456,6 +3460,7 @@ namespace IsengardClient
             public string TargetRoomMob { get; set; }
             public bool ReachedTargetRoom { get; set; }
             public bool Foreground { get; set; }
+            public bool Heal { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -3513,34 +3518,11 @@ namespace IsengardClient
 
             PromptedSkills activatedSkills = PromptedSkills.None;
             string targetRoomMob = txtMob.Text;
-
             if (m.ShowPreForm)
             {
-                bool promptPowerAttack = isMeleeMacro && lblPowerAttackTimeValue.Text == "0:00";
-                bool promptManashield = lblManashieldTimeValue.Text == "0:00";
-
-                PromptedSkills skills = PromptedSkills.None;
-                if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
-                if (promptManashield) skills |= PromptedSkills.Manashield;
-
-                Room targetRoom;
-                if (preExits == null)
+                if (!PromptForSkills(false, isMeleeMacro, isCombatMacro, preExits, out activatedSkills, out targetRoomMob))
                 {
-                    targetRoom = m_oCurrentRoom;
-                }
-                else
-                {
-                    targetRoom = preExits[preExits.Count - 1].Target;
-                }
-
-                using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text, isCombatMacro))
-                {
-                    if (frmSkills.ShowDialog(this) != DialogResult.OK)
-                    {
-                        return;
-                    }
-                    activatedSkills = frmSkills.SelectedSkills;
-                    targetRoomMob = frmSkills.Mob;
+                    return;
                 }
             }
 
@@ -3550,6 +3532,48 @@ namespace IsengardClient
             bwp.UsedSkills = activatedSkills;
             bwp.TargetRoomMob = targetRoomMob;
             RunCommands(bwp);
+        }
+
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatMacro, List<Exit> preExits, out PromptedSkills activatedSkills, out string mob)
+        {
+            activatedSkills = PromptedSkills.None;
+            mob = string.Empty;
+
+            PromptedSkills skills = PromptedSkills.None;
+            if (!staticSkillsOnly && forMeleeCombat)
+            {
+                bool promptPowerAttack = lblPowerAttackTimeValue.Text == "0:00";
+                if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
+            }
+            bool promptManashield = lblManashieldTimeValue.Text == "0:00";
+            if (promptManashield) skills |= PromptedSkills.Manashield;
+
+            if (staticSkillsOnly && skills == PromptedSkills.None)
+            {
+                MessageBox.Show(this, "No skills available.");
+                return false;
+            }
+
+            Room targetRoom;
+            if (preExits == null)
+            {
+                targetRoom = m_oCurrentRoom;
+            }
+            else
+            {
+                targetRoom = preExits[preExits.Count - 1].Target;
+            }
+
+            using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text, isCombatMacro))
+            {
+                if (frmSkills.ShowDialog(this) != DialogResult.OK)
+                {
+                    return false;
+                }
+                activatedSkills = frmSkills.SelectedSkills;
+                mob = frmSkills.Mob;
+            }
+            return true;
         }
 
         public class CommandButtonTag
@@ -3849,7 +3873,12 @@ namespace IsengardClient
             Room oCurrentRoom = m_oCurrentRoom;
             if (oCurrentRoom != m_oCurrentRoomUI)
             {
-                txtCurrentRoom.Text = oCurrentRoom.Name;
+                string sRoomName = string.Empty;
+                if (oCurrentRoom != null)
+                {
+                    sRoomName = oCurrentRoom.Name;
+                }
+                txtCurrentRoom.Text = sRoomName;
                 m_oCurrentRoomUI = oCurrentRoom;
             }
 
@@ -4503,6 +4532,28 @@ namespace IsengardClient
             UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, _rememberedAutoHazyThreshold);
             tsmiClearAutoHazy.Visible = true;
             tsmiReactivateAutoHazy.Visible = false;
+        }
+
+        private void btnSkills_Click(object sender, EventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null && PromptForSkills(true, false, false, null, out PromptedSkills activatedSkills, out _))
+            {
+                bwp = GenerateNewBackgroundParameters();
+                bwp.UsedSkills = activatedSkills;
+                RunCommands(bwp);
+            }
+        }
+
+        private void btnHeal_Click(object sender, EventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                bwp = GenerateNewBackgroundParameters();
+                bwp.Heal = true;
+                RunCommands(bwp);
+            }
         }
     }
 

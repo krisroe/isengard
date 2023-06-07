@@ -84,6 +84,8 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnHeal = new System.Windows.Forms.Button();
+            this.btnSkills = new System.Windows.Forms.Button();
             this.lblAutoHazyValue = new System.Windows.Forms.Label();
             this.ctxAutoHazy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiReactivateAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,12 +107,12 @@
             this.lblHitpointsValue = new System.Windows.Forms.Label();
             this.lblMana = new System.Windows.Forms.Label();
             this.lblHitpoints = new System.Windows.Forms.Label();
-            this.chkAutoMana = new System.Windows.Forms.CheckBox();
-            this.btnManaSet = new System.Windows.Forms.Button();
             this.lblPowerAttackCooldown = new System.Windows.Forms.Label();
             this.lblManashieldTime = new System.Windows.Forms.Label();
+            this.chkAutoMana = new System.Windows.Forms.CheckBox();
             this.grpMessages = new System.Windows.Forms.GroupBox();
             this.lstMessages = new System.Windows.Forms.ListBox();
+            this.btnManaSet = new System.Windows.Forms.Button();
             this.grpMob = new System.Windows.Forms.GroupBox();
             this.chkMobStunned = new System.Windows.Forms.CheckBox();
             this.txtMobStatus = new System.Windows.Forms.TextBox();
@@ -768,11 +770,15 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnHeal);
+            this.pnlMain.Controls.Add(this.btnSkills);
             this.pnlMain.Controls.Add(this.lblAutoHazyValue);
             this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.lblRealm);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
+            this.pnlMain.Controls.Add(this.chkAutoMana);
             this.pnlMain.Controls.Add(this.grpMessages);
+            this.pnlMain.Controls.Add(this.btnManaSet);
             this.pnlMain.Controls.Add(this.grpMob);
             this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
@@ -821,6 +827,26 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnHeal
+            // 
+            this.btnHeal.Location = new System.Drawing.Point(462, 190);
+            this.btnHeal.Name = "btnHeal";
+            this.btnHeal.Size = new System.Drawing.Size(92, 28);
+            this.btnHeal.TabIndex = 136;
+            this.btnHeal.Text = "Heal";
+            this.btnHeal.UseVisualStyleBackColor = true;
+            this.btnHeal.Click += new System.EventHandler(this.btnHeal_Click);
+            // 
+            // btnSkills
+            // 
+            this.btnSkills.Location = new System.Drawing.Point(462, 155);
+            this.btnSkills.Name = "btnSkills";
+            this.btnSkills.Size = new System.Drawing.Size(92, 28);
+            this.btnSkills.TabIndex = 135;
+            this.btnSkills.Text = "Skills";
+            this.btnSkills.UseVisualStyleBackColor = true;
+            this.btnSkills.Click += new System.EventHandler(this.btnSkills_Click);
             // 
             // lblAutoHazyValue
             // 
@@ -945,20 +971,18 @@
             this.grpCurrentPlayer.Controls.Add(this.lblHitpointsValue);
             this.grpCurrentPlayer.Controls.Add(this.lblMana);
             this.grpCurrentPlayer.Controls.Add(this.lblHitpoints);
-            this.grpCurrentPlayer.Controls.Add(this.chkAutoMana);
-            this.grpCurrentPlayer.Controls.Add(this.btnManaSet);
             this.grpCurrentPlayer.Controls.Add(this.lblPowerAttackCooldown);
             this.grpCurrentPlayer.Controls.Add(this.lblManashieldTime);
             this.grpCurrentPlayer.Location = new System.Drawing.Point(820, 579);
             this.grpCurrentPlayer.Name = "grpCurrentPlayer";
-            this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 139);
+            this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 116);
             this.grpCurrentPlayer.TabIndex = 122;
             this.grpCurrentPlayer.TabStop = false;
             this.grpCurrentPlayer.Text = "Current Player";
             // 
             // lblManashieldTimeValue
             // 
-            this.lblManashieldTimeValue.Location = new System.Drawing.Point(96, 113);
+            this.lblManashieldTimeValue.Location = new System.Drawing.Point(96, 89);
             this.lblManashieldTimeValue.Name = "lblManashieldTimeValue";
             this.lblManashieldTimeValue.Size = new System.Drawing.Size(86, 15);
             this.lblManashieldTimeValue.TabIndex = 129;
@@ -967,7 +991,7 @@
             // 
             // lblPowerAttackTimeValue
             // 
-            this.lblPowerAttackTimeValue.Location = new System.Drawing.Point(97, 90);
+            this.lblPowerAttackTimeValue.Location = new System.Drawing.Point(97, 65);
             this.lblPowerAttackTimeValue.Name = "lblPowerAttackTimeValue";
             this.lblPowerAttackTimeValue.Size = new System.Drawing.Size(86, 15);
             this.lblPowerAttackTimeValue.TabIndex = 128;
@@ -1014,34 +1038,10 @@
             this.lblHitpoints.Text = "Hitpoints:";
             this.lblHitpoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // chkAutoMana
-            // 
-            this.chkAutoMana.AutoSize = true;
-            this.chkAutoMana.Checked = true;
-            this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoMana.Location = new System.Drawing.Point(9, 67);
-            this.chkAutoMana.Margin = new System.Windows.Forms.Padding(2);
-            this.chkAutoMana.Name = "chkAutoMana";
-            this.chkAutoMana.Size = new System.Drawing.Size(78, 17);
-            this.chkAutoMana.TabIndex = 103;
-            this.chkAutoMana.Text = "Auto Mana";
-            this.chkAutoMana.UseVisualStyleBackColor = true;
-            // 
-            // btnManaSet
-            // 
-            this.btnManaSet.Location = new System.Drawing.Point(96, 62);
-            this.btnManaSet.Margin = new System.Windows.Forms.Padding(2);
-            this.btnManaSet.Name = "btnManaSet";
-            this.btnManaSet.Size = new System.Drawing.Size(40, 24);
-            this.btnManaSet.TabIndex = 96;
-            this.btnManaSet.Text = "Set";
-            this.btnManaSet.UseVisualStyleBackColor = true;
-            this.btnManaSet.Click += new System.EventHandler(this.btnManaSet_Click);
-            // 
             // lblPowerAttackCooldown
             // 
             this.lblPowerAttackCooldown.AutoSize = true;
-            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(6, 91);
+            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(6, 65);
             this.lblPowerAttackCooldown.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPowerAttackCooldown.Name = "lblPowerAttackCooldown";
             this.lblPowerAttackCooldown.Size = new System.Drawing.Size(90, 13);
@@ -1052,13 +1052,26 @@
             // lblManashieldTime
             // 
             this.lblManashieldTime.AutoSize = true;
-            this.lblManashieldTime.Location = new System.Drawing.Point(6, 114);
+            this.lblManashieldTime.Location = new System.Drawing.Point(6, 89);
             this.lblManashieldTime.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblManashieldTime.Name = "lblManashieldTime";
             this.lblManashieldTime.Size = new System.Drawing.Size(80, 13);
             this.lblManashieldTime.TabIndex = 106;
             this.lblManashieldTime.Text = "To Manashield:";
             this.lblManashieldTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // chkAutoMana
+            // 
+            this.chkAutoMana.AutoSize = true;
+            this.chkAutoMana.Checked = true;
+            this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoMana.Location = new System.Drawing.Point(582, 18);
+            this.chkAutoMana.Margin = new System.Windows.Forms.Padding(2);
+            this.chkAutoMana.Name = "chkAutoMana";
+            this.chkAutoMana.Size = new System.Drawing.Size(78, 17);
+            this.chkAutoMana.TabIndex = 103;
+            this.chkAutoMana.Text = "Auto Mana";
+            this.chkAutoMana.UseVisualStyleBackColor = true;
             // 
             // grpMessages
             // 
@@ -1079,6 +1092,17 @@
             this.lstMessages.Size = new System.Drawing.Size(592, 186);
             this.lstMessages.TabIndex = 0;
             // 
+            // btnManaSet
+            // 
+            this.btnManaSet.Location = new System.Drawing.Point(664, 13);
+            this.btnManaSet.Margin = new System.Windows.Forms.Padding(2);
+            this.btnManaSet.Name = "btnManaSet";
+            this.btnManaSet.Size = new System.Drawing.Size(40, 24);
+            this.btnManaSet.TabIndex = 96;
+            this.btnManaSet.Text = "Set";
+            this.btnManaSet.UseVisualStyleBackColor = true;
+            this.btnManaSet.Click += new System.EventHandler(this.btnManaSet_Click);
+            // 
             // grpMob
             // 
             this.grpMob.Controls.Add(this.chkMobStunned);
@@ -1086,7 +1110,7 @@
             this.grpMob.Controls.Add(this.lblMobStatus);
             this.grpMob.Controls.Add(this.txtMobDamage);
             this.grpMob.Controls.Add(this.lblMobDamage);
-            this.grpMob.Location = new System.Drawing.Point(820, 724);
+            this.grpMob.Location = new System.Drawing.Point(820, 701);
             this.grpMob.Name = "grpMob";
             this.grpMob.Size = new System.Drawing.Size(191, 84);
             this.grpMob.TabIndex = 120;
@@ -1096,6 +1120,7 @@
             // chkMobStunned
             // 
             this.chkMobStunned.AutoSize = true;
+            this.chkMobStunned.Enabled = false;
             this.chkMobStunned.Location = new System.Drawing.Point(96, 61);
             this.chkMobStunned.Name = "chkMobStunned";
             this.chkMobStunned.Size = new System.Drawing.Size(66, 17);
@@ -1965,6 +1990,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiReactivateAutoHazy;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetDefaultAutoHazy;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentRealmAsDefault;
+        private System.Windows.Forms.Button btnSkills;
+        private System.Windows.Forms.Button btnHeal;
     }
 }
 

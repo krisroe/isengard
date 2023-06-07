@@ -984,6 +984,10 @@ namespace IsengardClient
         [PluralName("aquamarine potions")]
         AquamarinePotion,
 
+        [SingularName("barmaid")]
+        [PluralName("barmaids")]
+        Barmaid,
+
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
         BlueBubblyPotion,

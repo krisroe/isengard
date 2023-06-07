@@ -1734,6 +1734,7 @@ namespace IsengardClient
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
                          sLine == "A strong wind blows across the land." ||
+                         sLine == "The wind gusts, blowing debris through the streets." ||
                          sLine == "Player saved." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {

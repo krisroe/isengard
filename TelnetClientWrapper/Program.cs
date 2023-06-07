@@ -61,8 +61,6 @@ namespace IsengardClient
             allMacros.Add(Macro.GenerateCannedMacro("SC*"));
             allMacros.Add(Macro.GenerateCannedMacro("SCCSC*"));
             allMacros.Add(Macro.GenerateCannedMacro("A*"));
-            allMacros.Add(Macro.GenerateCannedMacro("Skills"));
-            allMacros.Add(Macro.GenerateCannedMacro("Heal"));
 
             if (errorMessages.Count > 0)
             {

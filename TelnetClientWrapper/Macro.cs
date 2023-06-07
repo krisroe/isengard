@@ -81,7 +81,6 @@ namespace IsengardClient
             yield break;
         }
 
-        public bool Heal { get; set; }
         public bool ShowPreForm { get; set; }
         public List<MagicCombatStep> MagicCombatSteps { get; set; }
         public List<MeleeCombatStep> MeleeCombatSteps { get; set; }
@@ -145,12 +144,6 @@ namespace IsengardClient
                     m.ShowPreForm = true;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
-                    break;
-                case "Skills":
-                    m.ShowPreForm = true;
-                    break;
-                case "Heal":
-                    m.Heal = true;
                     break;
                 default:
                     throw new InvalidOperationException();
