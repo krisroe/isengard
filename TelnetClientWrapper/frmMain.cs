@@ -177,25 +177,14 @@ namespace IsengardClient
             if (!string.IsNullOrEmpty(defaultRealm))
             {
                 RadioButton defaultRealmButton;
-                switch (defaultRealm)
+                if (defaultRealm != "earth" &&
+                    defaultRealm != "fire" &&
+                    defaultRealm != "water" &&
+                    defaultRealm != "wind")
                 {
-                    case "earth":
-                        defaultRealmButton = radEarth;
-                        break;
-                    case "fire":
-                        defaultRealmButton = radFire;
-                        break;
-                    case "water":
-                        defaultRealmButton = radWater;
-                        break;
-                    case "wind":
-                        defaultRealmButton = radWind;
-                        break;
-                    default:
-                        throw new InvalidOperationException();
+                    throw new InvalidOperationException();
                 }
-                defaultRealmButton.Checked = true;
-                SetCurrentRealmButton(defaultRealmButton);
+                SetCurrentRealmButton(defaultRealm);
             }
 
             _healtickmp = healtickmp;
@@ -4369,31 +4358,53 @@ namespace IsengardClient
             }
         }
 
-        private void radRealm_CheckedChanged(object sender, System.EventArgs e)
-        {
-            RadioButton radRealm = (RadioButton)sender;
-            if (radRealm.Checked)
-            {
-                SetCurrentRealmButton(radRealm);
-            }
-        }
-
-        private void SetCurrentRealmButton(RadioButton radRealm)
+        private void SetCurrentRealmButton(string realm)
         {
             List<string> spellList;
-            if (radRealm == radEarth)
+            ToolStripMenuItem currentRealmTSMI;
+            System.Drawing.Color backColor;
+            if (realm == "earth")
+            {
                 spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
-            else if (radRealm == radFire)
+                currentRealmTSMI = tsmiEarth;
+                backColor = Color.Tan;
+            }
+            else if (realm == "fire")
+            {
                 spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
-            else if (radRealm == radWater)
+                currentRealmTSMI = tsmiFire;
+                backColor = Color.LightSalmon;
+            }
+            else if (realm == "water")
+            {
                 spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
-            else if (radRealm == radWind)
+                currentRealmTSMI = tsmiWater;
+                backColor = Color.LightBlue;
+            }
+            else if (realm == "wind")
+            {
                 spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
+                currentRealmTSMI = tsmiWind;
+                backColor = Color.White;
+            }
             else
+            {
                 throw new InvalidOperationException();
+            }
+            foreach (ToolStripMenuItem tsmi in new ToolStripMenuItem[] { tsmiEarth, tsmiFire, tsmiWater, tsmiWind })
+            {
+                tsmi.Checked = tsmi == currentRealmTSMI;
+            }
+            lblRealm.Text = realm;
+            lblRealm.BackColor = backColor;
             _realm1Spell = spellList[0];
             _realm2Spell = spellList[1];
             _realm3Spell = spellList[2];
+        }
+
+        private void tsmiRealm_Click(object sender, EventArgs e)
+        {
+            SetCurrentRealmButton(((ToolStripMenuItem)sender).Text);
         }
     }
 

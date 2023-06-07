@@ -62,11 +62,6 @@
             this.btnUseWandOnMob = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
-            this.grpRealm = new System.Windows.Forms.GroupBox();
-            this.radFire = new System.Windows.Forms.RadioButton();
-            this.radWater = new System.Windows.Forms.RadioButton();
-            this.radWind = new System.Windows.Forms.RadioButton();
-            this.radEarth = new System.Windows.Forms.RadioButton();
             this.treeLocations = new System.Windows.Forms.TreeView();
             this.ctxLocations = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiGoToLocation = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,6 +84,12 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblRealm = new System.Windows.Forms.Label();
+            this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiEarth = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiFire = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
             this.txtTime = new System.Windows.Forms.TextBox();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
             this.txtHitpoints = new System.Windows.Forms.TextBox();
@@ -104,6 +105,7 @@
             this.grpMessages = new System.Windows.Forms.GroupBox();
             this.lstMessages = new System.Windows.Forms.ListBox();
             this.grpMob = new System.Windows.Forms.GroupBox();
+            this.chkMobStunned = new System.Windows.Forms.CheckBox();
             this.txtMobStatus = new System.Windows.Forms.TextBox();
             this.lblMobStatus = new System.Windows.Forms.Label();
             this.txtMobDamage = new System.Windows.Forms.TextBox();
@@ -168,15 +170,14 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.chkMobStunned = new System.Windows.Forms.CheckBox();
             this.ctxMob.SuspendLayout();
-            this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
             this.grpOneClickMacros.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.ctxRealm.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
             this.grpMessages.SuspendLayout();
             this.grpMob.SuspendLayout();
@@ -537,68 +538,6 @@
             this.txtSetValue.Size = new System.Drawing.Size(89, 20);
             this.txtSetValue.TabIndex = 56;
             // 
-            // grpRealm
-            // 
-            this.grpRealm.Controls.Add(this.radFire);
-            this.grpRealm.Controls.Add(this.radWater);
-            this.grpRealm.Controls.Add(this.radWind);
-            this.grpRealm.Controls.Add(this.radEarth);
-            this.grpRealm.Location = new System.Drawing.Point(30, 316);
-            this.grpRealm.Name = "grpRealm";
-            this.grpRealm.Size = new System.Drawing.Size(217, 46);
-            this.grpRealm.TabIndex = 62;
-            this.grpRealm.TabStop = false;
-            this.grpRealm.Text = "Realm";
-            // 
-            // radFire
-            // 
-            this.radFire.AutoSize = true;
-            this.radFire.Location = new System.Drawing.Point(173, 19);
-            this.radFire.Name = "radFire";
-            this.radFire.Size = new System.Drawing.Size(42, 17);
-            this.radFire.TabIndex = 3;
-            this.radFire.TabStop = true;
-            this.radFire.Text = "Fire";
-            this.radFire.UseVisualStyleBackColor = true;
-            this.radFire.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
-            // 
-            // radWater
-            // 
-            this.radWater.AutoSize = true;
-            this.radWater.Location = new System.Drawing.Point(113, 19);
-            this.radWater.Name = "radWater";
-            this.radWater.Size = new System.Drawing.Size(54, 17);
-            this.radWater.TabIndex = 2;
-            this.radWater.TabStop = true;
-            this.radWater.Text = "Water";
-            this.radWater.UseVisualStyleBackColor = true;
-            this.radWater.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
-            // 
-            // radWind
-            // 
-            this.radWind.AutoSize = true;
-            this.radWind.Checked = true;
-            this.radWind.Location = new System.Drawing.Point(62, 19);
-            this.radWind.Name = "radWind";
-            this.radWind.Size = new System.Drawing.Size(50, 17);
-            this.radWind.TabIndex = 1;
-            this.radWind.TabStop = true;
-            this.radWind.Text = "Wind";
-            this.radWind.UseVisualStyleBackColor = true;
-            this.radWind.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
-            // 
-            // radEarth
-            // 
-            this.radEarth.AutoSize = true;
-            this.radEarth.Location = new System.Drawing.Point(6, 19);
-            this.radEarth.Name = "radEarth";
-            this.radEarth.Size = new System.Drawing.Size(50, 17);
-            this.radEarth.TabIndex = 0;
-            this.radEarth.TabStop = true;
-            this.radEarth.Text = "Earth";
-            this.radEarth.UseVisualStyleBackColor = true;
-            this.radEarth.CheckedChanged += new System.EventHandler(this.radRealm_CheckedChanged);
-            // 
             // treeLocations
             // 
             this.treeLocations.ContextMenuStrip = this.ctxLocations;
@@ -826,6 +765,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblRealm);
             this.pnlMain.Controls.Add(this.txtTime);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
             this.pnlMain.Controls.Add(this.grpMessages);
@@ -863,7 +803,6 @@
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
             this.pnlMain.Controls.Add(this.grpOneClickMacros);
             this.pnlMain.Controls.Add(this.grpLocations);
-            this.pnlMain.Controls.Add(this.grpRealm);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
             this.pnlMain.Controls.Add(this.btnAbort);
             this.pnlMain.Controls.Add(this.btnUseWandOnMob);
@@ -882,6 +821,54 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // lblRealm
+            // 
+            this.lblRealm.ContextMenuStrip = this.ctxRealm;
+            this.lblRealm.Location = new System.Drawing.Point(610, 451);
+            this.lblRealm.Name = "lblRealm";
+            this.lblRealm.Size = new System.Drawing.Size(115, 13);
+            this.lblRealm.TabIndex = 124;
+            this.lblRealm.Text = "Realm";
+            this.lblRealm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // ctxRealm
+            // 
+            this.ctxRealm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiEarth,
+            this.tsmiFire,
+            this.tsmiWater,
+            this.tsmiWind});
+            this.ctxRealm.Name = "ctxRealm";
+            this.ctxRealm.Size = new System.Drawing.Size(104, 92);
+            // 
+            // tsmiEarth
+            // 
+            this.tsmiEarth.Name = "tsmiEarth";
+            this.tsmiEarth.Size = new System.Drawing.Size(103, 22);
+            this.tsmiEarth.Text = "earth";
+            this.tsmiEarth.Click += new System.EventHandler(this.tsmiRealm_Click);
+            // 
+            // tsmiFire
+            // 
+            this.tsmiFire.Name = "tsmiFire";
+            this.tsmiFire.Size = new System.Drawing.Size(103, 22);
+            this.tsmiFire.Text = "fire";
+            this.tsmiFire.Click += new System.EventHandler(this.tsmiRealm_Click);
+            // 
+            // tsmiWater
+            // 
+            this.tsmiWater.Name = "tsmiWater";
+            this.tsmiWater.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWater.Text = "water";
+            this.tsmiWater.Click += new System.EventHandler(this.tsmiRealm_Click);
+            // 
+            // tsmiWind
+            // 
+            this.tsmiWind.Name = "tsmiWind";
+            this.tsmiWind.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWind.Text = "wind";
+            this.tsmiWind.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // txtTime
             // 
@@ -1056,6 +1043,16 @@
             this.grpMob.TabIndex = 120;
             this.grpMob.TabStop = false;
             this.grpMob.Text = "Mob";
+            // 
+            // chkMobStunned
+            // 
+            this.chkMobStunned.AutoSize = true;
+            this.chkMobStunned.Location = new System.Drawing.Point(96, 61);
+            this.chkMobStunned.Name = "chkMobStunned";
+            this.chkMobStunned.Size = new System.Drawing.Size(66, 17);
+            this.chkMobStunned.TabIndex = 4;
+            this.chkMobStunned.Text = "Stunned";
+            this.chkMobStunned.UseVisualStyleBackColor = true;
             // 
             // txtMobStatus
             // 
@@ -1770,16 +1767,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // chkMobStunned
-            // 
-            this.chkMobStunned.AutoSize = true;
-            this.chkMobStunned.Location = new System.Drawing.Point(96, 61);
-            this.chkMobStunned.Name = "chkMobStunned";
-            this.chkMobStunned.Size = new System.Drawing.Size(66, 17);
-            this.chkMobStunned.TabIndex = 4;
-            this.chkMobStunned.Text = "Stunned";
-            this.chkMobStunned.UseVisualStyleBackColor = true;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1794,8 +1781,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.ctxMob.ResumeLayout(false);
-            this.grpRealm.ResumeLayout(false);
-            this.grpRealm.PerformLayout();
             this.ctxLocations.ResumeLayout(false);
             this.grpLocations.ResumeLayout(false);
             this.grpOneClickMacros.ResumeLayout(false);
@@ -1803,6 +1788,7 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.ctxRealm.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
             this.grpCurrentPlayer.PerformLayout();
             this.grpMessages.ResumeLayout(false);
@@ -1867,11 +1853,6 @@
         private System.Windows.Forms.Button btnUseWandOnMob;
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.TextBox txtSetValue;
-        private System.Windows.Forms.GroupBox grpRealm;
-        private System.Windows.Forms.RadioButton radFire;
-        private System.Windows.Forms.RadioButton radWater;
-        private System.Windows.Forms.RadioButton radWind;
-        private System.Windows.Forms.RadioButton radEarth;
         private System.Windows.Forms.TreeView treeLocations;
         private System.Windows.Forms.GroupBox grpLocations;
         private System.Windows.Forms.GroupBox grpOneClickMacros;
@@ -1978,6 +1959,12 @@
         private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.Panel pnlTabControl;
         private System.Windows.Forms.CheckBox chkMobStunned;
+        private System.Windows.Forms.Label lblRealm;
+        private System.Windows.Forms.ContextMenuStrip ctxRealm;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEarth;
+        private System.Windows.Forms.ToolStripMenuItem tsmiFire;
+        private System.Windows.Forms.ToolStripMenuItem tsmiWater;
+        private System.Windows.Forms.ToolStripMenuItem tsmiWind;
     }
 }
 
