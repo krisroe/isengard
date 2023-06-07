@@ -931,8 +931,11 @@ namespace IsengardClient
 
             lock (_timeLock)
             {
-                _time = hour;
-                _timeLastUpdatedUTC = DateTime.UtcNow;
+                if (_time != hour)
+                {
+                    _time = hour;
+                    _timeLastUpdatedUTC = DateTime.UtcNow;
+                }
             }
             if (forInit)
             {
@@ -3741,10 +3744,11 @@ namespace IsengardClient
             if ((initStep & InitializationStep.Time) != InitializationStep.None)
             {
                 int iTime = _time;
+                DateTime utcNow = DateTime.UtcNow;
                 lock (_timeLock) //auto-advance the hour if an hour's worth of game time has elapsed
                 {
                     DateTime dtTimeLastUpdatedUTC = _timeLastUpdatedUTC;
-                    if ((DateTime.UtcNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
+                    if ((utcNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
                     {
                         if (iTime == 23)
                             iTime = 0;
