@@ -46,8 +46,8 @@ namespace IsengardClient.Tests
             Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> a = (flpparam, l, hp, mp, cs, ss) =>
             {
                 iLevel = l;
-                iMaxHP = -1;
-                iMaxMP = -1;
+                iMaxHP = hp;
+                iMaxMP = mp;
                 cooldowns = cs;
                 spells = ss;
             };
@@ -421,6 +421,49 @@ namespace IsengardClient.Tests
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
             Assert.IsTrue(exits.Contains("test2"));
+        }
+
+        [TestMethod]
+        public void TestEntityAttacksYouSequence()
+        {
+            bool? satisfied = null;
+            Action<FeedLineParameters> a = (flParams) =>
+            {
+                satisfied = true;
+            };
+
+            EntityAttacksYouSequence seq = new EntityAttacksYouSequence(a);
+            FeedLineParameters flp = new FeedLineParameters(null);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "Scranlin barely nicks you for 1 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "Scranlin scratches you for 10 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit bruises you for 5 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit hurts you for 5 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit missed you." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit casts a rumble spell on you for 6 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied.GetValueOrDefault(true));
         }
 
         [TestMethod]

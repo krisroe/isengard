@@ -1181,6 +1181,28 @@ namespace IsengardClient
 
     public class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
+        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone" };
+        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame" };
+        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast" };
+        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt" };
+        internal static HashSet<string> ALL_OFFENSIVE_SPELLS;
+
+        private const string YOU_CAST_A_PREFIX = "You cast a ";
+        private const string DAMAGE_PREFIX = " for ";
+        private const string DAMAGE_SUFFIX = " damage.";
+
+        static CastOffensiveSpellSequence()
+        {
+            ALL_OFFENSIVE_SPELLS = new HashSet<string>();
+            foreach (List<string> nextList in new List<string>[] { EARTH_OFFENSIVE_SPELLS, FIRE_OFFENSIVE_SPELLS, WATER_OFFENSIVE_SPELLS, WIND_OFFENSIVE_SPELLS })
+            {
+                foreach (string nextSpell in nextList)
+                {
+                    ALL_OFFENSIVE_SPELLS.Add(nextSpell);
+                }
+            }
+        }
+
         public Action<int, FeedLineParameters> _onSatisfied;
         public CastOffensiveSpellSequence(Action<int, FeedLineParameters> onSatisfied)
         {
@@ -1194,39 +1216,53 @@ namespace IsengardClient
             {
                 return;
             }
-            bool satisfied = false;
-            string sStart = "You cast a ";
-            string sMiddle1 = " spell on ";
-            string sMiddle2 = " for ";
-            string sEnd = " damage.";
-            int damage = 0;
             foreach (string nextLine in Lines)
             {
-                if (!nextLine.StartsWith(sStart))
+                //check starting with "You cast a X spell on "
+                if (!nextLine.StartsWith(YOU_CAST_A_PREFIX)) continue;
+                int iLineLength = nextLine.Length;
+                int startLength = YOU_CAST_A_PREFIX.Length;
+                int iStartingPartIndex = nextLine.IndexOf(" ", startLength);
+                if (iStartingPartIndex == iLineLength) continue;
+                string spellName = nextLine.Substring(startLength, iStartingPartIndex - startLength);
+                if (!ALL_OFFENSIVE_SPELLS.Contains(spellName)) continue;
+                iStartingPartIndex++;
+                bool failed = false;
+                foreach (char c in "spell on ")
                 {
-                    continue;
+                    if (iStartingPartIndex == iLineLength)
+                    {
+                        failed = true;
+                        continue;
+                    }
+                    if (nextLine[iStartingPartIndex++] != c)
+                    {
+                        failed = true;
+                        continue;
+                    }
                 }
-                int findIndex = nextLine.IndexOf(sMiddle1, sStart.Length);
-                if (findIndex < 0)
-                {
-                    continue;
-                }
-                damage = AttackSequence.GetDamage(nextLine, findIndex + sMiddle1.Length, sMiddle2, sEnd);
+                if (failed) continue;
+
+                //check ending with " for X damage."
+                int damage = AttackSequence.GetDamage(nextLine, DAMAGE_PREFIX, DAMAGE_SUFFIX);
                 if (damage > 0)
                 {
-                    satisfied = true;
-                    break;
+                    if (iStartingPartIndex + DAMAGE_PREFIX.Length + damage.ToString().Length + DAMAGE_SUFFIX.Length != iLineLength)
+                    {
+                        _onSatisfied(damage, flParams);
+                        break;
+                    }
                 }
-            }
-            if (satisfied)
-            {
-                _onSatisfied(damage, flParams);
             }
         }
     }
 
     public class AttackSequence : AOutputProcessingSequence
     {
+        private const string YOUR_PREFIX = "Your ";
+        private const string BEFORE_DAMAGE = " hits for ";
+        private const string AFTER_DAMAGE = " damage.";
+
         public Action<bool, int, FeedLineParameters> _onSatisfied;
         public AttackSequence(Action<bool, int, FeedLineParameters> onSatisfied)
         {
@@ -1299,42 +1335,49 @@ namespace IsengardClient
 
         public int MatchesHitPattern(string nextLine)
         {
-            string sStart = "Your ";
-            string sMiddle1 = " hits for ";
-            string sEnd = " damage.";
-            if (!nextLine.StartsWith(sStart))
-            {
-                return 0;
-            }
-            return GetDamage(nextLine, sStart.Length, sMiddle1, sEnd);
+            if (!nextLine.StartsWith(YOUR_PREFIX)) return 0;
+            int iDamage = GetDamage(nextLine, BEFORE_DAMAGE, AFTER_DAMAGE);
+            if (iDamage == 0) return 0;
+            if (nextLine.Length == YOUR_PREFIX.Length + BEFORE_DAMAGE.Length + iDamage.ToString().Length + AFTER_DAMAGE.Length) return 0;
+            return iDamage;
         }
 
-        public static int GetDamage(string nextLine, int start, string beforeDamageText, string afterDamageText)
+        public static int GetDamage(string nextLine, string beforeDamageText, string afterDamageText)
         {
-            int findIndex = nextLine.IndexOf(beforeDamageText, start);
-            if (findIndex < 0)
+            int iLineLength = nextLine.Length;
+            int iAfterDamageLength = afterDamageText.Length;
+            int iAfterDamageIndex = nextLine.LastIndexOf(afterDamageText);
+            if (iAfterDamageIndex + iAfterDamageLength != iLineLength) return 0;
+
+            int iDamage = 0;
+            int iTens = 1;
+            int iCharacters = 0;
+            char cPreDamageChar = beforeDamageText[beforeDamageText.Length - 1];
+            bool finished = false;
+            for (int i = iAfterDamageIndex - 1; i >= 0; i--)
             {
-                return 0;
+                char c = nextLine[i];
+                if (char.IsDigit(c))
+                {
+                    iDamage += int.Parse(c.ToString()) * iTens;
+                    iTens *= 10;
+                    iCharacters++;
+                }
+                else if (c == cPreDamageChar)
+                {
+                    finished = true;
+                    break;
+                }
             }
-            int damageStart = findIndex + beforeDamageText.Length;
-            int endDamageIndex = nextLine.IndexOf(afterDamageText, damageStart);
-            if (endDamageIndex < 0)
-            {
-                return 0;
-            }
-            if (damageStart == endDamageIndex) //make sure there actually is text for the damage number
-            {
-                return 0;
-            }
-            if (endDamageIndex + afterDamageText.Length != nextLine.Length) //make sure the text ends with the after damage text
-            {
-                return 0;
-            }
-            if (!int.TryParse(nextLine.Substring(damageStart, endDamageIndex - damageStart), out int damageCount))
-            {
-                return 0;
-            }
-            return damageCount;
+
+            if (!finished) return 0;
+            if (iDamage == 0) return 0;
+
+            int iBeforeDamageIndex = nextLine.LastIndexOf(beforeDamageText);
+            int iBeforeDamageLength = beforeDamageText.Length;
+            if (iBeforeDamageIndex + iBeforeDamageLength + iCharacters != iAfterDamageIndex) return 0;
+
+            return iDamage;
         }
     }
 
@@ -1355,7 +1398,7 @@ namespace IsengardClient
                 return;
             }
             bool firstLine = true;
-            MonsterStatus? status = null;
+            MonsterStatus status = MonsterStatus.None;
             foreach (string nextLine in Lines)
             {
                 if (firstLine)
@@ -1408,11 +1451,11 @@ namespace IsengardClient
                     {
                         status = MonsterStatus.BarelyClingingToLife;
                     }
-                    if (status.HasValue)
+                    if (status != MonsterStatus.None)
                     {
                         flParams.FinishedProcessing = true;
                         flParams.SuppressEcho = !string.IsNullOrEmpty(flParams.CurrentlyFightingMob);
-                        _onSatisfied(status.Value, flParams);
+                        _onSatisfied(status, flParams);
                         return;
                     }
                 }
@@ -1682,6 +1725,7 @@ namespace IsengardClient
                          sLine == "The earth trembles under your feet." ||
                          sLine == "The sky is dark as pitch." ||
                          sLine == "The full moon shines across the land." ||
+                         sLine == "The night sky is lit by the waxing moon." ||
                          sLine == "A sliver of silver can be seen in the night sky." ||
                          sLine == "Thunderheads roll in from the east." ||
                          sLine == "Half a moon lights the evening skies." ||
@@ -1796,6 +1840,87 @@ namespace IsengardClient
             if (messages != null || broadcastMessages != null)
             {
                 _onSatisfied(messages, broadcastMessages, addedPlayers, removedPlayers);
+            }
+        }
+    }
+
+    public class EntityAttacksYouSequence : AOutputProcessingSequence
+    {
+        private const string DAMAGE_END_STRING = " damage!";
+        private const string YOU_FOR_STRING = " you for";
+        public Action<FeedLineParameters> _onSatisfied;
+
+        public EntityAttacksYouSequence(Action<FeedLineParameters> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public override void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0)
+            {
+                string firstLine = Lines[0];
+                bool matches = false;
+                if (firstLine.EndsWith(" missed you."))
+                {
+                    matches = true;
+                }
+                else if (firstLine.EndsWith(DAMAGE_END_STRING))
+                {
+                    int len = firstLine.Length;
+                    int endlen = DAMAGE_END_STRING.Length;
+                    if (len == endlen) return;
+                    int i = len - 1;
+                    bool hasDigit = false;
+                    bool finished;
+                    int charactersRemoved = 0;
+                    do
+                    {
+                        char c = firstLine[i];
+                        charactersRemoved++;
+                        finished = c == ' ';
+                        if (finished)
+                        {
+                            if (!hasDigit) return;
+                            break;
+                        }
+                        else if (char.IsDigit(c))
+                        {
+                            hasDigit = true;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    while (!finished);
+
+                    endlen += charactersRemoved;
+                    if (len == endlen) return;
+
+                    firstLine = firstLine.Substring(0, len - endlen);
+                    len -= endlen;
+                    if (!firstLine.EndsWith(YOU_FOR_STRING)) return;
+
+                    endlen = YOU_FOR_STRING.Length;
+                    if (len == endlen) return;
+
+                    firstLine = firstLine.Substring(0, len - endlen);
+
+                    matches = firstLine.EndsWith(" barely nicks") ||
+                              firstLine.EndsWith(" scratches") ||
+                              firstLine.EndsWith(" bruises") ||
+                              firstLine.EndsWith(" hurts") ||
+                              firstLine.EndsWith(" wounds") ||
+                              firstLine.EndsWith(" smites") ||
+                              firstLine.EndsWith(" maims") ||
+                              firstLine.EndsWith(" pulverizes");
+                }
+                if (matches)
+                {
+                    flParams.FinishedProcessing = true;
+                    _onSatisfied(flParams);
+                }
             }
         }
     }

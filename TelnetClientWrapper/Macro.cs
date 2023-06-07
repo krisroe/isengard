@@ -87,6 +87,7 @@ namespace IsengardClient
         public List<MeleeCombatStep> MeleeCombatSteps { get; set; }
         public CombatStepEnd MagicEnd { get; set; }
         public CombatStepEnd MeleeEnd { get; set; }
+        public CommandType OnlyRunWhenStunned { get; set; }
 
         public static Macro GenerateCannedMacro(string Name)
         {
@@ -99,6 +100,7 @@ namespace IsengardClient
                     m.MagicEnd = CombatStepEnd.RepeatLastStep;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    m.OnlyRunWhenStunned = CommandType.Melee;
                     break;
                 case "SC*+A*":
                     m.ShowPreForm = true;
@@ -106,6 +108,7 @@ namespace IsengardClient
                     m.MagicEnd = CombatStepEnd.RepeatLastStep;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    m.OnlyRunWhenStunned = CommandType.Melee;
                     break;
                 case "SCCSC*+A*":
                     m.ShowPreForm = true;
@@ -113,6 +116,7 @@ namespace IsengardClient
                     m.MagicEnd = CombatStepEnd.RepeatLastStep;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    m.OnlyRunWhenStunned = CommandType.Melee;
                     break;
                 case "SCCSCCF+A*":
                     m.ShowPreForm = true;
@@ -120,6 +124,7 @@ namespace IsengardClient
                     m.MagicEnd = CombatStepEnd.Flee;
                     m.MeleeCombatSteps = new List<MeleeCombatStep>() { MeleeCombatStep.RegularAttack };
                     m.MeleeEnd = CombatStepEnd.RepeatLastStep;
+                    m.OnlyRunWhenStunned = CommandType.Melee;
                     break;
                 case "C*":
                     m.ShowPreForm = true;
@@ -176,12 +181,5 @@ namespace IsengardClient
         None,
         Flee,
         RepeatLastStep,
-    }
-
-    internal enum MagicCombatCycleType
-    {
-        None,
-        Stun,
-        OffensiveSpell
     }
 }

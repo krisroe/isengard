@@ -665,6 +665,10 @@ namespace IsengardClient
         //CSRTODO: no plural?
         FaornilTheSeer,
 
+        [SingularName("farm cat")]
+        [PluralName("farm cats")]
+        FarmCat,
+
         [SingularName("field laborer")]
         [PluralName("field laborers")]
         FieldLaborer,
@@ -996,6 +1000,10 @@ namespace IsengardClient
         [PluralName("carved ivory keys")]
         CarvedIvoryKey,
 
+        [SingularName("cloth armor")]
+        //CSRTODO: plural???
+        ClothArmor,
+
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]
         ClothHat,
@@ -1015,6 +1023,10 @@ namespace IsengardClient
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         DarkGreenPotion,
+
+        [SingularName("emerald collar")]
+        [PluralName("emerald collars")]
+        EmeraldCollar,
 
         [SingularName("engagement ring")]
         [PluralName("engagement rings")]
@@ -1083,6 +1095,10 @@ namespace IsengardClient
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
         MOMTattoo,
+
+        [SingularName("ork blade")]
+        [PluralName("ork blades")]
+        OrkBlade,
 
         [SingularName("out of order sign")]
         [PluralName("out of order signs")]
@@ -1155,6 +1171,10 @@ namespace IsengardClient
         [SingularName("tiger shark leather armor")]
         //CSRTODO: plural
         TigerSharkLeatherArmor,
+
+        [SingularName("voulge")]
+        [PluralName("voulges")]
+        Voulge,
 
         [SingularName("war harness")]
         [PluralName("war harnesses")]

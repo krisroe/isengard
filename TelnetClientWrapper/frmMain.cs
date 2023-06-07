@@ -135,9 +135,16 @@ namespace IsengardClient
         private bool _currentBackgroundExitMessageReceived;
         private List<string> _currentObviousExits;
         private List<string> _foundSearchedExits;
+        
         private string _currentlyFightingMob;
-        private MonsterStatus? _currentMonsterStatus;
+        private string _currentlyFightingMobUI;
+        private MonsterStatus _currentMonsterStatus;
+        private MonsterStatus _currentMonsterStatusUI;
         private int _monsterDamage;
+        private int _monsterDamageUI;
+        private bool _monsterStunned;
+        private bool _monsterStunnedUI;
+
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>()
         {
@@ -1163,8 +1170,22 @@ namespace IsengardClient
             }
         }
 
-        private static void OnStun(FeedLineParameters flParams)
+        private void OnEntityAttacksYou(FeedLineParameters flParams)
         {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            {
+                _monsterStunned = false;
+            }
+        }
+
+        private void OnStun(FeedLineParameters flParams)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            {
+                _monsterStunned = true;
+            }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
             {
@@ -1524,6 +1545,7 @@ namespace IsengardClient
                 new SuccessfulSearchSequence(SuccessfulSearch),
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
+                new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
@@ -2309,7 +2331,8 @@ namespace IsengardClient
                 {
                     _currentlyFightingMob = pms.TargetRoomMob;
                     _monsterDamage = 0;
-                    _currentMonsterStatus = null;
+                    _currentMonsterStatus  = MonsterStatus.None;
+                    _monsterStunned = false;
 
                     string sWeapon = _weapon;
 
@@ -2334,18 +2357,23 @@ namespace IsengardClient
                         bool meleeStepsFinished = !meleeSteps.MoveNext();
                         bool magicTotallyFinished = false;
                         bool meleeTotallyFinished = false;
+                        bool magicOnlyWhenStunned = (m.OnlyRunWhenStunned & CommandType.Magic) != CommandType.None;
+                        bool meleeOnlyWhenStunned = (m.OnlyRunWhenStunned & CommandType.Melee) != CommandType.None;
                         if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                         if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                         DateTime? dtNextMagicCommand = null;
                         DateTime? dtNextMeleeCommand = null;
                         while (true) //combat cycle
                         {
+                            bool monsterStunned = _monsterStunned;
+                            bool skipBecauseNotStunned;
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             bool didDamage = false;
                             string command = null;
                             bool skipMagicStep = false;
-                            if (nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
+                            skipBecauseNotStunned = !monsterStunned && magicOnlyWhenStunned;
+                            if (!skipBecauseNotStunned && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
                             {
                                 int currentMana = _currentMana;
                                 int currentHP = _autohp;
@@ -2431,7 +2459,6 @@ namespace IsengardClient
                                         }
                                     }
                                 }
-
                                 if (skipMagicStep)
                                 {
                                     if (!magicStepsFinished)
@@ -2522,7 +2549,8 @@ namespace IsengardClient
                             }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
-                            if (nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
+                            skipBecauseNotStunned = !monsterStunned && meleeOnlyWhenStunned;
+                            if (!skipBecauseNotStunned && nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                             {
                                 bool isPowerAttack = false;
                                 string sAttackType;
@@ -2712,7 +2740,8 @@ namespace IsengardClient
                     _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                     _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                     _currentlyFightingMob = null;
-                    _currentMonsterStatus = null;
+                    _currentMonsterStatus = MonsterStatus.None;
+                    _monsterStunned = false;
                 }
             }
 
@@ -3752,47 +3781,37 @@ namespace IsengardClient
             }
             string sMonster = _currentlyFightingMob;
             int iMonsterDamage = _monsterDamage;
-            MonsterStatus? monsterStatus = _currentMonsterStatus;
-            string sCurrentMobGroupText = grpMob.Text;
-            string sCurrentMobStatusText = txtMobStatus.Text;
-            string sCurrentMobDamageText = txtMobDamage.Text;
-            string sNewGroupMobText;
-            string sNewMobStatusText;
-            string sNewMobDamageText = sCurrentMobDamageText;
-            if (string.IsNullOrEmpty(sMonster))
+            MonsterStatus monsterStatus = _currentMonsterStatus;
+            bool monsterStunned = _monsterStunned;
+
+            if (!string.Equals(sMonster, _currentlyFightingMobUI))
             {
-                sNewGroupMobText = "Mob";
-                sNewMobStatusText = string.Empty;
+                grpMob.Text = sMonster ?? "Mob";
+                _currentlyFightingMobUI = sMonster;
             }
-            else
+            if (iMonsterDamage != _monsterDamageUI)
             {
-                sNewGroupMobText = sMonster;
-                sNewMobStatusText = GetMonsterStatusText(monsterStatus);
-                sNewMobDamageText = iMonsterDamage.ToString();
+                txtMobDamage.Text = _monsterDamage <= 0 ? string.Empty : _monsterDamage.ToString();
+                _monsterDamageUI = iMonsterDamage;
             }
+            if (monsterStunned != _monsterStunnedUI)
+            {
+                chkMobStunned.Checked = monsterStunned;
+                _monsterStunnedUI = monsterStunned;
+            }
+            if (monsterStatus != _currentMonsterStatusUI)
+            {
+                txtMobStatus.Text = GetMonsterStatusText(monsterStatus);
+                _currentMonsterStatusUI = monsterStatus;
+            }
+
             string sCurrentPlayerHeader = _currentPlayerHeader;
             if (!string.Equals(sCurrentPlayerHeader, _currentPlayerHeaderUI))
             {
                 grpCurrentPlayer.Text = sCurrentPlayerHeader;
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
             }
-            if (!string.Equals(sCurrentMobGroupText, sNewGroupMobText))
-            {
-                grpMob.Text = sNewGroupMobText;
-            }
-            if (!string.Equals(sCurrentMobStatusText, sNewMobStatusText))
-            {
-                txtMobStatus.Text = sNewMobStatusText;
-            }
-            if (!string.Equals(sCurrentMobDamageText, sNewMobDamageText))
-            {
-                txtMobDamage.Text = sNewMobDamageText;
-            }
-            string sMob = _mob ?? string.Empty;
-            if (!string.Equals(sMob, txtMob.Text))
-            {
-                txtMob.Text = sMob;
-            }
+
             lock (_broadcastMessagesLock)
             {
                 if (_broadcastMessages.Count > 0)
@@ -4357,34 +4376,20 @@ namespace IsengardClient
 
         private void SetCurrentRealmButton(RadioButton radRealm)
         {
+            List<string> spellList;
             if (radRealm == radEarth)
-            {
-                _realm1Spell = "rumble";
-                _realm2Spell = "crush";
-                _realm3Spell = "shatterstone";
-            }
+                spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
             else if (radRealm == radFire)
-            {
-                _realm1Spell = "burn";
-                _realm2Spell = "fireball";
-                _realm3Spell = "burstflame";
-            }
+                spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
             else if (radRealm == radWater)
-            {
-                _realm1Spell = "blister";
-                _realm2Spell = "waterbolt";
-                _realm3Spell = "steamblast";
-            }
+                spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
             else if (radRealm == radWind)
-            {
-                _realm1Spell = "hurt";
-                _realm2Spell = "dustgust";
-                _realm3Spell = "shockbolt";
-            }
+                spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
             else
-            {
                 throw new InvalidOperationException();
-            }
+            _realm1Spell = spellList[0];
+            _realm2Spell = spellList[1];
+            _realm3Spell = spellList[2];
         }
     }
 
@@ -4427,6 +4432,7 @@ namespace IsengardClient
 
     internal enum MonsterStatus
     {
+        None,
         ExcellentCondition,
         FewSmallScratches,
         WincingInPain,

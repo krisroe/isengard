@@ -168,6 +168,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.chkMobStunned = new System.Windows.Forms.CheckBox();
             this.ctxMob.SuspendLayout();
             this.grpRealm.SuspendLayout();
             this.ctxLocations.SuspendLayout();
@@ -1044,20 +1045,21 @@
             // 
             // grpMob
             // 
+            this.grpMob.Controls.Add(this.chkMobStunned);
             this.grpMob.Controls.Add(this.txtMobStatus);
             this.grpMob.Controls.Add(this.lblMobStatus);
             this.grpMob.Controls.Add(this.txtMobDamage);
             this.grpMob.Controls.Add(this.lblMobDamage);
             this.grpMob.Location = new System.Drawing.Point(820, 724);
             this.grpMob.Name = "grpMob";
-            this.grpMob.Size = new System.Drawing.Size(191, 75);
+            this.grpMob.Size = new System.Drawing.Size(191, 84);
             this.grpMob.TabIndex = 120;
             this.grpMob.TabStop = false;
             this.grpMob.Text = "Mob";
             // 
             // txtMobStatus
             // 
-            this.txtMobStatus.Location = new System.Drawing.Point(91, 44);
+            this.txtMobStatus.Location = new System.Drawing.Point(96, 34);
             this.txtMobStatus.Name = "txtMobStatus";
             this.txtMobStatus.ReadOnly = true;
             this.txtMobStatus.Size = new System.Drawing.Size(86, 20);
@@ -1066,7 +1068,7 @@
             // lblMobStatus
             // 
             this.lblMobStatus.AutoSize = true;
-            this.lblMobStatus.Location = new System.Drawing.Point(36, 47);
+            this.lblMobStatus.Location = new System.Drawing.Point(41, 37);
             this.lblMobStatus.Name = "lblMobStatus";
             this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
             this.lblMobStatus.TabIndex = 2;
@@ -1074,7 +1076,7 @@
             // 
             // txtMobDamage
             // 
-            this.txtMobDamage.Location = new System.Drawing.Point(91, 19);
+            this.txtMobDamage.Location = new System.Drawing.Point(96, 9);
             this.txtMobDamage.Name = "txtMobDamage";
             this.txtMobDamage.ReadOnly = true;
             this.txtMobDamage.Size = new System.Drawing.Size(86, 20);
@@ -1083,7 +1085,7 @@
             // lblMobDamage
             // 
             this.lblMobDamage.AutoSize = true;
-            this.lblMobDamage.Location = new System.Drawing.Point(36, 22);
+            this.lblMobDamage.Location = new System.Drawing.Point(41, 12);
             this.lblMobDamage.Name = "lblMobDamage";
             this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
             this.lblMobDamage.TabIndex = 0;
@@ -1768,6 +1770,16 @@
             this.pnlCommand.Size = new System.Drawing.Size(724, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // chkMobStunned
+            // 
+            this.chkMobStunned.AutoSize = true;
+            this.chkMobStunned.Location = new System.Drawing.Point(96, 61);
+            this.chkMobStunned.Name = "chkMobStunned";
+            this.chkMobStunned.Size = new System.Drawing.Size(66, 17);
+            this.chkMobStunned.TabIndex = 4;
+            this.chkMobStunned.Text = "Stunned";
+            this.chkMobStunned.UseVisualStyleBackColor = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1965,6 +1977,7 @@
         private System.Windows.Forms.GroupBox grpCurrentPlayer;
         private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.Panel pnlTabControl;
+        private System.Windows.Forms.CheckBox chkMobStunned;
     }
 }
 
