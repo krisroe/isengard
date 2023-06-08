@@ -95,10 +95,9 @@ namespace IsengardClient
                     {
                         firstWord = remainder.Substring(0, iSpaceIndex);
                         parsedCount = ParseNumberWord(firstWord);
-                        if (!parsedCount.HasValue)
+                        if (!parsedCount.HasValue) //sets of [1] singular thing
                         {
-                            errorMessages.Add("Invalid entity: " + fullName);
-                            return null;
+                            return GetEntity(setCount, 1, remainder, possibleEntityTypes, errorMessages);
                         }
                         count = parsedCount.Value;
                         remainderLength = remainder.Length;
@@ -388,6 +387,7 @@ namespace IsengardClient
             }
             else if (hasSingular)
             {
+                //CSRTODO: is this even valid?
                 if (SingularMobMapping.ContainsKey(singular))
                 {
                     throw new InvalidOperationException();
@@ -397,18 +397,6 @@ namespace IsengardClient
                     throw new InvalidOperationException();
                 }
                 SingularMobMapping[singular] = type;
-            }
-            else if (hasPlural)
-            {
-                if (SingularMobMapping.ContainsKey(plural))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralMobMapping.ContainsKey(plural))
-                {
-                    throw new InvalidOperationException();
-                }
-                PluralMobMapping[plural] = type;
             }
             else
             {
@@ -484,18 +472,6 @@ namespace IsengardClient
                     throw new InvalidOperationException();
                 }
                 SingularItemMapping[singular] = type;
-            }
-            else if (hasPlural)
-            {
-                if (SingularItemMapping.ContainsKey(plural))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralItemMapping.ContainsKey(plural))
-                {
-                    throw new InvalidOperationException();
-                }
-                PluralItemMapping[plural] = type;
             }
             else
             {
@@ -781,6 +757,10 @@ namespace IsengardClient
         //CSRTODO: no plural
         IgorTheBouncer,
 
+        [SingularName("Iorlas the hermit")]
+        //CSRTODO: no plural?
+        IorlasTheHermit,
+
         [SingularName("Ixell DeSantis")]
         //CSRTODO: no plural
         IxellDeSantis,
@@ -832,6 +812,10 @@ namespace IsengardClient
         [SingularName("mistress")]
         [PluralName("mistresses")]
         Mistress,
+
+        [SingularName("monk")]
+        [PluralName("monks")]
+        Monk,
 
         [SingularName("mosquito")]
         [PluralName("mosquitos")] //CSRTODO: dictionary has plural as either mosquito or mosquitoes
@@ -888,6 +872,10 @@ namespace IsengardClient
         [SingularName("sailor")]
         [PluralName("sailors")]
         Sailor,
+
+        [SingularName("scholar")]
+        [PluralName("scholars")]
+        Scholar,
 
         [SingularName("Scranlin")]
         //CSRTODO: no plural
@@ -974,18 +962,21 @@ namespace IsengardClient
         ZathrielTheMinstrel,
     }
 
+    /// <summary>
+    /// item enums. There are three cases:
+    /// 1. ordinary items have singular and plural names. These have both singular and plural attributes.
+    /// 2. coin items use "X gold coins" and "sets of X gold coins" formats. These currently have both singular and plural attributes.
+    /// 3. collective items only have a singular name, and use "sets of X" for the plural case. These currently only have a singular attribute.
+    /// </summary>
     public enum ItemTypeEnum
     {
         [SingularName("adamantine scale mail gloves")]
-        //CSRTODO: plural
         AdamantineScaleMailGloves,
 
         [SingularName("adamantine scale mail leggings")]
-        //CSRTODO: plural
         AdamantineScaleMailLeggings,
 
         [SingularName("adamantine scale mail sleeves")]
-        //CSRTODO: plural
         AdamantineScaleMailSleeves,
 
         [SingularName("aquamarine potion")]
@@ -1001,7 +992,6 @@ namespace IsengardClient
         BlueBubblyPotion,
 
         [SingularName("bone armor")]
-        //CSRTODO: plural
         BoneArmor,
 
         [SingularName("broad sword")]
@@ -1013,11 +1003,9 @@ namespace IsengardClient
         CarvedIvoryKey,
 
         [SingularName("cloth armor")]
-        //CSRTODO: plural???
         ClothArmor,
 
         [SingularName("cloth boots")]
-        //CSRTODO: plural
         ClothBoots,
 
         [SingularName("cloth hat")]
@@ -1025,7 +1013,6 @@ namespace IsengardClient
         ClothHat,
 
         [SingularName("cloth pants")]
-        //CSRTODO: plural???
         ClothPants,
 
         [SingularName("club")]
@@ -1096,13 +1083,12 @@ namespace IsengardClient
         [PluralName("ice blue potions")]
         IceBluePotion,
 
-        [SingularName("Iorlas the hermit")]
-        //CSRTODO: no plural?
-        IorlasTheHermit,
-
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         IronRing,
+
+        [SingularName("leather gloves")]
+        LeatherGloves,
 
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
@@ -1197,7 +1183,6 @@ namespace IsengardClient
         SmallWoodenShield,
 
         [SingularName("sprite boots")]
-        //CSRTODO: plural
         SpriteBoots,
 
         [SingularName("statuette of Balthazar")]
@@ -1205,7 +1190,6 @@ namespace IsengardClient
         StatuetteOfBalthazar,
 
         [SingularName("steel-chain armor")]
-        //CSRTODO: plural
         SteelChainArmor,
 
         [SingularName("T-bone")]
@@ -1213,7 +1197,6 @@ namespace IsengardClient
         TBone,
 
         [SingularName("tiger shark leather armor")]
-        //CSRTODO: plural
         TigerSharkLeatherArmor,
 
         [SingularName("voulge")]

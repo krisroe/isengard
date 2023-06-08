@@ -140,9 +140,18 @@ namespace IsengardClient
             }
             if (LastMeleeStep.HasValue)
             {
-                haveAnySteps = true;
                 eLastStepValue = LastMeleeStep.Value;
+                bool switchToPowerAttack = !haveAnySteps && powerAttack && eLastStepValue == MeleeStrategyStep.RegularAttack;
+                if (switchToPowerAttack)
+                {
+                    eLastStepValue = MeleeStrategyStep.PowerAttack;
+                }
+                haveAnySteps = true;
                 yield return eLastStepValue;
+                if (switchToPowerAttack)
+                {
+                    eLastStepValue = MeleeStrategyStep.RegularAttack;
+                }
             }
             if (FinalMeleeAction == FinalStepAction.RepeatIndefinitely && haveAnySteps)
             {

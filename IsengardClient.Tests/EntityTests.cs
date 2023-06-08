@@ -98,6 +98,22 @@ namespace IsengardClient.Tests
             Assert.IsTrue(item.ItemType == ItemTypeEnum.CopperPieces);
 
             errorMessages.Clear();
+            item = Entity.GetEntity("21 sets of cloth armor", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(item.SetCount == 21);
+            Assert.IsTrue(item.Count == 1);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.ClothArmor);
+
+            errorMessages.Clear();
+            item = Entity.GetEntity("cloth armor", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(item.SetCount == 1);
+            Assert.IsTrue(item.Count == 1);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.ClothArmor);
+
+            errorMessages.Clear();
             item = Entity.GetEntity("a cloth hat", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
             Assert.IsTrue(item != null);
             Assert.IsTrue(errorMessages.Count == 0);

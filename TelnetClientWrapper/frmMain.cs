@@ -1229,25 +1229,31 @@ namespace IsengardClient
         
         private void OnAttack(bool fumbled, int damage, bool killedMonster, FeedLineParameters flParams)
         {
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 if (fumbled) _fumbled = true;
                 else if (killedMonster) _monsterKilled = true;
-                _lastCommandDamage = damage;
                 _monsterDamage += damage;
+            }
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            {
+                _lastCommandDamage = damage;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
         private void OnCastOffensiveSpell(int damage, bool killedMonster, FeedLineParameters flParams)
         {
+            if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            {
+                _monsterDamage += damage;
+                if (killedMonster) _monsterKilled = true;
+            }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
             {
                 _lastCommandDamage = damage;
-                _monsterDamage += damage;
-                if (killedMonster) _monsterKilled = true;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
@@ -2338,10 +2344,12 @@ namespace IsengardClient
             bool haveMagicSteps = false;
             bool didFlee = false;
             bool useManaPool = pms.ManaPool > 0;
+            bool stopIfMonsterKilled = false;
             if (strategy != null)
             {
                 haveMagicSteps = strategy.HasAnyMagicSteps();
                 haveMeleeSteps = strategy.HasAnyMeleeSteps();
+                stopIfMonsterKilled = strategy.StopWhenKillMonster;
             }
             if (_fleeing || haveMagicSteps || haveMeleeSteps)
             {
@@ -2386,10 +2394,13 @@ namespace IsengardClient
                         if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                         DateTime? dtNextMagicCommand = null;
                         DateTime? dtNextMeleeCommand = null;
-                        bool stopIfMonsterKilled = strategy.StopWhenKillMonster;
                         while (true) //combat cycle
                         {
                             bool skipPerMonsterStatus;
+                            if (stopIfMonsterKilled && _monsterKilled)
+                            {
+                                break;
+                            }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             bool didDamage = false;
@@ -2539,10 +2550,6 @@ namespace IsengardClient
                                                 nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
                                             {
                                                 didDamage = true;
-                                                if (stopIfMonsterKilled && _monsterKilled)
-                                                {
-                                                    goto afterCombat;
-                                                }
                                             }
                                             if (useManaPool)
                                             {
@@ -2569,6 +2576,10 @@ namespace IsengardClient
                                         }
                                     }
                                 }
+                            }
+                            if (stopIfMonsterKilled && _monsterKilled)
+                            {
+                                break;
                             }
                             if (!nextMagicStep.HasValue && strategy.FinalMagicAction == FinalStepAction.Flee)
                             {
@@ -2628,10 +2639,6 @@ namespace IsengardClient
                                             pms.DoScore = true;
                                         }
                                         didDamage = true;
-                                        if (stopIfMonsterKilled && _monsterKilled)
-                                        {
-                                            goto afterCombat;
-                                        }
                                     }
                                     if (meleeStepsFinished)
                                     {
@@ -2652,6 +2659,10 @@ namespace IsengardClient
                                 {
                                     throw new InvalidOperationException();
                                 }
+                            }
+                            if (stopIfMonsterKilled && _monsterKilled)
+                            {
+                                break;
                             }
                             if (!nextMeleeStep.HasValue && strategy.FinalMeleeAction == FinalStepAction.Flee)
                             {
@@ -2710,16 +2721,25 @@ namespace IsengardClient
                             {
                                 break;
                             }
+                            if (stopIfMonsterKilled && _monsterKilled)
+                            {
+                                break;
+                            }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
+                            if (stopIfMonsterKilled && _monsterKilled)
+                            {
+                                break;
+                            }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
+
                             Thread.Sleep(50);
                         }
                     }
 
-                    if (_fleeing)
+                    if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled))
                     {
                         _backgroundProcessPhase = BackgroundProcessPhase.Flee;
                         if (!string.IsNullOrEmpty(sWeapon))
@@ -2777,8 +2797,6 @@ namespace IsengardClient
                     _currentMana = HP_OR_MP_UNKNOWN;
                 }
             }
-
-            afterCombat:
 
             if (pms.DoScore && !didFlee)
             {
@@ -3639,11 +3657,11 @@ namespace IsengardClient
             {
                 if (gotFullHP)
                 {
-                    _newConsoleText.Add("Your hitpoints are full.");
+                    _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
                 }
                 if (gotFullMP)
                 {
-                    _newConsoleText.Add("Your mana is full.");
+                    _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
                 }
                 if (_newConsoleText.Count > 0)
                 {
