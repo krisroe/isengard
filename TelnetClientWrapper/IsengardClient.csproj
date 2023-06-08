@@ -137,18 +137,17 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmPreMacroPrompt.cs">
+    <Compile Include="frmPreBackgroundProcessPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmPreMacroPrompt.Designer.cs">
-      <DependentUpon>frmPreMacroPrompt.cs</DependentUpon>
+    <Compile Include="frmPreBackgroundProcessPrompt.Designer.cs">
+      <DependentUpon>frmPreBackgroundProcessPrompt.cs</DependentUpon>
     </Compile>
     <Compile Include="IsengardSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>IsengardSettings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Macro.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueueNode.cs" />
@@ -160,6 +159,7 @@
     <Compile Include="Room.cs" />
     <Compile Include="RoomGraph.cs" />
     <Compile Include="Sequence.cs" />
+    <Compile Include="Strategy.cs" />
     <Compile Include="UIShared.cs" />
     <EmbeddedResource Include="frmConfiguration.resx">
       <DependentUpon>frmConfiguration.cs</DependentUpon>
@@ -170,8 +170,8 @@
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmPreMacroPrompt.resx">
-      <DependentUpon>frmPreMacroPrompt.cs</DependentUpon>
+    <EmbeddedResource Include="frmPreBackgroundProcessPrompt.resx">
+      <DependentUpon>frmPreBackgroundProcessPrompt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -166,7 +166,7 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        internal frmMain(string userName, string password, List<Macro> allMacros)
+        internal frmMain(string userName, string password, List<Strategy> allStrategies)
         {
             InitializeComponent();
 
@@ -249,17 +249,17 @@ namespace IsengardClient
             _password = password;
 
             int iOneClickTabIndex = 0;
-            foreach (Macro oMacro in allMacros)
+            foreach (Strategy oStrategy in allStrategies)
             {
                 Button btnOneClick = new Button();
                 btnOneClick.AutoSize = true;
                 btnOneClick.TabIndex = iOneClickTabIndex++;
-                btnOneClick.Tag = oMacro;
-                btnOneClick.Text = oMacro.Name;
+                btnOneClick.Tag = oStrategy;
+                btnOneClick.Text = oStrategy.Name;
                 btnOneClick.UseVisualStyleBackColor = true;
                 btnOneClick.Click += btnOneClick_Click;
                 btnOneClick.ContextMenuStrip = ctxRoomExits;
-                flpOneClickMacros.Controls.Add(btnOneClick);
+                flpOneClickStrategies.Controls.Add(btnOneClick);
             }
 
             _bw = new BackgroundWorker();
@@ -2079,7 +2079,7 @@ namespace IsengardClient
 
         private void btnOneClick_Click(object sender, EventArgs e)
         {
-            RunMacro((Macro)((Button)sender).Tag, null);
+            RunStrategy((Strategy)((Button)sender).Tag, null);
         }
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -2129,7 +2129,7 @@ namespace IsengardClient
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
-            Macro m = pms.Macro;
+            Strategy strategy = pms.Strategy;
             bool backgroundCommandSuccess;
             CommandResult backgroundCommandResult;
 
@@ -2274,7 +2274,7 @@ namespace IsengardClient
                                 if (_fleeing) break;
                                 if (_bw.CancellationPending) break;
                                 Thread.Sleep(50);
-                                RunAutoCommandsWhenMacroRunning(pms, false);
+                                RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
                             }
                         }
 
@@ -2346,10 +2346,10 @@ namespace IsengardClient
             bool haveMeleeSteps = false;
             bool haveMagicSteps = false;
             bool didFlee = false;
-            if (m != null)
+            if (strategy != null)
             {
-                haveMagicSteps = m.MagicCombatSteps != null && m.MagicCombatSteps.Count > 0;
-                haveMeleeSteps = m.MeleeCombatSteps != null && m.MeleeCombatSteps.Count > 0;
+                haveMagicSteps = strategy.HasAnyMagicSteps();
+                haveMeleeSteps = strategy.HasAnyMeleeSteps();
             }
             if (_fleeing || haveMagicSteps || haveMeleeSteps)
             {
@@ -2375,16 +2375,16 @@ namespace IsengardClient
                             doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                         }
 
-                        IEnumerator<MagicCombatStep?> magicSteps = m.GetMagicSteps().GetEnumerator();
-                        IEnumerator<MeleeCombatStep?> meleeSteps = m.GetMeleeSteps(doPowerAttack).GetEnumerator();
-                        MagicCombatStep? nextMagicStep = null;
-                        MeleeCombatStep? nextMeleeStep = null;
+                        IEnumerator<MagicStrategyStep> magicSteps = strategy.GetMagicSteps().GetEnumerator();
+                        IEnumerator<MeleeStrategyStep> meleeSteps = strategy.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                        MagicStrategyStep? nextMagicStep = null;
+                        MeleeStrategyStep? nextMeleeStep = null;
                         bool magicStepsFinished = !magicSteps.MoveNext();
                         bool meleeStepsFinished = !meleeSteps.MoveNext();
                         bool magicTotallyFinished = false;
                         bool meleeTotallyFinished = false;
-                        bool magicOnlyWhenStunned = (m.OnlyRunWhenStunned & CommandType.Magic) != CommandType.None;
-                        bool meleeOnlyWhenStunned = (m.OnlyRunWhenStunned & CommandType.Melee) != CommandType.None;
+                        bool magicOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None;
+                        bool meleeOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None;
                         if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                         if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                         DateTime? dtNextMagicCommand = null;
@@ -2405,13 +2405,13 @@ namespace IsengardClient
                                 int currentHP = _autohp;
                                 int manaDrain = 0;
                                 BackgroundCommandType? bct = null;
-                                if (nextMagicStep == MagicCombatStep.Stun)
+                                if (nextMagicStep == MagicStrategyStep.Stun)
                                 {
                                     command = "cast stun " + _currentlyFightingMob;
                                     manaDrain = 10;
                                     bct = BackgroundCommandType.Stun;
                                 }
-                                else if (nextMagicStep == MagicCombatStep.Vigor)
+                                else if (nextMagicStep == MagicStrategyStep.Vigor)
                                 {
                                     if (currentHP >= _totalhp)
                                     {
@@ -2424,7 +2424,7 @@ namespace IsengardClient
                                         bct = BackgroundCommandType.Vigor;
                                     }
                                 }
-                                else if (nextMagicStep == MagicCombatStep.MendWounds)
+                                else if (nextMagicStep == MagicStrategyStep.MendWounds)
                                 {
                                     if (currentHP >= _totalhp)
                                     {
@@ -2439,21 +2439,21 @@ namespace IsengardClient
                                 }
                                 else
                                 {
-                                    if (nextMagicStep == MagicCombatStep.OffensiveSpellAuto)
+                                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
                                     {
                                         int iMaxOffLevel = _autoSpellLevelMax;
                                         int iMinOffLevel = _autoSpellLevelMin;
                                         if (currentMana >= 10 && iMinOffLevel <= 3 && iMaxOffLevel >= 3)
                                         {
-                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel3;
+                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                                         }
                                         else if (currentMana >= 7 && iMinOffLevel <= 2 && iMaxOffLevel >= 2)
                                         {
-                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel2;
+                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
                                         }
                                         else if (currentMana >= 3 && iMinOffLevel <= 1 && iMaxOffLevel >= 1)
                                         {
-                                            nextMagicStep = MagicCombatStep.OffensiveSpellLevel1;
+                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
                                         }
                                         else //out of mana
                                         {
@@ -2462,19 +2462,19 @@ namespace IsengardClient
                                     }
                                     if (nextMagicStep.HasValue)
                                     {
-                                        if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel3)
+                                        if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
                                         {
                                             command = "cast " + _realm3Spell + " " + _currentlyFightingMob;
                                             manaDrain = 10;
                                             bct = BackgroundCommandType.OffensiveSpell;
                                         }
-                                        else if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel2)
+                                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
                                         {
                                             command = "cast " + _realm2Spell + " " + _currentlyFightingMob;
                                             manaDrain = 7;
                                             bct = BackgroundCommandType.OffensiveSpell;
                                         }
-                                        else if (nextMagicStep == MagicCombatStep.OffensiveSpellLevel1)
+                                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
                                         {
                                             command = "cast " + _realm1Spell + " " + _currentlyFightingMob;
                                             manaDrain = 3;
@@ -2536,7 +2536,10 @@ namespace IsengardClient
                                         else if (backgroundCommandResult == CommandResult.CommandSuccessful) //spell was cast
                                         {
                                             _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                            if (nextMagicStep.Value != MagicCombatStep.Stun)
+                                            if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
+                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
+                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
+                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
                                             {
                                                 didDamage = true;
                                             }
@@ -2570,7 +2573,7 @@ namespace IsengardClient
                                     }
                                 }
                             }
-                            if (!nextMagicStep.HasValue && m.MagicEnd == CombatStepEnd.Flee)
+                            if (!nextMagicStep.HasValue && strategy.FinalMagicAction == FinalStepAction.Flee)
                             {
                                 _fleeing = true;
                             }
@@ -2581,12 +2584,12 @@ namespace IsengardClient
                             {
                                 bool isPowerAttack = false;
                                 string sAttackType;
-                                if (nextMeleeStep == MeleeCombatStep.PowerAttack)
+                                if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
                                 {
                                     sAttackType = "power";
                                     isPowerAttack = true;
                                 }
-                                else if (nextMeleeStep == MeleeCombatStep.RegularAttack)
+                                else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
                                 {
                                     sAttackType = "attack";
                                 }
@@ -2623,7 +2626,7 @@ namespace IsengardClient
                                     _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                                     if (_lastCommandDamage != 0)
                                     {
-                                        if (isPowerAttack) //refresh power attack cooldown when macro finishes
+                                        if (isPowerAttack) //refresh power attack cooldown when strategy finishes
                                         {
                                             pms.DoScore = true;
                                         }
@@ -2649,7 +2652,7 @@ namespace IsengardClient
                                     throw new InvalidOperationException();
                                 }
                             }
-                            if (!nextMeleeStep.HasValue && m.MeleeEnd == CombatStepEnd.Flee)
+                            if (!nextMeleeStep.HasValue && strategy.FinalMeleeAction == FinalStepAction.Flee)
                             {
                                 _fleeing = true;
                             }
@@ -2678,7 +2681,7 @@ namespace IsengardClient
                             }
                             if (!magicTotallyFinished && !nextMagicStep.HasValue)
                             {
-                                MagicCombatStep? queuedMagicStep;
+                                MagicStrategyStep? queuedMagicStep;
                                 lock (_queuedCommandLock)
                                 {
                                     queuedMagicStep = pms.QueuedMagicStep;
@@ -2691,7 +2694,7 @@ namespace IsengardClient
                             }
                             if (!meleeTotallyFinished && !nextMeleeStep.HasValue)
                             {
-                                MeleeCombatStep? queuedMeleeStep;
+                                MeleeStrategyStep? queuedMeleeStep;
                                 lock (_queuedCommandLock)
                                 {
                                     queuedMeleeStep = pms.QueuedMeleeStep;
@@ -2708,7 +2711,7 @@ namespace IsengardClient
                             }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
-                            RunAutoCommandsWhenMacroRunning(pms, false);
+                            RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             Thread.Sleep(50);
@@ -2866,13 +2869,13 @@ namespace IsengardClient
                 if (_bw.CancellationPending) break;
                 Thread.Sleep(nextWaitMS);
                 remainingMS -= nextWaitMS;
-                RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
+                RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters, fleeing);
                 if (!quitting && fleeing != _fleeing) break;
                 if (_bw.CancellationPending) break;
             }
         }
 
-        private void RunAutoCommandsWhenMacroRunning(BackgroundWorkerParameters pms, bool fleeing)
+        private void RunAutoCommandsWhenBackgroundProcessRunning(BackgroundWorkerParameters pms, bool fleeing)
         {
             CheckAutoHazy(pms.AutoHazyThreshold, DateTime.UtcNow, _autohp);
 
@@ -2940,7 +2943,7 @@ namespace IsengardClient
                     currentResult = _commandResult;
                     if (currentResult.HasValue) break;
                     Thread.Sleep(50);
-                    RunAutoCommandsWhenMacroRunning(_currentBackgroundParameters, fleeing);
+                    RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters, fleeing);
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
                 }
@@ -3051,7 +3054,7 @@ namespace IsengardClient
                     }
                     else if (ctl is GroupBox)
                     {
-                        regularLogic = ctl == grpOneClickMacros;
+                        regularLogic = ctl == grpOneClickStrategies;
                     }
                     else
                     {
@@ -3080,8 +3083,8 @@ namespace IsengardClient
             CommandType eRunningCombatCommandTypes = CommandType.Magic | CommandType.Melee | CommandType.Potions;
             if (!inForeground)
             {
-                Macro m = _currentBackgroundParameters.Macro;
-                if (m != null) eRunningCombatCommandTypes = m.CombatCommandTypes;
+                Strategy strategy = _currentBackgroundParameters.Strategy;
+                if (strategy != null) eRunningCombatCommandTypes = strategy.CombatCommandTypes;
             }
             ToolStripButton tsb = null;
             Button btn = null;
@@ -3102,7 +3105,7 @@ namespace IsengardClient
                     enabled = true;
                 else if (npp != BackgroundProcessPhase.Combat) //combat buttons are only enabled in combat
                     enabled = false;
-                else //combat buttons are only enabled if the macro isn't doing that kind of combat
+                else //combat buttons are only enabled if the strategy isn't doing that kind of combat
                     enabled = (oTag.CommandType & eRunningCombatCommandTypes) == CommandType.None;
                 object oControl = oTag.Control;
                 bool isToolStripButton = oTag.IsToolStripButton;
@@ -3311,45 +3314,45 @@ namespace IsengardClient
 
         private void btnLevel1OffensiveSpell_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel1);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.OffensiveSpellLevel1);
         }
 
         private void btnLevel2OffensiveSpell_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel2);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.OffensiveSpellLevel2);
         }
 
         private void btnLevel3OffensiveSpell_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.OffensiveSpellLevel3);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.OffensiveSpellLevel3);
         }
 
         private void btnStun_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.Stun);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.Stun);
         }
 
         private void btnVigor_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.Vigor);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.Vigor);
         }
 
         private void btnMendWounds_Click(object sender, EventArgs e)
         {
-            RunOrQueueMagicStep(sender, MagicCombatStep.MendWounds);
+            RunOrQueueMagicStep(sender, MagicStrategyStep.MendWounds);
         }
 
         private void btnAttackMob_Click(object sender, EventArgs e)
         {
-            RunOrQueueMeleeStep(sender, MeleeCombatStep.RegularAttack);
+            RunOrQueueMeleeStep(sender, MeleeStrategyStep.RegularAttack);
         }
 
         public void btnPowerAttackMob_Click(object sender, EventArgs e)
         {
-            RunOrQueueMeleeStep(sender, MeleeCombatStep.PowerAttack);
+            RunOrQueueMeleeStep(sender, MeleeStrategyStep.PowerAttack);
         }
 
-        private void RunOrQueueMagicStep(object sender, MagicCombatStep step)
+        private void RunOrQueueMagicStep(object sender, MagicStrategyStep step)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
@@ -3366,7 +3369,7 @@ namespace IsengardClient
             }
         }
 
-        private void RunOrQueueMeleeStep(object sender, MeleeCombatStep step)
+        private void RunOrQueueMeleeStep(object sender, MeleeStrategyStep step)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
@@ -3457,10 +3460,10 @@ namespace IsengardClient
 
             public List<Exit> Exits { get; set; }
             public bool Cancelled { get; set; }
-            public Macro Macro { get; set; }
+            public Strategy Strategy { get; set; }
             public string QueuedCommand { get; set; }
-            public MagicCombatStep? QueuedMagicStep { get; set; }
-            public MeleeCombatStep? QueuedMeleeStep { get; set; }
+            public MagicStrategyStep? QueuedMagicStep { get; set; }
+            public MeleeStrategyStep? QueuedMeleeStep { get; set; }
             public bool AutoMana { get; set; }
             public PromptedSkills UsedSkills { get; set; }
             public int AutoHazyThreshold { get; set; }
@@ -3513,14 +3516,14 @@ namespace IsengardClient
             cboSetOption_SelectedIndexChanged(null, null);
         }
 
-        private void RunMacro(Macro m, List<Exit> preExits)
+        private void RunStrategy(Strategy strategy, List<Exit> preExits)
         {
-            CommandType eMacroCombatCommandType = m.CombatCommandTypes;
-            bool isMagicMacro = (eMacroCombatCommandType & CommandType.Magic) == CommandType.Magic;
-            bool isMeleeMacro = (eMacroCombatCommandType & CommandType.Melee) == CommandType.Melee;
-            bool isCombatMacro = isMagicMacro || isMeleeMacro;
+            CommandType eStrategyCombatCommandType = strategy.CombatCommandTypes;
+            bool isMagicStrategy = (eStrategyCombatCommandType & CommandType.Magic) == CommandType.Magic;
+            bool isMeleeStrategy = (eStrategyCombatCommandType & CommandType.Melee) == CommandType.Melee;
+            bool isCombatStrategy = isMagicStrategy || isMeleeStrategy;
             bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
-            if (isMeleeMacro && !hasWeapon)
+            if (isMeleeStrategy && !hasWeapon)
             {
                 MessageBox.Show("No weapon specified.");
                 return;
@@ -3528,23 +3531,23 @@ namespace IsengardClient
 
             PromptedSkills activatedSkills = PromptedSkills.None;
             string targetRoomMob = txtMob.Text;
-            if (m.ShowPreForm)
+            if (strategy.ShowPreForm)
             {
-                if (!PromptForSkills(false, isMeleeMacro, isCombatMacro, preExits, out activatedSkills, out targetRoomMob))
+                if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, preExits, out activatedSkills, out targetRoomMob))
                 {
                     return;
                 }
             }
 
             BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
-            bwp.Macro = m;
+            bwp.Strategy = strategy;
             bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
             bwp.TargetRoomMob = targetRoomMob;
             RunCommands(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatMacro, List<Exit> preExits, out PromptedSkills activatedSkills, out string mob)
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, List<Exit> preExits, out PromptedSkills activatedSkills, out string mob)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
@@ -3574,7 +3577,7 @@ namespace IsengardClient
                 targetRoom = preExits[preExits.Count - 1].Target;
             }
 
-            using (frmPreMacroPrompt frmSkills = new frmPreMacroPrompt(skills, targetRoom, txtMob.Text, isCombatMacro))
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(skills, targetRoom, txtMob.Text, isCombatStrategy))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
@@ -3910,7 +3913,7 @@ namespace IsengardClient
                 }
             }
             EnableDisableActionButtons(_currentBackgroundParameters);
-            if (!btnAbort.Enabled) //processing that only happens when a macro is not running
+            if (!btnAbort.Enabled) //processing that only happens when a background process is not running
             {
                 DateTime dtUtcNow = DateTime.UtcNow;
 
@@ -4230,7 +4233,7 @@ namespace IsengardClient
             {
                 DoSingleMove(chkExecuteMove.Checked, exit);
             }
-            else //one click macro button
+            else //one click strategy button
             {
                 List<Exit> exits;
                 if (clickedItem.Text == "Graph")
@@ -4245,8 +4248,7 @@ namespace IsengardClient
                 {
                     exits = new List<Exit>() { exit };
                 }
-                Macro m = (Macro)sourceButton.Tag;
-                RunMacro(m, exits);
+                RunStrategy((Strategy)sourceButton.Tag, exits);
             }
         }
 

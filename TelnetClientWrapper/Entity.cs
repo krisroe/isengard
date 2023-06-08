@@ -988,6 +988,10 @@ namespace IsengardClient
         [PluralName("aquamarine potions")]
         AquamarinePotion,
 
+        [SingularName("black iron key")]
+        [PluralName("black iron keys")]
+        BlackIronKey,
+
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
         BlueBubblyPotion,
@@ -1007,6 +1011,10 @@ namespace IsengardClient
         [SingularName("cloth armor")]
         //CSRTODO: plural???
         ClothArmor,
+
+        [SingularName("cloth boots")]
+        //CSRTODO: plural
+        ClothBoots,
 
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]

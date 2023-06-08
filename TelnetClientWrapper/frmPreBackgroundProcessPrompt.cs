@@ -2,15 +2,15 @@
 using System.Windows.Forms;
 namespace IsengardClient
 {
-    internal partial class frmPreMacroPrompt : Form
+    internal partial class frmPreBackgroundProcessPrompt : Form
     {
-        private bool _isCombatMacro;
+        private bool _isCombatBackgroundProcess;
 
-        public frmPreMacroPrompt(PromptedSkills skills, Room targetRoom, string currentMob, bool isCombatMacro)
+        public frmPreBackgroundProcessPrompt(PromptedSkills skills, Room targetRoom, string currentMob, bool isCombatMacro)
         {
             InitializeComponent();
 
-            _isCombatMacro = isCombatMacro;
+            _isCombatBackgroundProcess = isCombatMacro;
 
             string sCurrentMob;
             if (targetRoom == null || string.IsNullOrEmpty(targetRoom.Mob1))
@@ -102,7 +102,7 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (_isCombatMacro && string.IsNullOrEmpty(this.Mob))
+            if (_isCombatBackgroundProcess && string.IsNullOrEmpty(this.Mob))
             {
                 MessageBox.Show("No mob specified.");
                 return;

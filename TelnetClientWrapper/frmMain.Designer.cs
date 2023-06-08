@@ -65,8 +65,8 @@
             this.tsmiGoToLocation = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetLocation = new System.Windows.Forms.ToolStripMenuItem();
             this.grpLocations = new System.Windows.Forms.GroupBox();
-            this.grpOneClickMacros = new System.Windows.Forms.GroupBox();
-            this.flpOneClickMacros = new System.Windows.Forms.FlowLayoutPanel();
+            this.grpOneClickStrategies = new System.Windows.Forms.GroupBox();
+            this.flpOneClickStrategies = new System.Windows.Forms.FlowLayoutPanel();
             this.txtPotion = new System.Windows.Forms.TextBox();
             this.lblPotion = new System.Windows.Forms.Label();
             this.btnRemoveWeapon = new System.Windows.Forms.Button();
@@ -180,7 +180,7 @@
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
-            this.grpOneClickMacros.SuspendLayout();
+            this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
@@ -571,23 +571,23 @@
             this.grpLocations.TabStop = false;
             this.grpLocations.Text = "Locations";
             // 
-            // grpOneClickMacros
+            // grpOneClickStrategies
             // 
-            this.grpOneClickMacros.Controls.Add(this.flpOneClickMacros);
-            this.grpOneClickMacros.Location = new System.Drawing.Point(23, 156);
-            this.grpOneClickMacros.Name = "grpOneClickMacros";
-            this.grpOneClickMacros.Size = new System.Drawing.Size(601, 108);
-            this.grpOneClickMacros.TabIndex = 65;
-            this.grpOneClickMacros.TabStop = false;
-            this.grpOneClickMacros.Text = "One Click Macros";
+            this.grpOneClickStrategies.Controls.Add(this.flpOneClickStrategies);
+            this.grpOneClickStrategies.Location = new System.Drawing.Point(23, 156);
+            this.grpOneClickStrategies.Name = "grpOneClickStrategies";
+            this.grpOneClickStrategies.Size = new System.Drawing.Size(601, 108);
+            this.grpOneClickStrategies.TabIndex = 65;
+            this.grpOneClickStrategies.TabStop = false;
+            this.grpOneClickStrategies.Text = "Strategies";
             // 
-            // flpOneClickMacros
+            // flpOneClickStrategies
             // 
-            this.flpOneClickMacros.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpOneClickMacros.Location = new System.Drawing.Point(3, 16);
-            this.flpOneClickMacros.Name = "flpOneClickMacros";
-            this.flpOneClickMacros.Size = new System.Drawing.Size(595, 89);
-            this.flpOneClickMacros.TabIndex = 0;
+            this.flpOneClickStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpOneClickStrategies.Location = new System.Drawing.Point(3, 16);
+            this.flpOneClickStrategies.Name = "flpOneClickStrategies";
+            this.flpOneClickStrategies.Size = new System.Drawing.Size(595, 89);
+            this.flpOneClickStrategies.TabIndex = 0;
             // 
             // txtPotion
             // 
@@ -778,7 +778,7 @@
             this.pnlMain.Controls.Add(this.txtPotion);
             this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
-            this.pnlMain.Controls.Add(this.grpOneClickMacros);
+            this.pnlMain.Controls.Add(this.grpOneClickStrategies);
             this.pnlMain.Controls.Add(this.grpLocations);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
             this.pnlMain.Controls.Add(this.btnAbort);
@@ -1218,7 +1218,7 @@
             // ctxRoomExits
             // 
             this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxRoomExits.Name = "ctxOneClickMacro";
+            this.ctxRoomExits.Name = "ctxRoomExits";
             this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
             this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
             this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
@@ -1816,7 +1816,7 @@
             this.ctxMob.ResumeLayout(false);
             this.ctxLocations.ResumeLayout(false);
             this.grpLocations.ResumeLayout(false);
-            this.grpOneClickMacros.ResumeLayout(false);
+            this.grpOneClickStrategies.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
@@ -1888,8 +1888,8 @@
         private System.Windows.Forms.TextBox txtSetValue;
         private System.Windows.Forms.TreeView treeLocations;
         private System.Windows.Forms.GroupBox grpLocations;
-        private System.Windows.Forms.GroupBox grpOneClickMacros;
-        private System.Windows.Forms.FlowLayoutPanel flpOneClickMacros;
+        private System.Windows.Forms.GroupBox grpOneClickStrategies;
+        private System.Windows.Forms.FlowLayoutPanel flpOneClickStrategies;
         private System.Windows.Forms.TextBox txtPotion;
         private System.Windows.Forms.Label lblPotion;
         private System.Windows.Forms.Button btnRemoveWeapon;

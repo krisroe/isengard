@@ -1,6 +1,6 @@
 ﻿namespace IsengardClient
 {
-    partial class frmPreMacroPrompt
+    partial class frmPreBackgroundProcessPrompt
     {
         /// <summary>
         /// Required designer variable.

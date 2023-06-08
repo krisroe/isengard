@@ -30,7 +30,17 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            LoadConfiguration(out List<Macro> allMacros);
+            List<Strategy> allStrategies = new List<Strategy>()
+            {
+                Strategy.GenerateCannedStrategy("C*+A*"),
+                Strategy.GenerateCannedStrategy("SC*+A*"),
+                Strategy.GenerateCannedStrategy("SCCSC*+A*"),
+                Strategy.GenerateCannedStrategy("SCCSCCF+A*"),
+                Strategy.GenerateCannedStrategy("C*"),
+                Strategy.GenerateCannedStrategy("SC*"),
+                Strategy.GenerateCannedStrategy("SCCSC*"),
+                Strategy.GenerateCannedStrategy("A*"),
+            };
 
             string password;
             string userName;
@@ -44,28 +54,7 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(userName, password, allMacros));
-        }
-
-        private static void LoadConfiguration(out List<Macro> allMacros)
-        {
-            allMacros = new List<Macro>();
-
-            List<string> errorMessages = new List<string>();
-
-            allMacros.Add(Macro.GenerateCannedMacro("C*+A*"));
-            allMacros.Add(Macro.GenerateCannedMacro("SC*+A*"));
-            allMacros.Add(Macro.GenerateCannedMacro("SCCSC*+A*"));
-            allMacros.Add(Macro.GenerateCannedMacro("SCCSCCF+A*"));
-            allMacros.Add(Macro.GenerateCannedMacro("C*"));
-            allMacros.Add(Macro.GenerateCannedMacro("SC*"));
-            allMacros.Add(Macro.GenerateCannedMacro("SCCSC*"));
-            allMacros.Add(Macro.GenerateCannedMacro("A*"));
-
-            if (errorMessages.Count > 0)
-            {
-                MessageBox.Show("Errors loading configuration file" + Environment.NewLine + string.Join(Environment.NewLine, errorMessages));
-            }
+            Application.Run(new frmMain(userName, password, allStrategies));
         }
     }
 }
