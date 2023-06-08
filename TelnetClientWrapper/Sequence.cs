@@ -1719,22 +1719,28 @@ namespace IsengardClient
                          sLine == "A light breeze blows from the south." ||
                          sLine == "Clear, blue skies cover the land." ||
                          sLine == "It's a beautiful day today." ||
+                         sLine == "The sun shines brightly across the land." ||
                          sLine == "The glaring sun beats down upon the inhabitants of the world." ||
                          sLine == "The heat today is unbearable." ||
-                         sLine == "The sun shines brightly across the land." ||
+                         
                          sLine == "The earth trembles under your feet." ||
+
                          sLine == "The sky is dark as pitch." ||
                          sLine == "The full moon shines across the land." ||
                          sLine == "The night sky is lit by the waxing moon." ||
-                         sLine == "A sliver of silver can be seen in the night sky." ||
-                         sLine == "Thunderheads roll in from the east." ||
                          sLine == "Half a moon lights the evening skies." ||
+                         sLine == "A sliver of silver can be seen in the night sky." ||
+                         
+                         sLine == "Thunderheads roll in from the east." ||
                          sLine == "A heavy fog blankets the earth." ||
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
+                         
                          sLine == "A strong wind blows across the land." ||
                          sLine == "The wind gusts, blowing debris through the streets." ||
+                         sLine == "Gale force winds blow in from the sea." ||
+
                          sLine == "Player saved." ||
                          sLine == "### The Celduin Express is ready for boarding in Bree.")
                 {
