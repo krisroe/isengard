@@ -82,15 +82,20 @@
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.lblAutoSpellLevels = new System.Windows.Forms.Label();
+            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetCurrentAutoSpellLevelAsDefault = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRestoreDefaultAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnHeal = new System.Windows.Forms.Button();
+            this.btnSkills = new System.Windows.Forms.Button();
+            this.lblAutoHazyValue = new System.Windows.Forms.Label();
             this.ctxAutoHazy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiReactivateAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClearAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetDefaultAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRestoreDefaultAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnHeal = new System.Windows.Forms.Button();
-            this.btnSkills = new System.Windows.Forms.Button();
-            this.lblAutoHazyValue = new System.Windows.Forms.Label();
             this.lblTime = new System.Windows.Forms.Label();
             this.lblRealm = new System.Windows.Forms.Label();
             this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -109,10 +114,8 @@
             this.lblHitpoints = new System.Windows.Forms.Label();
             this.lblPowerAttackCooldown = new System.Windows.Forms.Label();
             this.lblManashieldTime = new System.Windows.Forms.Label();
-            this.chkAutoMana = new System.Windows.Forms.CheckBox();
             this.grpMessages = new System.Windows.Forms.GroupBox();
             this.lstMessages = new System.Windows.Forms.ListBox();
-            this.btnManaSet = new System.Windows.Forms.Button();
             this.grpMob = new System.Windows.Forms.GroupBox();
             this.chkMobStunned = new System.Windows.Forms.CheckBox();
             this.txtMobStatus = new System.Windows.Forms.TextBox();
@@ -172,11 +175,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentAutoSpellLevelAsDefault = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRestoreDefaultAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -184,6 +182,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.ctxAutoSpellLevels.SuspendLayout();
             this.ctxAutoHazy.SuspendLayout();
             this.ctxRealm.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
@@ -208,7 +207,6 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
-            this.ctxAutoSpellLevels.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -750,9 +748,7 @@
             this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.lblRealm);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
-            this.pnlMain.Controls.Add(this.chkAutoMana);
             this.pnlMain.Controls.Add(this.grpMessages);
-            this.pnlMain.Controls.Add(this.btnManaSet);
             this.pnlMain.Controls.Add(this.grpMob);
             this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
@@ -809,6 +805,76 @@
             this.lblAutoSpellLevels.Text = "AutoSpell lvls";
             this.lblAutoSpellLevels.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // ctxAutoSpellLevels
+            // 
+            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetMinimumAutoSpellLevel,
+            this.tsmiSetMaximumAutoSpellLevel,
+            this.tsmiSetCurrentAutoSpellLevelAsDefault,
+            this.tsmiRestoreDefaultAutoSpellLevels});
+            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 92);
+            // 
+            // tsmiSetMinimumAutoSpellLevel
+            // 
+            this.tsmiSetMinimumAutoSpellLevel.Name = "tsmiSetMinimumAutoSpellLevel";
+            this.tsmiSetMinimumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetMinimumAutoSpellLevel.Text = "Set Minimum";
+            this.tsmiSetMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumAutoSpellLevel_Click);
+            // 
+            // tsmiSetMaximumAutoSpellLevel
+            // 
+            this.tsmiSetMaximumAutoSpellLevel.Name = "tsmiSetMaximumAutoSpellLevel";
+            this.tsmiSetMaximumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetMaximumAutoSpellLevel.Text = "Set Maximum";
+            this.tsmiSetMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumAutoSpellLevel_Click);
+            // 
+            // tsmiSetCurrentAutoSpellLevelAsDefault
+            // 
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Name = "tsmiSetCurrentAutoSpellLevelAsDefault";
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Text = "Set Current as Default";
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentAutoSpellLevelAsDefault_Click);
+            // 
+            // tsmiRestoreDefaultAutoSpellLevels
+            // 
+            this.tsmiRestoreDefaultAutoSpellLevels.Name = "tsmiRestoreDefaultAutoSpellLevels";
+            this.tsmiRestoreDefaultAutoSpellLevels.Size = new System.Drawing.Size(188, 22);
+            this.tsmiRestoreDefaultAutoSpellLevels.Text = "Restore Default";
+            this.tsmiRestoreDefaultAutoSpellLevels.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoSpellLevels_Click);
+            // 
+            // btnHeal
+            // 
+            this.btnHeal.Location = new System.Drawing.Point(235, 527);
+            this.btnHeal.Name = "btnHeal";
+            this.btnHeal.Size = new System.Drawing.Size(100, 28);
+            this.btnHeal.TabIndex = 136;
+            this.btnHeal.Text = "Heal";
+            this.btnHeal.UseVisualStyleBackColor = true;
+            this.btnHeal.Click += new System.EventHandler(this.btnHeal_Click);
+            // 
+            // btnSkills
+            // 
+            this.btnSkills.Location = new System.Drawing.Point(131, 558);
+            this.btnSkills.Name = "btnSkills";
+            this.btnSkills.Size = new System.Drawing.Size(100, 28);
+            this.btnSkills.TabIndex = 135;
+            this.btnSkills.Text = "Skills";
+            this.btnSkills.UseVisualStyleBackColor = true;
+            this.btnSkills.Click += new System.EventHandler(this.btnSkills_Click);
+            // 
+            // lblAutoHazyValue
+            // 
+            this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
+            this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
+            this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
+            this.lblAutoHazyValue.Location = new System.Drawing.Point(259, 616);
+            this.lblAutoHazyValue.Name = "lblAutoHazyValue";
+            this.lblAutoHazyValue.Size = new System.Drawing.Size(115, 15);
+            this.lblAutoHazyValue.TabIndex = 134;
+            this.lblAutoHazyValue.Text = "Auto Hazy";
+            this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // ctxAutoHazy
             // 
             this.ctxAutoHazy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -854,38 +920,6 @@
             this.tsmiRestoreDefaultAutoHazy.Size = new System.Drawing.Size(188, 22);
             this.tsmiRestoreDefaultAutoHazy.Text = "Restore Default";
             this.tsmiRestoreDefaultAutoHazy.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoHazy_Click);
-            // 
-            // btnHeal
-            // 
-            this.btnHeal.Location = new System.Drawing.Point(235, 527);
-            this.btnHeal.Name = "btnHeal";
-            this.btnHeal.Size = new System.Drawing.Size(100, 28);
-            this.btnHeal.TabIndex = 136;
-            this.btnHeal.Text = "Heal";
-            this.btnHeal.UseVisualStyleBackColor = true;
-            this.btnHeal.Click += new System.EventHandler(this.btnHeal_Click);
-            // 
-            // btnSkills
-            // 
-            this.btnSkills.Location = new System.Drawing.Point(131, 558);
-            this.btnSkills.Name = "btnSkills";
-            this.btnSkills.Size = new System.Drawing.Size(100, 28);
-            this.btnSkills.TabIndex = 135;
-            this.btnSkills.Text = "Skills";
-            this.btnSkills.UseVisualStyleBackColor = true;
-            this.btnSkills.Click += new System.EventHandler(this.btnSkills_Click);
-            // 
-            // lblAutoHazyValue
-            // 
-            this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
-            this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
-            this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoHazyValue.Location = new System.Drawing.Point(259, 616);
-            this.lblAutoHazyValue.Name = "lblAutoHazyValue";
-            this.lblAutoHazyValue.Size = new System.Drawing.Size(115, 15);
-            this.lblAutoHazyValue.TabIndex = 134;
-            this.lblAutoHazyValue.Text = "Auto Hazy";
-            this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTime
             // 
@@ -1057,19 +1091,6 @@
             this.lblManashieldTime.Text = "To Manashield:";
             this.lblManashieldTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // chkAutoMana
-            // 
-            this.chkAutoMana.AutoSize = true;
-            this.chkAutoMana.Checked = true;
-            this.chkAutoMana.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoMana.Location = new System.Drawing.Point(525, 18);
-            this.chkAutoMana.Margin = new System.Windows.Forms.Padding(2);
-            this.chkAutoMana.Name = "chkAutoMana";
-            this.chkAutoMana.Size = new System.Drawing.Size(78, 17);
-            this.chkAutoMana.TabIndex = 103;
-            this.chkAutoMana.Text = "Auto Mana";
-            this.chkAutoMana.UseVisualStyleBackColor = true;
-            // 
             // grpMessages
             // 
             this.grpMessages.Controls.Add(this.lstMessages);
@@ -1088,17 +1109,6 @@
             this.lstMessages.Name = "lstMessages";
             this.lstMessages.Size = new System.Drawing.Size(592, 161);
             this.lstMessages.TabIndex = 0;
-            // 
-            // btnManaSet
-            // 
-            this.btnManaSet.Location = new System.Drawing.Point(607, 13);
-            this.btnManaSet.Margin = new System.Windows.Forms.Padding(2);
-            this.btnManaSet.Name = "btnManaSet";
-            this.btnManaSet.Size = new System.Drawing.Size(40, 24);
-            this.btnManaSet.TabIndex = 96;
-            this.btnManaSet.Text = "Set";
-            this.btnManaSet.UseVisualStyleBackColor = true;
-            this.btnManaSet.Click += new System.EventHandler(this.btnManaSet_Click);
             // 
             // grpMob
             // 
@@ -1761,44 +1771,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // ctxAutoSpellLevels
-            // 
-            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetMinimumAutoSpellLevel,
-            this.tsmiSetMaximumAutoSpellLevel,
-            this.tsmiSetCurrentAutoSpellLevelAsDefault,
-            this.tsmiRestoreDefaultAutoSpellLevels});
-            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 92);
-            // 
-            // tsmiSetMinimumAutoSpellLevel
-            // 
-            this.tsmiSetMinimumAutoSpellLevel.Name = "tsmiSetMinimumAutoSpellLevel";
-            this.tsmiSetMinimumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetMinimumAutoSpellLevel.Text = "Set Minimum";
-            this.tsmiSetMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumAutoSpellLevel_Click);
-            // 
-            // tsmiSetMaximumAutoSpellLevel
-            // 
-            this.tsmiSetMaximumAutoSpellLevel.Name = "tsmiSetMaximumAutoSpellLevel";
-            this.tsmiSetMaximumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetMaximumAutoSpellLevel.Text = "Set Maximum";
-            this.tsmiSetMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumAutoSpellLevel_Click);
-            // 
-            // tsmiSetCurrentAutoSpellLevelAsDefault
-            // 
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Name = "tsmiSetCurrentAutoSpellLevelAsDefault";
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Text = "Set Current as Default";
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentAutoSpellLevelAsDefault_Click);
-            // 
-            // tsmiRestoreDefaultAutoSpellLevels
-            // 
-            this.tsmiRestoreDefaultAutoSpellLevels.Name = "tsmiRestoreDefaultAutoSpellLevels";
-            this.tsmiRestoreDefaultAutoSpellLevels.Size = new System.Drawing.Size(188, 22);
-            this.tsmiRestoreDefaultAutoSpellLevels.Text = "Restore Default";
-            this.tsmiRestoreDefaultAutoSpellLevels.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoSpellLevels_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1821,6 +1793,7 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ctxAutoHazy.ResumeLayout(false);
             this.ctxRealm.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
@@ -1853,7 +1826,6 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
-            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1915,9 +1887,7 @@
         private System.Windows.Forms.Button btnRemoveAll;
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
-        private System.Windows.Forms.Button btnManaSet;
         private System.Windows.Forms.Label lblHitpoints;
-        private System.Windows.Forms.CheckBox chkAutoMana;
         private System.Windows.Forms.Label lblPowerAttackCooldown;
         private System.Windows.Forms.Label lblManashieldTime;
         private System.Windows.Forms.GroupBox grpSpells;

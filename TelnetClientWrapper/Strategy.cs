@@ -15,6 +15,8 @@ namespace IsengardClient
         public bool StopWhenKillMonster { get; set; }
         public int FleeHPThreshold { get; set; }
         public bool ShowPreForm { get; set; }
+        public int ManaPool { get; set; }
+        public bool PromptForManaPool { get; set; }
 
         public MagicStrategyStep? LastMagicStep { get; set; }
         public int VigorOnlyWhenDownXHP { get; set; }

@@ -1032,6 +1032,10 @@ namespace IsengardClient
         [PluralName("clubs")]
         Club,
 
+        [SingularName("copper pieces")]
+        [PluralName("copper pieces")]
+        CopperPieces,
+
         [SingularName("dagger")]
         [PluralName("daggers")]
         Dagger,
@@ -1070,7 +1074,7 @@ namespace IsengardClient
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
-        GoldCoin,
+        GoldCoins,
 
         [SingularName("green potion")]
         [PluralName("green potions")]

@@ -71,7 +71,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(errorMessages.Count == 0);
             Assert.IsTrue(item.SetCount == 21);
             Assert.IsTrue(item.Count == 2);
-            Assert.IsTrue(item.ItemType == ItemTypeEnum.GoldCoin);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.GoldCoins);
 
             errorMessages.Clear();
             item = Entity.GetEntity("2 gold coins", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
@@ -79,7 +79,23 @@ namespace IsengardClient.Tests
             Assert.IsTrue(errorMessages.Count == 0);
             Assert.IsTrue(item.SetCount == 1);
             Assert.IsTrue(item.Count == 2);
-            Assert.IsTrue(item.ItemType == ItemTypeEnum.GoldCoin);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.GoldCoins);
+
+            errorMessages.Clear();
+            item = Entity.GetEntity("2 sets of 25 copper pieces", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(item.SetCount == 2);
+            Assert.IsTrue(item.Count == 25);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.CopperPieces);
+
+            errorMessages.Clear();
+            item = Entity.GetEntity("400 copper pieces", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(item.SetCount == 1);
+            Assert.IsTrue(item.Count == 400);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.CopperPieces);
 
             errorMessages.Clear();
             item = Entity.GetEntity("a cloth hat", EntityTypeFlags.Item, errorMessages, null) as ItemEntity;

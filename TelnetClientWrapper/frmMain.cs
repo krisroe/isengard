@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualBasic;
-using NAudio.Vorbis;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,8 +15,6 @@ namespace IsengardClient
     {
         private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
-        private VorbisWaveReader _vwr;
-        private WaveOutEvent _woe;
 
         private string _defaultRealm;
         private string _realm1Spell;
@@ -175,11 +171,6 @@ namespace IsengardClient
             _initializationLoginSequence = new InitialLoginSequence(OnInitialLogin);
 
             SetButtonTags();
-
-            string sFullSoundPath = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "En-us-full.ogg");
-            _vwr = new VorbisWaveReader(sFullSoundPath);
-            _woe = new WaveOutEvent();
-            _woe.Init(_vwr);
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
 
@@ -823,8 +814,6 @@ namespace IsengardClient
             _automp = HP_OR_MP_UNKNOWN;
             _currentMana = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
-
-            chkAutoMana.Checked = true;
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -2348,6 +2337,7 @@ namespace IsengardClient
             bool haveMeleeSteps = false;
             bool haveMagicSteps = false;
             bool didFlee = false;
+            bool useManaPool = pms.ManaPool > 0;
             if (strategy != null)
             {
                 haveMagicSteps = strategy.HasAnyMagicSteps();
@@ -2362,6 +2352,10 @@ namespace IsengardClient
                     _currentMonsterStatus  = MonsterStatus.None;
                     _monsterStunned = false;
                     _monsterKilled = false;
+                    if (useManaPool)
+                    {
+                        _currentMana = pms.ManaPool;
+                    }
 
                     string sWeapon = _weapon;
 
@@ -2404,7 +2398,7 @@ namespace IsengardClient
                             skipPerMonsterStatus = !_monsterStunned && magicOnlyWhenStunned;
                             if (!skipPerMonsterStatus && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
                             {
-                                int currentMana = _currentMana;
+                                int currentMana = useManaPool ? _currentMana : _automp;
                                 int currentHP = _autohp;
                                 int manaDrain = 0;
                                 BackgroundCommandType? bct = null;
@@ -2550,15 +2544,11 @@ namespace IsengardClient
                                                     goto afterCombat;
                                                 }
                                             }
-                                            if (!pms.AutoMana)
+                                            if (useManaPool)
                                             {
                                                 _currentMana -= manaDrain;
                                             }
-                                            if (_currentMana < 3) //no mana left for casting any more offensive spells
-                                            {
-                                                nextMagicStep = null;
-                                            }
-                                            else if (magicStepsFinished)
+                                            if (magicStepsFinished)
                                             {
                                                 nextMagicStep = null;
                                             }
@@ -2784,6 +2774,7 @@ namespace IsengardClient
                     _currentMonsterStatus = MonsterStatus.None;
                     _monsterStunned = false;
                     _monsterKilled = false;
+                    _currentMana = HP_OR_MP_UNKNOWN;
                 }
             }
 
@@ -3456,7 +3447,6 @@ namespace IsengardClient
         {
             BackgroundWorkerParameters ret = new BackgroundWorkerParameters();
             ret.AutoHazyThreshold = _autoHazyThreshold;
-            ret.AutoMana = chkAutoMana.Checked;
             return ret;
         }
 
@@ -3478,7 +3468,7 @@ namespace IsengardClient
             public string QueuedCommand { get; set; }
             public MagicStrategyStep? QueuedMagicStep { get; set; }
             public MeleeStrategyStep? QueuedMeleeStep { get; set; }
-            public bool AutoMana { get; set; }
+            public int ManaPool { get; set; }
             public PromptedSkills UsedSkills { get; set; }
             public int AutoHazyThreshold { get; set; }
             public bool Flee { get; set; }
@@ -3555,6 +3545,7 @@ namespace IsengardClient
 
             BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
             bwp.Strategy = strategy;
+            if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
             bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
             bwp.TargetRoomMob = targetRoomMob;
@@ -3639,9 +3630,21 @@ namespace IsengardClient
                 this.Close();
                 return;
             }
+
+            bool gotFullHP = autohpforthistick != HP_OR_MP_UNKNOWN && _previoustickautohp != HP_OR_MP_UNKNOWN && autohpforthistick == _totalhp && _previoustickautohp != _totalhp;
+            bool gotFullMP = autompforthistick != HP_OR_MP_UNKNOWN && _previoustickautomp != HP_OR_MP_UNKNOWN && autompforthistick == _totalmp && _previoustickautomp != _totalmp;
+
             List<string> textToAdd = new List<string>();
             lock (_consoleTextLock)
             {
+                if (gotFullHP)
+                {
+                    _newConsoleText.Add("Your hitpoints are full.");
+                }
+                if (gotFullMP)
+                {
+                    _newConsoleText.Add("Your mana is full.");
+                }
                 if (_newConsoleText.Count > 0)
                 {
                     foreach (string s in _newConsoleText)
@@ -3670,31 +3673,26 @@ namespace IsengardClient
             if ((initStep & InitializationStep.Score) != InitializationStep.None)
             {
                 Color backColor;
-                bool autoMana = chkAutoMana.Checked;
-                if (autoMana)
-                {
-                    _currentMana = autompforthistick;
-                }
-                else
-                {
-                    _mpColorR = 100;
-                    _mpColorG = 100;
-                    _mpColorB = 100;
-                }
                 int iCurrentMana = _currentMana;
-                if (iCurrentMana != HP_OR_MP_UNKNOWN)
+                if (autompforthistick != HP_OR_MP_UNKNOWN)
                 {
                     int iTotalMP = _totalmp;
-                    string sText = iCurrentMana.ToString();
-                    if (autoMana) sText += "/" + iTotalMP;
-                    _mp = sText;
-                    if (autoMana)
+                    string sText = autompforthistick.ToString() + "/" + iTotalMP;
+                    if (iCurrentMana != HP_OR_MP_UNKNOWN)
+                    {
+                        sText += " (" + iCurrentMana + ")";
+                        _mpColorR = 100;
+                        _mpColorG = 100;
+                        _mpColorB = 100;
+                    }
+                    else
                     {
                         ComputeColor(iCurrentMana, iTotalMP, out byte r, out byte g, out byte b);
                         _mpColorR = r;
                         _mpColorG = g;
                         _mpColorB = b;
                     }
+                    _mp = sText;
                 }
                 if (autohpforthistick != HP_OR_MP_UNKNOWN)
                 {
@@ -3858,12 +3856,7 @@ namespace IsengardClient
                     lblTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
                 }
             }
-            if (autohpforthistick != HP_OR_MP_UNKNOWN && autompforthistick != HP_OR_MP_UNKNOWN && autohpforthistick == _totalhp && autompforthistick == _totalmp &&
-                ((_previoustickautohp != HP_OR_MP_UNKNOWN && _previoustickautohp != autohpforthistick) ||
-                (_previoustickautomp != HP_OR_MP_UNKNOWN && _previoustickautomp != autompforthistick)))
-            {
-                _woe.Play();
-            }
+
             string sMonster = _currentlyFightingMob;
             int iMonsterDamage = _monsterDamage;
             MonsterStatus monsterStatus = _currentMonsterStatus;
@@ -4042,20 +4035,6 @@ namespace IsengardClient
             {
                 _lastTriedToAutoHazy = dtUtcNow;
                 SendCommand("drink hazy", InputEchoType.On);
-            }
-        }
-
-        private void btnManaSet_Click(object sender, EventArgs e)
-        {
-            string sNewMana = Interaction.InputBox("New mana:", "Mana", _currentMana.ToString());
-            if (int.TryParse(sNewMana, out int iNewMana) && iNewMana >= 0)
-            {
-                _currentMana = iNewMana;
-                chkAutoMana.Checked = false;
-            }
-            else
-            {
-                MessageBox.Show("Invalid mana: " + sNewMana, "Change Mana");
             }
         }
 
