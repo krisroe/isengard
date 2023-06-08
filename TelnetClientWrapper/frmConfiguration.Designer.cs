@@ -53,23 +53,29 @@
             this.tsmiTogglePreferredAlignment = new System.Windows.Forms.ToolStripMenuItem();
             this.grpDefaults = new System.Windows.Forms.GroupBox();
             this.grpSettings = new System.Windows.Forms.GroupBox();
-            this.lblFullColorValue = new System.Windows.Forms.Label();
-            this.lblFullColor = new System.Windows.Forms.Label();
+            this.btnSelectEmptyColor = new System.Windows.Forms.Button();
+            this.btnSelectFullColor = new System.Windows.Forms.Button();
             this.lblEmptyColorValue = new System.Windows.Forms.Label();
             this.lblEmptyColor = new System.Windows.Forms.Label();
-            this.btnSelectFullColor = new System.Windows.Forms.Button();
-            this.btnSelectEmptyColor = new System.Windows.Forms.Button();
+            this.lblFullColorValue = new System.Windows.Forms.Label();
+            this.lblFullColor = new System.Windows.Forms.Label();
+            this.lblAutoSpellLevelsValue = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetMinimumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetMaximumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxDefaultRealm.SuspendLayout();
             this.ctxAutoHazy.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.grpDefaults.SuspendLayout();
             this.grpSettings.SuspendLayout();
+            this.ctxAutoSpellLevels.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblDefaultRealm
             // 
             this.lblDefaultRealm.AutoSize = true;
-            this.lblDefaultRealm.Location = new System.Drawing.Point(14, 28);
+            this.lblDefaultRealm.Location = new System.Drawing.Point(14, 22);
             this.lblDefaultRealm.Name = "lblDefaultRealm";
             this.lblDefaultRealm.Size = new System.Drawing.Size(40, 13);
             this.lblDefaultRealm.TabIndex = 0;
@@ -79,7 +85,7 @@
             // 
             this.lblRealm.BackColor = System.Drawing.Color.White;
             this.lblRealm.ContextMenuStrip = this.ctxDefaultRealm;
-            this.lblRealm.Location = new System.Drawing.Point(129, 26);
+            this.lblRealm.Location = new System.Drawing.Point(129, 20);
             this.lblRealm.Name = "lblRealm";
             this.lblRealm.Size = new System.Drawing.Size(166, 15);
             this.lblRealm.TabIndex = 125;
@@ -127,7 +133,7 @@
             // lblDefaultWeapon
             // 
             this.lblDefaultWeapon.AutoSize = true;
-            this.lblDefaultWeapon.Location = new System.Drawing.Point(14, 53);
+            this.lblDefaultWeapon.Location = new System.Drawing.Point(14, 43);
             this.lblDefaultWeapon.Name = "lblDefaultWeapon";
             this.lblDefaultWeapon.Size = new System.Drawing.Size(51, 13);
             this.lblDefaultWeapon.TabIndex = 126;
@@ -135,7 +141,7 @@
             // 
             // txtDefaultWeapon
             // 
-            this.txtDefaultWeapon.Location = new System.Drawing.Point(129, 50);
+            this.txtDefaultWeapon.Location = new System.Drawing.Point(129, 40);
             this.txtDefaultWeapon.Name = "txtDefaultWeapon";
             this.txtDefaultWeapon.Size = new System.Drawing.Size(166, 20);
             this.txtDefaultWeapon.TabIndex = 127;
@@ -152,7 +158,7 @@
             // lblAutoHazy
             // 
             this.lblAutoHazy.AutoSize = true;
-            this.lblAutoHazy.Location = new System.Drawing.Point(14, 82);
+            this.lblAutoHazy.Location = new System.Drawing.Point(15, 67);
             this.lblAutoHazy.Name = "lblAutoHazy";
             this.lblAutoHazy.Size = new System.Drawing.Size(57, 13);
             this.lblAutoHazy.TabIndex = 132;
@@ -163,7 +169,7 @@
             this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
             this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoHazyValue.Location = new System.Drawing.Point(129, 82);
+            this.lblAutoHazyValue.Location = new System.Drawing.Point(129, 65);
             this.lblAutoHazyValue.Name = "lblAutoHazyValue";
             this.lblAutoHazyValue.Size = new System.Drawing.Size(166, 15);
             this.lblAutoHazyValue.TabIndex = 133;
@@ -260,6 +266,8 @@
             // 
             // grpDefaults
             // 
+            this.grpDefaults.Controls.Add(this.label1);
+            this.grpDefaults.Controls.Add(this.lblAutoSpellLevelsValue);
             this.grpDefaults.Controls.Add(this.lblRealm);
             this.grpDefaults.Controls.Add(this.lblDefaultRealm);
             this.grpDefaults.Controls.Add(this.lblDefaultWeapon);
@@ -292,25 +300,25 @@
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings";
             // 
-            // lblFullColorValue
+            // btnSelectEmptyColor
             // 
-            this.lblFullColorValue.BackColor = System.Drawing.Color.Green;
-            this.lblFullColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
-            this.lblFullColorValue.ForeColor = System.Drawing.Color.Black;
-            this.lblFullColorValue.Location = new System.Drawing.Point(129, 16);
-            this.lblFullColorValue.Name = "lblFullColorValue";
-            this.lblFullColorValue.Size = new System.Drawing.Size(166, 15);
-            this.lblFullColorValue.TabIndex = 141;
-            this.lblFullColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnSelectEmptyColor.Location = new System.Drawing.Point(301, 37);
+            this.btnSelectEmptyColor.Name = "btnSelectEmptyColor";
+            this.btnSelectEmptyColor.Size = new System.Drawing.Size(55, 23);
+            this.btnSelectEmptyColor.TabIndex = 145;
+            this.btnSelectEmptyColor.Text = "Select";
+            this.btnSelectEmptyColor.UseVisualStyleBackColor = true;
+            this.btnSelectEmptyColor.Click += new System.EventHandler(this.btnSelectEmptyColor_Click);
             // 
-            // lblFullColor
+            // btnSelectFullColor
             // 
-            this.lblFullColor.AutoSize = true;
-            this.lblFullColor.Location = new System.Drawing.Point(14, 16);
-            this.lblFullColor.Name = "lblFullColor";
-            this.lblFullColor.Size = new System.Drawing.Size(52, 13);
-            this.lblFullColor.TabIndex = 140;
-            this.lblFullColor.Text = "Full color:";
+            this.btnSelectFullColor.Location = new System.Drawing.Point(301, 13);
+            this.btnSelectFullColor.Name = "btnSelectFullColor";
+            this.btnSelectFullColor.Size = new System.Drawing.Size(55, 23);
+            this.btnSelectFullColor.TabIndex = 144;
+            this.btnSelectFullColor.Text = "Select";
+            this.btnSelectFullColor.UseVisualStyleBackColor = true;
+            this.btnSelectFullColor.Click += new System.EventHandler(this.btnSelectFullColor_Click);
             // 
             // lblEmptyColorValue
             // 
@@ -332,25 +340,68 @@
             this.lblEmptyColor.TabIndex = 142;
             this.lblEmptyColor.Text = "Empty color:";
             // 
-            // btnSelectFullColor
+            // lblFullColorValue
             // 
-            this.btnSelectFullColor.Location = new System.Drawing.Point(301, 13);
-            this.btnSelectFullColor.Name = "btnSelectFullColor";
-            this.btnSelectFullColor.Size = new System.Drawing.Size(55, 23);
-            this.btnSelectFullColor.TabIndex = 144;
-            this.btnSelectFullColor.Text = "Select";
-            this.btnSelectFullColor.UseVisualStyleBackColor = true;
-            this.btnSelectFullColor.Click += new System.EventHandler(this.btnSelectFullColor_Click);
+            this.lblFullColorValue.BackColor = System.Drawing.Color.Green;
+            this.lblFullColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
+            this.lblFullColorValue.ForeColor = System.Drawing.Color.Black;
+            this.lblFullColorValue.Location = new System.Drawing.Point(129, 16);
+            this.lblFullColorValue.Name = "lblFullColorValue";
+            this.lblFullColorValue.Size = new System.Drawing.Size(166, 15);
+            this.lblFullColorValue.TabIndex = 141;
+            this.lblFullColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // btnSelectEmptyColor
+            // lblFullColor
             // 
-            this.btnSelectEmptyColor.Location = new System.Drawing.Point(301, 37);
-            this.btnSelectEmptyColor.Name = "btnSelectEmptyColor";
-            this.btnSelectEmptyColor.Size = new System.Drawing.Size(55, 23);
-            this.btnSelectEmptyColor.TabIndex = 145;
-            this.btnSelectEmptyColor.Text = "Select";
-            this.btnSelectEmptyColor.UseVisualStyleBackColor = true;
-            this.btnSelectEmptyColor.Click += new System.EventHandler(this.btnSelectEmptyColor_Click);
+            this.lblFullColor.AutoSize = true;
+            this.lblFullColor.Location = new System.Drawing.Point(14, 16);
+            this.lblFullColor.Name = "lblFullColor";
+            this.lblFullColor.Size = new System.Drawing.Size(52, 13);
+            this.lblFullColor.TabIndex = 140;
+            this.lblFullColor.Text = "Full color:";
+            // 
+            // lblAutoSpellLevelsValue
+            // 
+            this.lblAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
+            this.lblAutoSpellLevelsValue.ContextMenuStrip = this.ctxAutoSpellLevels;
+            this.lblAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
+            this.lblAutoSpellLevelsValue.Location = new System.Drawing.Point(129, 88);
+            this.lblAutoSpellLevelsValue.Name = "lblAutoSpellLevelsValue";
+            this.lblAutoSpellLevelsValue.Size = new System.Drawing.Size(166, 15);
+            this.lblAutoSpellLevelsValue.TabIndex = 138;
+            this.lblAutoSpellLevelsValue.Text = "Min:Max";
+            this.lblAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(15, 89);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(86, 13);
+            this.label1.TabIndex = 139;
+            this.label1.Text = "Auto spell levels:";
+            // 
+            // ctxAutoSpellLevels
+            // 
+            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetMinimumSpellLevel,
+            this.tsmiSetMaximumSpellLevel});
+            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(181, 70);
+            // 
+            // tsmiSetMinimumSpellLevel
+            // 
+            this.tsmiSetMinimumSpellLevel.Name = "tsmiSetMinimumSpellLevel";
+            this.tsmiSetMinimumSpellLevel.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetMinimumSpellLevel.Text = "Set Minimum";
+            this.tsmiSetMinimumSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumSpellLevel_Click);
+            // 
+            // tsmiSetMaximumSpellLevel
+            // 
+            this.tsmiSetMaximumSpellLevel.Name = "tsmiSetMaximumSpellLevel";
+            this.tsmiSetMaximumSpellLevel.Size = new System.Drawing.Size(180, 22);
+            this.tsmiSetMaximumSpellLevel.Text = "Set Maximum";
+            this.tsmiSetMaximumSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumSpellLevel_Click);
             // 
             // frmConfiguration
             // 
@@ -374,6 +425,7 @@
             this.grpDefaults.PerformLayout();
             this.grpSettings.ResumeLayout(false);
             this.grpSettings.PerformLayout();
+            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -410,5 +462,10 @@
         private System.Windows.Forms.Label lblEmptyColor;
         private System.Windows.Forms.Button btnSelectFullColor;
         private System.Windows.Forms.Button btnSelectEmptyColor;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblAutoSpellLevelsValue;
+        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetMinimumSpellLevel;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumSpellLevel;
     }
 }

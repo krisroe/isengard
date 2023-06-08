@@ -130,5 +130,29 @@ namespace IsengardClient {
                 this["EmptyColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int DefaultAutoSpellLevelMin {
+            get {
+                return ((int)(this["DefaultAutoSpellLevelMin"]));
+            }
+            set {
+                this["DefaultAutoSpellLevelMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int DefaultAutoSpellLevelMax {
+            get {
+                return ((int)(this["DefaultAutoSpellLevelMax"]));
+            }
+            set {
+                this["DefaultAutoSpellLevelMax"] = value;
+            }
+        }
     }
 }

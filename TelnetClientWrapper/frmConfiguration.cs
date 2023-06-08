@@ -4,13 +4,17 @@ using System.Drawing;
 using System.Windows.Forms;
 namespace IsengardClient
 {
-    public partial class frmConfiguration : Form
+    internal partial class frmConfiguration : Form
     {
         private int _autoHazyThreshold;
         private AlignmentType _preferredAlignment;
         private string _defaultRealm;
         private Color _fullColor;
         private Color _emptyColor;
+        private int _autoSpellLevelMinimum;
+        private int _autoSpellLevelMaximum;
+        internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
+        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 3;
 
         public frmConfiguration()
         {
@@ -26,8 +30,16 @@ namespace IsengardClient
             {
                 _defaultRealm = "earth";
             }
-
             RefreshRealmUI();
+
+            _autoSpellLevelMinimum = sets.DefaultAutoSpellLevelMin;
+            _autoSpellLevelMaximum = sets.DefaultAutoSpellLevelMax;
+            if (_autoSpellLevelMinimum > _autoSpellLevelMaximum || _autoSpellLevelMinimum < AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMinimum > AUTO_SPELL_LEVEL_MAXIMUM || _autoSpellLevelMaximum < AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMaximum > AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _autoSpellLevelMinimum = AUTO_SPELL_LEVEL_MINIMUM;
+                _autoSpellLevelMaximum = AUTO_SPELL_LEVEL_MAXIMUM;
+            }
+            RefreshAutoSpellLevelUI();
 
             txtDefaultWeapon.Text = sets.DefaultWeapon;
             _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
@@ -87,6 +99,11 @@ namespace IsengardClient
             UIShared.UpdateRealmMenu(ctxDefaultRealm, _defaultRealm);
         }
 
+        private void RefreshAutoSpellLevelUI()
+        {
+            lblAutoSpellLevelsValue.Text = _autoSpellLevelMinimum + ":" + _autoSpellLevelMaximum;
+        }
+
         private void tsmiClearAutoHazy_Click(object sender, EventArgs e)
         {
             _autoHazyThreshold = 0;
@@ -116,6 +133,8 @@ namespace IsengardClient
             sets.VerboseMode = chkVerboseOutput.Checked;
             sets.FullColor = _fullColor;
             sets.EmptyColor = _emptyColor;
+            sets.DefaultAutoSpellLevelMin = _autoSpellLevelMinimum;
+            sets.DefaultAutoSpellLevelMax = _autoSpellLevelMaximum;
             IsengardSettings.Default.Save();
 
             this.DialogResult = DialogResult.OK;
@@ -188,6 +207,34 @@ namespace IsengardClient
                 ret = clg.Color;
             }
             return ret;
+        }
+
+        private void tsmiSetMinimumSpellLevel_Click(object sender, EventArgs e)
+        {
+            string level = Interaction.InputBox("Level:", "Enter Level", _autoSpellLevelMinimum.ToString());
+            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _autoSpellLevelMinimum = iLevel;
+                if (_autoSpellLevelMaximum < _autoSpellLevelMinimum)
+                {
+                    _autoSpellLevelMaximum = _autoSpellLevelMinimum;
+                }
+                RefreshAutoSpellLevelUI();
+            }
+        }
+
+        private void tsmiSetMaximumSpellLevel_Click(object sender, EventArgs e)
+        {
+            string level = Interaction.InputBox("Level:", "Enter Level", _autoSpellLevelMaximum.ToString());
+            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _autoSpellLevelMaximum = iLevel;
+                if (_autoSpellLevelMaximum < _autoSpellLevelMinimum)
+                {
+                    _autoSpellLevelMinimum = _autoSpellLevelMaximum;
+                }
+                RefreshAutoSpellLevelUI();
+            }
         }
     }
 }

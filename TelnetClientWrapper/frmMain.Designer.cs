@@ -81,14 +81,16 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
-            this.btnHeal = new System.Windows.Forms.Button();
-            this.btnSkills = new System.Windows.Forms.Button();
-            this.lblAutoHazyValue = new System.Windows.Forms.Label();
+            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.ctxAutoHazy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiReactivateAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClearAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetDefaultAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRestoreDefaultAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnHeal = new System.Windows.Forms.Button();
+            this.btnSkills = new System.Windows.Forms.Button();
+            this.lblAutoHazyValue = new System.Windows.Forms.Label();
             this.lblTime = new System.Windows.Forms.Label();
             this.lblRealm = new System.Windows.Forms.Label();
             this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -97,6 +99,7 @@
             this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetCurrentRealmAsDefault = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRestoreDefaultRealm = new System.Windows.Forms.ToolStripMenuItem();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
             this.lblManashieldTimeValue = new System.Windows.Forms.Label();
             this.lblPowerAttackTimeValue = new System.Windows.Forms.Label();
@@ -127,8 +130,6 @@
             this.btnUp = new System.Windows.Forms.Button();
             this.grpSpells = new System.Windows.Forms.GroupBox();
             this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
-            this.cboMaxOffLevel = new System.Windows.Forms.ComboBox();
-            this.lblMaxOffensiveLevel = new System.Windows.Forms.Label();
             this.btnRemoveAll = new System.Windows.Forms.Button();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.btnStunMob = new System.Windows.Forms.Button();
@@ -171,6 +172,11 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetCurrentAutoSpellLevelAsDefault = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRestoreDefaultAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -202,6 +208,7 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
+            this.ctxAutoSpellLevels.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -736,6 +743,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblAutoSpellLevels);
             this.pnlMain.Controls.Add(this.btnHeal);
             this.pnlMain.Controls.Add(this.btnSkills);
             this.pnlMain.Controls.Add(this.lblAutoHazyValue);
@@ -750,8 +758,6 @@
             this.pnlMain.Controls.Add(this.btnClearCurrentLocation);
             this.pnlMain.Controls.Add(this.grpSingleMove);
             this.pnlMain.Controls.Add(this.grpSpells);
-            this.pnlMain.Controls.Add(this.cboMaxOffLevel);
-            this.pnlMain.Controls.Add(this.lblMaxOffensiveLevel);
             this.pnlMain.Controls.Add(this.btnRemoveAll);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
@@ -791,6 +797,64 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // lblAutoSpellLevels
+            // 
+            this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
+            this.lblAutoSpellLevels.ContextMenuStrip = this.ctxAutoSpellLevels;
+            this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(259, 639);
+            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
+            this.lblAutoSpellLevels.Size = new System.Drawing.Size(115, 15);
+            this.lblAutoSpellLevels.TabIndex = 137;
+            this.lblAutoSpellLevels.Text = "AutoSpell lvls";
+            this.lblAutoSpellLevels.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // ctxAutoHazy
+            // 
+            this.ctxAutoHazy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiReactivateAutoHazy,
+            this.tsmiSetAutoHazy,
+            this.tsmiClearAutoHazy,
+            this.tsmiSetDefaultAutoHazy,
+            this.tsmiRestoreDefaultAutoHazy});
+            this.ctxAutoHazy.Name = "ctxAutoHazy";
+            this.ctxAutoHazy.Size = new System.Drawing.Size(189, 114);
+            // 
+            // tsmiReactivateAutoHazy
+            // 
+            this.tsmiReactivateAutoHazy.Name = "tsmiReactivateAutoHazy";
+            this.tsmiReactivateAutoHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiReactivateAutoHazy.Text = "Reactivate";
+            this.tsmiReactivateAutoHazy.Click += new System.EventHandler(this.tsmiReactivateAutoHazy_Click);
+            // 
+            // tsmiSetAutoHazy
+            // 
+            this.tsmiSetAutoHazy.Name = "tsmiSetAutoHazy";
+            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetAutoHazy.Text = "Set";
+            this.tsmiSetAutoHazy.Click += new System.EventHandler(this.tsmiSetAutoHazy_Click);
+            // 
+            // tsmiClearAutoHazy
+            // 
+            this.tsmiClearAutoHazy.Name = "tsmiClearAutoHazy";
+            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiClearAutoHazy.Text = "Clear";
+            this.tsmiClearAutoHazy.Click += new System.EventHandler(this.tsmiClearAutoHazy_Click);
+            // 
+            // tsmiSetDefaultAutoHazy
+            // 
+            this.tsmiSetDefaultAutoHazy.Name = "tsmiSetDefaultAutoHazy";
+            this.tsmiSetDefaultAutoHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetDefaultAutoHazy.Text = "Set Current as Default";
+            this.tsmiSetDefaultAutoHazy.Click += new System.EventHandler(this.tsmiSetDefaultAutoHazy_Click);
+            // 
+            // tsmiRestoreDefaultAutoHazy
+            // 
+            this.tsmiRestoreDefaultAutoHazy.Name = "tsmiRestoreDefaultAutoHazy";
+            this.tsmiRestoreDefaultAutoHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiRestoreDefaultAutoHazy.Text = "Restore Default";
+            this.tsmiRestoreDefaultAutoHazy.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoHazy_Click);
+            // 
             // btnHeal
             // 
             this.btnHeal.Location = new System.Drawing.Point(235, 527);
@@ -823,44 +887,6 @@
             this.lblAutoHazyValue.Text = "Auto Hazy";
             this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // ctxAutoHazy
-            // 
-            this.ctxAutoHazy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiReactivateAutoHazy,
-            this.tsmiSetAutoHazy,
-            this.tsmiClearAutoHazy,
-            this.tsmiSetDefaultAutoHazy});
-            this.ctxAutoHazy.Name = "ctxAutoHazy";
-            this.ctxAutoHazy.Size = new System.Drawing.Size(132, 92);
-            // 
-            // tsmiReactivateAutoHazy
-            // 
-            this.tsmiReactivateAutoHazy.Name = "tsmiReactivateAutoHazy";
-            this.tsmiReactivateAutoHazy.Size = new System.Drawing.Size(131, 22);
-            this.tsmiReactivateAutoHazy.Text = "Reactivate";
-            this.tsmiReactivateAutoHazy.Click += new System.EventHandler(this.tsmiReactivateAutoHazy_Click);
-            // 
-            // tsmiSetAutoHazy
-            // 
-            this.tsmiSetAutoHazy.Name = "tsmiSetAutoHazy";
-            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(131, 22);
-            this.tsmiSetAutoHazy.Text = "Set";
-            this.tsmiSetAutoHazy.Click += new System.EventHandler(this.tsmiSetAutoHazy_Click);
-            // 
-            // tsmiClearAutoHazy
-            // 
-            this.tsmiClearAutoHazy.Name = "tsmiClearAutoHazy";
-            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(131, 22);
-            this.tsmiClearAutoHazy.Text = "Clear";
-            this.tsmiClearAutoHazy.Click += new System.EventHandler(this.tsmiClearAutoHazy_Click);
-            // 
-            // tsmiSetDefaultAutoHazy
-            // 
-            this.tsmiSetDefaultAutoHazy.Name = "tsmiSetDefaultAutoHazy";
-            this.tsmiSetDefaultAutoHazy.Size = new System.Drawing.Size(131, 22);
-            this.tsmiSetDefaultAutoHazy.Text = "Set Default";
-            this.tsmiSetDefaultAutoHazy.Click += new System.EventHandler(this.tsmiSetDefaultAutoHazy_Click);
-            // 
             // lblTime
             // 
             this.lblTime.Location = new System.Drawing.Point(259, 572);
@@ -887,9 +913,10 @@
             this.tsmiFire,
             this.tsmiWater,
             this.tsmiWind,
-            this.tsmiSetCurrentRealmAsDefault});
+            this.tsmiSetCurrentRealmAsDefault,
+            this.tsmiRestoreDefaultRealm});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(189, 114);
+            this.ctxRealm.Size = new System.Drawing.Size(189, 136);
             // 
             // tsmiEarth
             // 
@@ -925,6 +952,13 @@
             this.tsmiSetCurrentRealmAsDefault.Size = new System.Drawing.Size(188, 22);
             this.tsmiSetCurrentRealmAsDefault.Text = "Set Current as Default";
             this.tsmiSetCurrentRealmAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentRealmAsDefault_Click);
+            // 
+            // tsmiRestoreDefaultRealm
+            // 
+            this.tsmiRestoreDefaultRealm.Name = "tsmiRestoreDefaultRealm";
+            this.tsmiRestoreDefaultRealm.Size = new System.Drawing.Size(188, 22);
+            this.tsmiRestoreDefaultRealm.Text = "Restore Default";
+            this.tsmiRestoreDefaultRealm.Click += new System.EventHandler(this.tsmiRestoreDefaultRealm_Click);
             // 
             // grpCurrentPlayer
             // 
@@ -1259,30 +1293,6 @@
             this.flpSpells.Size = new System.Drawing.Size(200, 74);
             this.flpSpells.TabIndex = 0;
             // 
-            // cboMaxOffLevel
-            // 
-            this.cboMaxOffLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMaxOffLevel.FormattingEnabled = true;
-            this.cboMaxOffLevel.Items.AddRange(new object[] {
-            "3",
-            "2",
-            "1"});
-            this.cboMaxOffLevel.Location = new System.Drawing.Point(149, 119);
-            this.cboMaxOffLevel.Margin = new System.Windows.Forms.Padding(2);
-            this.cboMaxOffLevel.Name = "cboMaxOffLevel";
-            this.cboMaxOffLevel.Size = new System.Drawing.Size(98, 21);
-            this.cboMaxOffLevel.TabIndex = 99;
-            // 
-            // lblMaxOffensiveLevel
-            // 
-            this.lblMaxOffensiveLevel.AutoSize = true;
-            this.lblMaxOffensiveLevel.Location = new System.Drawing.Point(75, 122);
-            this.lblMaxOffensiveLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblMaxOffensiveLevel.Name = "lblMaxOffensiveLevel";
-            this.lblMaxOffensiveLevel.Size = new System.Drawing.Size(70, 13);
-            this.lblMaxOffensiveLevel.TabIndex = 98;
-            this.lblMaxOffensiveLevel.Text = "Max off level:";
-            // 
             // btnRemoveAll
             // 
             this.btnRemoveAll.Location = new System.Drawing.Point(130, 527);
@@ -1369,7 +1379,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(1021, 879);
+            this.tabAncillary.Size = new System.Drawing.Size(948, 879);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1384,7 +1394,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1017, 875);
+            this.pnlAncillary.Size = new System.Drawing.Size(944, 875);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1393,7 +1403,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 22);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1021, 879);
+            this.tabEmotes.Size = new System.Drawing.Size(948, 879);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1412,7 +1422,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1021, 879);
+            this.pnlEmotes.Size = new System.Drawing.Size(948, 879);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1496,7 +1506,7 @@
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
-            this.grpEmotes.Size = new System.Drawing.Size(1021, 847);
+            this.grpEmotes.Size = new System.Drawing.Size(948, 847);
             this.grpEmotes.TabIndex = 10;
             this.grpEmotes.TabStop = false;
             this.grpEmotes.Text = "Emotes";
@@ -1507,7 +1517,7 @@
             this.flpEmotes.Location = new System.Drawing.Point(2, 15);
             this.flpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.flpEmotes.Name = "flpEmotes";
-            this.flpEmotes.Size = new System.Drawing.Size(1017, 830);
+            this.flpEmotes.Size = new System.Drawing.Size(944, 830);
             this.flpEmotes.TabIndex = 0;
             // 
             // tabHelp
@@ -1515,7 +1525,7 @@
             this.tabHelp.Controls.Add(this.grpHelp);
             this.tabHelp.Location = new System.Drawing.Point(4, 22);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1021, 879);
+            this.tabHelp.Size = new System.Drawing.Size(948, 879);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1526,7 +1536,7 @@
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(1021, 879);
+            this.grpHelp.Size = new System.Drawing.Size(948, 879);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1536,7 +1546,7 @@
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpHelp.Location = new System.Drawing.Point(3, 16);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1015, 860);
+            this.flpHelp.Size = new System.Drawing.Size(942, 860);
             this.flpHelp.TabIndex = 0;
             // 
             // tmr
@@ -1751,6 +1761,44 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // ctxAutoSpellLevels
+            // 
+            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetMinimumAutoSpellLevel,
+            this.tsmiSetMaximumAutoSpellLevel,
+            this.tsmiSetCurrentAutoSpellLevelAsDefault,
+            this.tsmiRestoreDefaultAutoSpellLevels});
+            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 92);
+            // 
+            // tsmiSetMinimumAutoSpellLevel
+            // 
+            this.tsmiSetMinimumAutoSpellLevel.Name = "tsmiSetMinimumAutoSpellLevel";
+            this.tsmiSetMinimumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetMinimumAutoSpellLevel.Text = "Set Minimum";
+            this.tsmiSetMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumAutoSpellLevel_Click);
+            // 
+            // tsmiSetMaximumAutoSpellLevel
+            // 
+            this.tsmiSetMaximumAutoSpellLevel.Name = "tsmiSetMaximumAutoSpellLevel";
+            this.tsmiSetMaximumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetMaximumAutoSpellLevel.Text = "Set Maximum";
+            this.tsmiSetMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumAutoSpellLevel_Click);
+            // 
+            // tsmiSetCurrentAutoSpellLevelAsDefault
+            // 
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Name = "tsmiSetCurrentAutoSpellLevelAsDefault";
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Text = "Set Current as Default";
+            this.tsmiSetCurrentAutoSpellLevelAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentAutoSpellLevelAsDefault_Click);
+            // 
+            // tsmiRestoreDefaultAutoSpellLevels
+            // 
+            this.tsmiRestoreDefaultAutoSpellLevels.Name = "tsmiRestoreDefaultAutoSpellLevels";
+            this.tsmiRestoreDefaultAutoSpellLevels.Size = new System.Drawing.Size(188, 22);
+            this.tsmiRestoreDefaultAutoSpellLevels.Text = "Restore Default";
+            this.tsmiRestoreDefaultAutoSpellLevels.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoSpellLevels_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1805,6 +1853,7 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
+            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1867,8 +1916,6 @@
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
         private System.Windows.Forms.Button btnManaSet;
-        private System.Windows.Forms.ComboBox cboMaxOffLevel;
-        private System.Windows.Forms.Label lblMaxOffensiveLevel;
         private System.Windows.Forms.Label lblHitpoints;
         private System.Windows.Forms.CheckBox chkAutoMana;
         private System.Windows.Forms.Label lblPowerAttackCooldown;
@@ -1952,6 +1999,14 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentRealmAsDefault;
         private System.Windows.Forms.Button btnSkills;
         private System.Windows.Forms.Button btnHeal;
+        private System.Windows.Forms.Label lblAutoSpellLevels;
+        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultRealm;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoHazy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetMinimumAutoSpellLevel;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumAutoSpellLevel;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentAutoSpellLevelAsDefault;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoSpellLevels;
     }
 }
 
