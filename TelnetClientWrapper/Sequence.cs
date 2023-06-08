@@ -1203,8 +1203,8 @@ namespace IsengardClient
             }
         }
 
-        public Action<int, FeedLineParameters> _onSatisfied;
-        public CastOffensiveSpellSequence(Action<int, FeedLineParameters> onSatisfied)
+        public Action<int, bool, FeedLineParameters> _onSatisfied;
+        public CastOffensiveSpellSequence(Action<int, bool, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1216,44 +1216,46 @@ namespace IsengardClient
             {
                 return;
             }
-            foreach (string nextLine in Lines)
-            {
-                //check starting with "You cast a X spell on "
-                if (!nextLine.StartsWith(YOU_CAST_A_PREFIX)) continue;
-                int iLineLength = nextLine.Length;
-                int startLength = YOU_CAST_A_PREFIX.Length;
-                int iStartingPartIndex = nextLine.IndexOf(" ", startLength);
-                if (iStartingPartIndex == iLineLength) continue;
-                string spellName = nextLine.Substring(startLength, iStartingPartIndex - startLength);
-                if (!ALL_OFFENSIVE_SPELLS.Contains(spellName)) continue;
-                iStartingPartIndex++;
-                bool failed = false;
-                foreach (char c in "spell on ")
-                {
-                    if (iStartingPartIndex == iLineLength)
-                    {
-                        failed = true;
-                        continue;
-                    }
-                    if (nextLine[iStartingPartIndex++] != c)
-                    {
-                        failed = true;
-                        continue;
-                    }
-                }
-                if (failed) continue;
+            int lineCount = Lines.Count;
+            if (lineCount == 0) return;
 
-                //check ending with " for X damage."
-                int damage = AttackSequence.GetDamage(nextLine, DAMAGE_PREFIX, DAMAGE_SUFFIX);
-                if (damage > 0)
+            //check the first line matches the pattern "You cast a X spell on <something> for Y damage."
+            string nextLine = Lines[0];
+            if (!nextLine.StartsWith(YOU_CAST_A_PREFIX)) return;
+            int iLineLength = nextLine.Length;
+            int startLength = YOU_CAST_A_PREFIX.Length;
+            int iStartingPartIndex = nextLine.IndexOf(" ", startLength);
+            if (iStartingPartIndex == iLineLength) return;
+            string spellName = nextLine.Substring(startLength, iStartingPartIndex - startLength);
+            if (!ALL_OFFENSIVE_SPELLS.Contains(spellName)) return;
+            iStartingPartIndex++;
+            bool failed = false;
+            foreach (char c in "spell on ")
+            {
+                if (iStartingPartIndex == iLineLength)
                 {
-                    if (iStartingPartIndex + DAMAGE_PREFIX.Length + damage.ToString().Length + DAMAGE_SUFFIX.Length != iLineLength)
-                    {
-                        _onSatisfied(damage, flParams);
-                        break;
-                    }
+                    failed = true;
+                    continue;
+                }
+                if (nextLine[iStartingPartIndex++] != c)
+                {
+                    failed = true;
+                    continue;
                 }
             }
+            if (failed) return;
+            int damage = AttackSequence.GetDamage(nextLine, DAMAGE_PREFIX, DAMAGE_SUFFIX);
+            if (iStartingPartIndex + DAMAGE_PREFIX.Length + damage.ToString().Length + DAMAGE_SUFFIX.Length == iLineLength)
+            {
+                return;
+            }
+            if (damage <= 0)
+            {
+                return;
+            }
+
+            bool monsterKilled = AttackSequence.CheckIfMonsterKilled(Lines, 1);
+            _onSatisfied(damage, monsterKilled, flParams);
         }
     }
 
@@ -1263,8 +1265,11 @@ namespace IsengardClient
         private const string BEFORE_DAMAGE = " hits for ";
         private const string AFTER_DAMAGE = " damage.";
 
-        public Action<bool, int, FeedLineParameters> _onSatisfied;
-        public AttackSequence(Action<bool, int, FeedLineParameters> onSatisfied)
+        private const string YOU_GAINED_PREFIX = "You gained";
+        private const string EXPERIENCE_FOR_THE_DEATH_SUFFIX = " experience for the death of ";
+
+        public Action<bool, int, bool, FeedLineParameters> _onSatisfied;
+        public AttackSequence(Action<bool, int, bool, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1276,56 +1281,102 @@ namespace IsengardClient
             {
                 return;
             }
-            bool fumbled = false;
-            bool satisfied = false;
-            int damage = 0;
-            foreach (string nextLine in Lines)
+            int lineCount = Lines.Count;
+
+            //skip the "You attack the X" message if present.
+            int iIndex = 0;
+            string nextLine;
+            bool foundLineToProcess = false;
+            do
             {
-                if (nextLine == "You missed.")
+                if (iIndex >= lineCount)
                 {
-                    satisfied = true;
-                    break;
+                    return;
                 }
-                else if (nextLine.StartsWith("Your attack has no effect on "))
+                nextLine = Lines[iIndex];
+                if (string.IsNullOrEmpty(nextLine) || nextLine.StartsWith("You attack the "))
                 {
-                    satisfied = true;
-                    break;
+                    iIndex++;
+                    continue;
                 }
-                else if (nextLine.StartsWith("Your power attack has no effect on "))
-                {
-                    satisfied = true;
-                    break;
-                }
-                else if (nextLine == "You FUMBLED your weapon.")
-                {
-                    satisfied = true;
-                    fumbled = true;
-                    break;
-                }
-                else if (nextLine == "You STUMBLE and miss your unarmed attack.")
-                {
-                    satisfied = true;
-                    break;
-                }
-                else if (MatchesPowerAttackMissPattern(nextLine))
-                {
-                    satisfied = true;
-                    break;
-                }
-                else
-                {
-                    damage = MatchesHitPattern(nextLine);
-                    if (damage > 0)
-                    {
-                        satisfied = true;
-                        break;
-                    }
-                }
+                foundLineToProcess = true;
+            }
+            while (!foundLineToProcess);
+
+            bool fumbled = false;
+            bool satisfied;
+            int damage = 0;
+            if (nextLine == "You missed.")
+            {
+                satisfied = true;
+            }
+            else if (nextLine.StartsWith("Your attack has no effect on "))
+            {
+                satisfied = true;
+            }
+            else if (nextLine.StartsWith("Your power attack has no effect on "))
+            {
+                satisfied = true;
+            }
+            else if (nextLine == "You FUMBLED your weapon.")
+            {
+                satisfied = true;
+                fumbled = true;
+            }
+            else if (nextLine == "You STUMBLE and miss your unarmed attack.")
+            {
+                satisfied = true;
+            }
+            else if (MatchesPowerAttackMissPattern(nextLine))
+            {
+                satisfied = true;
+            }
+            else
+            {
+                damage = MatchesHitPattern(nextLine);
+                satisfied = damage > 0;
             }
             if (satisfied)
             {
-                _onSatisfied(fumbled, damage, flParams);
+                bool monsterKilled = false;
+                if (damage > 0)
+                {
+                    monsterKilled = CheckIfMonsterKilled(Lines, iIndex + 1);
+                }
+                _onSatisfied(fumbled, damage, monsterKilled, flParams);
             }
+        }
+
+        internal static bool CheckIfMonsterKilled(List<string> Lines, int startLineIndex)
+        {
+            int lineCount = Lines.Count;
+            if (startLineIndex >= lineCount)
+            {
+                return false;
+            }
+            bool monsterKilled = false;
+            for (int i = startLineIndex; i < lineCount; i++)
+            {
+                string nextLine = Lines[i];
+                if (nextLine == null) continue;
+                if (!nextLine.StartsWith(YOU_GAINED_PREFIX)) continue;
+
+                int iLineLen = nextLine.Length;
+                int iExpStart = YOU_GAINED_PREFIX.Length;
+                if (iLineLen == iExpStart) continue;
+
+                int iSpaceIndex = nextLine.IndexOf(EXPERIENCE_FOR_THE_DEATH_SUFFIX, iExpStart);
+                if (iSpaceIndex == iExpStart) continue;
+
+                if (!ParseNumber(nextLine, iSpaceIndex - 1, out int _, out int _))
+                {
+                    continue;
+                }
+
+                monsterKilled = true;
+                break;
+            }
+            return monsterKilled;
         }
 
         public bool MatchesPowerAttackMissPattern(string nextLine)
@@ -1342,6 +1393,13 @@ namespace IsengardClient
             return iDamage;
         }
 
+        /// <summary>
+        /// retrieves damage from the end of a string
+        /// </summary>
+        /// <param name="nextLine">text to process</param>
+        /// <param name="beforeDamageText">text before the damage number. assumed to end with a space.</param>
+        /// <param name="afterDamageText">text after the damage number</param>
+        /// <returns>damage count</returns>
         public static int GetDamage(string nextLine, string beforeDamageText, string afterDamageText)
         {
             int iLineLength = nextLine.Length;
@@ -1349,28 +1407,10 @@ namespace IsengardClient
             int iAfterDamageIndex = nextLine.LastIndexOf(afterDamageText);
             if (iAfterDamageIndex + iAfterDamageLength != iLineLength) return 0;
 
-            int iDamage = 0;
-            int iTens = 1;
-            int iCharacters = 0;
-            char cPreDamageChar = beforeDamageText[beforeDamageText.Length - 1];
-            bool finished = false;
-            for (int i = iAfterDamageIndex - 1; i >= 0; i--)
+            if (!ParseNumber(nextLine, iAfterDamageIndex - 1, out int iDamage, out int iCharacters))
             {
-                char c = nextLine[i];
-                if (char.IsDigit(c))
-                {
-                    iDamage += int.Parse(c.ToString()) * iTens;
-                    iTens *= 10;
-                    iCharacters++;
-                }
-                else if (c == cPreDamageChar)
-                {
-                    finished = true;
-                    break;
-                }
+                return 0;
             }
-
-            if (!finished) return 0;
             if (iDamage == 0) return 0;
 
             int iBeforeDamageIndex = nextLine.LastIndexOf(beforeDamageText);
@@ -1378,6 +1418,40 @@ namespace IsengardClient
             if (iBeforeDamageIndex + iBeforeDamageLength + iCharacters != iAfterDamageIndex) return 0;
 
             return iDamage;
+        }
+
+        /// <summary>
+        /// parses a number out of text. It is assumed before and after the number are spaces.
+        /// </summary>
+        /// <param name="input">input string</param>
+        /// <param name="iEndIndex">the index of the last digit of the number</param>
+        /// <param name="number">returns the number</param>
+        /// <param name="characterCount">returns the number of characters in the number</param>
+        /// <returns>true if the number was parsed, false otherwise</returns>
+        private static bool ParseNumber(string input, int iEndIndex, out int number, out int characterCount)
+        {
+            number = 0;
+            int iTens = 1;
+            characterCount = 0;
+            for (int i = iEndIndex; i >= 0; i--)
+            {
+                char c = input[i];
+                if (char.IsDigit(c))
+                {
+                    number += int.Parse(c.ToString()) * iTens;
+                    iTens *= 10;
+                    characterCount++;
+                }
+                else if (c == ' ')
+                {
+                    break;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return characterCount > 0;
         }
     }
 

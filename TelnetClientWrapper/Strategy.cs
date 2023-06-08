@@ -1,5 +1,4 @@
-﻿using NAudio.MediaFoundation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 namespace IsengardClient
 {
@@ -195,6 +194,7 @@ namespace IsengardClient
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "SC*+A*":
                     m.ShowPreForm = true;
@@ -207,6 +207,7 @@ namespace IsengardClient
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "SCCSC*+A*":
                     m.ShowPreForm = true;
@@ -222,6 +223,7 @@ namespace IsengardClient
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "SCCSCCF+A*":
                     m.ShowPreForm = true;
@@ -238,37 +240,42 @@ namespace IsengardClient
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "C*":
                     m.ShowPreForm = true;
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
                     m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "SC*":
                     m.ShowPreForm = true;
                     m.MagicSteps = new List<AMagicStrategyStep>()
-                {
-                    SingleMagicStrategyStep.MagicStepStun,
-                };
+                    {
+                        SingleMagicStrategyStep.MagicStepStun,
+                    };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
                     m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "SCCSC*":
                     m.ShowPreForm = true;
                     m.MagicSteps = new List<AMagicStrategyStep>()
-                {
-                    SingleMagicStrategyStep.MagicStepStun,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepStun,
-                };
+                    {
+                        SingleMagicStrategyStep.MagicStepStun,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepStun,
+                    };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
                     m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
+                    m.StopWhenKillMonster = true;
                     break;
                 case "A*":
                     m.ShowPreForm = true;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
+                    m.StopWhenKillMonster = true;
                     break;
                 default:
                     throw new InvalidOperationException();

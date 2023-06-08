@@ -154,6 +154,7 @@ namespace IsengardClient
         private int _monsterDamageUI;
         private bool _monsterStunned;
         private bool _monsterStunnedUI;
+        private bool _monsterKilled;
 
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>()
@@ -1237,28 +1238,27 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled, int damage, FeedLineParameters flParams)
+        private void OnAttack(bool fumbled, int damage, bool killedMonster, FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
             {
-                if (fumbled)
-                {
-                    _fumbled = true;
-                }
+                if (fumbled) _fumbled = true;
+                else if (killedMonster) _monsterKilled = true;
                 _lastCommandDamage = damage;
                 _monsterDamage += damage;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
-        private void OnCastOffensiveSpell(int damage, FeedLineParameters flParams)
+        private void OnCastOffensiveSpell(int damage, bool killedMonster, FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
             {
                 _lastCommandDamage = damage;
                 _monsterDamage += damage;
+                if (killedMonster) _monsterKilled = true;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
@@ -1491,31 +1491,33 @@ namespace IsengardClient
                             flParams.PlayerNames = _players;
                             int previousCommandResultCounter = _commandResultCounter;
                             CommandResult? previousCommandResult = _commandResult;
-                            try
+
+                            foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
                             {
-                                foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
+                                if (nextProcessingSequence.IsActive())
                                 {
-                                    if (nextProcessingSequence.IsActive())
+                                    try
                                     {
                                         nextProcessingSequence.FeedLine(flParams);
-                                        if (flParams.SuppressEcho && !_verboseMode)
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        lock (_consoleTextLock)
                                         {
-                                            echoType = InputEchoType.Off;
+                                            _newConsoleText.Add(ex.ToString());
                                         }
-                                        if (flParams.FinishedProcessing)
-                                        {
-                                            break;
-                                        }
+                                    }
+                                    if (flParams.SuppressEcho && !_verboseMode)
+                                    {
+                                        echoType = InputEchoType.Off;
+                                    }
+                                    if (flParams.FinishedProcessing)
+                                    {
+                                        break;
                                     }
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                lock (_broadcastMessagesLock)
-                                {
-                                    _broadcastMessages.Add("SPE: " + ex.ToString());
-                                }
-                            }
+
                             //recompute the lines if they were changed by sequence logic
                             bool linesChanged = sNewLinesList.Count != initialCount;
                             if (linesChanged)
@@ -2359,6 +2361,7 @@ namespace IsengardClient
                     _monsterDamage = 0;
                     _currentMonsterStatus  = MonsterStatus.None;
                     _monsterStunned = false;
+                    _monsterKilled = false;
 
                     string sWeapon = _weapon;
 
@@ -2389,17 +2392,17 @@ namespace IsengardClient
                         if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                         DateTime? dtNextMagicCommand = null;
                         DateTime? dtNextMeleeCommand = null;
+                        bool stopIfMonsterKilled = strategy.StopWhenKillMonster;
                         while (true) //combat cycle
                         {
-                            bool monsterStunned = _monsterStunned;
-                            bool skipBecauseNotStunned;
+                            bool skipPerMonsterStatus;
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
                             bool didDamage = false;
                             string command = null;
                             bool skipMagicStep = false;
-                            skipBecauseNotStunned = !monsterStunned && magicOnlyWhenStunned;
-                            if (!skipBecauseNotStunned && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
+                            skipPerMonsterStatus = !_monsterStunned && magicOnlyWhenStunned;
+                            if (!skipPerMonsterStatus && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
                             {
                                 int currentMana = _currentMana;
                                 int currentHP = _autohp;
@@ -2542,6 +2545,10 @@ namespace IsengardClient
                                                 nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
                                             {
                                                 didDamage = true;
+                                                if (stopIfMonsterKilled && _monsterKilled)
+                                                {
+                                                    goto afterCombat;
+                                                }
                                             }
                                             if (!pms.AutoMana)
                                             {
@@ -2579,8 +2586,8 @@ namespace IsengardClient
                             }
                             if (_fleeing) break;
                             if (_bw.CancellationPending) break;
-                            skipBecauseNotStunned = !monsterStunned && meleeOnlyWhenStunned;
-                            if (!skipBecauseNotStunned && nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
+                            skipPerMonsterStatus = !_monsterStunned && meleeOnlyWhenStunned;
+                            if (!skipPerMonsterStatus && nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                             {
                                 bool isPowerAttack = false;
                                 string sAttackType;
@@ -2631,6 +2638,10 @@ namespace IsengardClient
                                             pms.DoScore = true;
                                         }
                                         didDamage = true;
+                                        if (stopIfMonsterKilled && _monsterKilled)
+                                        {
+                                            goto afterCombat;
+                                        }
                                     }
                                     if (meleeStepsFinished)
                                     {
@@ -2772,8 +2783,11 @@ namespace IsengardClient
                     _currentlyFightingMob = null;
                     _currentMonsterStatus = MonsterStatus.None;
                     _monsterStunned = false;
+                    _monsterKilled = false;
                 }
             }
+
+            afterCombat:
 
             if (pms.DoScore && !didFlee)
             {

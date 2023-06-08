@@ -346,13 +346,15 @@ namespace IsengardClient.Tests
         public void TestAttackSequence()
         {
             bool success = false;
-            bool fumbled = false;
-            int damage = 0;
-            Action<bool, int, FeedLineParameters> a = (f, d, flp) =>
+            bool? fumbled = null;
+            bool? killed = null;
+            int? damage = null;
+            Action<bool, int, bool, FeedLineParameters> a = (f, d, k, flp) =>
             {
                 success = true;
                 fumbled = f;
                 damage = d;
+                killed = k;
             };
             AttackSequence aseq = new AttackSequence(a);
 
@@ -360,39 +362,94 @@ namespace IsengardClient.Tests
             flParams.BackgroundCommandType = BackgroundCommandType.Attack;
 
             success = false;
-            fumbled = false;
-            damage = 0;
-            flParams.Lines = new List<string>() { "Your slash attack hits for 10 damage." };
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "Your slash attack hits for 3 damage." };
             aseq.FeedLine(flParams);
             Assert.IsTrue(success);
-            Assert.AreEqual(damage, 10);
+            Assert.AreEqual(damage.Value, 3);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, false);
 
             success = false;
-            fumbled = false;
-            damage = 10;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "You attack the drunk.", "Your slash attack hits for 16 damage." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 16);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, false);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "Your slash attack hits for 10 damage.", "You gained 15 experience for the death of the hobbitish doctor." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 10);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, true);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "You attack the hobbitish doctor", "Your slash attack hits for 17 damage.", "You gained 15 experience for the death of the hobbitish doctor." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 17);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, true);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
             flParams.Lines = new List<string>() { "You FUMBLED your weapon." };
             aseq.FeedLine(flParams);
             Assert.IsTrue(success);
-            Assert.IsTrue(fumbled);
-            Assert.AreEqual(damage, 0);
+            Assert.IsTrue(fumbled.Value);
+            Assert.AreEqual(damage.Value, 0);
+            Assert.AreEqual(killed.Value, false);
         }
 
         [TestMethod]
         public void TestCastOffensiveSpellSequence()
         {
             bool success = false;
-            int damage = 0;
-            Action<int, FeedLineParameters> a = (d, flp) =>
+            int? damage = null;
+            bool? killed = null;
+            Action<int, bool, FeedLineParameters> a = (d, k, flp) =>
             {
                 success = true;
                 damage = d;
+                killed = k;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
-            FeedLineParameters flParams = new FeedLineParameters(new List<string>() { "You cast a rumble spell on the drunk for 10 damage." });
+            FeedLineParameters flParams = new FeedLineParameters(null);
             flParams.BackgroundCommandType = BackgroundCommandType.OffensiveSpell;
+
+            success = false;
+            damage = null;
+            killed = null;
+            flParams.Lines = new List<string>() { "You cast a rumble spell on the drunk for 10 damage." };
             cseq.FeedLine(flParams);
             Assert.IsTrue(success);
-            Assert.AreEqual(damage, 10);
+            Assert.AreEqual(damage.Value, 10);
+            Assert.AreEqual(killed.Value, false);
+
+            success = false;
+            damage = null;
+            killed = null;
+            flParams.Lines = new List<string>() { "You cast a rumble spell on Igor the Bouncer for 2 damage.", "You gained 130 experience for the death of Igor the Bouncer." };
+            cseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 2);
+            Assert.AreEqual(killed.Value, true);
         }
 
         [TestMethod]

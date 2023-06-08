@@ -825,6 +825,10 @@ namespace IsengardClient
         //CSRTODO: no plural
         MasterJeweler,
 
+        [SingularName("merchant")]
+        [PluralName("merchants")]
+        Merchant,
+
         [SingularName("mistress")]
         [PluralName("mistresses")]
         Mistress,
@@ -1092,6 +1096,10 @@ namespace IsengardClient
         //CSRTODO: no plural?
         IorlasTheHermit,
 
+        [SingularName("iron ring")]
+        [PluralName("iron rings")]
+        IronRing,
+
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
         LittleBrownJug,
@@ -1171,6 +1179,10 @@ namespace IsengardClient
         [SingularName("small bag")]
         [PluralName("small bags")]
         SmallBag,
+
+        [SingularName("small knife")]
+        [PluralName("small knives")] //CSRTODO: correct plural?
+        SmallKnife,
 
         [SingularName("small silver chest")]
         [PluralName("small silver chests")]
