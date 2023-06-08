@@ -85,6 +85,8 @@ namespace IsengardClient
         private bool _enteredPassword;
         private int _totalhp = 0;
         private int _totalmp = 0;
+        private int _tnl = -1;
+        private int _tnlUI = -1;
 
         private const int HP_OR_MP_UNKNOWN = -1;
 
@@ -814,6 +816,8 @@ namespace IsengardClient
             _automp = HP_OR_MP_UNKNOWN;
             _currentMana = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
+            _tnl = -1;
+            _tnlUI = -1;
             lock (_skillsLock)
             {
                 _cooldowns.Clear();
@@ -866,7 +870,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, List<SkillCooldown> cooldowns, List<string> spells)
+        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int tnl, List<SkillCooldown> cooldowns, List<string> spells)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -888,6 +892,7 @@ namespace IsengardClient
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
+            _tnl = tnl;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
 
             if (forInit)
@@ -1227,8 +1232,9 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled, int damage, bool killedMonster, FeedLineParameters flParams)
+        private void OnAttack(bool fumbled, int damage, bool killedMonster, int experience, FeedLineParameters flParams)
         {
+            _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 if (fumbled) _fumbled = true;
@@ -1243,8 +1249,9 @@ namespace IsengardClient
             }
         }
 
-        private void OnCastOffensiveSpell(int damage, bool killedMonster, FeedLineParameters flParams)
+        private void OnCastOffensiveSpell(int damage, bool killedMonster, int experience, FeedLineParameters flParams)
         {
+            _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 _monsterDamage += damage;
@@ -3906,6 +3913,13 @@ namespace IsengardClient
             {
                 grpCurrentPlayer.Text = sCurrentPlayerHeader;
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
+            }
+
+            int iTNL = _tnl;
+            if (iTNL != _tnlUI)
+            {
+                lblToNextLevelValue.Text = iTNL.ToString();
+                _tnlUI = iTNL;
             }
 
             Room oCurrentRoom = m_oCurrentRoom;

@@ -43,11 +43,13 @@ namespace IsengardClient.Tests
             int iLevel = -1;
             int iMaxHP = -1;
             int iMaxMP = -1;
-            Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> a = (flpparam, l, hp, mp, cs, ss) =>
+            int iTNL = -1;
+            Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> a = (flpparam, l, hp, mp, tnl, cs, ss) =>
             {
                 iLevel = l;
                 iMaxHP = hp;
                 iMaxMP = mp;
+                iTNL = tnl;
                 cooldowns = cs;
                 spells = ss;
             };
@@ -57,12 +59,12 @@ namespace IsengardClient.Tests
             List<string> input = new List<string>();
             FeedLineParameters flp = new FeedLineParameters(input);
 
-            iLevel = iMaxHP = iMaxMP = -1;
+            iLevel = iMaxHP = iMaxMP = iTNL = -1;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
             input.Add(string.Empty);
             input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 0");
-            input.Add(string.Empty);
+            input.Add("    Gold:  376933  To Next Level:    24115 Exp         0 GP");
             input.Add("Skills: (power) attack [2:15], ");
             input.Add("manashield [0:00]");
             input.Add(".");
@@ -75,6 +77,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 12);
             Assert.AreEqual(iMaxHP, 59);
             Assert.AreEqual(iMaxMP, 61);
+            Assert.AreEqual(iTNL, 24115);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
@@ -87,12 +90,12 @@ namespace IsengardClient.Tests
             Assert.IsTrue(!cooldowns[1].Active);
             Assert.IsTrue(spells[0] == "None");
 
-            iLevel = iMaxHP = iMaxMP = -1;
+            iLevel = iMaxHP = iMaxMP = iTNL = -1;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 1)");
             input.Add(string.Empty);
             input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 0");
-            input.Add(string.Empty);
+            input.Add("    Gold:  376933  To Next Level:        0 Exp         0 GP");
             input.Add("Skills: (power) attack [0:00], ");
             input.Add("manashield [0:45]");
             input.Add(".");
@@ -105,6 +108,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 1);
             Assert.IsTrue(iMaxHP == 159);
             Assert.IsTrue(iMaxMP == 261);
+            Assert.IsTrue(iTNL == 0);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
@@ -118,12 +122,12 @@ namespace IsengardClient.Tests
             Assert.IsTrue(spells[0] == "bless");
             Assert.IsTrue(spells[1] == "protection");
 
-            iLevel = iMaxHP = iMaxMP = -1;
+            iLevel = iMaxHP = iMaxMP = iTNL = -1;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 62)");
             input.Add(string.Empty);
             input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 0");
-            input.Add(string.Empty);
+            input.Add("    Gold:  376933  To Next Level:       14 Exp         0 GP");
             input.Add("Skills: (power) attack [12:13], manashield [ACTIVE].");
             input.Add("Spells cast: ");
             input.Add("bless");
@@ -136,6 +140,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 62);
             Assert.IsTrue(iMaxHP == 9);
             Assert.IsTrue(iMaxMP == 9);
+            Assert.IsTrue(iTNL == 14);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
@@ -348,13 +353,15 @@ namespace IsengardClient.Tests
             bool success = false;
             bool? fumbled = null;
             bool? killed = null;
+            int? tnl = null;
             int? damage = null;
-            Action<bool, int, bool, FeedLineParameters> a = (f, d, k, flp) =>
+            Action<bool, int, bool, int, FeedLineParameters> a = (f, d, k, t, flp) =>
             {
                 success = true;
                 fumbled = f;
                 damage = d;
                 killed = k;
+                tnl = t;
             };
             AttackSequence aseq = new AttackSequence(a);
 
@@ -423,11 +430,13 @@ namespace IsengardClient.Tests
             bool success = false;
             int? damage = null;
             bool? killed = null;
-            Action<int, bool, FeedLineParameters> a = (d, k, flp) =>
+            int? tnl = null;
+            Action<int, bool, int, FeedLineParameters> a = (d, k, t, flp) =>
             {
                 success = true;
                 damage = d;
                 killed = k;
+                tnl = t;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
             FeedLineParameters flParams = new FeedLineParameters(null);

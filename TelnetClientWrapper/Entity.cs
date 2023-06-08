@@ -1193,7 +1193,7 @@ namespace IsengardClient
         SteelChainArmor,
 
         [SingularName("T-bone")]
-        [PluralName("T-bone")]
+        [PluralName("T-bones")]
         TBone,
 
         [SingularName("tiger shark leather armor")]
@@ -1202,6 +1202,10 @@ namespace IsengardClient
         [SingularName("voulge")]
         [PluralName("voulges")]
         Voulge,
+
+        [SingularName("wagonmaster's whip")]
+        [PluralName("wagonmaster's whips")]
+        WagonmastersWhip,
 
         [SingularName("war harness")]
         [PluralName("war harnesses")]

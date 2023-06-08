@@ -451,14 +451,15 @@ namespace IsengardClient
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> _onSatisfied;
+        public Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string POWER_ATTACK_PREFIX = "(power) attack ";
         private const string MANASHIELD_PREFIX = "manashield ";
+        private const string TO_NEXT_LEVEL_PREFIX = "To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, List<SkillCooldown>, List<string>> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -468,15 +469,14 @@ namespace IsengardClient
         {
             List<string> Lines = flParams.Lines;
             int iLevel = 0;
-            int iTotalHP = 0;
-            int iTotalMP = 0;
             if (Lines.Count >= 7)
             {
+                int iNextLineIndex = 0;
                 int iIndex;
 
                 //first line is the player name, title, and level. Parse out the level.
-                string sNextLine = Lines[0];
-                if (sNextLine.Length < 17) return;
+                string sNextLine = Lines[iNextLineIndex++];
+                if (sNextLine == null || sNextLine.Length < 17) return;
                 if (!sNextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
                 {
                     return;
@@ -519,14 +519,14 @@ namespace IsengardClient
                 if (sNextLine[--iSpaceIndex] != ' ') return;
 
                 //second line is blank
-                sNextLine = Lines[1];
+                sNextLine = Lines[iNextLineIndex++];
                 if (!string.IsNullOrEmpty(sNextLine)) return;
 
                 //third line is
                 //<space><space>[3 character HP]<slash><3 character max HP> Hit Points<space><space>
                 //<space><space>[3 character MP]<slash><3 character max MP> 
-                sNextLine = Lines[2];
-                if (sNextLine.Length < 32) return;
+                sNextLine = Lines[iNextLineIndex++];
+                if (sNextLine == null || sNextLine.Length < 32) return;
                 iIndex = 0;
                 if (sNextLine[iIndex++] != ' ') return;
                 if (sNextLine[iIndex++] != ' ') return;
@@ -536,6 +536,7 @@ namespace IsengardClient
                 if (sNextLine[iIndex++] != '/') return;
                 string sTotalHitPoints = sNextLine.Substring(iIndex, 3).Trim();
                 iIndex += 3;
+                int iTotalHP;
                 if (!int.TryParse(sTotalHitPoints, out iTotalHP)) return;
                 string sMiddleString = " Hit Points    ";
                 int iMiddleStringLen = sMiddleString.Length;
@@ -547,17 +548,29 @@ namespace IsengardClient
                 if (sNextLine[iIndex++] != '/') return;
                 string sTotalMagicPoints = sNextLine.Substring(iIndex, 3).Trim();
                 iIndex += 3;
+                int iTotalMP;
                 if (!int.TryParse(sTotalMagicPoints, out iTotalMP)) return;
                 if (sNextLine[iIndex++] != ' ') return;
 
-                int iNextIndex;
-                List<string> skillsRaw = StringProcessing.GetList(Lines, 4, SKILLS_PREFIX, true, out iNextIndex);
+                sNextLine = Lines[iNextLineIndex++];
+                if (sNextLine == null) return;
+                iIndex = sNextLine.IndexOf(TO_NEXT_LEVEL_PREFIX);
+                if (iIndex < 0) return;
+                iIndex += TO_NEXT_LEVEL_PREFIX.Length;
+                if (iIndex + 10 >= sNextLine.Length) return;
+                string sTNL = sNextLine.Substring(iIndex, 10).Trim();
+                if (!int.TryParse(sTNL, out int iTNL))
+                {
+                    return;
+                }
+
+                List<string> skillsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SKILLS_PREFIX, true, out iNextLineIndex);
                 if (skillsRaw == null)
                 {
                     return;
                 }
 
-                List<string> spellsRaw = StringProcessing.GetList(Lines, iNextIndex, SPELLS_PREFIX, false, out iNextIndex);
+                List<string> spellsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SPELLS_PREFIX, false, out iNextLineIndex);
                 if (spellsRaw == null)
                 {
                     return;
@@ -632,7 +645,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, cooldowns, spells);
+                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iTNL, cooldowns, spells);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -1203,19 +1216,15 @@ namespace IsengardClient
             }
         }
 
-        public Action<int, bool, FeedLineParameters> _onSatisfied;
-        public CastOffensiveSpellSequence(Action<int, bool, FeedLineParameters> onSatisfied)
+        public Action<int, bool, int, FeedLineParameters> _onSatisfied;
+        public CastOffensiveSpellSequence(Action<int, bool, int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
+
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
-            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.OffensiveSpell)
-            {
-                return;
-            }
             int lineCount = Lines.Count;
             if (lineCount == 0) return;
 
@@ -1254,8 +1263,10 @@ namespace IsengardClient
                 return;
             }
 
-            bool monsterKilled = AttackSequence.CheckIfMonsterKilled(Lines, 1);
-            _onSatisfied(damage, monsterKilled, flParams);
+            int iExperience;
+            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(Lines, 1, out iExperience);
+            flParams.FinishedProcessing = true;
+            _onSatisfied(damage, monsterKilled, iExperience, flParams);
         }
     }
 
@@ -1268,19 +1279,14 @@ namespace IsengardClient
         private const string YOU_GAINED_PREFIX = "You gained";
         private const string EXPERIENCE_FOR_THE_DEATH_SUFFIX = " experience for the death of ";
 
-        public Action<bool, int, bool, FeedLineParameters> _onSatisfied;
-        public AttackSequence(Action<bool, int, bool, FeedLineParameters> onSatisfied)
+        public Action<bool, int, bool, int, FeedLineParameters> _onSatisfied;
+        public AttackSequence(Action<bool, int, bool, int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
-            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Attack)
-            {
-                return;
-            }
             int lineCount = Lines.Count;
 
             //skip the "You attack the X" message if present.
@@ -1339,16 +1345,19 @@ namespace IsengardClient
             if (satisfied)
             {
                 bool monsterKilled = false;
+                int iExperience = 0;
                 if (damage > 0)
                 {
-                    monsterKilled = CheckIfMonsterKilled(Lines, iIndex + 1);
+                    monsterKilled = ProcessMonsterKilledMessages(Lines, iIndex + 1, out iExperience);
                 }
-                _onSatisfied(fumbled, damage, monsterKilled, flParams);
+                flParams.FinishedProcessing = true;
+                _onSatisfied(fumbled, damage, monsterKilled, iExperience, flParams);
             }
         }
 
-        internal static bool CheckIfMonsterKilled(List<string> Lines, int startLineIndex)
+        internal static bool ProcessMonsterKilledMessages(List<string> Lines, int startLineIndex, out int experience)
         {
+            experience = 0;
             int lineCount = Lines.Count;
             if (startLineIndex >= lineCount)
             {
@@ -1368,11 +1377,13 @@ namespace IsengardClient
                 int iSpaceIndex = nextLine.IndexOf(EXPERIENCE_FOR_THE_DEATH_SUFFIX, iExpStart);
                 if (iSpaceIndex == iExpStart) continue;
 
-                if (!ParseNumber(nextLine, iSpaceIndex - 1, out int _, out int _))
+                int iNextExperience;
+                if (!ParseNumber(nextLine, iSpaceIndex - 1, out iNextExperience, out int _))
                 {
                     continue;
                 }
 
+                experience += iNextExperience;
                 monsterKilled = true;
                 break;
             }

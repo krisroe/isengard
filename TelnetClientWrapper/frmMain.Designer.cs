@@ -175,6 +175,8 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.lblToNextLevelValue = new System.Windows.Forms.Label();
+            this.lblToNextLevel = new System.Windows.Forms.Label();
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -996,6 +998,8 @@
             // 
             // grpCurrentPlayer
             // 
+            this.grpCurrentPlayer.Controls.Add(this.lblToNextLevelValue);
+            this.grpCurrentPlayer.Controls.Add(this.lblToNextLevel);
             this.grpCurrentPlayer.Controls.Add(this.lblManashieldTimeValue);
             this.grpCurrentPlayer.Controls.Add(this.lblPowerAttackTimeValue);
             this.grpCurrentPlayer.Controls.Add(this.lblManaValue);
@@ -1013,7 +1017,8 @@
             // 
             // lblManashieldTimeValue
             // 
-            this.lblManashieldTimeValue.Location = new System.Drawing.Point(96, 89);
+            this.lblManashieldTimeValue.BackColor = System.Drawing.Color.LightGray;
+            this.lblManashieldTimeValue.Location = new System.Drawing.Point(97, 93);
             this.lblManashieldTimeValue.Name = "lblManashieldTimeValue";
             this.lblManashieldTimeValue.Size = new System.Drawing.Size(86, 15);
             this.lblManashieldTimeValue.TabIndex = 129;
@@ -1022,7 +1027,8 @@
             // 
             // lblPowerAttackTimeValue
             // 
-            this.lblPowerAttackTimeValue.Location = new System.Drawing.Point(97, 65);
+            this.lblPowerAttackTimeValue.BackColor = System.Drawing.Color.LightGray;
+            this.lblPowerAttackTimeValue.Location = new System.Drawing.Point(97, 74);
             this.lblPowerAttackTimeValue.Name = "lblPowerAttackTimeValue";
             this.lblPowerAttackTimeValue.Size = new System.Drawing.Size(86, 15);
             this.lblPowerAttackTimeValue.TabIndex = 128;
@@ -1031,7 +1037,8 @@
             // 
             // lblManaValue
             // 
-            this.lblManaValue.Location = new System.Drawing.Point(97, 41);
+            this.lblManaValue.BackColor = System.Drawing.Color.LightGray;
+            this.lblManaValue.Location = new System.Drawing.Point(97, 36);
             this.lblManaValue.Name = "lblManaValue";
             this.lblManaValue.Size = new System.Drawing.Size(86, 15);
             this.lblManaValue.TabIndex = 127;
@@ -1040,6 +1047,7 @@
             // 
             // lblHitpointsValue
             // 
+            this.lblHitpointsValue.BackColor = System.Drawing.Color.LightGray;
             this.lblHitpointsValue.Location = new System.Drawing.Point(97, 17);
             this.lblHitpointsValue.Name = "lblHitpointsValue";
             this.lblHitpointsValue.Size = new System.Drawing.Size(86, 15);
@@ -1050,7 +1058,7 @@
             // lblMana
             // 
             this.lblMana.AutoSize = true;
-            this.lblMana.Location = new System.Drawing.Point(36, 42);
+            this.lblMana.Location = new System.Drawing.Point(36, 36);
             this.lblMana.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMana.Name = "lblMana";
             this.lblMana.Size = new System.Drawing.Size(37, 13);
@@ -1061,7 +1069,7 @@
             // lblHitpoints
             // 
             this.lblHitpoints.AutoSize = true;
-            this.lblHitpoints.Location = new System.Drawing.Point(36, 18);
+            this.lblHitpoints.Location = new System.Drawing.Point(36, 17);
             this.lblHitpoints.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblHitpoints.Name = "lblHitpoints";
             this.lblHitpoints.Size = new System.Drawing.Size(51, 13);
@@ -1072,7 +1080,7 @@
             // lblPowerAttackCooldown
             // 
             this.lblPowerAttackCooldown.AutoSize = true;
-            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(6, 65);
+            this.lblPowerAttackCooldown.Location = new System.Drawing.Point(5, 74);
             this.lblPowerAttackCooldown.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPowerAttackCooldown.Name = "lblPowerAttackCooldown";
             this.lblPowerAttackCooldown.Size = new System.Drawing.Size(90, 13);
@@ -1083,7 +1091,7 @@
             // lblManashieldTime
             // 
             this.lblManashieldTime.AutoSize = true;
-            this.lblManashieldTime.Location = new System.Drawing.Point(6, 89);
+            this.lblManashieldTime.Location = new System.Drawing.Point(5, 93);
             this.lblManashieldTime.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblManashieldTime.Name = "lblManashieldTime";
             this.lblManashieldTime.Size = new System.Drawing.Size(80, 13);
@@ -1771,6 +1779,27 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // lblToNextLevelValue
+            // 
+            this.lblToNextLevelValue.BackColor = System.Drawing.Color.LightGray;
+            this.lblToNextLevelValue.Location = new System.Drawing.Point(97, 55);
+            this.lblToNextLevelValue.Name = "lblToNextLevelValue";
+            this.lblToNextLevelValue.Size = new System.Drawing.Size(86, 15);
+            this.lblToNextLevelValue.TabIndex = 131;
+            this.lblToNextLevelValue.Text = "Value";
+            this.lblToNextLevelValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblToNextLevel
+            // 
+            this.lblToNextLevel.AutoSize = true;
+            this.lblToNextLevel.Location = new System.Drawing.Point(5, 55);
+            this.lblToNextLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblToNextLevel.Name = "lblToNextLevel";
+            this.lblToNextLevel.Size = new System.Drawing.Size(77, 13);
+            this.lblToNextLevel.TabIndex = 130;
+            this.lblToNextLevel.Text = "To Next Level:";
+            this.lblToNextLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1977,6 +2006,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumAutoSpellLevel;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentAutoSpellLevelAsDefault;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoSpellLevels;
+        private System.Windows.Forms.Label lblToNextLevelValue;
+        private System.Windows.Forms.Label lblToNextLevel;
     }
 }
 
