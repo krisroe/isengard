@@ -1121,11 +1121,6 @@ namespace IsengardClient
             }
         }
 
-        private void OnManashieldOff(FeedLineParameters flParams)
-        {
-            ChangeSkillActive(SkillWithCooldownType.Manashield, false);
-        }
-
         private void ChangeSkillActive(SkillWithCooldownType skill, bool active)
         {
             lock (_skillsLock)
@@ -1136,6 +1131,7 @@ namespace IsengardClient
                     {
                         nextCooldown.Status = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
                         nextCooldown.NextAvailable = DateTime.MinValue;
+                        break;
                     }
                 }
             }
@@ -1408,6 +1404,9 @@ namespace IsengardClient
                             if (spellsOff == null) spellsOff = new List<string>();
                             spellsOff.Add("protection");
                             break;
+                        case InformationalMessages.ManashieldOff:
+                            ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+                            break;
                     }
                 }
                 if (spellsOff != null)
@@ -1661,7 +1660,6 @@ namespace IsengardClient
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your manashield dissipates.", OnManashieldOff, ConstantSequenceMatchType.ExactMatch, 0),
                 new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
                 new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*

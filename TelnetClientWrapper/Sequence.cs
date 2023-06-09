@@ -1825,6 +1825,11 @@ namespace IsengardClient
                     haveDataToDisplay = true;
                     im = InformationalMessages.ProtectionOver;
                 }
+                else if (sLine == "Your manashield dissipates.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.ManashieldOff;
+                }
                 else if (sLine == "The air is still and quiet." ||
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||
@@ -2175,7 +2180,8 @@ namespace IsengardClient
         BullroarerInMithlond,
         BullroarerInNindamos,
         BlessOver,
-        ProtectionOver
+        ProtectionOver,
+        ManashieldOff,
     }
 
     public enum SkillWithCooldownType
