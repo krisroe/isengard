@@ -1342,7 +1342,7 @@ namespace IsengardClient
             }
             else if (nextLine.StartsWith("Your power attack has no effect on "))
             {
-                //CSRTODO: does this count as a done power attack?
+                powerAttacked = false; //this does not actually trigger the skill
                 satisfied = true;
             }
             else if (nextLine == "You FUMBLED your weapon.")

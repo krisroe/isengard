@@ -1173,9 +1173,9 @@ namespace IsengardClient
         {
             lock (_spellsCast)
             {
-                if (_spellsCast.Contains(spellName))
+                if (!_spellsCast.Contains(spellName))
                 {
-                    _spellsCast.Remove(spellName);
+                    _spellsCast.Add(spellName);
                     _refreshSpellsCast = true;
                 }
             }

@@ -799,6 +799,10 @@ namespace IsengardClient
         //CSRTODO: no plural?
         MadameNicolov,
 
+        [SingularName("Manager Mulloy")]
+        //CSRTODO: no plural?
+        ManagerMulloy,
+
         [SingularName("Mark Frey")]
         //CSRTODO: no plural?
         MarkFrey,
@@ -988,6 +992,10 @@ namespace IsengardClient
         [SingularName("aquamarine potion")]
         [PluralName("aquamarine potions")]
         AquamarinePotion,
+
+        [SingularName("beastmaster's whip")]
+        [PluralName("beastmaster's whips")]
+        BeastmastersWhip,
 
         [SingularName("black iron key")]
         [PluralName("black iron keys")]

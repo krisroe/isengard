@@ -386,6 +386,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(damage.Value, 3);
             Assert.AreEqual(fumbled.Value, false);
             Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, false);
 
             success = false;
             fumbled = null;
@@ -397,6 +398,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(damage.Value, 16);
             Assert.AreEqual(fumbled.Value, false);
             Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, false);
 
             success = false;
             fumbled = null;
@@ -408,6 +410,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(damage.Value, 10);
             Assert.AreEqual(fumbled.Value, false);
             Assert.AreEqual(killed.Value, true);
+            Assert.AreEqual(powerAttacked.Value, false);
 
             success = false;
             fumbled = null;
@@ -419,6 +422,43 @@ namespace IsengardClient.Tests
             Assert.AreEqual(damage.Value, 17);
             Assert.AreEqual(fumbled.Value, false);
             Assert.AreEqual(killed.Value, true);
+            Assert.AreEqual(powerAttacked.Value, false);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "Your power attack cleave hits for 10 damage." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 10);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, true);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "Your power attack cleave missed." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 0);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, true);
+
+            success = false;
+            fumbled = null;
+            killed = null;
+            damage = null;
+            flParams.Lines = new List<string>() { "Your power attack has no effect on Manager Mulloy." };
+            aseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 0);
+            Assert.AreEqual(fumbled.Value, false);
+            Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, false);
 
             success = false;
             fumbled = null;
@@ -430,6 +470,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(fumbled.Value);
             Assert.AreEqual(damage.Value, 0);
             Assert.AreEqual(killed.Value, false);
+            Assert.AreEqual(powerAttacked.Value, false);
         }
 
         [TestMethod]
