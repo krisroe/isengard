@@ -164,9 +164,13 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
+        private List<Strategy> _strategies;
+
         internal frmMain(string userName, string password, List<Strategy> allStrategies)
         {
             InitializeComponent();
+
+            _strategies = allStrategies;
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
             _initializationLoginSequence = new InitialLoginSequence(OnInitialLogin);
@@ -241,19 +245,7 @@ namespace IsengardClient
             _username = sb.ToString();
             _password = password;
 
-            int iOneClickTabIndex = 0;
-            foreach (Strategy oStrategy in allStrategies)
-            {
-                Button btnOneClick = new Button();
-                btnOneClick.AutoSize = true;
-                btnOneClick.TabIndex = iOneClickTabIndex++;
-                btnOneClick.Tag = oStrategy;
-                btnOneClick.Text = oStrategy.Name;
-                btnOneClick.UseVisualStyleBackColor = true;
-                btnOneClick.Click += btnOneClick_Click;
-                btnOneClick.ContextMenuStrip = ctxRoomExits;
-                flpOneClickStrategies.Controls.Add(btnOneClick);
-            }
+            RefreshStrategyButtons();
 
             _bw = new BackgroundWorker();
             _bw.WorkerSupportsCancellation = true;
@@ -266,6 +258,23 @@ namespace IsengardClient
             cboSetOption.SelectedIndex = 0;
 
             DoConnect();
+        }
+
+        private void RefreshStrategyButtons()
+        {
+            int iOneClickTabIndex = 0;
+            foreach (Strategy oStrategy in _strategies)
+            {
+                Button btnOneClick = new Button();
+                btnOneClick.AutoSize = true;
+                btnOneClick.TabIndex = iOneClickTabIndex++;
+                btnOneClick.Tag = oStrategy;
+                btnOneClick.Text = oStrategy.Name;
+                btnOneClick.UseVisualStyleBackColor = true;
+                btnOneClick.Click += btnOneClick_Click;
+                btnOneClick.ContextMenuStrip = ctxRoomExits;
+                flpOneClickStrategies.Controls.Add(btnOneClick);
+            }
         }
 
         private void InitializeEmotes()
@@ -4566,7 +4575,7 @@ namespace IsengardClient
 
         private void tsbConfiguration_Click(object sender, EventArgs e)
         {
-            frmConfiguration frm = new frmConfiguration();
+            frmConfiguration frm = new frmConfiguration(_strategies);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 IsengardSettings sets = IsengardSettings.Default;
@@ -4578,6 +4587,12 @@ namespace IsengardClient
                 UpdateCurrentRealmSideEffects();
                 RefreshAutoHazyUI();
                 RefreshAutoSpellLevelUI();
+
+                if (frm.ChangedStrategies)
+                {
+                    _strategies = frm.Strategies;
+                    RefreshStrategyButtons();
+                }
             }
         }
 
@@ -4642,6 +4657,7 @@ namespace IsengardClient
             IsengardSettings sets = IsengardSettings.Default;
             sets.DefaultRealm = _defaultRealm;
             sets.Save();
+            UpdateCurrentRealmSideEffects();
         }
 
         private void tsmiRestoreDefaultRealm_Click(object sender, EventArgs e)

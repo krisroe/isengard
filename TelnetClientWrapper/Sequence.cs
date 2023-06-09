@@ -1452,7 +1452,7 @@ namespace IsengardClient
 
             int iBeforeDamageIndex = nextLine.LastIndexOf(beforeDamageText);
             int iBeforeDamageLength = beforeDamageText.Length;
-            if (iBeforeDamageIndex + iBeforeDamageLength + iCharacters != iAfterDamageIndex) return 0;
+            if (iBeforeDamageIndex + iBeforeDamageLength + iCharacters + iAfterDamageLength != iLineLength) return 0;
 
             return iDamage;
         }
@@ -1970,7 +1970,7 @@ namespace IsengardClient
     public class EntityAttacksYouSequence : AOutputProcessingSequence
     {
         private const string DAMAGE_END_STRING = " damage!";
-        private const string YOU_FOR_STRING = " you for";
+        private const string YOU_FOR_STRING = " you for ";
         public Action<FeedLineParameters> _onSatisfied;
 
         public EntityAttacksYouSequence(Action<FeedLineParameters> onSatisfied)
@@ -1990,54 +1990,61 @@ namespace IsengardClient
                 }
                 else if (firstLine.EndsWith(DAMAGE_END_STRING))
                 {
-                    int len = firstLine.Length;
-                    int endlen = DAMAGE_END_STRING.Length;
-                    if (len == endlen) return;
-                    int i = len - 1;
-                    bool hasDigit = false;
-                    bool finished;
-                    int charactersRemoved = 0;
-                    do
+                    int iDamage = AttackSequence.GetDamage(firstLine, YOU_FOR_STRING, DAMAGE_END_STRING);
+                    if (iDamage <= 0)
                     {
-                        char c = firstLine[i];
-                        charactersRemoved++;
-                        finished = c == ' ';
-                        if (finished)
-                        {
-                            if (!hasDigit) return;
-                            break;
-                        }
-                        else if (char.IsDigit(c))
-                        {
-                            hasDigit = true;
-                        }
-                        else
-                        {
-                            return;
-                        }
+                        return;
                     }
-                    while (!finished);
 
-                    endlen += charactersRemoved;
-                    if (len == endlen) return;
+                    int len = firstLine.Length;
+                    int backlen = YOU_FOR_STRING.Length + DAMAGE_END_STRING.Length + iDamage.ToString().Length;
+                    if (len == backlen) return;
 
-                    firstLine = firstLine.Substring(0, len - endlen);
-                    len -= endlen;
-                    if (!firstLine.EndsWith(YOU_FOR_STRING)) return;
-
-                    endlen = YOU_FOR_STRING.Length;
-                    if (len == endlen) return;
-
-                    firstLine = firstLine.Substring(0, len - endlen);
-
-                    matches = firstLine.EndsWith(" barely nicks") ||
-                              firstLine.EndsWith(" scratches") ||
-                              firstLine.EndsWith(" bruises") ||
-                              firstLine.EndsWith(" hurts") ||
-                              firstLine.EndsWith(" wounds") ||
-                              firstLine.EndsWith(" smites") ||
-                              firstLine.EndsWith(" maims") ||
-                              firstLine.EndsWith(" pulverizes");
+                    string remainder = firstLine.Substring(0, len - backlen);
+                    if (remainder.EndsWith(" barely nicks"))
+                    {
+                        matches = iDamage >= 1 && iDamage <= 2;
+                    }
+                    else if (remainder.EndsWith(" scratches"))
+                    {
+                        matches = iDamage >= 3 && iDamage <= 5;
+                    }
+                    else if (remainder.EndsWith(" bruises"))
+                    {
+                        matches = true; //CSRTODO: 6-9
+                    }
+                    else if (remainder.EndsWith(" hurts"))
+                    {
+                        matches = true; //CSRTODO: 11
+                    }
+                    else if (remainder.EndsWith(" wounds"))
+                    {
+                        matches = true; //CSRTODO: 13-14
+                    }
+                    else if (remainder.EndsWith(" smites"))
+                    {
+                        matches = true; //CSRTODO: 16-20
+                    }
+                    else if (remainder.EndsWith(" maims"))
+                    {
+                        matches = true; //CSRTODO: 22
+                    }
+                    else if (remainder.EndsWith(" pulverizes"))
+                    {
+                        matches = true; //CSRTODO: 26
+                    }
+                    else if (remainder.EndsWith(" devestates"))
+                    {
+                        matches = true; //CSRTODO: 33
+                    }
+                    else if (remainder.EndsWith(" spell on"))
+                    {
+                        matches = true;
+                    }
+                    else
+                    {
+                        matches = false;
+                    }
                 }
                 if (matches)
                 {

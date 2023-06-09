@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+
 namespace IsengardClient
 {
     public class Strategy
@@ -11,6 +13,138 @@ namespace IsengardClient
         {
             this.Name = Name;
             this.AutogenerateName = false;
+        }
+
+        public Strategy(Strategy copied)
+        {
+            this.Name = copied.Name;
+            this.AutogenerateName = copied.AutogenerateName;
+            this.StopWhenKillMonster = copied.StopWhenKillMonster;
+            this.FleeHPThreshold = copied.FleeHPThreshold;
+            this.ShowPreForm = copied.ShowPreForm;
+
+            this.ManaPool = copied.ManaPool;
+            this.PromptForManaPool = copied.PromptForManaPool;
+            this.LastMagicStep = copied.LastMagicStep;
+            this.VigorOnlyWhenDownXHP = copied.VigorOnlyWhenDownXHP;
+            this.MendOnlyWhenDownXHP = copied.MendOnlyWhenDownXHP;
+            this.FinalMagicAction = copied.FinalMagicAction;
+            this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
+            this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            if (copied.MagicSteps != null)
+            {
+                this.MagicSteps = new List<AMagicStrategyStep>();
+                foreach (var next in copied.MagicSteps)
+                {
+                    this.MagicSteps.Add(next.Clone());
+                }
+            }
+
+            this.LastMeleeStep = copied.LastMeleeStep;
+            this.FinalMeleeAction = copied.FinalMeleeAction;
+            if (copied.MeleeSteps != null)
+            {
+                this.MeleeSteps = new List<AMeleeStrategyStep>();
+                foreach (var next in copied.MeleeSteps)
+                {
+                    this.MeleeSteps.Add(next.Clone());
+                }
+            }
+
+            this.LastPotionsStep = copied.LastPotionsStep;
+            this.YellowOnlyWhenDownXHP = copied.YellowOnlyWhenDownXHP;
+            this.RedOrangeOnlyWhenDownXHP = copied.RedOrangeOnlyWhenDownXHP;
+            this.FinalPotionsAction = copied.FinalPotionsAction;
+            if (copied.PotionsSteps != null)
+            {
+                this.PotionsSteps = new List<APotionsStrategyStep>();
+                foreach (var next in copied.PotionsSteps)
+                {
+                    this.PotionsSteps.Add(next.Clone());
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            string ret;
+            if (AutogenerateName)
+            {
+                StringBuilder sb;
+                List<string> parts = new List<string>();
+                if (MagicSteps != null)
+                {
+                    sb = new StringBuilder();
+                    foreach (var next in MagicSteps)
+                    {
+                        sb.Append(next.ToString());
+                    }
+                    if (LastMagicStep.HasValue)
+                    {
+                        sb.Append(SingleMagicStrategyStep.GetStrategyStep(LastMagicStep.Value));
+                    }
+                    if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
+                    {
+                        sb.Append("*");
+                    }
+                    if (FinalMagicAction == FinalStepAction.Flee)
+                    {
+                        sb.Append("F");
+                    }
+                    parts.Add(sb.ToString());
+                }
+                if (MeleeSteps != null)
+                {
+                    sb = new StringBuilder();
+                    foreach (var next in MeleeSteps)
+                    {
+                        sb.Append(next.ToString());
+                    }
+                    if (LastMeleeStep.HasValue)
+                    {
+                        sb.Append(SingleMeleeStrategyStep.GetStrategyStep(LastMeleeStep.Value));
+                    }
+                    if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
+                    {
+                        sb.Append("*");
+                    }
+                    if (FinalMeleeAction == FinalStepAction.Flee)
+                    {
+                        sb.Append("F");
+                    }
+                    parts.Add(sb.ToString());
+                }
+                if (PotionsSteps != null)
+                {
+                    sb = new StringBuilder();
+                    foreach (var next in PotionsSteps)
+                    {
+                        sb.Append(next.ToString());
+                    }
+                    if (LastPotionsStep.HasValue)
+                    {
+                        sb.Append(SinglePotionsStrategyStep.GetStrategyStep(LastPotionsStep.Value));
+                    }
+                    if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
+                    {
+                        sb.Append("*");
+                    }
+                    if (FinalPotionsAction == FinalStepAction.Flee)
+                    {
+                        sb.Append("F");
+                    }
+                    parts.Add(sb.ToString());
+                }
+                if (parts.Count == 0)
+                    ret = "No Steps";
+                else
+                    ret = string.Join("+", parts.ToArray());
+            }
+            else
+            {
+                ret = Name ?? string.Empty;
+            }
+            return ret;
         }
 
         public string Name { get; set; }
@@ -205,6 +339,7 @@ namespace IsengardClient
             switch (Name)
             {
                 case "C*+A*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
@@ -214,6 +349,7 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SC*+A*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
@@ -227,6 +363,7 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SCCSC*+A*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
@@ -243,6 +380,7 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SCCSCCF+A*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
@@ -261,12 +399,14 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Melee;
                     break;
                 case "C*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
                     m.StopWhenKillMonster = true;
                     m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "SC*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.MagicSteps = new List<AMagicStrategyStep>()
                     {
@@ -277,6 +417,7 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "SCCSC*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.MagicSteps = new List<AMagicStrategyStep>()
                     {
@@ -290,6 +431,7 @@ namespace IsengardClient
                     m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "A*":
+                    m.AutogenerateName = true;
                     m.ShowPreForm = true;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
                     m.StopWhenKillMonster = true;
@@ -317,24 +459,69 @@ namespace IsengardClient
             }
         }
 
+        public abstract AMagicStrategyStep Clone();
+
         public abstract IEnumerable<MagicStrategyStep> GetBaseSteps();
     }
 
     public class SingleMagicStrategyStep : AMagicStrategyStep
     {
-        public static SingleMagicStrategyStep MagicStepStun = new SingleMagicStrategyStep(MagicStrategyStep.Stun);
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellAuto = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellAuto);
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel1 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel1);
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel2 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel2);
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel3 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel3);
-        public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor);
-        public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds);
-        public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal);
+        public static SingleMagicStrategyStep MagicStepStun = new SingleMagicStrategyStep(MagicStrategyStep.Stun, 'S');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellAuto = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellAuto, 'C');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel1 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel1, '1');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel2 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel2, '2');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel3 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel3, '3');
+        public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor, 'V');
+        public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds, 'M');
+        public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal, 'H');
 
-        private SingleMagicStrategyStep(MagicStrategyStep step)
+        public char Letter { get; set; }
+
+        private SingleMagicStrategyStep(MagicStrategyStep step, char Letter)
         {
             Action = step;
             RepeatCount = 1;
+            this.Letter = Letter;
+        }
+
+        public override AMagicStrategyStep Clone()
+        {
+            return this; //singleton object, doesn't need to be cloned
+        }
+
+        public static SingleMagicStrategyStep GetStrategyStep(MagicStrategyStep step)
+        {
+            SingleMagicStrategyStep ret;
+            switch (step)
+            {
+                case MagicStrategyStep.Stun:
+                    ret = MagicStepStun;
+                    break;
+                case MagicStrategyStep.OffensiveSpellAuto:
+                    ret = MagicStepOffensiveSpellAuto;
+                    break;
+                case MagicStrategyStep.OffensiveSpellLevel1:
+                    ret = MagicStepOffensiveSpellLevel1;
+                    break;
+                case MagicStrategyStep.OffensiveSpellLevel2:
+                    ret = MagicStepOffensiveSpellLevel2;
+                    break;
+                case MagicStrategyStep.OffensiveSpellLevel3:
+                    ret = MagicStepOffensiveSpellLevel3;
+                    break;
+                case MagicStrategyStep.Vigor:
+                    ret = MagicStepVigor;
+                    break;
+                case MagicStrategyStep.MendWounds:
+                    ret = MagicStepMend;
+                    break;
+                case MagicStrategyStep.GenericHeal:
+                    ret = MagicStepGenericHeal;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
 
         public MagicStrategyStep Action { get; set; }
@@ -347,7 +534,24 @@ namespace IsengardClient
 
     public class MultipleMagicStrategyStep : AMagicStrategyStep
     {
-        public List<AMagicStrategyStep> SubSteps { get; set; }
+        public List<AMagicStrategyStep> SubSteps { get; private set; }
+
+        public MultipleMagicStrategyStep()
+        {
+            this.SubSteps = new List<AMagicStrategyStep>();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder ret = new StringBuilder();
+            ret.Append("(");
+            foreach (var next in this.SubSteps)
+            {
+                ret.Append(next.ToString());
+            }
+            ret.Append(")");
+            return ret.ToString();
+        }
 
         public override IEnumerable<MagicStrategyStep> GetBaseSteps()
         {
@@ -358,6 +562,16 @@ namespace IsengardClient
                     yield return nextAction;
                 }
             }
+        }
+
+        public override AMagicStrategyStep Clone()
+        {
+            MultipleMagicStrategyStep ret = new MultipleMagicStrategyStep();
+            foreach (var next in this.SubSteps)
+            {
+                ret.SubSteps.Add(next.Clone());
+            }
+            return ret;
         }
     }
 
@@ -377,30 +591,74 @@ namespace IsengardClient
         }
 
         public abstract IEnumerable<MeleeStrategyStep> GetBaseSteps();
+
+        public abstract AMeleeStrategyStep Clone();
     }
 
     public class SingleMeleeStrategyStep : AMeleeStrategyStep
     {
-        public static SingleMeleeStrategyStep MeleeStepRegularAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.RegularAttack);
-        public static SingleMeleeStrategyStep MeleeStepPowerAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.PowerAttack);
+        public static SingleMeleeStrategyStep MeleeStepRegularAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.RegularAttack, 'A');
+        public static SingleMeleeStrategyStep MeleeStepPowerAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.PowerAttack, 'P');
 
-        private SingleMeleeStrategyStep(MeleeStrategyStep step)
+        public char Letter { get; set; }
+
+        private SingleMeleeStrategyStep(MeleeStrategyStep step, char Letter)
         {
             Action = step;
             RepeatCount = 1;
+            this.Letter = Letter;
         }
 
         public MeleeStrategyStep Action { get; set; }
+
+        public static SingleMeleeStrategyStep GetStrategyStep(MeleeStrategyStep step)
+        {
+            SingleMeleeStrategyStep ret;
+            switch (step)
+            {
+                case MeleeStrategyStep.RegularAttack:
+                    ret = MeleeStepRegularAttack;
+                    break;
+                case MeleeStrategyStep.PowerAttack:
+                    ret = MeleeStepPowerAttack;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
+        }
 
         public override IEnumerable<MeleeStrategyStep> GetBaseSteps()
         {
             yield return Action;
         }
+
+        public override AMeleeStrategyStep Clone()
+        {
+            return this; //singleton object, doesn't need to be cloned
+        }
     }
 
     public class MultipleMeleeStrategyStep : AMeleeStrategyStep
     {
-        public List<AMeleeStrategyStep> SubSteps { get; set; }
+        public List<AMeleeStrategyStep> SubSteps { get; private set; }
+
+        public MultipleMeleeStrategyStep()
+        {
+            this.SubSteps = new List<AMeleeStrategyStep>();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder ret = new StringBuilder();
+            ret.Append("(");
+            foreach (var next in this.SubSteps)
+            {
+                ret.Append(next.ToString());
+            }
+            ret.Append(")");
+            return ret.ToString();
+        }
 
         public override IEnumerable<MeleeStrategyStep> GetBaseSteps()
         {
@@ -411,6 +669,16 @@ namespace IsengardClient
                     yield return nextAction;
                 }
             }
+        }
+
+        public override AMeleeStrategyStep Clone()
+        {
+            MultipleMeleeStrategyStep ret = new MultipleMeleeStrategyStep();
+            foreach (var next in this.SubSteps)
+            {
+                ret.SubSteps.Add(next.Clone());
+            }
+            return ret;
         }
     }
 
@@ -430,31 +698,78 @@ namespace IsengardClient
         }
 
         public abstract IEnumerable<PotionsStrategyStep> GetBaseSteps();
+
+        public abstract APotionsStrategyStep Clone();
     }
 
     public class SinglePotionsStrategyStep : APotionsStrategyStep
     {
-        public static SinglePotionsStrategyStep PotionsStepYellow = new SinglePotionsStrategyStep(PotionsStrategyStep.Yellow);
-        public static SinglePotionsStrategyStep PotionsStepRedOrange = new SinglePotionsStrategyStep(PotionsStrategyStep.RedOrange);
-        public static SinglePotionsStrategyStep PotionsStepGenericHeal = new SinglePotionsStrategyStep(PotionsStrategyStep.GenericHeal);
+        public static SinglePotionsStrategyStep PotionsStepYellow = new SinglePotionsStrategyStep(PotionsStrategyStep.Yellow, 'v');
+        public static SinglePotionsStrategyStep PotionsStepRedOrange = new SinglePotionsStrategyStep(PotionsStrategyStep.RedOrange, 'm');
+        public static SinglePotionsStrategyStep PotionsStepGenericHeal = new SinglePotionsStrategyStep(PotionsStrategyStep.GenericHeal, 'h');
 
         public PotionsStrategyStep Action { get; set; }
 
-        private SinglePotionsStrategyStep(PotionsStrategyStep step)
+        public char Letter { get; set; }
+
+        private SinglePotionsStrategyStep(PotionsStrategyStep step, char Letter)
         {
             Action = step;
             RepeatCount = 1;
+            this.Letter = Letter;
+        }
+
+        public static SinglePotionsStrategyStep GetStrategyStep(PotionsStrategyStep step)
+        {
+            SinglePotionsStrategyStep ret;
+            switch (step)
+            {
+                case PotionsStrategyStep.Yellow:
+                    ret = PotionsStepYellow;
+                    break;
+                case PotionsStrategyStep.RedOrange:
+                    ret = PotionsStepRedOrange;
+                    break;
+                case PotionsStrategyStep.GenericHeal:
+                    ret = PotionsStepGenericHeal;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
 
         public override IEnumerable<PotionsStrategyStep> GetBaseSteps()
         {
             yield return Action;
         }
+
+        public override APotionsStrategyStep Clone()
+        {
+            return this; //singleton object, doesn't need to be cloned
+        }
     }
 
     public class MultiplePotionsStrategyStep : APotionsStrategyStep
     {
-        public List<APotionsStrategyStep> SubSteps { get; set; }
+        public List<APotionsStrategyStep> SubSteps { get; private set; }
+
+        public MultiplePotionsStrategyStep()
+        {
+            this.SubSteps = new List<APotionsStrategyStep>();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder ret = new StringBuilder();
+            ret.Append("(");
+            foreach (var next in this.SubSteps)
+            {
+                ret.Append(next.ToString());
+            }
+            ret.Append(")");
+            return ret.ToString();
+        }
 
         public override IEnumerable<PotionsStrategyStep> GetBaseSteps()
         {
@@ -465,6 +780,16 @@ namespace IsengardClient
                     yield return nextAction;
                 }
             }
+        }
+
+        public override APotionsStrategyStep Clone()
+        {
+            MultiplePotionsStrategyStep ret = new MultiplePotionsStrategyStep();
+            foreach (var next in this.SubSteps)
+            {
+                ret.SubSteps.Add(next.Clone());
+            }
+            return ret;
         }
     }
 

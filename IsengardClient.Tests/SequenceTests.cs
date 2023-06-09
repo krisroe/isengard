@@ -553,32 +553,72 @@ namespace IsengardClient.Tests
             satisfied = null;
             flp.Lines = new List<string>() { "Scranlin barely nicks you for 1 damage!" };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
 
             satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin scratches you for 10 damage!" };
+            flp.Lines = new List<string>() { "Scranlin barely nicks you for 2 damage!" };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
 
             satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit bruises you for 5 damage!" };
+            flp.Lines = new List<string>() { "Scranlin scratches you for 3 damage!" };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
 
             satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit hurts you for 5 damage!" };
+            flp.Lines = new List<string>() { "Scranlin scratches you for 4 damage!" };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "Scranlin scratches you for 5 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit bruises you for 6 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit hurts you for 11 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit wounds you for 13 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit smites you for 16 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit maims you for 22 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit pulverizes you for 26 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
+
+            satisfied = null;
+            flp.Lines = new List<string>() { "The hobbit devestates you for 26 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(satisfied);
 
             satisfied = null;
             flp.Lines = new List<string>() { "The hobbit missed you." };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
 
             satisfied = null;
             flp.Lines = new List<string>() { "The hobbit casts a rumble spell on you for 6 damage!" };
             seq.FeedLine(flp);
-            Assert.IsTrue(satisfied.GetValueOrDefault(true));
+            Assert.IsTrue(satisfied);
         }
 
         [TestMethod]

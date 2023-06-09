@@ -94,6 +94,10 @@
         //CSRTODO: no plural
         Godfather,
 
+        [SingularName("Graddy")]
+        //CSRTODO: no plural
+        Graddy,
+
         [SingularName("gray elf")]
         [PluralName("gray elves")]
         GrayElf,

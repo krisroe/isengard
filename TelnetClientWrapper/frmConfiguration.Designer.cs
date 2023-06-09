@@ -52,6 +52,11 @@
             this.ctxPreferredAlignment = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiTogglePreferredAlignment = new System.Windows.Forms.ToolStripMenuItem();
             this.grpDefaults = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblAutoSpellLevelsValue = new System.Windows.Forms.Label();
+            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetMinimumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetMaximumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
             this.grpSettings = new System.Windows.Forms.GroupBox();
             this.btnSelectEmptyColor = new System.Windows.Forms.Button();
             this.btnSelectFullColor = new System.Windows.Forms.Button();
@@ -59,17 +64,20 @@
             this.lblEmptyColor = new System.Windows.Forms.Label();
             this.lblFullColorValue = new System.Windows.Forms.Label();
             this.lblFullColor = new System.Windows.Forms.Label();
-            this.lblAutoSpellLevelsValue = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetMinimumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetMaximumSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.grpStrategies = new System.Windows.Forms.GroupBox();
+            this.btnEditStrategy = new System.Windows.Forms.Button();
+            this.btnMoveStrategyDown = new System.Windows.Forms.Button();
+            this.btnMoveStrategyUp = new System.Windows.Forms.Button();
+            this.btnRemoveStrategy = new System.Windows.Forms.Button();
+            this.btnAddStrategy = new System.Windows.Forms.Button();
+            this.lstStrategies = new System.Windows.Forms.ListBox();
             this.ctxDefaultRealm.SuspendLayout();
             this.ctxAutoHazy.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.grpDefaults.SuspendLayout();
-            this.grpSettings.SuspendLayout();
             this.ctxAutoSpellLevels.SuspendLayout();
+            this.grpSettings.SuspendLayout();
+            this.grpStrategies.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblDefaultRealm
@@ -220,7 +228,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(139, 300);
+            this.btnOK.Location = new System.Drawing.Point(550, 299);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(73, 22);
             this.btnOK.TabIndex = 137;
@@ -231,7 +239,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(218, 300);
+            this.btnCancel.Location = new System.Drawing.Point(629, 299);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(73, 22);
             this.btnCancel.TabIndex = 138;
@@ -280,6 +288,49 @@
             this.grpDefaults.TabIndex = 140;
             this.grpDefaults.TabStop = false;
             this.grpDefaults.Text = "Defaults";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(15, 89);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(86, 13);
+            this.label1.TabIndex = 139;
+            this.label1.Text = "Auto spell levels:";
+            // 
+            // lblAutoSpellLevelsValue
+            // 
+            this.lblAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
+            this.lblAutoSpellLevelsValue.ContextMenuStrip = this.ctxAutoSpellLevels;
+            this.lblAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
+            this.lblAutoSpellLevelsValue.Location = new System.Drawing.Point(129, 88);
+            this.lblAutoSpellLevelsValue.Name = "lblAutoSpellLevelsValue";
+            this.lblAutoSpellLevelsValue.Size = new System.Drawing.Size(166, 15);
+            this.lblAutoSpellLevelsValue.TabIndex = 138;
+            this.lblAutoSpellLevelsValue.Text = "Min:Max";
+            this.lblAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // ctxAutoSpellLevels
+            // 
+            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetMinimumSpellLevel,
+            this.tsmiSetMaximumSpellLevel});
+            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(149, 48);
+            // 
+            // tsmiSetMinimumSpellLevel
+            // 
+            this.tsmiSetMinimumSpellLevel.Name = "tsmiSetMinimumSpellLevel";
+            this.tsmiSetMinimumSpellLevel.Size = new System.Drawing.Size(148, 22);
+            this.tsmiSetMinimumSpellLevel.Text = "Set Minimum";
+            this.tsmiSetMinimumSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumSpellLevel_Click);
+            // 
+            // tsmiSetMaximumSpellLevel
+            // 
+            this.tsmiSetMaximumSpellLevel.Name = "tsmiSetMaximumSpellLevel";
+            this.tsmiSetMaximumSpellLevel.Size = new System.Drawing.Size(148, 22);
+            this.tsmiSetMaximumSpellLevel.Text = "Set Maximum";
+            this.tsmiSetMaximumSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumSpellLevel_Click);
             // 
             // grpSettings
             // 
@@ -360,54 +411,86 @@
             this.lblFullColor.TabIndex = 140;
             this.lblFullColor.Text = "Full color:";
             // 
-            // lblAutoSpellLevelsValue
+            // grpStrategies
             // 
-            this.lblAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
-            this.lblAutoSpellLevelsValue.ContextMenuStrip = this.ctxAutoSpellLevels;
-            this.lblAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblAutoSpellLevelsValue.Location = new System.Drawing.Point(129, 88);
-            this.lblAutoSpellLevelsValue.Name = "lblAutoSpellLevelsValue";
-            this.lblAutoSpellLevelsValue.Size = new System.Drawing.Size(166, 15);
-            this.lblAutoSpellLevelsValue.TabIndex = 138;
-            this.lblAutoSpellLevelsValue.Text = "Min:Max";
-            this.lblAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.grpStrategies.Controls.Add(this.btnEditStrategy);
+            this.grpStrategies.Controls.Add(this.btnMoveStrategyDown);
+            this.grpStrategies.Controls.Add(this.btnMoveStrategyUp);
+            this.grpStrategies.Controls.Add(this.btnRemoveStrategy);
+            this.grpStrategies.Controls.Add(this.btnAddStrategy);
+            this.grpStrategies.Controls.Add(this.lstStrategies);
+            this.grpStrategies.Location = new System.Drawing.Point(388, 12);
+            this.grpStrategies.Name = "grpStrategies";
+            this.grpStrategies.Size = new System.Drawing.Size(330, 281);
+            this.grpStrategies.TabIndex = 142;
+            this.grpStrategies.TabStop = false;
+            this.grpStrategies.Text = "Strategies";
             // 
-            // label1
+            // btnEditStrategy
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 89);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(86, 13);
-            this.label1.TabIndex = 139;
-            this.label1.Text = "Auto spell levels:";
+            this.btnEditStrategy.Location = new System.Drawing.Point(68, 250);
+            this.btnEditStrategy.Name = "btnEditStrategy";
+            this.btnEditStrategy.Size = new System.Drawing.Size(57, 23);
+            this.btnEditStrategy.TabIndex = 150;
+            this.btnEditStrategy.Text = "Edit";
+            this.btnEditStrategy.UseVisualStyleBackColor = true;
+            this.btnEditStrategy.Click += new System.EventHandler(this.btnEditStrategy_Click);
             // 
-            // ctxAutoSpellLevels
+            // btnMoveStrategyDown
             // 
-            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetMinimumSpellLevel,
-            this.tsmiSetMaximumSpellLevel});
-            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(181, 70);
+            this.btnMoveStrategyDown.Location = new System.Drawing.Point(257, 250);
+            this.btnMoveStrategyDown.Name = "btnMoveStrategyDown";
+            this.btnMoveStrategyDown.Size = new System.Drawing.Size(57, 23);
+            this.btnMoveStrategyDown.TabIndex = 149;
+            this.btnMoveStrategyDown.Text = "Down";
+            this.btnMoveStrategyDown.UseVisualStyleBackColor = true;
+            this.btnMoveStrategyDown.Click += new System.EventHandler(this.btnMoveStrategyDown_Click);
             // 
-            // tsmiSetMinimumSpellLevel
+            // btnMoveStrategyUp
             // 
-            this.tsmiSetMinimumSpellLevel.Name = "tsmiSetMinimumSpellLevel";
-            this.tsmiSetMinimumSpellLevel.Size = new System.Drawing.Size(180, 22);
-            this.tsmiSetMinimumSpellLevel.Text = "Set Minimum";
-            this.tsmiSetMinimumSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumSpellLevel_Click);
+            this.btnMoveStrategyUp.Location = new System.Drawing.Point(194, 250);
+            this.btnMoveStrategyUp.Name = "btnMoveStrategyUp";
+            this.btnMoveStrategyUp.Size = new System.Drawing.Size(57, 23);
+            this.btnMoveStrategyUp.TabIndex = 148;
+            this.btnMoveStrategyUp.Text = "Up";
+            this.btnMoveStrategyUp.UseVisualStyleBackColor = true;
+            this.btnMoveStrategyUp.Click += new System.EventHandler(this.btnMoveStrategyUp_Click);
             // 
-            // tsmiSetMaximumSpellLevel
+            // btnRemoveStrategy
             // 
-            this.tsmiSetMaximumSpellLevel.Name = "tsmiSetMaximumSpellLevel";
-            this.tsmiSetMaximumSpellLevel.Size = new System.Drawing.Size(180, 22);
-            this.tsmiSetMaximumSpellLevel.Text = "Set Maximum";
-            this.tsmiSetMaximumSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumSpellLevel_Click);
+            this.btnRemoveStrategy.Location = new System.Drawing.Point(131, 250);
+            this.btnRemoveStrategy.Name = "btnRemoveStrategy";
+            this.btnRemoveStrategy.Size = new System.Drawing.Size(57, 23);
+            this.btnRemoveStrategy.TabIndex = 147;
+            this.btnRemoveStrategy.Text = "Remove";
+            this.btnRemoveStrategy.UseVisualStyleBackColor = true;
+            this.btnRemoveStrategy.Click += new System.EventHandler(this.btnRemoveStrategy_Click);
+            // 
+            // btnAddStrategy
+            // 
+            this.btnAddStrategy.Location = new System.Drawing.Point(6, 250);
+            this.btnAddStrategy.Name = "btnAddStrategy";
+            this.btnAddStrategy.Size = new System.Drawing.Size(57, 23);
+            this.btnAddStrategy.TabIndex = 146;
+            this.btnAddStrategy.Text = "Add";
+            this.btnAddStrategy.UseVisualStyleBackColor = true;
+            this.btnAddStrategy.Click += new System.EventHandler(this.btnAddStrategy_Click);
+            // 
+            // lstStrategies
+            // 
+            this.lstStrategies.FormattingEnabled = true;
+            this.lstStrategies.Location = new System.Drawing.Point(6, 19);
+            this.lstStrategies.Name = "lstStrategies";
+            this.lstStrategies.Size = new System.Drawing.Size(308, 225);
+            this.lstStrategies.TabIndex = 0;
+            this.lstStrategies.SelectedIndexChanged += new System.EventHandler(this.lstStrategies_SelectedIndexChanged);
             // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(412, 347);
+            this.ClientSize = new System.Drawing.Size(797, 335);
+            this.Controls.Add(this.grpStrategies);
             this.Controls.Add(this.grpSettings);
             this.Controls.Add(this.grpDefaults);
             this.Controls.Add(this.btnCancel);
@@ -423,9 +506,10 @@
             this.ctxPreferredAlignment.ResumeLayout(false);
             this.grpDefaults.ResumeLayout(false);
             this.grpDefaults.PerformLayout();
+            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.grpSettings.ResumeLayout(false);
             this.grpSettings.PerformLayout();
-            this.ctxAutoSpellLevels.ResumeLayout(false);
+            this.grpStrategies.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -467,5 +551,12 @@
         private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetMinimumSpellLevel;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumSpellLevel;
+        private System.Windows.Forms.GroupBox grpStrategies;
+        private System.Windows.Forms.ListBox lstStrategies;
+        private System.Windows.Forms.Button btnMoveStrategyUp;
+        private System.Windows.Forms.Button btnRemoveStrategy;
+        private System.Windows.Forms.Button btnAddStrategy;
+        private System.Windows.Forms.Button btnMoveStrategyDown;
+        private System.Windows.Forms.Button btnEditStrategy;
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.VisualBasic;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 namespace IsengardClient
 {
     internal partial class frmConfiguration : Form
     {
+        private List<Strategy> _strategies;
         private int _autoHazyThreshold;
         private AlignmentType _preferredAlignment;
         private string _defaultRealm;
@@ -16,7 +18,7 @@ namespace IsengardClient
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
         internal const int AUTO_SPELL_LEVEL_MAXIMUM = 3;
 
-        public frmConfiguration()
+        public frmConfiguration(List<Strategy> strategies)
         {
             InitializeComponent();
 
@@ -56,6 +58,24 @@ namespace IsengardClient
             SetColorUI(lblFullColorValue, _fullColor);
             _emptyColor = sets.EmptyColor;
             SetColorUI(lblEmptyColorValue, _emptyColor);
+
+            _strategies = new List<Strategy>();
+            foreach (Strategy s in strategies)
+            {
+                Strategy sClone = new Strategy(s);
+                _strategies.Add(sClone);
+                lstStrategies.Items.Add(sClone);
+            }
+        }
+
+        public bool ChangedStrategies { get; set; }
+
+        public List<Strategy> Strategies
+        {
+            get
+            {
+                return _strategies;
+            }
         }
 
         private void SetColorUI(Label lbl, Color c)
@@ -136,6 +156,8 @@ namespace IsengardClient
             sets.DefaultAutoSpellLevelMin = _autoSpellLevelMinimum;
             sets.DefaultAutoSpellLevelMax = _autoSpellLevelMaximum;
             IsengardSettings.Default.Save();
+
+            //CSRTODO: save changes to strategies
 
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -234,6 +256,74 @@ namespace IsengardClient
                     _autoSpellLevelMinimum = _autoSpellLevelMaximum;
                 }
                 RefreshAutoSpellLevelUI();
+            }
+        }
+
+        private void btnAddStrategy_Click(object sender, EventArgs e)
+        {
+            //CSRTODO: implement me!
+        }
+
+        private void btnEditStrategy_Click(object sender, EventArgs e)
+        {
+            //CSRTODO: implement me!
+        }
+
+        private void btnRemoveStrategy_Click(object sender, EventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            _strategies.RemoveAt(iIndex);
+            lstStrategies.Items.RemoveAt(iIndex);
+            ChangedStrategies = true;
+        }
+
+        private void btnMoveStrategyUp_Click(object sender, EventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            Strategy s = (Strategy)lstStrategies.SelectedItem;
+            lstStrategies.Items.RemoveAt(iIndex);
+            lstStrategies.Items.Insert(iIndex - 1, s);
+            _strategies.RemoveAt(iIndex);
+            _strategies.Insert(iIndex - 1, s);
+            ChangedStrategies = true;
+        }
+
+        private void btnMoveStrategyDown_Click(object sender, EventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            bool isLastIndex = iIndex == lstStrategies.Items.Count - 2;
+            Strategy s = (Strategy)lstStrategies.SelectedItem;
+            lstStrategies.Items.RemoveAt(iIndex);
+            _strategies.RemoveAt(iIndex);
+            if (isLastIndex)
+            {
+                lstStrategies.Items.Add(s);
+                _strategies.Add(s);
+            }
+            else
+            {
+                lstStrategies.Items.Insert(iIndex + 1, s);
+                _strategies.Insert(iIndex + 1, s);
+            }
+            ChangedStrategies = true;
+        }
+
+        private void lstStrategies_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            if (iIndex < 0)
+            {
+                btnEditStrategy.Enabled = false;
+                btnRemoveStrategy.Enabled = false;
+                btnMoveStrategyUp.Enabled = false;
+                btnMoveStrategyDown.Enabled = false;
+            }
+            else
+            {
+                btnEditStrategy.Enabled = true;
+                btnRemoveStrategy.Enabled = true;
+                btnMoveStrategyUp.Enabled = iIndex > 0;
+                btnMoveStrategyDown.Enabled = iIndex < lstStrategies.Items.Count - 1;
             }
         }
     }

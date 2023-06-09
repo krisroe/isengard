@@ -48,6 +48,9 @@
         [SingularName("bone armor")]
         BoneArmor,
 
+        [SingularName("bracers of ogre-strength")]
+        BracersOfOgreStrength,
+
         [SingularName("broad sword")]
         [PluralName("broad swords")]
         BroadSword,
@@ -55,6 +58,10 @@
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
         CarvedIvoryKey,
+
+        [SingularName("cat o' nine tails")]
+        [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
+        CatONineTails,
 
         [SingularName("cloth armor")]
         ClothArmor,
@@ -101,6 +108,10 @@
         [PluralName("gawdy ear hoops")]
         GawdyEarHoop,
 
+        [SingularName("giant stylus")]
+        [PluralName("giant styluses")] //CSRTODO: correct plural
+        GiantStylus,
+
         [SingularName("Girion's key")]
         [PluralName("Girion's keys")]
         GirionsKey,
@@ -145,6 +156,10 @@
         [PluralName("iron rings")]
         IronRing,
 
+        [SingularName("lead hammer")]
+        [PluralName("lead hammers")]
+        LeadHammer,
+
         [SingularName("leather armor")]
         LeatherArmor,
 
@@ -158,6 +173,10 @@
         [SingularName("lollipop")]
         [PluralName("lollipops")]
         Lollipop,
+
+        [SingularName("magical tabulator")]
+        [PluralName("magical tabulators")]
+        MagicalTabulator,
 
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
@@ -190,6 +209,10 @@
         [SingularName("parched scroll")]
         [PluralName("parched scrolls")]
         ParchedScroll,
+
+        [SingularName("purple wand")]
+        [PluralName("purple wands")]
+        PurpleWand,
 
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
@@ -260,6 +283,10 @@
 
         [SingularName("steel-chain armor")]
         SteelChainArmor,
+
+        [SingularName("taupe scroll")]
+        [PluralName("taupe scrolls")]
+        TaupeScroll,
 
         [SingularName("T-bone")]
         [PluralName("T-bones")]
