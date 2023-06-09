@@ -1457,22 +1457,26 @@ namespace IsengardClient
                         {
                             int iNewHP = oii.HP;
                             int iNewMP = oii.MP;
-                            hpormpchanged = iNewHP != _autohp || iNewMP != _automp;
-                            if (hpormpchanged)
+                            bool hpChanged = iNewHP != _autohp;
+                            bool mpChanged = iNewMP != _automp;
+                            if (hpChanged || mpChanged)
                             {
-                                bool gotFullHP = iNewHP == _totalhp;
-                                bool gotFullMP = iNewMP == _totalmp;
-                                if (gotFullHP || gotFullMP)
+                                if (_currentBackgroundParameters == null)
                                 {
-                                    lock (_newConsoleText)
+                                    bool gotFullHP = hpChanged && iNewHP == _totalhp;
+                                    bool gotFullMP = mpChanged && iNewMP == _totalmp;
+                                    if (gotFullHP || gotFullMP)
                                     {
-                                        if (gotFullHP)
+                                        lock (_newConsoleText)
                                         {
-                                            _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
-                                        }
-                                        if (gotFullMP)
-                                        {
-                                            _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
+                                            if (gotFullHP)
+                                            {
+                                                _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
+                                            }
+                                            if (gotFullMP)
+                                            {
+                                                _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
+                                            }
                                         }
                                     }
                                 }

@@ -981,6 +981,10 @@ namespace IsengardClient
         [SingularName("adamantine scale mail sleeves")]
         AdamantineScaleMailSleeves,
 
+        [SingularName("ancient lyre")]
+        [PluralName("ancient lyres")]
+        AncientLyre,
+
         [SingularName("aquamarine potion")]
         [PluralName("aquamarine potions")]
         AquamarinePotion,
@@ -1200,6 +1204,10 @@ namespace IsengardClient
 
         [SingularName("tiger shark leather armor")]
         TigerSharkLeatherArmor,
+
+        [SingularName("training key")]
+        [PluralName("training keys")]
+        TrainingKey,
 
         [SingularName("voulge")]
         [PluralName("voulges")]
