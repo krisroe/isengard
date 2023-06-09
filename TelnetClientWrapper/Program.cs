@@ -30,18 +30,6 @@ namespace IsengardClient
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            List<Strategy> allStrategies = new List<Strategy>()
-            {
-                Strategy.GenerateCannedStrategy("C*+A*"),
-                Strategy.GenerateCannedStrategy("SC*+A*"),
-                Strategy.GenerateCannedStrategy("SCCSC*+A*"),
-                Strategy.GenerateCannedStrategy("SCCSCCF+A*"),
-                Strategy.GenerateCannedStrategy("C*"),
-                Strategy.GenerateCannedStrategy("SC*"),
-                Strategy.GenerateCannedStrategy("SCCSC*"),
-                Strategy.GenerateCannedStrategy("A*"),
-            };
-
             string password;
             string userName;
             using (frmLogin loginForm = new frmLogin(IsengardSettings.Default.UserName))
@@ -54,7 +42,7 @@ namespace IsengardClient
                 password = loginForm.Password;
             }
 
-            Application.Run(new frmMain(userName, password, allStrategies));
+            Application.Run(new frmMain(userName, password));
         }
     }
 }

@@ -9,6 +9,11 @@ namespace IsengardClient
         public const string CAST_VIGOR_SPELL = "cast vigor";
         public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
 
+        public Strategy()
+        {
+            this.AutogenerateName = true;
+        }
+
         public Strategy(string Name)
         {
             this.Name = Name;
@@ -63,6 +68,9 @@ namespace IsengardClient
                     this.PotionsSteps.Add(next.Clone());
                 }
             }
+
+            this.TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
+            this.TypesToRunOnlyWhenMonsterStunned = copied.TypesToRunOnlyWhenMonsterStunned;
         }
 
         public override string ToString()
@@ -72,14 +80,19 @@ namespace IsengardClient
             {
                 StringBuilder sb;
                 List<string> parts = new List<string>();
-                if (MagicSteps != null)
+                bool hasSteps = MagicSteps != null;
+                bool hasLastStep = LastMagicStep.HasValue;
+                if (hasSteps || hasLastStep)
                 {
                     sb = new StringBuilder();
-                    foreach (var next in MagicSteps)
+                    if (hasSteps)
                     {
-                        sb.Append(next.ToString());
+                        foreach (var next in MagicSteps)
+                        {
+                            sb.Append(next.ToString());
+                        }
                     }
-                    if (LastMagicStep.HasValue)
+                    if (hasLastStep)
                     {
                         sb.Append(SingleMagicStrategyStep.GetStrategyStep(LastMagicStep.Value));
                     }
@@ -93,14 +106,19 @@ namespace IsengardClient
                     }
                     parts.Add(sb.ToString());
                 }
-                if (MeleeSteps != null)
+                hasLastStep = LastMeleeStep.HasValue;
+                hasSteps = MeleeSteps != null;
+                if (hasSteps || hasLastStep)
                 {
                     sb = new StringBuilder();
-                    foreach (var next in MeleeSteps)
+                    if (hasSteps)
                     {
-                        sb.Append(next.ToString());
+                        foreach (var next in MeleeSteps)
+                        {
+                            sb.Append(next.ToString());
+                        }
                     }
-                    if (LastMeleeStep.HasValue)
+                    if (hasLastStep)
                     {
                         sb.Append(SingleMeleeStrategyStep.GetStrategyStep(LastMeleeStep.Value));
                     }
@@ -114,14 +132,19 @@ namespace IsengardClient
                     }
                     parts.Add(sb.ToString());
                 }
-                if (PotionsSteps != null)
+                hasLastStep = LastPotionsStep.HasValue;
+                hasSteps = PotionsSteps != null;
+                if (hasSteps || hasLastStep)
                 {
                     sb = new StringBuilder();
-                    foreach (var next in PotionsSteps)
+                    if (hasSteps)
                     {
-                        sb.Append(next.ToString());
+                        foreach (var next in PotionsSteps)
+                        {
+                            sb.Append(next.ToString());
+                        }
                     }
-                    if (LastPotionsStep.HasValue)
+                    if (hasLastStep)
                     {
                         sb.Append(SinglePotionsStrategyStep.GetStrategyStep(LastPotionsStep.Value));
                     }
@@ -333,114 +356,119 @@ namespace IsengardClient
             }
         }
 
-        public static Strategy GenerateCannedStrategy(string Name)
+        public static List<Strategy> GetDefaultStrategies()
         {
-            Strategy m = new Strategy(Name);
-            switch (Name)
+            List<Strategy> allStrategies = new List<Strategy>();
+            Strategy s;
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.MagicSteps = new List<AMagicStrategyStep>()
             {
-                case "C*+A*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.FinalMagicAction = FinalStepAction.FinishCombat;
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
-                    break;
-                case "SC*+A*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.FinalMagicAction = FinalStepAction.FinishCombat;
-                    m.MagicSteps = new List<AMagicStrategyStep>()
-                    {
-                        SingleMagicStrategyStep.MagicStepStun,
-                    };
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
-                    break;
-                case "SCCSC*+A*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.FinalMagicAction = FinalStepAction.FinishCombat;
-                    m.MagicSteps = new List<AMagicStrategyStep>()
-                    {
+                SingleMagicStrategyStep.MagicStepStun,
+            };
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.MagicSteps = new List<AMagicStrategyStep>()
+            {
                         SingleMagicStrategyStep.MagicStepStun,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepStun,
-                    };
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
-                    break;
-                case "SCCSCCF+A*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.FinalMagicAction = FinalStepAction.FinishCombat;
-                    m.MagicSteps = new List<AMagicStrategyStep>()
-                    {
+            };
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.MagicSteps = new List<AMagicStrategyStep>()
+            {
                         SingleMagicStrategyStep.MagicStepStun,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepStun,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    };
-                    m.FinalMagicAction = FinalStepAction.Flee;
-                    m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee;
-                    break;
-                case "C*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-                    break;
-                case "SC*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.MagicSteps = new List<AMagicStrategyStep>()
-                    {
+            };
+            s.FinalMagicAction = FinalStepAction.Flee;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.MagicSteps = new List<AMagicStrategyStep>()
+            {
                         SingleMagicStrategyStep.MagicStepStun,
-                    };
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-                    break;
-                case "SCCSC*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.MagicSteps = new List<AMagicStrategyStep>()
-                    {
+            };
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.MagicSteps = new List<AMagicStrategyStep>()
+            {
                         SingleMagicStrategyStep.MagicStepStun,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
                         SingleMagicStrategyStep.MagicStepStun,
-                    };
-                    m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-                    break;
-                case "A*":
-                    m.AutogenerateName = true;
-                    m.ShowPreForm = true;
-                    m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.StopWhenKillMonster = true;
-                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return m;
+            };
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.ShowPreForm = true;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
+            allStrategies.Add(s);
+
+            return allStrategies;
         }
     }
 
@@ -487,6 +515,11 @@ namespace IsengardClient
         public override AMagicStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
+        }
+
+        public override string ToString()
+        {
+            return this.Letter.ToString();
         }
 
         public static SingleMagicStrategyStep GetStrategyStep(MagicStrategyStep step)
@@ -628,6 +661,11 @@ namespace IsengardClient
             return ret;
         }
 
+        public override string ToString()
+        {
+            return this.Letter.ToString();
+        }
+
         public override IEnumerable<MeleeStrategyStep> GetBaseSteps()
         {
             yield return Action;
@@ -737,6 +775,11 @@ namespace IsengardClient
                     throw new InvalidOperationException();
             }
             return ret;
+        }
+
+        public override string ToString()
+        {
+            return this.Letter.ToString();
         }
 
         public override IEnumerable<PotionsStrategyStep> GetBaseSteps()

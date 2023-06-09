@@ -285,6 +285,7 @@ namespace IsengardClient
             lstStrategies.Items.Insert(iIndex - 1, s);
             _strategies.RemoveAt(iIndex);
             _strategies.Insert(iIndex - 1, s);
+            lstStrategies.SelectedIndex = iIndex - 1;
             ChangedStrategies = true;
         }
 
@@ -305,6 +306,7 @@ namespace IsengardClient
                 lstStrategies.Items.Insert(iIndex + 1, s);
                 _strategies.Insert(iIndex + 1, s);
             }
+            lstStrategies.SelectedIndex = iIndex + 1;
             ChangedStrategies = true;
         }
 

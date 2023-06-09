@@ -166,11 +166,11 @@ namespace IsengardClient
 
         private List<Strategy> _strategies;
 
-        internal frmMain(string userName, string password, List<Strategy> allStrategies)
+        internal frmMain(string userName, string password)
         {
             InitializeComponent();
 
-            _strategies = allStrategies;
+            _strategies = Strategy.GetDefaultStrategies();
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
             _initializationLoginSequence = new InitialLoginSequence(OnInitialLogin);
@@ -262,6 +262,7 @@ namespace IsengardClient
 
         private void RefreshStrategyButtons()
         {
+            flpOneClickStrategies.Controls.Clear();
             int iOneClickTabIndex = 0;
             foreach (Strategy oStrategy in _strategies)
             {
@@ -269,7 +270,7 @@ namespace IsengardClient
                 btnOneClick.AutoSize = true;
                 btnOneClick.TabIndex = iOneClickTabIndex++;
                 btnOneClick.Tag = oStrategy;
-                btnOneClick.Text = oStrategy.Name;
+                btnOneClick.Text = oStrategy.ToString();
                 btnOneClick.UseVisualStyleBackColor = true;
                 btnOneClick.Click += btnOneClick_Click;
                 btnOneClick.ContextMenuStrip = ctxRoomExits;
