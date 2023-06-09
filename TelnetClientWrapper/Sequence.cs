@@ -1319,7 +1319,7 @@ namespace IsengardClient
                     return;
                 }
                 nextLine = Lines[iIndex];
-                if (string.IsNullOrEmpty(nextLine) || nextLine.StartsWith("You attack the "))
+                if (string.IsNullOrEmpty(nextLine) || nextLine.StartsWith("You attack the ") || nextLine == "CRITICAL HIT!")
                 {
                     iIndex++;
                     continue;

@@ -4,6 +4,9 @@ namespace IsengardClient
 {
     public class Strategy
     {
+        public const string CAST_VIGOR_SPELL = "cast vigor";
+        public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
+
         public Strategy(string Name)
         {
             this.Name = Name;
@@ -23,6 +26,8 @@ namespace IsengardClient
         public int MendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalMagicAction { get; set; }
         public List<AMagicStrategyStep> MagicSteps { get; set; }
+        public int AutoSpellLevelMin { get; set; }
+        public int AutoSpellLevelMax { get; set; }
 
         public MeleeStrategyStep? LastMeleeStep { get; set; }
         public FinalStepAction FinalMeleeAction { get; set; }
@@ -35,6 +40,7 @@ namespace IsengardClient
         public List<APotionsStrategyStep> PotionsSteps { get; set; }
 
         public CommandType TypesToRunOnlyWhenMonsterStunned { get; set; }
+        public CommandType TypesToRunLastCommandIndefinitely { get; set; }
 
         public CommandType CombatCommandTypes
         {
@@ -103,7 +109,7 @@ namespace IsengardClient
                 eLastStepValue = LastMagicStep.Value;
                 yield return eLastStepValue;
             }
-            if (FinalMagicAction == FinalStepAction.RepeatIndefinitely && haveAnySteps)
+            if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None))
             {
                 while (true)
                 {
@@ -153,7 +159,7 @@ namespace IsengardClient
                     eLastStepValue = MeleeStrategyStep.RegularAttack;
                 }
             }
-            if (FinalMeleeAction == FinalStepAction.RepeatIndefinitely && haveAnySteps)
+            if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None))
             {
                 while (true)
                 {
@@ -184,7 +190,7 @@ namespace IsengardClient
                 eLastStepValue = LastPotionsStep.Value;
                 yield return eLastStepValue;
             }
-            if (FinalPotionsAction == FinalStepAction.RepeatIndefinitely && haveAnySteps)
+            if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None))
             {
                 while (true)
                 {
@@ -200,64 +206,65 @@ namespace IsengardClient
             {
                 case "C*+A*":
                     m.ShowPreForm = true;
+                    m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SC*+A*":
                     m.ShowPreForm = true;
+                    m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
                     {
                         SingleMagicStrategyStep.MagicStepStun,
                     };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SCCSC*+A*":
                     m.ShowPreForm = true;
+                    m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
-                {
-                    SingleMagicStrategyStep.MagicStepStun,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepStun,
-                };
+                    {
+                        SingleMagicStrategyStep.MagicStepStun,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepStun,
+                    };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
                     break;
                 case "SCCSCCF+A*":
                     m.ShowPreForm = true;
+                    m.FinalMagicAction = FinalStepAction.FinishCombat;
                     m.MagicSteps = new List<AMagicStrategyStep>()
-                {
-                    SingleMagicStrategyStep.MagicStepStun,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepStun,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                    SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                };
+                    {
+                        SingleMagicStrategyStep.MagicStepStun,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepStun,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                    };
                     m.FinalMagicAction = FinalStepAction.Flee;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee;
                     break;
                 case "C*":
                     m.ShowPreForm = true;
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "SC*":
                     m.ShowPreForm = true;
@@ -266,8 +273,8 @@ namespace IsengardClient
                         SingleMagicStrategyStep.MagicStepStun,
                     };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "SCCSC*":
                     m.ShowPreForm = true;
@@ -279,14 +286,14 @@ namespace IsengardClient
                         SingleMagicStrategyStep.MagicStepStun,
                     };
                     m.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-                    m.FinalMagicAction = FinalStepAction.RepeatIndefinitely;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Magic;
                     break;
                 case "A*":
                     m.ShowPreForm = true;
                     m.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-                    m.FinalMeleeAction = FinalStepAction.RepeatIndefinitely;
                     m.StopWhenKillMonster = true;
+                    m.TypesToRunLastCommandIndefinitely = CommandType.Melee;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -461,11 +468,164 @@ namespace IsengardClient
         }
     }
 
+    public class StrategyInstance
+    {
+        private Strategy Strategy;
+        private int minAutoSpellLevel;
+        private int maxAutoSpellLevel;
+        private string currentMob;
+        private string _realm1spell;
+        private string _realm2spell;
+        private string _realm3spell;
+        public StrategyInstance(Strategy strategy, int systemMinAutoSpellLevel, int systemMaxAutoSpellLevel, string currentlyFightingMob, string realm1spell, string realm2spell, string realm3spell)
+        {
+            Strategy = strategy;
+            if (strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
+            {
+                minAutoSpellLevel = systemMinAutoSpellLevel;
+                maxAutoSpellLevel = systemMaxAutoSpellLevel;
+            }
+            else
+            {
+                minAutoSpellLevel = strategy.AutoSpellLevelMin;
+                maxAutoSpellLevel = strategy.AutoSpellLevelMax;
+            }
+            currentMob = currentlyFightingMob;
+            _realm1spell = realm1spell;
+            _realm2spell = realm2spell;
+            _realm3spell = realm3spell;
+        }
+
+        public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)
+        {
+            string sAttackType;
+            if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
+            {
+                sAttackType = "power";
+            }
+            else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
+            {
+                sAttackType = "attack";
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            command = sAttackType + " " + currentMob;
+        }
+
+        public MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP,  out int manaDrain, out BackgroundCommandType? bct, out string command)
+        {
+            MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
+            bool doCast;
+            command = null;
+            manaDrain = 0;
+            bct = null;
+            if (nextMagicStep == MagicStrategyStep.Stun)
+            {
+                command = "cast stun " + currentMob;
+                manaDrain = 10;
+                bct = BackgroundCommandType.Stun;
+            }
+            else if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.Vigor || nextMagicStep == MagicStrategyStep.MendWounds)
+            {
+                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    if (Strategy.MendOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.MendOnlyWhenDownXHP <= totalHP;
+                    else
+                        doCast = currentHP < totalHP;
+                    if (doCast)
+                    {
+                        nextMagicStep = MagicStrategyStep.MendWounds;
+                    }
+                }
+                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    if (Strategy.VigorOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.VigorOnlyWhenDownXHP <= totalHP;
+                    else
+                        doCast = currentHP < totalHP;
+                    if (doCast)
+                    {
+                        nextMagicStep = MagicStrategyStep.Vigor;
+                    }
+                }
+                if (nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    command = Strategy.CAST_MENDWOUNDS_SPELL;
+                    manaDrain = 6;
+                    bct = BackgroundCommandType.MendWounds;
+                }
+                else if (nextMagicStep == MagicStrategyStep.Vigor)
+                {
+                    command = Strategy.CAST_VIGOR_SPELL;
+                    manaDrain = 2;
+                    bct = BackgroundCommandType.Vigor;
+                }
+                else
+                {
+                    ret = MagicCommandChoiceResult.Skip;
+                }
+            }
+            else
+            {
+                if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
+                {
+                    int iMaxOffLevel = maxAutoSpellLevel;
+                    int iMinOffLevel = minAutoSpellLevel;
+                    if (currentMP >= 10 && iMinOffLevel <= 3 && iMaxOffLevel >= 3)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
+                    }
+                    else if (currentMP >= 7 && iMinOffLevel <= 2 && iMaxOffLevel >= 2)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
+                    }
+                    else if (currentMP >= 3 && iMinOffLevel <= 1 && iMaxOffLevel >= 1)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
+                    }
+                    else //out of mana
+                    {
+                        ret = MagicCommandChoiceResult.OutOfMana;
+                    }
+                }
+                if (ret == MagicCommandChoiceResult.Cast)
+                {
+                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
+                    {
+                        command = "cast " + _realm3spell + " " + currentMob;
+                        manaDrain = 10;
+                        bct = BackgroundCommandType.OffensiveSpell;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
+                    {
+                        command = "cast " + _realm2spell + " " + currentMob;
+                        manaDrain = 7;
+                        bct = BackgroundCommandType.OffensiveSpell;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
+                    {
+                        command = "cast " + _realm1spell + " " + currentMob;
+                        manaDrain = 3;
+                        bct = BackgroundCommandType.OffensiveSpell;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+            }
+            return ret;
+        }
+    }
+
     public enum FinalStepAction
     {
         None = 0,
-        RepeatIndefinitely = 1,
         Flee = 2,
+        FinishCombat = 3,
     }
 
     public enum MagicStrategyStep
@@ -491,5 +651,12 @@ namespace IsengardClient
         Yellow,
         RedOrange,
         GenericHeal,
+    }
+
+    public enum MagicCommandChoiceResult
+    {
+        Cast,
+        Skip,
+        OutOfMana,
     }
 }
