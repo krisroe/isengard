@@ -2122,7 +2122,7 @@ namespace IsengardClient
                     SetCurrentRoom(wentToRoom);
                 }
                 //trigger a foreground asynchronous score (not suppressed from output).
-                //This can happen if the background proces was aborted.
+                //This can happen if the background process was aborted.
                 if (_currentBackgroundParameters.DoScore)
                 {
                     _doScore = true;
@@ -2150,441 +2150,382 @@ namespace IsengardClient
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
-            Strategy strategy = pms.Strategy;
-            bool backgroundCommandSuccess;
-            CommandResult backgroundCommandResult;
-
-            //Heal
-            if (pms.Heal)
+            try
             {
-                _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                int autohp, automp;
-                while (true)
+                BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
+                Strategy strategy = pms.Strategy;
+                bool backgroundCommandSuccess;
+                CommandResult backgroundCommandResult;
+
+                //Heal
+                if (pms.Heal)
                 {
-                    autohp = _autohp;
-                    automp = _automp;
-                    if (autohp >= _totalhp) break;
-                    if (automp < 2) break; //out of mana for vigor cast
-                    if (!CastLifeSpell("vigor", pms))
+                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                    int autohp, automp;
+                    while (true)
                     {
-                        return;
-                    }
-                    if (_fleeing) break;
-                    if (_bw.CancellationPending) break;
-                    autohp = _autohp;
-                    if (autohp >= _totalhp) break;
-                }
-                //stop background processing if failed to get to max hitpoints
-                autohp = _autohp;
-                if (autohp < _totalhp) return;
-
-                //cast bless if has enough mana and not currently blessed
-                bool hasBless;
-                lock (_spellsLock)
-                {
-                    hasBless = _spellsCast != null && _spellsCast.Contains("bless");
-                }
-                automp = _automp;
-                if (automp >= 8 && !hasBless)
-                {
-                    if (!CastLifeSpell("bless", pms))
-                    {
-                        return;
-                    }
-                }
-
-                //cast protection if has enough mana and not curently protected
-                bool hasProtection;
-                lock (_spellsLock)
-                {
-                    hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
-                }
-                automp = _automp;
-                if (automp >= 8 && !hasProtection)
-                {
-                    if (!CastLifeSpell("protection", pms))
-                    {
-                        return;
-                    }
-                }
-            }
-
-            //Activate skills
-            if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
-            {
-                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, BeforeFleeCommandAbortLogic, false, false);
-                if (backgroundCommandSuccess)
-                {
-                    pms.DoScore = true;
-                }
-                else
-                {
-                    return;
-                }
-            }
-
-            bool atDestination = false;
-            if (pms.Exits != null && pms.Exits.Count > 0)
-            {
-                _backgroundProcessPhase = BackgroundProcessPhase.Movement;
-                foreach (Exit nextExit in pms.Exits)
-                {
-                    string exitText = nextExit.ExitText;
-                    _currentBackgroundExit = nextExit;
-                    _currentBackgroundExitMessageReceived = false;
-
-                    try
-                    {
-                        //for exits that aren't always present, ensure the exit exists
-                        ExitPresenceType presenceType = nextExit.PresenceType;
-                        if (presenceType != ExitPresenceType.Always)
+                        autohp = _autohp;
+                        automp = _automp;
+                        if (autohp >= _totalhp) break;
+                        if (automp < 2) break; //out of mana for vigor cast
+                        if (!CastLifeSpell("vigor", pms))
                         {
-                            bool foundExit = false;
-                            do
-                            {
-                                if (presenceType == ExitPresenceType.Periodic)
-                                {
-                                    _currentObviousExits = null;
-                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false);
-                                    if (backgroundCommandResult == CommandResult.CommandSuccessful)
-                                    {
-                                        if (_currentObviousExits.Contains(exitText))
-                                        {
-                                            foundExit = true;
-                                        }
-                                        else
-                                        {
-                                            WaitUntilNextCommand(5000, false, false);
-                                        }
-                                    }
-                                    else //look is not supposed to fail (but could be aborted)
-                                    {
-                                        return;
-                                    }
-                                }
-                                else if (presenceType == ExitPresenceType.RequiresSearch)
-                                {
-                                    _foundSearchedExits = null;
-                                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, BeforeFleeCommandAbortLogic, false, false);
-                                    if (backgroundCommandSuccess)
-                                    {
-                                        if (_foundSearchedExits.Contains(exitText))
-                                        {
-                                            foundExit = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException();
-                                }
-                            }
-                            while (!foundExit);
+                            return;
                         }
-
-                        //for wait for message exits, wait until the message is received
-                        if (nextExit.WaitForMessage.HasValue)
-                        {
-                            while (!_currentBackgroundExitMessageReceived)
-                            {
-                                if (_fleeing) break;
-                                if (_bw.CancellationPending) break;
-                                Thread.Sleep(50);
-                                RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
-                            }
-                        }
-
                         if (_fleeing) break;
                         if (_bw.CancellationPending) break;
+                        autohp = _autohp;
+                        if (autohp >= _totalhp) break;
+                    }
+                    //stop background processing if failed to get to max hitpoints
+                    autohp = _autohp;
+                    if (autohp < _totalhp) return;
 
-                        if (nextExit.KeyType != KeyType.None)
-                        {
-                            if (!nextExit.RequiresKey())
-                            {
-                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, BeforeFleeCommandAbortLogic, false, false);
-                                if (!backgroundCommandSuccess) return;
-                            }
-                        }
-
-                        //run preexit logic
-                        RunPreExitLogic(nextExit.PreCommand, nextExit.Target);
-
-                        //determine the exit command
-                        string nextCommand = GetExitCommand(exitText);
-
-                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, BeforeFleeCommandAbortLogic, false, false);
-                        if (backgroundCommandSuccess)
-                        {
-                            if (nextExit.Target != null)
-                            {
-                                pms.NavigatedToRoom = nextExit.Target;
-                                if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
-                                {
-                                    SendCommand(nextExit.Target.PostMoveCommand, InputEchoType.On);
-                                }
-                            }
-                        }
-                        else
+                    //cast bless if has enough mana and not currently blessed
+                    bool hasBless;
+                    lock (_spellsLock)
+                    {
+                        hasBless = _spellsCast != null && _spellsCast.Contains("bless");
+                    }
+                    automp = _automp;
+                    if (automp >= 8 && !hasBless)
+                    {
+                        if (!CastLifeSpell("bless", pms))
                         {
                             return;
                         }
                     }
-                    finally
+
+                    //cast protection if has enough mana and not curently protected
+                    bool hasProtection;
+                    lock (_spellsLock)
                     {
-                        _currentBackgroundExit = null;
-                        _foundSearchedExits = null;
+                        hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
                     }
-                }
-
-                //if we got here that means all exits were traversed successfully
-                pms.ReachedTargetRoom = true;
-                atDestination = true;
-            }
-            else if (!string.IsNullOrEmpty(pms.TargetRoomMob))
-            {
-                atDestination = true;
-            }
-
-            if (atDestination)
-            {
-                string sTargetRoomMob = pms.TargetRoomMob;
-                if (!string.IsNullOrEmpty(sTargetRoomMob))
-                {
-                    _mob = sTargetRoomMob;
-                }
-            }
-
-            if (pms.Flee)
-            {
-                _fleeing = true;
-            }
-
-            bool haveMeleeSteps = false;
-            bool haveMagicSteps = false;
-            bool didFlee = false;
-            bool useManaPool = pms.ManaPool > 0;
-            bool stopIfMonsterKilled = false;
-            if (strategy != null)
-            {
-                haveMagicSteps = strategy.HasAnyMagicSteps();
-                haveMeleeSteps = strategy.HasAnyMeleeSteps();
-                stopIfMonsterKilled = strategy.StopWhenKillMonster;
-            }
-            if (_fleeing || haveMagicSteps || haveMeleeSteps)
-            {
-                try
-                {
-                    _currentlyFightingMob = pms.TargetRoomMob;
-                    _monsterDamage = 0;
-                    _currentMonsterStatus  = MonsterStatus.None;
-                    _monsterStunned = false;
-                    _monsterKilled = false;
-                    if (useManaPool)
+                    automp = _automp;
+                    if (automp >= 8 && !hasProtection)
                     {
-                        _currentMana = pms.ManaPool;
-                    }
-
-                    string sWeapon = _weapon;
-
-                    if (haveMagicSteps || haveMeleeSteps)
-                    {
-                        _backgroundProcessPhase = BackgroundProcessPhase.Combat;
-                        bool doPowerAttack = false;
-                        if (haveMeleeSteps)
+                        if (!CastLifeSpell("protection", pms))
                         {
-                            if (!string.IsNullOrEmpty(sWeapon))
-                            {
-                                SendCommand("wield " + sWeapon, InputEchoType.On);
-                            }
-                            doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
+                            return;
                         }
+                    }
+                }
 
-                        IEnumerator<MagicStrategyStep> magicSteps = strategy.GetMagicSteps().GetEnumerator();
-                        IEnumerator<MeleeStrategyStep> meleeSteps = strategy.GetMeleeSteps(doPowerAttack).GetEnumerator();
-                        MagicStrategyStep? nextMagicStep = null;
-                        MeleeStrategyStep? nextMeleeStep = null;
-                        bool magicStepsFinished = !magicSteps.MoveNext();
-                        bool meleeStepsFinished = !meleeSteps.MoveNext();
-                        bool magicTotallyFinished = false;
-                        bool meleeTotallyFinished = false;
-                        bool magicOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None;
-                        bool meleeOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None;
-                        if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
-                        if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
-                        DateTime? dtNextMagicCommand = null;
-                        DateTime? dtNextMeleeCommand = null;
-                        while (true) //combat cycle
+                //Activate skills
+                if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
+                {
+                    _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
+                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, BeforeFleeCommandAbortLogic, false, false);
+                    if (backgroundCommandSuccess)
+                    {
+                        pms.DoScore = true;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                bool atDestination = false;
+                if (pms.Exits != null && pms.Exits.Count > 0)
+                {
+                    _backgroundProcessPhase = BackgroundProcessPhase.Movement;
+                    foreach (Exit nextExit in pms.Exits)
+                    {
+                        string exitText = nextExit.ExitText;
+                        _currentBackgroundExit = nextExit;
+                        _currentBackgroundExitMessageReceived = false;
+
+                        try
                         {
-                            bool skipPerMonsterStatus;
-                            if (stopIfMonsterKilled && _monsterKilled)
+                            //for exits that aren't always present, ensure the exit exists
+                            ExitPresenceType presenceType = nextExit.PresenceType;
+                            if (presenceType != ExitPresenceType.Always)
                             {
-                                break;
-                            }
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                            bool didDamage = false;
-                            string command = null;
-                            bool skipMagicStep = false;
-                            skipPerMonsterStatus = !_monsterStunned && magicOnlyWhenStunned;
-                            if (!skipPerMonsterStatus && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
-                            {
-                                int currentMana = useManaPool ? _currentMana : _automp;
-                                int currentHP = _autohp;
-                                int manaDrain = 0;
-                                BackgroundCommandType? bct = null;
-                                if (nextMagicStep == MagicStrategyStep.Stun)
+                                bool foundExit = false;
+                                do
                                 {
-                                    command = "cast stun " + _currentlyFightingMob;
-                                    manaDrain = 10;
-                                    bct = BackgroundCommandType.Stun;
-                                }
-                                else if (nextMagicStep == MagicStrategyStep.Vigor)
-                                {
-                                    if (currentHP >= _totalhp)
+                                    if (presenceType == ExitPresenceType.Periodic)
                                     {
-                                        skipMagicStep = true;
-                                    }
-                                    else
-                                    {
-                                        command = CAST_VIGOR_SPELL;
-                                        manaDrain = 2;
-                                        bct = BackgroundCommandType.Vigor;
-                                    }
-                                }
-                                else if (nextMagicStep == MagicStrategyStep.MendWounds)
-                                {
-                                    if (currentHP >= _totalhp)
-                                    {
-                                        skipMagicStep = true;
-                                    }
-                                    else
-                                    {
-                                        command = CAST_MENDWOUNDS_SPELL;
-                                        manaDrain = 6;
-                                        bct = BackgroundCommandType.MendWounds;
-                                    }
-                                }
-                                else
-                                {
-                                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
-                                    {
-                                        int iMaxOffLevel = _autoSpellLevelMax;
-                                        int iMinOffLevel = _autoSpellLevelMin;
-                                        if (currentMana >= 10 && iMinOffLevel <= 3 && iMaxOffLevel >= 3)
+                                        _currentObviousExits = null;
+                                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false);
+                                        if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                         {
-                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
-                                        }
-                                        else if (currentMana >= 7 && iMinOffLevel <= 2 && iMaxOffLevel >= 2)
-                                        {
-                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
-                                        }
-                                        else if (currentMana >= 3 && iMinOffLevel <= 1 && iMaxOffLevel >= 1)
-                                        {
-                                            nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
-                                        }
-                                        else //out of mana
-                                        {
-                                            nextMagicStep = null;
-                                        }
-                                    }
-                                    if (nextMagicStep.HasValue)
-                                    {
-                                        if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
-                                        {
-                                            command = "cast " + _realm3Spell + " " + _currentlyFightingMob;
-                                            manaDrain = 10;
-                                            bct = BackgroundCommandType.OffensiveSpell;
-                                        }
-                                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
-                                        {
-                                            command = "cast " + _realm2Spell + " " + _currentlyFightingMob;
-                                            manaDrain = 7;
-                                            bct = BackgroundCommandType.OffensiveSpell;
-                                        }
-                                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
-                                        {
-                                            command = "cast " + _realm1Spell + " " + _currentlyFightingMob;
-                                            manaDrain = 3;
-                                            bct = BackgroundCommandType.OffensiveSpell;
-                                        }
-                                        else
-                                        {
-                                            throw new InvalidOperationException();
-                                        }
-                                    }
-                                }
-                                if (skipMagicStep)
-                                {
-                                    if (!magicStepsFinished)
-                                    {
-                                        if (magicSteps.MoveNext())
-                                        {
-                                            nextMagicStep = magicSteps.Current;
-                                            dtNextMagicCommand = null;
-                                        }
-                                        else //no more steps
-                                        {
-                                            nextMagicStep = null;
-                                            magicStepsFinished = true;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (manaDrain > currentMana) //out of mana
-                                    {
-                                        nextMagicStep = null;
-                                    }
-                                    if (nextMagicStep.HasValue)
-                                    {
-                                        backgroundCommandResult = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
-                                        if (backgroundCommandResult == CommandResult.CommandAborted)
-                                        {
-                                            return;
-                                        }
-                                        else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                                        {
-                                            magicTotallyFinished = true;
-                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                            nextMagicStep = null;
-                                        }
-                                        else if (backgroundCommandResult == CommandResult.CommandMustWait)
-                                        {
-                                            int waitMS = GetWaitMilliseconds(_waitSeconds);
-                                            if (waitMS > 0)
+                                            if (_currentObviousExits.Contains(exitText))
                                             {
-                                                dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                                foundExit = true;
                                             }
                                             else
                                             {
-                                                dtNextMagicCommand = null;
+                                                WaitUntilNextCommand(5000, false, false);
                                             }
                                         }
-                                        else if (backgroundCommandResult == CommandResult.CommandSuccessful) //spell was cast
+                                        else //look is not supposed to fail (but could be aborted)
                                         {
-                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                            if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
+                                            return;
+                                        }
+                                    }
+                                    else if (presenceType == ExitPresenceType.RequiresSearch)
+                                    {
+                                        _foundSearchedExits = null;
+                                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, BeforeFleeCommandAbortLogic, false, false);
+                                        if (backgroundCommandSuccess)
+                                        {
+                                            if (_foundSearchedExits.Contains(exitText))
                                             {
-                                                didDamage = true;
+                                                foundExit = true;
                                             }
-                                            if (useManaPool)
+                                        }
+                                        else
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException();
+                                    }
+                                }
+                                while (!foundExit);
+                            }
+
+                            //for wait for message exits, wait until the message is received
+                            if (nextExit.WaitForMessage.HasValue)
+                            {
+                                while (!_currentBackgroundExitMessageReceived)
+                                {
+                                    if (_fleeing) break;
+                                    if (_bw.CancellationPending) break;
+                                    Thread.Sleep(50);
+                                    RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
+                                }
+                            }
+
+                            if (_fleeing) break;
+                            if (_bw.CancellationPending) break;
+
+                            if (nextExit.KeyType != KeyType.None)
+                            {
+                                if (!nextExit.RequiresKey())
+                                {
+                                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, BeforeFleeCommandAbortLogic, false, false);
+                                    if (!backgroundCommandSuccess) return;
+                                }
+                            }
+
+                            //run preexit logic
+                            RunPreExitLogic(nextExit.PreCommand, nextExit.Target);
+
+                            //determine the exit command
+                            string nextCommand = GetExitCommand(exitText);
+
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, BeforeFleeCommandAbortLogic, false, false);
+                            if (backgroundCommandSuccess)
+                            {
+                                if (nextExit.Target != null)
+                                {
+                                    pms.NavigatedToRoom = nextExit.Target;
+                                    if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
+                                    {
+                                        SendCommand(nextExit.Target.PostMoveCommand, InputEchoType.On);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
+                        finally
+                        {
+                            _currentBackgroundExit = null;
+                            _foundSearchedExits = null;
+                        }
+                    }
+
+                    //if we got here that means all exits were traversed successfully
+                    pms.ReachedTargetRoom = true;
+                    atDestination = true;
+                }
+                else if (!string.IsNullOrEmpty(pms.TargetRoomMob))
+                {
+                    atDestination = true;
+                }
+
+                if (atDestination)
+                {
+                    string sTargetRoomMob = pms.TargetRoomMob;
+                    if (!string.IsNullOrEmpty(sTargetRoomMob))
+                    {
+                        _mob = sTargetRoomMob;
+                    }
+                }
+
+                if (pms.Flee)
+                {
+                    _fleeing = true;
+                }
+
+                bool haveMeleeSteps = false;
+                bool haveMagicSteps = false;
+                bool didFlee = false;
+                bool useManaPool = pms.ManaPool > 0;
+                bool stopIfMonsterKilled = false;
+                if (strategy != null)
+                {
+                    haveMagicSteps = strategy.HasAnyMagicSteps();
+                    haveMeleeSteps = strategy.HasAnyMeleeSteps();
+                    stopIfMonsterKilled = strategy.StopWhenKillMonster;
+                }
+                if (_fleeing || haveMagicSteps || haveMeleeSteps)
+                {
+                    try
+                    {
+                        _currentlyFightingMob = pms.TargetRoomMob;
+                        _monsterDamage = 0;
+                        _currentMonsterStatus = MonsterStatus.None;
+                        _monsterStunned = false;
+                        _monsterKilled = false;
+                        if (useManaPool)
+                        {
+                            _currentMana = pms.ManaPool;
+                        }
+
+                        string sWeapon = _weapon;
+
+                        if (haveMagicSteps || haveMeleeSteps)
+                        {
+                            _backgroundProcessPhase = BackgroundProcessPhase.Combat;
+                            bool doPowerAttack = false;
+                            if (haveMeleeSteps)
+                            {
+                                if (!string.IsNullOrEmpty(sWeapon))
+                                {
+                                    SendCommand("wield " + sWeapon, InputEchoType.On);
+                                }
+                                doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
+                            }
+
+                            IEnumerator<MagicStrategyStep> magicSteps = strategy.GetMagicSteps().GetEnumerator();
+                            IEnumerator<MeleeStrategyStep> meleeSteps = strategy.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                            MagicStrategyStep? nextMagicStep = null;
+                            MeleeStrategyStep? nextMeleeStep = null;
+                            bool magicStepsFinished = !magicSteps.MoveNext();
+                            bool meleeStepsFinished = !meleeSteps.MoveNext();
+                            bool magicTotallyFinished = false;
+                            bool meleeTotallyFinished = false;
+                            bool magicOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None;
+                            bool meleeOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None;
+                            if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
+                            if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
+                            DateTime? dtNextMagicCommand = null;
+                            DateTime? dtNextMeleeCommand = null;
+                            while (true) //combat cycle
+                            {
+                                bool skipPerMonsterStatus;
+                                if (stopIfMonsterKilled && _monsterKilled)
+                                {
+                                    break;
+                                }
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                bool didDamage = false;
+                                string command = null;
+                                bool skipMagicStep = false;
+                                skipPerMonsterStatus = !_monsterStunned && magicOnlyWhenStunned;
+                                if (!skipPerMonsterStatus && nextMagicStep.HasValue && (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
+                                {
+                                    int currentMana = useManaPool ? _currentMana : _automp;
+                                    int currentHP = _autohp;
+                                    int manaDrain = 0;
+                                    BackgroundCommandType? bct = null;
+                                    if (nextMagicStep == MagicStrategyStep.Stun)
+                                    {
+                                        command = "cast stun " + _currentlyFightingMob;
+                                        manaDrain = 10;
+                                        bct = BackgroundCommandType.Stun;
+                                    }
+                                    else if (nextMagicStep == MagicStrategyStep.Vigor)
+                                    {
+                                        if (currentHP >= _totalhp)
+                                        {
+                                            skipMagicStep = true;
+                                        }
+                                        else
+                                        {
+                                            command = CAST_VIGOR_SPELL;
+                                            manaDrain = 2;
+                                            bct = BackgroundCommandType.Vigor;
+                                        }
+                                    }
+                                    else if (nextMagicStep == MagicStrategyStep.MendWounds)
+                                    {
+                                        if (currentHP >= _totalhp)
+                                        {
+                                            skipMagicStep = true;
+                                        }
+                                        else
+                                        {
+                                            command = CAST_MENDWOUNDS_SPELL;
+                                            manaDrain = 6;
+                                            bct = BackgroundCommandType.MendWounds;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
+                                        {
+                                            int iMaxOffLevel = _autoSpellLevelMax;
+                                            int iMinOffLevel = _autoSpellLevelMin;
+                                            if (currentMana >= 10 && iMinOffLevel <= 3 && iMaxOffLevel >= 3)
                                             {
-                                                _currentMana -= manaDrain;
+                                                nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                                             }
-                                            if (magicStepsFinished)
+                                            else if (currentMana >= 7 && iMinOffLevel <= 2 && iMaxOffLevel >= 2)
+                                            {
+                                                nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
+                                            }
+                                            else if (currentMana >= 3 && iMinOffLevel <= 1 && iMaxOffLevel >= 1)
+                                            {
+                                                nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
+                                            }
+                                            else //out of mana
                                             {
                                                 nextMagicStep = null;
                                             }
-                                            else if (magicSteps.MoveNext())
+                                        }
+                                        if (nextMagicStep.HasValue)
+                                        {
+                                            if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
+                                            {
+                                                command = "cast " + _realm3Spell + " " + _currentlyFightingMob;
+                                                manaDrain = 10;
+                                                bct = BackgroundCommandType.OffensiveSpell;
+                                            }
+                                            else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
+                                            {
+                                                command = "cast " + _realm2Spell + " " + _currentlyFightingMob;
+                                                manaDrain = 7;
+                                                bct = BackgroundCommandType.OffensiveSpell;
+                                            }
+                                            else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
+                                            {
+                                                command = "cast " + _realm1Spell + " " + _currentlyFightingMob;
+                                                manaDrain = 3;
+                                                bct = BackgroundCommandType.OffensiveSpell;
+                                            }
+                                            else
+                                            {
+                                                throw new InvalidOperationException();
+                                            }
+                                        }
+                                    }
+                                    if (skipMagicStep)
+                                    {
+                                        if (!magicStepsFinished)
+                                        {
+                                            if (magicSteps.MoveNext())
                                             {
                                                 nextMagicStep = magicSteps.Current;
                                                 dtNextMagicCommand = null;
@@ -2595,249 +2536,318 @@ namespace IsengardClient
                                                 magicStepsFinished = true;
                                             }
                                         }
-                                        else
-                                        {
-                                            throw new InvalidOperationException();
-                                        }
-                                    }
-                                }
-                            }
-                            if (stopIfMonsterKilled && _monsterKilled)
-                            {
-                                break;
-                            }
-                            if (!nextMagicStep.HasValue && strategy.FinalMagicAction == FinalStepAction.Flee)
-                            {
-                                _fleeing = true;
-                            }
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                            skipPerMonsterStatus = !_monsterStunned && meleeOnlyWhenStunned;
-                            if (!skipPerMonsterStatus && nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
-                            {
-                                bool isPowerAttack = false;
-                                string sAttackType;
-                                if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
-                                {
-                                    sAttackType = "power";
-                                    isPowerAttack = true;
-                                }
-                                else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
-                                {
-                                    sAttackType = "attack";
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException();
-                                }
-                                command = sAttackType + " " + _mob;
-                                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Attack, command, pms, BeforeFleeCommandAbortLogic, false);
-                                if (backgroundCommandResult == CommandResult.CommandAborted)
-                                {
-                                    return;
-                                }
-                                else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                                {
-                                    meleeTotallyFinished = true;
-                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                                    nextMeleeStep = null;
-                                }
-                                else if (backgroundCommandResult == CommandResult.CommandMustWait)
-                                {
-                                    int waitMS = GetWaitMilliseconds(_waitSeconds);
-                                    if (waitMS > 0)
-                                    {
-                                        dtNextMeleeCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
                                     }
                                     else
                                     {
-                                        dtNextMeleeCommand = null;
-                                    }
-                                }
-                                else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
-                                {
-                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                                    if (_lastCommandDamage != 0)
-                                    {
-                                        if (isPowerAttack) //refresh power attack cooldown when strategy finishes
+                                        if (manaDrain > currentMana) //out of mana
                                         {
-                                            pms.DoScore = true;
+                                            nextMagicStep = null;
                                         }
-                                        didDamage = true;
+                                        if (nextMagicStep.HasValue)
+                                        {
+                                            backgroundCommandResult = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
+                                            if (backgroundCommandResult == CommandResult.CommandAborted)
+                                            {
+                                                return;
+                                            }
+                                            else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                                            {
+                                                magicTotallyFinished = true;
+                                                _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                                nextMagicStep = null;
+                                            }
+                                            else if (backgroundCommandResult == CommandResult.CommandMustWait)
+                                            {
+                                                int waitMS = GetWaitMilliseconds(_waitSeconds);
+                                                if (waitMS > 0)
+                                                {
+                                                    dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                                }
+                                                else
+                                                {
+                                                    dtNextMagicCommand = null;
+                                                }
+                                            }
+                                            else if (backgroundCommandResult == CommandResult.CommandSuccessful) //spell was cast
+                                            {
+                                                _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                                if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
+                                                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
+                                                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
+                                                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
+                                                {
+                                                    didDamage = true;
+                                                }
+                                                if (useManaPool)
+                                                {
+                                                    _currentMana -= manaDrain;
+                                                }
+                                                if (magicStepsFinished)
+                                                {
+                                                    nextMagicStep = null;
+                                                }
+                                                else if (magicSteps.MoveNext())
+                                                {
+                                                    nextMagicStep = magicSteps.Current;
+                                                    dtNextMagicCommand = null;
+                                                }
+                                                else //no more steps
+                                                {
+                                                    nextMagicStep = null;
+                                                    magicStepsFinished = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                throw new InvalidOperationException();
+                                            }
+                                        }
                                     }
-                                    if (meleeStepsFinished)
+                                }
+                                if (stopIfMonsterKilled && _monsterKilled)
+                                {
+                                    break;
+                                }
+                                if (!nextMagicStep.HasValue && strategy.FinalMagicAction == FinalStepAction.Flee)
+                                {
+                                    _fleeing = true;
+                                }
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                skipPerMonsterStatus = !_monsterStunned && meleeOnlyWhenStunned;
+                                if (!skipPerMonsterStatus && nextMeleeStep.HasValue && (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
+                                {
+                                    bool isPowerAttack = false;
+                                    string sAttackType;
+                                    if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
                                     {
+                                        sAttackType = "power";
+                                        isPowerAttack = true;
+                                    }
+                                    else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
+                                    {
+                                        sAttackType = "attack";
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException();
+                                    }
+                                    command = sAttackType + " " + _mob;
+                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Attack, command, pms, BeforeFleeCommandAbortLogic, false);
+                                    if (backgroundCommandResult == CommandResult.CommandAborted)
+                                    {
+                                        return;
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                                    {
+                                        meleeTotallyFinished = true;
+                                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                                         nextMeleeStep = null;
                                     }
-                                    else if (meleeSteps.MoveNext())
+                                    else if (backgroundCommandResult == CommandResult.CommandMustWait)
                                     {
-                                        nextMeleeStep = meleeSteps.Current;
-                                        dtNextMeleeCommand = null;
+                                        int waitMS = GetWaitMilliseconds(_waitSeconds);
+                                        if (waitMS > 0)
+                                        {
+                                            dtNextMeleeCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                                        }
+                                        else
+                                        {
+                                            dtNextMeleeCommand = null;
+                                        }
                                     }
-                                    else //no more steps
+                                    else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
                                     {
+                                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                        if (_lastCommandDamage != 0)
+                                        {
+                                            if (isPowerAttack) //refresh power attack cooldown when strategy finishes
+                                            {
+                                                pms.DoScore = true;
+                                            }
+                                            didDamage = true;
+                                        }
+                                        if (meleeStepsFinished)
+                                        {
+                                            nextMeleeStep = null;
+                                        }
+                                        else if (meleeSteps.MoveNext())
+                                        {
+                                            nextMeleeStep = meleeSteps.Current;
+                                            dtNextMeleeCommand = null;
+                                        }
+                                        else //no more steps
+                                        {
+                                            nextMeleeStep = null;
+                                            meleeStepsFinished = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException();
+                                    }
+                                }
+                                if (stopIfMonsterKilled && _monsterKilled)
+                                {
+                                    break;
+                                }
+                                if (!nextMeleeStep.HasValue && strategy.FinalMeleeAction == FinalStepAction.Flee)
+                                {
+                                    _fleeing = true;
+                                }
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                if (didDamage && _queryMonsterStatus)
+                                {
+                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, BeforeFleeCommandAbortLogic, false);
+                                    if (backgroundCommandResult == CommandResult.CommandAborted)
+                                    {
+                                        return;
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                                    {
+                                        magicTotallyFinished = true;
+                                        meleeTotallyFinished = true;
+                                        nextMagicStep = null;
                                         nextMeleeStep = null;
-                                        meleeStepsFinished = true;
+                                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                    }
+                                    else if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                                    {
+                                        throw new InvalidOperationException();
                                     }
                                 }
-                                else
+                                if (!magicTotallyFinished && !nextMagicStep.HasValue)
                                 {
-                                    throw new InvalidOperationException();
+                                    MagicStrategyStep? queuedMagicStep;
+                                    lock (_queuedCommandLock)
+                                    {
+                                        queuedMagicStep = pms.QueuedMagicStep;
+                                        if (queuedMagicStep.HasValue) pms.QueuedMagicStep = null;
+                                    }
+                                    if (queuedMagicStep.HasValue)
+                                    {
+                                        nextMagicStep = queuedMagicStep.Value;
+                                    }
                                 }
-                            }
-                            if (stopIfMonsterKilled && _monsterKilled)
-                            {
-                                break;
-                            }
-                            if (!nextMeleeStep.HasValue && strategy.FinalMeleeAction == FinalStepAction.Flee)
-                            {
-                                _fleeing = true;
-                            }
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                            if (didDamage && _queryMonsterStatus)
-                            {
-                                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, BeforeFleeCommandAbortLogic, false);
-                                if (backgroundCommandResult == CommandResult.CommandAborted)
+                                if (!meleeTotallyFinished && !nextMeleeStep.HasValue)
                                 {
-                                    return;
+                                    MeleeStrategyStep? queuedMeleeStep;
+                                    lock (_queuedCommandLock)
+                                    {
+                                        queuedMeleeStep = pms.QueuedMeleeStep;
+                                        if (queuedMeleeStep.HasValue) pms.QueuedMeleeStep = null;
+                                    }
+                                    if (queuedMeleeStep.HasValue)
+                                    {
+                                        nextMeleeStep = queuedMeleeStep.Value;
+                                    }
                                 }
-                                else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                                if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue)
                                 {
-                                    magicTotallyFinished = true;
-                                    meleeTotallyFinished = true;
-                                    nextMagicStep = null;
-                                    nextMeleeStep = null;
-                                    _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                    break;
                                 }
-                                else if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                                if (stopIfMonsterKilled && _monsterKilled)
                                 {
-                                    throw new InvalidOperationException();
+                                    break;
                                 }
-                            }
-                            if (!magicTotallyFinished && !nextMagicStep.HasValue)
-                            {
-                                MagicStrategyStep? queuedMagicStep;
-                                lock (_queuedCommandLock)
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
+                                RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
+                                if (stopIfMonsterKilled && _monsterKilled)
                                 {
-                                    queuedMagicStep = pms.QueuedMagicStep;
-                                    if (queuedMagicStep.HasValue) pms.QueuedMagicStep = null;
+                                    break;
                                 }
-                                if (queuedMagicStep.HasValue)
-                                {
-                                    nextMagicStep = queuedMagicStep.Value;
-                                }
-                            }
-                            if (!meleeTotallyFinished && !nextMeleeStep.HasValue)
-                            {
-                                MeleeStrategyStep? queuedMeleeStep;
-                                lock (_queuedCommandLock)
-                                {
-                                    queuedMeleeStep = pms.QueuedMeleeStep;
-                                    if (queuedMeleeStep.HasValue) pms.QueuedMeleeStep = null;
-                                }
-                                if (queuedMeleeStep.HasValue)
-                                {
-                                    nextMeleeStep = queuedMeleeStep.Value;
-                                }
-                            }
-                            if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue)
-                            {
-                                break;
-                            }
-                            if (stopIfMonsterKilled && _monsterKilled)
-                            {
-                                break;
-                            }
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
-                            RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
-                            if (stopIfMonsterKilled && _monsterKilled)
-                            {
-                                break;
-                            }
-                            if (_fleeing) break;
-                            if (_bw.CancellationPending) break;
+                                if (_fleeing) break;
+                                if (_bw.CancellationPending) break;
 
-                            Thread.Sleep(50);
+                                Thread.Sleep(50);
+                            }
+                        }
+
+                        if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled))
+                        {
+                            _backgroundProcessPhase = BackgroundProcessPhase.Flee;
+                            if (!string.IsNullOrEmpty(sWeapon))
+                            {
+                                SendCommand("remove " + sWeapon, InputEchoType.On);
+                                if (!_fleeing) return;
+                                if (_bw.CancellationPending) return;
+                            }
+
+                            //determine the flee exit if there is only one place to flee to
+                            Exit singleFleeableExit = null;
+                            Room r = pms.NavigatedToRoom;
+                            if (r == null) r = m_oCurrentRoom;
+                            if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                            {
+                                List<Exit> fleeableExits = new List<Exit>();
+                                foreach (Exit nextExit in exits)
+                                {
+                                    if (!nextExit.Hidden && !nextExit.NoFlee)
+                                    {
+                                        fleeableExits.Add(nextExit);
+                                    }
+                                }
+                                if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
+                                {
+                                    singleFleeableExit = fleeableExits[0];
+                                    RunPreExitLogic(singleFleeableExit.PreCommand, singleFleeableExit.Target);
+                                }
+                            }
+
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
+                            if (backgroundCommandSuccess)
+                            {
+                                didFlee = true;
+                                if (singleFleeableExit != null)
+                                {
+                                    pms.NavigatedToRoom = singleFleeableExit.Target;
+                                }
+                                _fleeing = false;
+                            }
+                            else
+                            {
+                                return;
+                            }
                         }
                     }
-
-                    if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled))
+                    finally
                     {
-                        _backgroundProcessPhase = BackgroundProcessPhase.Flee;
-                        if (!string.IsNullOrEmpty(sWeapon))
-                        {
-                            SendCommand("remove " + sWeapon, InputEchoType.On);
-                            if (!_fleeing) return;
-                            if (_bw.CancellationPending) return;
-                        }
-
-                        //determine the flee exit if there is only one place to flee to
-                        Exit singleFleeableExit = null;
-                        Room r = pms.NavigatedToRoom;
-                        if (r == null) r = m_oCurrentRoom;
-                        if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
-                        {
-                            List<Exit> fleeableExits = new List<Exit>();
-                            foreach (Exit nextExit in exits)
-                            {
-                                if (!nextExit.Hidden && !nextExit.NoFlee)
-                                {
-                                    fleeableExits.Add(nextExit);
-                                }
-                            }
-                            if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
-                            {
-                                singleFleeableExit = fleeableExits[0];
-                                RunPreExitLogic(singleFleeableExit.PreCommand, singleFleeableExit.Target);
-                            }
-                        }
-
-                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
-                        if (backgroundCommandSuccess)
-                        {
-                            didFlee = true;
-                            if (singleFleeableExit != null)
-                            {
-                                pms.NavigatedToRoom = singleFleeableExit.Target;
-                            }
-                            _fleeing = false;
-                        }
-                        else
-                        {
-                            return;
-                        }
+                        _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                        _currentlyFightingMob = null;
+                        _currentMonsterStatus = MonsterStatus.None;
+                        _monsterStunned = false;
+                        _monsterKilled = false;
+                        _currentMana = HP_OR_MP_UNKNOWN;
                     }
                 }
-                finally
+
+                if (pms.DoScore && !didFlee)
                 {
-                    _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                    _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                    _currentlyFightingMob = null;
-                    _currentMonsterStatus = MonsterStatus.None;
-                    _monsterStunned = false;
-                    _monsterKilled = false;
-                    _currentMana = HP_OR_MP_UNKNOWN;
+                    _backgroundProcessPhase = BackgroundProcessPhase.Score;
+                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, false);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return;
+                    }
+                    pms.DoScore = false;
+                }
+
+                if (pms.Quit)
+                {
+                    _backgroundProcessPhase = BackgroundProcessPhase.Quit;
+                    RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false, true);
                 }
             }
-
-            if (pms.DoScore && !didFlee)
+            catch (Exception ex)
             {
-                _backgroundProcessPhase = BackgroundProcessPhase.Score;
-                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, false);
-                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                lock (_consoleTextLock)
                 {
-                    return;
+                    _newConsoleText.Add(ex.ToString());
                 }
-                pms.DoScore = false;
-            }
-
-            if (pms.Quit)
-            {
-                _backgroundProcessPhase = BackgroundProcessPhase.Quit;
-                RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false, true);
             }
         }
 
@@ -3059,69 +3069,48 @@ namespace IsengardClient
         private void ToggleBackgroundProcess(BackgroundWorkerParameters bwp, bool running)
         {
             bool quitting = bwp.Quit;
-            List<Panel> topLevelPanels = new List<Panel>
+            bool enabled;
+            if (running && quitting)
+                enabled = false;
+            else
+                enabled = !running;
+            foreach (Control ctl in GetControlsToDisableForBackgroundProcess())
             {
-                pnlMain,
-                pnlAncillary
-            };
-            foreach (Panel p in topLevelPanels)
-            {
-                foreach (Control ctl in p.Controls)
-                {
-                    bool regularLogic = false;
-                    if (ctl is Button)
-                    {
-                        if (ctl == btnFlee)
-                        {
-                            regularLogic = false;
-                        }
-                        else if (ctl == btnAbort)
-                        {
-                            ctl.Enabled = running;
-                        }
-                        else if (ctl.Tag is CommandButtonTag)
-                        {
-                            regularLogic = false;
-                        }
-                        else if (ctl.Tag is string)
-                        {
-                            regularLogic = true;
-                        }
-                        else
-                        {
-                            regularLogic = true;
-                        }
-                    }
-                    else if (ctl is Label)
-                    {
-                        regularLogic = false;
-                    }
-                    else if (ctl is TextBox)
-                    {
-                        regularLogic = !((TextBox)ctl).ReadOnly;
-                    }
-                    else if (ctl is GroupBox)
-                    {
-                        regularLogic = ctl == grpOneClickStrategies;
-                    }
-                    else
-                    {
-                        regularLogic = true;
-                    }
-                    if (regularLogic)
-                    {
-                        if (running && quitting)
-                        {
-                            ctl.Enabled = false;
-                        }
-                        else
-                        {
-                            ctl.Enabled = !running;
-                        }
-                    }
-                }
+                ctl.Enabled = enabled;
             }
+            btnAbort.Enabled = running;
             EnableDisableActionButtons(bwp);
+        }
+
+        private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()
+        {
+            yield return txtMob;
+            yield return txtWeapon;
+            yield return txtWand;
+            yield return txtPotion;
+            foreach (Button btn in flpOneClickStrategies.Controls)
+            {
+                yield return btn;
+            }
+            yield return btnGraph;
+            yield return btnClearCurrentLocation;
+            yield return btnNorthwest;
+            yield return btnNorth;
+            yield return btnNortheast;
+            yield return btnWest;
+            yield return btnEast;
+            yield return btnSouthwest;
+            yield return btnSouth;
+            yield return btnSoutheast;
+            yield return btnUp;
+            yield return btnDn;
+            yield return btnExitSingleMove;
+            yield return btnOtherSingleMove;
+            yield return btnHeal;
+            yield return btnSkills;
+            yield return btnSearch;
+            yield return btnHide;
+            yield return btnSet;
         }
 
         private void EnableDisableActionButtons(BackgroundWorkerParameters bwp)
@@ -3493,7 +3482,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void RunCommands(BackgroundWorkerParameters backgroundParameters)
+        private void RunBackgroundProcess(BackgroundWorkerParameters backgroundParameters)
         {
             _currentBackgroundParameters = backgroundParameters;
             _backgroundProcessPhase = BackgroundProcessPhase.Initialization;
@@ -3592,7 +3581,7 @@ namespace IsengardClient
             bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
             bwp.TargetRoomMob = targetRoomMob;
-            RunCommands(bwp);
+            RunBackgroundProcess(bwp);
         }
 
         private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, List<Exit> preExits, out PromptedSkills activatedSkills, out string mob)
@@ -4179,7 +4168,7 @@ namespace IsengardClient
             {
                 bwp = GenerateNewBackgroundParameters();
                 bwp.Flee = true;
-                RunCommands(bwp);
+                RunBackgroundProcess(bwp);
             }
             else
             {
@@ -4195,7 +4184,7 @@ namespace IsengardClient
                 bwp = GenerateNewBackgroundParameters();
                 bwp.DoScore = true;
                 bwp.Foreground = true;
-                RunCommands(bwp);
+                RunBackgroundProcess(bwp);
             }
             else
             {
@@ -4210,7 +4199,7 @@ namespace IsengardClient
             {
                 bwp = GenerateNewBackgroundParameters();
                 bwp.Quit = true;
-                RunCommands(bwp);
+                RunBackgroundProcess(bwp);
             }
             else
             {
@@ -4458,7 +4447,7 @@ namespace IsengardClient
         {
             BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
             bwp.Exits = exits;
-            RunCommands(bwp);
+            RunBackgroundProcess(bwp);
         }
 
         private void btnGraph_Click(object sender, EventArgs e)
@@ -4597,7 +4586,7 @@ namespace IsengardClient
             {
                 bwp = GenerateNewBackgroundParameters();
                 bwp.UsedSkills = activatedSkills;
-                RunCommands(bwp);
+                RunBackgroundProcess(bwp);
             }
         }
 
@@ -4608,7 +4597,7 @@ namespace IsengardClient
             {
                 bwp = GenerateNewBackgroundParameters();
                 bwp.Heal = true;
-                RunCommands(bwp);
+                RunBackgroundProcess(bwp);
             }
         }
 
