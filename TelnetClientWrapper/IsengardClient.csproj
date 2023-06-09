@@ -97,7 +97,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>IsengardSettings.settings</DependentUpon>
     </Compile>
+    <Compile Include="ItemTypeEnum.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="MobTypeEnum.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueueNode.cs" />
     <Compile Include="PriorityQueue\IFixedSizePriorityQueue.cs" />

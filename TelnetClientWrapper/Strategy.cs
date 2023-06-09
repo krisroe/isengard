@@ -617,6 +617,12 @@ namespace IsengardClient
                     }
                 }
             }
+            if (manaDrain > 0 && manaDrain > currentMP)
+            {
+                manaDrain = 0;
+                bct = null;
+                ret = MagicCommandChoiceResult.OutOfMana;
+            }
             return ret;
         }
     }

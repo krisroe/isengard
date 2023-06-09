@@ -2515,76 +2515,15 @@ namespace IsengardClient
                                             }
                                         }
                                     }
-                                    else if (result != MagicCommandChoiceResult.OutOfMana)
-                                    {
-                                        if (manaDrain > currentMana)
-                                        {
-                                            result = MagicCommandChoiceResult.OutOfMana;
-                                        }
-                                    }
-                                    if (result == MagicCommandChoiceResult.OutOfMana)
+                                    else if (result == MagicCommandChoiceResult.OutOfMana)
                                     {
                                         nextMagicStep = null;
                                         magicStepsFinished = true;
                                     }
                                     else if (result == MagicCommandChoiceResult.Cast)
                                     {
-                                        backgroundCommandResult = RunSingleCommandForCommandResult(bct.Value, command, pms, BeforeFleeCommandAbortLogic, false);
-                                        if (backgroundCommandResult == CommandResult.CommandAborted)
-                                        {
+                                        if (!RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage)) 
                                             return;
-                                        }
-                                        else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                                        {
-                                            magicStepsFinished = true;
-                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                            nextMagicStep = null;
-                                        }
-                                        else if (backgroundCommandResult == CommandResult.CommandMustWait)
-                                        {
-                                            int waitMS = GetWaitMilliseconds(_waitSeconds);
-                                            if (waitMS > 0)
-                                            {
-                                                dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
-                                            }
-                                            else
-                                            {
-                                                dtNextMagicCommand = null;
-                                            }
-                                        }
-                                        else if (backgroundCommandResult == CommandResult.CommandSuccessful) //spell was cast
-                                        {
-                                            _pleaseWaitSequence.ClearLastMagicWaitSeconds();
-                                            if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
-                                                nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
-                                            {
-                                                didDamage = true;
-                                            }
-                                            if (useManaPool)
-                                            {
-                                                _currentMana -= manaDrain;
-                                            }
-                                            if (magicStepsFinished)
-                                            {
-                                                nextMagicStep = null;
-                                            }
-                                            else if (magicSteps.MoveNext())
-                                            {
-                                                nextMagicStep = magicSteps.Current;
-                                                dtNextMagicCommand = null;
-                                            }
-                                            else //no more steps
-                                            {
-                                                nextMagicStep = null;
-                                                magicStepsFinished = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new InvalidOperationException();
-                                        }
                                     }
                                 }
 
@@ -2622,60 +2561,8 @@ namespace IsengardClient
                                 {
                                     stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
                                     bool isPowerAttack = nextMeleeStep.Value == MeleeStrategyStep.PowerAttack;
-
-                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Attack, command, pms, BeforeFleeCommandAbortLogic, false);
-                                    if (backgroundCommandResult == CommandResult.CommandAborted)
-                                    {
+                                    if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, isPowerAttack, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
-                                    }
-                                    else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                                    {
-                                        meleeStepsFinished = true;
-                                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                                        nextMeleeStep = null;
-                                    }
-                                    else if (backgroundCommandResult == CommandResult.CommandMustWait)
-                                    {
-                                        int waitMS = GetWaitMilliseconds(_waitSeconds);
-                                        if (waitMS > 0)
-                                        {
-                                            dtNextMeleeCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
-                                        }
-                                        else
-                                        {
-                                            dtNextMeleeCommand = null;
-                                        }
-                                    }
-                                    else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
-                                    {
-                                        _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                                        if (isPowerAttack) //refresh power attack cooldown when strategy finishes
-                                        {
-                                            pms.DoScore = true;
-                                        }
-                                        if (_lastCommandDamage != 0)
-                                        {
-                                            didDamage = true;
-                                        }
-                                        if (meleeStepsFinished)
-                                        {
-                                            nextMeleeStep = null;
-                                        }
-                                        else if (meleeSteps.MoveNext())
-                                        {
-                                            nextMeleeStep = meleeSteps.Current;
-                                            dtNextMeleeCommand = null;
-                                        }
-                                        else //no more steps
-                                        {
-                                            nextMeleeStep = null;
-                                            meleeStepsFinished = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new InvalidOperationException();
-                                    }
                                 }
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
@@ -2830,6 +2717,125 @@ namespace IsengardClient
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+        
+        private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, bool isPowerAttack, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
+        {
+            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, BeforeFleeCommandAbortLogic, false);
+            if (backgroundCommandResult == CommandResult.CommandAborted)
+            {
+                return false;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+            {
+                meleeStepsFinished = true;
+                _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                nextMeleeStep = null;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandMustWait)
+            {
+                int waitMS = GetWaitMilliseconds(_waitSeconds);
+                if (waitMS > 0)
+                {
+                    dtNextMeleeCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                }
+                else
+                {
+                    dtNextMeleeCommand = null;
+                }
+            }
+            else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
+            {
+                _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                if (isPowerAttack) //refresh power attack cooldown when strategy finishes
+                {
+                    pms.DoScore = true;
+                }
+                if (_lastCommandDamage != 0)
+                {
+                    didDamage = true;
+                }
+                if (meleeStepsFinished)
+                {
+                    nextMeleeStep = null;
+                }
+                else if (meleeSteps.MoveNext())
+                {
+                    nextMeleeStep = meleeSteps.Current;
+                    dtNextMeleeCommand = null;
+                }
+                else //no more steps
+                {
+                    nextMeleeStep = null;
+                    meleeStepsFinished = true;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            return true;
+        }
+
+        private bool RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
+        {
+            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, BeforeFleeCommandAbortLogic, false);
+            if (backgroundCommandResult == CommandResult.CommandAborted)
+            {
+                return false;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+            {
+                magicStepsFinished = true;
+                _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                nextMagicStep = null;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandMustWait)
+            {
+                int waitMS = GetWaitMilliseconds(_waitSeconds);
+                if (waitMS > 0)
+                {
+                    dtNextMagicCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                }
+                else
+                {
+                    dtNextMagicCommand = null;
+                }
+            }
+            else if (backgroundCommandResult == CommandResult.CommandSuccessful) //spell was cast
+            {
+                _pleaseWaitSequence.ClearLastMagicWaitSeconds();
+                if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
+                {
+                    didDamage = true;
+                }
+                if (useManaPool)
+                {
+                    _currentMana -= manaDrain;
+                }
+                if (magicStepsFinished)
+                {
+                    nextMagicStep = null;
+                }
+                else if (magicSteps.MoveNext())
+                {
+                    nextMagicStep = magicSteps.Current;
+                    dtNextMagicCommand = null;
+                }
+                else //no more steps
+                {
+                    nextMagicStep = null;
+                    magicStepsFinished = true;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            return true;
         }
 
         private void CheckForQueuedMagicStep(BackgroundWorkerParameters pms, ref MagicStrategyStep? nextMagicStep)
