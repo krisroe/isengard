@@ -81,6 +81,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
             this.lblPowerAttackTimeValue = new System.Windows.Forms.Label();
             this.lblManashieldTime = new System.Windows.Forms.Label();
@@ -230,7 +231,7 @@
             this.txtMob.Location = new System.Drawing.Point(68, 19);
             this.txtMob.Margin = new System.Windows.Forms.Padding(2);
             this.txtMob.Name = "txtMob";
-            this.txtMob.Size = new System.Drawing.Size(179, 20);
+            this.txtMob.Size = new System.Drawing.Size(163, 20);
             this.txtMob.TabIndex = 4;
             this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
             // 
@@ -414,7 +415,7 @@
             this.txtWeapon.Location = new System.Drawing.Point(68, 41);
             this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.txtWeapon.Name = "txtWeapon";
-            this.txtWeapon.Size = new System.Drawing.Size(179, 20);
+            this.txtWeapon.Size = new System.Drawing.Size(162, 20);
             this.txtWeapon.TabIndex = 42;
             this.txtWeapon.TextChanged += new System.EventHandler(this.txtWeapon_TextChanged);
             // 
@@ -485,7 +486,7 @@
             this.txtWand.Location = new System.Drawing.Point(68, 65);
             this.txtWand.Margin = new System.Windows.Forms.Padding(2);
             this.txtWand.Name = "txtWand";
-            this.txtWand.Size = new System.Drawing.Size(179, 20);
+            this.txtWand.Size = new System.Drawing.Size(162, 20);
             this.txtWand.TabIndex = 49;
             this.txtWand.TextChanged += new System.EventHandler(this.txtWand_TextChanged);
             // 
@@ -596,7 +597,7 @@
             this.txtPotion.Location = new System.Drawing.Point(68, 87);
             this.txtPotion.Margin = new System.Windows.Forms.Padding(2);
             this.txtPotion.Name = "txtPotion";
-            this.txtPotion.Size = new System.Drawing.Size(179, 20);
+            this.txtPotion.Size = new System.Drawing.Size(162, 20);
             this.txtPotion.TabIndex = 68;
             // 
             // lblPotion
@@ -745,6 +746,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnIncrementWand);
             this.pnlMain.Controls.Add(this.grpSkillCooldowns);
             this.pnlMain.Controls.Add(this.lblAutoSpellLevels);
             this.pnlMain.Controls.Add(this.btnHeal);
@@ -797,6 +799,19 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnIncrementWand
+            // 
+            this.btnIncrementWand.Enabled = false;
+            this.btnIncrementWand.Location = new System.Drawing.Point(234, 63);
+            this.btnIncrementWand.Margin = new System.Windows.Forms.Padding(2);
+            this.btnIncrementWand.Name = "btnIncrementWand";
+            this.btnIncrementWand.Size = new System.Drawing.Size(34, 23);
+            this.btnIncrementWand.TabIndex = 139;
+            this.btnIncrementWand.Tag = "up";
+            this.btnIncrementWand.Text = "Inc";
+            this.btnIncrementWand.UseVisualStyleBackColor = true;
+            this.btnIncrementWand.Click += new System.EventHandler(this.btnIncrementWand_Click);
             // 
             // grpSkillCooldowns
             // 
@@ -2025,6 +2040,7 @@
         private System.Windows.Forms.Label lblToNextLevelValue;
         private System.Windows.Forms.Label lblToNextLevel;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;
+        private System.Windows.Forms.Button btnIncrementWand;
     }
 }
 

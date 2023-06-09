@@ -4072,6 +4072,29 @@ namespace IsengardClient
         {
             _wand = txtWand.Text;
             EnableDisableActionButtons(_currentBackgroundParameters);
+            btnIncrementWand.Enabled = !string.IsNullOrEmpty(txtWand.Text);
+        }
+
+        private void btnIncrementWand_Click(object sender, EventArgs e)
+        {
+            string text = (txtWand.Text ?? string.Empty).Trim();
+            if (!string.IsNullOrEmpty(text))
+            {
+                string baseWand = text;
+                int currentIndex = 1;
+                int iSpaceIndex = text.LastIndexOf(' ');
+                if (iSpaceIndex > 0)
+                {
+                    string lastWord = text.Substring(iSpaceIndex + 1);
+                    if (int.TryParse(lastWord, out int iExistingIndex) && iExistingIndex > 0)
+                    {
+                        currentIndex = iExistingIndex;
+                        baseWand = text.Substring(0, iSpaceIndex);
+                    }
+                }
+                currentIndex++;
+                txtWand.Text = baseWand + " " + currentIndex;
+            }
         }
 
         private void txtOneOffCommand_KeyPress(object sender, KeyPressEventArgs e)
