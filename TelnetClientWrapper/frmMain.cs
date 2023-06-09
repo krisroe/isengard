@@ -151,7 +151,6 @@ namespace IsengardClient
         private int _monsterDamage;
         private int _monsterDamageUI;
         private bool _monsterStunned;
-        private bool _monsterStunnedUI;
         private bool _monsterKilled;
 
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
@@ -878,8 +877,37 @@ namespace IsengardClient
 
             lock (_skillsLock)
             {
-                _cooldowns.Clear();
-                _cooldowns.AddRange(cooldowns);
+                bool clear = false;
+                if (cooldowns.Count != _cooldowns.Count)
+                {
+                    clear = true;
+                }
+                else
+                {
+                    for (int i = 0; i < cooldowns.Count; i++)
+                    {
+                        if (cooldowns[i].SkillType != _cooldowns[i].SkillType)
+                        {
+                            clear = true;
+                            break;
+                        }
+                    }
+                }
+                if (clear)
+                {
+                    _cooldowns.Clear();
+                    _cooldowns.AddRange(cooldowns);
+                }
+                else //copy into the existing structures
+                {
+                    for (int i = 0; i < cooldowns.Count; i++)
+                    {
+                        SkillCooldown oExisting = _cooldowns[i];
+                        SkillCooldown oNew = cooldowns[i];
+                        oExisting.Status = oNew.Status;
+                        oExisting.NextAvailable = oNew.NextAvailable;
+                    }
+                }
             }
             lock (_spellsLock)
             {
@@ -3594,13 +3622,32 @@ namespace IsengardClient
             mob = string.Empty;
 
             PromptedSkills skills = PromptedSkills.None;
-            if (!staticSkillsOnly && forMeleeCombat)
+            DateTime utcNow = DateTime.UtcNow;
+
+            lock (_skillsLock)
             {
-                bool promptPowerAttack = lblPowerAttackTimeValue.Text == "0:00";
-                if (promptPowerAttack) skills |= PromptedSkills.PowerAttack;
+                foreach (SkillCooldown nextCooldown in _cooldowns)
+                {
+                    SkillWithCooldownType sct = nextCooldown.SkillType;
+                    DateTime nextAv = nextCooldown.NextAvailable;
+                    SkillCooldownStatus status = nextCooldown.Status;
+                    bool isAvailable = status == SkillCooldownStatus.Available || (status == SkillCooldownStatus.Waiting && utcNow >= nextCooldown.NextAvailable);
+                    if (isAvailable)
+                    {
+                        if (sct == SkillWithCooldownType.PowerAttack)
+                        {
+                            if (!staticSkillsOnly && forMeleeCombat)
+                            {
+                                skills |= PromptedSkills.PowerAttack;
+                            }
+                        }
+                        else if (sct == SkillWithCooldownType.Manashield)
+                        {
+                            skills |= PromptedSkills.Manashield;
+                        }
+                    }
+                }
             }
-            bool promptManashield = lblManashieldTimeValue.Text == "0:00";
-            if (promptManashield) skills |= PromptedSkills.Manashield;
 
             if (staticSkillsOnly && skills == PromptedSkills.None)
             {
@@ -3658,6 +3705,7 @@ namespace IsengardClient
 
         private void tmr_Tick(object sender, EventArgs e)
         {
+            DateTime dtUTCNow = DateTime.UtcNow;
             InitializationStep initStep = _initializationSteps;
             int autohpforthistick = _autohp;
             int autompforthistick = _automp;
@@ -3758,60 +3806,80 @@ namespace IsengardClient
                 {
                     cooldowns.AddRange(_cooldowns);
                 }
+                if (cooldowns.Count > 0)
+                {
+                    if (cooldowns[0].CooldownLabel == null) //recreate labels
+                    {
+                        grpSkillCooldowns.Controls.Clear();
+                        int iLabelY = 17;
+                        foreach (SkillCooldown next in cooldowns)
+                        {
+                            Label lblSkill = new Label();
+                            lblSkill.AutoSize = true;
+                            lblSkill.Location = new Point(5, iLabelY);
+                            lblSkill.Size = new Size(64, 13);
+                            lblSkill.Text = next.SkillName;
+                            lblSkill.TextAlign = ContentAlignment.MiddleLeft;
+
+                            Label lblValue = new Label();
+                            lblValue.AutoSize = false;
+                            lblValue.Location = new Point(84, iLabelY);
+                            lblValue.Size = new Size(76, 15);
+                            lblValue.TextAlign = ContentAlignment.MiddleCenter;
+                            next.CooldownLabel = lblValue;
+
+                            iLabelY += 19;
+
+                            grpSkillCooldowns.Controls.Add(lblSkill);
+                            grpSkillCooldowns.Controls.Add(lblValue);
+                        }
+                    }
+                }
                 foreach (SkillCooldown nextCooldown in cooldowns)
                 {
-                    SkillWithCooldownType eType = nextCooldown.SkillType;
-                    DateTime dtUTCNow = DateTime.UtcNow;
-                    Label lbl;
-                    switch (eType)
-                    {
-                        case SkillWithCooldownType.PowerAttack:
-                            lbl = lblPowerAttackTimeValue;
-                            break;
-                        case SkillWithCooldownType.Manashield:
-                            lbl = lblManashieldTimeValue;
-                            break;
-                        default:
-                            throw new InvalidOperationException();
-                    }
+                    SkillCooldownStatus status = nextCooldown.Status;
+                    DateTime nextAvailable = nextCooldown.NextAvailable;
                     string sText;
-                    if (nextCooldown.Active)
+                    if (status == SkillCooldownStatus.Active)
                     {
                         sText = "ACTIVE";
                         backColor = _fullColor;
                     }
-                    else //not currently active
+                    else if (status == SkillCooldownStatus.Available)
                     {
-                        DateTime? dtNextAvailable = nextCooldown.NextAvailable;
-                        if (dtNextAvailable.HasValue)
-                        {
-                            DateTime dtDateValue = nextCooldown.NextAvailable.Value;
-                            if (dtUTCNow >= dtDateValue)
-                            {
-                                sText = "0:00";
-                            }
-                            else
-                            {
-                                TimeSpan ts = dtDateValue - dtUTCNow;
-                                sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
-                            }
-                            backColor = sText == "0:00" ? _fullColor : _emptyColor;
-                        }
-                        else //available now
+                        sText = "0:00";
+                        backColor = _fullColor;
+                    }
+                    else if (status == SkillCooldownStatus.Waiting)
+                    {
+                        DateTime dtDateValue = nextCooldown.NextAvailable;
+                        if (dtUTCNow >= dtDateValue) //available now
                         {
                             sText = "0:00";
-                            backColor = _fullColor;
                         }
+                        else //still waiting
+                        {
+                            TimeSpan ts = dtDateValue - dtUTCNow;
+                            sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
+                        }
+                        backColor = sText == "0:00" ? _fullColor : _emptyColor;
                     }
-                    if (!string.Equals(sText, lbl.Text))
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    Label lbl = nextCooldown.CooldownLabel;
+                    if (!string.Equals(sText, nextCooldown.RemainingTextUI))
                     {
                         lbl.Text = sText;
+                        nextCooldown.RemainingTextUI = sText;
                     }
-                    if (backColor != lbl.BackColor)
+                    if (backColor != nextCooldown.RemainingColorUI)
                     {
                         GetForegroundColor(backColor.R, backColor.G, backColor.B, out byte forer, out byte foreg, out byte foreb);
                         lbl.BackColor = backColor;
                         lbl.ForeColor = Color.FromArgb(forer, foreg, foreb);
+                        nextCooldown.RemainingColorUI = backColor;
                     }
                 }
 
@@ -3836,11 +3904,10 @@ namespace IsengardClient
             if ((initStep & InitializationStep.Time) != InitializationStep.None)
             {
                 int iTime = _time;
-                DateTime utcNow = DateTime.UtcNow;
                 lock (_timeLock) //auto-advance the hour if an hour's worth of game time has elapsed
                 {
                     DateTime dtTimeLastUpdatedUTC = _timeLastUpdatedUTC;
-                    if ((utcNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
+                    if ((dtUTCNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
                     {
                         if (iTime == 23)
                             iTime = 0;
@@ -3884,11 +3951,6 @@ namespace IsengardClient
             {
                 txtMobDamage.Text = _monsterDamage <= 0 ? string.Empty : _monsterDamage.ToString();
                 _monsterDamageUI = iMonsterDamage;
-            }
-            if (monsterStunned != _monsterStunnedUI)
-            {
-                chkMobStunned.Checked = monsterStunned;
-                _monsterStunnedUI = monsterStunned;
             }
             if (monsterStatus != _currentMonsterStatusUI)
             {
@@ -3942,8 +4004,6 @@ namespace IsengardClient
             EnableDisableActionButtons(_currentBackgroundParameters);
             if (!btnAbort.Enabled) //processing that only happens when a background process is not running
             {
-                DateTime dtUtcNow = DateTime.UtcNow;
-
                 if (_autoHazied)
                 {
                     ClearAutoHazyThreshold();
@@ -3958,20 +4018,20 @@ namespace IsengardClient
                 }
                 else
                 {
-                    CheckAutoHazy(_autoHazyThreshold, dtUtcNow, autohpforthistick);
+                    CheckAutoHazy(_autoHazyThreshold, dtUTCNow, autohpforthistick);
                 }
 
                 //check for poll tick if the first status update has completed and not at full HP+MP
                 if (_currentStatusLastComputed.HasValue && (autohpforthistick == HP_OR_MP_UNKNOWN || autohpforthistick < _totalhp || autompforthistick == HP_OR_MP_UNKNOWN || autompforthistick < _totalmp))
                 {
-                    bool runPollTick = (dtUtcNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
+                    bool runPollTick = (dtUTCNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
                     if (runPollTick && _lastPollTick.HasValue)
                     {
-                        runPollTick = (dtUtcNow - _lastPollTick.Value).TotalSeconds >= 5;
+                        runPollTick = (dtUTCNow - _lastPollTick.Value).TotalSeconds >= 5;
                     }
                     if (runPollTick)
                     {
-                        _lastPollTick = dtUtcNow;
+                        _lastPollTick = dtUTCNow;
                         SendCommand(string.Empty, InputEchoType.On);
                     }
                 }

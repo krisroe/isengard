@@ -83,11 +83,13 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns.Count == 2);
             Assert.IsTrue(spells.Count == 1);
             Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
-            Assert.IsTrue(cooldowns[0].NextAvailable.HasValue);
-            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[0].NextAvailable != DateTime.MinValue);
+            Assert.IsTrue(cooldowns[0].Status == SkillCooldownStatus.Waiting);
+            Assert.IsTrue(cooldowns[0].SkillName == "(power) attack");
             Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
-            Assert.IsTrue(!cooldowns[1].NextAvailable.HasValue);
-            Assert.IsTrue(!cooldowns[1].Active);
+            Assert.IsTrue(cooldowns[1].NextAvailable == DateTime.MinValue);
+            Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Available);
+            Assert.IsTrue(cooldowns[1].SkillName == "manashield");
             Assert.IsTrue(spells[0] == "None");
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
@@ -114,11 +116,13 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns.Count == 2);
             Assert.IsTrue(spells.Count == 2);
             Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
-            Assert.IsTrue(!cooldowns[0].NextAvailable.HasValue);
-            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[0].NextAvailable == DateTime.MinValue);
+            Assert.IsTrue(cooldowns[0].Status == SkillCooldownStatus.Available);
+            Assert.IsTrue(cooldowns[0].SkillName == "(power) attack");
             Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
-            Assert.IsTrue(cooldowns[1].NextAvailable.HasValue);
-            Assert.IsTrue(!cooldowns[1].Active);
+            Assert.IsTrue(cooldowns[1].NextAvailable != DateTime.MinValue);
+            Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Waiting);
+            Assert.IsTrue(cooldowns[1].SkillName == "manashield");
             Assert.IsTrue(spells[0] == "bless");
             Assert.IsTrue(spells[1] == "protection");
 
@@ -146,11 +150,13 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns.Count == 2);
             Assert.IsTrue(spells.Count == 2);
             Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
-            Assert.IsTrue(cooldowns[0].NextAvailable.HasValue);
-            Assert.IsTrue(!cooldowns[0].Active);
+            Assert.IsTrue(cooldowns[0].NextAvailable != DateTime.MinValue);
+            Assert.IsTrue(cooldowns[0].Status == SkillCooldownStatus.Waiting);
+            Assert.IsTrue(cooldowns[0].SkillName == "(power) attack");
             Assert.IsTrue(cooldowns[1].SkillType == SkillWithCooldownType.Manashield);
-            Assert.IsTrue(!cooldowns[1].NextAvailable.HasValue);
-            Assert.IsTrue(cooldowns[1].Active);
+            Assert.IsTrue(cooldowns[1].NextAvailable == DateTime.MinValue);
+            Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Active);
+            Assert.IsTrue(cooldowns[1].SkillName == "manashield");
             Assert.IsTrue(spells[0] == "bless");
             Assert.IsTrue(spells[1] == "protection");
         }

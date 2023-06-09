@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 namespace IsengardClient
 {
@@ -454,8 +455,6 @@ namespace IsengardClient
         public Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
-        private const string POWER_ATTACK_PREFIX = "(power) attack ";
-        private const string MANASHIELD_PREFIX = "manashield ";
         private const string TO_NEXT_LEVEL_PREFIX = "To Next Level:";
 
         private string _username;
@@ -580,53 +579,42 @@ namespace IsengardClient
 
                 foreach (string sNextSkill in skillsRaw)
                 {
-                    string sTempSkill = sNextSkill;
-                    SkillWithCooldownType? eType = null;
-                    iIndex = sTempSkill.IndexOf(POWER_ATTACK_PREFIX);
-                    if (iIndex >= 0)
-                    {
-                        eType = SkillWithCooldownType.PowerAttack;
-                        if (sTempSkill.Length == POWER_ATTACK_PREFIX.Length)
-                        {
-                            return;
-                        }
-                        sTempSkill = sTempSkill.Substring(POWER_ATTACK_PREFIX.Length);
-                    }
-                    if (!eType.HasValue)
-                    {
-                        iIndex = sTempSkill.IndexOf(MANASHIELD_PREFIX);
-                        if (iIndex >= 0)
-                        {
-                            eType = SkillWithCooldownType.Manashield;
-                            if (sTempSkill.Length == MANASHIELD_PREFIX.Length)
-                            {
-                                return;
-                            }
-                            sTempSkill = sTempSkill.Substring(MANASHIELD_PREFIX.Length);
-                        }
-                    }
-                    if (!eType.HasValue || sTempSkill.Length <= 2 || !sTempSkill.StartsWith("[") || !sTempSkill.EndsWith("]"))
-                    {
-                        return;
-                    }
-                    sTempSkill = sTempSkill.Substring(1, sTempSkill.Length - 2); //remove the brackets
-                    SkillWithCooldownType eTypeValue = eType.Value;
+                    int iLastBracket = sNextSkill.LastIndexOf(" [");
+                    if (iLastBracket <= 0) return;
+                    if (!sNextSkill.EndsWith("]")) return;
+
+                    SkillWithCooldownType skillType = SkillWithCooldownType.Unknown;
+                    string skill = sNextSkill.Substring(0, iLastBracket).Trim();
+                    if (skill == "(power) attack") skillType = SkillWithCooldownType.PowerAttack;
+                    else if (skill == "manashield") skillType = SkillWithCooldownType.Manashield;
+
+                    int totalLength = sNextSkill.Length;
+                    int timeLength = totalLength - iLastBracket - 3;
+                    if (timeLength < 4) return;
+
+                    string sTempTime = sNextSkill.Substring(iLastBracket + 2, timeLength);
                     SkillCooldown cooldown = new SkillCooldown();
-                    cooldown.SkillType = eTypeValue;
-                    if (sTempSkill == "ACTIVE")
+                    cooldown.SkillType = skillType;
+                    if (sTempTime == "ACTIVE")
                     {
-                        cooldown.Active = true;
+                        cooldown.Status = SkillCooldownStatus.Active;
+                    }
+                    else if (sTempTime == "0:00")
+                    {
+                        cooldown.Status = SkillCooldownStatus.Available;
                     }
                     else //parse timing
                     {
-                        int? iSeconds = PleaseWaitSequence.ParseMinutesAndSecondsToSeconds(sTempSkill);
+                        int? iSeconds = PleaseWaitSequence.ParseMinutesAndSecondsToSeconds(sTempTime);
                         if (!iSeconds.HasValue) return;
                         int iSecondsValue = iSeconds.Value;
                         if (iSecondsValue > 0)
                         {
                             cooldown.NextAvailable = DateTime.UtcNow.AddSeconds(iSecondsValue);
                         }
+                        cooldown.Status = SkillCooldownStatus.Waiting;
                     }
+                    cooldown.SkillName = skill;
                     cooldowns.Add(cooldown);
                 }
 
@@ -745,9 +733,23 @@ namespace IsengardClient
 
     public class SkillCooldown
     {
+        public SkillCooldown()
+        {
+        }
+        public string SkillName { get; set; }
         public SkillWithCooldownType SkillType { get; set; }
-        public bool Active { get; set; }
-        public DateTime? NextAvailable { get; set; }
+        public SkillCooldownStatus Status { get; set; }
+        public DateTime NextAvailable { get; set; }
+        public System.Windows.Forms.Label CooldownLabel { get; set; }
+        public string RemainingTextUI { get; set; }
+        public Color RemainingColorUI { get; set; }
+    }
+
+    public enum SkillCooldownStatus
+    {
+        Active,
+        Available,
+        Waiting,
     }
 
     public enum RoomTransitionType
@@ -2154,6 +2156,7 @@ namespace IsengardClient
 
     public enum SkillWithCooldownType
     {
+        Unknown,
         PowerAttack,
         Manashield,
     }
