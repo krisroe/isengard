@@ -747,9 +747,25 @@ namespace IsengardClient
 
     public enum SkillCooldownStatus
     {
+        /// <summary>
+        /// currently active
+        /// </summary>
         Active,
+
+        /// <summary>
+        /// currently available
+        /// </summary>
         Available,
+
+        /// <summary>
+        /// not currently available and waiting to become available
+        /// </summary>
         Waiting,
+
+        /// <summary>
+        /// not currently available and the next time it will be available is unknown
+        /// </summary>
+        Inactive,
     }
 
     public enum RoomTransitionType
@@ -1274,15 +1290,16 @@ namespace IsengardClient
 
     public class AttackSequence : AOutputProcessingSequence
     {
-        private const string YOUR_PREFIX = "Your ";
+        private const string YOUR_REGULAR_ATTACK_PREFIX = "Your ";
+        private const string YOUR_POWER_ATTACK_PREFIX = "Your power attack ";
         private const string BEFORE_DAMAGE = " hits for ";
         private const string AFTER_DAMAGE = " damage.";
 
         private const string YOU_GAINED_PREFIX = "You gained";
         private const string EXPERIENCE_FOR_THE_DEATH_SUFFIX = " experience for the death of ";
 
-        public Action<bool, int, bool, int, FeedLineParameters> _onSatisfied;
-        public AttackSequence(Action<bool, int, bool, int, FeedLineParameters> onSatisfied)
+        public Action<bool, int, bool, int, bool, FeedLineParameters> _onSatisfied;
+        public AttackSequence(Action<bool, int, bool, int, bool, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1314,6 +1331,7 @@ namespace IsengardClient
             bool fumbled = false;
             bool satisfied;
             int damage = 0;
+            bool powerAttacked = false;
             if (nextLine == "You missed.")
             {
                 satisfied = true;
@@ -1324,6 +1342,7 @@ namespace IsengardClient
             }
             else if (nextLine.StartsWith("Your power attack has no effect on "))
             {
+                //CSRTODO: does this count as a done power attack?
                 satisfied = true;
             }
             else if (nextLine == "You FUMBLED your weapon.")
@@ -1338,10 +1357,11 @@ namespace IsengardClient
             else if (MatchesPowerAttackMissPattern(nextLine))
             {
                 satisfied = true;
+                powerAttacked = true;
             }
             else
             {
-                damage = MatchesHitPattern(nextLine);
+                damage = MatchesHitPattern(nextLine, out powerAttacked);
                 satisfied = damage > 0;
             }
             if (satisfied)
@@ -1353,7 +1373,7 @@ namespace IsengardClient
                     monsterKilled = ProcessMonsterKilledMessages(Lines, iIndex + 1, out iExperience);
                 }
                 flParams.FinishedProcessing = true;
-                _onSatisfied(fumbled, damage, monsterKilled, iExperience, flParams);
+                _onSatisfied(fumbled, damage, monsterKilled, iExperience, powerAttacked, flParams);
             }
         }
 
@@ -1397,12 +1417,16 @@ namespace IsengardClient
             return nextLine.StartsWith("Your power attack ") && nextLine.EndsWith(" missed.");
         }
 
-        public int MatchesHitPattern(string nextLine)
+        public int MatchesHitPattern(string nextLine, out bool powerAttacked)
         {
-            if (!nextLine.StartsWith(YOUR_PREFIX)) return 0;
+            //validate the prefix to determine it is for an attack or power attack
+            powerAttacked = nextLine.StartsWith(YOUR_POWER_ATTACK_PREFIX);
+            if (!powerAttacked && !nextLine.StartsWith(YOUR_REGULAR_ATTACK_PREFIX)) return 0;
+
+            //retrieve damage from the end of the text
             int iDamage = GetDamage(nextLine, BEFORE_DAMAGE, AFTER_DAMAGE);
             if (iDamage == 0) return 0;
-            if (nextLine.Length == YOUR_PREFIX.Length + BEFORE_DAMAGE.Length + iDamage.ToString().Length + AFTER_DAMAGE.Length) return 0;
+            if (nextLine.Length == YOUR_REGULAR_ATTACK_PREFIX.Length + BEFORE_DAMAGE.Length + iDamage.ToString().Length + AFTER_DAMAGE.Length) return 0;
             return iDamage;
         }
 

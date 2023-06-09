@@ -858,14 +858,6 @@ namespace IsengardClient
         }
 
         /// <summary>
-        /// force a score after a cooldown skill goes off
-        /// </summary>
-        private void DoScore(FeedLineParameters flParams)
-        {
-            _doScore = true;
-        }
-
-        /// <summary>
         /// handler for the output of score
         /// </summary>
         private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int tnl, List<SkillCooldown> cooldowns, List<string> spells)
@@ -1119,12 +1111,33 @@ namespace IsengardClient
             }
         }
 
-        private static void OnSuccessfulManashield(FeedLineParameters flParams)
+        private void OnManashieldOn(FeedLineParameters flParams)
         {
+            ChangeSkillActive(SkillWithCooldownType.Manashield, true);
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private void OnManashieldOff(FeedLineParameters flParams)
+        {
+            ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+        }
+
+        private void ChangeSkillActive(SkillWithCooldownType skill, bool active)
+        {
+            lock (_skillsLock)
+            {
+                foreach (SkillCooldown nextCooldown in _cooldowns)
+                {
+                    if (nextCooldown.SkillType == skill)
+                    {
+                        nextCooldown.Status = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
+                        nextCooldown.NextAvailable = DateTime.MinValue;
+                    }
+                }
             }
         }
 
@@ -1156,8 +1169,21 @@ namespace IsengardClient
             }
         }
 
-        private static void OnBlessSpellCast(FeedLineParameters flParams)
+        private void AddActiveSpell(string spellName)
         {
+            lock (_spellsCast)
+            {
+                if (_spellsCast.Contains(spellName))
+                {
+                    _spellsCast.Remove(spellName);
+                    _refreshSpellsCast = true;
+                }
+            }
+        }
+
+        private void OnBlessSpellCast(FeedLineParameters flParams)
+        {
+            AddActiveSpell("bless");
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Bless)
             {
@@ -1165,8 +1191,9 @@ namespace IsengardClient
             }
         }
 
-        private static void OnProtectionSpellCast(FeedLineParameters flParams)
+        private void OnProtectionSpellCast(FeedLineParameters flParams)
         {
+            AddActiveSpell("protection");
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Protection)
             {
@@ -1259,8 +1286,12 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled, int damage, bool killedMonster, int experience, FeedLineParameters flParams)
+        private void OnAttack(bool fumbled, int damage, bool killedMonster, int experience, bool powerAttacked, FeedLineParameters flParams)
         {
+            if (powerAttacked)
+            {
+                ChangeSkillActive(SkillWithCooldownType.PowerAttack, false);
+            }
             _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
@@ -1628,9 +1659,9 @@ namespace IsengardClient
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
-                new ConstantOutputSequence("You creative a protective manashield.", OnSuccessfulManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your manashield dissipates.", DoScore, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("Your manashield dissipates.", OnManashieldOff, ConstantSequenceMatchType.ExactMatch, 0),
                 new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
                 new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
@@ -2691,12 +2722,12 @@ namespace IsengardClient
                                     else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
                                     {
                                         _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                        if (isPowerAttack) //refresh power attack cooldown when strategy finishes
+                                        {
+                                            pms.DoScore = true;
+                                        }
                                         if (_lastCommandDamage != 0)
                                         {
-                                            if (isPowerAttack) //refresh power attack cooldown when strategy finishes
-                                            {
-                                                pms.DoScore = true;
-                                            }
                                             didDamage = true;
                                         }
                                         if (meleeStepsFinished)
@@ -2939,15 +2970,7 @@ namespace IsengardClient
                 default:
                     throw new InvalidOperationException();
             }
-            bool successfullyCast = RunSingleCommand(bct, "cast " + spellName, bwp, BeforeFleeCommandAbortLogic, false, false);
-            if (successfullyCast)
-            {
-                if (bct == BackgroundCommandType.Bless || bct == BackgroundCommandType.Protection)
-                {
-                    bwp.DoScore = true;
-                }
-            }
-            return successfullyCast;
+            return RunSingleCommand(bct, "cast " + spellName, bwp, BeforeFleeCommandAbortLogic, false, false);
         }
 
         private void WaitUntilNextCommand(int remainingMS, bool fleeing, bool quitting)
@@ -3629,7 +3652,6 @@ namespace IsengardClient
                 foreach (SkillCooldown nextCooldown in _cooldowns)
                 {
                     SkillWithCooldownType sct = nextCooldown.SkillType;
-                    DateTime nextAv = nextCooldown.NextAvailable;
                     SkillCooldownStatus status = nextCooldown.Status;
                     bool isAvailable = status == SkillCooldownStatus.Available || (status == SkillCooldownStatus.Waiting && utcNow >= nextCooldown.NextAvailable);
                     if (isAvailable)
@@ -3850,6 +3872,11 @@ namespace IsengardClient
                         sText = "0:00";
                         backColor = _fullColor;
                     }
+                    else if (status == SkillCooldownStatus.Inactive)
+                    {
+                        sText = "?";
+                        backColor = _emptyColor;
+                    }
                     else if (status == SkillCooldownStatus.Waiting)
                     {
                         DateTime dtDateValue = nextCooldown.NextAvailable;
@@ -3940,7 +3967,6 @@ namespace IsengardClient
             string sMonster = _currentlyFightingMob;
             int iMonsterDamage = _monsterDamage;
             MonsterStatus monsterStatus = _currentMonsterStatus;
-            bool monsterStunned = _monsterStunned;
 
             if (!string.Equals(sMonster, _currentlyFightingMobUI))
             {
@@ -3975,7 +4001,7 @@ namespace IsengardClient
             Room oCurrentRoom = m_oCurrentRoom;
             if (oCurrentRoom != m_oCurrentRoomUI)
             {
-                string sLocationsText = string.Empty;
+                string sLocationsText;
                 if (oCurrentRoom != null)
                 {
                     sLocationsText = "Locations (" + oCurrentRoom.Name + ")";

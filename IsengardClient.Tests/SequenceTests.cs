@@ -361,13 +361,15 @@ namespace IsengardClient.Tests
             bool? killed = null;
             int? tnl = null;
             int? damage = null;
-            Action<bool, int, bool, int, FeedLineParameters> a = (f, d, k, t, flp) =>
+            bool? powerAttacked = null;
+            Action<bool, int, bool, int, bool, FeedLineParameters> a = (f, d, k, t, p, flp) =>
             {
                 success = true;
                 fumbled = f;
                 damage = d;
                 killed = k;
                 tnl = t;
+                powerAttacked = p;
             };
             AttackSequence aseq = new AttackSequence(a);
 
