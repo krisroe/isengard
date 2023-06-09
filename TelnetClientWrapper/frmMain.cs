@@ -3,9 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -31,16 +29,13 @@ namespace IsengardClient
         private DateTime _timeLastUpdatedUTC = DateTime.MinValue;
         private int _timeUI = -1;
         private object _timeLock = new object();
-        private string _hp = null;
-        private string _hpUI = null;
+
         private byte _hpColorR;
         private byte _hpColorG;
         private byte _hpColorB;
         private byte _hpColorRUI;
         private byte _hpColorGUI;
         private byte _hpColorBUI;
-        private string _mp = null;
-        private string _mpUI = null;
         private byte _mpColorR;
         private byte _mpColorG;
         private byte _mpColorB;
@@ -94,15 +89,20 @@ namespace IsengardClient
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
         private int _autohp = HP_OR_MP_UNKNOWN;
+        private int _autohpUI = HP_OR_MP_UNKNOWN;
         
         /// <summary>
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
         private int _automp = HP_OR_MP_UNKNOWN;
+        private int _autompUI = HP_OR_MP_UNKNOWN;
 
-        private int _previoustickautohp;
-        private int _previoustickautomp;
+        /// <summary>
+        /// current mana from current combat
+        /// </summary>
         private int _currentMana = HP_OR_MP_UNKNOWN;
+        private int _currentManaUI = HP_OR_MP_UNKNOWN;
+
         private int _autoHazyThreshold;
         private int _rememberedAutoHazyThreshold;
         private DateTime? _lastTriedToAutoHazy;
@@ -805,16 +805,15 @@ namespace IsengardClient
                 _timeLastUpdatedUTC = DateTime.MinValue;
             }
             _timeUI = -1;
-            _hp = null;
-            _hpUI = null;
-            _mp = null;
-            _mpUI = null;
             _level = 0;
             _totalhp = 0;
             _totalmp = 0;
             _autohp = HP_OR_MP_UNKNOWN;
+            _autohpUI = HP_OR_MP_UNKNOWN;
             _automp = HP_OR_MP_UNKNOWN;
+            _autompUI = HP_OR_MP_UNKNOWN;
             _currentMana = HP_OR_MP_UNKNOWN;
+            _currentManaUI = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
             _tnl = -1;
             _tnlUI = -1;
@@ -1459,8 +1458,27 @@ namespace IsengardClient
                             int iNewHP = oii.HP;
                             int iNewMP = oii.MP;
                             hpormpchanged = iNewHP != _autohp || iNewMP != _automp;
-                            _autohp = iNewHP;
-                            _automp = iNewMP;
+                            if (hpormpchanged)
+                            {
+                                bool gotFullHP = iNewHP == _totalhp;
+                                bool gotFullMP = iNewMP == _totalmp;
+                                if (gotFullHP || gotFullMP)
+                                {
+                                    lock (_newConsoleText)
+                                    {
+                                        if (gotFullHP)
+                                        {
+                                            _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
+                                        }
+                                        if (gotFullMP)
+                                        {
+                                            _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
+                                        }
+                                    }
+                                }
+                                _autohp = iNewHP;
+                                _automp = iNewMP;
+                            }
                             _currentStatusLastComputed = DateTime.UtcNow;
                         }
 
@@ -3656,20 +3674,9 @@ namespace IsengardClient
                 return;
             }
 
-            bool gotFullHP = autohpforthistick != HP_OR_MP_UNKNOWN && _previoustickautohp != HP_OR_MP_UNKNOWN && autohpforthistick == _totalhp && _previoustickautohp != _totalhp;
-            bool gotFullMP = autompforthistick != HP_OR_MP_UNKNOWN && _previoustickautomp != HP_OR_MP_UNKNOWN && autompforthistick == _totalmp && _previoustickautomp != _totalmp;
-
             List<string> textToAdd = new List<string>();
             lock (_consoleTextLock)
             {
-                if (gotFullHP)
-                {
-                    _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
-                }
-                if (gotFullMP)
-                {
-                    _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
-                }
                 if (_newConsoleText.Count > 0)
                 {
                     foreach (string s in _newConsoleText)
@@ -3699,7 +3706,7 @@ namespace IsengardClient
             {
                 Color backColor;
                 int iCurrentMana = _currentMana;
-                if (autompforthistick != HP_OR_MP_UNKNOWN)
+                if (autompforthistick != HP_OR_MP_UNKNOWN && (autompforthistick != _autompUI || iCurrentMana != _currentManaUI))
                 {
                     int iTotalMP = _totalmp;
                     string sText = autompforthistick.ToString() + "/" + iTotalMP;
@@ -3717,21 +3724,15 @@ namespace IsengardClient
                         _mpColorG = g;
                         _mpColorB = b;
                     }
-                    _mp = sText;
+                    lblManaValue.Text = sText;
                 }
                 if (autohpforthistick != HP_OR_MP_UNKNOWN)
                 {
-                    _hp = autohpforthistick.ToString() + "/" + _totalhp;
+                    lblHitpointsValue.Text = autohpforthistick.ToString() + "/" + _totalhp;
                     ComputeColor(autohpforthistick, _totalhp, out byte r, out byte g, out byte b);
                     _hpColorR = r;
                     _hpColorG = g;
                     _hpColorB = b;
-                }
-                string sNewHP = _hp;
-                if (!string.Equals(sNewHP, _hpUI))
-                {
-                    lblHitpointsValue.Text = sNewHP;
-                    _hpUI = sNewHP;
                 }
                 byte newHPR = _hpColorR;
                 byte newHPG = _hpColorG;
@@ -3744,12 +3745,6 @@ namespace IsengardClient
                     _hpColorRUI = newHPR;
                     _hpColorGUI = newHPG;
                     _hpColorBUI = newHPB;
-                }
-                string sNewMP = _mp;
-                if (!string.Equals(sNewMP, _mpUI))
-                {
-                    lblManaValue.Text = sNewMP;
-                    _mpUI = sNewMP;
                 }
                 byte newMPR = _mpColorR;
                 byte newMPG = _mpColorG;
@@ -3993,8 +3988,6 @@ namespace IsengardClient
                     SendCommand("score", InputEchoType.On);
                 }
             }
-            _previoustickautohp = autohpforthistick;
-            _previoustickautomp = autompforthistick;
         }
 
         private void ComputeColor(int current, int max, out byte r, out byte g, out byte b)

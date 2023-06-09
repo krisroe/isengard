@@ -97,7 +97,9 @@ namespace IsengardClient
                         parsedCount = ParseNumberWord(firstWord);
                         if (!parsedCount.HasValue) //sets of [1] singular thing
                         {
-                            return GetEntity(setCount, 1, remainder, possibleEntityTypes, errorMessages);
+                            Entity e = GetEntity(1, 1, remainder, possibleEntityTypes, errorMessages);
+                            e.Count = setCount;
+                            return e;
                         }
                         count = parsedCount.Value;
                         remainderLength = remainder.Length;
