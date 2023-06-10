@@ -39,11 +39,17 @@
             this.lblDefaultWeapon = new System.Windows.Forms.Label();
             this.txtDefaultWeapon = new System.Windows.Forms.TextBox();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
-            this.lblAutoHazy = new System.Windows.Forms.Label();
-            this.lblAutoHazyValue = new System.Windows.Forms.Label();
-            this.ctxAutoHazy = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiClearAutoHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblAutoEscape = new System.Windows.Forms.Label();
+            this.lblAutoEscapeValue = new System.Windows.Forms.Label();
+            this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiClearAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAutoEscapeFlee = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAutoEscapeOnByDefault = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeOffByDefault = new System.Windows.Forms.ToolStripMenuItem();
             this.chkQueryMonsterStatus = new System.Windows.Forms.CheckBox();
             this.chkVerboseOutput = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
@@ -65,19 +71,23 @@
             this.lblFullColorValue = new System.Windows.Forms.Label();
             this.lblFullColor = new System.Windows.Forms.Label();
             this.grpStrategies = new System.Windows.Forms.GroupBox();
-            this.btnEditStrategy = new System.Windows.Forms.Button();
-            this.btnMoveStrategyDown = new System.Windows.Forms.Button();
-            this.btnMoveStrategyUp = new System.Windows.Forms.Button();
-            this.btnRemoveStrategy = new System.Windows.Forms.Button();
-            this.btnAddStrategy = new System.Windows.Forms.Button();
             this.lstStrategies = new System.Windows.Forms.ListBox();
+            this.ctxStrategies = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiAddStrategy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRemoveStrategy = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveStrategyUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveStrategyDown = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAutoEscapeRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxDefaultRealm.SuspendLayout();
-            this.ctxAutoHazy.SuspendLayout();
+            this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.grpDefaults.SuspendLayout();
             this.ctxAutoSpellLevels.SuspendLayout();
             this.grpSettings.SuspendLayout();
             this.grpStrategies.SuspendLayout();
+            this.ctxStrategies.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblDefaultRealm
@@ -163,48 +173,99 @@
             this.lblPreferredAlignment.TabIndex = 128;
             this.lblPreferredAlignment.Text = "Preferred alignment:";
             // 
-            // lblAutoHazy
+            // lblAutoEscape
             // 
-            this.lblAutoHazy.AutoSize = true;
-            this.lblAutoHazy.Location = new System.Drawing.Point(15, 67);
-            this.lblAutoHazy.Name = "lblAutoHazy";
-            this.lblAutoHazy.Size = new System.Drawing.Size(57, 13);
-            this.lblAutoHazy.TabIndex = 132;
-            this.lblAutoHazy.Text = "Auto hazy:";
+            this.lblAutoEscape.AutoSize = true;
+            this.lblAutoEscape.Location = new System.Drawing.Point(15, 67);
+            this.lblAutoEscape.Name = "lblAutoEscape";
+            this.lblAutoEscape.Size = new System.Drawing.Size(70, 13);
+            this.lblAutoEscape.TabIndex = 132;
+            this.lblAutoEscape.Text = "Auto escape:";
             // 
-            // lblAutoHazyValue
+            // lblAutoEscapeValue
             // 
-            this.lblAutoHazyValue.BackColor = System.Drawing.Color.Black;
-            this.lblAutoHazyValue.ContextMenuStrip = this.ctxAutoHazy;
-            this.lblAutoHazyValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoHazyValue.Location = new System.Drawing.Point(129, 65);
-            this.lblAutoHazyValue.Name = "lblAutoHazyValue";
-            this.lblAutoHazyValue.Size = new System.Drawing.Size(166, 15);
-            this.lblAutoHazyValue.TabIndex = 133;
-            this.lblAutoHazyValue.Text = "Auto Hazy";
-            this.lblAutoHazyValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
+            this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
+            this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(129, 65);
+            this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
+            this.lblAutoEscapeValue.Size = new System.Drawing.Size(166, 15);
+            this.lblAutoEscapeValue.TabIndex = 133;
+            this.lblAutoEscapeValue.Text = "Auto Escape";
+            this.lblAutoEscapeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // ctxAutoHazy
+            // ctxAutoEscape
             // 
-            this.ctxAutoHazy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetAutoHazy,
-            this.tsmiClearAutoHazy});
-            this.ctxAutoHazy.Name = "ctxAutoHazy";
-            this.ctxAutoHazy.Size = new System.Drawing.Size(102, 48);
+            this.ctxAutoEscape.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetAutoEscapeThreshold,
+            this.tsmiClearAutoEscapeThreshold,
+            this.tsmiAutoEscapeSeparator1,
+            this.tsmiAutoEscapeFlee,
+            this.tsmiAutoEscapeHazy,
+            this.tsmiAutoEscapeSeparator2,
+            this.tsmiAutoEscapeOnByDefault,
+            this.tsmiAutoEscapeOffByDefault,
+            this.tsmiAutoEscapeSeparator3,
+            this.tsmiAutoEscapeRestoreOriginalValue});
+            this.ctxAutoEscape.Name = "ctxAutoEscape";
+            this.ctxAutoEscape.Size = new System.Drawing.Size(190, 198);
+            this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
-            // tsmiSetAutoHazy
+            // tsmiSetAutoEscapeThreshold
             // 
-            this.tsmiSetAutoHazy.Name = "tsmiSetAutoHazy";
-            this.tsmiSetAutoHazy.Size = new System.Drawing.Size(101, 22);
-            this.tsmiSetAutoHazy.Text = "Set";
-            this.tsmiSetAutoHazy.Click += new System.EventHandler(this.tsmiSetOrClearAutoHazy_Click);
+            this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(189, 22);
+            this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
+            this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
-            // tsmiClearAutoHazy
+            // tsmiClearAutoEscapeThreshold
             // 
-            this.tsmiClearAutoHazy.Name = "tsmiClearAutoHazy";
-            this.tsmiClearAutoHazy.Size = new System.Drawing.Size(101, 22);
-            this.tsmiClearAutoHazy.Text = "Clear";
-            this.tsmiClearAutoHazy.Click += new System.EventHandler(this.tsmiClearAutoHazy_Click);
+            this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(189, 22);
+            this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
+            this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
+            // 
+            // tsmiAutoEscapeSeparator1
+            // 
+            this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiAutoEscapeFlee
+            // 
+            this.tsmiAutoEscapeFlee.Checked = true;
+            this.tsmiAutoEscapeFlee.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeFlee.Text = "Flee";
+            this.tsmiAutoEscapeFlee.Click += new System.EventHandler(this.tsmiAutoEscapeFlee_Click);
+            // 
+            // tsmiAutoEscapeHazy
+            // 
+            this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeHazy.Text = "Hazy";
+            this.tsmiAutoEscapeHazy.Click += new System.EventHandler(this.tsmiAutoEscapeHazy_Click);
+            // 
+            // tsmiAutoEscapeSeparator2
+            // 
+            this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiAutoEscapeOnByDefault
+            // 
+            this.tsmiAutoEscapeOnByDefault.Name = "tsmiAutoEscapeOnByDefault";
+            this.tsmiAutoEscapeOnByDefault.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeOnByDefault.Text = "On by Default";
+            this.tsmiAutoEscapeOnByDefault.Click += new System.EventHandler(this.tsmiAutoEscapeOnByDefault_Click);
+            // 
+            // tsmiAutoEscapeOffByDefault
+            // 
+            this.tsmiAutoEscapeOffByDefault.Checked = true;
+            this.tsmiAutoEscapeOffByDefault.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tsmiAutoEscapeOffByDefault.Name = "tsmiAutoEscapeOffByDefault";
+            this.tsmiAutoEscapeOffByDefault.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeOffByDefault.Text = "Off by Default";
+            this.tsmiAutoEscapeOffByDefault.Click += new System.EventHandler(this.tsmiAutoEscapeOffByDefault_Click);
             // 
             // chkQueryMonsterStatus
             // 
@@ -280,8 +341,8 @@
             this.grpDefaults.Controls.Add(this.lblDefaultRealm);
             this.grpDefaults.Controls.Add(this.lblDefaultWeapon);
             this.grpDefaults.Controls.Add(this.txtDefaultWeapon);
-            this.grpDefaults.Controls.Add(this.lblAutoHazyValue);
-            this.grpDefaults.Controls.Add(this.lblAutoHazy);
+            this.grpDefaults.Controls.Add(this.lblAutoEscapeValue);
+            this.grpDefaults.Controls.Add(this.lblAutoEscape);
             this.grpDefaults.Location = new System.Drawing.Point(12, 12);
             this.grpDefaults.Name = "grpDefaults";
             this.grpDefaults.Size = new System.Drawing.Size(366, 119);
@@ -413,11 +474,6 @@
             // 
             // grpStrategies
             // 
-            this.grpStrategies.Controls.Add(this.btnEditStrategy);
-            this.grpStrategies.Controls.Add(this.btnMoveStrategyDown);
-            this.grpStrategies.Controls.Add(this.btnMoveStrategyUp);
-            this.grpStrategies.Controls.Add(this.btnRemoveStrategy);
-            this.grpStrategies.Controls.Add(this.btnAddStrategy);
             this.grpStrategies.Controls.Add(this.lstStrategies);
             this.grpStrategies.Location = new System.Drawing.Point(388, 12);
             this.grpStrategies.Name = "grpStrategies";
@@ -426,64 +482,73 @@
             this.grpStrategies.TabStop = false;
             this.grpStrategies.Text = "Strategies";
             // 
-            // btnEditStrategy
-            // 
-            this.btnEditStrategy.Location = new System.Drawing.Point(68, 250);
-            this.btnEditStrategy.Name = "btnEditStrategy";
-            this.btnEditStrategy.Size = new System.Drawing.Size(57, 23);
-            this.btnEditStrategy.TabIndex = 150;
-            this.btnEditStrategy.Text = "Edit";
-            this.btnEditStrategy.UseVisualStyleBackColor = true;
-            this.btnEditStrategy.Click += new System.EventHandler(this.btnEditStrategy_Click);
-            // 
-            // btnMoveStrategyDown
-            // 
-            this.btnMoveStrategyDown.Location = new System.Drawing.Point(257, 250);
-            this.btnMoveStrategyDown.Name = "btnMoveStrategyDown";
-            this.btnMoveStrategyDown.Size = new System.Drawing.Size(57, 23);
-            this.btnMoveStrategyDown.TabIndex = 149;
-            this.btnMoveStrategyDown.Text = "Down";
-            this.btnMoveStrategyDown.UseVisualStyleBackColor = true;
-            this.btnMoveStrategyDown.Click += new System.EventHandler(this.btnMoveStrategyDown_Click);
-            // 
-            // btnMoveStrategyUp
-            // 
-            this.btnMoveStrategyUp.Location = new System.Drawing.Point(194, 250);
-            this.btnMoveStrategyUp.Name = "btnMoveStrategyUp";
-            this.btnMoveStrategyUp.Size = new System.Drawing.Size(57, 23);
-            this.btnMoveStrategyUp.TabIndex = 148;
-            this.btnMoveStrategyUp.Text = "Up";
-            this.btnMoveStrategyUp.UseVisualStyleBackColor = true;
-            this.btnMoveStrategyUp.Click += new System.EventHandler(this.btnMoveStrategyUp_Click);
-            // 
-            // btnRemoveStrategy
-            // 
-            this.btnRemoveStrategy.Location = new System.Drawing.Point(131, 250);
-            this.btnRemoveStrategy.Name = "btnRemoveStrategy";
-            this.btnRemoveStrategy.Size = new System.Drawing.Size(57, 23);
-            this.btnRemoveStrategy.TabIndex = 147;
-            this.btnRemoveStrategy.Text = "Remove";
-            this.btnRemoveStrategy.UseVisualStyleBackColor = true;
-            this.btnRemoveStrategy.Click += new System.EventHandler(this.btnRemoveStrategy_Click);
-            // 
-            // btnAddStrategy
-            // 
-            this.btnAddStrategy.Location = new System.Drawing.Point(6, 250);
-            this.btnAddStrategy.Name = "btnAddStrategy";
-            this.btnAddStrategy.Size = new System.Drawing.Size(57, 23);
-            this.btnAddStrategy.TabIndex = 146;
-            this.btnAddStrategy.Text = "Add";
-            this.btnAddStrategy.UseVisualStyleBackColor = true;
-            this.btnAddStrategy.Click += new System.EventHandler(this.btnAddStrategy_Click);
-            // 
             // lstStrategies
             // 
+            this.lstStrategies.ContextMenuStrip = this.ctxStrategies;
             this.lstStrategies.FormattingEnabled = true;
             this.lstStrategies.Location = new System.Drawing.Point(6, 19);
             this.lstStrategies.Name = "lstStrategies";
-            this.lstStrategies.Size = new System.Drawing.Size(308, 225);
+            this.lstStrategies.Size = new System.Drawing.Size(308, 251);
             this.lstStrategies.TabIndex = 0;
-            this.lstStrategies.SelectedIndexChanged += new System.EventHandler(this.lstStrategies_SelectedIndexChanged);
+            // 
+            // ctxStrategies
+            // 
+            this.ctxStrategies.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAddStrategy,
+            this.tsmiEditStrategy,
+            this.tsmiRemoveStrategy,
+            this.tsmiMoveStrategyUp,
+            this.tsmiMoveStrategyDown});
+            this.ctxStrategies.Name = "ctxStrategies";
+            this.ctxStrategies.Size = new System.Drawing.Size(139, 114);
+            this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
+            // 
+            // tsmiAddStrategy
+            // 
+            this.tsmiAddStrategy.Name = "tsmiAddStrategy";
+            this.tsmiAddStrategy.Size = new System.Drawing.Size(138, 22);
+            this.tsmiAddStrategy.Text = "Add";
+            this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
+            // 
+            // tsmiEditStrategy
+            // 
+            this.tsmiEditStrategy.Name = "tsmiEditStrategy";
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(138, 22);
+            this.tsmiEditStrategy.Text = "Edit";
+            this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
+            // 
+            // tsmiRemoveStrategy
+            // 
+            this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
+            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(138, 22);
+            this.tsmiRemoveStrategy.Text = "Remove";
+            this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
+            // 
+            // tsmiMoveStrategyUp
+            // 
+            this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
+            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMoveStrategyUp.Text = "Move Up";
+            this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
+            // 
+            // tsmiMoveStrategyDown
+            // 
+            this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
+            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMoveStrategyDown.Text = "Move Down";
+            this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
+            // 
+            // tsmiAutoEscapeSeparator3
+            // 
+            this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
+            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiAutoEscapeRestoreOriginalValue
+            // 
+            this.tsmiAutoEscapeRestoreOriginalValue.Name = "tsmiAutoEscapeRestoreOriginalValue";
+            this.tsmiAutoEscapeRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeRestoreOriginalValue.Text = "Restore Original Value";
+            this.tsmiAutoEscapeRestoreOriginalValue.Click += new System.EventHandler(this.tsmiAutoEscapeRestoreOriginalValue_Click);
             // 
             // frmConfiguration
             // 
@@ -502,7 +567,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Configuration";
             this.ctxDefaultRealm.ResumeLayout(false);
-            this.ctxAutoHazy.ResumeLayout(false);
+            this.ctxAutoEscape.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
             this.grpDefaults.ResumeLayout(false);
             this.grpDefaults.PerformLayout();
@@ -510,6 +575,7 @@
             this.grpSettings.ResumeLayout(false);
             this.grpSettings.PerformLayout();
             this.grpStrategies.ResumeLayout(false);
+            this.ctxStrategies.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -521,8 +587,8 @@
         private System.Windows.Forms.Label lblDefaultWeapon;
         private System.Windows.Forms.TextBox txtDefaultWeapon;
         private System.Windows.Forms.Label lblPreferredAlignment;
-        private System.Windows.Forms.Label lblAutoHazy;
-        private System.Windows.Forms.Label lblAutoHazyValue;
+        private System.Windows.Forms.Label lblAutoEscape;
+        private System.Windows.Forms.Label lblAutoEscapeValue;
         private System.Windows.Forms.CheckBox chkQueryMonsterStatus;
         private System.Windows.Forms.CheckBox chkVerboseOutput;
         private System.Windows.Forms.Button btnOK;
@@ -532,9 +598,9 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiFire;
         private System.Windows.Forms.ToolStripMenuItem tsmiWater;
         private System.Windows.Forms.ToolStripMenuItem tsmiWind;
-        private System.Windows.Forms.ContextMenuStrip ctxAutoHazy;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoHazy;
-        private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoHazy;
+        private System.Windows.Forms.ContextMenuStrip ctxAutoEscape;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoEscapeThreshold;
+        private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.Label lblPreferredAlignmentValue;
         private System.Windows.Forms.ContextMenuStrip ctxPreferredAlignment;
         private System.Windows.Forms.ToolStripMenuItem tsmiTogglePreferredAlignment;
@@ -553,10 +619,19 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumSpellLevel;
         private System.Windows.Forms.GroupBox grpStrategies;
         private System.Windows.Forms.ListBox lstStrategies;
-        private System.Windows.Forms.Button btnMoveStrategyUp;
-        private System.Windows.Forms.Button btnRemoveStrategy;
-        private System.Windows.Forms.Button btnAddStrategy;
-        private System.Windows.Forms.Button btnMoveStrategyDown;
-        private System.Windows.Forms.Button btnEditStrategy;
+        private System.Windows.Forms.ContextMenuStrip ctxStrategies;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddStrategy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRemoveStrategy;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveStrategyUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveStrategyDown;
+        private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeFlee;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeHazy;
+        private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeOnByDefault;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeOffByDefault;
+        private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeRestoreOriginalValue;
     }
 }

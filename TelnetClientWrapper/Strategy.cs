@@ -26,13 +26,12 @@ namespace IsengardClient
             this.AutogenerateName = copied.AutogenerateName;
             this.StopWhenKillMonster = copied.StopWhenKillMonster;
             this.FleeHPThreshold = copied.FleeHPThreshold;
-            this.ShowPreForm = copied.ShowPreForm;
 
             this.ManaPool = copied.ManaPool;
             this.PromptForManaPool = copied.PromptForManaPool;
             this.LastMagicStep = copied.LastMagicStep;
-            this.VigorOnlyWhenDownXHP = copied.VigorOnlyWhenDownXHP;
-            this.MendOnlyWhenDownXHP = copied.MendOnlyWhenDownXHP;
+            this.MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
+            this.MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;
             this.FinalMagicAction = copied.FinalMagicAction;
             this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
             this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
@@ -57,8 +56,8 @@ namespace IsengardClient
             }
 
             this.LastPotionsStep = copied.LastPotionsStep;
-            this.YellowOnlyWhenDownXHP = copied.YellowOnlyWhenDownXHP;
-            this.RedOrangeOnlyWhenDownXHP = copied.RedOrangeOnlyWhenDownXHP;
+            this.PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
+            this.PotionsMendOnlyWhenDownXHP = copied.PotionsMendOnlyWhenDownXHP;
             this.FinalPotionsAction = copied.FinalPotionsAction;
             if (copied.PotionsSteps != null)
             {
@@ -104,6 +103,14 @@ namespace IsengardClient
                     {
                         sb.Append("F");
                     }
+                    else if (FinalMagicAction == FinalStepAction.Hazy)
+                    {
+                        sb.Append("w");
+                    }
+                    else if (FinalMagicAction == FinalStepAction.FinishCombat)
+                    {
+                        sb.Append("X");
+                    }
                     parts.Add(sb.ToString());
                 }
                 hasLastStep = LastMeleeStep.HasValue;
@@ -129,6 +136,14 @@ namespace IsengardClient
                     if (FinalMeleeAction == FinalStepAction.Flee)
                     {
                         sb.Append("F");
+                    }
+                    else if (FinalMeleeAction == FinalStepAction.Hazy)
+                    {
+                        sb.Append("w");
+                    }
+                    else if (FinalMeleeAction == FinalStepAction.FinishCombat)
+                    {
+                        sb.Append("X");
                     }
                     parts.Add(sb.ToString());
                 }
@@ -156,6 +171,14 @@ namespace IsengardClient
                     {
                         sb.Append("F");
                     }
+                    else if (FinalPotionsAction == FinalStepAction.Hazy)
+                    {
+                        sb.Append("w");
+                    }
+                    else if (FinalPotionsAction == FinalStepAction.FinishCombat)
+                    {
+                        sb.Append("X");
+                    }
                     parts.Add(sb.ToString());
                 }
                 if (parts.Count == 0)
@@ -174,13 +197,12 @@ namespace IsengardClient
         public bool AutogenerateName { get; set; }
         public bool StopWhenKillMonster { get; set; }
         public int FleeHPThreshold { get; set; }
-        public bool ShowPreForm { get; set; }
         public int ManaPool { get; set; }
         public bool PromptForManaPool { get; set; }
 
         public MagicStrategyStep? LastMagicStep { get; set; }
-        public int VigorOnlyWhenDownXHP { get; set; }
-        public int MendOnlyWhenDownXHP { get; set; }
+        public int MagicVigorOnlyWhenDownXHP { get; set; }
+        public int MagicMendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalMagicAction { get; set; }
         public List<AMagicStrategyStep> MagicSteps { get; set; }
         public int AutoSpellLevelMin { get; set; }
@@ -191,8 +213,8 @@ namespace IsengardClient
         public List<AMeleeStrategyStep> MeleeSteps { get; set; }
 
         public PotionsStrategyStep? LastPotionsStep { get; set; }
-        public int YellowOnlyWhenDownXHP { get; set; }
-        public int RedOrangeOnlyWhenDownXHP { get; set; }
+        public int PotionsVigorOnlyWhenDownXHP { get; set; }
+        public int PotionsMendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalPotionsAction { get; set; }
         public List<APotionsStrategyStep> PotionsSteps { get; set; }
 
@@ -363,7 +385,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
@@ -374,7 +395,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
@@ -389,7 +409,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
@@ -407,7 +426,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
@@ -427,7 +445,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
@@ -435,7 +452,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
                         SingleMagicStrategyStep.MagicStepStun,
@@ -447,7 +463,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
                         SingleMagicStrategyStep.MagicStepStun,
@@ -462,7 +477,6 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.ShowPreForm = true;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
@@ -583,6 +597,11 @@ namespace IsengardClient
                 ret.Append(next.ToString());
             }
             ret.Append(")");
+            if (RepeatCount > 1)
+            {
+                ret.Append("*");
+                ret.Append(this.RepeatCount.ToString());
+            }
             return ret.ToString();
         }
 
@@ -695,6 +714,11 @@ namespace IsengardClient
                 ret.Append(next.ToString());
             }
             ret.Append(")");
+            if (RepeatCount > 1)
+            {
+                ret.Append("*");
+                ret.Append(this.RepeatCount.ToString());
+            }
             return ret.ToString();
         }
 
@@ -742,8 +766,8 @@ namespace IsengardClient
 
     public class SinglePotionsStrategyStep : APotionsStrategyStep
     {
-        public static SinglePotionsStrategyStep PotionsStepYellow = new SinglePotionsStrategyStep(PotionsStrategyStep.Yellow, 'v');
-        public static SinglePotionsStrategyStep PotionsStepRedOrange = new SinglePotionsStrategyStep(PotionsStrategyStep.RedOrange, 'm');
+        public static SinglePotionsStrategyStep PotionsStepVigor = new SinglePotionsStrategyStep(PotionsStrategyStep.Vigor, 'v');
+        public static SinglePotionsStrategyStep PotionsStepMendWounds = new SinglePotionsStrategyStep(PotionsStrategyStep.MendWounds, 'm');
         public static SinglePotionsStrategyStep PotionsStepGenericHeal = new SinglePotionsStrategyStep(PotionsStrategyStep.GenericHeal, 'h');
 
         public PotionsStrategyStep Action { get; set; }
@@ -762,11 +786,11 @@ namespace IsengardClient
             SinglePotionsStrategyStep ret;
             switch (step)
             {
-                case PotionsStrategyStep.Yellow:
-                    ret = PotionsStepYellow;
+                case PotionsStrategyStep.Vigor:
+                    ret = PotionsStepVigor;
                     break;
-                case PotionsStrategyStep.RedOrange:
-                    ret = PotionsStepRedOrange;
+                case PotionsStrategyStep.MendWounds:
+                    ret = PotionsStepMendWounds;
                     break;
                 case PotionsStrategyStep.GenericHeal:
                     ret = PotionsStepGenericHeal;
@@ -811,6 +835,11 @@ namespace IsengardClient
                 ret.Append(next.ToString());
             }
             ret.Append(")");
+            if (RepeatCount > 1)
+            {
+                ret.Append("*");
+                ret.Append(this.RepeatCount.ToString());
+            }
             return ret.ToString();
         }
 
@@ -899,8 +928,8 @@ namespace IsengardClient
             {
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy.MendOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.MendOnlyWhenDownXHP <= totalHP;
+                    if (Strategy.MagicMendOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.MagicMendOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;
                     if (doCast)
@@ -910,8 +939,8 @@ namespace IsengardClient
                 }
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy.VigorOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.VigorOnlyWhenDownXHP <= totalHP;
+                    if (Strategy.MagicVigorOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.MagicVigorOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;
                     if (doCast)
@@ -999,7 +1028,8 @@ namespace IsengardClient
     {
         None = 0,
         Flee = 2,
-        FinishCombat = 3,
+        Hazy = 3,
+        FinishCombat = 4,
     }
 
     public enum MagicStrategyStep
@@ -1022,8 +1052,8 @@ namespace IsengardClient
 
     public enum PotionsStrategyStep
     {
-        Yellow,
-        RedOrange,
+        Vigor,
+        MendWounds,
         GenericHeal,
     }
 

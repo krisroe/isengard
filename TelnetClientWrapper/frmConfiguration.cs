@@ -3,12 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+
 namespace IsengardClient
 {
     internal partial class frmConfiguration : Form
     {
         private List<Strategy> _strategies;
-        private int _autoHazyThreshold;
+
+        private int _autoEscapeThreshold;
+        private AutoEscapeType _autoEscapeType;
+        private bool _autoEscapeOnByDefault;
+        private int _autoEscapeThresholdOriginal;
+        private AutoEscapeType _autoEscapeTypeOriginal;
+        private bool _autoEscapeOnByDefaultOriginal;
+
+
         private AlignmentType _preferredAlignment;
         private string _defaultRealm;
         private Color _fullColor;
@@ -47,9 +56,16 @@ namespace IsengardClient
             _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
             RefreshAlignmentTypeUI();
 
-            _autoHazyThreshold = sets.DefaultAutoHazyThreshold;
-            if (_autoHazyThreshold < 0) _autoHazyThreshold = 0;
-            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, 0);
+            _autoEscapeType = (AutoEscapeType)sets.DefaultAutoEscapeType;
+            _autoEscapeThreshold = sets.DefaultAutoEscapeThreshold;
+            _autoEscapeOnByDefault = sets.DefaultAutoEscapeOnByDefault;
+            if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy) _autoEscapeType = AutoEscapeType.Flee;
+            if (_autoEscapeThreshold < 0) _autoEscapeThreshold = 0;
+            if (_autoEscapeThreshold == 0) _autoEscapeOnByDefault = false;
+            _autoEscapeOnByDefaultOriginal = _autoEscapeOnByDefault;
+            _autoEscapeThresholdOriginal = _autoEscapeThreshold;
+            _autoEscapeTypeOriginal = _autoEscapeType;
+            RefreshAutoEscapeUI();
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
             chkVerboseOutput.Checked = sets.VerboseMode;
@@ -124,31 +140,15 @@ namespace IsengardClient
             lblAutoSpellLevelsValue.Text = _autoSpellLevelMinimum + ":" + _autoSpellLevelMaximum;
         }
 
-        private void tsmiClearAutoHazy_Click(object sender, EventArgs e)
-        {
-            _autoHazyThreshold = 0;
-            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, 0);
-            tsmiClearAutoHazy.Visible = false;
-        }
-
-        private void tsmiSetOrClearAutoHazy_Click(object sender, EventArgs e)
-        {
-            string threshold = Interaction.InputBox("Threshold:", "Enter Threshold", _autoHazyThreshold.ToString());
-            if (int.TryParse(threshold, out int iThreshold) && iThreshold > 0)
-            {
-                _autoHazyThreshold = iThreshold;
-                UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, 0);
-                tsmiClearAutoHazy.Visible = true;
-            }
-        }
-
         private void btnOK_Click(object sender, EventArgs e)
         {
             IsengardSettings sets = IsengardSettings.Default;
             sets.DefaultWeapon = txtDefaultWeapon.Text;
             sets.DefaultRealm = _defaultRealm;
             sets.PreferredAlignment = _preferredAlignment.ToString();
-            sets.DefaultAutoHazyThreshold = _autoHazyThreshold;
+            sets.DefaultAutoEscapeOnByDefault = _autoEscapeOnByDefault;
+            sets.DefaultAutoEscapeThreshold = _autoEscapeThreshold;
+            sets.DefaultAutoEscapeType = Convert.ToInt32(_autoEscapeType);
             sets.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
             sets.VerboseMode = chkVerboseOutput.Checked;
             sets.FullColor = _fullColor;
@@ -259,17 +259,36 @@ namespace IsengardClient
             }
         }
 
-        private void btnAddStrategy_Click(object sender, EventArgs e)
+        private void ctxStrategies_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            if (iIndex < 0)
+            {
+                tsmiEditStrategy.Visible = false;
+                tsmiRemoveStrategy.Visible = false;
+                tsmiMoveStrategyUp.Visible = false;
+                tsmiMoveStrategyDown.Visible = false;
+            }
+            else
+            {
+                tsmiEditStrategy.Visible = true;
+                tsmiRemoveStrategy.Visible = true;
+                tsmiMoveStrategyUp.Visible = iIndex > 0;
+                tsmiMoveStrategyDown.Visible = iIndex < lstStrategies.Items.Count - 1;
+            }
+        }
+
+        private void tsmiAddStrategy_Click(object sender, EventArgs e)
         {
             //CSRTODO: implement me!
         }
 
-        private void btnEditStrategy_Click(object sender, EventArgs e)
+        private void tsmiEditStrategy_Click(object sender, EventArgs e)
         {
             //CSRTODO: implement me!
         }
 
-        private void btnRemoveStrategy_Click(object sender, EventArgs e)
+        private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
         {
             int iIndex = lstStrategies.SelectedIndex;
             _strategies.RemoveAt(iIndex);
@@ -277,9 +296,8 @@ namespace IsengardClient
             ChangedStrategies = true;
         }
 
-        private void btnMoveStrategyUp_Click(object sender, EventArgs e)
+        private void MoveStrategyUp(int iIndex)
         {
-            int iIndex = lstStrategies.SelectedIndex;
             Strategy s = (Strategy)lstStrategies.SelectedItem;
             lstStrategies.Items.RemoveAt(iIndex);
             lstStrategies.Items.Insert(iIndex - 1, s);
@@ -289,44 +307,132 @@ namespace IsengardClient
             ChangedStrategies = true;
         }
 
-        private void btnMoveStrategyDown_Click(object sender, EventArgs e)
+        private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            bool isLastIndex = iIndex == lstStrategies.Items.Count - 2;
-            Strategy s = (Strategy)lstStrategies.SelectedItem;
-            lstStrategies.Items.RemoveAt(iIndex);
-            _strategies.RemoveAt(iIndex);
-            if (isLastIndex)
-            {
-                lstStrategies.Items.Add(s);
-                _strategies.Add(s);
-            }
-            else
-            {
-                lstStrategies.Items.Insert(iIndex + 1, s);
-                _strategies.Insert(iIndex + 1, s);
-            }
-            lstStrategies.SelectedIndex = iIndex + 1;
-            ChangedStrategies = true;
+            MoveStrategyUp(lstStrategies.SelectedIndex);
         }
 
-        private void lstStrategies_SelectedIndexChanged(object sender, EventArgs e)
+        private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            if (iIndex < 0)
+            MoveStrategyUp(lstStrategies.SelectedIndex + 1);
+        }
+
+        private void tsmiClearAutoEscapeThreshold_Click(object sender, EventArgs e)
+        {
+            _autoEscapeThreshold = 0;
+            _autoEscapeOnByDefault = false;
+            RefreshAutoEscapeUI();
+        }
+
+        private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)
+        {
+            string sInitialValue = _autoEscapeThreshold > 0 ? _autoEscapeThreshold.ToString() : string.Empty;
+            string threshold = Interaction.InputBox("Threshold:", "Enter Threshold", sInitialValue);
+            if (int.TryParse(threshold, out int iThreshold) && iThreshold > 0)
             {
-                btnEditStrategy.Enabled = false;
-                btnRemoveStrategy.Enabled = false;
-                btnMoveStrategyUp.Enabled = false;
-                btnMoveStrategyDown.Enabled = false;
+                _autoEscapeThreshold = iThreshold;
+                RefreshAutoEscapeUI();
+            }
+        }
+
+        private void RefreshAutoEscapeUI()
+        {
+            Color autoEscapeBackColor;
+            string autoEscapeText;
+            string sAutoEscapeType = _autoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
+            if (_autoEscapeThreshold > 0)
+            {
+                autoEscapeText = sAutoEscapeType + " @ " + _autoEscapeThreshold.ToString();
             }
             else
             {
-                btnEditStrategy.Enabled = true;
-                btnRemoveStrategy.Enabled = true;
-                btnMoveStrategyUp.Enabled = iIndex > 0;
-                btnMoveStrategyDown.Enabled = iIndex < lstStrategies.Items.Count - 1;
+                autoEscapeText = sAutoEscapeType;
             }
+            if (_autoEscapeOnByDefault)
+            {
+                if (_autoEscapeType == AutoEscapeType.Hazy)
+                {
+                    autoEscapeBackColor = Color.DarkBlue;
+                }
+                else //Flee
+                {
+                    autoEscapeBackColor = Color.DarkRed;
+                }
+            }
+            else if (_autoEscapeThreshold > 0)
+            {
+                autoEscapeBackColor = Color.LightGray;
+            }
+            else
+            {
+                autoEscapeBackColor = Color.Black;
+            }
+            if (_autoEscapeOnByDefault)
+            {
+                autoEscapeText += " (On)";
+            }
+            else
+            {
+                autoEscapeText += " (Off)";
+            }
+
+            UIShared.GetForegroundColor(autoEscapeBackColor.R, autoEscapeBackColor.G, autoEscapeBackColor.G, out byte forer, out byte foreg, out byte foreb);
+            lblAutoEscapeValue.BackColor = autoEscapeBackColor;
+            lblAutoEscapeValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
+            lblAutoEscapeValue.Text = autoEscapeText;
+
+            tsmiAutoEscapeFlee.Checked = _autoEscapeType == AutoEscapeType.Flee;
+            tsmiAutoEscapeHazy.Checked = _autoEscapeType == AutoEscapeType.Hazy;
+
+            tsmiAutoEscapeOnByDefault.Checked = _autoEscapeOnByDefault;
+            tsmiAutoEscapeOffByDefault.Checked = !_autoEscapeOnByDefault;
         }
+
+        private void ctxAutoEscape_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool haveThreshold = _autoEscapeThreshold > 0;
+            tsmiClearAutoEscapeThreshold.Enabled = haveThreshold;
+            tsmiAutoEscapeOnByDefault.Enabled = haveThreshold;
+            tsmiAutoEscapeOffByDefault.Enabled = haveThreshold;
+            tsmiAutoEscapeRestoreOriginalValue.Enabled = _autoEscapeOnByDefault != _autoEscapeOnByDefaultOriginal || _autoEscapeThreshold != _autoEscapeThresholdOriginal || _autoEscapeType != _autoEscapeTypeOriginal;
+        }
+
+        private void tsmiAutoEscapeFlee_Click(object sender, EventArgs e)
+        {
+            _autoEscapeType = AutoEscapeType.Flee;
+            RefreshAutoEscapeUI();
+        }
+
+        private void tsmiAutoEscapeHazy_Click(object sender, EventArgs e)
+        {
+            _autoEscapeType = AutoEscapeType.Hazy;
+            RefreshAutoEscapeUI();
+        }
+
+        private void tsmiAutoEscapeOnByDefault_Click(object sender, EventArgs e)
+        {
+            _autoEscapeOnByDefault = true;
+            RefreshAutoEscapeUI();
+        }
+
+        private void tsmiAutoEscapeOffByDefault_Click(object sender, EventArgs e)
+        {
+            _autoEscapeOnByDefault = false;
+            RefreshAutoEscapeUI();
+        }
+
+        private void tsmiAutoEscapeRestoreOriginalValue_Click(object sender, EventArgs e)
+        {
+            _autoEscapeOnByDefault = _autoEscapeOnByDefaultOriginal;
+            _autoEscapeThreshold = _autoEscapeThresholdOriginal;
+            _autoEscapeType = _autoEscapeTypeOriginal;
+            RefreshAutoEscapeUI();
+        }
+    }
+
+    public enum AutoEscapeType
+    {
+        Flee = 0,
+        Hazy = 1,
     }
 }

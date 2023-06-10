@@ -18,7 +18,6 @@ namespace IsengardClient
         private RoomGraph _breeStreetsGraph;
 
         private Room _orderOfLove = null;
-        private Room _treeOfLife = null;
         private Room _healingHand = null;
         private Room _nindamosVillageCenter = null;
         private Area _aBreePerms;
@@ -442,14 +441,6 @@ namespace IsengardClient
             get
             {
                 return _areas;
-            }
-        }
-
-        public Room TreeOfLifeRoom
-        {
-            get
-            {
-                return _treeOfLife;
             }
         }
 
@@ -2962,11 +2953,11 @@ namespace IsengardClient
         {
             Area oIntangible = _areasByName[AREA_INTANGIBLE];
 
-            _treeOfLife = AddRoom("Tree of Life", "The Tree of Life");
-            AddExit(_treeOfLife, oBreeTownSquare, "down");
+            Room treeOfLife = AddRoom("Tree of Life", "The Tree of Life");
+            AddExit(treeOfLife, oBreeTownSquare, "down");
 
             Room oLimbo = AddRoom("Limbo");
-            Exit e = AddExit(oLimbo, _treeOfLife, "green");
+            Exit e = AddExit(oLimbo, treeOfLife, "green");
             e.PreCommand = "open green";
 
             Room oDarkTunnel = AddRoom("Dark Tunnel");
@@ -2979,7 +2970,7 @@ namespace IsengardClient
             e.PreCommand = "open white";
             AddExit(oFluffyCloudsAboveNindamos, _nindamosVillageCenter, "green");
 
-            AddLocation(oIntangible, _treeOfLife);
+            AddLocation(oIntangible, treeOfLife);
             AddLocation(oIntangible, oLimbo);
         }
 

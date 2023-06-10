@@ -103,10 +103,19 @@ namespace IsengardClient
         private int _currentMana = HP_OR_MP_UNKNOWN;
         private int _currentManaUI = HP_OR_MP_UNKNOWN;
 
-        private int _autoHazyThreshold;
-        private int _rememberedAutoHazyThreshold;
-        private DateTime? _lastTriedToAutoHazy;
-        private bool _autoHazied;
+        private int _autoEscapeThreshold;
+        private int _autoEscapeThresholdUI;
+        private AutoEscapeType _autoEscapeType;
+        private AutoEscapeType _autoEscapeTypeUI;
+        private bool _autoEscapeActive;
+        private bool _autoEscapeActiveUI;
+        private bool _autoEscapeActiveSaved;
+        private bool _fleeing;
+        private bool _fleeingUI;
+        private bool _hazying;
+        private bool _hazyingUI;
+        private object _escapeLock = new object();
+
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
         private Room m_oCurrentRoomUI;
@@ -129,7 +138,6 @@ namespace IsengardClient
         private List<EmoteButton> _emoteButtons = new List<EmoteButton>();
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
-        private bool _fleeing;
         private int _waitSeconds = 0;
         private bool _fumbled;
         private bool _initiatedEmotesTab;
@@ -213,14 +221,7 @@ namespace IsengardClient
                 ePreferredAlignment = AlignmentType.Blue;
             }
 
-            _autoHazyThreshold = sets.DefaultAutoHazyThreshold;
-            if (_autoHazyThreshold < 0)
-            {
-                sets.DefaultAutoHazyThreshold = 0;
-                _autoHazyThreshold = 0;
-            }
-            _rememberedAutoHazyThreshold = _autoHazyThreshold;
-            RefreshAutoHazyUI();
+            SetAutoEscapeThresholdFromDefaults();
 
             txtWeapon.Text = sets.DefaultWeapon;
 
@@ -258,6 +259,18 @@ namespace IsengardClient
             cboSetOption.SelectedIndex = 0;
 
             DoConnect();
+        }
+
+        private void SetAutoEscapeThresholdFromDefaults()
+        {
+            IsengardSettings sets = IsengardSettings.Default;
+            _autoEscapeThreshold = sets.DefaultAutoEscapeThreshold;
+            _autoEscapeType = (AutoEscapeType)sets.DefaultAutoEscapeType;
+            _autoEscapeActive = sets.DefaultAutoEscapeOnByDefault;
+            if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy) _autoEscapeType = AutoEscapeType.Flee;
+            if (_autoEscapeThreshold < 0) _autoEscapeThreshold = 0;
+            if (_autoEscapeThreshold == 0) _autoEscapeActive = false;
+            RefreshAutoEscapeUI(true);
         }
 
         private void RefreshStrategyButtons()
@@ -1040,10 +1053,7 @@ namespace IsengardClient
             if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
             {
                 _initializationSteps |= InitializationStep.Finalization;
-                if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out Room initialRoom))
-                {
-                    m_oCurrentRoom = initialRoom;
-                }
+                SetCurrentRoomIfUnambiguous(sRoomName);
             }
             else
             {
@@ -1054,10 +1064,18 @@ namespace IsengardClient
             }
         }
 
+        private void SetCurrentRoomIfUnambiguous(string sRoomName)
+        {
+            if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out Room initialRoom))
+            {
+                m_oCurrentRoom = initialRoom;
+            }
+        }
+
         private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo)
         {
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
-            string roomName = roomTransitionInfo.RoomName;
+            string sRoomName = roomTransitionInfo.RoomName;
             List<string> obviousExits = roomTransitionInfo.ObviousExits;
             FeedLineParameters flParams = roomTransitionInfo.FeedLineParameters;
 
@@ -1069,21 +1087,30 @@ namespace IsengardClient
             _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
+                _fleeing = false;
                 if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                     _waitSeconds = 0;
-                    _fleeing = false;
                 }
             }
             else if (rtType == RoomTransitionType.Hazy)
             {
-                _autoHazied = true;
+                _hazying = false;
                 _fleeing = false;
                 if (bct.HasValue) //hazy aborts whatever background command is currently running
                 {
-                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                    if (bct.Value == BackgroundCommandType.DrinkHazy)
+                    {
+                        flParams.CommandResult = CommandResult.CommandSuccessful;
+                        _waitSeconds = 0;
+                    }
+                    else
+                    {
+                        flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                    }
                 }
+                SetCurrentRoomIfUnambiguous(sRoomName);
             }
             else if (rtType == RoomTransitionType.Initial)
             {
@@ -1250,6 +1277,15 @@ namespace IsengardClient
             if (bct.HasValue && bct.Value == BackgroundCommandType.Knock)
             {
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
+        private static void FailDrinkHazy(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.DrinkHazy)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
         }
 
@@ -1529,27 +1565,7 @@ namespace IsengardClient
                             bool mpChanged = iNewMP != _automp;
                             if (hpChanged || mpChanged)
                             {
-                                if (_currentBackgroundParameters == null)
-                                {
-                                    bool gotFullHP = hpChanged && iNewHP == _totalhp;
-                                    bool gotFullMP = mpChanged && iNewMP == _totalmp;
-                                    if (gotFullHP || gotFullMP)
-                                    {
-                                        lock (_newConsoleText)
-                                        {
-                                            if (gotFullHP)
-                                            {
-                                                _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
-                                            }
-                                            if (gotFullMP)
-                                            {
-                                                _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
-                                            }
-                                        }
-                                    }
-                                }
-                                _autohp = iNewHP;
-                                _automp = iNewMP;
+                                OnHPOrMPChanged(iNewHP, hpChanged, iNewMP, mpChanged);
                             }
                             _currentStatusLastComputed = DateTime.UtcNow;
                         }
@@ -1652,6 +1668,42 @@ namespace IsengardClient
             }
         }
 
+        private void OnHPOrMPChanged(int newHP, bool hpChanged, int newMP, bool mpChanged)
+        {
+            lock (_escapeLock)
+            {
+                if (_autoEscapeActive && _autoEscapeThreshold > 0 && newHP < _autoEscapeThreshold)
+                {
+                    if (_autoEscapeType == AutoEscapeType.Flee)
+                        _fleeing = true;
+                    else if (_autoEscapeType == AutoEscapeType.Hazy)
+                        _hazying = true;
+                    _autoEscapeActive = false;
+                }
+            }
+            if (_currentBackgroundParameters == null)
+            {
+                bool gotFullHP = hpChanged && newHP == _totalhp;
+                bool gotFullMP = mpChanged && newMP == _totalmp;
+                if (gotFullHP || gotFullMP)
+                {
+                    lock (_newConsoleText)
+                    {
+                        if (gotFullHP)
+                        {
+                            _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
+                        }
+                        if (gotFullMP)
+                        {
+                            _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
+                        }
+                    }
+                }
+            }
+            _autohp = newHP;
+            _automp = newMP;
+        }
+
         private List<AOutputProcessingSequence> GetProcessingSequences()
         {
             List<AOutputProcessingSequence> seqs = new List<AOutputProcessingSequence>
@@ -1687,6 +1739,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
+                new ConstantOutputSequence("You don't have that.", FailDrinkHazy, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.DrinkHazy),
+                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
 
                 //the search find failed output has a blank line before the message so use the second line.
                 new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search)
@@ -2103,7 +2157,6 @@ namespace IsengardClient
             btnLevel1OffensiveSpell.Tag = new CommandButtonTag(btnLevel1OffensiveSpell, "cast {realm1spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, "cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, "cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnDrinkHazy.Tag = new CommandButtonTag(btnDrinkHazy, "drink hazy", CommandType.Potions, DependentObjectType.None);
             btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
             btnLook.Tag = new CommandButtonTag(btnLook, "look", CommandType.None, DependentObjectType.None);
             btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, Strategy.CAST_VIGOR_SPELL, CommandType.Magic, DependentObjectType.None);
@@ -2180,27 +2233,27 @@ namespace IsengardClient
             }
             else
             {
-                _fleeing = false;
+                BackgroundWorkerParameters bwp = _currentBackgroundParameters;
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
-                Room wentToRoom = _currentBackgroundParameters.NavigatedToRoom;
+                Room wentToRoom = bwp.NavigatedToRoom;
                 if (wentToRoom != null)
                 {
                     SetCurrentRoom(wentToRoom);
                 }
                 //trigger a foreground asynchronous score (not suppressed from output).
                 //This can happen if the background process was aborted.
-                if (_currentBackgroundParameters.DoScore)
+                if (bwp.DoScore)
                 {
                     _doScore = true;
                 }
-                if (_currentBackgroundParameters.ReachedTargetRoom && !string.IsNullOrEmpty(_currentBackgroundParameters.TargetRoomMob))
+                if (bwp.ReachedTargetRoom && !string.IsNullOrEmpty(bwp.TargetRoomMob))
                 {
-                    txtMob.Text = _currentBackgroundParameters.TargetRoomMob;
+                    txtMob.Text = bwp.TargetRoomMob;
                 }
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
-                ToggleBackgroundProcess(_currentBackgroundParameters, false);
+                ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
             }
         }
@@ -2218,9 +2271,9 @@ namespace IsengardClient
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
+            BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             try
             {
-                BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
                 Strategy strategy = pms.Strategy;
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
@@ -2241,6 +2294,7 @@ namespace IsengardClient
                             return;
                         }
                         if (_fleeing) break;
+                        if (_hazying) break;
                         if (_bw.CancellationPending) break;
                         autohp = _autohp;
                         if (autohp >= _totalhp) break;
@@ -2284,7 +2338,7 @@ namespace IsengardClient
                 if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, BeforeFleeCommandAbortLogic, false, false);
+                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying);
                     if (backgroundCommandSuccess)
                     {
                         pms.DoScore = true;
@@ -2317,7 +2371,7 @@ namespace IsengardClient
                                     if (presenceType == ExitPresenceType.Periodic)
                                     {
                                         _currentObviousExits = null;
-                                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, BeforeFleeCommandAbortLogic, false);
+                                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying);
                                         if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                         {
                                             if (_currentObviousExits.Contains(exitText))
@@ -2326,7 +2380,7 @@ namespace IsengardClient
                                             }
                                             else
                                             {
-                                                WaitUntilNextCommand(5000, false, false);
+                                                WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
                                             }
                                         }
                                         else //look is not supposed to fail (but could be aborted)
@@ -2337,7 +2391,7 @@ namespace IsengardClient
                                     else if (presenceType == ExitPresenceType.RequiresSearch)
                                     {
                                         _foundSearchedExits = null;
-                                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, BeforeFleeCommandAbortLogic, false, false);
+                                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying);
                                         if (backgroundCommandSuccess)
                                         {
                                             if (_foundSearchedExits.Contains(exitText))
@@ -2364,20 +2418,22 @@ namespace IsengardClient
                                 while (!_currentBackgroundExitMessageReceived)
                                 {
                                     if (_fleeing) break;
+                                    if (_hazying) break;
                                     if (_bw.CancellationPending) break;
                                     Thread.Sleep(50);
-                                    RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
+                                    RunAutoCommandsWhenBackgroundProcessRunning(pms);
                                 }
                             }
 
                             if (_fleeing) break;
+                            if (_hazying) break;
                             if (_bw.CancellationPending) break;
 
                             if (nextExit.KeyType != KeyType.None)
                             {
                                 if (!nextExit.RequiresKey())
                                 {
-                                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, BeforeFleeCommandAbortLogic, false, false);
+                                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying);
                                     if (!backgroundCommandSuccess) return;
                                 }
                             }
@@ -2388,7 +2444,7 @@ namespace IsengardClient
                             //determine the exit command
                             string nextCommand = GetExitCommand(exitText);
 
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, BeforeFleeCommandAbortLogic, false, false);
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying);
                             if (backgroundCommandSuccess)
                             {
                                 if (nextExit.Target != null)
@@ -2430,15 +2486,11 @@ namespace IsengardClient
                     }
                 }
 
-                if (pms.Flee)
-                {
-                    _fleeing = true;
-                }
-
                 bool didFlee = false;
+                bool didHazy = false;
                 bool useManaPool = pms.ManaPool > 0;
                 bool stopIfMonsterKilled = false;
-                if (_fleeing || strategy != null)
+                if (_hazying || _fleeing || strategy != null)
                 {
                     try
                     {
@@ -2495,6 +2547,7 @@ namespace IsengardClient
                             {
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
@@ -2539,6 +2592,7 @@ namespace IsengardClient
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
@@ -2552,6 +2606,10 @@ namespace IsengardClient
                                         {
                                             _fleeing = true;
                                         }
+                                        else if (finalAction == FinalStepAction.Hazy)
+                                        {
+                                            _hazying = true;
+                                        }
                                         else if (finalAction == FinalStepAction.FinishCombat)
                                         {
                                             //will quit out of combat
@@ -2562,6 +2620,7 @@ namespace IsengardClient
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
@@ -2571,12 +2630,20 @@ namespace IsengardClient
                                 {
                                     stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
                                     bool isPowerAttack = nextMeleeStep.Value == MeleeStrategyStep.PowerAttack;
+
+                                    if (!_fleeing && !_hazying && _fumbled && !string.IsNullOrEmpty(_weapon))
+                                    {
+                                        SendCommand("wield " + _weapon, InputEchoType.On);
+                                        _fumbled = false;
+                                    }
+
                                     if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, isPowerAttack, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
                                 }
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
@@ -2590,6 +2657,10 @@ namespace IsengardClient
                                         {
                                             _fleeing = true;
                                         }
+                                        else if (finalAction == FinalStepAction.Hazy)
+                                        {
+                                            _hazying = true;
+                                        }
                                         else if (finalAction == FinalStepAction.FinishCombat)
                                         {
                                             //will quit out of combat
@@ -2600,11 +2671,12 @@ namespace IsengardClient
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
 
                                 if (didDamage && _queryMonsterStatus)
                                 {
-                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, BeforeFleeCommandAbortLogic, false);
+                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, AbortIfFleeingOrHazying);
                                     if (backgroundCommandResult == CommandResult.CommandAborted)
                                     {
                                         return;
@@ -2632,25 +2704,29 @@ namespace IsengardClient
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
 
-                                RunAutoCommandsWhenBackgroundProcessRunning(pms, false);
+                                RunAutoCommandsWhenBackgroundProcessRunning(pms);
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
+                                if (_hazying) break;
                                 if (_bw.CancellationPending) break;
 
                                 Thread.Sleep(50);
                             }
                         }
 
-                        if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled))
+                        //perform flee logic
+                        if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled) && !_hazying)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Flee;
                             if (!string.IsNullOrEmpty(sWeapon))
                             {
                                 SendCommand("remove " + sWeapon, InputEchoType.On);
-                                if (!_fleeing) return;
+                                if (!_fleeing) goto BeforeHazy;
+                                if (_hazying) goto BeforeHazy;
                                 if (_bw.CancellationPending) return;
                             }
 
@@ -2675,7 +2751,7 @@ namespace IsengardClient
                                 }
                             }
 
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, null, true, false);
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying);
                             if (backgroundCommandSuccess)
                             {
                                 didFlee = true;
@@ -2683,7 +2759,27 @@ namespace IsengardClient
                                 {
                                     pms.NavigatedToRoom = singleFleeableExit.Target;
                                 }
-                                _fleeing = false;
+                            }
+                            else
+                            {
+                                if (!_hazying)
+                                {
+                                    return;
+                                }
+                            }
+                        }
+
+BeforeHazy:
+
+                        //perform hazy logic
+                        if (_hazying && (!stopIfMonsterKilled || !_monsterKilled))
+                        {
+                            _backgroundProcessPhase = BackgroundProcessPhase.Hazy;
+
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.DrinkHazy, "drink hazy", pms, null);
+                            if (backgroundCommandSuccess)
+                            {
+                                didHazy = true;
                             }
                             else
                             {
@@ -2703,10 +2799,10 @@ namespace IsengardClient
                     }
                 }
 
-                if (pms.DoScore && !didFlee)
+                if (pms.DoScore && !didFlee && !didHazy)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.Score;
-                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, false);
+                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
                     if (backgroundCommandResult != CommandResult.CommandSuccessful)
                     {
                         return;
@@ -2717,11 +2813,20 @@ namespace IsengardClient
                 if (pms.Quit)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.Quit;
-                    RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false, true);
+                    RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null);
                 }
             }
             catch (Exception ex)
             {
+                if (pms.Flee)
+                {
+                    _fleeing = false;
+                }
+                if (pms.Hazy)
+                {
+                    _fleeing = false;
+                    _hazying = false;
+                }
                 lock (_consoleTextLock)
                 {
                     _newConsoleText.Add(ex.ToString());
@@ -2731,7 +2836,7 @@ namespace IsengardClient
         
         private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, bool isPowerAttack, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
         {
-            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, BeforeFleeCommandAbortLogic, false);
+            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
             if (backgroundCommandResult == CommandResult.CommandAborted)
             {
                 return false;
@@ -2789,7 +2894,7 @@ namespace IsengardClient
 
         private bool RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
         {
-            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, BeforeFleeCommandAbortLogic, false);
+            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
             if (backgroundCommandResult == CommandResult.CommandAborted)
             {
                 return false;
@@ -2938,38 +3043,81 @@ namespace IsengardClient
                 default:
                     throw new InvalidOperationException();
             }
-            return RunSingleCommand(bct, "cast " + spellName, bwp, BeforeFleeCommandAbortLogic, false, false);
+            return RunSingleCommand(bct, "cast " + spellName, bwp, AbortIfFleeingOrHazying);
         }
 
-        private void WaitUntilNextCommand(int remainingMS, bool fleeing, bool quitting)
+        private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType commandType)
         {
+            bool quitting = commandType == BackgroundCommandType.Quit;
+            bool hazying = commandType == BackgroundCommandType.DrinkHazy;
+            bool fleeing = commandType == BackgroundCommandType.Flee;
             while (remainingMS > 0)
             {
                 int nextWaitMS = Math.Min(remainingMS, 100);
-                if (!quitting && fleeing != _fleeing) break;
+
+                //check if the wait should be aborted
+                if (!quitting)
+                {
+                    if (hazying)
+                    {
+                        if (!_hazying) break;
+                    }
+                    else if (fleeing)
+                    {
+                        if (!_fleeing || _hazying) break;
+                    }
+                    else
+                    {
+                        if (_fleeing || _hazying) break;
+                    }
+                }
                 if (_bw.CancellationPending) break;
+
                 Thread.Sleep(nextWaitMS);
+
+                //check if the wait should be aborted
+                if (!quitting)
+                {
+                    if (hazying)
+                    {
+                        if (!_hazying) break;
+                    }
+                    else if (fleeing)
+                    {
+                        if (!_fleeing || _hazying) break;
+                    }
+                    else
+                    {
+                        if (_fleeing || _hazying) break;
+                    }
+                }
+                if (_bw.CancellationPending) break;
+
                 remainingMS -= nextWaitMS;
-                RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters, fleeing);
-                if (!quitting && fleeing != _fleeing) break;
+                RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters);
+
+                //check if the wait should be aborted
+                if (!quitting)
+                {
+                    if (hazying)
+                    {
+                        if (!_hazying) break;
+                    }
+                    else if (fleeing)
+                    {
+                        if (!_fleeing || _hazying) break;
+                    }
+                    else
+                    {
+                        if (_fleeing || _hazying) break;
+                    }
+                }
                 if (_bw.CancellationPending) break;
             }
         }
 
-        private void RunAutoCommandsWhenBackgroundProcessRunning(BackgroundWorkerParameters pms, bool fleeing)
+        private void RunAutoCommandsWhenBackgroundProcessRunning(BackgroundWorkerParameters pms)
         {
-            CheckAutoHazy(pms.AutoHazyThreshold, DateTime.UtcNow, _autohp);
-
-            if (!fleeing && _fumbled)
-            {
-                string sWeapon = _weapon;
-                if (!string.IsNullOrEmpty(sWeapon))
-                {
-                    SendCommand("wield " + sWeapon, InputEchoType.On);
-                }
-                _fumbled = false;
-            }
-
             string sQueuedCommand;
             lock (_queuedCommandLock)
             {
@@ -2985,17 +3133,22 @@ namespace IsengardClient
             }
         }
 
-        private bool BeforeFleeCommandAbortLogic()
+        private bool AbortIfFleeingOrHazying()
         {
-            return _fleeing;
+            return _fleeing || _hazying;
         }
 
-        private CommandResult RunSingleCommandForCommandResult(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing)
+        private bool AbortIfHazying()
+        {
+            return _hazying;
+        }
+
+        private CommandResult RunSingleCommandForCommandResult(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             _backgroundCommandType = commandType;
             try
             {
-                return RunSingleCommandForCommandResult(command, pms, abortLogic, fleeing);
+                return RunSingleCommandForCommandResult(command, pms, abortLogic);
             }
             finally
             {
@@ -3008,7 +3161,7 @@ namespace IsengardClient
             return _verboseMode ? InputEchoType.On : InputEchoType.Off;
         }
 
-        private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing)
+        private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             _commandResult = null;
             _commandResultCounter++;
@@ -3024,7 +3177,7 @@ namespace IsengardClient
                     currentResult = _commandResult;
                     if (currentResult.HasValue) break;
                     Thread.Sleep(50);
-                    RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters, fleeing);
+                    RunAutoCommandsWhenBackgroundProcessRunning(pms);
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
                 }
@@ -3037,7 +3190,7 @@ namespace IsengardClient
             }
         }
 
-        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool fleeing, bool quitting)
+        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             int currentAttempts = 0;
             bool commandSucceeded = false;
@@ -3049,7 +3202,7 @@ namespace IsengardClient
                 {
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
-                    result = RunSingleCommandForCommandResult(command, pms, abortLogic, fleeing);
+                    result = RunSingleCommandForCommandResult(command, pms, abortLogic);
                     if (result.HasValue)
                     {
                         CommandResult resultValue = result.Value;
@@ -3062,7 +3215,7 @@ namespace IsengardClient
                             int waitMS = GetWaitMilliseconds(_waitSeconds);
                             if (waitMS > 0)
                             {
-                                WaitUntilNextCommand(waitMS, fleeing, quitting);
+                                WaitUntilNextCommandTry(waitMS, commandType);
                             }
                         }
                         else if (resultValue != CommandResult.CommandUnsuccessfulThisTime)
@@ -3089,7 +3242,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void ToggleBackgroundProcess(BackgroundWorkerParameters bwp, bool running)
+        private void ToggleBackgroundProcessUI(BackgroundWorkerParameters bwp, bool running)
         {
             bool quitting = bwp.Quit;
             bool enabled;
@@ -3161,7 +3314,7 @@ namespace IsengardClient
                     enabled = false;
                 else if (inForeground)
                     enabled = true;
-                else if (oTag.CommandType == CommandType.None)
+                else if (oTag.CommandType == CommandType.None) //these buttons can be clicked even if a background process is running
                     enabled = true;
                 else if (npp != BackgroundProcessPhase.Combat) //combat buttons are only enabled in combat
                     enabled = false;
@@ -3191,12 +3344,21 @@ namespace IsengardClient
 
             if (inForeground)
                 enabled = true;
-            else if (npp == BackgroundProcessPhase.Flee || npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
+            else if (npp == BackgroundProcessPhase.Flee || npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
                 enabled = false;
             else
                 enabled = true;
             if (enabled != btnFlee.Enabled)
                 btnFlee.Enabled = enabled;
+
+            if (inForeground)
+                enabled = true;
+            else if (npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
+                enabled = false;
+            else
+                enabled = true;
+            if (enabled != btnDrinkHazy.Enabled)
+                btnDrinkHazy.Enabled = enabled;
 
             if (inForeground)
                 enabled = true;
@@ -3222,7 +3384,6 @@ namespace IsengardClient
             yield return (CommandButtonTag)btnLevel1OffensiveSpell.Tag;
             yield return (CommandButtonTag)btnLevel2OffensiveSpell.Tag;
             yield return (CommandButtonTag)btnLevel3OffensiveSpell.Tag;
-            yield return (CommandButtonTag)btnDrinkHazy.Tag;
             yield return (CommandButtonTag)btnLookAtMob.Tag;
             yield return (CommandButtonTag)btnLook.Tag;
             yield return (CommandButtonTag)btnCastVigor.Tag;
@@ -3315,7 +3476,7 @@ namespace IsengardClient
         {
             if (move)
             {
-                NavigateExitsInBackground(exit.Target, new List<Exit>() { exit });
+                NavigateExitsInBackground(new List<Exit>() { exit });
             }
             else
             {
@@ -3351,7 +3512,7 @@ namespace IsengardClient
             }
             if (move)
             {
-                NavigateExitsInBackground(null, new List<Exit>() { new Exit(null, null, direction) });
+                NavigateExitsInBackground(new List<Exit>() { new Exit(null, null, direction) });
             }
         }
 
@@ -3498,19 +3659,12 @@ namespace IsengardClient
             RefreshEnabledForSingleMoveButtons();
         }
 
-        private BackgroundWorkerParameters GenerateNewBackgroundParameters()
-        {
-            BackgroundWorkerParameters ret = new BackgroundWorkerParameters();
-            ret.AutoHazyThreshold = _autoHazyThreshold;
-            return ret;
-        }
-
         private void RunBackgroundProcess(BackgroundWorkerParameters backgroundParameters)
         {
             _currentBackgroundParameters = backgroundParameters;
             _backgroundProcessPhase = BackgroundProcessPhase.Initialization;
+            ToggleBackgroundProcessUI(backgroundParameters, true);
             _bw.RunWorkerAsync(backgroundParameters);
-            ToggleBackgroundProcess(backgroundParameters, true);
         }
 
         private class BackgroundWorkerParameters
@@ -3525,7 +3679,7 @@ namespace IsengardClient
             public MeleeStrategyStep? QueuedMeleeStep { get; set; }
             public int ManaPool { get; set; }
             public PromptedSkills UsedSkills { get; set; }
-            public int AutoHazyThreshold { get; set; }
+            public bool Hazy { get; set; }
             public bool Flee { get; set; }
             public bool Quit { get; set; }
             public bool DoScore { get; set; }
@@ -3595,7 +3749,7 @@ namespace IsengardClient
                 return;
             }
 
-            BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
             bwp.Strategy = strategy;
             if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
             bwp.Exits = preExits;
@@ -3767,7 +3921,7 @@ namespace IsengardClient
                 byte newHPB = _hpColorB;
                 if (newHPR != _hpColorRUI || newHPG != _hpColorGUI || newHPB != _hpColorBUI)
                 {
-                    GetForegroundColor(newHPR, newHPG, newHPB, out byte forer, out byte foreg, out byte foreb);
+                    UIShared.GetForegroundColor(newHPR, newHPG, newHPB, out byte forer, out byte foreg, out byte foreb);
                     lblHitpointsValue.BackColor = Color.FromArgb(newHPR, newHPG, newHPB);
                     lblHitpointsValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
                     _hpColorRUI = newHPR;
@@ -3779,7 +3933,7 @@ namespace IsengardClient
                 byte newMPB = _mpColorB;
                 if (newMPR != _mpColorRUI || newMPG != _mpColorGUI || newMPB != _mpColorBUI)
                 {
-                    GetForegroundColor(newMPR, newMPG, newMPB, out byte forer, out byte foreg, out byte foreb);
+                    UIShared.GetForegroundColor(newMPR, newMPG, newMPB, out byte forer, out byte foreg, out byte foreb);
                     lblManaValue.BackColor = Color.FromArgb(newMPR, newMPG, newMPB);
                     lblManaValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
                     _mpColorRUI = newMPR;
@@ -3868,7 +4022,7 @@ namespace IsengardClient
                     }
                     if (backColor != nextCooldown.RemainingColorUI)
                     {
-                        GetForegroundColor(backColor.R, backColor.G, backColor.B, out byte forer, out byte foreg, out byte foreb);
+                        UIShared.GetForegroundColor(backColor.R, backColor.G, backColor.B, out byte forer, out byte foreg, out byte foreb);
                         lbl.BackColor = backColor;
                         lbl.ForeColor = Color.FromArgb(forer, foreg, foreb);
                         nextCooldown.RemainingColorUI = backColor;
@@ -3979,6 +4133,8 @@ namespace IsengardClient
                 m_oCurrentRoomUI = oCurrentRoom;
             }
 
+            RefreshAutoEscapeUI(false);
+
             lock (_broadcastMessagesLock)
             {
                 if (_broadcastMessages.Count > 0)
@@ -3992,26 +4148,10 @@ namespace IsengardClient
                     _broadcastMessages.Clear();
                 }
             }
-            EnableDisableActionButtons(_currentBackgroundParameters);
-            if (!btnAbort.Enabled) //processing that only happens when a background process is not running
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            EnableDisableActionButtons(bwp);
+            if (bwp == null) //processing that only happens when a background process is not running
             {
-                if (_autoHazied)
-                {
-                    ClearAutoHazyThreshold();
-                    _lastTriedToAutoHazy = null;
-                    _autoHazied = false;
-                    if (_currentBackgroundParameters != null)
-                    {
-                        _bw.CancelAsync();
-                        _currentBackgroundParameters.AutoHazyThreshold = 0;
-                    }
-                    SetCurrentRoom(_gameMap.TreeOfLifeRoom);
-                }
-                else
-                {
-                    CheckAutoHazy(_autoHazyThreshold, dtUTCNow, autohpforthistick);
-                }
-
                 //check for poll tick if the first status update has completed and not at full HP+MP
                 if (_currentStatusLastComputed.HasValue && (autohpforthistick == HP_OR_MP_UNKNOWN || autohpforthistick < _totalhp || autompforthistick == HP_OR_MP_UNKNOWN || autompforthistick < _totalmp))
                 {
@@ -4031,6 +4171,17 @@ namespace IsengardClient
                     _doScore = false;
                     SendCommand("score", InputEchoType.On);
                 }
+
+                bool hazying, fleeing;
+                lock (_escapeLock)
+                {
+                    hazying = _hazying;
+                    fleeing = _fleeing;
+                }
+                if (hazying || fleeing)
+                {
+                    StartEscapeBackgroundProcess(hazying, fleeing);
+                }
             }
         }
 
@@ -4047,13 +4198,6 @@ namespace IsengardClient
             r = (byte)(iEmptyR + Math.Round(multiplier * (iFullR - iEmptyR), 0));
             g = (byte)(iEmptyG + Math.Round(multiplier * (iFullG - iEmptyG), 0));
             b = (byte)(iEmptyB + Math.Round(multiplier * (iFullB - iEmptyB), 0));
-        }
-
-        private void GetForegroundColor(byte r, byte g, byte b, out byte forer, out byte foreg, out byte foreb)
-        {
-            forer = (byte)(r <= 128 ? 255 : 0);
-            foreg = (byte)(g <= 128 ? 255 : 0);
-            foreb = (byte)(b <= 128 ? 255 : 0);
         }
 
         private string GetMonsterStatusText(MonsterStatus? status)
@@ -4096,15 +4240,6 @@ namespace IsengardClient
                 }
             }
             return ret;
-        }
-
-        private void CheckAutoHazy(int autoHazyThreshold, DateTime dtUtcNow, int autoHitpoints)
-        {
-            if (m_oCurrentRoom != _gameMap.TreeOfLifeRoom && !_autoHazied && autoHitpoints > 0 && autoHitpoints < autoHazyThreshold && autoHazyThreshold > 0 && (!_lastTriedToAutoHazy.HasValue || ((dtUtcNow - _lastTriedToAutoHazy.Value) > new TimeSpan(0, 0, 2))))
-            {
-                _lastTriedToAutoHazy = dtUtcNow;
-                SendCommand("drink hazy", InputEchoType.On);
-            }
         }
 
         private void txtWeapon_TextChanged(object sender, EventArgs e)
@@ -4244,9 +4379,7 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = GenerateNewBackgroundParameters();
-                bwp.Flee = true;
-                RunBackgroundProcess(bwp);
+                StartEscapeBackgroundProcess(false, true);
             }
             else
             {
@@ -4254,12 +4387,35 @@ namespace IsengardClient
             }
         }
 
+        private void btnDrinkHazy_Click(object sender, EventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                StartEscapeBackgroundProcess(true, false);
+            }
+            else
+            {
+                _hazying = true;
+            }
+        }
+
+        private void StartEscapeBackgroundProcess(bool hazy, bool flee)
+        {
+            if (hazy) _hazying = true;
+            if (flee) _fleeing = true;
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.Hazy = hazy;
+            bwp.Flee = flee;
+            RunBackgroundProcess(bwp);
+        }
+
         private void btnScore_Click(object sender, EventArgs e)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = GenerateNewBackgroundParameters();
+                bwp = new BackgroundWorkerParameters();
                 bwp.DoScore = true;
                 bwp.Foreground = true;
                 RunBackgroundProcess(bwp);
@@ -4275,7 +4431,7 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = GenerateNewBackgroundParameters();
+                bwp = new BackgroundWorkerParameters();
                 bwp.Quit = true;
                 RunBackgroundProcess(bwp);
             }
@@ -4517,13 +4673,13 @@ namespace IsengardClient
             List<Exit> exits = CalculateRouteExits(targetRoom);
             if (exits != null)
             {
-                NavigateExitsInBackground(targetRoom, exits);
+                NavigateExitsInBackground(exits);
             }
         }
 
-        private void NavigateExitsInBackground(Room targetRoom, List<Exit> exits)
+        private void NavigateExitsInBackground(List<Exit> exits)
         {
-            BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
             bwp.Exits = exits;
             RunBackgroundProcess(bwp);
         }
@@ -4540,7 +4696,7 @@ namespace IsengardClient
             List<Exit> selectedPath = frm.SelectedPath;
             if (selectedPath != null)
             {
-                NavigateExitsInBackground(selectedPath[selectedPath.Count - 1].Target, selectedPath);
+                NavigateExitsInBackground(selectedPath);
             }
         }
 
@@ -4583,7 +4739,6 @@ namespace IsengardClient
                 _fullColor = sets.FullColor;
                 _emptyColor = sets.EmptyColor;
                 UpdateCurrentRealmSideEffects();
-                RefreshAutoHazyUI();
                 RefreshAutoSpellLevelUI();
 
                 if (frm.ChangedStrategies)
@@ -4592,62 +4747,6 @@ namespace IsengardClient
                     RefreshStrategyButtons();
                 }
             }
-        }
-
-        private void tsmiSetAutoHazy_Click(object sender, EventArgs e)
-        {
-            string sNewAutoHazyThreshold = Interaction.InputBox("New auto hazy threshold:", "Auto Hazy Threshold", _rememberedAutoHazyThreshold.ToString());
-            if (int.TryParse(sNewAutoHazyThreshold, out int iNewAutoHazyThreshold) && iNewAutoHazyThreshold > 0 && iNewAutoHazyThreshold < _totalhp)
-            {
-                _autoHazyThreshold = iNewAutoHazyThreshold;
-                _rememberedAutoHazyThreshold = iNewAutoHazyThreshold;
-                RefreshAutoHazyUI();
-            }
-            else
-            {
-                MessageBox.Show("Invalid auto hazy threshold: " + sNewAutoHazyThreshold);
-            }
-        }
-
-        private void tsmiClearAutoHazy_Click(object sender, EventArgs e)
-        {
-            ClearAutoHazyThreshold();
-        }
-
-        private void ClearAutoHazyThreshold()
-        {
-            _autoHazyThreshold = 0;
-            RefreshAutoHazyUI();
-        }
-
-        private void tsmiReactivateAutoHazy_Click(object sender, EventArgs e)
-        {
-            _autoHazyThreshold = _rememberedAutoHazyThreshold;
-            RefreshAutoHazyUI();
-        }
-
-        private void tsmiSetDefaultAutoHazy_Click(object sender, EventArgs e)
-        {
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.DefaultAutoHazyThreshold = _autoHazyThreshold;
-            sets.Save();
-        }
-
-        private void RefreshAutoHazyUI()
-        {
-            UIShared.RefreshAutoHazyUI(_autoHazyThreshold, lblAutoHazyValue, tsmiClearAutoHazy, _rememberedAutoHazyThreshold);
-            tsmiClearAutoHazy.Visible = _autoHazyThreshold > 0;
-            tsmiReactivateAutoHazy.Visible = _rememberedAutoHazyThreshold > 0 && _autoHazyThreshold == 0;
-            bool canDefault = IsengardSettings.Default.DefaultAutoHazyThreshold != _autoHazyThreshold;
-            tsmiRestoreDefaultAutoHazy.Visible = canDefault;
-            tsmiSetDefaultAutoHazy.Visible = canDefault;
-        }
-
-        private void tsmiRestoreDefaultAutoHazy_Click(object sender, EventArgs e)
-        {
-            _autoHazyThreshold = IsengardSettings.Default.DefaultAutoHazyThreshold;
-            _rememberedAutoHazyThreshold = _autoHazyThreshold;
-            RefreshAutoHazyUI();
         }
 
         private void tsmiSetCurrentRealmAsDefault_Click(object sender, EventArgs e)
@@ -4669,7 +4768,7 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null && PromptForSkills(true, false, false, null, out PromptedSkills activatedSkills, out _))
             {
-                bwp = GenerateNewBackgroundParameters();
+                bwp = new BackgroundWorkerParameters();
                 bwp.UsedSkills = activatedSkills;
                 RunBackgroundProcess(bwp);
             }
@@ -4680,7 +4779,7 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = GenerateNewBackgroundParameters();
+                bwp = new BackgroundWorkerParameters();
                 bwp.Heal = true;
                 RunBackgroundProcess(bwp);
             }
@@ -4739,6 +4838,149 @@ namespace IsengardClient
             _autoSpellLevelMax = defaultSettings.DefaultAutoSpellLevelMax;
             RefreshAutoSpellLevelUI();
         }
+
+        private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)
+        {
+            string sDefault = _autoEscapeThreshold > 0 ? _autoEscapeThreshold.ToString() : string.Empty;
+            string sNewAutoEscapeThreshold = Interaction.InputBox("New auto escape threshold:", "Auto Escape Threshold", sDefault);
+            if (int.TryParse(sNewAutoEscapeThreshold, out int iNewAutoEscapeThreshold) && iNewAutoEscapeThreshold > 0 && iNewAutoEscapeThreshold < _totalhp)
+            {
+                _autoEscapeThreshold = iNewAutoEscapeThreshold;
+                RefreshAutoEscapeUI(true);
+            }
+            else
+            {
+                MessageBox.Show("Invalid auto escape threshold: " + sNewAutoEscapeThreshold);
+            }
+        }
+
+        private void tsmiClearAutoEscapeThreshold_Click(object sender, EventArgs e)
+        {
+            _autoEscapeActive = false;
+            _autoEscapeThreshold = 0;
+            RefreshAutoEscapeUI(true);
+        }
+
+        private void tsmiToggleAutoEscapeActive_Click(object sender, EventArgs e)
+        {
+            _autoEscapeActive = !_autoEscapeActiveSaved;
+            RefreshAutoEscapeUI(true);
+        }
+
+        private void tsmiSetDefaultAutoEscape_Click(object sender, EventArgs e)
+        {
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.DefaultAutoEscapeOnByDefault = _autoEscapeActive;
+            sets.DefaultAutoEscapeThreshold = _autoEscapeThreshold;
+            sets.DefaultAutoEscapeType = Convert.ToInt32(_autoEscapeType);
+            sets.Save();
+        }
+
+        /// <summary>
+        /// updates the auto-escape UI. This must run on the UI thread.
+        /// </summary>
+        private void RefreshAutoEscapeUI(bool forceSet)
+        {
+            bool autoEscapeActive = _autoEscapeActive;
+            int autoEscapeThreshold = _autoEscapeThreshold;
+            AutoEscapeType autoEscapeType = _autoEscapeTypeUI;
+            bool fleeing = _fleeing;
+            bool hazying = _hazying;
+            if (forceSet || 
+                autoEscapeActive != _autoEscapeActiveUI ||
+                autoEscapeThreshold != _autoEscapeThresholdUI ||
+                autoEscapeType != _autoEscapeTypeUI ||
+                fleeing != _fleeingUI ||
+                hazying != _hazyingUI)
+            {
+                Color autoEscapeBackColor;
+                string autoEscapeText;
+                if (hazying)
+                {
+                    autoEscapeBackColor = Color.Red;
+                    autoEscapeText = "Trying to Hazy";
+                }
+                else if (fleeing)
+                {
+                    autoEscapeBackColor = Color.Red;
+                    autoEscapeText = "Trying to Flee";
+                }
+                else
+                {
+                    string sAutoEscapeType = _autoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
+                    if (_autoEscapeThreshold > 0)
+                    {
+                        autoEscapeText = sAutoEscapeType + " @ " + _autoEscapeThreshold.ToString();
+                    }
+                    else
+                    {
+                        autoEscapeText = sAutoEscapeType;
+                    }
+                    if (_autoEscapeActive)
+                    {
+                        if (_autoEscapeType == AutoEscapeType.Hazy)
+                        {
+                            autoEscapeBackColor = Color.DarkBlue;
+                        }
+                        else //Flee
+                        {
+                            autoEscapeBackColor = Color.DarkRed;
+                        }
+                    }
+                    else if (_autoEscapeThreshold > 0)
+                    {
+                        autoEscapeText += " (Off)";
+                        autoEscapeBackColor = Color.LightGray;
+                    }
+                    else
+                    {
+                        autoEscapeText += " (Off)";
+                        autoEscapeBackColor = Color.Black;
+                    }
+                }
+
+                UIShared.GetForegroundColor(autoEscapeBackColor.R, autoEscapeBackColor.G, autoEscapeBackColor.G, out byte forer, out byte foreg, out byte foreb);
+                lblAutoEscapeValue.BackColor = autoEscapeBackColor;
+                lblAutoEscapeValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
+                lblAutoEscapeValue.Text = autoEscapeText;
+
+                tsmiAutoEscapeFlee.Checked = _autoEscapeType == AutoEscapeType.Flee;
+                tsmiAutoEscapeHazy.Checked = _autoEscapeType == AutoEscapeType.Hazy;
+
+                tsmiAutoEscapeIsActive.Checked = _autoEscapeActive;
+
+                _autoEscapeActiveUI = autoEscapeActive;
+                _autoEscapeThresholdUI = autoEscapeThreshold;
+                _autoEscapeTypeUI = autoEscapeType;
+                _fleeingUI = fleeing;
+                _hazyingUI = hazying;
+            }
+        }
+
+        private void tsmiRestoreDefaultAutoEscape_Click(object sender, EventArgs e)
+        {
+            SetAutoEscapeThresholdFromDefaults();
+        }
+
+        private void ctxAutoEscape_Opening(object sender, CancelEventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                _autoEscapeActiveSaved = _autoEscapeActive;
+                IsengardSettings sets = IsengardSettings.Default;
+                bool hasThreshold = _autoEscapeThreshold > 0;
+                tsmiAutoEscapeIsActive.Enabled = hasThreshold;
+                tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
+                bool differentFromDefault = _autoEscapeActive != sets.DefaultAutoEscapeOnByDefault || _autoEscapeThreshold != sets.DefaultAutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.DefaultAutoEscapeType;
+                tsmiSetDefaultAutoEscape.Enabled = differentFromDefault;
+                tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
+            }
+        }
     }
 
     [Flags]
@@ -4774,6 +5016,7 @@ namespace IsengardClient
         OffensiveSpell,
         Attack,
         Flee,
+        DrinkHazy,
         Score,
         Quit,
     }
@@ -4809,6 +5052,7 @@ namespace IsengardClient
         Movement,
         Combat,
         Flee,
+        Hazy,
         Score,
         Quit,
     }

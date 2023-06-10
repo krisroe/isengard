@@ -73,18 +73,6 @@ namespace IsengardClient {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int DefaultAutoHazyThreshold {
-            get {
-                return ((int)(this["DefaultAutoHazyThreshold"]));
-            }
-            set {
-                this["DefaultAutoHazyThreshold"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool VerboseMode {
             get {
@@ -152,6 +140,42 @@ namespace IsengardClient {
             }
             set {
                 this["DefaultAutoSpellLevelMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DefaultAutoEscapeThreshold {
+            get {
+                return ((int)(this["DefaultAutoEscapeThreshold"]));
+            }
+            set {
+                this["DefaultAutoEscapeThreshold"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DefaultAutoEscapeType {
+            get {
+                return ((int)(this["DefaultAutoEscapeType"]));
+            }
+            set {
+                this["DefaultAutoEscapeType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DefaultAutoEscapeOnByDefault {
+            get {
+                return ((bool)(this["DefaultAutoEscapeOnByDefault"]));
+            }
+            set {
+                this["DefaultAutoEscapeOnByDefault"] = value;
             }
         }
     }

@@ -274,6 +274,10 @@
         //CSRTODO: no plural?
         PansySmallburrows,
 
+        [SingularName("peasant")]
+        [PluralName("peasants")]
+        Peasant,
+
         [SingularName("pixie")]
         [PluralName("pixies")]
         Pixie,

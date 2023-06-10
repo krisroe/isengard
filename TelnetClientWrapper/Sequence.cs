@@ -152,6 +152,9 @@ namespace IsengardClient
                 case ConstantSequenceMatchType.Contains:
                     ret = Line.Contains(_characters);
                     break;
+                case ConstantSequenceMatchType.EndsWith:
+                    ret = Line.EndsWith(_characters);
+                    break;
                 default:
                     throw new InvalidOperationException();
             }
@@ -163,6 +166,7 @@ namespace IsengardClient
     {
         ExactMatch,
         StartsWith,
+        EndsWith,
         Contains,
     }
 
@@ -893,19 +897,41 @@ namespace IsengardClient
             }
         }
 
-        internal static InitialLoginInfo ProcessRoomForInitialization(List<string> Lines, int nextLineIndex)
+        /// <summary>
+        /// processes a room name as
+        /// [blank line]
+        /// Room name (non blank)
+        /// [blank line]
+        /// </summary>
+        /// <param name="Lines">list of output lines</param>
+        /// <param name="nextLineIndex">starting index for the room</param>
+        /// <param name="sRoomName">returns the room name</param>
+        /// <returns>true if the room name was successfully processed, false otherwise</returns>
+        internal static bool ProcessRoomName(List<string> Lines, ref int nextLineIndex, out string sRoomName)
         {
-            if (Lines[nextLineIndex] != string.Empty) return null;
+            sRoomName = string.Empty;
+
+            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
             nextLineIndex++;
 
-            if (nextLineIndex >= Lines.Count) return null;
-            string sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(sRoomName)) return null;
+            if (nextLineIndex >= Lines.Count) return false;
+            sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(sRoomName)) return false;
             nextLineIndex++;
 
             //blank line after room name
-            if (Lines[nextLineIndex] != string.Empty) return null;
+            if (Lines[nextLineIndex] != string.Empty) return false;
             nextLineIndex++;
+
+            return true;
+        }
+
+        internal static InitialLoginInfo ProcessRoomForInitialization(List<string> Lines, int nextLineIndex)
+        {
+            if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
+            {
+                return null;
+            }
 
             string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
             if (exitsString == null)
@@ -1114,17 +1140,10 @@ namespace IsengardClient
 
         internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo> onSatisfied)
         {
-            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
-            nextLineIndex++;
-
-            if (nextLineIndex >= Lines.Count) return false;
-            string sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(sRoomName)) return false;
-            nextLineIndex++;
-
-            //blank line after room name
-            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
-            nextLineIndex++;
+            if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
+            {
+                return false;
+            }
 
             string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
             string list1String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
@@ -1852,6 +1871,7 @@ namespace IsengardClient
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
+                         sLine == "A heavy rain begins to fall." ||
                          
                          sLine == "A strong wind blows across the land." ||
                          sLine == "The wind gusts, blowing debris through the streets." ||

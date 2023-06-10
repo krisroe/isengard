@@ -34,27 +34,11 @@ namespace IsengardClient
             }
         }
 
-        internal static void RefreshAutoHazyUI(int autoHazyThreshold, Label lblAutoHazy, ToolStripMenuItem tsmiClearAutoHazy, int previousThreshold)
+        internal static void GetForegroundColor(byte r, byte g, byte b, out byte forer, out byte foreg, out byte foreb)
         {
-            Color autoHazyBackColor;
-            string autoHazyText;
-            if (autoHazyThreshold > 0)
-            {
-                autoHazyBackColor = Color.DarkBlue;
-                autoHazyText = "Auto Hazy at " + autoHazyThreshold;
-            }
-            else
-            {
-                autoHazyBackColor = Color.Black;
-                autoHazyText = "No Auto Hazy";
-                if (previousThreshold > 0)
-                {
-                    autoHazyText += " (" + previousThreshold + ")";
-                }
-            }
-            lblAutoHazy.Text = autoHazyText;
-            lblAutoHazy.BackColor = autoHazyBackColor;
-            tsmiClearAutoHazy.Visible = true;
+            forer = (byte)(r <= 128 ? 255 : 0);
+            foreg = (byte)(g <= 128 ? 255 : 0);
+            foreb = (byte)(b <= 128 ? 255 : 0);
         }
     }
 }
