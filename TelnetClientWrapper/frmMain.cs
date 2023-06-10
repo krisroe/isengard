@@ -3588,14 +3588,11 @@ namespace IsengardClient
                 return;
             }
 
-            PromptedSkills activatedSkills = PromptedSkills.None;
-            string targetRoomMob = txtMob.Text;
-            if (strategy.ShowPreForm)
+            PromptedSkills activatedSkills;
+            string targetRoomMob;
+            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, preExits, out activatedSkills, out targetRoomMob))
             {
-                if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, preExits, out activatedSkills, out targetRoomMob))
-                {
-                    return;
-                }
+                return;
             }
 
             BackgroundWorkerParameters bwp = GenerateNewBackgroundParameters();

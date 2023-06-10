@@ -12,35 +12,39 @@ namespace IsengardClient.Tests
         {
             Strategy strategy;
 
-            strategy = Strategy.GenerateCannedStrategy("C*+A*");
+            List<Strategy> defaultStrategies = Strategy.GetDefaultStrategies();
+
+            int iIndex = 0;
+
+            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, null, true);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
-            strategy = Strategy.GenerateCannedStrategy("SC*+A*");
+            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true);
             ValidateIndefiniteAttackStrategy(strategy, false);
 
-            strategy = Strategy.GenerateCannedStrategy("C*");
-            ValidateCastStrategy(strategy, null, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = Strategy.GenerateCannedStrategy("SC*");
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = Strategy.GenerateCannedStrategy("SCCSC*");
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = Strategy.GenerateCannedStrategy("SCCSC*+A*");
+            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
-            strategy = Strategy.GenerateCannedStrategy("SCCSCCF+A*");
+            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, false);
             ValidateIndefiniteAttackStrategy(strategy, false);
 
-            strategy = Strategy.GenerateCannedStrategy("A*");
+            strategy = defaultStrategies[iIndex++];
+            ValidateCastStrategy(strategy, null, true);
+            ValidateNonMeleeStrategy(strategy);
+
+            strategy = defaultStrategies[iIndex++];
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true);
+            ValidateNonMeleeStrategy(strategy);
+
+            strategy = defaultStrategies[iIndex++];
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true);
+            ValidateNonMeleeStrategy(strategy);
+
+            strategy = defaultStrategies[iIndex++];
             Assert.IsFalse(strategy.HasAnyMagicSteps());
             foreach (var _ in strategy.GetMagicSteps())
             {

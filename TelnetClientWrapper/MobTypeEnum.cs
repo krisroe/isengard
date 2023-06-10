@@ -326,6 +326,10 @@
         //CSRTODO: no plural?
         SergeantGrimgall,
 
+        [SingularName("sheep")]
+        [PluralName("sheep")]
+        Sheep,
+
         [SingularName("the shepherd")]
         //CSRTODO: no plural?
         Shepherd,

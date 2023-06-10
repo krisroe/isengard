@@ -899,7 +899,7 @@ namespace IsengardClient
             nextLineIndex++;
 
             if (nextLineIndex >= Lines.Count) return null;
-            string sRoomName = Lines[nextLineIndex];
+            string sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(sRoomName)) return null;
             nextLineIndex++;
 
@@ -1118,7 +1118,7 @@ namespace IsengardClient
             nextLineIndex++;
 
             if (nextLineIndex >= Lines.Count) return false;
-            string sRoomName = Lines[nextLineIndex];
+            string sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(sRoomName)) return false;
             nextLineIndex++;
 
