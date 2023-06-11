@@ -108,6 +108,10 @@
         [PluralName("engagement rings")]
         EngagementRing,
 
+        [SingularName("galvorn ring")]
+        [PluralName("galvorn rings")]
+        GalvornRing,
+
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
         GateWarning,
@@ -314,6 +318,12 @@
         [SingularName("training key")]
         [PluralName("training keys")]
         TrainingKey,
+
+        [SingularName("translucent leggings")]
+        TranslucentLeggings,
+
+        [SingularName("translucent sleeves")]
+        TranslucentSleeves,
 
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]
