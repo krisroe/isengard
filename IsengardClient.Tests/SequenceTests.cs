@@ -52,9 +52,17 @@ namespace IsengardClient.Tests
             InformationalMessagesSequence seq = new InformationalMessagesSequence(a);
             FeedLineParameters flp = new FeedLineParameters(null);
 
+            msgs = null;
+            broadcasts = addedPlayers = removedPlayers = null;
             flp.Lines = new List<string>() { "The heat today is unbearable.", "### The Celduin Express is ready for boarding in Bree." };
             seq.FeedLine(flp);
             Assert.IsTrue(flp.Lines.Count == 0);
+
+            msgs = null;
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "A hobbit just arrived." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.Lines.Count == 1);
         }
 
         [TestMethod]

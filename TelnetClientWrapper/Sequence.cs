@@ -1810,6 +1810,7 @@ namespace IsengardClient
             bool haveDataToDisplay = false;
             for (int i = 0; i < Lines.Count; i++)
             {
+                bool isMessageToKeep = false;
                 bool whitespaceLine = false;
                 InformationalMessages? im = null;
                 string sLine = Lines[i];
@@ -1922,6 +1923,7 @@ namespace IsengardClient
                 }
                 else if (sLine.EndsWith(" just arrived."))
                 {
+                    isMessageToKeep = true;
                     haveDataToDisplay = true;
                 }
                 else if (!string.IsNullOrWhiteSpace(sLine)) //not an informational message
@@ -1949,7 +1951,7 @@ namespace IsengardClient
                             messages = new List<InformationalMessages>();
                         messages.Add(imVal);
                     }
-                    else
+                    else if (!isMessageToKeep)
                     {
                         removeLine = true;
                     }

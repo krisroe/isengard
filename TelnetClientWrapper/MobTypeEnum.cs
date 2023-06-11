@@ -266,6 +266,10 @@
         [PluralName("noblemen")]
         Nobleman,
 
+        [SingularName("nymph")]
+        [PluralName("nymphs")]
+        Nymph,
+
         [SingularName("ogre")]
         [PluralName("ogres")]
         Ogre,
@@ -273,6 +277,10 @@
         [SingularName("Oliphaunt the Tattoo Artist")]
         //CSRTODO: no plural
         OliphauntTheTattooArtist,
+
+        [SingularName("orc")]
+        [PluralName("orcs")]
+        Orc,
 
         [SingularName("paladin")]
         [PluralName("paladins")]
@@ -354,9 +362,9 @@
         [PluralName("snarling mutts")]
         SnarlingMutt,
 
-        [SingularName("The Town Crier")]
-        //CSRTODO: no plural?
-        TheTownCrier,
+        [SingularName("sprite guard")]
+        [PluralName("sprite guards")]
+        SpriteGuard,
 
         [SingularName("thief")]
         [PluralName("thiefs")]
@@ -365,6 +373,10 @@
         [SingularName("tourist")]
         [PluralName("tourists")]
         Tourist,
+
+        [SingularName("The Town Crier")]
+        //CSRTODO: no plural?
+        TheTownCrier,
 
         [SingularName("traveler")]
         [PluralName("travelers")]

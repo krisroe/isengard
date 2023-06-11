@@ -92,6 +92,10 @@
         [PluralName("copper pieces")]
         CopperPieces,
 
+        [SingularName("copper ring")]
+        [PluralName("copper rings")]
+        CopperRing,
+
         [SingularName("dagger")]
         [PluralName("daggers")]
         Dagger,
@@ -99,6 +103,10 @@
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         DarkGreenPotion,
+
+        [SingularName("elven bow")]
+        [PluralName("elven bows")]
+        ElvenBow,
 
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
@@ -147,6 +155,10 @@
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
         GreyScroll,
+
+        [SingularName("halberd")]
+        [PluralName("halberds")]
+        Halberd,
 
         [SingularName("hand axe")]
         [PluralName("hand axes")]
@@ -230,6 +242,14 @@
         [PluralName("parched scrolls")]
         ParchedScroll,
 
+        [SingularName("pipe weed")]
+        //CSRTODO: plural?
+        PipeWeed,
+
+        [SingularName("pot of gold")]
+        [PluralName("pots of gold")]
+        PotOfGold,
+
         [SingularName("purple wand")]
         [PluralName("purple wands")]
         PurpleWand,
@@ -296,6 +316,10 @@
 
         [SingularName("sprite boots")]
         SpriteBoots,
+
+        [SingularName("sprite bracelet")]
+        [PluralName("sprite bracelets")]
+        SpriteBracelet,
 
         [SingularName("spyglass")]
         [PluralName("spyglasses")]
