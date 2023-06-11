@@ -34,9 +34,9 @@
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
 
-        [SingularName("book of knowledge")]
-        [PluralName("books of knowledge")]
-        BookOfKnowledge,
+        [SingularName("catapult crewmember")]
+        [PluralName("catapult crewmembers")]
+        CatapultCrewmember,
 
         [SingularName("dancing bear")]
         [PluralName("dancing bears")]

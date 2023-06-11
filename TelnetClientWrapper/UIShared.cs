@@ -29,8 +29,15 @@ namespace IsengardClient
         {
             foreach (var next in cms.Items)
             {
-                ToolStripMenuItem tsmi = (ToolStripMenuItem)next;
-                tsmi.Checked = realm == tsmi.Text;
+                ToolStripMenuItem tsmi = next as ToolStripMenuItem;
+                if (tsmi != null)
+                {
+                    string sText = tsmi.Text;
+                    if (sText == "earth" || sText == "fire" || sText == "water" || sText == "wind")
+                    {
+                        tsmi.Checked = realm == sText;
+                    }
+                }
             }
         }
 

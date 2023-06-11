@@ -37,6 +37,10 @@
         [PluralName("blackened scrolls")]
         BlackenedScroll,
 
+        [SingularName("black scroll")]
+        [PluralName("black scrolls")]
+        BlackScroll,
+
         [SingularName("black iron key")]
         [PluralName("black iron keys")]
         BlackIronKey,
@@ -47,6 +51,10 @@
 
         [SingularName("bone armor")]
         BoneArmor,
+
+        [SingularName("book of knowledge")]
+        [PluralName("books of knowledge")]
+        BookOfKnowledge,
 
         [SingularName("bracers of ogre-strength")]
         BracersOfOgreStrength,
@@ -174,6 +182,10 @@
         [PluralName("lollipops")]
         Lollipop,
 
+        [SingularName("long bow")]
+        [PluralName("long bows")]
+        LongBow,
+
         [SingularName("magical tabulator")]
         [PluralName("magical tabulators")]
         MagicalTabulator,
@@ -254,6 +266,10 @@
         [PluralName("slings")]
         Sling,
 
+        [SingularName("small ash bow")]
+        [PluralName("small ash bows")]
+        SmallAshBow,
+
         [SingularName("small bag")]
         [PluralName("small bags")]
         SmallBag,
@@ -298,6 +314,10 @@
         [SingularName("training key")]
         [PluralName("training keys")]
         TrainingKey,
+
+        [SingularName("verdant green scroll")]
+        [PluralName("verdant green scrolls")]
+        VerdantGreenScroll,
 
         [SingularName("voulge")]
         [PluralName("voulges")]

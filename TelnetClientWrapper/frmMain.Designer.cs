@@ -179,6 +179,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -838,10 +839,12 @@
             this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSetMinimumAutoSpellLevel,
             this.tsmiSetMaximumAutoSpellLevel,
+            this.sepAutoSpellLevels1,
             this.tsmiSetCurrentAutoSpellLevelAsDefault,
             this.tsmiRestoreDefaultAutoSpellLevels});
             this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 92);
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 120);
+            this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
             // 
             // tsmiSetMinimumAutoSpellLevel
             // 
@@ -917,7 +920,7 @@
             this.tsmiSetDefaultAutoEscape,
             this.tsmiRestoreDefaultAutoEscape});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(189, 198);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(189, 176);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
@@ -1014,6 +1017,7 @@
             this.tsmiRestoreDefaultRealm});
             this.ctxRealm.Name = "ctxRealm";
             this.ctxRealm.Size = new System.Drawing.Size(189, 136);
+            this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiEarth
             // 
@@ -1803,6 +1807,11 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // sepAutoSpellLevels1
+            // 
+            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
+            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(185, 6);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2013,6 +2022,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeHazy;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
+        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
     }
 }
 

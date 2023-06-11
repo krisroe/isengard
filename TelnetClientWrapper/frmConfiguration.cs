@@ -119,27 +119,6 @@ namespace IsengardClient
             }
         }
 
-        private static AlignmentType ParseAlignment(string alignment)
-        {
-            if (!Enum.TryParse(alignment, out AlignmentType at))
-            {
-                at = AlignmentType.Blue;
-            }
-            return at;
-        }
-
-        private void RefreshRealmUI()
-        {
-            lblRealm.Text = _defaultRealm;
-            lblRealm.BackColor = UIShared.GetColorForRealm(_defaultRealm);
-            UIShared.UpdateRealmMenu(ctxDefaultRealm, _defaultRealm);
-        }
-
-        private void RefreshAutoSpellLevelUI()
-        {
-            lblAutoSpellLevelsValue.Text = _autoSpellLevelMinimum + ":" + _autoSpellLevelMaximum;
-        }
-
         private void btnOK_Click(object sender, EventArgs e)
         {
             IsengardSettings sets = IsengardSettings.Default;
@@ -163,16 +142,7 @@ namespace IsengardClient
             this.Close();
         }
 
-        private void tsmiTogglePreferredAlignment_Click(object sender, EventArgs e)
-        {
-            AlignmentType newType;
-            if (_preferredAlignment == AlignmentType.Blue)
-                newType = AlignmentType.Red;
-            else
-                newType = AlignmentType.Blue;
-            _preferredAlignment = newType;
-            RefreshAlignmentTypeUI();
-        }
+        #region preferred alignment
 
         private void RefreshAlignmentTypeUI()
         {
@@ -190,7 +160,45 @@ namespace IsengardClient
             }
             lblPreferredAlignmentValue.BackColor = cLabelBack;
             lblPreferredAlignmentValue.Text = sLabelText;
+            tsmiPreferredAlignmentGood.Checked = _preferredAlignment == AlignmentType.Blue;
+            tsmiPreferredAlignmentEvil.Checked = _preferredAlignment == AlignmentType.Red;
         }
+
+        private void ctxPreferredAlignment_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            tsmiPreferredAlignmentRestoreOriginalValue.Enabled = _preferredAlignment != (AlignmentType)Enum.Parse(typeof(AlignmentType), IsengardSettings.Default.PreferredAlignment);
+        }
+
+        private void tsmiPreferredAlignmentRestoreOriginalValue_Click(object sender, EventArgs e)
+        {
+            _preferredAlignment = (AlignmentType)Enum.Parse(typeof(AlignmentType), IsengardSettings.Default.PreferredAlignment);
+            RefreshAlignmentTypeUI();
+        }
+
+        private static AlignmentType ParseAlignment(string alignment)
+        {
+            if (!Enum.TryParse(alignment, out AlignmentType at))
+            {
+                at = AlignmentType.Blue;
+            }
+            return at;
+        }
+
+        private void tsmiPreferredAlignmentGood_Click(object sender, EventArgs e)
+        {
+            _preferredAlignment = AlignmentType.Blue;
+            RefreshAlignmentTypeUI();
+        }
+
+        private void tsmiPreferredAlignmentEvil_Click(object sender, EventArgs e)
+        {
+            _preferredAlignment = AlignmentType.Red;
+            RefreshAlignmentTypeUI();
+        }
+
+        #endregion
+
+        #region default realm
 
         private void tsmiRealm_Click(object sender, EventArgs e)
         {
@@ -199,37 +207,27 @@ namespace IsengardClient
             RefreshRealmUI();
         }
 
-        private void btnSelectFullColor_Click(object sender, EventArgs e)
+        private void ctxDefaultRealm_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Color? selected = PromptColor(_fullColor);
-            if (selected.HasValue)
-            {
-                _fullColor = selected.Value;
-                SetColorUI(lblFullColorValue, _fullColor);
-            }
+            tsmiDefaultRealmRestoreOriginalValue.Enabled = _defaultRealm != IsengardSettings.Default.DefaultRealm;
         }
 
-        private void btnSelectEmptyColor_Click(object sender, EventArgs e)
+        private void tsmiDefaultRealmRestoreOriginalValue_Click(object sender, EventArgs e)
         {
-            Color? selected = PromptColor(_emptyColor);
-            if (selected.HasValue)
-            {
-                _emptyColor = selected.Value;
-                SetColorUI(lblEmptyColorValue, _emptyColor);
-            }
+            _defaultRealm = IsengardSettings.Default.PreferredAlignment;
+            RefreshRealmUI();
         }
 
-        private Color? PromptColor(Color initColor)
+        private void RefreshRealmUI()
         {
-            Color? ret = null;
-            ColorDialog clg = new ColorDialog();
-            clg.Color = initColor;
-            if (clg.ShowDialog(this) == DialogResult.OK)
-            {
-                ret = clg.Color;
-            }
-            return ret;
+            lblRealm.Text = _defaultRealm;
+            lblRealm.BackColor = UIShared.GetColorForRealm(_defaultRealm);
+            UIShared.UpdateRealmMenu(ctxDefaultRealm, _defaultRealm);
         }
+
+        #endregion
+
+        #region auto spell levels
 
         private void tsmiSetMinimumSpellLevel_Click(object sender, EventArgs e)
         {
@@ -259,63 +257,27 @@ namespace IsengardClient
             }
         }
 
-        private void ctxStrategies_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ctxAutoSpellLevels_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            if (iIndex < 0)
-            {
-                tsmiEditStrategy.Visible = false;
-                tsmiRemoveStrategy.Visible = false;
-                tsmiMoveStrategyUp.Visible = false;
-                tsmiMoveStrategyDown.Visible = false;
-            }
-            else
-            {
-                tsmiEditStrategy.Visible = true;
-                tsmiRemoveStrategy.Visible = true;
-                tsmiMoveStrategyUp.Visible = iIndex > 0;
-                tsmiMoveStrategyDown.Visible = iIndex < lstStrategies.Items.Count - 1;
-            }
+            IsengardSettings sets = IsengardSettings.Default;
+            tsmiAutoSpellLevelsRestoreOriginalValue.Enabled = _autoSpellLevelMinimum != sets.DefaultAutoSpellLevelMin || _autoSpellLevelMaximum != sets.DefaultAutoSpellLevelMax;
         }
 
-        private void tsmiAddStrategy_Click(object sender, EventArgs e)
+        private void tsmiAutoSpellLevelsRestoreOriginalValue_Click(object sender, EventArgs e)
         {
-            //CSRTODO: implement me!
+            IsengardSettings sets = IsengardSettings.Default;
+            _autoSpellLevelMinimum = sets.DefaultAutoSpellLevelMin;
+            _autoSpellLevelMaximum = sets.DefaultAutoSpellLevelMax;
         }
 
-        private void tsmiEditStrategy_Click(object sender, EventArgs e)
+        private void RefreshAutoSpellLevelUI()
         {
-            //CSRTODO: implement me!
+            lblAutoSpellLevelsValue.Text = _autoSpellLevelMinimum + ":" + _autoSpellLevelMaximum;
         }
 
-        private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
-        {
-            int iIndex = lstStrategies.SelectedIndex;
-            _strategies.RemoveAt(iIndex);
-            lstStrategies.Items.RemoveAt(iIndex);
-            ChangedStrategies = true;
-        }
+        #endregion
 
-        private void MoveStrategyUp(int iIndex)
-        {
-            Strategy s = (Strategy)lstStrategies.SelectedItem;
-            lstStrategies.Items.RemoveAt(iIndex);
-            lstStrategies.Items.Insert(iIndex - 1, s);
-            _strategies.RemoveAt(iIndex);
-            _strategies.Insert(iIndex - 1, s);
-            lstStrategies.SelectedIndex = iIndex - 1;
-            ChangedStrategies = true;
-        }
-
-        private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
-        {
-            MoveStrategyUp(lstStrategies.SelectedIndex);
-        }
-
-        private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
-        {
-            MoveStrategyUp(lstStrategies.SelectedIndex + 1);
-        }
+        #region auto escape
 
         private void tsmiClearAutoEscapeThreshold_Click(object sender, EventArgs e)
         {
@@ -427,6 +389,98 @@ namespace IsengardClient
             _autoEscapeThreshold = _autoEscapeThresholdOriginal;
             _autoEscapeType = _autoEscapeTypeOriginal;
             RefreshAutoEscapeUI();
+        }
+
+        #endregion
+
+        private void btnSelectFullColor_Click(object sender, EventArgs e)
+        {
+            Color? selected = PromptColor(_fullColor);
+            if (selected.HasValue)
+            {
+                _fullColor = selected.Value;
+                SetColorUI(lblFullColorValue, _fullColor);
+            }
+        }
+
+        private void btnSelectEmptyColor_Click(object sender, EventArgs e)
+        {
+            Color? selected = PromptColor(_emptyColor);
+            if (selected.HasValue)
+            {
+                _emptyColor = selected.Value;
+                SetColorUI(lblEmptyColorValue, _emptyColor);
+            }
+        }
+
+        private Color? PromptColor(Color initColor)
+        {
+            Color? ret = null;
+            ColorDialog clg = new ColorDialog();
+            clg.Color = initColor;
+            if (clg.ShowDialog(this) == DialogResult.OK)
+            {
+                ret = clg.Color;
+            }
+            return ret;
+        }
+
+        private void ctxStrategies_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            if (iIndex < 0)
+            {
+                tsmiEditStrategy.Visible = false;
+                tsmiRemoveStrategy.Visible = false;
+                tsmiMoveStrategyUp.Visible = false;
+                tsmiMoveStrategyDown.Visible = false;
+            }
+            else
+            {
+                tsmiEditStrategy.Visible = true;
+                tsmiRemoveStrategy.Visible = true;
+                tsmiMoveStrategyUp.Visible = iIndex > 0;
+                tsmiMoveStrategyDown.Visible = iIndex < lstStrategies.Items.Count - 1;
+            }
+        }
+
+        private void tsmiAddStrategy_Click(object sender, EventArgs e)
+        {
+            //CSRTODO: implement me!
+        }
+
+        private void tsmiEditStrategy_Click(object sender, EventArgs e)
+        {
+            //CSRTODO: implement me!
+        }
+
+        private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
+        {
+            int iIndex = lstStrategies.SelectedIndex;
+            _strategies.RemoveAt(iIndex);
+            lstStrategies.Items.RemoveAt(iIndex);
+            ChangedStrategies = true;
+        }
+
+        private void MoveStrategyUp(int iIndex)
+        {
+            Strategy s = (Strategy)lstStrategies.SelectedItem;
+            lstStrategies.Items.RemoveAt(iIndex);
+            lstStrategies.Items.Insert(iIndex - 1, s);
+            _strategies.RemoveAt(iIndex);
+            _strategies.Insert(iIndex - 1, s);
+            lstStrategies.SelectedIndex = iIndex - 1;
+            ChangedStrategies = true;
+        }
+
+        private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
+        {
+            MoveStrategyUp(lstStrategies.SelectedIndex);
+        }
+
+        private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
+        {
+            MoveStrategyUp(lstStrategies.SelectedIndex + 1);
         }
     }
 

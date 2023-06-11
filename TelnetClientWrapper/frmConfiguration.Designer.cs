@@ -36,6 +36,8 @@
             this.tsmiFire = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepDefaultRealm1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiDefaultRealmRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.lblDefaultWeapon = new System.Windows.Forms.Label();
             this.txtDefaultWeapon = new System.Windows.Forms.TextBox();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
@@ -50,13 +52,18 @@
             this.tsmiAutoEscapeSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAutoEscapeOnByDefault = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAutoEscapeOffByDefault = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAutoEscapeSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAutoEscapeRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.chkQueryMonsterStatus = new System.Windows.Forms.CheckBox();
             this.chkVerboseOutput = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblPreferredAlignmentValue = new System.Windows.Forms.Label();
             this.ctxPreferredAlignment = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiTogglePreferredAlignment = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPreferredAlignmentGood = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPreferredAlignmentEvil = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepPreferredAlignment1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiPreferredAlignmentRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.grpDefaults = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
             this.lblAutoSpellLevelsValue = new System.Windows.Forms.Label();
@@ -78,8 +85,8 @@
             this.tsmiRemoveStrategy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveStrategyUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveStrategyDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiAutoEscapeSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiAutoEscapeRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiAutoSpellLevelsRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxDefaultRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -116,37 +123,52 @@
             this.tsmiEarth,
             this.tsmiFire,
             this.tsmiWater,
-            this.tsmiWind});
+            this.tsmiWind,
+            this.sepDefaultRealm1,
+            this.tsmiDefaultRealmRestoreOriginalValue});
             this.ctxDefaultRealm.Name = "ctxDefaultRealm";
-            this.ctxDefaultRealm.Size = new System.Drawing.Size(104, 92);
+            this.ctxDefaultRealm.Size = new System.Drawing.Size(190, 120);
+            this.ctxDefaultRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxDefaultRealm_Opening);
             // 
             // tsmiEarth
             // 
             this.tsmiEarth.Name = "tsmiEarth";
-            this.tsmiEarth.Size = new System.Drawing.Size(103, 22);
+            this.tsmiEarth.Size = new System.Drawing.Size(189, 22);
             this.tsmiEarth.Text = "earth";
             this.tsmiEarth.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiFire
             // 
             this.tsmiFire.Name = "tsmiFire";
-            this.tsmiFire.Size = new System.Drawing.Size(103, 22);
+            this.tsmiFire.Size = new System.Drawing.Size(189, 22);
             this.tsmiFire.Text = "fire";
             this.tsmiFire.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiWater
             // 
             this.tsmiWater.Name = "tsmiWater";
-            this.tsmiWater.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWater.Size = new System.Drawing.Size(189, 22);
             this.tsmiWater.Text = "water";
             this.tsmiWater.Click += new System.EventHandler(this.tsmiRealm_Click);
             // 
             // tsmiWind
             // 
             this.tsmiWind.Name = "tsmiWind";
-            this.tsmiWind.Size = new System.Drawing.Size(103, 22);
+            this.tsmiWind.Size = new System.Drawing.Size(189, 22);
             this.tsmiWind.Text = "wind";
             this.tsmiWind.Click += new System.EventHandler(this.tsmiRealm_Click);
+            // 
+            // sepDefaultRealm1
+            // 
+            this.sepDefaultRealm1.Name = "sepDefaultRealm1";
+            this.sepDefaultRealm1.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiDefaultRealmRestoreOriginalValue
+            // 
+            this.tsmiDefaultRealmRestoreOriginalValue.Name = "tsmiDefaultRealmRestoreOriginalValue";
+            this.tsmiDefaultRealmRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
+            this.tsmiDefaultRealmRestoreOriginalValue.Text = "Restore Original Value";
+            this.tsmiDefaultRealmRestoreOriginalValue.Click += new System.EventHandler(this.tsmiDefaultRealmRestoreOriginalValue_Click);
             // 
             // lblDefaultWeapon
             // 
@@ -208,7 +230,7 @@
             this.tsmiAutoEscapeSeparator3,
             this.tsmiAutoEscapeRestoreOriginalValue});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(190, 198);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(190, 176);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiSetAutoEscapeThreshold
@@ -267,6 +289,18 @@
             this.tsmiAutoEscapeOffByDefault.Text = "Off by Default";
             this.tsmiAutoEscapeOffByDefault.Click += new System.EventHandler(this.tsmiAutoEscapeOffByDefault_Click);
             // 
+            // tsmiAutoEscapeSeparator3
+            // 
+            this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
+            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiAutoEscapeRestoreOriginalValue
+            // 
+            this.tsmiAutoEscapeRestoreOriginalValue.Name = "tsmiAutoEscapeRestoreOriginalValue";
+            this.tsmiAutoEscapeRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoEscapeRestoreOriginalValue.Text = "Restore Original Value";
+            this.tsmiAutoEscapeRestoreOriginalValue.Click += new System.EventHandler(this.tsmiAutoEscapeRestoreOriginalValue_Click);
+            // 
             // chkQueryMonsterStatus
             // 
             this.chkQueryMonsterStatus.AutoSize = true;
@@ -322,16 +356,39 @@
             // ctxPreferredAlignment
             // 
             this.ctxPreferredAlignment.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiTogglePreferredAlignment});
+            this.tsmiPreferredAlignmentGood,
+            this.tsmiPreferredAlignmentEvil,
+            this.sepPreferredAlignment1,
+            this.tsmiPreferredAlignmentRestoreOriginalValue});
             this.ctxPreferredAlignment.Name = "ctxPreferredAlignment";
-            this.ctxPreferredAlignment.Size = new System.Drawing.Size(110, 26);
+            this.ctxPreferredAlignment.Size = new System.Drawing.Size(190, 76);
+            this.ctxPreferredAlignment.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPreferredAlignment_Opening);
             // 
-            // tsmiTogglePreferredAlignment
+            // tsmiPreferredAlignmentGood
             // 
-            this.tsmiTogglePreferredAlignment.Name = "tsmiTogglePreferredAlignment";
-            this.tsmiTogglePreferredAlignment.Size = new System.Drawing.Size(109, 22);
-            this.tsmiTogglePreferredAlignment.Text = "Toggle";
-            this.tsmiTogglePreferredAlignment.Click += new System.EventHandler(this.tsmiTogglePreferredAlignment_Click);
+            this.tsmiPreferredAlignmentGood.Name = "tsmiPreferredAlignmentGood";
+            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(189, 22);
+            this.tsmiPreferredAlignmentGood.Text = "Good";
+            this.tsmiPreferredAlignmentGood.Click += new System.EventHandler(this.tsmiPreferredAlignmentGood_Click);
+            // 
+            // tsmiPreferredAlignmentEvil
+            // 
+            this.tsmiPreferredAlignmentEvil.Name = "tsmiPreferredAlignmentEvil";
+            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(189, 22);
+            this.tsmiPreferredAlignmentEvil.Text = "Evil";
+            this.tsmiPreferredAlignmentEvil.Click += new System.EventHandler(this.tsmiPreferredAlignmentEvil_Click);
+            // 
+            // sepPreferredAlignment1
+            // 
+            this.sepPreferredAlignment1.Name = "sepPreferredAlignment1";
+            this.sepPreferredAlignment1.Size = new System.Drawing.Size(186, 6);
+            // 
+            // tsmiPreferredAlignmentRestoreOriginalValue
+            // 
+            this.tsmiPreferredAlignmentRestoreOriginalValue.Name = "tsmiPreferredAlignmentRestoreOriginalValue";
+            this.tsmiPreferredAlignmentRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
+            this.tsmiPreferredAlignmentRestoreOriginalValue.Text = "Restore Original Value";
+            this.tsmiPreferredAlignmentRestoreOriginalValue.Click += new System.EventHandler(this.tsmiPreferredAlignmentRestoreOriginalValue_Click);
             // 
             // grpDefaults
             // 
@@ -375,21 +432,24 @@
             // 
             this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSetMinimumSpellLevel,
-            this.tsmiSetMaximumSpellLevel});
+            this.tsmiSetMaximumSpellLevel,
+            this.sepAutoSpellLevels1,
+            this.tsmiAutoSpellLevelsRestoreOriginalValue});
             this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(149, 48);
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(190, 98);
+            this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
             // 
             // tsmiSetMinimumSpellLevel
             // 
             this.tsmiSetMinimumSpellLevel.Name = "tsmiSetMinimumSpellLevel";
-            this.tsmiSetMinimumSpellLevel.Size = new System.Drawing.Size(148, 22);
+            this.tsmiSetMinimumSpellLevel.Size = new System.Drawing.Size(189, 22);
             this.tsmiSetMinimumSpellLevel.Text = "Set Minimum";
             this.tsmiSetMinimumSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumSpellLevel_Click);
             // 
             // tsmiSetMaximumSpellLevel
             // 
             this.tsmiSetMaximumSpellLevel.Name = "tsmiSetMaximumSpellLevel";
-            this.tsmiSetMaximumSpellLevel.Size = new System.Drawing.Size(148, 22);
+            this.tsmiSetMaximumSpellLevel.Size = new System.Drawing.Size(189, 22);
             this.tsmiSetMaximumSpellLevel.Text = "Set Maximum";
             this.tsmiSetMaximumSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumSpellLevel_Click);
             // 
@@ -538,17 +598,17 @@
             this.tsmiMoveStrategyDown.Text = "Move Down";
             this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
             // 
-            // tsmiAutoEscapeSeparator3
+            // sepAutoSpellLevels1
             // 
-            this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
-            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(186, 6);
+            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
+            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(186, 6);
             // 
-            // tsmiAutoEscapeRestoreOriginalValue
+            // tsmiAutoSpellLevelsRestoreOriginalValue
             // 
-            this.tsmiAutoEscapeRestoreOriginalValue.Name = "tsmiAutoEscapeRestoreOriginalValue";
-            this.tsmiAutoEscapeRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
-            this.tsmiAutoEscapeRestoreOriginalValue.Text = "Restore Original Value";
-            this.tsmiAutoEscapeRestoreOriginalValue.Click += new System.EventHandler(this.tsmiAutoEscapeRestoreOriginalValue_Click);
+            this.tsmiAutoSpellLevelsRestoreOriginalValue.Name = "tsmiAutoSpellLevelsRestoreOriginalValue";
+            this.tsmiAutoSpellLevelsRestoreOriginalValue.Size = new System.Drawing.Size(189, 22);
+            this.tsmiAutoSpellLevelsRestoreOriginalValue.Text = "Restore Original Value";
+            this.tsmiAutoSpellLevelsRestoreOriginalValue.Click += new System.EventHandler(this.tsmiAutoSpellLevelsRestoreOriginalValue_Click);
             // 
             // frmConfiguration
             // 
@@ -603,7 +663,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.Label lblPreferredAlignmentValue;
         private System.Windows.Forms.ContextMenuStrip ctxPreferredAlignment;
-        private System.Windows.Forms.ToolStripMenuItem tsmiTogglePreferredAlignment;
         private System.Windows.Forms.GroupBox grpDefaults;
         private System.Windows.Forms.GroupBox grpSettings;
         private System.Windows.Forms.Label lblFullColorValue;
@@ -633,5 +692,13 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeOffByDefault;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeRestoreOriginalValue;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentGood;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentEvil;
+        private System.Windows.Forms.ToolStripSeparator sepPreferredAlignment1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentRestoreOriginalValue;
+        private System.Windows.Forms.ToolStripSeparator sepDefaultRealm1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiDefaultRealmRestoreOriginalValue;
+        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAutoSpellLevelsRestoreOriginalValue;
     }
 }

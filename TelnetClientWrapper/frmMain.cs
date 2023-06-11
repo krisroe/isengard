@@ -4718,7 +4718,6 @@ BeforeHazy:
             _realm1Spell = spellList[0];
             _realm2Spell = spellList[1];
             _realm3Spell = spellList[2];
-            tsmiSetCurrentRealmAsDefault.Visible = tsmiRestoreDefaultRealm.Visible = realm != IsengardSettings.Default.DefaultRealm;
         }
 
         private void tsmiRealm_Click(object sender, EventArgs e)
@@ -4788,10 +4787,6 @@ BeforeHazy:
         private void RefreshAutoSpellLevelUI()
         {
             lblAutoSpellLevels.Text = "AutoSpell lvls " + _autoSpellLevelMin + ":" + _autoSpellLevelMax;
-            IsengardSettings defaultSettings = IsengardSettings.Default;
-            bool canSetDefault = _autoSpellLevelMin != defaultSettings.DefaultAutoSpellLevelMin || _autoSpellLevelMax != defaultSettings.DefaultAutoSpellLevelMax;
-            tsmiSetCurrentAutoSpellLevelAsDefault.Visible = canSetDefault;
-            tsmiRestoreDefaultAutoSpellLevels.Visible = canSetDefault;
         }
 
         private void tsmiSetMinimumAutoSpellLevel_Click(object sender, EventArgs e)
@@ -4977,8 +4972,35 @@ BeforeHazy:
                 tsmiAutoEscapeIsActive.Enabled = hasThreshold;
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
                 bool differentFromDefault = _autoEscapeActive != sets.DefaultAutoEscapeOnByDefault || _autoEscapeThreshold != sets.DefaultAutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.DefaultAutoEscapeType;
-                tsmiSetDefaultAutoEscape.Enabled = differentFromDefault;
-                tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
+                tsmiSetDefaultAutoEscape.Enabled = tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
+            }
+        }
+
+        private void ctxRealm_Opening(object sender, CancelEventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                tsmiSetCurrentRealmAsDefault.Enabled = tsmiRestoreDefaultRealm.Enabled = _defaultRealm != IsengardSettings.Default.DefaultRealm;
+            }
+        }
+
+        private void ctxAutoSpellLevels_Opening(object sender, CancelEventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                IsengardSettings defaultSettings = IsengardSettings.Default;
+                bool canSetDefault = _autoSpellLevelMin != defaultSettings.DefaultAutoSpellLevelMin || _autoSpellLevelMax != defaultSettings.DefaultAutoSpellLevelMax;
+                tsmiSetCurrentAutoSpellLevelAsDefault.Enabled = tsmiRestoreDefaultAutoSpellLevels.Enabled = canSetDefault;
             }
         }
     }
