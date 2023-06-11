@@ -2244,7 +2244,7 @@ namespace IsengardClient
                 }
                 //trigger a foreground asynchronous score (not suppressed from output).
                 //This can happen if the background process was aborted.
-                if (bwp.DoScore)
+                if (bwp.DoScore && !bwp.Hazied && !bwp.Fled)
                 {
                     _doScore = true;
                 }
@@ -2339,14 +2339,7 @@ namespace IsengardClient
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                     backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying);
-                    if (backgroundCommandSuccess)
-                    {
-                        pms.DoScore = true;
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    if (!backgroundCommandSuccess) return;
                 }
 
                 bool atDestination = false;
@@ -2486,8 +2479,6 @@ namespace IsengardClient
                     }
                 }
 
-                bool didFlee = false;
-                bool didHazy = false;
                 bool useManaPool = pms.ManaPool > 0;
                 bool stopIfMonsterKilled = false;
                 if (_hazying || _fleeing || strategy != null)
@@ -2629,15 +2620,14 @@ namespace IsengardClient
                                     (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                                 {
                                     stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
-                                    bool isPowerAttack = nextMeleeStep.Value == MeleeStrategyStep.PowerAttack;
 
-                                    if (!_fleeing && !_hazying && _fumbled && !string.IsNullOrEmpty(_weapon))
+                                    if (_fumbled && !string.IsNullOrEmpty(_weapon))
                                     {
                                         SendCommand("wield " + _weapon, InputEchoType.On);
                                         _fumbled = false;
                                     }
 
-                                    if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, isPowerAttack, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
+                                    if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
                                 }
 
@@ -2754,7 +2744,7 @@ namespace IsengardClient
                             backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying);
                             if (backgroundCommandSuccess)
                             {
-                                didFlee = true;
+                                pms.Fled = true;
                                 if (singleFleeableExit != null)
                                 {
                                     pms.NavigatedToRoom = singleFleeableExit.Target;
@@ -2779,7 +2769,7 @@ BeforeHazy:
                             backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.DrinkHazy, "drink hazy", pms, null);
                             if (backgroundCommandSuccess)
                             {
-                                didHazy = true;
+                                pms.Hazied = true;
                             }
                             else
                             {
@@ -2799,15 +2789,33 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.DoScore && !didFlee && !didHazy)
+                if (!pms.Fled && !pms.Hazied)
                 {
-                    _backgroundProcessPhase = BackgroundProcessPhase.Score;
-                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
-                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    bool runScore = pms.DoScore;
+                    if (!runScore)
                     {
-                        return;
+                        lock (_skillsLock)
+                        {
+                            foreach (SkillCooldown next in _cooldowns)
+                            {
+                                if (next.Status == SkillCooldownStatus.Inactive)
+                                {
+                                    runScore = true;
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    pms.DoScore = false;
+                    if (runScore)
+                    {
+                        _backgroundProcessPhase = BackgroundProcessPhase.Score;
+                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                        {
+                            return;
+                        }
+                        pms.DoScore = false;
+                    }
                 }
 
                 if (pms.Quit)
@@ -2834,7 +2842,7 @@ BeforeHazy:
             }
         }
         
-        private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, bool isPowerAttack, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
+        private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
             if (backgroundCommandResult == CommandResult.CommandAborted)
@@ -2862,10 +2870,6 @@ BeforeHazy:
             else if (backgroundCommandResult == CommandResult.CommandSuccessful) //attack was carried out (hit or miss)
             {
                 _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
-                if (isPowerAttack) //refresh power attack cooldown when strategy finishes
-                {
-                    pms.DoScore = true;
-                }
                 if (_lastCommandDamage != 0)
                 {
                     didDamage = true;
@@ -3680,7 +3684,9 @@ BeforeHazy:
             public int ManaPool { get; set; }
             public PromptedSkills UsedSkills { get; set; }
             public bool Hazy { get; set; }
+            public bool Hazied { get; set; }
             public bool Flee { get; set; }
+            public bool Fled { get; set; }
             public bool Quit { get; set; }
             public bool DoScore { get; set; }
             public string TargetRoomMob { get; set; }
