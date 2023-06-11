@@ -57,7 +57,6 @@ namespace IsengardClient
         private bool _verboseMode;
         private bool _queryMonsterStatus;
         private bool _finishedQuit;
-        private bool _doScore;
 
         private object _spellsLock = new object();
         private List<string> _spellsCast = new List<string>();
@@ -2237,12 +2236,6 @@ namespace IsengardClient
                 {
                     SetCurrentRoom(wentToRoom);
                 }
-                //trigger a foreground asynchronous score (not suppressed from output).
-                //This can happen if the background process was aborted.
-                if (bwp.DoScore && !bwp.Hazied && !bwp.Fled)
-                {
-                    _doScore = true;
-                }
                 if (bwp.ReachedTargetRoom && !string.IsNullOrEmpty(bwp.TargetRoomMob))
                 {
                     txtMob.Text = bwp.TargetRoomMob;
@@ -4196,11 +4189,6 @@ BeforeHazy:
                         _lastPollTick = dtUTCNow;
                         SendCommand(string.Empty, InputEchoType.On);
                     }
-                }
-                if (_doScore)
-                {
-                    _doScore = false;
-                    SendCommand("score", InputEchoType.On);
                 }
 
                 bool hazying, fleeing;
