@@ -36,6 +36,28 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestInformationalMessageProcessing()
+        {
+            List<InformationalMessages> msgs = null;
+            List<string> broadcasts = null;
+            List<string> addedPlayers = null;
+            List<string> removedPlayers = null;
+            Action<List<InformationalMessages>, List<string>, List<string>, List<string>> a = (l, s1, s2, s3) =>
+            {
+                msgs = null;
+                broadcasts = s1;
+                addedPlayers = s2;
+                removedPlayers = s3;
+            };
+            InformationalMessagesSequence seq = new InformationalMessagesSequence(a);
+            FeedLineParameters flp = new FeedLineParameters(null);
+
+            flp.Lines = new List<string>() { "The heat today is unbearable.", "### The Celduin Express is ready for boarding in Bree." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.Lines.Count == 0);
+        }
+
+        [TestMethod]
         public void TestScoreSequence()
         {
             List<SkillCooldown> cooldowns = null;

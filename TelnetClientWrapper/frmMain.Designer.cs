@@ -83,12 +83,6 @@
             this.pnlMain = new System.Windows.Forms.Panel();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
-            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentAutoSpellLevelAsDefault = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRestoreDefaultAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.btnHeal = new System.Windows.Forms.Button();
             this.btnSkills = new System.Windows.Forms.Button();
             this.lblAutoEscapeValue = new System.Windows.Forms.Label();
@@ -104,14 +98,6 @@
             this.tsmiSetDefaultAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRestoreDefaultAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
             this.lblTime = new System.Windows.Forms.Label();
-            this.lblRealm = new System.Windows.Forms.Label();
-            this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiEarth = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiFire = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiWater = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiWind = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentRealmAsDefault = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRestoreDefaultRealm = new System.Windows.Forms.ToolStripMenuItem();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
             this.lblToNextLevel = new System.Windows.Forms.Label();
@@ -179,7 +165,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
             this.ctxMob.SuspendLayout();
             this.ctxLocations.SuspendLayout();
             this.grpLocations.SuspendLayout();
@@ -187,9 +172,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
-            this.ctxAutoSpellLevels.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
-            this.ctxRealm.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
             this.grpMessages.SuspendLayout();
             this.grpMob.SuspendLayout();
@@ -748,12 +731,10 @@
             // 
             this.pnlMain.Controls.Add(this.btnIncrementWand);
             this.pnlMain.Controls.Add(this.grpSkillCooldowns);
-            this.pnlMain.Controls.Add(this.lblAutoSpellLevels);
             this.pnlMain.Controls.Add(this.btnHeal);
             this.pnlMain.Controls.Add(this.btnSkills);
             this.pnlMain.Controls.Add(this.lblAutoEscapeValue);
             this.pnlMain.Controls.Add(this.lblTime);
-            this.pnlMain.Controls.Add(this.lblRealm);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
             this.pnlMain.Controls.Add(this.grpMessages);
             this.pnlMain.Controls.Add(this.grpMob);
@@ -822,58 +803,6 @@
             this.grpSkillCooldowns.TabStop = false;
             this.grpSkillCooldowns.Text = "Skill Cooldowns";
             // 
-            // lblAutoSpellLevels
-            // 
-            this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
-            this.lblAutoSpellLevels.ContextMenuStrip = this.ctxAutoSpellLevels;
-            this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(535, 139);
-            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
-            this.lblAutoSpellLevels.Size = new System.Drawing.Size(112, 15);
-            this.lblAutoSpellLevels.TabIndex = 137;
-            this.lblAutoSpellLevels.Text = "AutoSpell lvls";
-            this.lblAutoSpellLevels.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // ctxAutoSpellLevels
-            // 
-            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetMinimumAutoSpellLevel,
-            this.tsmiSetMaximumAutoSpellLevel,
-            this.sepAutoSpellLevels1,
-            this.tsmiSetCurrentAutoSpellLevelAsDefault,
-            this.tsmiRestoreDefaultAutoSpellLevels});
-            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(189, 120);
-            this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
-            // 
-            // tsmiSetMinimumAutoSpellLevel
-            // 
-            this.tsmiSetMinimumAutoSpellLevel.Name = "tsmiSetMinimumAutoSpellLevel";
-            this.tsmiSetMinimumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetMinimumAutoSpellLevel.Text = "Set Minimum";
-            this.tsmiSetMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMinimumAutoSpellLevel_Click);
-            // 
-            // tsmiSetMaximumAutoSpellLevel
-            // 
-            this.tsmiSetMaximumAutoSpellLevel.Name = "tsmiSetMaximumAutoSpellLevel";
-            this.tsmiSetMaximumAutoSpellLevel.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetMaximumAutoSpellLevel.Text = "Set Maximum";
-            this.tsmiSetMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetMaximumAutoSpellLevel_Click);
-            // 
-            // tsmiSetCurrentAutoSpellLevelAsDefault
-            // 
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Name = "tsmiSetCurrentAutoSpellLevelAsDefault";
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Text = "Set Current as Default";
-            this.tsmiSetCurrentAutoSpellLevelAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentAutoSpellLevelAsDefault_Click);
-            // 
-            // tsmiRestoreDefaultAutoSpellLevels
-            // 
-            this.tsmiRestoreDefaultAutoSpellLevels.Name = "tsmiRestoreDefaultAutoSpellLevels";
-            this.tsmiRestoreDefaultAutoSpellLevels.Size = new System.Drawing.Size(188, 22);
-            this.tsmiRestoreDefaultAutoSpellLevels.Text = "Restore Default";
-            this.tsmiRestoreDefaultAutoSpellLevels.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoSpellLevels_Click);
-            // 
             // btnHeal
             // 
             this.btnHeal.Location = new System.Drawing.Point(29, 625);
@@ -899,7 +828,7 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(535, 120);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(535, 102);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
             this.lblAutoEscapeValue.Size = new System.Drawing.Size(112, 15);
             this.lblAutoEscapeValue.TabIndex = 134;
@@ -994,72 +923,6 @@
             this.lblTime.TabIndex = 125;
             this.lblTime.Text = "Time";
             this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblRealm
-            // 
-            this.lblRealm.BackColor = System.Drawing.Color.LightGray;
-            this.lblRealm.ContextMenuStrip = this.ctxRealm;
-            this.lblRealm.Location = new System.Drawing.Point(535, 101);
-            this.lblRealm.Name = "lblRealm";
-            this.lblRealm.Size = new System.Drawing.Size(112, 15);
-            this.lblRealm.TabIndex = 124;
-            this.lblRealm.Text = "Realm";
-            this.lblRealm.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // ctxRealm
-            // 
-            this.ctxRealm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiEarth,
-            this.tsmiFire,
-            this.tsmiWater,
-            this.tsmiWind,
-            this.tsmiSetCurrentRealmAsDefault,
-            this.tsmiRestoreDefaultRealm});
-            this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(189, 136);
-            this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
-            // 
-            // tsmiEarth
-            // 
-            this.tsmiEarth.Name = "tsmiEarth";
-            this.tsmiEarth.Size = new System.Drawing.Size(188, 22);
-            this.tsmiEarth.Text = "earth";
-            this.tsmiEarth.Click += new System.EventHandler(this.tsmiRealm_Click);
-            // 
-            // tsmiFire
-            // 
-            this.tsmiFire.Name = "tsmiFire";
-            this.tsmiFire.Size = new System.Drawing.Size(188, 22);
-            this.tsmiFire.Text = "fire";
-            this.tsmiFire.Click += new System.EventHandler(this.tsmiRealm_Click);
-            // 
-            // tsmiWater
-            // 
-            this.tsmiWater.Name = "tsmiWater";
-            this.tsmiWater.Size = new System.Drawing.Size(188, 22);
-            this.tsmiWater.Text = "water";
-            this.tsmiWater.Click += new System.EventHandler(this.tsmiRealm_Click);
-            // 
-            // tsmiWind
-            // 
-            this.tsmiWind.Name = "tsmiWind";
-            this.tsmiWind.Size = new System.Drawing.Size(188, 22);
-            this.tsmiWind.Text = "wind";
-            this.tsmiWind.Click += new System.EventHandler(this.tsmiRealm_Click);
-            // 
-            // tsmiSetCurrentRealmAsDefault
-            // 
-            this.tsmiSetCurrentRealmAsDefault.Name = "tsmiSetCurrentRealmAsDefault";
-            this.tsmiSetCurrentRealmAsDefault.Size = new System.Drawing.Size(188, 22);
-            this.tsmiSetCurrentRealmAsDefault.Text = "Set Current as Default";
-            this.tsmiSetCurrentRealmAsDefault.Click += new System.EventHandler(this.tsmiSetCurrentRealmAsDefault_Click);
-            // 
-            // tsmiRestoreDefaultRealm
-            // 
-            this.tsmiRestoreDefaultRealm.Name = "tsmiRestoreDefaultRealm";
-            this.tsmiRestoreDefaultRealm.Size = new System.Drawing.Size(188, 22);
-            this.tsmiRestoreDefaultRealm.Text = "Restore Default";
-            this.tsmiRestoreDefaultRealm.Click += new System.EventHandler(this.tsmiRestoreDefaultRealm_Click);
             // 
             // grpCurrentPlayer
             // 
@@ -1807,11 +1670,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // sepAutoSpellLevels1
-            // 
-            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
-            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(185, 6);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1834,9 +1692,7 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
-            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
-            this.ctxRealm.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
             this.grpCurrentPlayer.PerformLayout();
             this.grpMessages.ResumeLayout(false);
@@ -1986,12 +1842,6 @@
         private System.Windows.Forms.ToolStripButton tsbQuit;
         private System.Windows.Forms.GroupBox grpCurrentPlayer;
         private System.Windows.Forms.Panel pnlTabControl;
-        private System.Windows.Forms.Label lblRealm;
-        private System.Windows.Forms.ContextMenuStrip ctxRealm;
-        private System.Windows.Forms.ToolStripMenuItem tsmiEarth;
-        private System.Windows.Forms.ToolStripMenuItem tsmiFire;
-        private System.Windows.Forms.ToolStripMenuItem tsmiWater;
-        private System.Windows.Forms.ToolStripMenuItem tsmiWind;
         private System.Windows.Forms.Label lblTime;
         private System.Windows.Forms.Label lblManaValue;
         private System.Windows.Forms.Label lblHitpointsValue;
@@ -2002,17 +1852,9 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeIsActive;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetDefaultAutoEscape;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentRealmAsDefault;
         private System.Windows.Forms.Button btnSkills;
         private System.Windows.Forms.Button btnHeal;
-        private System.Windows.Forms.Label lblAutoSpellLevels;
-        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultRealm;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoEscape;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetMinimumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetMaximumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentAutoSpellLevelAsDefault;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoSpellLevels;
         private System.Windows.Forms.Label lblToNextLevelValue;
         private System.Windows.Forms.Label lblToNextLevel;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;
@@ -2022,7 +1864,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeHazy;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
-        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
     }
 }
 

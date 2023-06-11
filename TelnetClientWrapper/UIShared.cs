@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Windows.Forms;
 namespace IsengardClient
 {
     internal class UIShared
@@ -23,22 +22,6 @@ namespace IsengardClient
                     break;
             }
             return ret;
-        }
-
-        internal static void UpdateRealmMenu(ContextMenuStrip cms, string realm)
-        {
-            foreach (var next in cms.Items)
-            {
-                ToolStripMenuItem tsmi = next as ToolStripMenuItem;
-                if (tsmi != null)
-                {
-                    string sText = tsmi.Text;
-                    if (sText == "earth" || sText == "fire" || sText == "water" || sText == "wind")
-                    {
-                        tsmi.Checked = realm == sText;
-                    }
-                }
-            }
         }
 
         internal static void GetForegroundColor(byte r, byte g, byte b, out byte forer, out byte foreg, out byte foreb)

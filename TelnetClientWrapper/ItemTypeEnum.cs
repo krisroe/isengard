@@ -198,6 +198,10 @@
         [PluralName("marble chess sets")]
         MarbleChessSet,
 
+        [SingularName("metal mask")]
+        [PluralName("metal masks")]
+        MetalMask,
+
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
         MithrilJoStick,

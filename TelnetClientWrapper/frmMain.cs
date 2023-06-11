@@ -14,7 +14,10 @@ namespace IsengardClient
         private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
 
-        private string _defaultRealm;
+        private string _currentRealm;
+        private int _autoSpellLevelMin = -1;
+        private int _autoSpellLevelMax = -1;
+
         private string _realm1Spell;
         private string _realm2Spell;
         private string _realm3Spell;
@@ -59,9 +62,6 @@ namespace IsengardClient
         private object _spellsLock = new object();
         private List<string> _spellsCast = new List<string>();
         private bool _refreshSpellsCast = false;
-
-        private int _autoSpellLevelMin = -1;
-        private int _autoSpellLevelMax = -1;
 
         /// <summary>
         /// current list of players. This list is not necessarily accurate since invisible players
@@ -202,27 +202,8 @@ namespace IsengardClient
             _fullColor = sets.FullColor;
             _emptyColor = sets.EmptyColor;
 
-            _defaultRealm = sets.DefaultRealm;
-            if (_defaultRealm != "earth" &&
-                _defaultRealm != "fire" &&
-                _defaultRealm != "water" &&
-                _defaultRealm != "wind")
-            {
-                _defaultRealm = "earth";
-                sets.DefaultRealm = _defaultRealm;
-            }
-            UpdateCurrentRealmSideEffects();
-
-            _autoSpellLevelMin = sets.DefaultAutoSpellLevelMin;
-            _autoSpellLevelMax = sets.DefaultAutoSpellLevelMax;
-            if (_autoSpellLevelMin > _autoSpellLevelMax || _autoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _autoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _autoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                _autoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
-                sets.DefaultAutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                sets.DefaultAutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
-            }
-            RefreshAutoSpellLevelUI();
+            InitializeRealm(true);
+            InitializeAutoSpellLevels();
 
             AlignmentType ePreferredAlignment;
             if (!Enum.TryParse(sets.PreferredAlignment, out ePreferredAlignment))
@@ -232,7 +213,7 @@ namespace IsengardClient
 
             SetAutoEscapeThresholdFromDefaults();
 
-            txtWeapon.Text = sets.DefaultWeapon;
+            txtWeapon.Text = sets.DefaultWeapon ?? string.Empty;
 
             //prettify user name to be Pascal case
             StringBuilder sb = new StringBuilder();
@@ -276,9 +257,21 @@ namespace IsengardClient
             _autoEscapeThreshold = sets.DefaultAutoEscapeThreshold;
             _autoEscapeType = (AutoEscapeType)sets.DefaultAutoEscapeType;
             _autoEscapeActive = sets.DefaultAutoEscapeOnByDefault;
-            if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy) _autoEscapeType = AutoEscapeType.Flee;
-            if (_autoEscapeThreshold < 0) _autoEscapeThreshold = 0;
-            if (_autoEscapeThreshold == 0) _autoEscapeActive = false;
+            if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy)
+            {
+                _autoEscapeType = AutoEscapeType.Flee;
+                sets.DefaultAutoEscapeType = Convert.ToInt32(_autoEscapeType);
+            }
+            if (_autoEscapeThreshold < 0)
+            {
+                _autoEscapeThreshold = 0;
+                sets.DefaultAutoEscapeThreshold = _autoEscapeThreshold;
+            }
+            if (_autoEscapeThreshold == 0)
+            {
+                _autoEscapeActive = false;
+                sets.DefaultAutoEscapeOnByDefault = _autoEscapeActive;
+            }
             RefreshAutoEscapeUI(true);
         }
 
@@ -4738,35 +4731,61 @@ BeforeHazy:
             }
         }
 
-        private void UpdateCurrentRealmSideEffects()
+        private void InitializeRealm(bool doDefault)
         {
-            string realm = _defaultRealm;
+            if (doDefault)
+            {
+                IsengardSettings sets = IsengardSettings.Default;
+                _currentRealm = sets.DefaultRealm;
+                if (_currentRealm != "earth" &&
+                    _currentRealm != "fire" &&
+                    _currentRealm != "water" &&
+                    _currentRealm != "wind")
+                {
+                    _currentRealm = "earth";
+                    sets.DefaultRealm = _currentRealm;
+                }
+            }
             List<string> spellList;
-            if (realm == "earth")
+            if (_currentRealm == "earth")
                 spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
-            else if (realm == "fire")
+            else if (_currentRealm == "fire")
                 spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
-            else if (realm == "water")
+            else if (_currentRealm == "water")
                 spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
             else //wind
                 spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
-            UIShared.UpdateRealmMenu(ctxRealm, realm);
-            lblRealm.Text = realm;
-            lblRealm.BackColor = UIShared.GetColorForRealm(realm);
             _realm1Spell = spellList[0];
             _realm2Spell = spellList[1];
             _realm3Spell = spellList[2];
         }
 
-        private void tsmiRealm_Click(object sender, EventArgs e)
+        private void InitializeAutoSpellLevels()
         {
-            _defaultRealm = ((ToolStripMenuItem)sender).Text;
-            UpdateCurrentRealmSideEffects();
+            IsengardSettings sets = IsengardSettings.Default;
+            _autoSpellLevelMin = sets.DefaultAutoSpellLevelMin;
+            _autoSpellLevelMax = sets.DefaultAutoSpellLevelMax;
+            if (_autoSpellLevelMin > _autoSpellLevelMax || _autoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _autoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _autoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+                _autoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                sets.DefaultAutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+                sets.DefaultAutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+            }
         }
 
         private void tsbConfiguration_Click(object sender, EventArgs e)
         {
-            frmConfiguration frm = new frmConfiguration(_strategies);
+            bool autoEscapeActive;
+            int autoEscapeThreshold;
+            AutoEscapeType autoEscapeType;
+            lock (_escapeLock)
+            {
+                autoEscapeActive = _autoEscapeActive;
+                autoEscapeThreshold = _autoEscapeThreshold;
+                autoEscapeType = _autoEscapeType;
+            }
+            frmConfiguration frm = new frmConfiguration(_currentRealm, _autoSpellLevelMin, _autoSpellLevelMax, txtWeapon.Text ?? string.Empty, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 IsengardSettings sets = IsengardSettings.Default;
@@ -4775,8 +4794,26 @@ BeforeHazy:
                 _gameMap.SetAlignment(frm.PreferredAlignment);
                 _fullColor = sets.FullColor;
                 _emptyColor = sets.EmptyColor;
-                UpdateCurrentRealmSideEffects();
-                RefreshAutoSpellLevelUI();
+
+                _currentRealm = frm.CurrentRealm;
+                _autoSpellLevelMin = frm.CurrentAutoSpellLevelMin;
+                _autoSpellLevelMax = frm.CurrentAutoSpellLevelMax;
+                txtWeapon.Text = frm.CurrentWeapon;
+
+                InitializeRealm(false);
+
+                bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
+                int newAutoEscapeThreshold = frm.CurrentAutoEscapeThreshold;
+                AutoEscapeType newAutoEscapeType = frm.CurrentAutoEscapeType;
+                lock (_escapeLock)
+                {
+                    if (autoEscapeActive != newAutoEscapeActive)
+                    {
+                        _autoEscapeActive = newAutoEscapeActive;
+                    }
+                    _autoEscapeThreshold = newAutoEscapeThreshold;
+                    _autoEscapeType = newAutoEscapeType;
+                }
 
                 if (frm.ChangedStrategies)
                 {
@@ -4784,20 +4821,6 @@ BeforeHazy:
                     RefreshStrategyButtons();
                 }
             }
-        }
-
-        private void tsmiSetCurrentRealmAsDefault_Click(object sender, EventArgs e)
-        {
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.DefaultRealm = _defaultRealm;
-            sets.Save();
-            UpdateCurrentRealmSideEffects();
-        }
-
-        private void tsmiRestoreDefaultRealm_Click(object sender, EventArgs e)
-        {
-            _defaultRealm = IsengardSettings.Default.DefaultRealm;
-            UpdateCurrentRealmSideEffects();
         }
 
         private void btnSkills_Click(object sender, EventArgs e)
@@ -4820,56 +4843,6 @@ BeforeHazy:
                 bwp.Heal = true;
                 RunBackgroundProcess(bwp);
             }
-        }
-
-        private void RefreshAutoSpellLevelUI()
-        {
-            lblAutoSpellLevels.Text = "AutoSpell lvls " + _autoSpellLevelMin + ":" + _autoSpellLevelMax;
-        }
-
-        private void tsmiSetMinimumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _autoSpellLevelMin.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _autoSpellLevelMin = iLevel;
-                if (_autoSpellLevelMax < _autoSpellLevelMin)
-                {
-                    _autoSpellLevelMax = _autoSpellLevelMin;
-                }
-                RefreshAutoSpellLevelUI();
-            }
-        }
-
-        private void tsmiSetMaximumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _autoSpellLevelMax.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _autoSpellLevelMax = iLevel;
-                if (_autoSpellLevelMax < _autoSpellLevelMin)
-                {
-                    _autoSpellLevelMin = _autoSpellLevelMax;
-                }
-                RefreshAutoSpellLevelUI();
-            }
-        }
-
-        private void tsmiSetCurrentAutoSpellLevelAsDefault_Click(object sender, EventArgs e)
-        {
-            IsengardSettings defaultSettings = IsengardSettings.Default;
-            defaultSettings.DefaultAutoSpellLevelMin = _autoSpellLevelMin;
-            defaultSettings.DefaultAutoSpellLevelMax = _autoSpellLevelMax;
-            defaultSettings.Save();
-            RefreshAutoSpellLevelUI();
-        }
-
-        private void tsmiRestoreDefaultAutoSpellLevels_Click(object sender, EventArgs e)
-        {
-            IsengardSettings defaultSettings = IsengardSettings.Default;
-            _autoSpellLevelMin = defaultSettings.DefaultAutoSpellLevelMin;
-            _autoSpellLevelMax = defaultSettings.DefaultAutoSpellLevelMax;
-            RefreshAutoSpellLevelUI();
         }
 
         private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)
@@ -5011,34 +4984,6 @@ BeforeHazy:
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
                 bool differentFromDefault = _autoEscapeActive != sets.DefaultAutoEscapeOnByDefault || _autoEscapeThreshold != sets.DefaultAutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.DefaultAutoEscapeType;
                 tsmiSetDefaultAutoEscape.Enabled = tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
-            }
-        }
-
-        private void ctxRealm_Opening(object sender, CancelEventArgs e)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp != null)
-            {
-                e.Cancel = true;
-            }
-            else
-            {
-                tsmiSetCurrentRealmAsDefault.Enabled = tsmiRestoreDefaultRealm.Enabled = _defaultRealm != IsengardSettings.Default.DefaultRealm;
-            }
-        }
-
-        private void ctxAutoSpellLevels_Opening(object sender, CancelEventArgs e)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp != null)
-            {
-                e.Cancel = true;
-            }
-            else
-            {
-                IsengardSettings defaultSettings = IsengardSettings.Default;
-                bool canSetDefault = _autoSpellLevelMin != defaultSettings.DefaultAutoSpellLevelMin || _autoSpellLevelMax != defaultSettings.DefaultAutoSpellLevelMax;
-                tsmiSetCurrentAutoSpellLevelAsDefault.Enabled = tsmiRestoreDefaultAutoSpellLevels.Enabled = canSetDefault;
             }
         }
     }

@@ -87,50 +87,50 @@ namespace IsengardClient
 
         private void AddWestOfTharbad(Room tharbadWestGateOutside)
         {
-            Room lelionBeachAndPark = AddRoom("Lelion Beach and Park");
+            Room lelionBeachAndPark = AddRoom("Lelion Beach and Park", "Lelion Beach and Park");
             AddBidirectionalSameNameExit(tharbadWestGateOutside, lelionBeachAndPark, "ramp");
 
-            Room beachPath = AddRoom("Beach Path");
+            Room beachPath = AddRoom("Beach Path", "Beach Path");
             AddBidirectionalExits(lelionBeachAndPark, beachPath, BidirectionalExitType.NorthSouth);
 
-            Room marinersAnchor = AddRoom("Mariner's Anchor");
+            Room marinersAnchor = AddRoom("Mariner's Anchor", "The Mariner's Anchor");
             AddExit(beachPath, marinersAnchor, "west");
             AddExit(marinersAnchor, beachPath, "out");
 
-            Room dalePurves = AddRoom("Dale Purves");
+            Room dalePurves = AddRoom("Dale Purves", "Dale's Beach");
             AddExit(marinersAnchor, dalePurves, "back");
             AddExit(dalePurves, marinersAnchor, "east");
 
-            Room greyfloodRiver1 = AddRoom("Greyflood River");
+            Room greyfloodRiver1 = AddRoom("Greyflood River", "The Greyflood River");
             AddExit(dalePurves, greyfloodRiver1, "river");
             AddExit(greyfloodRiver1, dalePurves, "beach");
 
-            Room greyfloodRiver2 = AddRoom("Greyflood River");
+            Room greyfloodRiver2 = AddRoom("Greyflood River", "The Greyflood River");
             AddBidirectionalExits(greyfloodRiver1, greyfloodRiver2, BidirectionalExitType.NorthSouth);
 
-            Room greyfloodRiver3 = AddRoom("Greyflood River");
+            Room greyfloodRiver3 = AddRoom("Greyflood River", "The Greyflood River");
             AddBidirectionalExits(greyfloodRiver2, greyfloodRiver3, BidirectionalExitType.NorthSouth);
 
-            Room riverMouth = AddRoom("River Mouth");
+            Room riverMouth = AddRoom("River Mouth", "The Mouth of the Greyflood River");
             AddExit(greyfloodRiver3, riverMouth, "southwest");
             AddExit(riverMouth, greyfloodRiver3, "river");
 
-            Room oWesternBeachPath1 = AddRoom("Western Beach Path");
+            Room oWesternBeachPath1 = AddRoom("Western Beach Path", "Western Beach Path");
             AddBidirectionalExits(oWesternBeachPath1, riverMouth, BidirectionalExitType.WestEast);
 
-            Room oWesternBeachPath2 = AddRoom("Western Beach Path");
+            Room oWesternBeachPath2 = AddRoom("Western Beach Path", "Western Beach Path");
             AddBidirectionalExits(oWesternBeachPath2, oWesternBeachPath1, BidirectionalExitType.SouthwestNortheast);
 
-            Room oBottomOfTheRocks = AddRoom("Bottom of the Rocks");
+            Room oBottomOfTheRocks = AddRoom("Bottom of the Rocks", "Bottom Of The Rocks");
             AddBidirectionalExits(oBottomOfTheRocks, oWesternBeachPath2, BidirectionalExitType.NorthSouth);
 
-            Room oRockSlide = AddRoom("Rock Slide");
+            Room oRockSlide = AddRoom("Rock Slide", "Rock Slide");
             AddBidirectionalExits(oRockSlide, oBottomOfTheRocks, BidirectionalExitType.UpDown);
 
-            Room oDropOff = AddRoom("Drop Off");
+            Room oDropOff = AddRoom("Drop Off", "Drop Off");
             AddBidirectionalExits(oDropOff, oRockSlide, BidirectionalExitType.UpDown);
 
-            Room oErynVornSouth = AddRoom("Eryn Vorn South");
+            Room oErynVornSouth = AddRoom("Eryn Vorn South", "South Edge of Eryn Vorn");
             AddBidirectionalExits(oErynVornSouth, oDropOff, BidirectionalExitType.SoutheastNorthwest);
 
             Room oLelionParkHillside = AddRoom("Lelion Park Hillside");
@@ -2926,14 +2926,14 @@ namespace IsengardClient
             AddExit(oFaornil, oShantyTown1, "out");
             oShantyTownGraph.Rooms[oFaornil] = new System.Windows.Point(5, 2);
 
-            Room oGraddy = AddRoom("Graddy");
+            Room oGraddy = AddRoom("Graddy", "Graddy the Dwarf's Wagon");
             oGraddy.Mob1 = "Graddy";
             oGraddy.Experience1 = 350;
             AddExit(oShantyTown2, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2, "out");
             oShantyTownGraph.Rooms[oGraddy] = new System.Windows.Point(5, 3);
 
-            Room oGraddyOgre = AddRoom("Ogre");
+            Room oGraddyOgre = AddRoom("Ogre", "Graddy's Ogre Pen");
             oGraddyOgre.Mob1 = "Ogre";
             oGraddyOgre.Experience1 = 150;
             Exit e = AddExit(oGraddy, oGraddyOgre, "gate");

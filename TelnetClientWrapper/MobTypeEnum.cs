@@ -38,6 +38,10 @@
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
 
+        [SingularName("Dale Purves")]
+        //CSRTODO: no plural?
+        DalePurves,
+
         [SingularName("dancing bear")]
         [PluralName("dancing bears")]
         DancingBear,
@@ -261,6 +265,10 @@
         [SingularName("nobleman")]
         [PluralName("noblemen")]
         Nobleman,
+
+        [SingularName("ogre")]
+        [PluralName("ogres")]
+        Ogre,
 
         [SingularName("Oliphaunt the Tattoo Artist")]
         //CSRTODO: no plural

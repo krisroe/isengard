@@ -48,6 +48,19 @@ namespace IsengardClient
         public static Entity GetEntity(string fullName, EntityTypeFlags possibleEntityTypes, List<string> errorMessages, HashSet<string> playerNames)
         {
             string remainder = fullName;
+
+            if (remainder.EndsWith(" (F)")) //forged
+            {
+                if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item)
+                    return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);
+                else
+                    possibleEntityTypes = EntityTypeFlags.Item;
+                if (remainder == " (F)")
+                    return null;
+                else
+                    remainder = remainder.Substring(0, remainder.Length - " (F)".Length);
+            }
+
             int iSpaceIndex = remainder.IndexOf(' ');
             if (iSpaceIndex < 0)
             {
