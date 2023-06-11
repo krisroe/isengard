@@ -161,7 +161,16 @@ namespace IsengardClient
         private bool _monsterStunned;
         private bool _monsterKilled;
 
+        /// <summary>
+        /// number of times to try to attempt a background command before giving up
+        /// </summary>
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
+
+        /// <summary>
+        /// time to wait before a single command times out
+        /// </summary>
+        private const int SINGLE_COMMAND_TIMEOUT_SECONDS = 5;
+
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>()
         {
             BackgroundCommandType.Vigor,
@@ -1687,17 +1696,10 @@ namespace IsengardClient
                 bool gotFullMP = mpChanged && newMP == _totalmp;
                 if (gotFullHP || gotFullMP)
                 {
-                    lock (_newConsoleText)
-                    {
-                        if (gotFullHP)
-                        {
-                            _newConsoleText.Add("Your hitpoints are full." + Environment.NewLine + ": ");
-                        }
-                        if (gotFullMP)
-                        {
-                            _newConsoleText.Add("Your mana is full." + Environment.NewLine + ": ");
-                        }
-                    }
+                    List<string> messages = new List<string>();
+                    if (gotFullHP) messages.Add("Your hitpoints are full.");
+                    if (gotFullMP) messages.Add("Your mana is full.");
+                    AddConsoleMessage(messages);
                 }
             }
             _autohp = newHP;
@@ -2414,7 +2416,7 @@ namespace IsengardClient
                                     if (_hazying) break;
                                     if (_bw.CancellationPending) break;
                                     Thread.Sleep(50);
-                                    RunAutoCommandsWhenBackgroundProcessRunning(pms);
+                                    RunQueuedCommandWhenBackgroundProcessRunning(pms);
                                 }
                             }
 
@@ -2667,7 +2669,7 @@ namespace IsengardClient
                                 if (didDamage && _queryMonsterStatus)
                                 {
                                     backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _mob, pms, AbortIfFleeingOrHazying);
-                                    if (backgroundCommandResult == CommandResult.CommandAborted)
+                                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
                                     {
                                         return;
                                     }
@@ -2697,7 +2699,7 @@ namespace IsengardClient
                                 if (_hazying) break;
                                 if (_bw.CancellationPending) break;
 
-                                RunAutoCommandsWhenBackgroundProcessRunning(pms);
+                                RunQueuedCommandWhenBackgroundProcessRunning(pms);
 
                                 if (stopIfMonsterKilled && _monsterKilled) break;
                                 if (_fleeing) break;
@@ -2845,7 +2847,7 @@ BeforeHazy:
         private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
-            if (backgroundCommandResult == CommandResult.CommandAborted)
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
             {
                 return false;
             }
@@ -2899,7 +2901,7 @@ BeforeHazy:
         private bool RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
-            if (backgroundCommandResult == CommandResult.CommandAborted)
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
             {
                 return false;
             }
@@ -3098,7 +3100,7 @@ BeforeHazy:
                 if (_bw.CancellationPending) break;
 
                 remainingMS -= nextWaitMS;
-                RunAutoCommandsWhenBackgroundProcessRunning(_currentBackgroundParameters);
+                RunQueuedCommandWhenBackgroundProcessRunning(_currentBackgroundParameters);
 
                 //check if the wait should be aborted
                 if (!quitting)
@@ -3120,7 +3122,7 @@ BeforeHazy:
             }
         }
 
-        private void RunAutoCommandsWhenBackgroundProcessRunning(BackgroundWorkerParameters pms)
+        private void RunQueuedCommandWhenBackgroundProcessRunning(BackgroundWorkerParameters pms)
         {
             string sQueuedCommand;
             lock (_queuedCommandLock)
@@ -3167,6 +3169,7 @@ BeforeHazy:
 
         private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
+            DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
             _commandResult = null;
             _commandResultCounter++;
             _lastCommand = null;
@@ -3175,22 +3178,51 @@ BeforeHazy:
             {
                 _lastCommand = command;
                 SendCommand(command, GetHiddenMessageEchoType());
-                CommandResult? currentResult;
-                while (true)
+                CommandResult? currentResult = null;
+                while (!currentResult.HasValue)
                 {
-                    currentResult = _commandResult;
-                    if (currentResult.HasValue) break;
-                    Thread.Sleep(50);
-                    RunAutoCommandsWhenBackgroundProcessRunning(pms);
-                    if (_bw.CancellationPending) break;
-                    if (abortLogic != null && abortLogic()) break;
+                    RunQueuedCommandWhenBackgroundProcessRunning(pms);
+                    if (_bw.CancellationPending || (abortLogic != null && abortLogic()))
+                    {
+                        currentResult = CommandResult.CommandAborted;
+                    }
+                    else if (DateTime.UtcNow >= utcTimeoutPoint)
+                    {
+                        AddConsoleMessage("Command timeout occurred for " + command);
+                        currentResult = CommandResult.CommandTimeout;
+                    }
+                    else
+                    {
+                        Thread.Sleep(50);
+                        currentResult = _commandResult;
+                    }
                 }
-                return currentResult.GetValueOrDefault(CommandResult.CommandAborted);
+                return currentResult.Value;
             }
             finally
             {
                 _commandResult = null;
                 _lastCommand = null;
+            }
+        }
+
+        private void AddConsoleMessage(string Message)
+        {
+            AddConsoleMessage(new List<string>() { Message });
+        }
+
+        private void AddConsoleMessage(List<string> Messages)
+        {
+            lock (_newConsoleText)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (string s in Messages)
+                {
+                    sb.Append(s);
+                    sb.Append(Environment.NewLine);
+                }
+                sb.Append(": ");
+                _newConsoleText.Add(sb.ToString());
             }
         }
 
@@ -3210,7 +3242,7 @@ BeforeHazy:
                     if (result.HasValue)
                     {
                         CommandResult resultValue = result.Value;
-                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted)
+                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted || resultValue == CommandResult.CommandTimeout)
                         {
                             break;
                         }
@@ -5019,13 +5051,40 @@ BeforeHazy:
         Manashield = 2
     }
 
+    /// <summary>
+    /// result of a single command
+    /// </summary>
     public enum CommandResult
     {
+        /// <summary>
+        /// the command completed successfully
+        /// </summary>
         CommandSuccessful,
+
+        /// <summary>
+        /// the command was unsuccessful, but could succeed if run again (e.g. flee, search, knock, manashield)
+        /// </summary>
         CommandUnsuccessfulThisTime,
+
+        /// <summary>
+        /// the command was unsuccessful, and it is expected the command would continue to not work if tried again
+        /// </summary>
         CommandUnsuccessfulAlways,
+
+        /// <summary>
+        /// additional wait time is needed before the command can be run
+        /// </summary>
         CommandMustWait,
+
+        /// <summary>
+        /// the background process was aborted, such as the user cancelling the background process or a hazy or flee was triggered
+        /// </summary>
         CommandAborted,
+
+        /// <summary>
+        /// no response was processed from the server within the timeout interval
+        /// </summary>
+        CommandTimeout,
     }
 
     public enum BackgroundCommandType
