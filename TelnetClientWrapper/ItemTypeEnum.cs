@@ -238,6 +238,10 @@
         [PluralName("MOM tattoos")]
         MOMTattoo,
 
+        [SingularName("old wooden sign")]
+        [PluralName("old wooden signs")]
+        OldWoodenSign,
+
         [SingularName("onyx amulet")]
         [PluralName("onyx amulets")]
         OnyxAmulet,

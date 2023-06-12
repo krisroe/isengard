@@ -865,7 +865,8 @@ namespace IsengardClient
 
             //skip fleeing messages for scared exits
             while (nextLineIndex < Lines.Count &&
-                (Lines[nextLineIndex].StartsWith("Scared of going ") || Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
+                (Lines[nextLineIndex].StartsWith("Scared of going ") || 
+                 Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
             {
                 nextLineIndex++;
             }
@@ -1776,6 +1777,8 @@ namespace IsengardClient
                 if (firstLine == "You can't go that way.")
                     matches = true;
                 else if (firstLine == "That exit is closed for the night.")
+                    matches = true;
+                else if (firstLine == "You must stand up before you may move.")
                     matches = true;
                 else if (firstLine.EndsWith(" blocks your exit."))
                     matches = true;
