@@ -86,6 +86,10 @@
         //CSRTODO: no plural?
         FrodoBaggins,
 
+        [SingularName("ghost")]
+        [PluralName("ghosts")]
+        Ghost,
+
         [SingularName("goat")]
         [PluralName("goats")]
         Goat,
@@ -157,6 +161,10 @@
         [SingularName("half-elf")]
         [PluralName("half-elves")]
         HalfElf,
+
+        [SingularName("halfling ghost")]
+        [PluralName("halfling ghosts")]
+        HalflingGhost,
 
         [SingularName("hippie")]
         [PluralName("hippies")]
@@ -245,6 +253,10 @@
         [SingularName("merchant")]
         [PluralName("merchants")]
         Merchant,
+
+        [SingularName("militiaman")]
+        [PluralName("militiamen")]
+        Militiaman,
 
         [SingularName("mistress")]
         [PluralName("mistresses")]

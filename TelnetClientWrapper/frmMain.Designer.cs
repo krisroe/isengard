@@ -60,11 +60,6 @@
             this.btnUseWandOnMob = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
-            this.treeLocations = new System.Windows.Forms.TreeView();
-            this.ctxLocations = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiGoToLocation = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetLocation = new System.Windows.Forms.ToolStripMenuItem();
-            this.grpLocations = new System.Windows.Forms.GroupBox();
             this.grpOneClickStrategies = new System.Windows.Forms.GroupBox();
             this.flpOneClickStrategies = new System.Windows.Forms.FlowLayoutPanel();
             this.txtPotion = new System.Windows.Forms.TextBox();
@@ -81,6 +76,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
             this.btnHeal = new System.Windows.Forms.Button();
@@ -165,9 +161,8 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.ctxMob.SuspendLayout();
-            this.ctxLocations.SuspendLayout();
-            this.grpLocations.SuspendLayout();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -513,50 +508,6 @@
             this.txtSetValue.Size = new System.Drawing.Size(89, 20);
             this.txtSetValue.TabIndex = 56;
             // 
-            // treeLocations
-            // 
-            this.treeLocations.ContextMenuStrip = this.ctxLocations;
-            this.treeLocations.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeLocations.HideSelection = false;
-            this.treeLocations.Location = new System.Drawing.Point(3, 16);
-            this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(277, 418);
-            this.treeLocations.TabIndex = 63;
-            this.treeLocations.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeLocations_NodeMouseClick);
-            // 
-            // ctxLocations
-            // 
-            this.ctxLocations.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxLocations.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiGoToLocation,
-            this.tsmiSetLocation});
-            this.ctxLocations.Name = "ctxLocations";
-            this.ctxLocations.Size = new System.Drawing.Size(91, 48);
-            this.ctxLocations.Opening += new System.ComponentModel.CancelEventHandler(this.ctxLocations_Opening);
-            this.ctxLocations.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxLocations_ItemClicked);
-            // 
-            // tsmiGoToLocation
-            // 
-            this.tsmiGoToLocation.Name = "tsmiGoToLocation";
-            this.tsmiGoToLocation.Size = new System.Drawing.Size(90, 22);
-            this.tsmiGoToLocation.Text = "Go";
-            // 
-            // tsmiSetLocation
-            // 
-            this.tsmiSetLocation.Name = "tsmiSetLocation";
-            this.tsmiSetLocation.Size = new System.Drawing.Size(90, 22);
-            this.tsmiSetLocation.Text = "Set";
-            // 
-            // grpLocations
-            // 
-            this.grpLocations.Controls.Add(this.treeLocations);
-            this.grpLocations.Location = new System.Drawing.Point(653, 10);
-            this.grpLocations.Name = "grpLocations";
-            this.grpLocations.Size = new System.Drawing.Size(283, 437);
-            this.grpLocations.TabIndex = 64;
-            this.grpLocations.TabStop = false;
-            this.grpLocations.Text = "Locations";
-            // 
             // grpOneClickStrategies
             // 
             this.grpOneClickStrategies.Controls.Add(this.flpOneClickStrategies);
@@ -729,6 +680,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.grpCurrentRoom);
+            this.pnlMain.Controls.Add(this.btnLocations);
             this.pnlMain.Controls.Add(this.btnIncrementWand);
             this.pnlMain.Controls.Add(this.grpSkillCooldowns);
             this.pnlMain.Controls.Add(this.btnHeal);
@@ -763,7 +716,6 @@
             this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
             this.pnlMain.Controls.Add(this.grpOneClickStrategies);
-            this.pnlMain.Controls.Add(this.grpLocations);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
             this.pnlMain.Controls.Add(this.btnAbort);
             this.pnlMain.Controls.Add(this.btnUseWandOnMob);
@@ -780,6 +732,16 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnLocations
+            // 
+            this.btnLocations.Location = new System.Drawing.Point(535, 46);
+            this.btnLocations.Name = "btnLocations";
+            this.btnLocations.Size = new System.Drawing.Size(112, 28);
+            this.btnLocations.TabIndex = 140;
+            this.btnLocations.Text = "Locations";
+            this.btnLocations.UseVisualStyleBackColor = true;
+            this.btnLocations.Click += new System.EventHandler(this.btnLocations_Click);
             // 
             // btnIncrementWand
             // 
@@ -828,7 +790,7 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(535, 102);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(535, 131);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
             this.lblAutoEscapeValue.Size = new System.Drawing.Size(112, 15);
             this.lblAutoEscapeValue.TabIndex = 134;
@@ -917,7 +879,7 @@
             // lblTime
             // 
             this.lblTime.BackColor = System.Drawing.Color.LightGray;
-            this.lblTime.Location = new System.Drawing.Point(535, 82);
+            this.lblTime.Location = new System.Drawing.Point(535, 111);
             this.lblTime.Name = "lblTime";
             this.lblTime.Size = new System.Drawing.Size(112, 15);
             this.lblTime.TabIndex = 125;
@@ -1070,7 +1032,7 @@
             // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(535, 19);
+            this.btnGraph.Location = new System.Drawing.Point(535, 14);
             this.btnGraph.Name = "btnGraph";
             this.btnGraph.Size = new System.Drawing.Size(112, 28);
             this.btnGraph.TabIndex = 119;
@@ -1080,7 +1042,7 @@
             // 
             // btnClearCurrentLocation
             // 
-            this.btnClearCurrentLocation.Location = new System.Drawing.Point(535, 50);
+            this.btnClearCurrentLocation.Location = new System.Drawing.Point(535, 79);
             this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
             this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
             this.btnClearCurrentLocation.Size = new System.Drawing.Size(112, 28);
@@ -1670,6 +1632,15 @@
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // grpCurrentRoom
+            // 
+            this.grpCurrentRoom.Location = new System.Drawing.Point(656, 10);
+            this.grpCurrentRoom.Name = "grpCurrentRoom";
+            this.grpCurrentRoom.Size = new System.Drawing.Size(281, 454);
+            this.grpCurrentRoom.TabIndex = 141;
+            this.grpCurrentRoom.TabStop = false;
+            this.grpCurrentRoom.Text = "Current Room";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1685,8 +1656,6 @@
             this.Text = "Isengard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.ctxMob.ResumeLayout(false);
-            this.ctxLocations.ResumeLayout(false);
-            this.grpLocations.ResumeLayout(false);
             this.grpOneClickStrategies.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
@@ -1755,8 +1724,6 @@
         private System.Windows.Forms.Button btnUseWandOnMob;
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.TextBox txtSetValue;
-        private System.Windows.Forms.TreeView treeLocations;
-        private System.Windows.Forms.GroupBox grpLocations;
         private System.Windows.Forms.GroupBox grpOneClickStrategies;
         private System.Windows.Forms.FlowLayoutPanel flpOneClickStrategies;
         private System.Windows.Forms.TextBox txtPotion;
@@ -1820,9 +1787,6 @@
         private System.Windows.Forms.FlowLayoutPanel flpHelp;
         private System.Windows.Forms.Panel pnlCommand;
         private System.Windows.Forms.Panel pnlConsoleHolder;
-        private System.Windows.Forms.ContextMenuStrip ctxLocations;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetLocation;
-        private System.Windows.Forms.ToolStripMenuItem tsmiGoToLocation;
         private System.Windows.Forms.Button btnGraph;
         private System.Windows.Forms.GroupBox grpMob;
         private System.Windows.Forms.TextBox txtMobDamage;
@@ -1864,6 +1828,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeHazy;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
+        private System.Windows.Forms.Button btnLocations;
+        private System.Windows.Forms.GroupBox grpCurrentRoom;
     }
 }
 

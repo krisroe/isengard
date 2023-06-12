@@ -1973,12 +1973,13 @@ namespace IsengardClient
 
             Room oGreatEastRoad2 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad1, oGreatEastRoad2, BidirectionalExitType.WestEast);
-            AddGalbasiDowns(oGreatEastRoad2);
             breeToImladrisGraph.Rooms[oGreatEastRoad2] = new System.Windows.Point(5, 4);
 
             Room oGreatEastRoad3 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad2, oGreatEastRoad3, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad3] = new System.Windows.Point(6, 4);
+
+            AddGalbasiDowns(oGreatEastRoad2, oGreatEastRoad3, breeToImladrisGraph);
 
             Room oGreatEastRoad4 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad3, oGreatEastRoad4, BidirectionalExitType.WestEast);
@@ -2205,21 +2206,45 @@ namespace IsengardClient
             AddLocation(_aInaccessible, oCrabbe);
         }
 
-        private void AddGalbasiDowns(Room oGreatEastRoad2)
+        private void AddGalbasiDowns(Room oGreatEastRoad2, Room oGreatEastRoad3, RoomGraph breeToImladrisGraph)
         {
-            Room oGalbasiDownsEntrance = AddRoom("Galbasi Downs");
+            Room oGalbasiDownsEntrance = AddRoom("Galbasi Downs", "Galbasi Downs");
             AddBidirectionalExits(oGalbasiDownsEntrance, oGreatEastRoad2, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oGalbasiDownsEntrance] = new System.Windows.Point(5, 3.5);
 
-            Room oGalbasiDownsNorth = AddRoom("Galbasi Downs");
-            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsEntrance, BidirectionalExitType.NorthSouth);
-
-            Room oGalbasiDownsNortheast = AddRoom("Galbasi Downs");
-            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsNortheast, BidirectionalExitType.WestEast);
-
-            Room oGalbasiDownsFurthestNorth = AddRoom("Galbasi Downs End");
-            AddExit(oGalbasiDownsFurthestNorth, oGalbasiDownsNortheast, "southeast");
-            Exit e = AddExit(oGalbasiDownsNortheast, oGalbasiDownsFurthestNorth, "northwest");
+            Room oGalbasiDownsSoutheast = AddRoom("Galbasi Downs", "Galbasi Downs");
+            Exit e = AddExit(oGreatEastRoad3, oGalbasiDownsSoutheast, "north");
             e.Hidden = true;
+            AddExit(oGalbasiDownsSoutheast, oGreatEastRoad3, "south");
+            breeToImladrisGraph.Rooms[oGalbasiDownsSoutheast] = new System.Windows.Point(6, 3.5);
+
+            Room oGalbasiDownsSouthwest = AddRoom("Galbasi Downs", "Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsSouthwest, oGalbasiDownsEntrance, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGalbasiDownsSouthwest] = new System.Windows.Point(4, 3.5);
+
+            Room oGalbasiDownsNorth = AddRoom("Galbasi Downs", "Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsEntrance, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsSoutheast, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsSouthwest, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oGalbasiDownsNorth] = new System.Windows.Point(5, 3);
+
+            Room oGalbasiDownsNorthwest = AddRoom("Galbasi Downs", "Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsNorthwest, oGalbasiDownsSouthwest, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oGalbasiDownsNorthwest, oGalbasiDownsNorth, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGalbasiDownsNorthwest] = new System.Windows.Point(4, 3);
+
+            Room oGalbasiDownsNortheast = AddRoom("Galbasi Downs", "Galbasi Downs");
+            AddBidirectionalExits(oGalbasiDownsNorth, oGalbasiDownsNortheast, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oGalbasiDownsNortheast] = new System.Windows.Point(6, 3);
+
+            Room oGalbasiDownsFurthestNorth = AddRoom("Galbasi Downs End", "Galbasi Downs");
+            AddExit(oGalbasiDownsFurthestNorth, oGalbasiDownsNortheast, "southeast");
+            e = AddExit(oGalbasiDownsNortheast, oGalbasiDownsFurthestNorth, "northwest");
+            e.Hidden = true;
+            AddExit(oGalbasiDownsFurthestNorth, oGalbasiDownsNorthwest, "southwest");
+            e = AddExit(oGalbasiDownsNorthwest, oGalbasiDownsFurthestNorth, "northeast");
+            e.Hidden = true;
+            breeToImladrisGraph.Rooms[oGalbasiDownsFurthestNorth] = new System.Windows.Point(5, 2.5);
 
             AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
         }

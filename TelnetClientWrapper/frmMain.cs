@@ -243,7 +243,6 @@ namespace IsengardClient
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
             _gameMap = new IsengardMap(ePreferredAlignment);
-            PopulateTree();
 
             cboSetOption.SelectedIndex = 0;
 
@@ -2172,46 +2171,6 @@ namespace IsengardClient
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbEquipment.Tag = new CommandButtonTag(tsbEquipment, "equipment", CommandType.None, DependentObjectType.None);
-        }
-
-        private void PopulateTree()
-        {
-            foreach (Area a in _gameMap.Areas)
-            {
-                TreeNode tArea = new TreeNode(a.Name);
-                tArea.Tag = a;
-                treeLocations.Nodes.Add(tArea);
-                tArea.Expand();
-                a.Locations.Sort(new RoomComparer());
-                foreach (Room r in a.Locations)
-                {
-                    TreeNode tRoom = new TreeNode(r.ToString());
-                    tRoom.ContextMenuStrip = ctxLocations;
-                    tRoom.Tag = r;
-                    tArea.Nodes.Add(tRoom);
-                }
-            }
-        }
-
-        private class RoomComparer : IComparer<Room>
-        {
-            public int Compare(Room x, Room y)
-            {
-                int ret;
-                if (x.Experience1.HasValue != y.Experience1.HasValue)
-                {
-                    ret = x.Experience1.HasValue ? 1 : -1;
-                }
-                else if (!x.Experience1.HasValue && !y.Experience1.HasValue)
-                {
-                    ret = 0;
-                }
-                else
-                {
-                    ret = x.Experience1.Value.CompareTo(y.Experience1.Value);
-                }
-                return ret;
-            }
         }
 
         private void btnOneClick_Click(object sender, EventArgs e)
@@ -4144,16 +4103,16 @@ BeforeHazy:
             Room oCurrentRoom = m_oCurrentRoom;
             if (oCurrentRoom != m_oCurrentRoomUI)
             {
-                string sLocationsText;
+                string sCurrentRoom;
                 if (oCurrentRoom != null)
                 {
-                    sLocationsText = "Locations (" + oCurrentRoom.Name + ")";
+                    sCurrentRoom = oCurrentRoom.Name;
                 }
                 else
                 {
-                    sLocationsText = "Locations (none)";
+                    sCurrentRoom = "No Current Room";
                 }
-                grpLocations.Text = sLocationsText;
+                grpCurrentRoom.Text = sCurrentRoom;
                 m_oCurrentRoomUI = oCurrentRoom;
             }
 
@@ -4610,62 +4569,6 @@ BeforeHazy:
             }
         }
 
-        private void ctxLocations_Opening(object sender, CancelEventArgs e)
-        {
-            bool cancel = false;
-            if (btnAbort.Enabled)
-            {
-                cancel = true;
-            }
-            else
-            {
-                TreeNode node = treeLocations.SelectedNode;
-                if (node == null)
-                {
-                    cancel = true;
-                }
-                else
-                {
-                    Room currentRoom = m_oCurrentRoom;
-                    Room r = node.Tag as Room;
-                    if (r == null || currentRoom == r)
-                    {
-                        cancel = true;
-                    }
-                    else
-                    {
-                        tsmiGoToLocation.Visible = currentRoom != null;
-                    }
-                }
-            }
-            if (cancel)
-            {
-                e.Cancel = true;
-            }
-        }
-
-        private void treeLocations_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                treeLocations.SelectedNode = e.Node;
-            }
-        }
-
-        private void ctxLocations_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            ToolStripItem tsi = e.ClickedItem;
-            Room targetRoom = (Room)treeLocations.SelectedNode.Tag;
-            if (tsi == tsmiSetLocation)
-            {
-                SetCurrentRoom(targetRoom);
-            }
-            else if (tsi == tsmiGoToLocation)
-            {
-                GoToRoom(targetRoom);
-            }
-        }
-
         private void GetGraphInputs(out bool flying, out bool isDay, out int level)
         {
             lock (_spellsLock)
@@ -4707,7 +4610,27 @@ BeforeHazy:
         {
             GetGraphInputs(out bool flying, out bool isDay, out int level);
             frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, isDay, level);
-            frm.ShowDialog();
+
+            frm.ShowDialog(); //do not check that form accepted because current room could be set
+
+            if (m_oCurrentRoom != frm.CurrentRoom)
+            {
+                SetCurrentRoom(frm.CurrentRoom);
+            }
+            List<Exit> selectedPath = frm.SelectedPath;
+            if (selectedPath != null)
+            {
+                NavigateExitsInBackground(selectedPath);
+            }
+        }
+
+        private void btnLocations_Click(object sender, EventArgs e)
+        {
+            GetGraphInputs(out bool flying, out bool isDay, out int level);
+            frmLocations frm = new frmLocations(_gameMap, m_oCurrentRoom, flying, isDay, level);
+
+            frm.ShowDialog(); //do not check that form accepted because current room could be set
+
             if (m_oCurrentRoom != frm.CurrentRoom)
             {
                 SetCurrentRoom(frm.CurrentRoom);

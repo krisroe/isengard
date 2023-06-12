@@ -104,6 +104,10 @@
         [PluralName("dark green potions")]
         DarkGreenPotion,
 
+        [SingularName("dildo")]
+        //CSRTODO: dildo or dildoes?
+        Dildo,
+
         [SingularName("elven bow")]
         [PluralName("elven bows")]
         ElvenBow,

@@ -190,7 +190,6 @@ namespace IsengardClient
                 System.Windows.MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
                 return;
             }
-            DialogResult = true;
             Close();
         }
 
