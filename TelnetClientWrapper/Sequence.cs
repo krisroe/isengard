@@ -1921,7 +1921,8 @@ namespace IsengardClient
                 {
                     isBroadcast = true;
                 }
-                else if (sLine.EndsWith(" just arrived.") ||
+                else if (sLine == "The searing heat burns your flesh." ||
+                         sLine.EndsWith(" just arrived.") ||
                          sLine.EndsWith(" just wandered away."))
                 {
                     isMessageToKeep = true;

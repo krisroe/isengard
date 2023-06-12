@@ -2246,7 +2246,97 @@ namespace IsengardClient
             e.Hidden = true;
             breeToImladrisGraph.Rooms[oGalbasiDownsFurthestNorth] = new System.Windows.Point(5, 2.5);
 
-            AddLocation(_aMisc, oGalbasiDownsFurthestNorth);
+            Room oTopOfHill = AddRoom("Hilltop", "Top of Hill");
+            e = AddExit(oGalbasiDownsFurthestNorth, oTopOfHill, "hill");
+            e.Hidden = true;
+            AddExit(oTopOfHill, oGalbasiDownsFurthestNorth, "north");
+            breeToImladrisGraph.Rooms[oTopOfHill] = new System.Windows.Point(5, 2.25);
+
+            Room oBarrow = AddRoom("Barrow", "Barrow");
+            e = AddExit(oTopOfHill, oBarrow, "niche");
+            e.Hidden = true;
+            AddExit(oBarrow, oTopOfHill, "up");
+            breeToImladrisGraph.Rooms[oBarrow] = new System.Windows.Point(5, 2);
+
+            Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber"); //fire room
+            AddExit(oBarrow, oAntechamber, "altar");
+            AddExit(oAntechamber, oBarrow, "up");
+            breeToImladrisGraph.Rooms[oAntechamber] = new System.Windows.Point(5, 1.75);
+
+            Room oGalbasiHalls = AddRoom("Galbasi Halls", "Galbasi Halls");
+            e = AddExit(oAntechamber, oGalbasiHalls, "stairway");
+            e.Hidden = true;
+            AddExit(oGalbasiHalls, oAntechamber, "stairway");
+            breeToImladrisGraph.Rooms[oGalbasiHalls] = new System.Windows.Point(5, 1.5);
+
+            Room oUnderHallsCorridorsGreenSlime = AddRoom("Green Slime", "Underhalls Corridors");
+            oUnderHallsCorridorsGreenSlime.Mob1 = "slime";
+            AddBidirectionalExits(oUnderHallsCorridorsGreenSlime, oGalbasiHalls, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oUnderHallsCorridorsGreenSlime] = new System.Windows.Point(5, 1.25);
+
+            Room oUnderHallsCorridorsBaseJunction = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderHallsCorridorsBaseJunction, oUnderHallsCorridorsGreenSlime, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oUnderHallsCorridorsBaseJunction] = new System.Windows.Point(5, 1);
+
+            Room oUnderhallsCorridorsWest = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsWest, oUnderHallsCorridorsBaseJunction, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsWest] = new System.Windows.Point(4, 1);
+
+            Room oDarkCorner = AddRoom("Skeleton", "Dark Corner");
+            AddBidirectionalExits(oDarkCorner, oUnderhallsCorridorsWest, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oDarkCorner] = new System.Windows.Point(3, 1);
+
+            Room oToCave = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderHallsCorridorsBaseJunction, oToCave, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oToCave] = new System.Windows.Point(6, 1);
+
+            Room oGlowingCave = AddRoom("Glowing Cave", "Glowing Cave");
+            AddExit(oToCave, oGlowingCave, "cave");
+            AddExit(oGlowingCave, oToCave, "out");
+            breeToImladrisGraph.Rooms[oGlowingCave] = new System.Windows.Point(6, 2);
+
+            Room oUnderhallsCorridorsEast = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oToCave, oUnderhallsCorridorsEast, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsEast] = new System.Windows.Point(7, 1);
+
+            Room oUnderhallsCorridorsToQuarry = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsEast, oUnderhallsCorridorsToQuarry, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsToQuarry] = new System.Windows.Point(8, 1);
+
+            Room oUnderhallsCorridorsSoutheastCorner = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsToQuarry, oUnderhallsCorridorsSoutheastCorner, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsSoutheastCorner] = new System.Windows.Point(9, 1);
+
+            Room oUnderhallsCorridorsEast2 = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsEast2, oUnderhallsCorridorsSoutheastCorner, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsEast2] = new System.Windows.Point(9, 0.5);
+
+            Room oUnderhallsIronDoor = AddRoom("Iron Door", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsIronDoor, oUnderhallsCorridorsEast2, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oUnderhallsIronDoor] = new System.Windows.Point(9, 0);
+
+            Room oBlackEyeOrcDwelling = AddRoom("Sewer Orcs", "Black Eye Orc Dwelling");
+            e = AddExit(oUnderhallsIronDoor, oBlackEyeOrcDwelling, "iron");
+            e.KeyType = KeyType.UnknownKnockable;
+            AddExit(oBlackEyeOrcDwelling, oUnderhallsIronDoor, "out");
+            breeToImladrisGraph.Rooms[oBlackEyeOrcDwelling] = new System.Windows.Point(9, -0.5);
+
+            Room oUnderhallsCorridorsNE = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsNE, oUnderHallsCorridorsBaseJunction, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsNE] = new System.Windows.Point(6, 0);
+
+            Room oUnderhallsCorridorsN = AddRoom("Corridor", "Underhalls Corridors");
+            AddBidirectionalExits(oUnderhallsCorridorsN, oUnderhallsCorridorsNE, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsN] = new System.Windows.Point(6, -1);
+
+            Room oOrcsQuarry = AddRoom("Orcs' Quarry", "Orcs' Quarry");
+            AddBidirectionalExits(oUnderhallsCorridorsNE, oOrcsQuarry, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oOrcsQuarry] = new System.Windows.Point(8, 0);
+
+            Room oOrcsQuarry2 = AddRoom("Orc Guard", "Orcs' Quarry");
+            AddBidirectionalExits(oOrcsQuarry, oOrcsQuarry2, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oUnderhallsCorridorsToQuarry, oOrcsQuarry2, BidirectionalExitType.UpDown);
+            breeToImladrisGraph.Rooms[oOrcsQuarry2] = new System.Windows.Point(8, 0.5);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside)

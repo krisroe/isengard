@@ -3250,6 +3250,7 @@ BeforeHazy:
                 yield return btn;
             }
             yield return btnGraph;
+            yield return btnLocations;
             yield return btnClearCurrentLocation;
             yield return btnNorthwest;
             yield return btnNorth;

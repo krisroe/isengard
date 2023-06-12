@@ -14,6 +14,10 @@
         [PluralName("barmaids")]
         Barmaid,
 
+        [SingularName("barrow wight")]
+        [PluralName("barrow wights")]
+        BarrowWight,
+
         [SingularName("bartender")]
         [PluralName("bartenders")]
         Bartender,
@@ -37,6 +41,10 @@
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
+
+        [SingularName("criminal")]
+        [PluralName("criminals")]
+        Criminal,
 
         [SingularName("Dale Purves")]
         //CSRTODO: no plural?
@@ -294,6 +302,10 @@
         [PluralName("orcs")]
         Orc,
 
+        [SingularName("orc miner")]
+        [PluralName("orc miners")]
+        OrcMiner,
+
         [SingularName("paladin")]
         [PluralName("paladins")]
         Paladin,
@@ -366,6 +378,10 @@
         //CSRTODO: no plural?
         Shepherd,
 
+        [SingularName("skeleton")]
+        [PluralName("skeletons")]
+        Skeleton,
+
         [SingularName("small spider")]
         [PluralName("small spiders")]
         SmallSpider,
@@ -409,6 +425,10 @@
         [SingularName("vagrant")]
         [PluralName("vagrants")]
         Vagrant,
+
+        [SingularName("vampire bat")]
+        [PluralName("vampire bats")]
+        VampireBat,
 
         [SingularName("villager's ghost")]
         [PluralName("villager's ghosts")]

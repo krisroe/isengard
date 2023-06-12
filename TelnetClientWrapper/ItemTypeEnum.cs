@@ -100,6 +100,10 @@
         [PluralName("daggers")]
         Dagger,
 
+        [SingularName("dark blade")]
+        [PluralName("dark blades")]
+        DarkBlade,
+
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         DarkGreenPotion,
@@ -233,6 +237,10 @@
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
         MOMTattoo,
+
+        [SingularName("onyx amulet")]
+        [PluralName("onyx amulets")]
+        OnyxAmulet,
 
         [SingularName("ork blade")]
         [PluralName("ork blades")]

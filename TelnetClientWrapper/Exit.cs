@@ -122,5 +122,6 @@ namespace IsengardClient
         GateKey,
         KasnarsRedKey,
         SilverKey,
+        UnknownKnockable,
     }
 }
