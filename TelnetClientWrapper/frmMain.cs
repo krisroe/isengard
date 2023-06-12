@@ -1085,19 +1085,16 @@ namespace IsengardClient
             {
                 bct = flParams.BackgroundCommandType;
             }
-            bool fromAnyBackgroundCommand = false;
-            bool fromBackgroundCommand = false;
             bool fromBackgroundFlee = false;
             bool fromBackgroundMove = false;
             bool fromBackgroundHazy = false;
-            fromAnyBackgroundCommand = bct.HasValue;
+            bool fromAnyBackgroundCommand = bct.HasValue;
             if (fromAnyBackgroundCommand)
             {
                 BackgroundCommandType bctValue = bct.Value;
                 fromBackgroundFlee = bctValue == BackgroundCommandType.Flee;
                 fromBackgroundMove = bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement;
                 fromBackgroundHazy = bctValue == BackgroundCommandType.DrinkHazy;
-                fromBackgroundCommand = fromBackgroundMove || fromBackgroundFlee;
             }
             
             _currentObviousExits = obviousExits;
@@ -1305,6 +1302,15 @@ namespace IsengardClient
             if (bct.HasValue && bct.Value == BackgroundCommandType.DrinkHazy)
             {
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void OnSuccessfulPrepare(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Prepare)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
@@ -1753,6 +1759,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You don't have that.", FailDrinkHazy, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.DrinkHazy),
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
+                new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
+                new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
 
                 //the search find failed output has a blank line before the message so use the second line.
                 new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search)
@@ -2354,6 +2362,11 @@ namespace IsengardClient
                                 }
                             }
 
+                            if (nextExit.IsTrapExit)
+                            {
+                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
+                                if (!backgroundCommandSuccess) return;
+                            }
                             RunPreExitLogic(nextExit);
                             string nextCommand = GetExitCommand(exitText);
 
@@ -3042,10 +3055,6 @@ BeforeHazy:
             if (!string.IsNullOrEmpty(preCommand))
             {
                 SendCommand(preCommand, InputEchoType.On);
-            }
-            if (exit.IsTrapExit)
-            {
-                SendCommand("prepare", InputEchoType.On);
             }
         }
 
@@ -4191,6 +4200,7 @@ BeforeHazy:
                 }
                 grpCurrentRoom.Text = sCurrentRoom;
                 m_oCurrentRoomUI = oCurrentRoom;
+                RefreshEnabledForSingleMoveButtons();
             }
 
             RefreshAutoEscapeUI(false);
@@ -5034,6 +5044,7 @@ BeforeHazy:
         Movement,
         Look,
         LookAtMob,
+        Prepare,
         Search,
         Knock,
         Vigor,
