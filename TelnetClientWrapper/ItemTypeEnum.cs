@@ -258,6 +258,10 @@
         [PluralName("parched scrolls")]
         ParchedScroll,
 
+        [SingularName("pearl encrusted diadem")]
+        //CSRTODO: plural?
+        PearlEncrustedDiadem,
+
         [SingularName("pearl handled knife")]
         [PluralName("pearl handled knives")]
         PearlHandledKnife,
@@ -293,6 +297,10 @@
         [SingularName("rusty key")]
         [PluralName("rusty key")]
         RustyKey,
+
+        [SingularName("sailor's locket")]
+        [PluralName("sailor's lockets")]
+        SailorsLocket,
 
         [SingularName("signet ring")]
         [PluralName("signet rings")]

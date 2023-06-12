@@ -153,107 +153,107 @@ namespace IsengardClient
             AddBidirectionalExits(oErynVornSouth, oDropOff, BidirectionalExitType.SoutheastNorthwest);
             tharbadWestGraph.Rooms[oErynVornSouth] = new System.Windows.Point(0, 4);
 
-            Room oLelionParkHillside = AddRoom("Lelion Park Hillside");
+            Room oLelionParkHillside = AddRoom("Lelion Park Hillside", "Lelion Park Hillside");
             AddBidirectionalExits(oLelionParkHillside, lelionBeachAndPark, BidirectionalExitType.SoutheastNorthwest);
             tharbadWestGraph.Rooms[oLelionParkHillside] = new System.Windows.Point(5, 4);
 
-            Room oChildrensTidalPool = AddRoom("Children's Tidal Pool");
+            Room oChildrensTidalPool = AddRoom("Children's Tidal Pool", "Children's Tidal Pool");
             AddBidirectionalExits(oChildrensTidalPool, oLelionParkHillside, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oChildrensTidalPool] = new System.Windows.Point(5, 3);
 
-            Room oNorthShore = AddRoom("North Shore");
+            Room oNorthShore = AddRoom("North Shore", "North Shore");
             AddBidirectionalExits(oNorthShore, oChildrensTidalPool, BidirectionalExitType.WestEast);
             tharbadWestGraph.Rooms[oNorthShore] = new System.Windows.Point(4, 3);
 
-            Room oLelionPark = AddRoom("Lelion Park");
+            Room oLelionPark = AddRoom("Lelion Park", "Lelion Park");
             AddBidirectionalExits(oLelionPark, lelionBeachAndPark, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oNorthShore, oLelionPark, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oLelionPark] = new System.Windows.Point(4, 5);
 
-            Room oSouthCoveSandBar = AddRoom("South Cove Sand Bar");
+            Room oSouthCoveSandBar = AddRoom("South Cove Sand Bar", "South Cove Sand Bar");
             AddBidirectionalSameNameExit(oLelionPark, oSouthCoveSandBar, "drainage");
             tharbadWestGraph.Rooms[oSouthCoveSandBar] = new System.Windows.Point(3, 5);
 
-            Room oMultiTurnPath = AddRoom("Multi-turn Path");
+            Room oMultiTurnPath = AddRoom("Multi-turn Path", "Multi-turn Path");
             AddBidirectionalExits(oMultiTurnPath, oSouthCoveSandBar, BidirectionalExitType.SoutheastNorthwest);
             tharbadWestGraph.Rooms[oMultiTurnPath] = new System.Windows.Point(2, 4);
 
-            Room oCrookedPath = AddRoom("Crooked Path");
+            Room oCrookedPath = AddRoom("Crooked Path", "Crooked Path");
             AddExit(oMultiTurnPath, oCrookedPath, "west");
             AddExit(oMultiTurnPath, oCrookedPath, "north");
             AddExit(oCrookedPath, oMultiTurnPath, "west");
             tharbadWestGraph.Rooms[oCrookedPath] = new System.Windows.Point(1, 4);
 
-            Room oNorthShoreGrotto = AddRoom("North Shore Grotto");
+            Room oNorthShoreGrotto = AddRoom("North Shore Grotto", "North Shore Grotto");
             oNorthShoreGrotto.IsTrapRoom = true;
             AddExit(oNorthShore, oNorthShoreGrotto, "west");
             AddExit(oNorthShoreGrotto, oCrookedPath, "southwest");
             tharbadWestGraph.Rooms[oNorthShoreGrotto] = new System.Windows.Point(3, 3);
 
-            Room oNorthLookoutPoint = AddRoom("North Lookout Point");
+            Room oNorthLookoutPoint = AddRoom("North Lookout Point", "North Lookout Point");
             AddExit(oNorthShoreGrotto, oNorthLookoutPoint, "west");
             AddExit(oNorthLookoutPoint, oCrookedPath, "south");
             tharbadWestGraph.Rooms[oNorthLookoutPoint] = new System.Windows.Point(0, 3);
 
-            Room oNorthShoreShallowWaters = AddRoom("Shallow Waters");
+            Room oNorthShoreShallowWaters = AddRoom("Shallow Waters", "North Shore Shallow Waters");
             AddBidirectionalExits(oNorthShoreShallowWaters, oNorthShore, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oNorthShoreShallowWaters] = new System.Windows.Point(4, 2);
 
-            Room oNorthShoreWaters = AddRoom("Waters");
+            Room oNorthShoreWaters = AddRoom("Waters", "North Shore Waters");
             AddExit(oNorthShoreShallowWaters, oNorthShoreWaters, "tide");
             AddBidirectionalExits(oNorthShoreWaters, oNorthShoreGrotto, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oNorthShoreWaters] = new System.Windows.Point(4, 1);
 
-            Room oOpenBay = AddRoom("Open Bay");
+            Room oOpenBay = AddRoom("Open Bay", "Open Bay");
             AddExit(oNorthShoreWaters, oOpenBay, "tide");
             tharbadWestGraph.Rooms[oOpenBay] = new System.Windows.Point(4, 0);
 
-            Room oNorthLookoutTower = AddRoom("North Lookout Tower");
+            Room oNorthLookoutTower = AddRoom("North Lookout Tower", "North Lookout Tower");
             AddExit(oOpenBay, oNorthLookoutTower, "south");
             AddBidirectionalExits(oNorthLookoutTower, oNorthLookoutPoint, BidirectionalExitType.NorthSouth);
             AddExit(oNorthShoreWaters, oNorthLookoutTower, "southwest");
             tharbadWestGraph.Rooms[oNorthLookoutTower] = new System.Windows.Point(0, 2);
 
-            Room oNorthLookoutTowerCellar = AddRoom("North Lookout Tower Cellar");
+            Room oNorthLookoutTowerCellar = AddRoom("North Lookout Tower Cellar", "North Lookout Tower Cellar");
             Exit e = AddExit(oNorthLookoutTower, oNorthLookoutTowerCellar, "cellar");
             e.Hidden = true;
             AddExit(oNorthLookoutTowerCellar, oNorthLookoutTower, "door");
             tharbadWestGraph.Rooms[oNorthLookoutTowerCellar] = new System.Windows.Point(0, 1.5);
 
-            Room oShroudedTunnel = AddRoom("Shrouded Tunnel");
+            Room oShroudedTunnel = AddRoom("Shrouded Tunnel", "Shrouded Tunnel");
             e = AddExit(oNorthLookoutTowerCellar, oShroudedTunnel, "shroud");
             e.Hidden = true;
             AddExit(oShroudedTunnel, oNorthLookoutTowerCellar, "out");
             tharbadWestGraph.Rooms[oShroudedTunnel] = new System.Windows.Point(0, 1);
 
-            Room oShoreOfSeaOfTranquility1 = AddRoom("Sea Shore");
+            Room oShoreOfSeaOfTranquility1 = AddRoom("Sea Shore", "The Shore of the Sea of Tranquility");
             AddExit(riverMouth, oShoreOfSeaOfTranquility1, "shore");
             AddExit(oShoreOfSeaOfTranquility1, riverMouth, "north");
             tharbadWestGraph.Rooms[oShoreOfSeaOfTranquility1] = new System.Windows.Point(1, 10);
 
-            Room oShoreOfSeaOfTranquility2 = AddRoom("Sea Shore");
+            Room oShoreOfSeaOfTranquility2 = AddRoom("Sea Shore", "The Shore of the Sea of Tranquility");
             AddBidirectionalExits(oShoreOfSeaOfTranquility1, oShoreOfSeaOfTranquility2, BidirectionalExitType.SouthwestNortheast);
             tharbadWestGraph.Rooms[oShoreOfSeaOfTranquility2] = new System.Windows.Point(0, 11);
 
-            Room oShoreOfSeaOfTranquility3 = AddRoom("Sea Shore");
+            Room oShoreOfSeaOfTranquility3 = AddRoom("Sea Shore", "The Shore of the Sea of Tranquility");
             AddBidirectionalExits(oShoreOfSeaOfTranquility2, oShoreOfSeaOfTranquility3, BidirectionalExitType.SouthwestNortheast);
             tharbadWestGraph.Rooms[oShoreOfSeaOfTranquility3] = new System.Windows.Point(-1, 12);
 
-            Room oEntranceToThunderCove = AddRoom("Thunder Cove Entrance");
+            Room oEntranceToThunderCove = AddRoom("Thunder Cove Entrance", "Entrance to Thunder Cove");
             AddBidirectionalExits(oShoreOfSeaOfTranquility3, oEntranceToThunderCove, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oEntranceToThunderCove] = new System.Windows.Point(-1, 13);
 
-            Room oDarkJungleEdge = AddRoom("Dark Jungle Edge");
+            Room oDarkJungleEdge = AddRoom("Dark Jungle Edge", "Edge of a Dark Jungle");
             AddBidirectionalExits(oEntranceToThunderCove, oDarkJungleEdge, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oDarkJungleEdge] = new System.Windows.Point(-1, 14);
 
-            Room oPrehistoricJungle = AddRoom("Prehistoric Jungle");
+            Room oPrehistoricJungle = AddRoom("Prehistoric Jungle", "The Prehistoric Jungle");
             e = AddExit(oDarkJungleEdge, oPrehistoricJungle, "southwest");
             e.Hidden = true;
             AddExit(oPrehistoricJungle, oDarkJungleEdge, "northeast");
             tharbadWestGraph.Rooms[oPrehistoricJungle] = new System.Windows.Point(-2, 15);
 
-            Room oWildmanVillage = AddRoom("Wildman Village");
+            Room oWildmanVillage = AddRoom("Wildman Village", "Wildman Village");
             AddExit(oDarkJungleEdge, oWildmanVillage, "path");
             AddExit(oWildmanVillage, oDarkJungleEdge, "north");
             tharbadWestGraph.Rooms[oWildmanVillage] = new System.Windows.Point(-1, 15);

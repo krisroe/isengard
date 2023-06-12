@@ -54,6 +54,10 @@
         [PluralName("dancing bears")]
         DancingBear,
 
+        [SingularName("decaying sailor")]
+        [PluralName("decaying sailors")]
+        DecayingSailor,
+
         [SingularName("Denethore the Wise")]
         //CSRTODO: no plural?
         DenethoreTheWise,
@@ -397,6 +401,10 @@
         [SingularName("sprite guard")]
         [PluralName("sprite guards")]
         SpriteGuard,
+
+        [SingularName("stegosaurus")]
+        //CSRTODO: plural?
+        Stegosaurus,
 
         [SingularName("thief")]
         [PluralName("thiefs")]
