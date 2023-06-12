@@ -38,6 +38,10 @@
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
 
+        [SingularName("Captain Renton")]
+        //CSRTODO: no plural
+        CaptainRenton,
+
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
@@ -250,6 +254,10 @@
         //CSRTODO: no plural?
         MadameNicolov,
 
+        [SingularName("madman")]
+        [PluralName("madmen")]
+        Madman,
+
         [SingularName("Manager Mulloy")]
         //CSRTODO: no plural?
         ManagerMulloy,
@@ -257,6 +265,10 @@
         [SingularName("Mark Frey")]
         //CSRTODO: no plural?
         MarkFrey,
+
+        [SingularName("master chef")]
+        [PluralName("master chefs")]
+        MasterChef,
 
         [SingularName("Master Jeweler")]
         //CSRTODO: no plural

@@ -748,123 +748,123 @@ namespace IsengardClient
             AddBidirectionalExits(oTopOfTheTower, oClingingToIvy2, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oTopOfTheTower] = new System.Windows.Point(4, 9.25);
 
-            Room oPalaceGates = AddRoom("Palace Gates");
+            Room oPalaceGates = AddRoom("Palace Gates", "Gates of the Palace of Illusion");
             AddBidirectionalExits(sabreIllusion, oPalaceGates, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[oPalaceGates] = new System.Windows.Point(5, 9);
 
-            Room oPalaceOfIllusion = AddRoom("Illusion Palace");
+            Room oPalaceOfIllusion = AddRoom("Illusion Palace", "Palace of Illusion");
             AddBidirectionalSameNameExit(oPalaceGates, oPalaceOfIllusion, "gate");
             tharbadGraph.Rooms[oPalaceOfIllusion] = new System.Windows.Point(4.5, 12);
 
-            Room oImperialKitchens = AddRoom("Imperial Kitchens");
+            Room oImperialKitchens = AddRoom("Imperial Kitchens", "Imperial Kitchens");
             AddBidirectionalExits(oImperialKitchens, oPalaceOfIllusion, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oImperialKitchens] = new System.Windows.Point(3.5, 12);
 
-            Room oHallOfRainbows1 = AddRoom("Rainbow Hall");
+            Room oHallOfRainbows1 = AddRoom("Rainbow Hall", "Hall of Rainbows");
             AddBidirectionalExits(oHallOfRainbows1, oPalaceOfIllusion, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[oHallOfRainbows1] = new System.Windows.Point(4.5, 11);
 
-            Room oHallOfRainbows2 = AddRoom("Rainbow Hall");
+            Room oHallOfRainbows2 = AddRoom("Rainbow Hall", "Hall of Rainbows");
             AddBidirectionalExits(oHallOfRainbows1, oHallOfRainbows2, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oHallOfRainbows2] = new System.Windows.Point(5.5, 11);
 
-            Room oHallOfRainbows3 = AddRoom("Rainbow Hall");
+            Room oHallOfRainbows3 = AddRoom("Rainbow Hall", "Hall of Rainbows");
             AddBidirectionalExits(oHallOfRainbows2, oHallOfRainbows3, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oHallOfRainbows3] = new System.Windows.Point(6.5, 11);
 
-            Room oEmptyGuestRoom = AddRoom("Guest Room");
+            Room oEmptyGuestRoom = AddRoom("Guest Room", "Empty Guest Room");
             AddBidirectionalSameNameExit(oHallOfRainbows3, oEmptyGuestRoom, "door");
             tharbadGraph.Rooms[oEmptyGuestRoom] = new System.Windows.Point(6.5, 12);
 
-            Room oChancellorsDesk = AddRoom("Chancellor's Desk");
+            Room oChancellorsDesk = AddRoom("Chancellor's Desk", "Chancellor's Desk");
             AddExit(oHallOfRainbows1, oChancellorsDesk, "arch");
             AddExit(oChancellorsDesk, oHallOfRainbows1, "east");
             tharbadGraph.Rooms[oChancellorsDesk] = new System.Windows.Point(3.5, 11);
 
-            Room oMainAudienceChamber = AddRoom("Audience Chamber");
+            Room oMainAudienceChamber = AddRoom("Audience Chamber", "Main Audience Chamber");
             AddBidirectionalExits(oMainAudienceChamber, oChancellorsDesk, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[oMainAudienceChamber] = new System.Windows.Point(3.5, 10);
 
-            Room oCaptainRenton = AddRoom("Throne Room");
+            Room oCaptainRenton = AddRoom("Throne Room", "Throne Room");
             AddBidirectionalExits(oCaptainRenton, oMainAudienceChamber, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oCaptainRenton] = new System.Windows.Point(2.5, 10);
 
-            Room oAdvisorsSecretChamber = AddRoom("Advisor's Chamber");
+            Room oAdvisorsSecretChamber = AddRoom("Advisor's Chamber", "Advisor's Secret Chamber");
             e = AddExit(oCaptainRenton, oAdvisorsSecretChamber, "tapestry");
             e.Hidden = true;
             AddExit(oAdvisorsSecretChamber, oCaptainRenton, "tapestry");
             tharbadGraph.Rooms[oAdvisorsSecretChamber] = new System.Windows.Point(2.5, 11);
 
-            Room oStepsToAzureTower = AddRoom("Azure Steps");
+            Room oStepsToAzureTower = AddRoom("Azure Steps", "Steps to Azure Tower");
             e = AddExit(oAdvisorsSecretChamber, oStepsToAzureTower, "passage");
             e.Hidden = true;
             AddExit(oStepsToAzureTower, oHallOfRainbows2, "corridor");
             tharbadGraph.Rooms[oStepsToAzureTower] = new System.Windows.Point(1.5, 12);
 
-            Room oAzureTowerStaircase1 = AddRoom("Azure Staircase");
+            Room oAzureTowerStaircase1 = AddRoom("Azure Staircase", "Azure Tower Staircase");
             AddBidirectionalExits(oAzureTowerStaircase1, oStepsToAzureTower, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oAzureTowerStaircase1] = new System.Windows.Point(1.5, 11);
 
-            Room oAzureTowerStaircase2 = AddRoom("Azure Tower Staircase");
+            Room oAzureTowerStaircase2 = AddRoom("Azure Tower Staircase", "Azure Tower Staircase");
             AddBidirectionalExits(oAzureTowerStaircase2, oAzureTowerStaircase1, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oAzureTowerStaircase2] = new System.Windows.Point(1.5, 10);
 
-            Room oArenaPath = AddRoom("Arena Path");
+            Room oArenaPath = AddRoom("Arena Path", "Arena Path");
             AddBidirectionalExits(sabreEvard, oArenaPath, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oArenaPath] = new System.Windows.Point(9, 8.5);
 
-            Room oArenaTunnel1 = AddRoom("Arena Tunnel");
+            Room oArenaTunnel1 = AddRoom("Arena Tunnel", "Arena Tunnel");
             e = AddExit(oArenaPath, oArenaTunnel1, "arch");
             e.Hidden = true;
             AddExit(oArenaTunnel1, oArenaPath, "arch");
             tharbadGraph.Rooms[oArenaTunnel1] = new System.Windows.Point(9, 9);
 
-            Room oArenaTunnel2 = AddRoom("Arena Tunnel");
+            Room oArenaTunnel2 = AddRoom("Arena Tunnel", "Arena Tunnel");
             AddBidirectionalSameNameExit(oArenaTunnel1, oArenaTunnel2, "slope");
             tharbadGraph.Rooms[oArenaTunnel2] = new System.Windows.Point(9, 9.5);
 
-            Room oTunnel1 = AddRoom("Tunnel 1");
+            Room oTunnel1 = AddRoom("Tunnel 1", "Tunnel One");
             AddBidirectionalExits(oTunnel1, oArenaTunnel2, BidirectionalExitType.SoutheastNorthwest);
             tharbadGraph.Rooms[oTunnel1] = new System.Windows.Point(8, 9);
 
-            Room oCenterRing = AddRoom("Center Ring");
+            Room oCenterRing = AddRoom("Center Ring", "Center Ring");
             AddBidirectionalExits(oCenterRing, oTunnel1, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oCenterRing] = new System.Windows.Point(7, 9);
 
-            Room oTunnel2 = AddRoom("Tunnel 2");
+            Room oTunnel2 = AddRoom("Tunnel 2", "Tunnel Two");
             AddBidirectionalExits(oArenaTunnel2, oTunnel2, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oTunnel2] = new System.Windows.Point(8, 10);
 
-            Room oMiddleRing1 = AddRoom("Middle Ring");
+            Room oMiddleRing1 = AddRoom("Middle Ring", "Middle Ring");
             AddBidirectionalExits(oMiddleRing1, oTunnel2, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oMiddleRing1] = new System.Windows.Point(7, 10);
 
-            Room oMiddleRing2 = AddRoom("Middle Ring");
+            Room oMiddleRing2 = AddRoom("Middle Ring", "Middle Ring");
             AddBidirectionalSameNameExit(oMiddleRing1, oMiddleRing2, "ring");
             tharbadGraph.Rooms[oMiddleRing2] = new System.Windows.Point(6, 10);
 
-            Room oTunnel3 = AddRoom("Tunnel 3");
+            Room oTunnel3 = AddRoom("Tunnel 3", "Tunnel Three");
             AddBidirectionalExits(oArenaTunnel2, oTunnel3, BidirectionalExitType.SoutheastNorthwest);
             tharbadGraph.Rooms[oTunnel3] = new System.Windows.Point(10, 10);
 
-            Room oOuterRingEast = AddRoom("Outer Ring");
+            Room oOuterRingEast = AddRoom("Outer Ring", "Outer Ring");
             AddBidirectionalExits(oOuterRingEast, oTunnel3, BidirectionalExitType.UpDown);
             tharbadGraph.Rooms[oOuterRingEast] = new System.Windows.Point(10, 11);
 
-            Room oOuterRingNorth = AddRoom("Outer Ring");
+            Room oOuterRingNorth = AddRoom("Outer Ring", "Outer Ring");
             AddBidirectionalExits(oOuterRingNorth, oOuterRingEast, BidirectionalExitType.SoutheastNorthwest);
             tharbadGraph.Rooms[oOuterRingNorth] = new System.Windows.Point(9, 10);
 
-            Room oOuterRingWest = AddRoom("Outer Ring");
+            Room oOuterRingWest = AddRoom("Outer Ring", "Outer Ring");
             AddBidirectionalExits(oOuterRingNorth, oOuterRingWest, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oOuterRingWest] = new System.Windows.Point(8, 11);
 
-            Room oOuterRingSouth = AddRoom("Outer Ring");
+            Room oOuterRingSouth = AddRoom("Outer Ring", "Outer Ring");
             AddBidirectionalExits(oOuterRingWest, oOuterRingSouth, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oOuterRingEast, oOuterRingSouth, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oOuterRingSouth] = new System.Windows.Point(9, 12);
 
-            Room oEastGate = AddRoom("East Gate Outside");
+            Room oEastGate = AddRoom("East Gate Outside", "Eastern Gate of Tharbad");
             AddBidirectionalSameNameExit(sabreEvard, oEastGate, "gate");
             tharbadGraph.Rooms[oEastGate] = new System.Windows.Point(11, 8);
 

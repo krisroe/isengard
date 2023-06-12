@@ -302,6 +302,10 @@
         [PluralName("sailor's lockets")]
         SailorsLocket,
 
+        [SingularName("scythe")]
+        [PluralName("scythes")]
+        Scythe,
+
         [SingularName("signet ring")]
         [PluralName("signet rings")]
         SignetRing,
