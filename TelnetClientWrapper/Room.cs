@@ -63,8 +63,14 @@ namespace IsengardClient
         public int? Experience2 { get; set; }
         public int? Experience3 { get; set; }
         public bool IsHealingRoom { get; set; }
+        /// <summary>
+        /// is a room that can trigger a trap when entering
+        /// </summary>
         public bool IsTrapRoom { get; set; }
-        public string PostMoveCommand { get; set; }
+        /// <summary>
+        /// is a room that deals damage to the player periodically
+        /// </summary>
+        public bool IsDamageRoom { get; set; }
 
         public string GetDefaultMob()
         {

@@ -852,23 +852,46 @@ namespace IsengardClient
 
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
-        private Action<RoomTransitionInfo> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo> onSatisfied)
+        private Action<RoomTransitionInfo, int> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionInfo, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
+            int lineCount = Lines.Count;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int nextLineIndex = 0;
-
-            //skip fleeing messages for scared exits
-            while (nextLineIndex < Lines.Count &&
-                (Lines[nextLineIndex].StartsWith("Scared of going ") || 
-                 Lines[nextLineIndex].StartsWith("You fell and hurt yourself for ")))
+            int iDamage = 0;
+            while (true)
             {
+                string nextLine = Lines[nextLineIndex];
+                if (string.IsNullOrEmpty(nextLine))
+                {
+                    break;
+                }
+                else if (nextLine.StartsWith("Scared of going "))
+                {
+                    //skipped
+                }
+                else
+                {
+                    int iFoundDamage = FailMovementSequence.ProcessFallDamage(nextLine);
+                    if (iFoundDamage > 0) //skip but process the damage
+                    {
+                        iDamage += iFoundDamage;
+                    }
+                    else //something else, so skip to the following logic
+                    {
+                        break;
+                    }
+                }
                 nextLineIndex++;
+                if (nextLineIndex == lineCount) //reached the end of the input
+                {
+                    return;
+                }
             }
 
             string sNextLine = Lines[nextLineIndex];
@@ -892,7 +915,7 @@ namespace IsengardClient
             //blank line before room name
             if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return;
 
-            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied))
+            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied, iDamage))
             {
                 flParams.FinishedProcessing = true;
             }
@@ -960,7 +983,7 @@ namespace IsengardClient
             return ili;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1135,11 +1158,11 @@ namespace IsengardClient
             rti.Mobs = mobs;
             rti.Items = items;
             rti.ErrorMessages = errorMessages;
-            onSatisfied(rti);
+            onSatisfied(rti, damage);
             return true;
         }
 
-        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo> onSatisfied)
+        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int> onSatisfied, int damage)
         {
             if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
             {
@@ -1159,7 +1182,7 @@ namespace IsengardClient
                 list3String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
             }
 
-            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType);
+            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage);
         }
 
         private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
@@ -1760,36 +1783,79 @@ namespace IsengardClient
 
     public class FailMovementSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters> _onSatisfied;
+        private const string YOU_FELL_AND_HURT_YOURSELF_PREFIX = "You fell and hurt yourself for ";
+        private const string YOU_FELL_AND_HURT_YOURSELF_SUFFIX = " damage.";
+        public Action<FeedLineParameters, MovementResult, int> _onSatisfied;
 
-        public FailMovementSequence(Action<FeedLineParameters> onSatisfied)
+        public FailMovementSequence(Action<FeedLineParameters, MovementResult, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
 
         public override void FeedLine(FeedLineParameters Parameters)
         {
+            int iDamage = 0;
             List<string> Lines = Parameters.Lines;
             if (Lines.Count > 0)
             {
                 string firstLine = Lines[0];
-                bool matches = false;
+                MovementResult? result = null;
                 if (firstLine == "You can't go that way.")
-                    matches = true;
+                {
+                    result = MovementResult.TotalFailure;
+                }
                 else if (firstLine == "That exit is closed for the night.")
-                    matches = true;
+                {
+                    result = MovementResult.MapFailure;
+                }
                 else if (firstLine == "You must stand up before you may move.")
-                    matches = true;
+                {
+                    result = MovementResult.StandFailure;
+                }
                 else if (firstLine.EndsWith(" blocks your exit."))
-                    matches = true;
+                {
+                    result = MovementResult.TotalFailure;
+                }
                 else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
-                    matches = true;
-                if (matches)
+                {
+                    result = MovementResult.TotalFailure;
+                }
+                else
+                {
+                    int iFoundDamage = ProcessFallDamage(firstLine);
+                    if (iFoundDamage > 0)
+                    {
+                        result = MovementResult.FallFailure;
+                        iDamage = iFoundDamage;
+                    }
+                }
+                if (result.HasValue)
                 {
                     Parameters.FinishedProcessing = true;
-                    _onSatisfied(Parameters);
+                    _onSatisfied(Parameters, result.Value, iDamage);
                 }
             }
+        }
+
+        public static int ProcessFallDamage(string nextLine)
+        {
+            int ret = 0;
+            if (nextLine.StartsWith(YOU_FELL_AND_HURT_YOURSELF_PREFIX) && nextLine.EndsWith(YOU_FELL_AND_HURT_YOURSELF_SUFFIX))
+            {
+                int iPrefixLen = YOU_FELL_AND_HURT_YOURSELF_PREFIX.Length;
+                int iSuffixLen = YOU_FELL_AND_HURT_YOURSELF_SUFFIX.Length;
+                int iTotalLen = nextLine.Length;
+                int iDamageLen = iTotalLen - iPrefixLen - iSuffixLen;
+                if (iDamageLen > 0)
+                {
+                    string sDamage = nextLine.Substring(iPrefixLen, iDamageLen);
+                    if (int.TryParse(sDamage, out int iThisDamage) && iThisDamage > 0)
+                    {
+                        ret = iThisDamage;
+                    }
+                }
+            }
+            return ret;
         }
     }
 
@@ -2223,5 +2289,14 @@ namespace IsengardClient
         Unknown,
         PowerAttack,
         Manashield,
+    }
+
+    public enum MovementResult
+    {
+        Success,
+        TotalFailure,
+        MapFailure,
+        StandFailure,
+        FallFailure,
     }
 }

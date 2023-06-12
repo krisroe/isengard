@@ -258,6 +258,10 @@
         [PluralName("parched scrolls")]
         ParchedScroll,
 
+        [SingularName("pearl handled knife")]
+        [PluralName("pearl handled knives")]
+        PearlHandledKnife,
+
         [SingularName("pipe weed")]
         //CSRTODO: plural?
         PipeWeed,

@@ -149,15 +149,18 @@ namespace IsengardClient.Tests
         public void TestRoomProcessing()
         {
             RoomTransitionInfo oRTI = null;
-            Action<RoomTransitionInfo> a = (rti) =>
+            int? iDamage = null;
+            Action<RoomTransitionInfo, int> a = (rti, d) =>
             {
                 oRTI = rti;
+                iDamage = d;
             };
 
             FeedLineParameters flp = new FeedLineParameters(null);
             flp.PlayerNames = new HashSet<string>();
             oRTI = null;
-            RoomTransitionSequence.ProcessRoom("Room", "None", "a BOGUS,elven guard", null, null, a, flp, RoomTransitionType.Initial);
+            iDamage = null;
+            RoomTransitionSequence.ProcessRoom("Room", "None", "a BOGUS,elven guard", null, null, a, flp, RoomTransitionType.Initial, 0);
             Assert.IsTrue(oRTI != null);
             Assert.IsTrue(oRTI.Mobs.Count == 2);
             Assert.IsTrue(oRTI.Mobs[0] is UnknownMobEntity);

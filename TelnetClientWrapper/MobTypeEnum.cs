@@ -382,6 +382,10 @@
         [PluralName("skeletons")]
         Skeleton,
 
+        [SingularName("small crab")]
+        [PluralName("small crabs")]
+        SmallCrab,
+
         [SingularName("small spider")]
         [PluralName("small spiders")]
         SmallSpider,
@@ -445,6 +449,10 @@
         [SingularName("water turtle")]
         [PluralName("water turtles")]
         WaterTurtle,
+
+        [SingularName("wildman")]
+        [PluralName("wildmen")]
+        Wildman,
 
         [SingularName("wolf")]
         [PluralName("wolves")]

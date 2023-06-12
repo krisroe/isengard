@@ -186,7 +186,6 @@ namespace IsengardClient
 
             Room oNorthShoreGrotto = AddRoom("North Shore Grotto");
             oNorthShoreGrotto.IsTrapRoom = true;
-            oNorthShoreGrotto.PostMoveCommand = "stand";
             AddExit(oNorthShore, oNorthShoreGrotto, "west");
             AddExit(oNorthShoreGrotto, oCrookedPath, "southwest");
             tharbadWestGraph.Rooms[oNorthShoreGrotto] = new System.Windows.Point(3, 3);
@@ -196,11 +195,11 @@ namespace IsengardClient
             AddExit(oNorthLookoutPoint, oCrookedPath, "south");
             tharbadWestGraph.Rooms[oNorthLookoutPoint] = new System.Windows.Point(0, 3);
 
-            Room oNorthShoreShallowWaters = AddRoom("North Shore Shallow Waters");
+            Room oNorthShoreShallowWaters = AddRoom("Shallow Waters");
             AddBidirectionalExits(oNorthShoreShallowWaters, oNorthShore, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oNorthShoreShallowWaters] = new System.Windows.Point(4, 2);
 
-            Room oNorthShoreWaters = AddRoom("North Shore Waters");
+            Room oNorthShoreWaters = AddRoom("Waters");
             AddExit(oNorthShoreShallowWaters, oNorthShoreWaters, "tide");
             AddBidirectionalExits(oNorthShoreWaters, oNorthShoreGrotto, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oNorthShoreWaters] = new System.Windows.Point(4, 1);
@@ -1569,6 +1568,7 @@ namespace IsengardClient
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
             oEugeneTheExecutioner.IsTrapRoom = true;
+            oEugeneTheExecutioner.IsDamageRoom = true;
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
 
@@ -2295,9 +2295,10 @@ namespace IsengardClient
             AddExit(oBarrow, oTopOfHill, "up");
             breeToImladrisGraph.Rooms[oBarrow] = new System.Windows.Point(5, 2);
 
-            Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber"); //fire room
+            Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber");
             AddExit(oBarrow, oAntechamber, "altar");
             AddExit(oAntechamber, oBarrow, "up");
+            oAntechamber.IsDamageRoom = true; //fire room
             breeToImladrisGraph.Rooms[oAntechamber] = new System.Windows.Point(5, 1.75);
 
             Room oGalbasiHalls = AddRoom("Galbasi Halls", "Galbasi Halls");

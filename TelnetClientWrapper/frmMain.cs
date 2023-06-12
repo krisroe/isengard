@@ -144,6 +144,7 @@ namespace IsengardClient
         private CommandResult? _commandResult;
         private int _commandResultCounter = 0;
         private int _lastCommandDamage;
+        private MovementResult? _lastCommandMovementResult;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
@@ -426,7 +427,7 @@ namespace IsengardClient
                 new Emote("squirm", "squirm uncomfortably", null),
 
                 new Emote("ssmile", "smile with satisfaction", null),
-                new Emote("stand", "stand up", null), //does not seem to work
+                //stand is not an emote
                 new Emote("strut", "strut around vainly", null),
                 new Emote("suck", "suck your thumb", "suck X"),
 
@@ -1050,7 +1051,7 @@ namespace IsengardClient
 
             InitialLoginInfo info = _loginInfo;
             string sRoomName = info.RoomName;
-            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial))
+            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0))
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 SetCurrentRoomIfUnambiguous(sRoomName);
@@ -1072,7 +1073,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo)
+        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage)
         {
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
@@ -1084,11 +1085,26 @@ namespace IsengardClient
             {
                 bct = flParams.BackgroundCommandType;
             }
+            bool fromAnyBackgroundCommand = false;
+            bool fromBackgroundCommand = false;
+            bool fromBackgroundFlee = false;
+            bool fromBackgroundMove = false;
+            bool fromBackgroundHazy = false;
+            fromAnyBackgroundCommand = bct.HasValue;
+            if (fromAnyBackgroundCommand)
+            {
+                BackgroundCommandType bctValue = bct.Value;
+                fromBackgroundFlee = bctValue == BackgroundCommandType.Flee;
+                fromBackgroundMove = bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement;
+                fromBackgroundHazy = bctValue == BackgroundCommandType.DrinkHazy;
+                fromBackgroundCommand = fromBackgroundMove || fromBackgroundFlee;
+            }
+            
             _currentObviousExits = obviousExits;
             if (rtType == RoomTransitionType.Flee)
             {
                 _fleeing = false;
-                if (bct.HasValue && bct.Value == BackgroundCommandType.Flee)
+                if (fromBackgroundFlee)
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                     _waitSeconds = 0;
@@ -1098,9 +1114,9 @@ namespace IsengardClient
             {
                 _hazying = false;
                 _fleeing = false;
-                if (bct.HasValue) //hazy aborts whatever background command is currently running
+                if (fromAnyBackgroundCommand) //hazy aborts whatever background command is currently running
                 {
-                    if (bct.Value == BackgroundCommandType.DrinkHazy)
+                    if (fromBackgroundHazy)
                     {
                         flParams.CommandResult = CommandResult.CommandSuccessful;
                         _waitSeconds = 0;
@@ -1116,17 +1132,15 @@ namespace IsengardClient
             {
                 //Nothing to do here
             }
-            else
+            else if (fromBackgroundMove)
             {
-                if (bct.HasValue)
-                {
-                    BackgroundCommandType bctValue = bct.Value;
-                    if (bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement)
-                    {
-                        flParams.CommandResult = CommandResult.CommandSuccessful;
-                        _waitSeconds = 0;
-                    }
-                }
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+                _waitSeconds = 0;
+            }
+            if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
+            {
+                _lastCommandDamage = damage;
+                _lastCommandMovementResult = MovementResult.Success;
             }
 
             List<string> errorMessages = roomTransitionInfo.ErrorMessages;
@@ -1234,11 +1248,16 @@ namespace IsengardClient
             }
         }
 
-        private static void FailMovement(FeedLineParameters flParams)
+        private void FailMovement(FeedLineParameters flParams, MovementResult movementResult, int damage)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Movement)
             {
+                _lastCommandDamage = damage;
+                _lastCommandMovementResult = movementResult;
+
+                //even though some of these results are fixable (e.g. trap rooms), return full failure to allow the caller
+                //to decide to heal.
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
         }
@@ -2190,6 +2209,7 @@ namespace IsengardClient
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
+                _lastCommandMovementResult = null;
                 Room wentToRoom = bwp.NavigatedToRoom;
                 if (wentToRoom != null)
                 {
@@ -2225,59 +2245,11 @@ namespace IsengardClient
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
 
-                //Heal
                 if (pms.Heal)
                 {
-                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                    int autohp, automp;
-                    while (true)
+                    if (!DoBackgroundHeal(true, true, pms))
                     {
-                        autohp = _autohp;
-                        automp = _automp;
-                        if (autohp >= _totalhp) break;
-                        if (automp < 2) break; //out of mana for vigor cast
-                        if (!CastLifeSpell("vigor", pms))
-                        {
-                            return;
-                        }
-                        if (_fleeing) break;
-                        if (_hazying) break;
-                        if (_bw.CancellationPending) break;
-                        autohp = _autohp;
-                        if (autohp >= _totalhp) break;
-                    }
-                    //stop background processing if failed to get to max hitpoints
-                    autohp = _autohp;
-                    if (autohp < _totalhp) return;
-
-                    //cast bless if has enough mana and not currently blessed
-                    bool hasBless;
-                    lock (_spellsLock)
-                    {
-                        hasBless = _spellsCast != null && _spellsCast.Contains("bless");
-                    }
-                    automp = _automp;
-                    if (automp >= 8 && !hasBless)
-                    {
-                        if (!CastLifeSpell("bless", pms))
-                        {
-                            return;
-                        }
-                    }
-
-                    //cast protection if has enough mana and not curently protected
-                    bool hasProtection;
-                    lock (_spellsLock)
-                    {
-                        hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
-                    }
-                    automp = _automp;
-                    if (automp >= 8 && !hasProtection)
-                    {
-                        if (!CastLifeSpell("protection", pms))
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
 
@@ -2293,12 +2265,15 @@ namespace IsengardClient
                 if (pms.Exits != null && pms.Exits.Count > 0)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.Movement;
-                    foreach (Exit nextExit in pms.Exits)
+                    List<Exit> exitList = new List<Exit>(pms.Exits);
+                    Room oTarget = exitList[exitList.Count - 1].Target;
+                    while (exitList.Count > 0)
                     {
+                        Exit nextExit = exitList[0];
+                        Room nextExitTarget = nextExit.Target;
                         string exitText = nextExit.ExitText;
                         _currentBackgroundExit = nextExit;
                         _currentBackgroundExitMessageReceived = false;
-
                         try
                         {
                             //for exits that aren't always present, ensure the exit exists
@@ -2379,26 +2354,64 @@ namespace IsengardClient
                             }
 
                             //run preexit logic
-                            RunPreExitLogic(nextExit.PreCommand, nextExit.Target);
+                            RunPreExitLogic(nextExit.PreCommand, nextExitTarget);
 
                             //determine the exit command
                             string nextCommand = GetExitCommand(exitText);
 
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying);
-                            if (backgroundCommandSuccess)
+                            bool keepTryingMovement = true;
+                            while (keepTryingMovement)
                             {
-                                if (nextExit.Target != null)
+                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying);
+                                if (backgroundCommandSuccess) //successfully traversed the exit to the new room
                                 {
-                                    pms.NavigatedToRoom = nextExit.Target;
-                                    if (!string.IsNullOrEmpty(nextExit.Target.PostMoveCommand))
+                                    exitList.RemoveAt(0);
+                                    keepTryingMovement = false;
+                                    if (nextExitTarget != null)
                                     {
-                                        SendCommand(nextExit.Target.PostMoveCommand, InputEchoType.On);
+                                        pms.NavigatedToRoom = nextExitTarget;
+                                    }
+                                    if (_lastCommandDamage != 0) //fell into a trap room
+                                    {
+                                        if (!nextExitTarget.IsDamageRoom)
+                                        {
+                                            if (!DoBackgroundHeal(false, false, pms)) return;
+                                            _backgroundProcessPhase = BackgroundProcessPhase.Movement;
+                                        }
+                                        SendCommand("stand", InputEchoType.On);
                                     }
                                 }
-                            }
-                            else
-                            {
-                                return;
+                                else if (_lastCommandMovementResult == MovementResult.MapFailure)
+                                {
+                                    List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget);
+                                    if (newRoute != null && newRoute.Count > 0)
+                                    {
+                                        exitList.Clear();
+                                        exitList.AddRange(newRoute);
+                                    }
+                                    else //couldn't recalculate a new route
+                                    {
+                                        return;
+                                    }
+                                    keepTryingMovement = false;
+                                }
+                                else if (_lastCommandMovementResult == MovementResult.StandFailure)
+                                {
+                                    SendCommand("stand", InputEchoType.On);
+                                    keepTryingMovement = true;
+                                }
+                                else if (_lastCommandMovementResult == MovementResult.FallFailure)
+                                {
+                                    if (!DoBackgroundHeal(false, false, pms)) return;
+                                    _backgroundProcessPhase = BackgroundProcessPhase.Movement;
+                                    SendCommand("stand", InputEchoType.On);
+                                    keepTryingMovement = true;
+                                }
+                                else //total failure, abort the background process
+                                {
+                                    keepTryingMovement = false;
+                                    return;
+                                }
                             }
                         }
                         finally
@@ -2788,7 +2801,70 @@ BeforeHazy:
                 }
             }
         }
-        
+
+        private bool DoBackgroundHeal(bool doBless, bool doProtection, BackgroundWorkerParameters pms)
+        {
+            _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+            int autohp, automp;
+            while (true)
+            {
+                autohp = _autohp;
+                automp = _automp;
+                if (autohp >= _totalhp) break;
+                if (automp < 2) break; //out of mana for vigor cast
+                if (!CastLifeSpell("vigor", pms))
+                {
+                    return false;
+                }
+                if (_fleeing) break;
+                if (_hazying) break;
+                if (_bw.CancellationPending) break;
+                autohp = _autohp;
+                if (autohp >= _totalhp) break;
+            }
+            //stop background processing if failed to get to max hitpoints
+            autohp = _autohp;
+            if (autohp < _totalhp) return false;
+
+            //cast bless if has enough mana and not currently blessed
+            if (doBless)
+            {
+                bool hasBless;
+                lock (_spellsLock)
+                {
+                    hasBless = _spellsCast != null && _spellsCast.Contains("bless");
+                }
+                automp = _automp;
+                if (automp >= 8 && !hasBless)
+                {
+                    if (!CastLifeSpell("bless", pms))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            //cast protection if has enough mana and not curently protected
+            if (doProtection)
+            {
+                bool hasProtection;
+                lock (_spellsLock)
+                {
+                    hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
+                }
+                automp = _automp;
+                if (automp >= 8 && !hasProtection)
+                {
+                    if (!CastLifeSpell("protection", pms))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
@@ -3119,6 +3195,7 @@ BeforeHazy:
             _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
+            _lastCommandMovementResult = null;
             try
             {
                 _lastCommand = command;
@@ -4580,10 +4657,10 @@ BeforeHazy:
             level = _level;
         }
 
-        private List<Exit> CalculateRouteExits(Room targetRoom)
+        private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
             GetGraphInputs(out bool flying, out bool isDay, out int level);
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(m_oCurrentRoom, targetRoom, _gameMap.MapGraph, flying, isDay, level);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, _gameMap.MapGraph, flying, isDay, level);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");
@@ -4593,7 +4670,7 @@ BeforeHazy:
 
         private void GoToRoom(Room targetRoom)
         {
-            List<Exit> exits = CalculateRouteExits(targetRoom);
+            List<Exit> exits = CalculateRouteExits(m_oCurrentRoom, targetRoom);
             if (exits != null)
             {
                 NavigateExitsInBackground(exits);
