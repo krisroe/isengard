@@ -54,6 +54,10 @@
         //CSRTODO: no plural?
         DalePurves,
 
+        [SingularName("damaged skeleton")]
+        [PluralName("damaged skeletons")]
+        DamagedSkeleton,
+
         [SingularName("dancing bear")]
         [PluralName("dancing bears")]
         DancingBear,
@@ -322,6 +326,10 @@
         [PluralName("ogres")]
         Ogre,
 
+        [SingularName("old gardener")]
+        [PluralName("old gardeners")]
+        OldGardener,
+
         [SingularName("Oliphaunt the Tattoo Artist")]
         //CSRTODO: no plural
         OliphauntTheTattooArtist,
@@ -401,6 +409,10 @@
         [SingularName("Sergeant Grimgall")]
         //CSRTODO: no plural?
         SergeantGrimgall,
+
+        [SingularName("sewer orc")]
+        [PluralName("sewer orcs")]
+        SewerOrc,
 
         [SingularName("sheep")]
         [PluralName("sheep")]

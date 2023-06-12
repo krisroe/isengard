@@ -1914,6 +1914,11 @@ namespace IsengardClient
                     haveDataToDisplay = true;
                     im = InformationalMessages.ProtectionOver;
                 }
+                else if (sLine == "You can no longer fly.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.FlyOver;
+                }
                 else if (sLine == "Your manashield dissipates.")
                 {
                     haveDataToDisplay = true;
@@ -2281,6 +2286,7 @@ namespace IsengardClient
         BullroarerInNindamos,
         BlessOver,
         ProtectionOver,
+        FlyOver,
         ManashieldOff,
     }
 

@@ -451,16 +451,16 @@ namespace IsengardClient
 
             Room fishHold = AddRoom("Fish Hold");
             e = AddExit(cargoHold, fishHold, "hatch");
-            e.PreCommand = "open hatch";
+            e.MustOpen = true;
             e = AddExit(fishHold, cargoHold, "hatch 2");
-            e.PreCommand = "open hatch 2";
+            e.MustOpen = true;
             mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
 
             Room brentDiehard = AddRoom("Brent Diehard");
             e = AddExit(fishHold, brentDiehard, "hatchway");
-            e.PreCommand = "open hatchway";
+            e.MustOpen = true;
             e = AddExit(brentDiehard, fishHold, "hatchway");
-            e.PreCommand = "open hatchway";
+            e.MustOpen = true;
             mithlondGraph.Rooms[brentDiehard] = new System.Windows.Point(4.5, 2.5);
         }
 
@@ -991,7 +991,7 @@ namespace IsengardClient
             breeStreets[0, 10] = AddRoom("Ormenel/Wain", "Wain Road North/Ormenel Street Intersection"); //1x11
             breeSewers[0, 10] = AddRoom("Sewers Ormenel/Wain", "Wain Road Sewer Main"); //1x11
             Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
-            e.PreCommand = "open sewer";
+            e.MustOpen = true;
             breeStreets[1, 10] = AddRoom("Ormenel", "Ormenel Street"); //2x11
             Room oToZoo = breeStreets[2, 10] = AddRoom("Ormenel", "Ormenel Street"); //3x11
             breeStreets[3, 10] = AddRoom("Ormenel/High", "North High Street/Ormenel Street Intersection"); //4x11
@@ -1074,7 +1074,7 @@ namespace IsengardClient
             oGrant.Mob1 = "Grant";
             oGrant.Experience1 = 170;
             Exit oToGrant = AddExit(oGrantsStables, oGrant, "gate");
-            oToGrant.PreCommand = "open gate";
+            oToGrant.MustOpen = true;
             AddExit(oGrant, oGrantsStables, "out");
 
             Room oPansy = AddRoom("Pansy Smallburrows", "Gambling Pit");
@@ -1122,9 +1122,9 @@ namespace IsengardClient
             oGodfather.Experience1 = 1200;
             e = AddExit(oGuido, oGodfather, "door");
             e.Hidden = true;
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             e = AddExit(oGodfather, oGuido, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             _breeStreetsGraph.Rooms[oGodfather] = new System.Windows.Point(4, -1);
 
             Room oSergeantGrimgall = AddRoom("Sergeant Grimgall", "Guard Headquarters");
@@ -1244,97 +1244,97 @@ namespace IsengardClient
 
             hauntedMansionGraph.Rooms[hauntedMansionEntrance] = new System.Windows.Point(2, 8);
 
-            Room oOldGardener = AddRoom("Old Gardener");
+            Room oOldGardener = AddRoom("Old Gardener", "Path to Mansion");
             Exit e = AddExit(hauntedMansionEntrance, oOldGardener, "gate");
             e.KeyType = KeyType.SilverKey;
-            e.PreCommand = "open gate";
+            e.MustOpen = true;
             AddExit(oOldGardener, hauntedMansionEntrance, "gate");
             breeStreetsGraph.Rooms[oOldGardener] = new System.Windows.Point(2, 2.5);
             hauntedMansionGraph.Rooms[oOldGardener] = new System.Windows.Point(2, 7);
 
-            Room oFoyer = AddRoom("Foyer");
+            Room oFoyer = AddRoom("Foyer", "Foyer of the Old Mansion");
             e = AddExit(oOldGardener, oFoyer, "door");
             e.KeyType = KeyType.SilverKey;
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oFoyer, oOldGardener, "out");
             hauntedMansionGraph.Rooms[oFoyer] = new System.Windows.Point(2, 6);
 
-            Room oDiningHall1 = AddRoom("Dining Hall");
+            Room oDiningHall1 = AddRoom("Dining Hall", "The Mansion Dining Hall");
             AddBidirectionalExits(oDiningHall1, oFoyer, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oDiningHall1] = new System.Windows.Point(1, 6);
 
-            Room oDiningHall2 = AddRoom("Dining Hall");
+            Room oDiningHall2 = AddRoom("Dining Hall", "North end of the Dining Hall");
             AddBidirectionalExits(oDiningHall2, oDiningHall1, BidirectionalExitType.NorthSouth);
             hauntedMansionGraph.Rooms[oDiningHall2] = new System.Windows.Point(1, 5);
 
-            Room oKitchen = AddRoom("Kitchen");
+            Room oKitchen = AddRoom("Kitchen", "Kitchen");
             AddBidirectionalExits(oDiningHall2, oKitchen, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oKitchen] = new System.Windows.Point(1.5, 5);
 
-            Room oDarkHallway = AddRoom("Dark Hallway");
+            Room oDarkHallway = AddRoom("Dark Hallway", "Dark Hallway");
             AddBidirectionalExits(oDarkHallway, oDiningHall2, BidirectionalExitType.NorthSouth);
             hauntedMansionGraph.Rooms[oDarkHallway] = new System.Windows.Point(1, 4);
 
-            Room oStudy = AddRoom("Damaged Skeleton");
+            Room oStudy = AddRoom("Damaged Skeleton", "Study");
             e = AddExit(oDarkHallway, oStudy, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oStudy, oDarkHallway, "door");
             hauntedMansionGraph.Rooms[oStudy] = new System.Windows.Point(1, 3);
 
-            Room oLivingRoom = AddRoom("Living Room");
+            Room oLivingRoom = AddRoom("Living Room", "Living Room");
             AddBidirectionalExits(oFoyer, oLivingRoom, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oLivingRoom] = new System.Windows.Point(3, 6);
 
-            Room oHallway = AddRoom("Hallway");
+            Room oHallway = AddRoom("Hallway", "Hallway");
             AddBidirectionalExits(oHallway, oLivingRoom, BidirectionalExitType.NorthSouth);
             hauntedMansionGraph.Rooms[oHallway] = new System.Windows.Point(3, 5);
 
-            Room oBedroom = AddRoom("Bedroom");
+            Room oBedroom = AddRoom("Bedroom", "Bedroom");
             e = AddExit(oHallway, oBedroom, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oBedroom, oHallway, "door");
             hauntedMansionGraph.Rooms[oBedroom] = new System.Windows.Point(3, 4);
 
-            Room oStairwellTop = AddRoom("Stairwell Top");
+            Room oStairwellTop = AddRoom("Stairwell Top", "Top of the Stairwell");
             AddBidirectionalExits(oStairwellTop, oFoyer, BidirectionalExitType.UpDown);
             hauntedMansionGraph.Rooms[oStairwellTop] = new System.Windows.Point(2, 2);
 
-            Room oHallway2 = AddRoom("Hallway");
-            AddBidirectionalExits(oStairwellTop, oHallway2, BidirectionalExitType.WestEast);
-            hauntedMansionGraph.Rooms[oHallway2] = new System.Windows.Point(3, 2);
+            Room oSoutheasternHallwayCorner = AddRoom("Hallway", "Southeastern Hallway Corner");
+            AddBidirectionalExits(oStairwellTop, oSoutheasternHallwayCorner, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oSoutheasternHallwayCorner] = new System.Windows.Point(3, 2);
 
-            Room oEasternHallway = AddRoom("Hallway");
-            AddBidirectionalExits(oEasternHallway, oHallway2, BidirectionalExitType.NorthSouth);
+            Room oEasternHallway = AddRoom("Hallway", "Eastern Hallway");
+            AddBidirectionalExits(oEasternHallway, oSoutheasternHallwayCorner, BidirectionalExitType.NorthSouth);
             hauntedMansionGraph.Rooms[oEasternHallway] = new System.Windows.Point(3, 1);
 
-            Room oChildsBedroom = AddRoom("Child's Bedroom");
+            Room oChildsBedroom = AddRoom("Child's Bedroom", "Child's Bedroom");
             e = AddExit(oEasternHallway, oChildsBedroom, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oChildsBedroom, oEasternHallway, "door");
             hauntedMansionGraph.Rooms[oChildsBedroom] = new System.Windows.Point(2, 1);
 
-            Room oGhostlyFencer = AddRoom("Ghostly Fencer");
+            Room oGhostlyFencer = AddRoom("Ghostly Fencer", "Decrepit Training Room");
             AddExit(oEasternHallway, oGhostlyFencer, "north");
             AddExit(oGhostlyFencer, oEasternHallway, "southeast");
             hauntedMansionGraph.Rooms[oGhostlyFencer] = new System.Windows.Point(2, 0);
 
-            Room oWesternHallway = AddRoom("Hallway");
+            Room oWesternHallway = AddRoom("Hallway", "Western Hallway");
             AddExit(oWesternHallway, oGhostlyFencer, "north");
             AddExit(oGhostlyFencer, oWesternHallway, "southwest");
             hauntedMansionGraph.Rooms[oWesternHallway] = new System.Windows.Point(0, 1);
 
-            Room oWesternHallway2 = AddRoom("Hallway");
-            AddBidirectionalExits(oWesternHallway, oWesternHallway2, BidirectionalExitType.NorthSouth);
-            hauntedMansionGraph.Rooms[oWesternHallway2] = new System.Windows.Point(0, 2);
+            Room oSouthwesternHallwayCorner = AddRoom("Hallway", "Southwestern Hallway Corner");
+            AddBidirectionalExits(oWesternHallway, oSouthwesternHallwayCorner, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oSouthwesternHallwayCorner] = new System.Windows.Point(0, 2);
 
-            Room oWesternHallway3 = AddRoom("Hallway");
-            AddExit(oWesternHallway2, oWesternHallway3, "east");
+            Room oWesternHallway3 = AddRoom("Hallway", "Hallway");
+            AddExit(oSouthwesternHallwayCorner, oWesternHallway3, "east");
             AddBidirectionalExits(oWesternHallway3, oStairwellTop, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oWesternHallway3] = new System.Windows.Point(1, 2);
 
-            Room oDen = AddRoom("Den");
+            Room oDen = AddRoom("Den", "Den");
             e = AddExit(oWesternHallway3, oDen, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oDen, oWesternHallway3, "door");
             hauntedMansionGraph.Rooms[oDen] = new System.Windows.Point(1, 1);
         }
@@ -1624,7 +1624,7 @@ namespace IsengardClient
             AddExit(aqueduct, oKasnarTheGuard, "north");
             e = AddExit(oKasnarTheGuard, aqueduct, "south");
             e.KeyType = KeyType.KasnarsRedKey;
-            e.PreCommand = "open south";
+            e.MustOpen = true;
 
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
@@ -1732,7 +1732,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oGrandPorch] = new System.Windows.Point(3, 11);
 
             Room oMansionInside1 = AddRoom("Mansion Inside", "Main Hallway");
-            AddBidirectionalSameNameExit(oGrandPorch, oMansionInside1, "door", "open door");
+            AddBidirectionalSameNameExit(oGrandPorch, oMansionInside1, "door", true);
             graphMillwoodMansion.Rooms[oMansionInside1] = new System.Windows.Point(4, 11);
 
             Room oMansionInside2 = AddRoom("Main Hallway", "Main Hallway");
@@ -1927,7 +1927,7 @@ namespace IsengardClient
 
             Room oMeditationChamber = AddRoom("Meditation Chamber");
             Exit e = AddExit(oNorthCorridor4, oMeditationChamber, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oMeditationChamber, oNorthCorridor4, "out");
             oMeditationChamber.IsHealingRoom = true;
             millwoodMansionUpstairsGraph.Rooms[oMeditationChamber] = new System.Windows.Point(0, 2);
@@ -1959,7 +1959,7 @@ namespace IsengardClient
 
             Room oStorageRoom = AddRoom("Storage Room");
             e = AddExit(oSouthCorridor4, oStorageRoom, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             AddExit(oStorageRoom, oSouthCorridor4, "out");
             millwoodMansionUpstairsGraph.Rooms[oStorageRoom] = new System.Windows.Point(0, 10);
 
@@ -1974,7 +1974,7 @@ namespace IsengardClient
             oMayorMillwood.Experience1 = 220;
             oMayorMillwood.Alignment = AlignmentType.Grey;
             e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
-            e.PreCommand = "open chamber";
+            e.MustOpen = true;
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
             millwoodMansionUpstairsGraph.Rooms[oMayorMillwood] = new System.Windows.Point(4, 8);
 
@@ -1983,7 +1983,7 @@ namespace IsengardClient
             oChancellorOfProtection.Experience1 = 200;
             oChancellorOfProtection.Alignment = AlignmentType.Blue;
             e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
-            e.PreCommand = "open chamber";
+            e.MustOpen = true;
             AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
             millwoodMansionUpstairsGraph.Rooms[oChancellorOfProtection] = new System.Windows.Point(4, 4);
 
@@ -2197,7 +2197,7 @@ namespace IsengardClient
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor");
             oFarmParlorManagerMulloyThreshold.Mob1 = "manager";
-            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", "open door");
+            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", true);
             breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new System.Windows.Point(2, 6);
             Room oManagerMulloy = AddRoom("Manager Mulloy");
             oManagerMulloy.Mob1 = "manager";
@@ -2359,7 +2359,9 @@ namespace IsengardClient
 
             Room oBlackEyeOrcDwelling = AddRoom("Sewer Orcs", "Black Eye Orc Dwelling");
             e = AddExit(oUnderhallsIronDoor, oBlackEyeOrcDwelling, "iron");
+            e.MustOpen = true;
             e.KeyType = KeyType.UnknownKnockable;
+            e.IsTrapExit = true;
             AddExit(oBlackEyeOrcDwelling, oUnderhallsIronDoor, "out");
             breeToImladrisGraph.Rooms[oBlackEyeOrcDwelling] = new System.Windows.Point(9, -0.5);
 
@@ -2699,7 +2701,7 @@ namespace IsengardClient
             oBilboBaggins.Mob1 = "Bilbo";
             oBilboBaggins.Experience1 = 260;
             oBilboBaggins.Alignment = AlignmentType.Blue;
-            AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", "open oakdoor");
+            AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", true);
 
             Room oFrodoBaggins = AddRoom("Frodo Baggins", "Frodo's Living Quarters");
             oFrodoBaggins.Mob1 = "Frodo";
@@ -3120,9 +3122,9 @@ namespace IsengardClient
             oGraddyOgre.Mob1 = "Ogre";
             oGraddyOgre.Experience1 = 150;
             Exit e = AddExit(oGraddy, oGraddyOgre, "gate");
-            e.PreCommand = "open gate";
+            e.MustOpen = true;
             e = AddExit(oGraddyOgre, oGraddy, "gate");
-            e.PreCommand = "open gate";
+            e.MustOpen = true;
             oShantyTownGraph.Rooms[oGraddyOgre] = new System.Windows.Point(5, 4);
 
             AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
@@ -3141,16 +3143,16 @@ namespace IsengardClient
 
             Room oLimbo = AddRoom("Limbo");
             Exit e = AddExit(oLimbo, treeOfLife, "green");
-            e.PreCommand = "open green";
+            e.MustOpen = true;
 
             Room oDarkTunnel = AddRoom("Dark Tunnel");
             e = AddExit(oLimbo, oDarkTunnel, "blue");
-            e.PreCommand = "open blue";
+            e.MustOpen = true;
             AddExit(oDarkTunnel, _healingHand, "light");
 
             Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds above Nindamos");
             e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
-            e.PreCommand = "open white";
+            e.MustOpen = true;
             AddExit(oFluffyCloudsAboveNindamos, _nindamosVillageCenter, "green");
 
             AddLocation(oIntangible, treeOfLife);
@@ -3188,7 +3190,7 @@ namespace IsengardClient
 
             Room oMarketplace = AddRoom("Marketplace");
             Exit e = AddExit(oSandyPath3, oMarketplace, "door");
-            e.PreCommand = "open door";
+            e.MustOpen = true;
             e.RequiresDay = true;
             AddExit(oMarketplace, oSandyPath3, "door");
             nindamosGraph.Rooms[oMarketplace] = new System.Windows.Point(9.5, 2.6);
@@ -4542,16 +4544,16 @@ namespace IsengardClient
 
         private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText)
         {
-            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, null);
+            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, false);
         }
 
-        private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, string preCommand)
+        private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, bool mustOpen)
         {
             Exit e = new Exit(aRoom, bRoom, exitText);
-            e.PreCommand = preCommand;
+            e.MustOpen = mustOpen;
             _map.AddEdge(e);
             e = new Exit(bRoom, aRoom, exitText);
-            e.PreCommand = preCommand;
+            e.MustOpen = mustOpen;
             _map.AddEdge(e);
         }
 

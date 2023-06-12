@@ -1480,6 +1480,10 @@ namespace IsengardClient
                             if (spellsOff == null) spellsOff = new List<string>();
                             spellsOff.Add("protection");
                             break;
+                        case InformationalMessages.FlyOver:
+                            if (spellsOff == null) spellsOff = new List<string>();
+                            spellsOff.Add("fly");
+                            break;
                         case InformationalMessages.ManashieldOff:
                             ChangeSkillActive(SkillWithCooldownType.Manashield, false);
                             break;
@@ -3057,10 +3061,9 @@ BeforeHazy:
 
         private void RunPreExitLogic(Exit exit)
         {
-            string preCommand = exit.PreCommand;
-            if (!string.IsNullOrEmpty(preCommand))
+            if (exit.MustOpen)
             {
-                SendCommand(preCommand, InputEchoType.On);
+                SendCommand("open " + exit.ExitText, InputEchoType.On);
             }
         }
 

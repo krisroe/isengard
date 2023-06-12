@@ -13,9 +13,9 @@ namespace IsengardClient
         /// </summary>
         public string ExitText { get; set; }
         /// <summary>
-        /// command to run before using the exit
+        /// whether the exit must be opened before it can be used
         /// </summary>
-        public string PreCommand { get; set; }
+        public bool MustOpen { get; set; }
         /// <summary>
         /// whether the exit is hidden
         /// </summary>
