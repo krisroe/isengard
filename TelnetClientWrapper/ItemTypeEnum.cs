@@ -112,7 +112,7 @@
         DarkGreenPotion,
 
         [SingularName("dildo")]
-        //CSRTODO: dildo or dildoes?
+        [PluralName("dildos")]
         Dildo,
 
         [SingularName("elven bow")]
@@ -190,6 +190,10 @@
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         IronRing,
+
+        [SingularName("large metal shield")]
+        [PluralName("large metal shields")]
+        LargeMetalShield,
 
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]

@@ -81,6 +81,9 @@ namespace IsengardClient
             _defaultAutoEscapeActiveOriginal = _defaultAutoEscapeActive;
             _defaultAutoEscapeThresholdOriginal = _defaultAutoEscapeThreshold;
             _defaultAutoEscapeTypeOriginal = _defaultAutoEscapeType;
+            _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal = CurrentAutoEscapeActive;
+            _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal = CurrentAutoEscapeThreshold;
+            _currentAutoEscapeType = _currentAutoEscapeTypeOriginal = CurrentAutoEscapeType;
             RefreshAutoEscapeUI();
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;

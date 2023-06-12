@@ -114,6 +114,10 @@
         [PluralName("ghosts")]
         Ghost,
 
+        [SingularName("giant crayfish")]
+        [PluralName("giant crayfish")]
+        GiantCrayfish,
+
         [SingularName("goat")]
         [PluralName("goats")]
         Goat,
@@ -189,6 +193,10 @@
         [SingularName("halfling ghost")]
         [PluralName("halfling ghosts")]
         HalflingGhost,
+
+        [SingularName("hermit fisher")]
+        [PluralName("hermit fishers")]
+        HermitFisher,
 
         [SingularName("hippie")]
         [PluralName("hippies")]
@@ -334,6 +342,10 @@
         //CSRTODO: no plural
         OliphauntTheTattooArtist,
 
+        [SingularName("Oohlgrist")]
+        //CSRTODO: no plural
+        Oohlgrist,
+
         [SingularName("orc")]
         [PluralName("orcs")]
         Orc,
@@ -410,9 +422,17 @@
         //CSRTODO: no plural?
         SergeantGrimgall,
 
+        [SingularName("sewer demon")]
+        [PluralName("sewer demons")]
+        SewerDemon,
+
         [SingularName("sewer orc")]
         [PluralName("sewer orcs")]
         SewerOrc,
+
+        [SingularName("sewer orc guard")]
+        [PluralName("sewer orc guards")]
+        SewerOrcGuard,
 
         [SingularName("sheep")]
         [PluralName("sheep")]
@@ -469,6 +489,10 @@
         [SingularName("Tyrie")]
         //CSRTODO: no plural
         Tyrie,
+
+        [SingularName("ugly boy")]
+        [PluralName("ugly boys")]
+        UglyBoy,
 
         [SingularName("ugly kid")]
         [PluralName("ugly kids")]

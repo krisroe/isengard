@@ -1808,6 +1808,10 @@ namespace IsengardClient
                 {
                     result = MovementResult.MapFailure;
                 }
+                else if (firstLine == "You must fly to get there.")
+                {
+                    result = MovementResult.MapFailure;
+                }
                 else if (firstLine == "You must stand up before you may move.")
                 {
                     result = MovementResult.StandFailure;
@@ -1996,6 +2000,7 @@ namespace IsengardClient
                     isBroadcast = true;
                 }
                 else if (sLine == "The searing heat burns your flesh." ||
+                         sLine == "Water fills your lungs." ||
                          sLine.EndsWith(" just arrived.") ||
                          sLine.EndsWith(" just wandered away."))
                 {
