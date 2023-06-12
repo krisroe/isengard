@@ -1225,6 +1225,11 @@ namespace IsengardClient
             }
         }
 
+        private void OnFly(FeedLineParameters flParams)
+        {
+            AddActiveSpell("fly");
+        }
+
         private void OnBlessSpellCast(FeedLineParameters flParams)
         {
             AddActiveSpell("bless");
@@ -1761,6 +1766,7 @@ namespace IsengardClient
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
+                new ConstantOutputSequence("You can fly!", OnFly, ConstantSequenceMatchType.ExactMatch, 0, (BackgroundCommandType?)null),
 
                 //the search find failed output has a blank line before the message so use the second line.
                 new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search)

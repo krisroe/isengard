@@ -76,6 +76,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
@@ -161,7 +162,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.ctxMob.SuspendLayout();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
@@ -290,10 +290,10 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(27, 559);
+            this.btnLookAtMob.Location = new System.Drawing.Point(579, 604);
             this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(2);
             this.btnLookAtMob.Name = "btnLookAtMob";
-            this.btnLookAtMob.Size = new System.Drawing.Size(100, 28);
+            this.btnLookAtMob.Size = new System.Drawing.Size(79, 28);
             this.btnLookAtMob.TabIndex = 8;
             this.btnLookAtMob.Text = "Look at Mob";
             this.btnLookAtMob.UseVisualStyleBackColor = true;
@@ -733,6 +733,15 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // grpCurrentRoom
+            // 
+            this.grpCurrentRoom.Location = new System.Drawing.Point(656, 10);
+            this.grpCurrentRoom.Name = "grpCurrentRoom";
+            this.grpCurrentRoom.Size = new System.Drawing.Size(281, 454);
+            this.grpCurrentRoom.TabIndex = 141;
+            this.grpCurrentRoom.TabStop = false;
+            this.grpCurrentRoom.Text = "Current Room";
+            // 
             // btnLocations
             // 
             this.btnLocations.Location = new System.Drawing.Point(535, 46);
@@ -767,7 +776,7 @@
             // 
             // btnHeal
             // 
-            this.btnHeal.Location = new System.Drawing.Point(29, 625);
+            this.btnHeal.Location = new System.Drawing.Point(27, 593);
             this.btnHeal.Name = "btnHeal";
             this.btnHeal.Size = new System.Drawing.Size(100, 28);
             this.btnHeal.TabIndex = 136;
@@ -777,7 +786,7 @@
             // 
             // btnSkills
             // 
-            this.btnSkills.Location = new System.Drawing.Point(29, 592);
+            this.btnSkills.Location = new System.Drawing.Point(27, 560);
             this.btnSkills.Name = "btnSkills";
             this.btnSkills.Size = new System.Drawing.Size(100, 28);
             this.btnSkills.TabIndex = 135;
@@ -1631,15 +1640,6 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(721, 50);
             this.pnlCommand.TabIndex = 30;
-            // 
-            // grpCurrentRoom
-            // 
-            this.grpCurrentRoom.Location = new System.Drawing.Point(656, 10);
-            this.grpCurrentRoom.Name = "grpCurrentRoom";
-            this.grpCurrentRoom.Size = new System.Drawing.Size(281, 454);
-            this.grpCurrentRoom.TabIndex = 141;
-            this.grpCurrentRoom.TabStop = false;
-            this.grpCurrentRoom.Text = "Current Room";
             // 
             // frmMain
             // 
