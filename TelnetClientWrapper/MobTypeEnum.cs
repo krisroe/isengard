@@ -74,6 +74,10 @@
         [PluralName("drunks")]
         Drunk,
 
+        [SingularName("dwarf")]
+        //CSRTODO: plural?
+        Dwarf,
+
         [SingularName("eccentric artist")]
         [PluralName("eccentric artists")]
         EccentricArtist,
@@ -245,6 +249,10 @@
         [SingularName("large goblin")]
         [PluralName("large goblins")]
         LargeGoblin,
+
+        [SingularName("Lars Magnus Grunwald")]
+        //CSRTODO no plural
+        LarsMagnusGrunwald,
 
         [SingularName("little mouse")]
         [PluralName("little mice")]

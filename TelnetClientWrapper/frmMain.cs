@@ -2222,6 +2222,7 @@ namespace IsengardClient
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
+                RefreshEnabledForSingleMoveButtons();
             }
         }
 
@@ -2353,10 +2354,7 @@ namespace IsengardClient
                                 }
                             }
 
-                            //run preexit logic
-                            RunPreExitLogic(nextExit.PreCommand, nextExitTarget);
-
-                            //determine the exit command
+                            RunPreExitLogic(nextExit);
                             string nextCommand = GetExitCommand(exitText);
 
                             bool keepTryingMovement = true;
@@ -2697,7 +2695,7 @@ namespace IsengardClient
                                 if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
                                 {
                                     singleFleeableExit = fleeableExits[0];
-                                    RunPreExitLogic(singleFleeableExit.PreCommand, singleFleeableExit.Target);
+                                    RunPreExitLogic(singleFleeableExit);
                                 }
                             }
 
@@ -3038,13 +3036,14 @@ BeforeHazy:
             return ret;
         }
 
-        private void RunPreExitLogic(string preCommand, Room targetRoom)
+        private void RunPreExitLogic(Exit exit)
         {
+            string preCommand = exit.PreCommand;
             if (!string.IsNullOrEmpty(preCommand))
             {
                 SendCommand(preCommand, InputEchoType.On);
             }
-            if (targetRoom != null && targetRoom.IsTrapRoom)
+            if (exit.IsTrapExit)
             {
                 SendCommand("prepare", InputEchoType.On);
             }
@@ -4535,8 +4534,8 @@ BeforeHazy:
                 List<Exit> exits;
                 if (clickedItem.Text == "Graph")
                 {
-                    GetGraphInputs(out bool flying, out bool isDay, out int level);
-                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, isDay, level);
+                    GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, levitating, isDay, level);
                     bool? result = graphForm.ShowDialog();
                     exits = graphForm.SelectedPath;
                     if (exits == null) return;
@@ -4647,11 +4646,20 @@ BeforeHazy:
             }
         }
 
-        private void GetGraphInputs(out bool flying, out bool isDay, out int level)
+        private void GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level)
         {
             lock (_spellsLock)
             {
-                flying = _spellsCast != null && _spellsCast.Contains("fly");
+                if (_spellsCast == null)
+                {
+                    flying = false;
+                    levitating = false;
+                }
+                else
+                {
+                    flying = _spellsCast.Contains("fly");
+                    levitating = _spellsCast.Contains("levitation");
+                }
             }
             isDay = TimeOutputSequence.IsDay(_time);
             level = _level;
@@ -4659,8 +4667,8 @@ BeforeHazy:
 
         private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
-            GetGraphInputs(out bool flying, out bool isDay, out int level);
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, _gameMap.MapGraph, flying, isDay, level);
+            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, _gameMap.MapGraph, flying, levitating, isDay, level);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");
@@ -4686,8 +4694,8 @@ BeforeHazy:
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            GetGraphInputs(out bool flying, out bool isDay, out int level);
-            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, isDay, level);
+            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, levitating, isDay, level);
 
             frm.ShowDialog(); //do not check that form accepted because current room could be set
 
@@ -4704,8 +4712,8 @@ BeforeHazy:
 
         private void btnLocations_Click(object sender, EventArgs e)
         {
-            GetGraphInputs(out bool flying, out bool isDay, out int level);
-            frmLocations frm = new frmLocations(_gameMap, m_oCurrentRoom, flying, isDay, level);
+            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+            frmLocations frm = new frmLocations(_gameMap, m_oCurrentRoom, flying, levitating, isDay, level);
 
             frm.ShowDialog(); //do not check that form accepted because current room could be set
 

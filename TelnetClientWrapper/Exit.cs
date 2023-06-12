@@ -37,9 +37,9 @@ namespace IsengardClient
         /// </summary>
         public KeyType KeyType { get; set; }
         /// <summary>
-        /// whether the exit requires fly
+        /// whether the exit requires floating (fly/levitation)
         /// </summary>
-        public bool RequiresFly { get; set; }
+        public FloatRequirement FloatRequirement { get; set; }
         /// <summary>
         /// whether the exit requires day
         /// </summary>
@@ -52,10 +52,25 @@ namespace IsengardClient
         /// whether the exit is currently deleted for graphing purposes
         /// </summary>
         public bool ShowAsRedOnGraph { get; set; }
+        /// <summary>
+        /// whether the exit is a trap exit
+        /// </summary>
+        public bool IsTrapExit { get; set; }
 
-        public bool ExitIsUsable(bool flying, bool isDay, int level)
+        public bool ExitIsUsable(bool flying, bool levitating, bool isDay, int level)
         {
-            return (!RequiresFly || flying) && (!RequiresDay || isDay) && (!MaximumLevel.HasValue || level <= MaximumLevel.Value);
+            bool ret;
+            if (RequiresDay && !isDay)
+                ret = false;
+            else if (MaximumLevel.HasValue && level > MaximumLevel.Value)
+                ret = false;
+            else if (FloatRequirement == FloatRequirement.Fly && !flying)
+                ret = false;
+            else if (FloatRequirement == FloatRequirement.FlyOrLevitation && !flying && !levitating)
+                ret = false;
+            else
+                ret = true;
+            return ret;
         }
 
         /// <summary>
@@ -107,6 +122,13 @@ namespace IsengardClient
         {
             Exit = e;
         }
+    }
+
+    internal enum FloatRequirement
+    {
+        None = 0,
+        Fly = 1,
+        FlyOrLevitation = 2,
     }
 
     internal enum ExitPresenceType

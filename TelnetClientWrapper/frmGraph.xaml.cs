@@ -17,14 +17,16 @@ namespace IsengardClient
         private Dictionary<MapType, RoomGraph> _graphs;
         private bool _forVertexSelection;
         private bool _flying;
+        private bool _levitating;
         private bool _isDay;
         private int _level;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, bool flying, bool isDay, int level)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, bool flying, bool levitating, bool isDay, int level)
         {
             InitializeComponent();
 
             _flying = flying;
+            _levitating = levitating;
             _isDay = isDay;
             _level = level;
             _graphs = fullMap.Graphs;
@@ -92,7 +94,7 @@ namespace IsengardClient
                                 rbg.AddVertex(targetRoom);
                                 addedRooms.Add(targetRoom);
                             }
-                            nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _isDay, _level);
+                            nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _levitating, _isDay, _level);
                             rbg.AddEdge(nextExit);
                         }
                     }
@@ -184,7 +186,7 @@ namespace IsengardClient
         private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
             Room selectedRoom = (Room)_currentVertexControl.Vertex;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _isDay, _level);
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _levitating, _isDay, _level);
             if (SelectedPath == null)
             {
                 System.Windows.MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);

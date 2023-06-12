@@ -185,8 +185,8 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oCrookedPath] = new System.Windows.Point(1, 4);
 
             Room oNorthShoreGrotto = AddRoom("North Shore Grotto", "North Shore Grotto");
-            oNorthShoreGrotto.IsTrapRoom = true;
-            AddExit(oNorthShore, oNorthShoreGrotto, "west");
+            Exit e = AddExit(oNorthShore, oNorthShoreGrotto, "west");
+            e.IsTrapExit = true;
             AddExit(oNorthShoreGrotto, oCrookedPath, "southwest");
             tharbadWestGraph.Rooms[oNorthShoreGrotto] = new System.Windows.Point(3, 3);
 
@@ -215,7 +215,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oNorthLookoutTower] = new System.Windows.Point(0, 2);
 
             Room oNorthLookoutTowerCellar = AddRoom("North Lookout Tower Cellar", "North Lookout Tower Cellar");
-            Exit e = AddExit(oNorthLookoutTower, oNorthLookoutTowerCellar, "cellar");
+            e = AddExit(oNorthLookoutTower, oNorthLookoutTowerCellar, "cellar");
             e.Hidden = true;
             AddExit(oNorthLookoutTowerCellar, oNorthLookoutTower, "door");
             tharbadWestGraph.Rooms[oNorthLookoutTowerCellar] = new System.Windows.Point(0, 1.5);
@@ -1567,16 +1567,17 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oShadowOfIncendius] = new System.Windows.Point(2, 2);
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
-            oEugeneTheExecutioner.IsTrapRoom = true;
             oEugeneTheExecutioner.IsDamageRoom = true;
-            AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
+            e = AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
+            e.IsTrapExit = true;
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
 
             Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel", "Cellar");
             oBurnedRemainsOfNimrodel.Mob1 = "Nimrodel";
             oBurnedRemainsOfNimrodel.Experience1 = 300;
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
-            AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
+            e = AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
+            e.IsTrapExit = true;
             breeSewersGraph.Rooms[oBurnedRemainsOfNimrodel] = new System.Windows.Point(2, 1);
 
             Room aqueduct = AddRoom("Aqueduct", "Aqueduct");
@@ -2532,65 +2533,91 @@ namespace IsengardClient
 
         private void AddEastOfImladris(Room oEastGateOfImladrisOutside)
         {
-            Room oMountainPath1 = AddRoom("Mountain Path");
-            AddBidirectionalExits(oEastGateOfImladrisOutside, oMountainPath1, BidirectionalExitType.WestEast);
+            RoomGraph eastOfImladrisGraph = new RoomGraph("East of Imladris");
+            eastOfImladrisGraph.ScalingFactor = 100;
+            _graphs[MapType.EastOfImladris] = eastOfImladrisGraph;
 
-            Room oMountainPath2 = AddRoom("Mountain Path");
+            eastOfImladrisGraph.Rooms[oEastGateOfImladrisOutside] = new System.Windows.Point(0, 6);
+
+            Room oMountainPath1 = AddRoom("Mountain Path", "Mountain Path");
+            AddBidirectionalExits(oEastGateOfImladrisOutside, oMountainPath1, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oMountainPath1] = new System.Windows.Point(1, 6);
+
+            Room oMountainPath2 = AddRoom("Mountain Path", "Mountain Path");
             AddBidirectionalExits(oMountainPath2, oMountainPath1, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oMountainPath2] = new System.Windows.Point(2, 5);
             //CSRTODO: southeast
 
-            Room oMountainTrail1 = AddRoom("Mountain Trail");
+            Room oMountainTrail1 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail1, oMountainPath2, BidirectionalExitType.NorthSouth);
+            eastOfImladrisGraph.Rooms[oMountainTrail1] = new System.Windows.Point(2, 4);
 
-            Room oIorlasThreshold = AddRoom("Mountain Trail"); //goes to shack
+            Room oIorlasThreshold = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oIorlasThreshold, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oIorlasThreshold] = new System.Windows.Point(3, 3);
             //CSRTODO: east
 
-            Room oMountainTrail3 = AddRoom("Mountain Trail");
+            Room oMountainTrail3 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail3, oIorlasThreshold, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oMountainTrail3] = new System.Windows.Point(4, 2);
 
-            Room oMountainPass1 = AddRoom("Mountain Pass");
+            Room oMountainPass1 = AddRoom("Mountain Pass", "Mountain Pass");
             AddBidirectionalExits(oMountainPass1, oMountainTrail3, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oMountainPass1] = new System.Windows.Point(5, 1);
 
-            Room oMountainPass2 = AddRoom("Mountain Pass");
+            Room oMountainPass2 = AddRoom("Mountain Pass", "Mountain Pass");
             AddBidirectionalExits(oMountainPass2, oMountainPass1, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oMountainPass2] = new System.Windows.Point(6, 0);
 
-            Room oMountainPass3 = AddRoom("Mountain Pass");
+            Room oMountainPass3 = AddRoom("Mountain Pass", "Mountain Pass");
             AddBidirectionalExits(oMountainPass1, oMountainPass3, BidirectionalExitType.SoutheastNorthwest);
+            eastOfImladrisGraph.Rooms[oMountainPass3] = new System.Windows.Point(6, 2);
 
-            Room oMountainPass4 = AddRoom("Mountain Pass");
+            Room oMountainPass4 = AddRoom("Mountain Pass", "Mountain Pass");
             AddBidirectionalExits(oMountainPass2, oMountainPass4, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oMountainPass4, oMountainPass3, BidirectionalExitType.SouthwestNortheast);
+            eastOfImladrisGraph.Rooms[oMountainPass4] = new System.Windows.Point(7, 1);
             //CSRTODO: down to ituk glacer (hidden)
 
-            Room oLoftyTrail1 = AddRoom("Lofty Trail");
+            Room oLoftyTrail1 = AddRoom("Lofty Trail", "A Lofty Trail");
             AddBidirectionalExits(oLoftyTrail1, oMountainPass2, BidirectionalExitType.NorthSouth);
+            eastOfImladrisGraph.Rooms[oLoftyTrail1] = new System.Windows.Point(6, -1);
 
-            Room oLoftyTrail2 = AddRoom("Lofty Trail");
+            Room oLoftyTrail2 = AddRoom("Lofty Trail", "A Lofty Trail");
             AddBidirectionalExits(oLoftyTrail2, oLoftyTrail1, BidirectionalExitType.NorthSouth);
+            eastOfImladrisGraph.Rooms[oLoftyTrail2] = new System.Windows.Point(6, -2);
 
-            Room oLoftyTrail3 = AddRoom("Lofty Trail");
-            AddBidirectionalExits(oLoftyTrail3, oLoftyTrail2, BidirectionalExitType.UpDown);
+            Room oLoftyTrail3 = AddRoom("Lofty Trail", "Lofty Trail");
+            AddExit(oLoftyTrail2, oLoftyTrail3, "up");
+            Exit e = AddExit(oLoftyTrail3, oLoftyTrail2, "down");
+            e.IsTrapExit = true;
+            eastOfImladrisGraph.Rooms[oLoftyTrail3] = new System.Windows.Point(6, -3);
             //CSRTODO: up (to trap room)
 
-            Room oMountainTrail4 = AddRoom("Mountain Trail");
+            Room oMountainTrail4 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail4, oMountainTrail3, BidirectionalExitType.SoutheastNorthwest);
+            eastOfImladrisGraph.Rooms[oMountainTrail4] = new System.Windows.Point(3, 1);
             //CSRTODO: cave
 
-            Room oMountainTrail5 = AddRoom("Mountain Trail");
+            Room oMountainTrail5 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail5, oMountainTrail4, BidirectionalExitType.NorthSouth);
+            eastOfImladrisGraph.Rooms[oMountainTrail5] = new System.Windows.Point(3, 0);
 
-            Room oMountainTrail6 = AddRoom("Mountain Trail");
+            Room oMountainTrail6 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail6, oMountainTrail5, BidirectionalExitType.NorthSouth);
+            eastOfImladrisGraph.Rooms[oMountainTrail6] = new System.Windows.Point(3, -1);
 
-            Room oLarsMagnusGrunwald = AddRoom("Lars Magnus Grunwald");
+            Room oLarsMagnusGrunwald = AddRoom("Lars Magnus Grunwald", "The Greywold Goldmine");
             AddBidirectionalSameNameExit(oMountainTrail6, oLarsMagnusGrunwald, "gate");
+            eastOfImladrisGraph.Rooms[oLarsMagnusGrunwald] = new System.Windows.Point(3, -2);
 
-            Room oIorlas = AddRoom("Iorlas");
+            Room oIorlas = AddRoom("Iorlas", "Hermit's Shack");
             oIorlas.Mob1 = "Iorlas";
             oIorlas.Experience1 = 200;
             oIorlas.Alignment = AlignmentType.Grey;
             AddExit(oIorlasThreshold, oIorlas, "shack");
             AddExit(oIorlas, oIorlasThreshold, "door");
+            eastOfImladrisGraph.Rooms[oIorlas] = new System.Windows.Point(2, 3);
 
             AddLocation(_aImladrisTharbadPerms, oIorlas);
         }
@@ -2839,7 +2866,7 @@ namespace IsengardClient
         {
             Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds");
             Exit e = AddExit(spindrilsCastleOutside, spindrilsCastleInside, "up");
-            e.RequiresFly = true;
+            e.FloatRequirement = FloatRequirement.Fly;
             AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
 
             Room oCloudEdge = AddRoom("Cloud Edge");
@@ -4620,6 +4647,7 @@ namespace IsengardClient
         BreeToImladris,
         Imladris,
         ImladrisToTharbad,
+        EastOfImladris,
         ShantyTown,
         Tharbad,
         WestOfTharbad,
@@ -4631,7 +4659,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool isDay, int level)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool levitating, bool isDay, int level)
         {
             List<Exit> ret = null;
             Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
@@ -4642,7 +4670,7 @@ namespace IsengardClient
             {
                 foreach (Exit e in initialEdges)
                 {
-                    if (e.ExitIsUsable(flying, isDay, level))
+                    if (e.ExitIsUsable(flying, levitating, isDay, level))
                     {
                         pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
                     }
@@ -4677,7 +4705,7 @@ namespace IsengardClient
                         {
                             foreach (Exit e in edges)
                             {
-                                if (!pathMapping.ContainsKey(e.Target) && e.ExitIsUsable(flying, isDay, level))
+                                if (!pathMapping.ContainsKey(e.Target) && e.ExitIsUsable(flying, levitating, isDay, level))
                                 {
                                     pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
                                 }
