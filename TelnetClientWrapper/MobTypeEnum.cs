@@ -246,6 +246,10 @@
         [PluralName("laborers")]
         Laborer,
 
+        [SingularName("lag")]
+        //CSRTODO: plural?
+        Lag,
+
         [SingularName("large goblin")]
         [PluralName("large goblins")]
         LargeGoblin,
@@ -325,6 +329,10 @@
         [SingularName("orc")]
         [PluralName("orcs")]
         Orc,
+
+        [SingularName("orc guard")]
+        [PluralName("orc guards")]
+        OrcGuard,
 
         [SingularName("orc miner")]
         [PluralName("orc miners")]

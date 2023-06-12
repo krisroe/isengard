@@ -71,6 +71,9 @@
         [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
         CatONineTails,
 
+        [SingularName("chain mail gloves")]
+        ChainMailGloves,
+
         [SingularName("cloth armor")]
         ClothArmor,
 
@@ -371,6 +374,10 @@
         [SingularName("T-bone")]
         [PluralName("T-bones")]
         TBone,
+
+        [SingularName("throwing axe")]
+        [PluralName("throwing axes")]
+        ThrowingAxe,
 
         [SingularName("tiger shark leather armor")]
         TigerSharkLeatherArmor,

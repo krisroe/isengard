@@ -2293,7 +2293,9 @@ namespace IsengardClient
             Room oBarrow = AddRoom("Barrow", "Barrow");
             e = AddExit(oTopOfHill, oBarrow, "niche");
             e.Hidden = true;
-            AddExit(oBarrow, oTopOfHill, "up");
+            //This always fails, perhaps because I am using a low dexterity character???
+            //e = AddExit(oBarrow, oTopOfHill, "up");
+            //e.IsTrapExit = true;
             breeToImladrisGraph.Rooms[oBarrow] = new System.Windows.Point(5, 2);
 
             Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber");
@@ -2330,6 +2332,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oToCave] = new System.Windows.Point(6, 1);
 
             Room oGlowingCave = AddRoom("Glowing Cave", "Glowing Cave");
+            oGlowingCave.IsHealingRoom = true;
             AddExit(oToCave, oGlowingCave, "cave");
             AddExit(oGlowingCave, oToCave, "out");
             breeToImladrisGraph.Rooms[oGlowingCave] = new System.Windows.Point(6, 2);
