@@ -29,7 +29,6 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_MISC = "Misc";
         private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
-        private const string AREA_INTANGIBLE = "Intangible";
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
         public IsengardMap(AlignmentType preferredAlignment)
@@ -43,7 +42,6 @@ namespace IsengardClient
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
             _aMisc = AddArea(AREA_MISC);
             _aNindamosArmenelos = AddArea(AREA_NINDAMOS_ARMENELOS);
-            AddArea(AREA_INTANGIBLE);
             _aInaccessible = AddArea(AREA_INACCESSIBLE);
 
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
@@ -3130,27 +3128,34 @@ namespace IsengardClient
 
         private void AddIntangible(Room oBreeTownSquare, Room healingHand, Room nindamosVillageCenter)
         {
-            Area oIntangible = _areasByName[AREA_INTANGIBLE];
+            RoomGraph intangibleGraph = new RoomGraph("Intangible");
+            intangibleGraph.ScalingFactor = 100;
+            _graphs[MapType.Intangible] = intangibleGraph;
+
+            intangibleGraph.Rooms[oBreeTownSquare] = new System.Windows.Point(0, 0);
+            intangibleGraph.Rooms[healingHand] = new System.Windows.Point(1, 0);
+            intangibleGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(2, 0);
 
             Room treeOfLife = AddRoom("Tree of Life", "The Tree of Life");
             AddExit(treeOfLife, oBreeTownSquare, "down");
+            intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
 
             Room oLimbo = AddRoom("Limbo");
             Exit e = AddExit(oLimbo, treeOfLife, "green");
             e.MustOpen = true;
+            intangibleGraph.Rooms[oLimbo] = new System.Windows.Point(1, 2);
 
             Room oDarkTunnel = AddRoom("Dark Tunnel");
             e = AddExit(oLimbo, oDarkTunnel, "blue");
             e.MustOpen = true;
             AddExit(oDarkTunnel, healingHand, "light");
+            intangibleGraph.Rooms[oDarkTunnel] = new System.Windows.Point(1, 1);
 
-            Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds above Nindamos");
+            Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds");
             e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
             e.MustOpen = true;
             AddExit(oFluffyCloudsAboveNindamos, nindamosVillageCenter, "green");
-
-            AddLocation(oIntangible, treeOfLife);
-            AddLocation(oIntangible, oLimbo);
+            intangibleGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(2, 1);
         }
 
         private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter)
@@ -4525,6 +4530,7 @@ namespace IsengardClient
         private Room AddHealingRoom(string roomName, string backendName, HealingRoom healingRoom)
         {
             Room r = AddRoom(roomName, backendName);
+            r.HealingRoom = healingRoom;
             HealingRooms[healingRoom] = r;
             return r;
         }

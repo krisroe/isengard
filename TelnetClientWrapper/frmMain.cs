@@ -88,19 +88,16 @@ namespace IsengardClient
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
         private int _autohp = HP_OR_MP_UNKNOWN;
-        private int _autohpUI = HP_OR_MP_UNKNOWN;
         
         /// <summary>
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
         private int _automp = HP_OR_MP_UNKNOWN;
-        private int _autompUI = HP_OR_MP_UNKNOWN;
 
         /// <summary>
         /// current mana from current combat
         /// </summary>
         private int _currentMana = HP_OR_MP_UNKNOWN;
-        private int _currentManaUI = HP_OR_MP_UNKNOWN;
 
         private int _autoEscapeThreshold;
         private int _autoEscapeThresholdUI;
@@ -118,6 +115,7 @@ namespace IsengardClient
         private IsengardMap _gameMap;
         private Room m_oCurrentRoom;
         private Room m_oCurrentRoomUI;
+        private bool _setTickRoom = false;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
@@ -838,11 +836,8 @@ namespace IsengardClient
             _totalhp = 0;
             _totalmp = 0;
             _autohp = HP_OR_MP_UNKNOWN;
-            _autohpUI = HP_OR_MP_UNKNOWN;
             _automp = HP_OR_MP_UNKNOWN;
-            _autompUI = HP_OR_MP_UNKNOWN;
             _currentMana = HP_OR_MP_UNKNOWN;
-            _currentManaUI = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
             _tnl = -1;
             _tnlUI = -1;
@@ -1060,7 +1055,8 @@ namespace IsengardClient
             if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0))
             {
                 _initializationSteps |= InitializationStep.Finalization;
-                SetCurrentRoomIfUnambiguous(sRoomName);
+                Room r = SetCurrentRoomIfUnambiguous(sRoomName);
+                _setTickRoom = r != null && r.HealingRoom.HasValue;
             }
             else
             {
@@ -1071,12 +1067,14 @@ namespace IsengardClient
             }
         }
 
-        private void SetCurrentRoomIfUnambiguous(string sRoomName)
+        private Room SetCurrentRoomIfUnambiguous(string sRoomName)
         {
-            if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out Room initialRoom))
+            Room ret = null;
+            if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out ret))
             {
-                m_oCurrentRoom = initialRoom;
+                m_oCurrentRoom = ret;
             }
+            return ret;
         }
 
         private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage)
@@ -3981,7 +3979,7 @@ BeforeHazy:
             {
                 Color backColor;
                 int iCurrentMana = _currentMana;
-                if (autompforthistick != HP_OR_MP_UNKNOWN && (autompforthistick != _autompUI || iCurrentMana != _currentManaUI))
+                if (autompforthistick != HP_OR_MP_UNKNOWN)
                 {
                     int iTotalMP = _totalmp;
                     string sText = autompforthistick.ToString() + "/" + iTotalMP;
@@ -4213,6 +4211,15 @@ BeforeHazy:
             Room oCurrentRoom = m_oCurrentRoom;
             if (oCurrentRoom != m_oCurrentRoomUI)
             {
+                if (_setTickRoom)
+                {
+                    HealingRoom? healFlag = oCurrentRoom.HealingRoom;
+                    if (healFlag.HasValue)
+                    {
+                        cboTickRoom.SelectedItem = healFlag.Value;
+                    }
+                    _setTickRoom = false;
+                }
                 string sCurrentRoom;
                 if (oCurrentRoom != null)
                 {

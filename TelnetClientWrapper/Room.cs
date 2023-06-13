@@ -65,7 +65,7 @@ namespace IsengardClient
         /// <summary>
         /// region for a healing room
         /// </summary>
-        public HealingRoom HealingRoom { get; set; }
+        public HealingRoom? HealingRoom { get; set; }
         /// <summary>
         /// realm for the damage type for rooms that damage periodically
         /// </summary>

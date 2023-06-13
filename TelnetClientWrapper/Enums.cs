@@ -208,6 +208,7 @@ namespace IsengardClient
         Nindamos,
         Armenelos,
         Eldemonde,
+        Intangible,
     }
 
     public enum FinalStepAction
