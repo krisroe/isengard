@@ -74,6 +74,7 @@ namespace IsengardClient
         /// is a room that has a trap when the player enters it
         /// </summary>
         public bool IsTrapRoom { get; set; }
+        public bool Intangible { get; set; }
 
         public string GetDefaultMob()
         {

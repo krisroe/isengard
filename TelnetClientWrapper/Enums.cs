@@ -306,6 +306,7 @@ namespace IsengardClient
         Move,
         Flee,
         Hazy,
+        Death,
     }
 
     public enum InformationalMessages

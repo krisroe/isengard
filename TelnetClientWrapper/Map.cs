@@ -3137,21 +3137,25 @@ namespace IsengardClient
             intangibleGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(2, 0);
 
             Room treeOfLife = AddRoom("Tree of Life", "The Tree of Life");
+            treeOfLife.Intangible = true;
             AddExit(treeOfLife, oBreeTownSquare, "down");
             intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
 
-            Room oLimbo = AddRoom("Limbo");
+            Room oLimbo = AddRoom("Limbo", "Limbo");
+            oLimbo.Intangible = true;
             Exit e = AddExit(oLimbo, treeOfLife, "green");
             e.MustOpen = true;
             intangibleGraph.Rooms[oLimbo] = new System.Windows.Point(1, 2);
 
             Room oDarkTunnel = AddRoom("Dark Tunnel");
+            oDarkTunnel.Intangible = true;
             e = AddExit(oLimbo, oDarkTunnel, "blue");
             e.MustOpen = true;
             AddExit(oDarkTunnel, healingHand, "light");
             intangibleGraph.Rooms[oDarkTunnel] = new System.Windows.Point(1, 1);
 
             Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds");
+            oFluffyCloudsAboveNindamos.Intangible = false;
             e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
             e.MustOpen = true;
             AddExit(oFluffyCloudsAboveNindamos, nindamosVillageCenter, "green");

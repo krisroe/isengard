@@ -804,10 +804,12 @@ namespace IsengardClient
 
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
+        private string _userName;
         private Action<RoomTransitionInfo, int> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo, int> onSatisfied)
+        public RoomTransitionSequence(Action<RoomTransitionInfo, int> onSatisfied, string userName)
         {
             _onSatisfied = onSatisfied;
+            _userName = userName;
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
@@ -861,6 +863,11 @@ namespace IsengardClient
             else if (sNextLine == "You phase in and out of existence.")
             {
                 rtType = RoomTransitionType.Hazy;
+                nextLineIndex++;
+            }
+            else if (sNextLine.StartsWith("### Sadly, " + _userName + " "))
+            {
+                rtType = RoomTransitionType.Death;
                 nextLineIndex++;
             }
 

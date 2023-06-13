@@ -1111,13 +1111,13 @@ namespace IsengardClient
                     _waitSeconds = 0;
                 }
             }
-            else if (rtType == RoomTransitionType.Hazy)
+            else if (rtType == RoomTransitionType.Hazy || rtType == RoomTransitionType.Death)
             {
                 _hazying = false;
                 _fleeing = false;
-                if (fromAnyBackgroundCommand) //hazy aborts whatever background command is currently running
+                if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
-                    if (fromBackgroundHazy)
+                    if (fromBackgroundHazy && rtType == RoomTransitionType.Hazy)
                     {
                         flParams.CommandResult = CommandResult.CommandSuccessful;
                         _waitSeconds = 0;
@@ -1305,8 +1305,9 @@ namespace IsengardClient
             }
         }
 
-        private static void FailDrinkHazy(FeedLineParameters flParams)
+        private void FailDrinkHazy(FeedLineParameters flParams)
         {
+            _hazying = false;
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.DrinkHazy)
             {
@@ -1748,7 +1749,7 @@ namespace IsengardClient
                 new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
                 new SuccessfulSearchSequence(SuccessfulSearch),
-                new RoomTransitionSequence(OnRoomTransition),
+                new RoomTransitionSequence(OnRoomTransition, _username),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
@@ -2537,10 +2538,7 @@ namespace IsengardClient
                             DateTime? dtNextMeleeCommand = null;
                             while (true) //combat cycle
                             {
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 bool didDamage = false;
@@ -2582,10 +2580,7 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 //flee or stop combat once steps complete
@@ -2610,10 +2605,7 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 if (nextMeleeStep.HasValue &&
@@ -2632,10 +2624,7 @@ namespace IsengardClient
                                         return;
                                 }
 
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 //flee or stop combat once steps complete
@@ -2660,10 +2649,7 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
 
                                 if (didDamage && _queryMonsterStatus)
                                 {
@@ -2693,17 +2679,9 @@ namespace IsengardClient
                                 //stop combat if all combat types are finished
                                 if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue) break;
 
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
-
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
-
-                                if (stopIfMonsterKilled && _monsterKilled) break;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
 
                                 Thread.Sleep(50);
                             }
@@ -2841,6 +2819,28 @@ BeforeHazy:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        private bool BreakOutOfBackgroundCombat(bool stopIfMonsterKilled)
+        {
+            bool ret;
+            if (stopIfMonsterKilled && _monsterKilled)
+                ret = true;
+            else if (_fleeing)
+                ret = true;
+            else if (_hazying)
+                ret = true;
+            else if (_bw.CancellationPending)
+                ret = true;
+            else
+            {
+                Room r = m_oCurrentRoom;
+                if (r != null && r.Intangible)
+                    ret = true;
+                else
+                    ret = false;
+            }
+            return ret;
         }
 
         private bool DoBackgroundHeal(bool doBless, bool doProtection, BackgroundWorkerParameters pms)
