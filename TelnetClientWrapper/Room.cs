@@ -64,9 +64,9 @@ namespace IsengardClient
         public int? Experience3 { get; set; }
         public bool IsHealingRoom { get; set; }
         /// <summary>
-        /// is a room that deals damage to the player periodically
+        /// realm for the damage type for rooms that damage periodically
         /// </summary>
-        public bool IsDamageRoom { get; set; }
+        public RealmType? DamageType { get; set; }
         /// <summary>
         /// is a room that has a trap when the player enters it
         /// </summary>

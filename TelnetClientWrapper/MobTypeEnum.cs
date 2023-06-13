@@ -402,6 +402,10 @@
         [PluralName("sailors")]
         Sailor,
 
+        [SingularName("salamander")]
+        [PluralName("salamanders")]
+        Salamander,
+
         [SingularName("scholar")]
         [PluralName("scholars")]
         Scholar,

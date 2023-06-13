@@ -2401,7 +2401,7 @@ namespace IsengardClient
                                     }
                                     if (_lastCommandDamage != 0) //fell into a trap room
                                     {
-                                        if (nextExitTarget.IsDamageRoom)
+                                        if (nextExitTarget.DamageType.HasValue)
                                         {
                                             needHeal = true;
                                         }

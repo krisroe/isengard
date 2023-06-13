@@ -112,23 +112,23 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[dalePurves] = new System.Windows.Point(3, 6);
 
             Room greyfloodRiver1 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver1.IsDamageRoom = true;
+            greyfloodRiver1.DamageType = RealmType.Water;
             AddExit(dalePurves, greyfloodRiver1, "river");
             AddExit(greyfloodRiver1, dalePurves, "beach");
             tharbadWestGraph.Rooms[greyfloodRiver1] = new System.Windows.Point(2, 6);
 
             Room greyfloodRiver2 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver2.IsDamageRoom = true;
+            greyfloodRiver2.DamageType = RealmType.Water;
             AddBidirectionalExits(greyfloodRiver1, greyfloodRiver2, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[greyfloodRiver2] = new System.Windows.Point(2, 7);
 
             Room greyfloodRiver3 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver3.IsDamageRoom = true;
+            greyfloodRiver3.DamageType = RealmType.Water;
             AddBidirectionalExits(greyfloodRiver2, greyfloodRiver3, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[greyfloodRiver3] = new System.Windows.Point(2, 8);
 
             Room riverMouth = AddRoom("River Mouth", "The Mouth of the Greyflood River");
-            riverMouth.IsDamageRoom = true;
+            riverMouth.DamageType = RealmType.Water;
             AddExit(greyfloodRiver3, riverMouth, "southwest");
             AddExit(riverMouth, greyfloodRiver3, "river");
             tharbadWestGraph.Rooms[riverMouth] = new System.Windows.Point(1, 9);
@@ -1398,7 +1398,7 @@ namespace IsengardClient
             AddExit(oSewerPipe, oSewerPipeExit, "up");
             underBreeGraph.Rooms[oSewerPipe] = new System.Windows.Point(7, 3);
 
-            Room oSalamander = AddRoom("Salamander");
+            Room oSalamander = AddRoom("Salamander", "The Brandywine River");
             oSalamander.Mob1 = "Salamander";
             oSalamander.Experience1 = 100;
             oSalamander.Alignment = AlignmentType.Red;
@@ -1407,7 +1407,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSalamander] = new System.Windows.Point(9, 7);
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River", "The Brandywine River");
-            oBrandywineRiver1.IsDamageRoom = true;
+            oBrandywineRiver1.DamageType = RealmType.Water;
             AddExit(droolie, oBrandywineRiver1, "down");
             Exit e = AddExit(oBrandywineRiver1, droolie, "rope");
             e.FloatRequirement = FloatRequirement.Fly;
@@ -1415,7 +1415,7 @@ namespace IsengardClient
             //CSRTODO: north
 
             Room oBrandywineRiver2 = AddRoom("Brandywine River", "The Brandywine River");
-            oBrandywineRiver2.IsDamageRoom = true;
+            oBrandywineRiver2.DamageType = RealmType.Water;
             AddBidirectionalExits(oBrandywineRiver1, oBrandywineRiver2, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oBrandywineRiver2] = new System.Windows.Point(1, 1);
 
@@ -1576,7 +1576,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oShadowOfIncendius] = new System.Windows.Point(2, 2);
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
-            oEugeneTheExecutioner.IsDamageRoom = true;
+            oEugeneTheExecutioner.DamageType = RealmType.Fire;
             e = AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
             oEugeneTheExecutioner.IsTrapRoom = true;
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
@@ -2301,7 +2301,7 @@ namespace IsengardClient
             Room oBarrow = AddRoom("Barrow", "Barrow");
             e = AddExit(oTopOfHill, oBarrow, "niche");
             e.Hidden = true;
-            //This always fails, perhaps because I am using a low dexterity character???
+            //This always fails is this always the case or am I just using a too low dexterity/level character?
             //e = AddExit(oBarrow, oTopOfHill, "up");
             //e.IsTrapExit = true;
             breeToImladrisGraph.Rooms[oBarrow] = new System.Windows.Point(5, 2);
@@ -2309,7 +2309,7 @@ namespace IsengardClient
             Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber");
             AddExit(oBarrow, oAntechamber, "altar");
             AddExit(oAntechamber, oBarrow, "up");
-            oAntechamber.IsDamageRoom = true; //fire room
+            oAntechamber.DamageType = RealmType.Fire;
             breeToImladrisGraph.Rooms[oAntechamber] = new System.Windows.Point(5, 1.75);
 
             Room oGalbasiHalls = AddRoom("Galbasi Halls", "Galbasi Halls");
