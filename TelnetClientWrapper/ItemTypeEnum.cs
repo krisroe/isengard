@@ -233,6 +233,9 @@
         [PluralName("metal masks")]
         MetalMask,
 
+        [SingularName("mithril chain armor")]
+        MithrilChainArmor,
+
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
         MithrilJoStick,

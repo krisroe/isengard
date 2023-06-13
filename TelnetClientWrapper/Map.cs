@@ -56,8 +56,9 @@ namespace IsengardClient
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand);
             AddEastOfImladris(oEastGateOfImladrisOutside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
-            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph);
+            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate);
             AddWestOfTharbad(tharbadWestGateOutside);
+            AddEastOfTharbad(tharbadEastGate);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
@@ -77,6 +78,143 @@ namespace IsengardClient
                     g.Rooms[next.Key] = new System.Windows.Point(next.Value.X * g.ScalingFactor, next.Value.Y * g.ScalingFactor);
                 }
             }
+        }
+
+        private void AddEastOfTharbad(Room tharbadEastGate)
+        {
+            RoomGraph tharbadEastGraph = new RoomGraph("East of Tharbad");
+            tharbadEastGraph.ScalingFactor = 100;
+            _graphs[MapType.AlliskPlainsEastOfTharbad] = tharbadEastGraph;
+
+            tharbadEastGraph.Rooms[tharbadEastGate] = new System.Windows.Point(0, 4);
+
+            Room oAlliskPlainsEntrance = AddRoom("Entrance", "Path around Allisk Plains");
+            AddBidirectionalExits(tharbadEastGate, oAlliskPlainsEntrance, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEntrance] = new System.Windows.Point(1, 4);
+
+            Room oAlliskPlainsEastPath1 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsEntrance, oAlliskPlainsEastPath1, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastPath1] = new System.Windows.Point(1.5, 4);
+            //CSRTODO: narrow path
+
+            Room oAlliskPlainsEastPath2 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsEastPath1, oAlliskPlainsEastPath2, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastPath2] = new System.Windows.Point(2, 4);
+
+            Room oAlliskPlainsEastPath3 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsEastPath2, oAlliskPlainsEastPath3, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastPath3] = new System.Windows.Point(2.5, 4);
+
+            Room oAlliskPlainsEastPath4Fork = AddRoom("Fork", "Fork in the Path");
+            AddBidirectionalExits(oAlliskPlainsEastPath3, oAlliskPlainsEastPath4Fork, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastPath4Fork] = new System.Windows.Point(3, 4);
+
+            Room oAlliskPlainsEastTrail1 = AddRoom("Trail", "Trail through the Plains");
+            AddBidirectionalExits(oAlliskPlainsEastPath4Fork, oAlliskPlainsEastTrail1, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastTrail1] = new System.Windows.Point(3.5, 4);
+
+            Room oAlliskPlainsEastTrail2 = AddRoom("Trail", "Trail through the Plains");
+            AddBidirectionalExits(oAlliskPlainsEastTrail1, oAlliskPlainsEastTrail2, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastTrail2] = new System.Windows.Point(4, 4.5);
+
+            Room oAlliskPlainsEastTrailDeadEnd = AddRoom("Dead End", "Dead End");
+            AddBidirectionalExits(oAlliskPlainsEastTrail2, oAlliskPlainsEastTrailDeadEnd, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastTrailDeadEnd] = new System.Windows.Point(4.5, 4.5);
+
+            Room oAlliskPlainsEastBend = AddRoom("Bend", "Bend in the Path");
+            AddBidirectionalExits(oAlliskPlainsEastBend, oAlliskPlainsEastPath4Fork, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oAlliskPlainsEastBend] = new System.Windows.Point(6, 3);
+
+            Room oAlliskPlainsNortheastPath1 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsNortheastPath1, oAlliskPlainsEastBend, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oAlliskPlainsNortheastPath1] = new System.Windows.Point(10, 2);
+
+            Room oAlliskPlainsNortheastPath2 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsNortheastPath2, oAlliskPlainsNortheastPath1, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsNortheastPath2] = new System.Windows.Point(9, 2);
+
+            Room oAlliskPlainsNortheastPath3 = AddRoom("Path", "Path through the Plains");
+            AddBidirectionalExits(oAlliskPlainsNortheastPath3, oAlliskPlainsNortheastPath2, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oAlliskPlainsNortheastPath3] = new System.Windows.Point(8, 2);
+
+            Room oNorthPathAroundAlliskPlains1 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains1, oAlliskPlainsEntrance, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oNorthPathAroundAlliskPlains1] = new System.Windows.Point(2, 1);
+
+            Room oNorthPathAroundAlliskPlains2 = AddRoom("Path", "Path through Allisk Plains");
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains1, oNorthPathAroundAlliskPlains2, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oNorthPathAroundAlliskPlains2] = new System.Windows.Point(4, 1);
+
+            Room oNorthPathAroundAlliskPlains3 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains2, oNorthPathAroundAlliskPlains3, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oNorthPathAroundAlliskPlains3] = new System.Windows.Point(6, 1);
+
+            Room oNorthPathAroundAlliskPlains4 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains3, oNorthPathAroundAlliskPlains4, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains4, oAlliskPlainsNortheastPath3, BidirectionalExitType.NorthSouth);
+            tharbadEastGraph.Rooms[oNorthPathAroundAlliskPlains4] = new System.Windows.Point(8, 1);
+
+            Room oSoutheastPathAroundAlliskPlains1 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oAlliskPlainsEntrance, oSoutheastPathAroundAlliskPlains1, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oSoutheastPathAroundAlliskPlains1] = new System.Windows.Point(2, 5);
+
+            Room oSoutheastPathAroundAlliskPlains2 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSoutheastPathAroundAlliskPlains1, oSoutheastPathAroundAlliskPlains2, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oSoutheastPathAroundAlliskPlains2] = new System.Windows.Point(3, 6);
+
+            Room oSoutheastPathAroundAlliskPlains3 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSoutheastPathAroundAlliskPlains2, oSoutheastPathAroundAlliskPlains3, BidirectionalExitType.WestEast);
+            tharbadEastGraph.Rooms[oSoutheastPathAroundAlliskPlains3] = new System.Windows.Point(4, 6);
+
+            Room oSoutheastPathAroundAlliskPlains4 = AddRoom("Allisk Plains", "Allisk Plains");
+            AddBidirectionalExits(oSoutheastPathAroundAlliskPlains4, oSoutheastPathAroundAlliskPlains3, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oNorthPathAroundAlliskPlains4, oSoutheastPathAroundAlliskPlains4, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oSoutheastPathAroundAlliskPlains4] = new System.Windows.Point(6, 3.5);
+            //CSRTODO: sloping path
+
+            Room oSouthPathAlliskPlains1 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSoutheastPathAroundAlliskPlains2, oSouthPathAlliskPlains1, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains1] = new System.Windows.Point(4, 7);
+
+            Room oSouthPathAlliskPlains2 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains1, oSouthPathAlliskPlains2, BidirectionalExitType.NorthSouth);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains2] = new System.Windows.Point(4, 8);
+
+            Room oSouthPathAlliskPlains3 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains2, oSouthPathAlliskPlains3, BidirectionalExitType.NorthSouth);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains3] = new System.Windows.Point(4, 9);
+
+            Room oSouthPathAlliskPlains4 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains3, oSouthPathAlliskPlains4, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains4] = new System.Windows.Point(3, 10);
+
+            Room oSouthPathAlliskPlains5 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains4, oSouthPathAlliskPlains5, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains5] = new System.Windows.Point(4, 11);
+
+            Room oSouthPathAlliskPlains6 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains5, oSouthPathAlliskPlains6, BidirectionalExitType.SoutheastNorthwest);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains6] = new System.Windows.Point(5, 12);
+
+            Room oSouthPathAlliskPlains7 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains7, oSouthPathAlliskPlains6, BidirectionalExitType.NorthSouth);
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains7] = new System.Windows.Point(5, 11);
+
+            Room oSouthPathAlliskPlains8 = AddRoom("Allisk plains", "Allisk plains");
+            AddExit(oSouthPathAlliskPlains7, oSouthPathAlliskPlains8, "northeast");
+            Exit e = AddExit(oSoutheastPathAroundAlliskPlains4, oSouthPathAlliskPlains8, "southeast");
+            e.Hidden = true;
+            AddExit(oSouthPathAlliskPlains8, oSoutheastPathAroundAlliskPlains4, "northwest");
+            tharbadEastGraph.Rooms[oSouthPathAlliskPlains8] = new System.Windows.Point(7, 4.5);
+            //CSRTODO: pit (hidden)
+
+            Room oPathToOgres1 = AddRoom("Path", "Path around Allisk Plains");
+            AddBidirectionalExits(oSouthPathAlliskPlains6, oPathToOgres1, BidirectionalExitType.NorthSouth);
+            tharbadEastGraph.Rooms[oPathToOgres1] = new System.Windows.Point(5, 13);
+
+            Room oTrakardOgreRanger = AddRoom("Ogre Rangers");
+            AddBidirectionalExits(oPathToOgres1, oTrakardOgreRanger, BidirectionalExitType.SouthwestNortheast);
+            tharbadEastGraph.Rooms[oTrakardOgreRanger] = new System.Windows.Point(4, 14);
         }
 
         private void AddWestOfTharbad(Room tharbadWestGateOutside)
@@ -486,7 +624,7 @@ namespace IsengardClient
             }
         }
 
-        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph)
+        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate)
         {
             tharbadGraph = new RoomGraph("Tharbad");
             tharbadGraph.ScalingFactor = 100;
@@ -861,9 +999,9 @@ namespace IsengardClient
             AddBidirectionalExits(oOuterRingEast, oOuterRingSouth, BidirectionalExitType.SouthwestNortheast);
             tharbadGraph.Rooms[oOuterRingSouth] = new System.Windows.Point(9, 12);
 
-            Room oEastGate = AddRoom("East Gate Outside", "Eastern Gate of Tharbad");
-            AddBidirectionalSameNameExit(sabreEvard, oEastGate, "gate");
-            tharbadGraph.Rooms[oEastGate] = new System.Windows.Point(11, 8);
+            tharbadEastGate = AddRoom("East Gate Outside", "Eastern Gate of Tharbad");
+            AddBidirectionalSameNameExit(sabreEvard, tharbadEastGate, "gate");
+            tharbadGraph.Rooms[tharbadEastGate] = new System.Windows.Point(11, 8);
 
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);

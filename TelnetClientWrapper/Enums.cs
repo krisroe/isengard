@@ -205,6 +205,7 @@ namespace IsengardClient
         ShantyTown,
         Tharbad,
         WestOfTharbad,
+        AlliskPlainsEastOfTharbad,
         Mithlond,
         Nindamos,
         Armenelos,

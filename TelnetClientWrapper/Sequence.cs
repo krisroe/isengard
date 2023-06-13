@@ -1251,10 +1251,10 @@ namespace IsengardClient
 
     public class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
-        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone" };
-        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame" };
-        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast" };
-        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt" };
+        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone", "engulf" };
+        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame", "immolate" };
+        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast", "bloodboil" };
+        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt", "lightning" };
         internal static HashSet<string> ALL_OFFENSIVE_SPELLS;
 
         private const string YOU_CAST_A_PREFIX = "You cast a ";
@@ -2095,11 +2095,11 @@ namespace IsengardClient
                     }
                     else if (remainder.EndsWith(" bruises"))
                     {
-                        matches = true; //CSRTODO: 6-9
+                        matches = iDamage >= 6 && iDamage <= 9;
                     }
                     else if (remainder.EndsWith(" hurts"))
                     {
-                        matches = true; //CSRTODO: 11
+                        matches = true; //CSRTODO: 10-11
                     }
                     else if (remainder.EndsWith(" wounds"))
                     {
@@ -2111,7 +2111,7 @@ namespace IsengardClient
                     }
                     else if (remainder.EndsWith(" maims"))
                     {
-                        matches = true; //CSRTODO: 22
+                        matches = true; //CSRTODO: 22-23
                     }
                     else if (remainder.EndsWith(" pulverizes"))
                     {

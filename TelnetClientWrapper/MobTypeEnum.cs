@@ -546,6 +546,10 @@
         [PluralName("villager's ghosts")]
         VillagersGhost,
 
+        [SingularName("vulture")]
+        [PluralName("vultures")]
+        Vulture,
+
         [SingularName("waitress")]
         [PluralName("waitresses")]
         Waitress,
