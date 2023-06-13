@@ -439,13 +439,13 @@ namespace IsengardClient
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> _onSatisfied;
+        public Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string TO_NEXT_LEVEL_PREFIX = "To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -504,9 +504,21 @@ namespace IsengardClient
                 if (sNextLine[--iSpaceIndex] != '(') return;
                 if (sNextLine[--iSpaceIndex] != ' ') return;
 
-                //second line is blank
+                //second line contains the poisoned indicator
+                bool poisoned = false;
                 sNextLine = Lines[iNextLineIndex++];
-                if (!string.IsNullOrEmpty(sNextLine)) return;
+                if (sNextLine != null)
+                {
+                    if (sNextLine.Contains("*Poisoned*"))
+                    {
+                        poisoned = true;
+                        sNextLine = sNextLine.Replace("*Poisoned*", string.Empty);
+                    }
+                    if (!string.IsNullOrWhiteSpace(sNextLine))
+                    {
+                        return;
+                    }
+                }
 
                 //third line is
                 //<space><space>[3 character HP]<slash><3 character max HP> Hit Points<space><space>
@@ -620,7 +632,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iTNL, cooldowns, spells);
+                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iTNL, cooldowns, spells, poisoned);
                 flParams.FinishedProcessing = true;
             }
         }

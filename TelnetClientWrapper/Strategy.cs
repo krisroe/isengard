@@ -8,6 +8,7 @@ namespace IsengardClient
     {
         public const string CAST_VIGOR_SPELL = "cast vigor";
         public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
+        public const string CAST_CUREPOISON_SPELL = "cast cure-poison";
 
         public Strategy()
         {
@@ -516,6 +517,7 @@ namespace IsengardClient
         public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor, 'V');
         public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds, 'M');
         public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal, 'H');
+        public static SingleMagicStrategyStep MagicStepCurePoison = new SingleMagicStrategyStep(MagicStrategyStep.CurePoison, 'P');
 
         public char Letter { get; set; }
 
@@ -564,6 +566,9 @@ namespace IsengardClient
                     break;
                 case MagicStrategyStep.GenericHeal:
                     ret = MagicStepGenericHeal;
+                    break;
+                case MagicStrategyStep.CurePoison:
+                    ret = MagicStepCurePoison;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -769,6 +774,7 @@ namespace IsengardClient
         public static SinglePotionsStrategyStep PotionsStepVigor = new SinglePotionsStrategyStep(PotionsStrategyStep.Vigor, 'v');
         public static SinglePotionsStrategyStep PotionsStepMendWounds = new SinglePotionsStrategyStep(PotionsStrategyStep.MendWounds, 'm');
         public static SinglePotionsStrategyStep PotionsStepGenericHeal = new SinglePotionsStrategyStep(PotionsStrategyStep.GenericHeal, 'h');
+        public static SinglePotionsStrategyStep PotionsStepCurePoison = new SinglePotionsStrategyStep(PotionsStrategyStep.CurePoison, 'p');
 
         public PotionsStrategyStep Action { get; set; }
 
@@ -794,6 +800,9 @@ namespace IsengardClient
                     break;
                 case PotionsStrategyStep.GenericHeal:
                     ret = PotionsStepGenericHeal;
+                    break;
+                case PotionsStrategyStep.CurePoison:
+                    ret = PotionsStepCurePoison;
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -877,7 +886,7 @@ namespace IsengardClient
         public StrategyInstance(Strategy strategy, int systemMinAutoSpellLevel, int systemMaxAutoSpellLevel, string currentlyFightingMob, string realm1spell, string realm2spell, string realm3spell)
         {
             Strategy = strategy;
-            if (strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
+            if (strategy == null || strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
             {
                 minAutoSpellLevel = systemMinAutoSpellLevel;
                 maxAutoSpellLevel = systemMaxAutoSpellLevel;
@@ -924,11 +933,17 @@ namespace IsengardClient
                 manaDrain = 10;
                 bct = BackgroundCommandType.Stun;
             }
+            else if (nextMagicStep == MagicStrategyStep.CurePoison)
+            {
+                command = Strategy.CAST_CUREPOISON_SPELL;
+                manaDrain = 4;
+                bct = BackgroundCommandType.CurePoison;
+            }
             else if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.Vigor || nextMagicStep == MagicStrategyStep.MendWounds)
             {
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy.MagicMendOnlyWhenDownXHP > 0)
+                    if (Strategy != null && Strategy.MagicMendOnlyWhenDownXHP > 0)
                         doCast = currentHP + Strategy.MagicMendOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;
@@ -939,7 +954,7 @@ namespace IsengardClient
                 }
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy.MagicVigorOnlyWhenDownXHP > 0)
+                    if (Strategy != null && Strategy.MagicVigorOnlyWhenDownXHP > 0)
                         doCast = currentHP + Strategy.MagicVigorOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;

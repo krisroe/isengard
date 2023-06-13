@@ -323,7 +323,7 @@
             this.btnCastVigor.TabIndex = 10;
             this.btnCastVigor.Text = "Vigor";
             this.btnCastVigor.UseVisualStyleBackColor = true;
-            this.btnCastVigor.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnCastVigor.Click += new System.EventHandler(this.btnVigor_Click);
             // 
             // btnCastCurePoison
             // 
@@ -334,7 +334,7 @@
             this.btnCastCurePoison.TabIndex = 18;
             this.btnCastCurePoison.Text = "Cast Curepoison";
             this.btnCastCurePoison.UseVisualStyleBackColor = true;
-            this.btnCastCurePoison.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnCastCurePoison.Click += new System.EventHandler(this.btnCurePoison_Click);
             // 
             // txtOneOffCommand
             // 
@@ -1259,7 +1259,7 @@
             this.btnCastMend.TabIndex = 82;
             this.btnCastMend.Text = "Mend";
             this.btnCastMend.UseVisualStyleBackColor = true;
-            this.btnCastMend.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnCastMend.Click += new System.EventHandler(this.btnMendWounds_Click);
             // 
             // btnReddishOrange
             // 

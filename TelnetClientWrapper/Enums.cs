@@ -230,6 +230,7 @@ namespace IsengardClient
         Vigor,
         MendWounds,
         GenericHeal,
+        CurePoison,
     }
 
     public enum MeleeStrategyStep
@@ -243,6 +244,7 @@ namespace IsengardClient
         Vigor,
         MendWounds,
         GenericHeal,
+        CurePoison,
     }
 
     public enum MagicCommandChoiceResult

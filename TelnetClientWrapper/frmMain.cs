@@ -81,6 +81,7 @@ namespace IsengardClient
         private int _totalmp = 0;
         private int _tnl = -1;
         private int _tnlUI = -1;
+        private bool _poisoned;
 
         private const int HP_OR_MP_UNKNOWN = -1;
 
@@ -887,7 +888,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int tnl, List<SkillCooldown> cooldowns, List<string> spells)
+        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -940,6 +941,7 @@ namespace IsengardClient
             _totalmp = maxMP;
             _tnl = tnl;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
+            _poisoned = poisoned;
 
             if (forInit)
             {
@@ -2174,8 +2176,8 @@ namespace IsengardClient
             btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, "cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
             btnLook.Tag = new CommandButtonTag(btnLook, "look", CommandType.None, DependentObjectType.None);
-            btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, Strategy.CAST_VIGOR_SPELL, CommandType.Magic, DependentObjectType.None);
-            btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, "cast cure-poison", CommandType.Magic, DependentObjectType.None);
+            btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, null, CommandType.Magic, DependentObjectType.None);
+            btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, null, CommandType.Magic, DependentObjectType.None);
             btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
             btnDrinkYellow.Tag = new CommandButtonTag(btnDrinkYellow, "drink yellow", CommandType.Potions, DependentObjectType.None);
             btnDrinkGreen.Tag = new CommandButtonTag(btnDrinkGreen, "drink green", CommandType.Potions, DependentObjectType.None);
@@ -2184,7 +2186,7 @@ namespace IsengardClient
             btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
             btnRemoveWeapon.Tag = new CommandButtonTag(btnRemoveWeapon, "remove {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnRemoveAll.Tag = new CommandButtonTag(btnRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
-            btnCastMend.Tag = new CommandButtonTag(btnCastMend, Strategy.CAST_MENDWOUNDS_SPELL, CommandType.Magic, DependentObjectType.None);
+            btnCastMend.Tag = new CommandButtonTag(btnCastMend, null, CommandType.Magic, DependentObjectType.None);
             btnReddishOrange.Tag = new CommandButtonTag(btnReddishOrange, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
             tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
@@ -2250,9 +2252,32 @@ namespace IsengardClient
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
 
-                if (pms.Heal)
+                bool healHP = pms.HealHitpoints;
+                bool ensureBlessed = pms.EnsureBlessed;
+                bool ensureProtected = pms.EnsureProtected;
+                bool cureIfPoisoned = pms.CureIfPoisoned;
+                bool healPoison = false;
+                if (cureIfPoisoned)
                 {
-                    if (!DoBackgroundHeal(true, true, false, pms))
+                    _poisoned = false;
+                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return;
+                    }
+                    if (_poisoned)
+                    {
+                        healPoison = true;
+                    }
+                    else
+                    {
+                        AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
+                    }
+                }
+                if (healHP || healPoison || ensureBlessed || ensureProtected)
+                {
+                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                    if (!DoBackgroundHeal(healHP, ensureBlessed, ensureProtected, healPoison, pms))
                     {
                         return;
                     }
@@ -2421,8 +2446,7 @@ namespace IsengardClient
                                 }
                                 else if (_lastCommandMovementResult == MovementResult.FallFailure)
                                 {
-                                    if (!DoBackgroundHeal(false, false, needCurepoison, pms)) return;
-                                    _backgroundProcessPhase = BackgroundProcessPhase.Movement;
+                                    if (!DoBackgroundHeal(true, false, false, needCurepoison, pms)) return;
                                     SendCommand("stand", InputEchoType.On);
                                     keepTryingMovement = true;
                                 }
@@ -2434,7 +2458,7 @@ namespace IsengardClient
                             }
                             if (!targetIsDamageRoom && (needHeal || needCurepoison))
                             {
-                                if (!DoBackgroundHeal(false, false, needCurepoison, pms)) return;
+                                if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return;
                                 needHeal = false;
                                 needCurepoison = false;
                             }
@@ -2466,22 +2490,29 @@ namespace IsengardClient
 
                 bool useManaPool = pms.ManaPool > 0;
                 bool stopIfMonsterKilled = false;
-                if (_hazying || _fleeing || strategy != null)
+                bool hasInitialQueuedMagicStep;
+                bool hasInitialQueuedMeleeStep;
+                lock (_queuedCommandLock)
+                {
+                    hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
+                    hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
+                }
+                if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
                     try
                     {
                         _currentlyFightingMob = pms.TargetRoomMob;
 
                         StrategyInstance stratCurrent = null;
-                        bool haveMeleeSteps = false;
-                        bool haveMagicSteps = false;
+                        bool haveMeleeStrategySteps = false;
+                        bool haveMagicStrategySteps = false;
                         if (strategy != null)
                         {
-                            haveMagicSteps = strategy.HasAnyMagicSteps();
-                            haveMeleeSteps = strategy.HasAnyMeleeSteps();
+                            haveMagicStrategySteps = strategy.HasAnyMagicSteps();
+                            haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             stopIfMonsterKilled = strategy.StopWhenKillMonster;
-                            stratCurrent = new StrategyInstance(strategy, _autoSpellLevelMin, _autoSpellLevelMax, _currentlyFightingMob, _realm1Spell, _realm2Spell, _realm3Spell);
                         }
+                        stratCurrent = new StrategyInstance(strategy, _autoSpellLevelMin, _autoSpellLevelMax, _currentlyFightingMob, _realm1Spell, _realm2Spell, _realm3Spell);
 
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
@@ -2494,11 +2525,11 @@ namespace IsengardClient
 
                         string sWeapon = _weapon;
 
-                        if (haveMagicSteps || haveMeleeSteps)
+                        if (haveMagicStrategySteps || haveMeleeStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
-                            if (haveMeleeSteps)
+                            if (haveMeleeStrategySteps || hasInitialQueuedMeleeStep)
                             {
                                 if (!string.IsNullOrEmpty(sWeapon))
                                 {
@@ -2506,15 +2537,14 @@ namespace IsengardClient
                                 }
                                 doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
-
-                            IEnumerator<MagicStrategyStep> magicSteps = strategy.GetMagicSteps().GetEnumerator();
-                            IEnumerator<MeleeStrategyStep> meleeSteps = strategy.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                            IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
+                            IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
                             MagicStrategyStep? nextMagicStep = null;
                             MeleeStrategyStep? nextMeleeStep = null;
-                            bool magicStepsFinished = !magicSteps.MoveNext();
-                            bool meleeStepsFinished = !meleeSteps.MoveNext();
-                            bool magicOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None;
-                            bool meleeOnlyWhenStunned = (strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None;
+                            bool magicStepsFinished = magicSteps == null || !magicSteps.MoveNext();
+                            bool meleeStepsFinished = meleeSteps == null || !meleeSteps.MoveNext();
+                            bool magicOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None);
+                            bool meleeOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None);
                             if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                             if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                             DateTime? dtNextMagicCommand = null;
@@ -2567,7 +2597,7 @@ namespace IsengardClient
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 //flee or stop combat once steps complete
-                                if (!nextMagicStep.HasValue)
+                                if (!nextMagicStep.HasValue && strategy != null)
                                 {
                                     FinalStepAction finalAction = strategy.FinalMagicAction;
                                     if (finalAction != FinalStepAction.None)
@@ -2611,7 +2641,7 @@ namespace IsengardClient
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 //flee or stop combat once steps complete
-                                if (!nextMeleeStep.HasValue)
+                                if (!nextMeleeStep.HasValue && strategy != null)
                                 {
                                     FinalStepAction finalAction = strategy.FinalMeleeAction;
                                     if (finalAction != FinalStepAction.None)
@@ -2826,36 +2856,36 @@ BeforeHazy:
             return ret;
         }
 
-        private bool DoBackgroundHeal(bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms)
+        private bool DoBackgroundHeal(bool healHP, bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms)
         {
-            _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-
             int autohp;
             int automp = _automp;
             if (doCurePoison && (automp < 4 || !CastLifeSpell("cure-poison", pms)))
             {
                 return false;
             }
-
-            while (true)
+            if (healHP)
             {
-                autohp = _autohp;
-                automp = _automp;
-                if (autohp >= _totalhp) break;
-                if (automp < 2) break; //out of mana for vigor cast
-                if (!CastLifeSpell("vigor", pms))
+                while (true)
                 {
-                    return false;
+                    autohp = _autohp;
+                    automp = _automp;
+                    if (autohp >= _totalhp) break;
+                    if (automp < 2) break; //out of mana for vigor cast
+                    if (!CastLifeSpell("vigor", pms))
+                    {
+                        return false;
+                    }
+                    if (_fleeing) break;
+                    if (_hazying) break;
+                    if (_bw.CancellationPending) break;
+                    autohp = _autohp;
+                    if (autohp >= _totalhp) break;
                 }
-                if (_fleeing) break;
-                if (_hazying) break;
-                if (_bw.CancellationPending) break;
+                //stop background processing if failed to get to max hitpoints
                 autohp = _autohp;
-                if (autohp >= _totalhp) break;
+                if (autohp < _totalhp) return false;
             }
-            //stop background processing if failed to get to max hitpoints
-            autohp = _autohp;
-            if (autohp < _totalhp) return false;
 
             //cast bless if has enough mana and not currently blessed
             if (doBless)
@@ -2932,7 +2962,7 @@ BeforeHazy:
                 {
                     nextMeleeStep = null;
                 }
-                else if (meleeSteps.MoveNext())
+                else if (meleeSteps != null && meleeSteps.MoveNext())
                 {
                     nextMeleeStep = meleeSteps.Current;
                     dtNextMeleeCommand = null;
@@ -2993,7 +3023,7 @@ BeforeHazy:
                 {
                     nextMagicStep = null;
                 }
-                else if (magicSteps.MoveNext())
+                else if (magicSteps != null && magicSteps.MoveNext())
                 {
                     nextMagicStep = magicSteps.Current;
                     dtNextMagicCommand = null;
@@ -3656,6 +3686,24 @@ BeforeHazy:
             RunOrQueueMagicStep(sender, MagicStrategyStep.MendWounds);
         }
 
+        private void btnCurePoison_Click(object sender, EventArgs e)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                bwp = new BackgroundWorkerParameters();
+                bwp.CureIfPoisoned = true;
+                RunBackgroundProcess(bwp);
+            }
+            else
+            {
+                lock (_queuedCommandLock)
+                {
+                    bwp.QueuedMagicStep = MagicStrategyStep.CurePoison;
+                }
+            }
+        }
+
         private void btnAttackMob_Click(object sender, EventArgs e)
         {
             RunOrQueueMeleeStep(sender, MeleeStrategyStep.RegularAttack);
@@ -3671,8 +3719,12 @@ BeforeHazy:
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                CommandButtonTag cbt = (CommandButtonTag)((Button)sender).Tag;
-                RunCommand(TranslateCommand(cbt.Command));
+                bwp = new BackgroundWorkerParameters();
+                Strategy s = new Strategy();
+                s.LastMagicStep = step;
+                bwp.TargetRoomMob = txtMob.Text;
+                bwp.Strategy = s;
+                RunBackgroundProcess(bwp);
             }
             else
             {
@@ -3688,8 +3740,12 @@ BeforeHazy:
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                CommandButtonTag cbt = (CommandButtonTag)((Button)sender).Tag;
-                RunCommand(TranslateCommand(cbt.Command));
+                bwp = new BackgroundWorkerParameters();
+                Strategy s = new Strategy();
+                s.LastMeleeStep = step;
+                bwp.Strategy = s;
+                bwp.TargetRoomMob = txtMob.Text;
+                RunBackgroundProcess(bwp);
             }
             else
             {
@@ -3781,7 +3837,10 @@ BeforeHazy:
             public string TargetRoomMob { get; set; }
             public bool ReachedTargetRoom { get; set; }
             public bool Foreground { get; set; }
-            public bool Heal { get; set; }
+            public bool HealHitpoints { get; set; }
+            public bool CureIfPoisoned { get; set; }
+            public bool EnsureBlessed { get; set; }
+            public bool EnsureProtected { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -4873,7 +4932,10 @@ BeforeHazy:
             if (bwp == null)
             {
                 bwp = new BackgroundWorkerParameters();
-                bwp.Heal = true;
+                bwp.HealHitpoints = true;
+                bwp.EnsureBlessed = true;
+                bwp.EnsureProtected = true;
+                bwp.CureIfPoisoned = true;
                 RunBackgroundProcess(bwp);
             }
         }

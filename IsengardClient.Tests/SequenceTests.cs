@@ -74,7 +74,8 @@ namespace IsengardClient.Tests
             int iMaxHP = -1;
             int iMaxMP = -1;
             int iTNL = -1;
-            Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>> a = (flpparam, l, hp, mp, tnl, cs, ss) =>
+            bool? poisoned = null;
+            Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, l, hp, mp, tnl, cs, ss, p) =>
             {
                 iLevel = l;
                 iMaxHP = hp;
@@ -82,6 +83,7 @@ namespace IsengardClient.Tests
                 iTNL = tnl;
                 cooldowns = cs;
                 spells = ss;
+                poisoned = p;
             };
 
             ScoreOutputSequence sos = new ScoreOutputSequence("despug", a);
@@ -90,9 +92,10 @@ namespace IsengardClient.Tests
             FeedLineParameters flp = new FeedLineParameters(input);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
-            input.Add(string.Empty);
+            input.Add(" *Poisoned*");
             input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 0");
             input.Add("    Gold:  376933  To Next Level:    24115 Exp         0 GP");
             input.Add("Skills: (power) attack [2:15], ");
@@ -121,6 +124,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Available);
             Assert.IsTrue(cooldowns[1].SkillName == "manashield");
             Assert.IsTrue(spells[0] == "None");
+            Assert.IsTrue(poisoned);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             input.Clear();
