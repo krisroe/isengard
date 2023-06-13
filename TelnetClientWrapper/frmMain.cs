@@ -2271,7 +2271,7 @@ namespace IsengardClient
                     {
                         healPoison = true;
                     }
-                    else
+                    else if (!healHP && !ensureBlessed && !ensureProtected) //display a message if a standalone curepoison was attempted
                     {
                         AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
                     }
