@@ -2103,7 +2103,7 @@ namespace IsengardClient
                     }
                     else if (remainder.EndsWith(" wounds"))
                     {
-                        matches = true; //CSRTODO: 13-14
+                        matches = true; //CSRTODO: 13-15
                     }
                     else if (remainder.EndsWith(" smites"))
                     {
