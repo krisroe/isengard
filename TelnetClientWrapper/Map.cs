@@ -19,8 +19,6 @@ namespace IsengardClient
         private RoomGraph _breeStreetsGraph;
 
         private Room _orderOfLove = null;
-        private Room _healingHand = null;
-        private Room _nindamosVillageCenter = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
         private Area _aMisc;
@@ -57,17 +55,17 @@ namespace IsengardClient
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
             AddBreeToImladris(out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
-            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside);
+            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand);
             AddEastOfImladris(oEastGateOfImladrisOutside);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph);
             AddWestOfTharbad(tharbadWestGateOutside);
-            AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph);
+            AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
             AddEldemondeCity(oEldemondeEastGateOutside);
             AddMithlond(boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
-            AddIntangible(oBreeTownSquare);
+            AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
 
             SetAlignment(preferredAlignment);
 
@@ -2381,7 +2379,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oOrcsQuarry2] = new System.Windows.Point(8, 0.5);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)
         {
             RoomGraph imladrisGraph = new RoomGraph("Imladris");
             imladrisGraph.ScalingFactor = 100;
@@ -2521,15 +2519,14 @@ namespace IsengardClient
             e.Hidden = true;
             imladrisGraph.Rooms[oImladrisCityDump] = new System.Windows.Point(5, 8);
 
-            _healingHand = AddHealingRoom("Healing Hand", "The Healing Hand", HealingRoom.Imladris);
-            AddBidirectionalExits(_healingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
-            imladrisGraph.Rooms[_healingHand] = new System.Windows.Point(5, 4.5);
+            healingHand = AddHealingRoom("Healing Hand", "The Healing Hand", HealingRoom.Imladris);
+            AddBidirectionalExits(healingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[healingHand] = new System.Windows.Point(5, 4.5);
 
             Room oTyriesPriestSupplies = AddRoom("Tyrie's Priest Supplies", "Tyrie's Priest Supplies");
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oTyriesPriestSupplies] = new System.Windows.Point(5, 5.5);
 
-            AddLocation(_aImladrisTharbadPerms, _healingHand);
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
@@ -3131,7 +3128,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oGraddy);
         }
 
-        private void AddIntangible(Room oBreeTownSquare)
+        private void AddIntangible(Room oBreeTownSquare, Room healingHand, Room nindamosVillageCenter)
         {
             Area oIntangible = _areasByName[AREA_INTANGIBLE];
 
@@ -3145,28 +3142,28 @@ namespace IsengardClient
             Room oDarkTunnel = AddRoom("Dark Tunnel");
             e = AddExit(oLimbo, oDarkTunnel, "blue");
             e.MustOpen = true;
-            AddExit(oDarkTunnel, _healingHand, "light");
+            AddExit(oDarkTunnel, healingHand, "light");
 
             Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds above Nindamos");
             e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
             e.MustOpen = true;
-            AddExit(oFluffyCloudsAboveNindamos, _nindamosVillageCenter, "green");
+            AddExit(oFluffyCloudsAboveNindamos, nindamosVillageCenter, "green");
 
             AddLocation(oIntangible, treeOfLife);
             AddLocation(oIntangible, oLimbo);
         }
 
-        private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph)
+        private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter)
         {
             nindamosGraph = new RoomGraph("Nindamos");
             nindamosGraph.ScalingFactor = 100;
             _graphs[MapType.Nindamos] = nindamosGraph;
 
-            _nindamosVillageCenter = AddRoom("Village Center");
-            nindamosGraph.Rooms[_nindamosVillageCenter] = new System.Windows.Point(8, 4);
+            nindamosVillageCenter = AddRoom("Village Center");
+            nindamosGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(8, 4);
 
             Room oSandstoneNorth1 = AddRoom("Sandstone");
-            AddBidirectionalExits(oSandstoneNorth1, _nindamosVillageCenter, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oSandstoneNorth1, nindamosVillageCenter, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oSandstoneNorth1] = new System.Windows.Point(8, 3);
 
             Room oSandstoneNorth2 = AddRoom("Sandstone");
@@ -3201,7 +3198,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandstoneDrivel] = new System.Windows.Point(8, 1);
 
             Room oSandstoneSouth1 = AddRoom("Sandstone");
-            AddBidirectionalExits(_nindamosVillageCenter, oSandstoneSouth1, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(nindamosVillageCenter, oSandstoneSouth1, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oSandstoneSouth1] = new System.Windows.Point(8, 5);
 
             Room oSandstoneSouth2 = AddRoom("Sandstone");
@@ -3240,7 +3237,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandyBeach1] = new System.Windows.Point(12, 1);
 
             Room oPaledasenta1 = AddRoom("Paledasenta");
-            AddBidirectionalExits(_nindamosVillageCenter, oPaledasenta1, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(nindamosVillageCenter, oPaledasenta1, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oPaledasenta1] = new System.Windows.Point(9, 4);
 
             Room oNindamosPostOffice = AddRoom("Post Office");
@@ -3404,7 +3401,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oElysia4] = new System.Windows.Point(11, 6);
 
             Room oGranitePath1 = AddRoom("Granite Path");
-            AddBidirectionalExits(oGranitePath1, _nindamosVillageCenter, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oGranitePath1, nindamosVillageCenter, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oGranitePath1] = new System.Windows.Point(7, 4);
 
             Room oGranitePath2 = AddRoom("Granite Path");
