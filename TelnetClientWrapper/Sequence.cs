@@ -805,8 +805,8 @@ namespace IsengardClient
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
         private string _userName;
-        private Action<RoomTransitionInfo, int, bool> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo, int, bool> onSatisfied, string userName)
+        private Action<RoomTransitionInfo, int, TrapType> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionInfo, int, TrapType> onSatisfied, string userName)
         {
             _onSatisfied = onSatisfied;
             _userName = userName;
@@ -818,6 +818,7 @@ namespace IsengardClient
             RoomTransitionType rtType = RoomTransitionType.Move;
             int nextLineIndex = 0;
             int iDamage = 0;
+            TrapType eTrapType = TrapType.None;
             while (true)
             {
                 string nextLine = Lines[nextLineIndex];
@@ -834,6 +835,7 @@ namespace IsengardClient
                     int iFoundDamage = FailMovementSequence.ProcessFallDamage(nextLine);
                     if (iFoundDamage > 0) //skip but process the damage
                     {
+                        eTrapType = eTrapType | TrapType.Fall;
                         iDamage += iFoundDamage;
                     }
                     else //something else, so skip to the following logic
@@ -874,7 +876,7 @@ namespace IsengardClient
             //blank line before room name
             if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return;
 
-            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied, iDamage))
+            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied, iDamage, ref eTrapType))
             {
                 flParams.FinishedProcessing = true;
             }
@@ -942,7 +944,7 @@ namespace IsengardClient
             return ili;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int, bool> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, bool poisoned)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1117,11 +1119,11 @@ namespace IsengardClient
             rti.Mobs = mobs;
             rti.Items = items;
             rti.ErrorMessages = errorMessages;
-            onSatisfied(rti, damage, poisoned);
+            onSatisfied(rti, damage, trapType);
             return true;
         }
 
-        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int, bool> onSatisfied, int damage)
+        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int, TrapType> onSatisfied, int damage, ref TrapType trapType)
         {
             int lineCount = Lines.Count;
             if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
@@ -1142,7 +1144,6 @@ namespace IsengardClient
                 list3String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
             }
 
-            bool poisoned = false;
             if (nextLineIndex < lineCount)
             {
                 string sNextLine = Lines[nextLineIndex];
@@ -1154,7 +1155,7 @@ namespace IsengardClient
                         sNextLine = Lines[i];
                         if (sNextLine == "You triggered a hidden dart!")
                         {
-                            poisoned = true;
+                            trapType = trapType | TrapType.PoisonDart;
                         }
                         else
                         {
@@ -1165,7 +1166,7 @@ namespace IsengardClient
                 }
             }
 
-            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, poisoned);
+            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType);
         }
 
         private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)

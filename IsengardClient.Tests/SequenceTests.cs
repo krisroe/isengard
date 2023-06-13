@@ -656,12 +656,12 @@ namespace IsengardClient.Tests
         {
             RoomTransitionInfo oRTI = null;
             int? iDamage = null;
-            bool? poisoned = null;
-            Action<RoomTransitionInfo, int, bool> a = (rti, d, p) =>
+            TrapType? trapType = null;
+            Action<RoomTransitionInfo, int, TrapType> a = (rti, d, tt) =>
             {
                 oRTI = rti;
                 iDamage = d;
-                poisoned = p;
+                trapType = tt;
             };
 
             RoomTransitionSequence seq = new RoomTransitionSequence(a, "Despug");
@@ -682,11 +682,11 @@ namespace IsengardClient.Tests
             flParams.PlayerNames = new HashSet<string>();
             oRTI = null;
             iDamage = null;
-            poisoned = null;
+            trapType = null;
             seq.FeedLine(flParams);
             Assert.IsTrue(oRTI != null);
             Assert.IsTrue(iDamage == 10);
-            Assert.IsTrue(poisoned.Value);
+            Assert.IsTrue(trapType.Value == TrapType.PoisonDart);
         }
 
         [TestMethod]

@@ -357,4 +357,12 @@ namespace IsengardClient
         MillwoodMansion,
         DeathValley,
     }
+
+    [Flags]
+    public enum TrapType
+    {
+        None = 0,
+        PoisonDart = 1,
+        Fall = 2,
+    }
 }

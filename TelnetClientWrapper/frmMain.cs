@@ -142,7 +142,7 @@ namespace IsengardClient
         private CommandResult? _commandResult;
         private int _commandResultCounter = 0;
         private int _lastCommandDamage;
-        private bool _lastCommandPoisoned;
+        private TrapType _lastCommandTrapType;
         private MovementResult? _lastCommandMovementResult;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
@@ -1054,7 +1054,7 @@ namespace IsengardClient
 
             InitialLoginInfo info = _loginInfo;
             string sRoomName = info.RoomName;
-            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, false))
+            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None))
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 Room r = SetCurrentRoomIfUnambiguous(sRoomName);
@@ -1079,7 +1079,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage, bool poisoned)
+        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType)
         {
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
@@ -1143,7 +1143,7 @@ namespace IsengardClient
             if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
             {
                 _lastCommandDamage = damage;
-                _lastCommandPoisoned = poisoned;
+                _lastCommandTrapType = trapType;
                 _lastCommandMovementResult = MovementResult.Success;
             }
 
@@ -2212,7 +2212,7 @@ namespace IsengardClient
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
-                _lastCommandPoisoned = false;
+                _lastCommandTrapType = TrapType.None;
                 _lastCommandMovementResult = null;
                 Room wentToRoom = bwp.NavigatedToRoom;
                 if (wentToRoom != null)
@@ -2387,13 +2387,16 @@ namespace IsengardClient
                                     {
                                         pms.NavigatedToRoom = nextExitTarget;
                                     }
-                                    if (_lastCommandPoisoned)
+                                    if ((_lastCommandTrapType & TrapType.PoisonDart) != TrapType.None)
                                     {
                                         needCurepoison = true;
                                     }
                                     if (_lastCommandDamage != 0) //trap room
                                     {
                                         needHeal = true;
+                                    }
+                                    if ((_lastCommandTrapType & TrapType.Fall) != TrapType.None)
+                                    {
                                         SendCommand("stand", InputEchoType.On);
                                     }
                                 }
@@ -3222,7 +3225,7 @@ BeforeHazy:
             _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
-            _lastCommandPoisoned = false;
+            _lastCommandTrapType = TrapType.None;
             _lastCommandMovementResult = null;
             try
             {
