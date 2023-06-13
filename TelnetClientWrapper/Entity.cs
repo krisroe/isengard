@@ -591,23 +591,6 @@ namespace IsengardClient
         }
     }
 
-    public enum EntityType
-    {
-        Player,
-        Mob,
-        Item,
-        Unknown,
-    }
-
-    [Flags]
-    public enum EntityTypeFlags
-    {
-        None = 0,
-        Player = 1,
-        Mob = 2,
-        Item = 3,
-    }
-
     public class NameAttribute : Attribute
     {
         public string Name { get; set; }

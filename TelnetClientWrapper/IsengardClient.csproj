@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="AsciiMapping.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Exit.cs" />
     <Compile Include="frmConfiguration.cs">
       <SubType>Form</SubType>

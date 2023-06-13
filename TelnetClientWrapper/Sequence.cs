@@ -16,15 +16,6 @@ namespace IsengardClient
         public int MP { get; set; }
     }
 
-    public enum OutputItemSequenceType
-    {
-        UserNamePrompt,
-        PasswordPrompt,
-        HPMPStatus,
-        ContinueToNextScreen,
-        Goodbye,
-    }
-
     public abstract class AOutputProcessingSequence
     {
         public virtual bool IsActive()
@@ -160,14 +151,6 @@ namespace IsengardClient
             }
             return ret;
         }
-    }
-
-    public enum ConstantSequenceMatchType
-    {
-        ExactMatch,
-        StartsWith,
-        EndsWith,
-        Contains,
     }
 
     internal class ConstantSequence
@@ -747,37 +730,6 @@ namespace IsengardClient
         public System.Windows.Forms.Label CooldownLabel { get; set; }
         public string RemainingTextUI { get; set; }
         public Color RemainingColorUI { get; set; }
-    }
-
-    public enum SkillCooldownStatus
-    {
-        /// <summary>
-        /// currently active
-        /// </summary>
-        Active,
-
-        /// <summary>
-        /// currently available
-        /// </summary>
-        Available,
-
-        /// <summary>
-        /// not currently available and waiting to become available
-        /// </summary>
-        Waiting,
-
-        /// <summary>
-        /// not currently available and the next time it will be available is unknown
-        /// </summary>
-        Inactive,
-    }
-
-    public enum RoomTransitionType
-    {
-        Initial,
-        Move,
-        Flee,
-        Hazy,
     }
 
     internal class InitialLoginInfo
@@ -2281,33 +2233,5 @@ namespace IsengardClient
             string sFullContent = GetListAsString(inputs, lineIndex, startsWith, requireExactStartsWith, out nextLineIndex);
             return ParseList(sFullContent);
         }
-    }
-
-    public enum InformationalMessages
-    {
-        DayStart,
-        NightStart,
-        BullroarerInMithlond,
-        BullroarerInNindamos,
-        BlessOver,
-        ProtectionOver,
-        FlyOver,
-        ManashieldOff,
-    }
-
-    public enum SkillWithCooldownType
-    {
-        Unknown,
-        PowerAttack,
-        Manashield,
-    }
-
-    public enum MovementResult
-    {
-        Success,
-        TotalFailure,
-        MapFailure,
-        StandFailure,
-        FallFailure,
     }
 }

@@ -1,0 +1,337 @@
+﻿using System;
+
+namespace IsengardClient
+{
+    internal enum FloatRequirement
+    {
+        None = 0,
+        Fly = 1,
+        FlyOrLevitation = 2,
+    }
+
+    internal enum ExitPresenceType
+    {
+        Always,
+        Periodic,
+        RequiresSearch,
+    }
+
+    internal enum KeyType
+    {
+        None,
+        GateKey,
+        KasnarsRedKey,
+        SilverKey,
+        UnknownKnockable,
+    }
+
+    [Flags]
+    internal enum PromptedSkills
+    {
+        None = 0,
+        PowerAttack = 1,
+        Manashield = 2
+    }
+
+    /// <summary>
+    /// result of a single command
+    /// </summary>
+    public enum CommandResult
+    {
+        /// <summary>
+        /// the command completed successfully
+        /// </summary>
+        CommandSuccessful,
+
+        /// <summary>
+        /// the command was unsuccessful, but could succeed if run again (e.g. flee, search, knock, manashield)
+        /// </summary>
+        CommandUnsuccessfulThisTime,
+
+        /// <summary>
+        /// the command was unsuccessful, and it is expected the command would continue to not work if tried again
+        /// </summary>
+        CommandUnsuccessfulAlways,
+
+        /// <summary>
+        /// additional wait time is needed before the command can be run
+        /// </summary>
+        CommandMustWait,
+
+        /// <summary>
+        /// the background process was aborted, such as the user cancelling the background process or a hazy or flee was triggered
+        /// </summary>
+        CommandAborted,
+
+        /// <summary>
+        /// no response was processed from the server within the timeout interval
+        /// </summary>
+        CommandTimeout,
+    }
+
+    public enum BackgroundCommandType
+    {
+        Movement,
+        Look,
+        LookAtMob,
+        Prepare,
+        Search,
+        Knock,
+        Vigor,
+        MendWounds,
+        Bless,
+        Protection,
+        Manashield,
+        Stun,
+        OffensiveSpell,
+        Attack,
+        Flee,
+        DrinkHazy,
+        Score,
+        Quit,
+    }
+
+    internal enum MonsterStatus
+    {
+        None,
+        ExcellentCondition,
+        FewSmallScratches,
+        WincingInPain,
+        SlightlyBruisedAndBattered,
+        SomeMinorWounds,
+        BleedingProfusely,
+        NastyAndGapingWound,
+        ManyGreviousWounds,
+        MortallyWounded,
+        BarelyClingingToLife,
+    }
+
+    internal enum InputEchoType
+    {
+        On,
+        OnPassword,
+        Off,
+    }
+
+    internal enum BackgroundProcessPhase
+    {
+        None,
+        Initialization,
+        Heal,
+        ActivateSkills,
+        Movement,
+        Combat,
+        Flee,
+        Hazy,
+        Score,
+        Quit,
+    }
+
+    [Flags]
+    public enum CommandType
+    {
+        None = 0,
+        Melee = 1,
+        Magic = 2,
+        Potions = 4,
+    }
+
+    [Flags]
+    internal enum InitializationStep
+    {
+        None = 0,
+        Initialization = 1,
+        RemoveAll = 2,
+        Score = 4,
+        Time = 8,
+        Who = 16,
+        BeforeFinalization = 31,
+        Finalization = 32,
+        All = 63,
+    }
+
+    public enum EntityType
+    {
+        Player,
+        Mob,
+        Item,
+        Unknown,
+    }
+
+    [Flags]
+    public enum EntityTypeFlags
+    {
+        None = 0,
+        Player = 1,
+        Mob = 2,
+        Item = 3,
+    }
+
+    public enum AutoEscapeType
+    {
+        Flee = 0,
+        Hazy = 1,
+    }
+
+    internal enum BidirectionalExitType
+    {
+        WestEast,
+        NorthSouth,
+        SoutheastNorthwest,
+        SouthwestNortheast,
+        UpDown,
+    }
+
+    internal enum AlignmentType
+    {
+        Blue,
+        Grey,
+        Red,
+    }
+
+    internal enum MapType
+    {
+        BreeStreets,
+        BreeSewers,
+        UnderBree,
+        MillwoodMansion,
+        MillwoodMansionUpstairs,
+        BreeHauntedMansion,
+        BreeToImladris,
+        Imladris,
+        ImladrisToTharbad,
+        EastOfImladris,
+        ShantyTown,
+        Tharbad,
+        WestOfTharbad,
+        Mithlond,
+        Nindamos,
+        Armenelos,
+        Eldemonde,
+    }
+
+    public enum FinalStepAction
+    {
+        None = 0,
+        Flee = 2,
+        Hazy = 3,
+        FinishCombat = 4,
+    }
+
+    public enum MagicStrategyStep
+    {
+        Stun,
+        OffensiveSpellAuto,
+        OffensiveSpellLevel1,
+        OffensiveSpellLevel2,
+        OffensiveSpellLevel3,
+        Vigor,
+        MendWounds,
+        GenericHeal,
+    }
+
+    public enum MeleeStrategyStep
+    {
+        RegularAttack,
+        PowerAttack,
+    }
+
+    public enum PotionsStrategyStep
+    {
+        Vigor,
+        MendWounds,
+        GenericHeal,
+    }
+
+    public enum MagicCommandChoiceResult
+    {
+        Cast,
+        Skip,
+        OutOfMana,
+    }
+
+    [Flags]
+    public enum DependentObjectType
+    {
+        None = 0,
+        Mob = 1,
+        Weapon = 2,
+        Wand = 4,
+    }
+
+    public enum OutputItemSequenceType
+    {
+        UserNamePrompt,
+        PasswordPrompt,
+        HPMPStatus,
+        ContinueToNextScreen,
+        Goodbye,
+    }
+
+    public enum ConstantSequenceMatchType
+    {
+        ExactMatch,
+        StartsWith,
+        EndsWith,
+        Contains,
+    }
+
+    public enum SkillCooldownStatus
+    {
+        /// <summary>
+        /// currently active
+        /// </summary>
+        Active,
+
+        /// <summary>
+        /// currently available
+        /// </summary>
+        Available,
+
+        /// <summary>
+        /// not currently available and waiting to become available
+        /// </summary>
+        Waiting,
+
+        /// <summary>
+        /// not currently available and the next time it will be available is unknown
+        /// </summary>
+        Inactive,
+    }
+
+    public enum RoomTransitionType
+    {
+        Initial,
+        Move,
+        Flee,
+        Hazy,
+    }
+
+    public enum InformationalMessages
+    {
+        DayStart,
+        NightStart,
+        BullroarerInMithlond,
+        BullroarerInNindamos,
+        BlessOver,
+        ProtectionOver,
+        FlyOver,
+        ManashieldOff,
+    }
+
+    public enum SkillWithCooldownType
+    {
+        Unknown,
+        PowerAttack,
+        Manashield,
+    }
+
+    public enum MovementResult
+    {
+        Success,
+        TotalFailure,
+        MapFailure,
+        StandFailure,
+        FallFailure,
+    }
+}

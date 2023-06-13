@@ -123,27 +123,4 @@ namespace IsengardClient
             Exit = e;
         }
     }
-
-    internal enum FloatRequirement
-    {
-        None = 0,
-        Fly = 1,
-        FlyOrLevitation = 2,
-    }
-
-    internal enum ExitPresenceType
-    {
-        Always,
-        Periodic,
-        RequiresSearch,
-    }
-
-    internal enum KeyType
-    {
-        None,
-        GateKey,
-        KasnarsRedKey,
-        SilverKey,
-        UnknownKnockable,
-    }
 }

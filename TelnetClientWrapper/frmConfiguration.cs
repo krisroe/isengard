@@ -767,10 +767,4 @@ namespace IsengardClient
             MoveStrategyUp(lstStrategies.SelectedIndex + 1);
         }
     }
-
-    public enum AutoEscapeType
-    {
-        Flee = 0,
-        Hazy = 1,
-    }
 }

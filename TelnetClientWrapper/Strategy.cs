@@ -1023,44 +1023,4 @@ namespace IsengardClient
             return ret;
         }
     }
-
-    public enum FinalStepAction
-    {
-        None = 0,
-        Flee = 2,
-        Hazy = 3,
-        FinishCombat = 4,
-    }
-
-    public enum MagicStrategyStep
-    {
-        Stun,
-        OffensiveSpellAuto,
-        OffensiveSpellLevel1,
-        OffensiveSpellLevel2,
-        OffensiveSpellLevel3,
-        Vigor,
-        MendWounds,
-        GenericHeal,
-    }
-
-    public enum MeleeStrategyStep
-    {
-        RegularAttack,
-        PowerAttack,
-    }
-
-    public enum PotionsStrategyStep
-    {
-        Vigor,
-        MendWounds,
-        GenericHeal,
-    }
-
-    public enum MagicCommandChoiceResult
-    {
-        Cast,
-        Skip,
-        OutOfMana,
-    }
 }

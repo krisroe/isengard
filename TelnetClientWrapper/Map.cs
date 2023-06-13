@@ -4617,15 +4617,6 @@ namespace IsengardClient
         }
     }
 
-    internal enum BidirectionalExitType
-    {
-        WestEast,
-        NorthSouth,
-        SoutheastNorthwest,
-        SouthwestNortheast,
-        UpDown,
-    }
-
     internal class Area
     {
         public Area(string name)
@@ -4641,34 +4632,6 @@ namespace IsengardClient
 
         public string Name { get; set; }
         public List<Room> Locations { get; set; }
-    }
-
-    internal enum AlignmentType
-    {
-        Blue,
-        Grey,
-        Red,
-    }
-
-    internal enum MapType
-    {
-        BreeStreets,
-        BreeSewers,
-        UnderBree,
-        MillwoodMansion,
-        MillwoodMansionUpstairs,
-        BreeHauntedMansion,
-        BreeToImladris,
-        Imladris,
-        ImladrisToTharbad,
-        EastOfImladris,
-        ShantyTown,
-        Tharbad,
-        WestOfTharbad,
-        Mithlond,
-        Nindamos,
-        Armenelos,
-        Eldemonde,
     }
 
     internal static class MapComputation
