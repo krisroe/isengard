@@ -1578,7 +1578,7 @@ namespace IsengardClient
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
             oEugeneTheExecutioner.IsDamageRoom = true;
             e = AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
-            e.IsTrapExit = true;
+            oEugeneTheExecutioner.IsTrapRoom = true;
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
 
             Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel", "Cellar");
@@ -1586,7 +1586,6 @@ namespace IsengardClient
             oBurnedRemainsOfNimrodel.Experience1 = 300;
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
             e = AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
-            e.IsTrapExit = true;
             breeSewersGraph.Rooms[oBurnedRemainsOfNimrodel] = new System.Windows.Point(2, 1);
 
             Room aqueduct = AddRoom("Aqueduct", "Aqueduct");

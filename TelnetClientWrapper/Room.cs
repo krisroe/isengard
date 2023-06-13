@@ -67,6 +67,10 @@ namespace IsengardClient
         /// is a room that deals damage to the player periodically
         /// </summary>
         public bool IsDamageRoom { get; set; }
+        /// <summary>
+        /// is a room that has a trap when the player enters it
+        /// </summary>
+        public bool IsTrapRoom { get; set; }
 
         public string GetDefaultMob()
         {

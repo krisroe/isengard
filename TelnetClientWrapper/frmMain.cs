@@ -2281,14 +2281,21 @@ namespace IsengardClient
                 }
 
                 bool atDestination = false;
+                Exit previousExit = null;
                 if (pms.Exits != null && pms.Exits.Count > 0)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.Movement;
                     List<Exit> exitList = new List<Exit>(pms.Exits);
                     Room oTarget = exitList[exitList.Count - 1].Target;
+                    bool needHeal = false;
                     while (exitList.Count > 0)
                     {
                         Exit nextExit = exitList[0];
+                        if (previousExit != null && previousExit == nextExit)
+                        {
+                            AddConsoleMessage("Movement recalculation produced the same path.");
+                            return;
+                        }
                         Room nextExitTarget = nextExit.Target;
                         string exitText = nextExit.ExitText;
                         _currentBackgroundExit = nextExit;
@@ -2372,7 +2379,7 @@ namespace IsengardClient
                                 }
                             }
 
-                            if (nextExit.IsTrapExit)
+                            if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
                             {
                                 backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
                                 if (!backgroundCommandSuccess) return;
@@ -2394,7 +2401,11 @@ namespace IsengardClient
                                     }
                                     if (_lastCommandDamage != 0) //fell into a trap room
                                     {
-                                        if (!nextExitTarget.IsDamageRoom)
+                                        if (nextExitTarget.IsDamageRoom)
+                                        {
+                                            needHeal = true;
+                                        }
+                                        else
                                         {
                                             if (!DoBackgroundHeal(false, false, pms)) return;
                                             _backgroundProcessPhase = BackgroundProcessPhase.Movement;
@@ -2433,6 +2444,11 @@ namespace IsengardClient
                                     keepTryingMovement = false;
                                     return;
                                 }
+                            }
+                            if (needHeal)
+                            {
+                                if (!DoBackgroundHeal(false, false, pms)) return;
+                                needHeal = false;
                             }
                         }
                         finally
