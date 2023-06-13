@@ -5,8 +5,8 @@
     <Setting Name="DefaultWeapon" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DefaultRealm" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="DefaultRealm" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="PreferredAlignment" Type="System.String" Scope="User">
       <Value Profile="(Default)">Good</Value>

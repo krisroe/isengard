@@ -14,7 +14,7 @@ namespace IsengardClient
         private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
 
-        private string _currentRealm;
+        private RealmType _currentRealm;
         private int _autoSpellLevelMin = -1;
         private int _autoSpellLevelMax = -1;
 
@@ -4759,22 +4759,22 @@ BeforeHazy:
             if (doDefault)
             {
                 IsengardSettings sets = IsengardSettings.Default;
-                _currentRealm = sets.DefaultRealm;
-                if (_currentRealm != "earth" &&
-                    _currentRealm != "fire" &&
-                    _currentRealm != "water" &&
-                    _currentRealm != "wind")
+                _currentRealm = (RealmType)sets.DefaultRealm;
+                if (_currentRealm != RealmType.Earth &&
+                    _currentRealm != RealmType.Fire &&
+                    _currentRealm != RealmType.Water &&
+                    _currentRealm != RealmType.Wind)
                 {
-                    _currentRealm = "earth";
-                    sets.DefaultRealm = _currentRealm;
+                    _currentRealm = RealmType.Earth;
+                    sets.DefaultRealm = Convert.ToInt32(_currentRealm);
                 }
             }
             List<string> spellList;
-            if (_currentRealm == "earth")
+            if (_currentRealm == RealmType.Earth)
                 spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
-            else if (_currentRealm == "fire")
+            else if (_currentRealm == RealmType.Fire)
                 spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
-            else if (_currentRealm == "water")
+            else if (_currentRealm == RealmType.Water)
                 spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
             else //wind
                 spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;

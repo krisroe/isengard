@@ -334,4 +334,12 @@ namespace IsengardClient
         StandFailure,
         FallFailure,
     }
+
+    public enum RealmType
+    {
+        Earth = 0,
+        Wind = 1,
+        Water = 2,
+        Fire = 3,
+    }
 }

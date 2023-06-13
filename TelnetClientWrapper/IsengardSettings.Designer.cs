@@ -37,10 +37,10 @@ namespace IsengardClient {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DefaultRealm {
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DefaultRealm {
             get {
-                return ((string)(this["DefaultRealm"]));
+                return ((int)(this["DefaultRealm"]));
             }
             set {
                 this["DefaultRealm"] = value;

@@ -166,7 +166,6 @@
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
             this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(188, 22);
-            this.tsmiCurrentRealmEarth.Tag = "earth";
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -174,7 +173,6 @@
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
             this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(188, 22);
-            this.tsmiCurrentRealmFire.Tag = "fire";
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -182,7 +180,6 @@
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
             this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(188, 22);
-            this.tsmiCurrentRealmWater.Tag = "water";
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -190,7 +187,6 @@
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
             this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(188, 22);
-            this.tsmiCurrentRealmWind.Tag = "wind";
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -203,7 +199,6 @@
             // 
             this.tsmiDefaultRealmEarth.Name = "tsmiDefaultRealmEarth";
             this.tsmiDefaultRealmEarth.Size = new System.Drawing.Size(188, 22);
-            this.tsmiDefaultRealmEarth.Tag = "earth";
             this.tsmiDefaultRealmEarth.Text = "earth";
             this.tsmiDefaultRealmEarth.Click += new System.EventHandler(this.tsmiDefaultRealm_Click);
             // 
@@ -211,7 +206,6 @@
             // 
             this.tsmiDefaultRealmFire.Name = "tsmiDefaultRealmFire";
             this.tsmiDefaultRealmFire.Size = new System.Drawing.Size(188, 22);
-            this.tsmiDefaultRealmFire.Tag = "fire";
             this.tsmiDefaultRealmFire.Text = "fire";
             this.tsmiDefaultRealmFire.Click += new System.EventHandler(this.tsmiDefaultRealm_Click);
             // 
@@ -219,7 +213,6 @@
             // 
             this.tsmiDefaultRealmWater.Name = "tsmiDefaultRealmWater";
             this.tsmiDefaultRealmWater.Size = new System.Drawing.Size(188, 22);
-            this.tsmiDefaultRealmWater.Tag = "water";
             this.tsmiDefaultRealmWater.Text = "water";
             this.tsmiDefaultRealmWater.Click += new System.EventHandler(this.tsmiDefaultRealm_Click);
             // 
@@ -227,7 +220,6 @@
             // 
             this.tsmiDefaultRealmWind.Name = "tsmiDefaultRealmWind";
             this.tsmiDefaultRealmWind.Size = new System.Drawing.Size(188, 22);
-            this.tsmiDefaultRealmWind.Tag = "wind";
             this.tsmiDefaultRealmWind.Text = "wind";
             this.tsmiDefaultRealmWind.Click += new System.EventHandler(this.tsmiDefaultRealm_Click);
             // 

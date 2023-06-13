@@ -28,10 +28,10 @@ namespace IsengardClient
         private Color _fullColor;
         private Color _emptyColor;
 
-        private string _defaultRealm;
-        private string _defaultRealmOriginal;
-        private string _currentRealm;
-        private string _currentRealmOriginal;
+        private RealmType _defaultRealm;
+        private RealmType _defaultRealmOriginal;
+        private RealmType _currentRealm;
+        private RealmType _currentRealmOriginal;
 
         private int _defaultAutoSpellLevelMinimum;
         private int _defaultAutoSpellLevelMaximum;
@@ -47,14 +47,23 @@ namespace IsengardClient
         private string _defaultWeaponOriginal;
         private string _currentWeaponOriginal;
 
-        public frmConfiguration(string currentRealm, int currentAutoSpellLevelMin, int currentAutoSpellLevelMax, string weapon, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
+        public frmConfiguration(RealmType currentRealm, int currentAutoSpellLevelMin, int currentAutoSpellLevelMax, string weapon, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
         {
             InitializeComponent();
+
+            tsmiCurrentRealmEarth.Tag = RealmType.Earth;
+            tsmiCurrentRealmFire.Tag = RealmType.Fire;
+            tsmiCurrentRealmWater.Tag = RealmType.Water;
+            tsmiCurrentRealmWind.Tag = RealmType.Wind;
+            tsmiDefaultRealmEarth.Tag = RealmType.Earth;
+            tsmiDefaultRealmFire.Tag = RealmType.Fire;
+            tsmiDefaultRealmWater.Tag = RealmType.Water;
+            tsmiDefaultRealmWind.Tag = RealmType.Wind;
 
             IsengardSettings sets = IsengardSettings.Default;
 
             _currentRealmOriginal = _currentRealm = currentRealm;
-            _defaultRealm = IsengardSettings.Default.DefaultRealm;
+            _defaultRealm = (RealmType)IsengardSettings.Default.DefaultRealm;
             _defaultRealmOriginal = _defaultRealm;
             RefreshRealmUI();
 
@@ -81,9 +90,9 @@ namespace IsengardClient
             _defaultAutoEscapeActiveOriginal = _defaultAutoEscapeActive;
             _defaultAutoEscapeThresholdOriginal = _defaultAutoEscapeThreshold;
             _defaultAutoEscapeTypeOriginal = _defaultAutoEscapeType;
-            _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal = CurrentAutoEscapeActive;
-            _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal = CurrentAutoEscapeThreshold;
-            _currentAutoEscapeType = _currentAutoEscapeTypeOriginal = CurrentAutoEscapeType;
+            _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal = autoEscapeActive;
+            _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal = autoEscapeThreshold;
+            _currentAutoEscapeType = _currentAutoEscapeTypeOriginal = autoEscapeType;
             RefreshAutoEscapeUI();
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
@@ -142,7 +151,7 @@ namespace IsengardClient
         {
             IsengardSettings sets = IsengardSettings.Default;
             sets.DefaultWeapon = txtDefaultWeaponValue.Text;
-            sets.DefaultRealm = _defaultRealm;
+            sets.DefaultRealm = Convert.ToInt32(_defaultRealm);
             sets.PreferredAlignment = _preferredAlignment.ToString();
             sets.DefaultAutoEscapeOnByDefault = _defaultAutoEscapeActive;
             sets.DefaultAutoEscapeThreshold = _defaultAutoEscapeThreshold;
@@ -219,7 +228,7 @@ namespace IsengardClient
 
         #region current/default realm
 
-        public string CurrentRealm
+        public RealmType CurrentRealm
         {
             get
             {
@@ -229,23 +238,23 @@ namespace IsengardClient
 
         private void RefreshRealmUI()
         {
-            lblDefaultRealmValue.Text = _defaultRealm;
+            lblDefaultRealmValue.Text = _defaultRealm.ToString();
             lblDefaultRealmValue.BackColor = UIShared.GetColorForRealm(_defaultRealm);
-            lblCurrentRealmValue.Text = _currentRealm;
+            lblCurrentRealmValue.Text = _currentRealm.ToString();
             lblCurrentRealmValue.BackColor = UIShared.GetColorForRealm(_currentRealm);
         }
 
         private void tsmiDefaultRealm_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
-            _defaultRealm = tsmi.Tag.ToString();
+            _defaultRealm = (RealmType)tsmi.Tag;
             RefreshRealmUI();
         }
 
         private void tsmiCurrentRealm_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
-            _currentRealm = tsmi.Tag.ToString();
+            _currentRealm = (RealmType)tsmi.Tag;
             RefreshRealmUI();
         }
 
@@ -253,17 +262,17 @@ namespace IsengardClient
         {
             foreach (ToolStripMenuItem tsmi in new List<ToolStripMenuItem>() { tsmiCurrentRealmEarth, tsmiCurrentRealmFire, tsmiCurrentRealmWater, tsmiCurrentRealmWind })
             {
-                string sTag = tsmi.Tag.ToString();
-                bool isSelected = sTag == _currentRealm;
+                RealmType eTag = (RealmType)tsmi.Tag;
+                bool isSelected = eTag == _currentRealm;
                 tsmi.Checked = isSelected;
-                tsmi.Text = isSelected ? sTag + " (Current)" : sTag;
+                tsmi.Text = isSelected ? eTag + " (Current)" : eTag.ToString();
             }
             foreach (ToolStripMenuItem tsmi in new List<ToolStripMenuItem>() { tsmiDefaultRealmEarth, tsmiDefaultRealmFire, tsmiDefaultRealmWater, tsmiDefaultRealmWind })
             {
-                string sTag = tsmi.Tag.ToString();
-                bool isSelected = sTag == _defaultRealm;
+                RealmType eTag = (RealmType)tsmi.Tag;
+                bool isSelected = eTag == _defaultRealm;
                 tsmi.Checked = isSelected;
-                tsmi.Text = isSelected ? sTag + " (Default)" : sTag;
+                tsmi.Text = isSelected ? eTag + " (Default)" : eTag.ToString();
             }
             tsmiSetCurrentRealmAsDefault.Enabled = tsmiSetDefaultRealmAsCurrent.Enabled = _defaultRealm != _currentRealm;
             tsmiRestoreCurrentRealm.Enabled = _currentRealm != _currentRealmOriginal;

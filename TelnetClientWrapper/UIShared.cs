@@ -3,21 +3,21 @@ namespace IsengardClient
 {
     internal class UIShared
     {
-        internal static Color GetColorForRealm(string realm)
+        internal static Color GetColorForRealm(RealmType realm)
         {
             Color ret = Color.Transparent;
             switch (realm)
             {
-                case "earth":
+                case RealmType.Earth:
                     ret = Color.Tan;
                     break;
-                case "fire":
+                case RealmType.Fire:
                     ret = Color.LightSalmon;
                     break;
-                case "water":
+                case RealmType.Water:
                     ret = Color.LightBlue;
                     break;
-                case "wind":
+                case RealmType.Wind:
                     ret = Color.LightGray;
                     break;
             }
