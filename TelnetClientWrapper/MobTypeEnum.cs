@@ -470,6 +470,10 @@
         //CSRTODO: no plural?
         Shepherd,
 
+        [SingularName("shirriff")]
+        [PluralName("shirriffs")]
+        Shirriff,
+
         [SingularName("skeleton")]
         [PluralName("skeletons")]
         Skeleton,

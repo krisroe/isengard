@@ -119,6 +119,10 @@
         [PluralName("elven bows")]
         ElvenBow,
 
+        [SingularName("elven leather whip")]
+        [PluralName("elven leather whips")]
+        ElvenLeatherWhip,
+
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
         EmeraldCollar,
@@ -277,6 +281,10 @@
         //CSRTODO: plural?
         PipeWeed,
 
+        [SingularName("pot helm")]
+        [PluralName("pot helms")]
+        PotHelm,
+
         [SingularName("pot of gold")]
         [PluralName("pots of gold")]
         PotOfGold,
@@ -385,6 +393,10 @@
 
         [SingularName("tiger shark leather armor")]
         TigerSharkLeatherArmor,
+
+        [SingularName("torch")]
+        [PluralName("torches")]
+        Torch,
 
         [SingularName("training key")]
         [PluralName("training keys")]
