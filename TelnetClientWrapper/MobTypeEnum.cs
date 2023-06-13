@@ -226,6 +226,10 @@
         [PluralName("hunchback servants")]
         HunchbackServant,
 
+        [SingularName("hunter")]
+        [PluralName("hunters")]
+        Hunter,
+
         [SingularName("Igor the Bouncer")]
         //CSRTODO: no plural
         IgorTheBouncer,
