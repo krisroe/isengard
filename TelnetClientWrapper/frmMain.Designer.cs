@@ -197,10 +197,10 @@
             // 
             // btnLevel1OffensiveSpell
             // 
-            this.btnLevel1OffensiveSpell.Location = new System.Drawing.Point(662, 474);
-            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLevel1OffensiveSpell.Location = new System.Drawing.Point(883, 583);
+            this.btnLevel1OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLevel1OffensiveSpell.Name = "btnLevel1OffensiveSpell";
-            this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(81, 28);
+            this.btnLevel1OffensiveSpell.Size = new System.Drawing.Size(108, 34);
             this.btnLevel1OffensiveSpell.TabIndex = 0;
             this.btnLevel1OffensiveSpell.Text = "Cast Level 1";
             this.btnLevel1OffensiveSpell.UseVisualStyleBackColor = true;
@@ -209,10 +209,10 @@
             // txtMob
             // 
             this.txtMob.ContextMenuStrip = this.ctxMob;
-            this.txtMob.Location = new System.Drawing.Point(76, 19);
-            this.txtMob.Margin = new System.Windows.Forms.Padding(2);
+            this.txtMob.Location = new System.Drawing.Point(101, 23);
+            this.txtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtMob.Name = "txtMob";
-            this.txtMob.Size = new System.Drawing.Size(155, 20);
+            this.txtMob.Size = new System.Drawing.Size(205, 22);
             this.txtMob.TabIndex = 4;
             this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
             // 
@@ -224,47 +224,46 @@
             this.tsmiMob2,
             this.tsmiMob3});
             this.ctxMob.Name = "ctxMob";
-            this.ctxMob.Size = new System.Drawing.Size(106, 70);
+            this.ctxMob.Size = new System.Drawing.Size(118, 76);
             this.ctxMob.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMob_Opening);
             // 
             // tsmiMob1
             // 
             this.tsmiMob1.Name = "tsmiMob1";
-            this.tsmiMob1.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob1.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob1.Text = "Mob1";
             this.tsmiMob1.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob2
             // 
             this.tsmiMob2.Name = "tsmiMob2";
-            this.tsmiMob2.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob2.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob2.Text = "Mob2";
             this.tsmiMob2.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // tsmiMob3
             // 
             this.tsmiMob3.Name = "tsmiMob3";
-            this.tsmiMob3.Size = new System.Drawing.Size(105, 22);
+            this.tsmiMob3.Size = new System.Drawing.Size(117, 24);
             this.tsmiMob3.Text = "Mob3";
             this.tsmiMob3.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // lblMob
             // 
             this.lblMob.AutoSize = true;
-            this.lblMob.Location = new System.Drawing.Point(13, 22);
-            this.lblMob.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMob.Location = new System.Drawing.Point(17, 27);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(31, 13);
+            this.lblMob.Size = new System.Drawing.Size(37, 16);
             this.lblMob.TabIndex = 3;
             this.lblMob.Text = "Mob:";
             this.lblMob.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnLevel2OffensiveSpell
             // 
-            this.btnLevel2OffensiveSpell.Location = new System.Drawing.Point(662, 507);
-            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLevel2OffensiveSpell.Location = new System.Drawing.Point(883, 624);
+            this.btnLevel2OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLevel2OffensiveSpell.Name = "btnLevel2OffensiveSpell";
-            this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(81, 28);
+            this.btnLevel2OffensiveSpell.Size = new System.Drawing.Size(108, 34);
             this.btnLevel2OffensiveSpell.TabIndex = 5;
             this.btnLevel2OffensiveSpell.Text = "Cast Level 2";
             this.btnLevel2OffensiveSpell.UseVisualStyleBackColor = true;
@@ -272,10 +271,10 @@
             // 
             // btnFlee
             // 
-            this.btnFlee.Location = new System.Drawing.Point(662, 572);
-            this.btnFlee.Margin = new System.Windows.Forms.Padding(2);
+            this.btnFlee.Location = new System.Drawing.Point(883, 704);
+            this.btnFlee.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnFlee.Name = "btnFlee";
-            this.btnFlee.Size = new System.Drawing.Size(80, 28);
+            this.btnFlee.Size = new System.Drawing.Size(107, 34);
             this.btnFlee.TabIndex = 6;
             this.btnFlee.Text = "Flee";
             this.btnFlee.UseVisualStyleBackColor = true;
@@ -283,10 +282,10 @@
             // 
             // btnDrinkHazy
             // 
-            this.btnDrinkHazy.Location = new System.Drawing.Point(663, 604);
-            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDrinkHazy.Location = new System.Drawing.Point(884, 743);
+            this.btnDrinkHazy.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkHazy.Name = "btnDrinkHazy";
-            this.btnDrinkHazy.Size = new System.Drawing.Size(80, 28);
+            this.btnDrinkHazy.Size = new System.Drawing.Size(107, 34);
             this.btnDrinkHazy.TabIndex = 7;
             this.btnDrinkHazy.Text = "Hazy pot";
             this.btnDrinkHazy.UseVisualStyleBackColor = true;
@@ -294,10 +293,10 @@
             // 
             // btnLookAtMob
             // 
-            this.btnLookAtMob.Location = new System.Drawing.Point(579, 604);
-            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLookAtMob.Location = new System.Drawing.Point(772, 743);
+            this.btnLookAtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLookAtMob.Name = "btnLookAtMob";
-            this.btnLookAtMob.Size = new System.Drawing.Size(79, 28);
+            this.btnLookAtMob.Size = new System.Drawing.Size(105, 34);
             this.btnLookAtMob.TabIndex = 8;
             this.btnLookAtMob.Text = "Look at Mob";
             this.btnLookAtMob.UseVisualStyleBackColor = true;
@@ -305,10 +304,10 @@
             // 
             // btnLook
             // 
-            this.btnLook.Location = new System.Drawing.Point(27, 464);
-            this.btnLook.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLook.Location = new System.Drawing.Point(36, 571);
+            this.btnLook.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLook.Name = "btnLook";
-            this.btnLook.Size = new System.Drawing.Size(100, 28);
+            this.btnLook.Size = new System.Drawing.Size(133, 34);
             this.btnLook.TabIndex = 9;
             this.btnLook.Text = "Look";
             this.btnLook.UseVisualStyleBackColor = true;
@@ -316,10 +315,10 @@
             // 
             // btnCastVigor
             // 
-            this.btnCastVigor.Location = new System.Drawing.Point(579, 636);
-            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastVigor.Location = new System.Drawing.Point(772, 783);
+            this.btnCastVigor.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastVigor.Name = "btnCastVigor";
-            this.btnCastVigor.Size = new System.Drawing.Size(80, 28);
+            this.btnCastVigor.Size = new System.Drawing.Size(107, 34);
             this.btnCastVigor.TabIndex = 10;
             this.btnCastVigor.Text = "Vigor";
             this.btnCastVigor.UseVisualStyleBackColor = true;
@@ -327,10 +326,10 @@
             // 
             // btnCastCurePoison
             // 
-            this.btnCastCurePoison.Location = new System.Drawing.Point(130, 559);
-            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastCurePoison.Location = new System.Drawing.Point(173, 688);
+            this.btnCastCurePoison.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastCurePoison.Name = "btnCastCurePoison";
-            this.btnCastCurePoison.Size = new System.Drawing.Size(100, 28);
+            this.btnCastCurePoison.Size = new System.Drawing.Size(133, 34);
             this.btnCastCurePoison.TabIndex = 18;
             this.btnCastCurePoison.Text = "Cast Curepoison";
             this.btnCastCurePoison.UseVisualStyleBackColor = true;
@@ -343,17 +342,17 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(659, 26);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(878, 30);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(747, 635);
-            this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
+            this.btnAbort.Location = new System.Drawing.Point(996, 782);
+            this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
-            this.btnAbort.Size = new System.Drawing.Size(80, 28);
+            this.btnAbort.Size = new System.Drawing.Size(107, 34);
             this.btnAbort.TabIndex = 33;
             this.btnAbort.Text = "Abort";
             this.btnAbort.UseVisualStyleBackColor = true;
@@ -361,10 +360,10 @@
             // 
             // btnAttackMob
             // 
-            this.btnAttackMob.Location = new System.Drawing.Point(579, 508);
-            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnAttackMob.Location = new System.Drawing.Point(772, 625);
+            this.btnAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAttackMob.Name = "btnAttackMob";
-            this.btnAttackMob.Size = new System.Drawing.Size(79, 28);
+            this.btnAttackMob.Size = new System.Drawing.Size(105, 34);
             this.btnAttackMob.TabIndex = 35;
             this.btnAttackMob.Text = "Atk";
             this.btnAttackMob.UseVisualStyleBackColor = true;
@@ -372,10 +371,10 @@
             // 
             // btnDrinkYellow
             // 
-            this.btnDrinkYellow.Location = new System.Drawing.Point(664, 636);
-            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDrinkYellow.Location = new System.Drawing.Point(885, 783);
+            this.btnDrinkYellow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkYellow.Name = "btnDrinkYellow";
-            this.btnDrinkYellow.Size = new System.Drawing.Size(79, 28);
+            this.btnDrinkYellow.Size = new System.Drawing.Size(105, 34);
             this.btnDrinkYellow.TabIndex = 39;
             this.btnDrinkYellow.Text = "Yellow pot";
             this.btnDrinkYellow.UseVisualStyleBackColor = true;
@@ -383,10 +382,10 @@
             // 
             // btnDrinkGreen
             // 
-            this.btnDrinkGreen.Location = new System.Drawing.Point(130, 593);
-            this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDrinkGreen.Location = new System.Drawing.Point(173, 730);
+            this.btnDrinkGreen.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDrinkGreen.Name = "btnDrinkGreen";
-            this.btnDrinkGreen.Size = new System.Drawing.Size(100, 28);
+            this.btnDrinkGreen.Size = new System.Drawing.Size(133, 34);
             this.btnDrinkGreen.TabIndex = 40;
             this.btnDrinkGreen.Text = "Green pot";
             this.btnDrinkGreen.UseVisualStyleBackColor = true;
@@ -394,30 +393,29 @@
             // 
             // txtWeapon
             // 
-            this.txtWeapon.Location = new System.Drawing.Point(76, 41);
-            this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
+            this.txtWeapon.Location = new System.Drawing.Point(101, 50);
+            this.txtWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWeapon.Name = "txtWeapon";
-            this.txtWeapon.Size = new System.Drawing.Size(154, 20);
+            this.txtWeapon.Size = new System.Drawing.Size(204, 22);
             this.txtWeapon.TabIndex = 42;
             this.txtWeapon.TextChanged += new System.EventHandler(this.txtWeapon_TextChanged);
             // 
             // lblWeapon
             // 
             this.lblWeapon.AutoSize = true;
-            this.lblWeapon.Location = new System.Drawing.Point(13, 44);
-            this.lblWeapon.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblWeapon.Location = new System.Drawing.Point(17, 54);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(51, 13);
+            this.lblWeapon.Size = new System.Drawing.Size(62, 16);
             this.lblWeapon.TabIndex = 41;
             this.lblWeapon.Text = "Weapon:";
             this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(131, 464);
-            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(2);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(175, 571);
+            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
-            this.btnWieldWeapon.Size = new System.Drawing.Size(100, 28);
+            this.btnWieldWeapon.Size = new System.Drawing.Size(133, 34);
             this.btnWieldWeapon.TabIndex = 43;
             this.btnWieldWeapon.Text = "Wield Weapon";
             this.btnWieldWeapon.UseVisualStyleBackColor = true;
@@ -425,10 +423,10 @@
             // 
             // btnSet
             // 
-            this.btnSet.Location = new System.Drawing.Point(10, 13);
-            this.btnSet.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSet.Location = new System.Drawing.Point(13, 16);
+            this.btnSet.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(55, 24);
+            this.btnSet.Size = new System.Drawing.Size(73, 30);
             this.btnSet.TabIndex = 45;
             this.btnSet.Text = "Set";
             this.btnSet.UseVisualStyleBackColor = true;
@@ -445,20 +443,20 @@
             "long",
             "noauto",
             "wimpy"});
-            this.cboSetOption.Location = new System.Drawing.Point(72, 14);
-            this.cboSetOption.Margin = new System.Windows.Forms.Padding(2);
+            this.cboSetOption.Location = new System.Drawing.Point(96, 17);
+            this.cboSetOption.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cboSetOption.Name = "cboSetOption";
-            this.cboSetOption.Size = new System.Drawing.Size(124, 21);
+            this.cboSetOption.Size = new System.Drawing.Size(164, 24);
             this.cboSetOption.TabIndex = 46;
             this.cboSetOption.SelectedIndexChanged += new System.EventHandler(this.cboSetOption_SelectedIndexChanged);
             // 
             // chkSetOn
             // 
             this.chkSetOn.AutoSize = true;
-            this.chkSetOn.Location = new System.Drawing.Point(200, 17);
-            this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
+            this.chkSetOn.Location = new System.Drawing.Point(267, 21);
+            this.chkSetOn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(46, 17);
+            this.chkSetOn.Size = new System.Drawing.Size(53, 20);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -466,30 +464,29 @@
             // 
             // txtWand
             // 
-            this.txtWand.Location = new System.Drawing.Point(76, 63);
-            this.txtWand.Margin = new System.Windows.Forms.Padding(2);
+            this.txtWand.Location = new System.Drawing.Point(101, 78);
+            this.txtWand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWand.Name = "txtWand";
-            this.txtWand.Size = new System.Drawing.Size(154, 20);
+            this.txtWand.Size = new System.Drawing.Size(204, 22);
             this.txtWand.TabIndex = 49;
             this.txtWand.TextChanged += new System.EventHandler(this.txtWand_TextChanged);
             // 
             // lblWand
             // 
             this.lblWand.AutoSize = true;
-            this.lblWand.Location = new System.Drawing.Point(14, 66);
-            this.lblWand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblWand.Location = new System.Drawing.Point(19, 81);
             this.lblWand.Name = "lblWand";
-            this.lblWand.Size = new System.Drawing.Size(39, 13);
+            this.lblWand.Size = new System.Drawing.Size(46, 16);
             this.lblWand.TabIndex = 48;
             this.lblWand.Text = "Wand:";
             this.lblWand.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnUseWandOnMob
             // 
-            this.btnUseWandOnMob.Location = new System.Drawing.Point(579, 572);
-            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUseWandOnMob.Location = new System.Drawing.Point(772, 704);
+            this.btnUseWandOnMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUseWandOnMob.Name = "btnUseWandOnMob";
-            this.btnUseWandOnMob.Size = new System.Drawing.Size(79, 28);
+            this.btnUseWandOnMob.Size = new System.Drawing.Size(105, 34);
             this.btnUseWandOnMob.TabIndex = 50;
             this.btnUseWandOnMob.Text = "Wand";
             this.btnUseWandOnMob.UseVisualStyleBackColor = true;
@@ -497,10 +494,10 @@
             // 
             // btnPowerAttackMob
             // 
-            this.btnPowerAttackMob.Location = new System.Drawing.Point(579, 540);
-            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnPowerAttackMob.Location = new System.Drawing.Point(772, 665);
+            this.btnPowerAttackMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnPowerAttackMob.Name = "btnPowerAttackMob";
-            this.btnPowerAttackMob.Size = new System.Drawing.Size(79, 28);
+            this.btnPowerAttackMob.Size = new System.Drawing.Size(105, 34);
             this.btnPowerAttackMob.TabIndex = 54;
             this.btnPowerAttackMob.Text = "Power Atk";
             this.btnPowerAttackMob.UseVisualStyleBackColor = true;
@@ -508,18 +505,20 @@
             // 
             // txtSetValue
             // 
-            this.txtSetValue.Location = new System.Drawing.Point(244, 15);
-            this.txtSetValue.Margin = new System.Windows.Forms.Padding(2);
+            this.txtSetValue.Location = new System.Drawing.Point(325, 18);
+            this.txtSetValue.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtSetValue.Name = "txtSetValue";
-            this.txtSetValue.Size = new System.Drawing.Size(89, 20);
+            this.txtSetValue.Size = new System.Drawing.Size(117, 22);
             this.txtSetValue.TabIndex = 56;
             // 
             // grpOneClickStrategies
             // 
             this.grpOneClickStrategies.Controls.Add(this.flpOneClickStrategies);
-            this.grpOneClickStrategies.Location = new System.Drawing.Point(23, 156);
+            this.grpOneClickStrategies.Location = new System.Drawing.Point(31, 192);
+            this.grpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
             this.grpOneClickStrategies.Name = "grpOneClickStrategies";
-            this.grpOneClickStrategies.Size = new System.Drawing.Size(601, 108);
+            this.grpOneClickStrategies.Padding = new System.Windows.Forms.Padding(4);
+            this.grpOneClickStrategies.Size = new System.Drawing.Size(801, 133);
             this.grpOneClickStrategies.TabIndex = 65;
             this.grpOneClickStrategies.TabStop = false;
             this.grpOneClickStrategies.Text = "Strategies";
@@ -527,36 +526,36 @@
             // flpOneClickStrategies
             // 
             this.flpOneClickStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpOneClickStrategies.Location = new System.Drawing.Point(3, 16);
+            this.flpOneClickStrategies.Location = new System.Drawing.Point(4, 19);
+            this.flpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
             this.flpOneClickStrategies.Name = "flpOneClickStrategies";
-            this.flpOneClickStrategies.Size = new System.Drawing.Size(595, 89);
+            this.flpOneClickStrategies.Size = new System.Drawing.Size(793, 110);
             this.flpOneClickStrategies.TabIndex = 0;
             // 
             // txtPotion
             // 
-            this.txtPotion.Location = new System.Drawing.Point(76, 85);
-            this.txtPotion.Margin = new System.Windows.Forms.Padding(2);
+            this.txtPotion.Location = new System.Drawing.Point(101, 105);
+            this.txtPotion.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPotion.Name = "txtPotion";
-            this.txtPotion.Size = new System.Drawing.Size(154, 20);
+            this.txtPotion.Size = new System.Drawing.Size(204, 22);
             this.txtPotion.TabIndex = 68;
             // 
             // lblPotion
             // 
             this.lblPotion.AutoSize = true;
-            this.lblPotion.Location = new System.Drawing.Point(14, 88);
-            this.lblPotion.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblPotion.Location = new System.Drawing.Point(19, 108);
             this.lblPotion.Name = "lblPotion";
-            this.lblPotion.Size = new System.Drawing.Size(40, 13);
+            this.lblPotion.Size = new System.Drawing.Size(48, 16);
             this.lblPotion.TabIndex = 67;
             this.lblPotion.Text = "Potion:";
             this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btnRemoveWeapon
             // 
-            this.btnRemoveWeapon.Location = new System.Drawing.Point(131, 496);
-            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(2);
+            this.btnRemoveWeapon.Location = new System.Drawing.Point(175, 610);
+            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
-            this.btnRemoveWeapon.Size = new System.Drawing.Size(100, 28);
+            this.btnRemoveWeapon.Size = new System.Drawing.Size(133, 34);
             this.btnRemoveWeapon.TabIndex = 69;
             this.btnRemoveWeapon.Text = "Remove Weapon";
             this.btnRemoveWeapon.UseVisualStyleBackColor = true;
@@ -564,10 +563,10 @@
             // 
             // btnNortheast
             // 
-            this.btnNortheast.Location = new System.Drawing.Point(90, 40);
-            this.btnNortheast.Margin = new System.Windows.Forms.Padding(2);
+            this.btnNortheast.Location = new System.Drawing.Point(120, 49);
+            this.btnNortheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNortheast.Name = "btnNortheast";
-            this.btnNortheast.Size = new System.Drawing.Size(34, 23);
+            this.btnNortheast.Size = new System.Drawing.Size(45, 28);
             this.btnNortheast.TabIndex = 71;
             this.btnNortheast.Tag = "northeast";
             this.btnNortheast.Text = "NE";
@@ -576,10 +575,10 @@
             // 
             // btnNorth
             // 
-            this.btnNorth.Location = new System.Drawing.Point(51, 40);
-            this.btnNorth.Margin = new System.Windows.Forms.Padding(2);
+            this.btnNorth.Location = new System.Drawing.Point(68, 49);
+            this.btnNorth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorth.Name = "btnNorth";
-            this.btnNorth.Size = new System.Drawing.Size(34, 23);
+            this.btnNorth.Size = new System.Drawing.Size(45, 28);
             this.btnNorth.TabIndex = 72;
             this.btnNorth.Tag = "north";
             this.btnNorth.Text = "N";
@@ -588,10 +587,10 @@
             // 
             // btnNorthwest
             // 
-            this.btnNorthwest.Location = new System.Drawing.Point(14, 40);
-            this.btnNorthwest.Margin = new System.Windows.Forms.Padding(2);
+            this.btnNorthwest.Location = new System.Drawing.Point(19, 49);
+            this.btnNorthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorthwest.Name = "btnNorthwest";
-            this.btnNorthwest.Size = new System.Drawing.Size(34, 23);
+            this.btnNorthwest.Size = new System.Drawing.Size(45, 28);
             this.btnNorthwest.TabIndex = 73;
             this.btnNorthwest.Tag = "northwest";
             this.btnNorthwest.Text = "NW";
@@ -600,10 +599,10 @@
             // 
             // btnWest
             // 
-            this.btnWest.Location = new System.Drawing.Point(14, 66);
-            this.btnWest.Margin = new System.Windows.Forms.Padding(2);
+            this.btnWest.Location = new System.Drawing.Point(19, 81);
+            this.btnWest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWest.Name = "btnWest";
-            this.btnWest.Size = new System.Drawing.Size(34, 23);
+            this.btnWest.Size = new System.Drawing.Size(45, 28);
             this.btnWest.TabIndex = 75;
             this.btnWest.Tag = "west";
             this.btnWest.Text = "W";
@@ -612,10 +611,10 @@
             // 
             // btnEast
             // 
-            this.btnEast.Location = new System.Drawing.Point(90, 66);
-            this.btnEast.Margin = new System.Windows.Forms.Padding(2);
+            this.btnEast.Location = new System.Drawing.Point(120, 81);
+            this.btnEast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEast.Name = "btnEast";
-            this.btnEast.Size = new System.Drawing.Size(34, 23);
+            this.btnEast.Size = new System.Drawing.Size(45, 28);
             this.btnEast.TabIndex = 74;
             this.btnEast.Tag = "east";
             this.btnEast.Text = "E";
@@ -624,10 +623,10 @@
             // 
             // btnSouthwest
             // 
-            this.btnSouthwest.Location = new System.Drawing.Point(14, 93);
-            this.btnSouthwest.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSouthwest.Location = new System.Drawing.Point(19, 114);
+            this.btnSouthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouthwest.Name = "btnSouthwest";
-            this.btnSouthwest.Size = new System.Drawing.Size(34, 23);
+            this.btnSouthwest.Size = new System.Drawing.Size(45, 28);
             this.btnSouthwest.TabIndex = 78;
             this.btnSouthwest.Tag = "southwest";
             this.btnSouthwest.Text = "SW";
@@ -636,10 +635,10 @@
             // 
             // btnSouth
             // 
-            this.btnSouth.Location = new System.Drawing.Point(51, 93);
-            this.btnSouth.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSouth.Location = new System.Drawing.Point(68, 114);
+            this.btnSouth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouth.Name = "btnSouth";
-            this.btnSouth.Size = new System.Drawing.Size(34, 23);
+            this.btnSouth.Size = new System.Drawing.Size(45, 28);
             this.btnSouth.TabIndex = 77;
             this.btnSouth.Tag = "south";
             this.btnSouth.Text = "S";
@@ -648,10 +647,10 @@
             // 
             // btnSoutheast
             // 
-            this.btnSoutheast.Location = new System.Drawing.Point(90, 93);
-            this.btnSoutheast.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSoutheast.Location = new System.Drawing.Point(120, 114);
+            this.btnSoutheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSoutheast.Name = "btnSoutheast";
-            this.btnSoutheast.Size = new System.Drawing.Size(34, 23);
+            this.btnSoutheast.Size = new System.Drawing.Size(45, 28);
             this.btnSoutheast.TabIndex = 76;
             this.btnSoutheast.Tag = "southeast";
             this.btnSoutheast.Text = "SE";
@@ -666,21 +665,21 @@
             this.tcMain.Controls.Add(this.tabHelp);
             this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcMain.Location = new System.Drawing.Point(0, 0);
-            this.tcMain.Margin = new System.Windows.Forms.Padding(2);
+            this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(874, 820);
+            this.tcMain.Size = new System.Drawing.Size(1165, 1013);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
             // tabMain
             // 
             this.tabMain.Controls.Add(this.pnlMain);
-            this.tabMain.Location = new System.Drawing.Point(4, 22);
-            this.tabMain.Margin = new System.Windows.Forms.Padding(2);
+            this.tabMain.Location = new System.Drawing.Point(4, 25);
+            this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
-            this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(866, 794);
+            this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabMain.Size = new System.Drawing.Size(1157, 984);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -737,19 +736,19 @@
             this.pnlMain.Controls.Add(this.txtWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkGreen);
             this.pnlMain.Controls.Add(this.lblWeapon);
-            this.pnlMain.Location = new System.Drawing.Point(2, 2);
-            this.pnlMain.Margin = new System.Windows.Forms.Padding(2);
+            this.pnlMain.Location = new System.Drawing.Point(3, 2);
+            this.pnlMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(1017, 900);
+            this.pnlMain.Size = new System.Drawing.Size(1356, 1108);
             this.pnlMain.TabIndex = 0;
             // 
             // btnGoToHealingRoom
             // 
             this.btnGoToHealingRoom.Enabled = false;
-            this.btnGoToHealingRoom.Location = new System.Drawing.Point(234, 105);
-            this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(2);
+            this.btnGoToHealingRoom.Location = new System.Drawing.Point(312, 129);
+            this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToHealingRoom.Name = "btnGoToHealingRoom";
-            this.btnGoToHealingRoom.Size = new System.Drawing.Size(34, 23);
+            this.btnGoToHealingRoom.Size = new System.Drawing.Size(45, 28);
             this.btnGoToHealingRoom.TabIndex = 145;
             this.btnGoToHealingRoom.Tag = "";
             this.btnGoToHealingRoom.Text = "Go";
@@ -759,10 +758,9 @@
             // lblTickRoom
             // 
             this.lblTickRoom.AutoSize = true;
-            this.lblTickRoom.Location = new System.Drawing.Point(14, 110);
-            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTickRoom.Location = new System.Drawing.Point(19, 135);
             this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(57, 13);
+            this.lblTickRoom.Size = new System.Drawing.Size(70, 16);
             this.lblTickRoom.TabIndex = 144;
             this.lblTickRoom.Text = "Tick room:";
             this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -771,26 +769,30 @@
             // 
             this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTickRoom.FormattingEnabled = true;
-            this.cboTickRoom.Location = new System.Drawing.Point(76, 107);
+            this.cboTickRoom.Location = new System.Drawing.Point(101, 132);
+            this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
             this.cboTickRoom.Name = "cboTickRoom";
-            this.cboTickRoom.Size = new System.Drawing.Size(155, 21);
+            this.cboTickRoom.Size = new System.Drawing.Size(205, 24);
             this.cboTickRoom.TabIndex = 143;
             this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
             // 
             // grpCurrentRoom
             // 
-            this.grpCurrentRoom.Location = new System.Drawing.Point(656, 10);
+            this.grpCurrentRoom.Location = new System.Drawing.Point(875, 12);
+            this.grpCurrentRoom.Margin = new System.Windows.Forms.Padding(4);
             this.grpCurrentRoom.Name = "grpCurrentRoom";
-            this.grpCurrentRoom.Size = new System.Drawing.Size(281, 454);
+            this.grpCurrentRoom.Padding = new System.Windows.Forms.Padding(4);
+            this.grpCurrentRoom.Size = new System.Drawing.Size(375, 559);
             this.grpCurrentRoom.TabIndex = 141;
             this.grpCurrentRoom.TabStop = false;
             this.grpCurrentRoom.Text = "Current Room";
             // 
             // btnLocations
             // 
-            this.btnLocations.Location = new System.Drawing.Point(535, 46);
+            this.btnLocations.Location = new System.Drawing.Point(713, 57);
+            this.btnLocations.Margin = new System.Windows.Forms.Padding(4);
             this.btnLocations.Name = "btnLocations";
-            this.btnLocations.Size = new System.Drawing.Size(112, 28);
+            this.btnLocations.Size = new System.Drawing.Size(149, 34);
             this.btnLocations.TabIndex = 140;
             this.btnLocations.Text = "Locations";
             this.btnLocations.UseVisualStyleBackColor = true;
@@ -799,10 +801,10 @@
             // btnIncrementWand
             // 
             this.btnIncrementWand.Enabled = false;
-            this.btnIncrementWand.Location = new System.Drawing.Point(234, 63);
-            this.btnIncrementWand.Margin = new System.Windows.Forms.Padding(2);
+            this.btnIncrementWand.Location = new System.Drawing.Point(312, 78);
+            this.btnIncrementWand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnIncrementWand.Name = "btnIncrementWand";
-            this.btnIncrementWand.Size = new System.Drawing.Size(34, 23);
+            this.btnIncrementWand.Size = new System.Drawing.Size(45, 28);
             this.btnIncrementWand.TabIndex = 139;
             this.btnIncrementWand.Text = "Inc";
             this.btnIncrementWand.UseVisualStyleBackColor = true;
@@ -810,18 +812,21 @@
             // 
             // grpSkillCooldowns
             // 
-            this.grpSkillCooldowns.Location = new System.Drawing.Point(400, 464);
+            this.grpSkillCooldowns.Location = new System.Drawing.Point(533, 571);
+            this.grpSkillCooldowns.Margin = new System.Windows.Forms.Padding(4);
             this.grpSkillCooldowns.Name = "grpSkillCooldowns";
-            this.grpSkillCooldowns.Size = new System.Drawing.Size(166, 153);
+            this.grpSkillCooldowns.Padding = new System.Windows.Forms.Padding(4);
+            this.grpSkillCooldowns.Size = new System.Drawing.Size(221, 188);
             this.grpSkillCooldowns.TabIndex = 138;
             this.grpSkillCooldowns.TabStop = false;
             this.grpSkillCooldowns.Text = "Skill Cooldowns";
             // 
             // btnHeal
             // 
-            this.btnHeal.Location = new System.Drawing.Point(27, 593);
+            this.btnHeal.Location = new System.Drawing.Point(36, 730);
+            this.btnHeal.Margin = new System.Windows.Forms.Padding(4);
             this.btnHeal.Name = "btnHeal";
-            this.btnHeal.Size = new System.Drawing.Size(100, 28);
+            this.btnHeal.Size = new System.Drawing.Size(133, 34);
             this.btnHeal.TabIndex = 136;
             this.btnHeal.Text = "Heal";
             this.btnHeal.UseVisualStyleBackColor = true;
@@ -829,9 +834,10 @@
             // 
             // btnSkills
             // 
-            this.btnSkills.Location = new System.Drawing.Point(27, 560);
+            this.btnSkills.Location = new System.Drawing.Point(36, 689);
+            this.btnSkills.Margin = new System.Windows.Forms.Padding(4);
             this.btnSkills.Name = "btnSkills";
-            this.btnSkills.Size = new System.Drawing.Size(100, 28);
+            this.btnSkills.Size = new System.Drawing.Size(133, 34);
             this.btnSkills.TabIndex = 135;
             this.btnSkills.Text = "Skills";
             this.btnSkills.UseVisualStyleBackColor = true;
@@ -842,9 +848,10 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(535, 131);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(713, 161);
+            this.lblAutoEscapeValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
-            this.lblAutoEscapeValue.Size = new System.Drawing.Size(112, 15);
+            this.lblAutoEscapeValue.Size = new System.Drawing.Size(149, 18);
             this.lblAutoEscapeValue.TabIndex = 134;
             this.lblAutoEscapeValue.Text = "Auto Escape";
             this.lblAutoEscapeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -864,77 +871,78 @@
             this.tsmiSetDefaultAutoEscape,
             this.tsmiRestoreDefaultAutoEscape});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(189, 176);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(223, 190);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
             // 
             this.tsmiAutoEscapeIsActive.Name = "tsmiAutoEscapeIsActive";
-            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(188, 22);
+            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(222, 24);
             this.tsmiAutoEscapeIsActive.Text = "Is Active?";
             this.tsmiAutoEscapeIsActive.Click += new System.EventHandler(this.tsmiToggleAutoEscapeActive_Click);
             // 
             // tsmiAutoEscapeSeparator1
             // 
             this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
-            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(185, 6);
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(219, 6);
             // 
             // tsmiSetAutoEscapeThreshold
             // 
             this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
-            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
             this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
             this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
             // tsmiClearAutoEscapeThreshold
             // 
             this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
-            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(188, 22);
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
             this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
             this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
             // 
             // tsmiAutoEscapeSeparator2
             // 
             this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
-            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(185, 6);
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(219, 6);
             // 
             // tsmiAutoEscapeFlee
             // 
             this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
-            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(188, 22);
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(222, 24);
             this.tsmiAutoEscapeFlee.Text = "Flee";
             // 
             // tsmiAutoEscapeHazy
             // 
             this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
-            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(188, 22);
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(222, 24);
             this.tsmiAutoEscapeHazy.Text = "Hazy";
             // 
             // tsmiAutoEscapeSeparator3
             // 
             this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
-            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(185, 6);
+            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(219, 6);
             // 
             // tsmiSetDefaultAutoEscape
             // 
             this.tsmiSetDefaultAutoEscape.Name = "tsmiSetDefaultAutoEscape";
-            this.tsmiSetDefaultAutoEscape.Size = new System.Drawing.Size(188, 22);
+            this.tsmiSetDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
             this.tsmiSetDefaultAutoEscape.Text = "Set Current as Default";
             this.tsmiSetDefaultAutoEscape.Click += new System.EventHandler(this.tsmiSetDefaultAutoEscape_Click);
             // 
             // tsmiRestoreDefaultAutoEscape
             // 
             this.tsmiRestoreDefaultAutoEscape.Name = "tsmiRestoreDefaultAutoEscape";
-            this.tsmiRestoreDefaultAutoEscape.Size = new System.Drawing.Size(188, 22);
+            this.tsmiRestoreDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
             this.tsmiRestoreDefaultAutoEscape.Text = "Restore Default";
             this.tsmiRestoreDefaultAutoEscape.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoEscape_Click);
             // 
             // lblTime
             // 
             this.lblTime.BackColor = System.Drawing.Color.LightGray;
-            this.lblTime.Location = new System.Drawing.Point(535, 111);
+            this.lblTime.Location = new System.Drawing.Point(713, 137);
+            this.lblTime.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new System.Drawing.Size(112, 15);
+            this.lblTime.Size = new System.Drawing.Size(149, 18);
             this.lblTime.TabIndex = 125;
             this.lblTime.Text = "Time";
             this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -947,9 +955,11 @@
             this.grpCurrentPlayer.Controls.Add(this.lblHitpointsValue);
             this.grpCurrentPlayer.Controls.Add(this.lblMana);
             this.grpCurrentPlayer.Controls.Add(this.lblHitpoints);
-            this.grpCurrentPlayer.Location = new System.Drawing.Point(748, 470);
+            this.grpCurrentPlayer.Location = new System.Drawing.Point(997, 578);
+            this.grpCurrentPlayer.Margin = new System.Windows.Forms.Padding(4);
             this.grpCurrentPlayer.Name = "grpCurrentPlayer";
-            this.grpCurrentPlayer.Size = new System.Drawing.Size(188, 85);
+            this.grpCurrentPlayer.Padding = new System.Windows.Forms.Padding(4);
+            this.grpCurrentPlayer.Size = new System.Drawing.Size(251, 105);
             this.grpCurrentPlayer.TabIndex = 122;
             this.grpCurrentPlayer.TabStop = false;
             this.grpCurrentPlayer.Text = "Current Player";
@@ -957,9 +967,10 @@
             // lblToNextLevelValue
             // 
             this.lblToNextLevelValue.BackColor = System.Drawing.Color.LightGray;
-            this.lblToNextLevelValue.Location = new System.Drawing.Point(97, 55);
+            this.lblToNextLevelValue.Location = new System.Drawing.Point(129, 68);
+            this.lblToNextLevelValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblToNextLevelValue.Name = "lblToNextLevelValue";
-            this.lblToNextLevelValue.Size = new System.Drawing.Size(86, 15);
+            this.lblToNextLevelValue.Size = new System.Drawing.Size(115, 18);
             this.lblToNextLevelValue.TabIndex = 131;
             this.lblToNextLevelValue.Text = "Value";
             this.lblToNextLevelValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -967,10 +978,9 @@
             // lblToNextLevel
             // 
             this.lblToNextLevel.AutoSize = true;
-            this.lblToNextLevel.Location = new System.Drawing.Point(5, 55);
-            this.lblToNextLevel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblToNextLevel.Location = new System.Drawing.Point(7, 68);
             this.lblToNextLevel.Name = "lblToNextLevel";
-            this.lblToNextLevel.Size = new System.Drawing.Size(77, 13);
+            this.lblToNextLevel.Size = new System.Drawing.Size(93, 16);
             this.lblToNextLevel.TabIndex = 130;
             this.lblToNextLevel.Text = "To Next Level:";
             this.lblToNextLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -978,9 +988,10 @@
             // lblManaValue
             // 
             this.lblManaValue.BackColor = System.Drawing.Color.LightGray;
-            this.lblManaValue.Location = new System.Drawing.Point(97, 36);
+            this.lblManaValue.Location = new System.Drawing.Point(129, 44);
+            this.lblManaValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblManaValue.Name = "lblManaValue";
-            this.lblManaValue.Size = new System.Drawing.Size(86, 15);
+            this.lblManaValue.Size = new System.Drawing.Size(115, 18);
             this.lblManaValue.TabIndex = 127;
             this.lblManaValue.Text = "Value";
             this.lblManaValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -988,9 +999,10 @@
             // lblHitpointsValue
             // 
             this.lblHitpointsValue.BackColor = System.Drawing.Color.LightGray;
-            this.lblHitpointsValue.Location = new System.Drawing.Point(97, 17);
+            this.lblHitpointsValue.Location = new System.Drawing.Point(129, 21);
+            this.lblHitpointsValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblHitpointsValue.Name = "lblHitpointsValue";
-            this.lblHitpointsValue.Size = new System.Drawing.Size(86, 15);
+            this.lblHitpointsValue.Size = new System.Drawing.Size(115, 18);
             this.lblHitpointsValue.TabIndex = 126;
             this.lblHitpointsValue.Text = "Value";
             this.lblHitpointsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -998,10 +1010,9 @@
             // lblMana
             // 
             this.lblMana.AutoSize = true;
-            this.lblMana.Location = new System.Drawing.Point(36, 36);
-            this.lblMana.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMana.Location = new System.Drawing.Point(48, 44);
             this.lblMana.Name = "lblMana";
-            this.lblMana.Size = new System.Drawing.Size(37, 13);
+            this.lblMana.Size = new System.Drawing.Size(44, 16);
             this.lblMana.TabIndex = 92;
             this.lblMana.Text = "Mana:";
             this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1009,10 +1020,9 @@
             // lblHitpoints
             // 
             this.lblHitpoints.AutoSize = true;
-            this.lblHitpoints.Location = new System.Drawing.Point(36, 17);
-            this.lblHitpoints.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblHitpoints.Location = new System.Drawing.Point(48, 21);
             this.lblHitpoints.Name = "lblHitpoints";
-            this.lblHitpoints.Size = new System.Drawing.Size(51, 13);
+            this.lblHitpoints.Size = new System.Drawing.Size(62, 16);
             this.lblHitpoints.TabIndex = 100;
             this.lblHitpoints.Text = "Hitpoints:";
             this.lblHitpoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1020,9 +1030,11 @@
             // grpMessages
             // 
             this.grpMessages.Controls.Add(this.lstMessages);
-            this.grpMessages.Location = new System.Drawing.Point(26, 270);
+            this.grpMessages.Location = new System.Drawing.Point(35, 332);
+            this.grpMessages.Margin = new System.Windows.Forms.Padding(4);
             this.grpMessages.Name = "grpMessages";
-            this.grpMessages.Size = new System.Drawing.Size(598, 180);
+            this.grpMessages.Padding = new System.Windows.Forms.Padding(4);
+            this.grpMessages.Size = new System.Drawing.Size(797, 222);
             this.grpMessages.TabIndex = 121;
             this.grpMessages.TabStop = false;
             this.grpMessages.Text = "Messages";
@@ -1031,9 +1043,11 @@
             // 
             this.lstMessages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstMessages.FormattingEnabled = true;
-            this.lstMessages.Location = new System.Drawing.Point(3, 16);
+            this.lstMessages.ItemHeight = 16;
+            this.lstMessages.Location = new System.Drawing.Point(4, 19);
+            this.lstMessages.Margin = new System.Windows.Forms.Padding(4);
             this.lstMessages.Name = "lstMessages";
-            this.lstMessages.Size = new System.Drawing.Size(592, 161);
+            this.lstMessages.Size = new System.Drawing.Size(789, 199);
             this.lstMessages.TabIndex = 0;
             // 
             // grpMob
@@ -1042,52 +1056,59 @@
             this.grpMob.Controls.Add(this.lblMobStatus);
             this.grpMob.Controls.Add(this.txtMobDamage);
             this.grpMob.Controls.Add(this.lblMobDamage);
-            this.grpMob.Location = new System.Drawing.Point(747, 561);
+            this.grpMob.Location = new System.Drawing.Point(996, 690);
+            this.grpMob.Margin = new System.Windows.Forms.Padding(4);
             this.grpMob.Name = "grpMob";
-            this.grpMob.Size = new System.Drawing.Size(191, 60);
+            this.grpMob.Padding = new System.Windows.Forms.Padding(4);
+            this.grpMob.Size = new System.Drawing.Size(255, 74);
             this.grpMob.TabIndex = 120;
             this.grpMob.TabStop = false;
             this.grpMob.Text = "Mob";
             // 
             // txtMobStatus
             // 
-            this.txtMobStatus.Location = new System.Drawing.Point(96, 34);
+            this.txtMobStatus.Location = new System.Drawing.Point(128, 42);
+            this.txtMobStatus.Margin = new System.Windows.Forms.Padding(4);
             this.txtMobStatus.Name = "txtMobStatus";
             this.txtMobStatus.ReadOnly = true;
-            this.txtMobStatus.Size = new System.Drawing.Size(86, 20);
+            this.txtMobStatus.Size = new System.Drawing.Size(113, 22);
             this.txtMobStatus.TabIndex = 3;
             // 
             // lblMobStatus
             // 
             this.lblMobStatus.AutoSize = true;
-            this.lblMobStatus.Location = new System.Drawing.Point(41, 37);
+            this.lblMobStatus.Location = new System.Drawing.Point(55, 46);
+            this.lblMobStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMobStatus.Name = "lblMobStatus";
-            this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
+            this.lblMobStatus.Size = new System.Drawing.Size(47, 16);
             this.lblMobStatus.TabIndex = 2;
             this.lblMobStatus.Text = "Status:";
             // 
             // txtMobDamage
             // 
-            this.txtMobDamage.Location = new System.Drawing.Point(96, 9);
+            this.txtMobDamage.Location = new System.Drawing.Point(128, 11);
+            this.txtMobDamage.Margin = new System.Windows.Forms.Padding(4);
             this.txtMobDamage.Name = "txtMobDamage";
             this.txtMobDamage.ReadOnly = true;
-            this.txtMobDamage.Size = new System.Drawing.Size(86, 20);
+            this.txtMobDamage.Size = new System.Drawing.Size(113, 22);
             this.txtMobDamage.TabIndex = 1;
             // 
             // lblMobDamage
             // 
             this.lblMobDamage.AutoSize = true;
-            this.lblMobDamage.Location = new System.Drawing.Point(41, 12);
+            this.lblMobDamage.Location = new System.Drawing.Point(55, 15);
+            this.lblMobDamage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMobDamage.Name = "lblMobDamage";
-            this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
+            this.lblMobDamage.Size = new System.Drawing.Size(63, 16);
             this.lblMobDamage.TabIndex = 0;
             this.lblMobDamage.Text = "Damage:";
             // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(535, 14);
+            this.btnGraph.Location = new System.Drawing.Point(713, 17);
+            this.btnGraph.Margin = new System.Windows.Forms.Padding(4);
             this.btnGraph.Name = "btnGraph";
-            this.btnGraph.Size = new System.Drawing.Size(112, 28);
+            this.btnGraph.Size = new System.Drawing.Size(149, 34);
             this.btnGraph.TabIndex = 119;
             this.btnGraph.Text = "Graph";
             this.btnGraph.UseVisualStyleBackColor = true;
@@ -1095,10 +1116,10 @@
             // 
             // btnClearCurrentLocation
             // 
-            this.btnClearCurrentLocation.Location = new System.Drawing.Point(535, 79);
-            this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClearCurrentLocation.Location = new System.Drawing.Point(713, 97);
+            this.btnClearCurrentLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnClearCurrentLocation.Name = "btnClearCurrentLocation";
-            this.btnClearCurrentLocation.Size = new System.Drawing.Size(112, 28);
+            this.btnClearCurrentLocation.Size = new System.Drawing.Size(149, 34);
             this.btnClearCurrentLocation.TabIndex = 118;
             this.btnClearCurrentLocation.Text = "Clear Location";
             this.btnClearCurrentLocation.UseVisualStyleBackColor = true;
@@ -1119,9 +1140,11 @@
             this.grpSingleMove.Controls.Add(this.btnSoutheast);
             this.grpSingleMove.Controls.Add(this.btnSouth);
             this.grpSingleMove.Controls.Add(this.btnSouthwest);
-            this.grpSingleMove.Location = new System.Drawing.Point(273, 18);
+            this.grpSingleMove.Location = new System.Drawing.Point(364, 22);
+            this.grpSingleMove.Margin = new System.Windows.Forms.Padding(4);
             this.grpSingleMove.Name = "grpSingleMove";
-            this.grpSingleMove.Size = new System.Drawing.Size(244, 123);
+            this.grpSingleMove.Padding = new System.Windows.Forms.Padding(4);
+            this.grpSingleMove.Size = new System.Drawing.Size(325, 151);
             this.grpSingleMove.TabIndex = 117;
             this.grpSingleMove.TabStop = false;
             this.grpSingleMove.Text = "Single Move";
@@ -1129,10 +1152,10 @@
             // btnExitSingleMove
             // 
             this.btnExitSingleMove.ContextMenuStrip = this.ctxRoomExits;
-            this.btnExitSingleMove.Location = new System.Drawing.Point(182, 77);
-            this.btnExitSingleMove.Margin = new System.Windows.Forms.Padding(2);
+            this.btnExitSingleMove.Location = new System.Drawing.Point(243, 95);
+            this.btnExitSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnExitSingleMove.Name = "btnExitSingleMove";
-            this.btnExitSingleMove.Size = new System.Drawing.Size(46, 23);
+            this.btnExitSingleMove.Size = new System.Drawing.Size(61, 28);
             this.btnExitSingleMove.TabIndex = 113;
             this.btnExitSingleMove.Tag = "";
             this.btnExitSingleMove.Text = "Exit";
@@ -1152,9 +1175,10 @@
             this.chkExecuteMove.AutoSize = true;
             this.chkExecuteMove.Checked = true;
             this.chkExecuteMove.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkExecuteMove.Location = new System.Drawing.Point(6, 19);
+            this.chkExecuteMove.Location = new System.Drawing.Point(8, 23);
+            this.chkExecuteMove.Margin = new System.Windows.Forms.Padding(4);
             this.chkExecuteMove.Name = "chkExecuteMove";
-            this.chkExecuteMove.Size = new System.Drawing.Size(95, 17);
+            this.chkExecuteMove.Size = new System.Drawing.Size(114, 20);
             this.chkExecuteMove.TabIndex = 0;
             this.chkExecuteMove.Text = "Execute Move";
             this.chkExecuteMove.UseVisualStyleBackColor = true;
@@ -1162,10 +1186,10 @@
             // 
             // btnOtherSingleMove
             // 
-            this.btnOtherSingleMove.Location = new System.Drawing.Point(182, 50);
-            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(2);
+            this.btnOtherSingleMove.Location = new System.Drawing.Point(243, 62);
+            this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOtherSingleMove.Name = "btnOtherSingleMove";
-            this.btnOtherSingleMove.Size = new System.Drawing.Size(46, 23);
+            this.btnOtherSingleMove.Size = new System.Drawing.Size(61, 28);
             this.btnOtherSingleMove.TabIndex = 112;
             this.btnOtherSingleMove.Tag = "";
             this.btnOtherSingleMove.Text = "Other";
@@ -1174,10 +1198,10 @@
             // 
             // btnDn
             // 
-            this.btnDn.Location = new System.Drawing.Point(128, 76);
-            this.btnDn.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDn.Location = new System.Drawing.Point(171, 94);
+            this.btnDn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDn.Name = "btnDn";
-            this.btnDn.Size = new System.Drawing.Size(34, 23);
+            this.btnDn.Size = new System.Drawing.Size(45, 28);
             this.btnDn.TabIndex = 111;
             this.btnDn.Tag = "down";
             this.btnDn.Text = "Dn";
@@ -1186,10 +1210,10 @@
             // 
             // btnUp
             // 
-            this.btnUp.Location = new System.Drawing.Point(128, 50);
-            this.btnUp.Margin = new System.Windows.Forms.Padding(2);
+            this.btnUp.Location = new System.Drawing.Point(171, 62);
+            this.btnUp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUp.Name = "btnUp";
-            this.btnUp.Size = new System.Drawing.Size(34, 23);
+            this.btnUp.Size = new System.Drawing.Size(45, 28);
             this.btnUp.TabIndex = 110;
             this.btnUp.Tag = "up";
             this.btnUp.Text = "Up";
@@ -1199,11 +1223,11 @@
             // grpSpells
             // 
             this.grpSpells.Controls.Add(this.flpSpells);
-            this.grpSpells.Location = new System.Drawing.Point(235, 464);
-            this.grpSpells.Margin = new System.Windows.Forms.Padding(2);
+            this.grpSpells.Location = new System.Drawing.Point(313, 571);
+            this.grpSpells.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpSpells.Name = "grpSpells";
-            this.grpSpells.Padding = new System.Windows.Forms.Padding(2);
-            this.grpSpells.Size = new System.Drawing.Size(162, 153);
+            this.grpSpells.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.grpSpells.Size = new System.Drawing.Size(216, 188);
             this.grpSpells.TabIndex = 108;
             this.grpSpells.TabStop = false;
             this.grpSpells.Text = "Active Spells";
@@ -1211,18 +1235,18 @@
             // flpSpells
             // 
             this.flpSpells.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpSpells.Location = new System.Drawing.Point(2, 15);
-            this.flpSpells.Margin = new System.Windows.Forms.Padding(2);
+            this.flpSpells.Location = new System.Drawing.Point(3, 17);
+            this.flpSpells.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flpSpells.Name = "flpSpells";
-            this.flpSpells.Size = new System.Drawing.Size(158, 136);
+            this.flpSpells.Size = new System.Drawing.Size(210, 169);
             this.flpSpells.TabIndex = 0;
             // 
             // btnRemoveAll
             // 
-            this.btnRemoveAll.Location = new System.Drawing.Point(130, 527);
-            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(2);
+            this.btnRemoveAll.Location = new System.Drawing.Point(173, 649);
+            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveAll.Name = "btnRemoveAll";
-            this.btnRemoveAll.Size = new System.Drawing.Size(100, 28);
+            this.btnRemoveAll.Size = new System.Drawing.Size(133, 34);
             this.btnRemoveAll.TabIndex = 87;
             this.btnRemoveAll.Text = "Remove All";
             this.btnRemoveAll.UseVisualStyleBackColor = true;
@@ -1230,10 +1254,10 @@
             // 
             // btnLevel3OffensiveSpell
             // 
-            this.btnLevel3OffensiveSpell.Location = new System.Drawing.Point(662, 540);
-            this.btnLevel3OffensiveSpell.Margin = new System.Windows.Forms.Padding(2);
+            this.btnLevel3OffensiveSpell.Location = new System.Drawing.Point(883, 665);
+            this.btnLevel3OffensiveSpell.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnLevel3OffensiveSpell.Name = "btnLevel3OffensiveSpell";
-            this.btnLevel3OffensiveSpell.Size = new System.Drawing.Size(81, 28);
+            this.btnLevel3OffensiveSpell.Size = new System.Drawing.Size(108, 34);
             this.btnLevel3OffensiveSpell.TabIndex = 84;
             this.btnLevel3OffensiveSpell.Text = "Cast Level 3";
             this.btnLevel3OffensiveSpell.UseVisualStyleBackColor = true;
@@ -1241,10 +1265,10 @@
             // 
             // btnStunMob
             // 
-            this.btnStunMob.Location = new System.Drawing.Point(579, 474);
-            this.btnStunMob.Margin = new System.Windows.Forms.Padding(2);
+            this.btnStunMob.Location = new System.Drawing.Point(772, 583);
+            this.btnStunMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStunMob.Name = "btnStunMob";
-            this.btnStunMob.Size = new System.Drawing.Size(79, 28);
+            this.btnStunMob.Size = new System.Drawing.Size(105, 34);
             this.btnStunMob.TabIndex = 83;
             this.btnStunMob.Text = "Stun";
             this.btnStunMob.UseVisualStyleBackColor = true;
@@ -1252,10 +1276,10 @@
             // 
             // btnCastMend
             // 
-            this.btnCastMend.Location = new System.Drawing.Point(579, 667);
-            this.btnCastMend.Margin = new System.Windows.Forms.Padding(2);
+            this.btnCastMend.Location = new System.Drawing.Point(772, 821);
+            this.btnCastMend.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCastMend.Name = "btnCastMend";
-            this.btnCastMend.Size = new System.Drawing.Size(80, 28);
+            this.btnCastMend.Size = new System.Drawing.Size(107, 34);
             this.btnCastMend.TabIndex = 82;
             this.btnCastMend.Text = "Mend";
             this.btnCastMend.UseVisualStyleBackColor = true;
@@ -1263,10 +1287,10 @@
             // 
             // btnReddishOrange
             // 
-            this.btnReddishOrange.Location = new System.Drawing.Point(664, 667);
-            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(2);
+            this.btnReddishOrange.Location = new System.Drawing.Point(885, 821);
+            this.btnReddishOrange.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnReddishOrange.Name = "btnReddishOrange";
-            this.btnReddishOrange.Size = new System.Drawing.Size(79, 28);
+            this.btnReddishOrange.Size = new System.Drawing.Size(105, 34);
             this.btnReddishOrange.TabIndex = 81;
             this.btnReddishOrange.Text = "R/O pot";
             this.btnReddishOrange.UseVisualStyleBackColor = true;
@@ -1274,10 +1298,10 @@
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(27, 527);
-            this.btnHide.Margin = new System.Windows.Forms.Padding(2);
+            this.btnHide.Location = new System.Drawing.Point(36, 649);
+            this.btnHide.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnHide.Name = "btnHide";
-            this.btnHide.Size = new System.Drawing.Size(100, 28);
+            this.btnHide.Size = new System.Drawing.Size(133, 34);
             this.btnHide.TabIndex = 80;
             this.btnHide.Tag = "hide";
             this.btnHide.Text = "Hide";
@@ -1286,10 +1310,10 @@
             // 
             // btnSearch
             // 
-            this.btnSearch.Location = new System.Drawing.Point(27, 496);
-            this.btnSearch.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSearch.Location = new System.Drawing.Point(36, 610);
+            this.btnSearch.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(100, 28);
+            this.btnSearch.Size = new System.Drawing.Size(133, 34);
             this.btnSearch.TabIndex = 79;
             this.btnSearch.Tag = "search";
             this.btnSearch.Text = "Search";
@@ -1299,11 +1323,11 @@
             // tabAncillary
             // 
             this.tabAncillary.Controls.Add(this.pnlAncillary);
-            this.tabAncillary.Location = new System.Drawing.Point(4, 22);
-            this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
+            this.tabAncillary.Location = new System.Drawing.Point(4, 25);
+            this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
-            this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(866, 794);
+            this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabAncillary.Size = new System.Drawing.Size(1157, 984);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1315,19 +1339,19 @@
             this.pnlAncillary.Controls.Add(this.cboSetOption);
             this.pnlAncillary.Controls.Add(this.chkSetOn);
             this.pnlAncillary.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
-            this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
+            this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
+            this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(862, 790);
+            this.pnlAncillary.Size = new System.Drawing.Size(1151, 980);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
             // 
             this.tabEmotes.Controls.Add(this.pnlEmotes);
-            this.tabEmotes.Location = new System.Drawing.Point(4, 22);
-            this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
+            this.tabEmotes.Location = new System.Drawing.Point(4, 25);
+            this.tabEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(866, 794);
+            this.tabEmotes.Size = new System.Drawing.Size(1157, 984);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1344,17 +1368,17 @@
             this.pnlEmotes.Controls.Add(this.grpEmotes);
             this.pnlEmotes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
-            this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
+            this.pnlEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(866, 794);
+            this.pnlEmotes.Size = new System.Drawing.Size(1157, 984);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
             // 
-            this.btnSay.Location = new System.Drawing.Point(349, 9);
-            this.btnSay.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSay.Location = new System.Drawing.Point(465, 11);
+            this.btnSay.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSay.Name = "btnSay";
-            this.btnSay.Size = new System.Drawing.Size(61, 20);
+            this.btnSay.Size = new System.Drawing.Size(81, 25);
             this.btnSay.TabIndex = 15;
             this.btnSay.Text = "Say";
             this.btnSay.UseVisualStyleBackColor = true;
@@ -1365,9 +1389,10 @@
             this.chkShowEmotesWithoutTarget.AutoSize = true;
             this.chkShowEmotesWithoutTarget.Checked = true;
             this.chkShowEmotesWithoutTarget.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(284, 34);
+            this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(379, 42);
+            this.chkShowEmotesWithoutTarget.Margin = new System.Windows.Forms.Padding(4);
             this.chkShowEmotesWithoutTarget.Name = "chkShowEmotesWithoutTarget";
-            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(162, 17);
+            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(197, 20);
             this.chkShowEmotesWithoutTarget.TabIndex = 14;
             this.chkShowEmotesWithoutTarget.Text = "Show Emotes without Target";
             this.chkShowEmotesWithoutTarget.UseVisualStyleBackColor = true;
@@ -1376,38 +1401,36 @@
             // lblEmoteTarget
             // 
             this.lblEmoteTarget.AutoSize = true;
-            this.lblEmoteTarget.Location = new System.Drawing.Point(12, 35);
-            this.lblEmoteTarget.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblEmoteTarget.Location = new System.Drawing.Point(16, 43);
             this.lblEmoteTarget.Name = "lblEmoteTarget";
-            this.lblEmoteTarget.Size = new System.Drawing.Size(41, 13);
+            this.lblEmoteTarget.Size = new System.Drawing.Size(50, 16);
             this.lblEmoteTarget.TabIndex = 12;
             this.lblEmoteTarget.Text = "Target:";
             // 
             // txtEmoteTarget
             // 
-            this.txtEmoteTarget.Location = new System.Drawing.Point(93, 32);
-            this.txtEmoteTarget.Margin = new System.Windows.Forms.Padding(2);
+            this.txtEmoteTarget.Location = new System.Drawing.Point(124, 39);
+            this.txtEmoteTarget.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtEmoteTarget.Name = "txtEmoteTarget";
-            this.txtEmoteTarget.Size = new System.Drawing.Size(186, 20);
+            this.txtEmoteTarget.Size = new System.Drawing.Size(247, 22);
             this.txtEmoteTarget.TabIndex = 13;
             this.txtEmoteTarget.TextChanged += new System.EventHandler(this.txtEmoteTarget_TextChanged);
             // 
             // lblCommandText
             // 
             this.lblCommandText.AutoSize = true;
-            this.lblCommandText.Location = new System.Drawing.Point(12, 13);
-            this.lblCommandText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblCommandText.Location = new System.Drawing.Point(16, 16);
             this.lblCommandText.Name = "lblCommandText";
-            this.lblCommandText.Size = new System.Drawing.Size(77, 13);
+            this.lblCommandText.Size = new System.Drawing.Size(95, 16);
             this.lblCommandText.TabIndex = 8;
             this.lblCommandText.Text = "Command text:";
             // 
             // btnEmote
             // 
-            this.btnEmote.Location = new System.Drawing.Point(284, 9);
-            this.btnEmote.Margin = new System.Windows.Forms.Padding(2);
+            this.btnEmote.Location = new System.Drawing.Point(379, 11);
+            this.btnEmote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEmote.Name = "btnEmote";
-            this.btnEmote.Size = new System.Drawing.Size(61, 20);
+            this.btnEmote.Size = new System.Drawing.Size(81, 25);
             this.btnEmote.TabIndex = 11;
             this.btnEmote.Text = "Emote";
             this.btnEmote.UseVisualStyleBackColor = true;
@@ -1415,10 +1438,10 @@
             // 
             // txtCommandText
             // 
-            this.txtCommandText.Location = new System.Drawing.Point(93, 10);
-            this.txtCommandText.Margin = new System.Windows.Forms.Padding(2);
+            this.txtCommandText.Location = new System.Drawing.Point(124, 12);
+            this.txtCommandText.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCommandText.Name = "txtCommandText";
-            this.txtCommandText.Size = new System.Drawing.Size(187, 20);
+            this.txtCommandText.Size = new System.Drawing.Size(248, 22);
             this.txtCommandText.TabIndex = 9;
             this.txtCommandText.TextChanged += new System.EventHandler(this.txtEmoteText_TextChanged);
             // 
@@ -1426,11 +1449,11 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, -53);
-            this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -58);
+            this.grpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpEmotes.Name = "grpEmotes";
-            this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
-            this.grpEmotes.Size = new System.Drawing.Size(866, 847);
+            this.grpEmotes.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.grpEmotes.Size = new System.Drawing.Size(1157, 1042);
             this.grpEmotes.TabIndex = 10;
             this.grpEmotes.TabStop = false;
             this.grpEmotes.Text = "Emotes";
@@ -1438,18 +1461,19 @@
             // flpEmotes
             // 
             this.flpEmotes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpEmotes.Location = new System.Drawing.Point(2, 15);
-            this.flpEmotes.Margin = new System.Windows.Forms.Padding(2);
+            this.flpEmotes.Location = new System.Drawing.Point(3, 17);
+            this.flpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flpEmotes.Name = "flpEmotes";
-            this.flpEmotes.Size = new System.Drawing.Size(862, 830);
+            this.flpEmotes.Size = new System.Drawing.Size(1151, 1023);
             this.flpEmotes.TabIndex = 0;
             // 
             // tabHelp
             // 
             this.tabHelp.Controls.Add(this.grpHelp);
-            this.tabHelp.Location = new System.Drawing.Point(4, 22);
+            this.tabHelp.Location = new System.Drawing.Point(4, 25);
+            this.tabHelp.Margin = new System.Windows.Forms.Padding(4);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(866, 794);
+            this.tabHelp.Size = new System.Drawing.Size(1157, 984);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1459,8 +1483,10 @@
             this.grpHelp.Controls.Add(this.flpHelp);
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
+            this.grpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(866, 794);
+            this.grpHelp.Padding = new System.Windows.Forms.Padding(4);
+            this.grpHelp.Size = new System.Drawing.Size(1157, 984);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1468,9 +1494,10 @@
             // flpHelp
             // 
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpHelp.Location = new System.Drawing.Point(3, 16);
+            this.flpHelp.Location = new System.Drawing.Point(4, 19);
+            this.flpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(860, 775);
+            this.flpHelp.Size = new System.Drawing.Size(1149, 961);
             this.flpHelp.TabIndex = 0;
             // 
             // tmr
@@ -1483,7 +1510,7 @@
             // 
             this.scMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scMain.Location = new System.Drawing.Point(0, 0);
-            this.scMain.Margin = new System.Windows.Forms.Padding(2);
+            this.scMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.scMain.Name = "scMain";
             // 
             // scMain.Panel1
@@ -1494,18 +1521,18 @@
             // scMain.Panel2
             // 
             this.scMain.Panel2.Controls.Add(this.grpConsole);
-            this.scMain.Size = new System.Drawing.Size(1540, 845);
-            this.scMain.SplitterDistance = 874;
-            this.scMain.SplitterWidth = 3;
+            this.scMain.Size = new System.Drawing.Size(2053, 1040);
+            this.scMain.SplitterDistance = 1165;
             this.scMain.TabIndex = 81;
             // 
             // pnlTabControl
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
+            this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(874, 820);
+            this.pnlTabControl.Size = new System.Drawing.Size(1165, 1013);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1523,7 +1550,7 @@
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(874, 25);
+            this.tsTopMenu.Size = new System.Drawing.Size(1165, 27);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1533,7 +1560,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(74, 22);
+            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1544,7 +1571,7 @@
             this.tsbInventory.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventory.Image")));
             this.tsbInventory.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInventory.Name = "tsbInventory";
-            this.tsbInventory.Size = new System.Drawing.Size(61, 22);
+            this.tsbInventory.Size = new System.Drawing.Size(74, 24);
             this.tsbInventory.Text = "Inventory";
             this.tsbInventory.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
@@ -1554,7 +1581,7 @@
             this.tsbEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbEquipment.Image")));
             this.tsbEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbEquipment.Name = "tsbEquipment";
-            this.tsbEquipment.Size = new System.Drawing.Size(69, 22);
+            this.tsbEquipment.Size = new System.Drawing.Size(85, 24);
             this.tsbEquipment.Tag = "equipment";
             this.tsbEquipment.Text = "Equipment";
             this.tsbEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1565,7 +1592,7 @@
             this.tsbWho.Image = ((System.Drawing.Image)(resources.GetObject("tsbWho.Image")));
             this.tsbWho.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWho.Name = "tsbWho";
-            this.tsbWho.Size = new System.Drawing.Size(36, 22);
+            this.tsbWho.Size = new System.Drawing.Size(44, 24);
             this.tsbWho.Tag = "who";
             this.tsbWho.Text = "Who";
             this.tsbWho.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1576,7 +1603,7 @@
             this.tsbUptime.Image = ((System.Drawing.Image)(resources.GetObject("tsbUptime.Image")));
             this.tsbUptime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbUptime.Name = "tsbUptime";
-            this.tsbUptime.Size = new System.Drawing.Size(50, 22);
+            this.tsbUptime.Size = new System.Drawing.Size(62, 24);
             this.tsbUptime.Tag = "uptime";
             this.tsbUptime.Text = "Uptime";
             this.tsbUptime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1587,7 +1614,7 @@
             this.tsbScore.Image = ((System.Drawing.Image)(resources.GetObject("tsbScore.Image")));
             this.tsbScore.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbScore.Name = "tsbScore";
-            this.tsbScore.Size = new System.Drawing.Size(40, 22);
+            this.tsbScore.Size = new System.Drawing.Size(50, 24);
             this.tsbScore.Tag = "";
             this.tsbScore.Text = "Score";
             this.tsbScore.Click += new System.EventHandler(this.btnScore_Click);
@@ -1598,7 +1625,7 @@
             this.tsbTime.Image = ((System.Drawing.Image)(resources.GetObject("tsbTime.Image")));
             this.tsbTime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbTime.Name = "tsbTime";
-            this.tsbTime.Size = new System.Drawing.Size(37, 22);
+            this.tsbTime.Size = new System.Drawing.Size(46, 24);
             this.tsbTime.Tag = "time";
             this.tsbTime.Text = "Time";
             this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1609,7 +1636,7 @@
             this.tsbConfiguration.Image = ((System.Drawing.Image)(resources.GetObject("tsbConfiguration.Image")));
             this.tsbConfiguration.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbConfiguration.Name = "tsbConfiguration";
-            this.tsbConfiguration.Size = new System.Drawing.Size(85, 22);
+            this.tsbConfiguration.Size = new System.Drawing.Size(104, 24);
             this.tsbConfiguration.Text = "Configuration";
             this.tsbConfiguration.Click += new System.EventHandler(this.tsbConfiguration_Click);
             // 
@@ -1619,7 +1646,7 @@
             this.tsbQuit.Image = ((System.Drawing.Image)(resources.GetObject("tsbQuit.Image")));
             this.tsbQuit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbQuit.Name = "tsbQuit";
-            this.tsbQuit.Size = new System.Drawing.Size(34, 22);
+            this.tsbQuit.Size = new System.Drawing.Size(41, 24);
             this.tsbQuit.Text = "Quit";
             this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
@@ -1629,10 +1656,10 @@
             this.grpConsole.Controls.Add(this.pnlCommand);
             this.grpConsole.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpConsole.Location = new System.Drawing.Point(0, 0);
-            this.grpConsole.Margin = new System.Windows.Forms.Padding(2);
+            this.grpConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpConsole.Name = "grpConsole";
-            this.grpConsole.Padding = new System.Windows.Forms.Padding(2);
-            this.grpConsole.Size = new System.Drawing.Size(663, 845);
+            this.grpConsole.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.grpConsole.Size = new System.Drawing.Size(884, 1040);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1641,9 +1668,10 @@
             // 
             this.pnlConsoleHolder.Controls.Add(this.rtbConsole);
             this.pnlConsoleHolder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlConsoleHolder.Location = new System.Drawing.Point(2, 15);
+            this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 17);
+            this.pnlConsoleHolder.Margin = new System.Windows.Forms.Padding(4);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(659, 778);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(878, 959);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1655,10 +1683,10 @@
             this.rtbConsole.ForeColor = System.Drawing.Color.White;
             this.rtbConsole.HideSelection = false;
             this.rtbConsole.Location = new System.Drawing.Point(0, 0);
-            this.rtbConsole.Margin = new System.Windows.Forms.Padding(2);
+            this.rtbConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(659, 778);
+            this.rtbConsole.Size = new System.Drawing.Size(878, 959);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1668,35 +1696,35 @@
             this.ctxConsole.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiClearConsole});
             this.ctxConsole.Name = "ctxConsole";
-            this.ctxConsole.Size = new System.Drawing.Size(102, 26);
+            this.ctxConsole.Size = new System.Drawing.Size(113, 28);
             this.ctxConsole.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxConsole_ItemClicked);
             // 
             // tsmiClearConsole
             // 
             this.tsmiClearConsole.Name = "tsmiClearConsole";
-            this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
+            this.tsmiClearConsole.Size = new System.Drawing.Size(112, 24);
             this.tsmiClearConsole.Text = "Clear";
             // 
             // pnlCommand
             // 
             this.pnlCommand.Controls.Add(this.txtOneOffCommand);
             this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCommand.Location = new System.Drawing.Point(2, 793);
+            this.pnlCommand.Location = new System.Drawing.Point(3, 976);
+            this.pnlCommand.Margin = new System.Windows.Forms.Padding(4);
             this.pnlCommand.Name = "pnlCommand";
-            this.pnlCommand.Size = new System.Drawing.Size(659, 50);
+            this.pnlCommand.Size = new System.Drawing.Size(878, 62);
             this.pnlCommand.TabIndex = 30;
             // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1540, 845);
+            this.ClientSize = new System.Drawing.Size(2053, 1040);
             this.Controls.Add(this.scMain);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(2);
-            this.MaximizeBox = false;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimizeBox = false;
             this.Name = "frmMain";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Isengard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);

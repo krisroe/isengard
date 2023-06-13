@@ -188,6 +188,8 @@ namespace IsengardClient
         {
             InitializeComponent();
 
+            this.MinimumSize = this.Size;
+
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
             {
