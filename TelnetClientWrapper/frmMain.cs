@@ -142,6 +142,7 @@ namespace IsengardClient
         private CommandResult? _commandResult;
         private int _commandResultCounter = 0;
         private int _lastCommandDamage;
+        private bool _lastCommandPoisoned;
         private MovementResult? _lastCommandMovementResult;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
@@ -174,6 +175,7 @@ namespace IsengardClient
             BackgroundCommandType.Vigor,
             BackgroundCommandType.MendWounds,
             BackgroundCommandType.Protection,
+            BackgroundCommandType.CurePoison,
             BackgroundCommandType.Bless,
             BackgroundCommandType.Stun,
             BackgroundCommandType.OffensiveSpell
@@ -1052,7 +1054,7 @@ namespace IsengardClient
 
             InitialLoginInfo info = _loginInfo;
             string sRoomName = info.RoomName;
-            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0))
+            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, false))
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 Room r = SetCurrentRoomIfUnambiguous(sRoomName);
@@ -1077,7 +1079,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage)
+        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage, bool poisoned)
         {
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
@@ -1141,6 +1143,7 @@ namespace IsengardClient
             if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
             {
                 _lastCommandDamage = damage;
+                _lastCommandPoisoned = poisoned;
                 _lastCommandMovementResult = MovementResult.Success;
             }
 
@@ -1199,19 +1202,19 @@ namespace IsengardClient
             }
         }
 
-        private static void OnVigorSpellCast(FeedLineParameters flParams)
+        private void OnLifeSpellCast(FeedLineParameters flParams, BackgroundCommandType lifeSpellCommandType)
         {
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Vigor)
+            string activeSpell = null;
+            if (lifeSpellCommandType == BackgroundCommandType.Bless)
+                activeSpell = "bless";
+            else if (lifeSpellCommandType == BackgroundCommandType.Protection)
+                activeSpell = "protection";
+            if (!string.IsNullOrEmpty(activeSpell))
             {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
+                AddActiveSpell(activeSpell);
             }
-        }
-
-        private static void OnMendWoundsSpellCast(FeedLineParameters flParams)
-        {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.MendWounds)
+            if (bct.HasValue && bct.Value == lifeSpellCommandType)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
@@ -1232,26 +1235,6 @@ namespace IsengardClient
         private void OnFly(FeedLineParameters flParams)
         {
             AddActiveSpell("fly");
-        }
-
-        private void OnBlessSpellCast(FeedLineParameters flParams)
-        {
-            AddActiveSpell("bless");
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Bless)
-            {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
-            }
-        }
-
-        private void OnProtectionSpellCast(FeedLineParameters flParams)
-        {
-            AddActiveSpell("protection");
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Protection)
-            {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
-            }
         }
 
         private void FailMovement(FeedLineParameters flParams, MovementResult movementResult, int damage)
@@ -1754,11 +1737,8 @@ namespace IsengardClient
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Bless spell cast.", OnBlessSpellCast, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Bless),
-                new ConstantOutputSequence("Protection spell cast.", OnProtectionSpellCast, ConstantSequenceMatchType.Contains, 0, BackgroundCommandType.Protection),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
-                new ConstantOutputSequence("Vigor spell cast.", OnVigorSpellCast, ConstantSequenceMatchType.Contains, 0),
-                new ConstantOutputSequence("Mend-wounds spell cast.", OnMendWoundsSpellCast, ConstantSequenceMatchType.Contains, 0),
+                new LifeSpellCastSequence(OnLifeSpellCast),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
@@ -2232,6 +2212,7 @@ namespace IsengardClient
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
+                _lastCommandPoisoned = false;
                 _lastCommandMovementResult = null;
                 Room wentToRoom = bwp.NavigatedToRoom;
                 if (wentToRoom != null)
@@ -2271,7 +2252,7 @@ namespace IsengardClient
 
                 if (pms.Heal)
                 {
-                    if (!DoBackgroundHeal(true, true, pms))
+                    if (!DoBackgroundHeal(true, true, false, pms))
                     {
                         return;
                     }
@@ -2293,6 +2274,7 @@ namespace IsengardClient
                     List<Exit> exitList = new List<Exit>(pms.Exits);
                     Room oTarget = exitList[exitList.Count - 1].Target;
                     bool needHeal = false;
+                    bool needCurepoison = false;
                     while (exitList.Count > 0)
                     {
                         Exit nextExit = exitList[0];
@@ -2391,6 +2373,7 @@ namespace IsengardClient
                             }
                             RunPreExitLogic(nextExit);
                             string nextCommand = GetExitCommand(exitText);
+                            bool targetIsDamageRoom = nextExitTarget.DamageType.HasValue;
 
                             bool keepTryingMovement = true;
                             while (keepTryingMovement)
@@ -2404,17 +2387,13 @@ namespace IsengardClient
                                     {
                                         pms.NavigatedToRoom = nextExitTarget;
                                     }
-                                    if (_lastCommandDamage != 0) //fell into a trap room
+                                    if (_lastCommandPoisoned)
                                     {
-                                        if (nextExitTarget.DamageType.HasValue)
-                                        {
-                                            needHeal = true;
-                                        }
-                                        else
-                                        {
-                                            if (!DoBackgroundHeal(false, false, pms)) return;
-                                            _backgroundProcessPhase = BackgroundProcessPhase.Movement;
-                                        }
+                                        needCurepoison = true;
+                                    }
+                                    if (_lastCommandDamage != 0) //trap room
+                                    {
+                                        needHeal = true;
                                         SendCommand("stand", InputEchoType.On);
                                     }
                                 }
@@ -2439,7 +2418,7 @@ namespace IsengardClient
                                 }
                                 else if (_lastCommandMovementResult == MovementResult.FallFailure)
                                 {
-                                    if (!DoBackgroundHeal(false, false, pms)) return;
+                                    if (!DoBackgroundHeal(false, false, needCurepoison, pms)) return;
                                     _backgroundProcessPhase = BackgroundProcessPhase.Movement;
                                     SendCommand("stand", InputEchoType.On);
                                     keepTryingMovement = true;
@@ -2450,10 +2429,11 @@ namespace IsengardClient
                                     return;
                                 }
                             }
-                            if (needHeal)
+                            if (!targetIsDamageRoom && (needHeal || needCurepoison))
                             {
-                                if (!DoBackgroundHeal(false, false, pms)) return;
+                                if (!DoBackgroundHeal(false, false, needCurepoison, pms)) return;
                                 needHeal = false;
+                                needCurepoison = false;
                             }
                         }
                         finally
@@ -2843,10 +2823,17 @@ BeforeHazy:
             return ret;
         }
 
-        private bool DoBackgroundHeal(bool doBless, bool doProtection, BackgroundWorkerParameters pms)
+        private bool DoBackgroundHeal(bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms)
         {
             _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-            int autohp, automp;
+
+            int autohp;
+            int automp = _automp;
+            if (doCurePoison && (automp < 4 || !CastLifeSpell("cure-poison", pms)))
+            {
+                return false;
+            }
+
             while (true)
             {
                 autohp = _autohp;
@@ -3098,6 +3085,9 @@ BeforeHazy:
                 case "mend-wounds":
                     bct = BackgroundCommandType.MendWounds;
                     break;
+                case "cure-poison":
+                    bct = BackgroundCommandType.CurePoison;
+                    break;
                 case "bless":
                     bct = BackgroundCommandType.Bless;
                     break;
@@ -3232,6 +3222,7 @@ BeforeHazy:
             _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
+            _lastCommandPoisoned = false;
             _lastCommandMovementResult = null;
             try
             {
@@ -3368,6 +3359,7 @@ BeforeHazy:
             yield return btnGraph;
             yield return btnLocations;
             yield return btnClearCurrentLocation;
+            yield return chkExecuteMove;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;

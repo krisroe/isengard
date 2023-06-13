@@ -805,8 +805,8 @@ namespace IsengardClient
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
         private string _userName;
-        private Action<RoomTransitionInfo, int> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo, int> onSatisfied, string userName)
+        private Action<RoomTransitionInfo, int, bool> _onSatisfied;
+        public RoomTransitionSequence(Action<RoomTransitionInfo, int, bool> onSatisfied, string userName)
         {
             _onSatisfied = onSatisfied;
             _userName = userName;
@@ -942,7 +942,7 @@ namespace IsengardClient
             return ili;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int, bool> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, bool poisoned)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1117,12 +1117,13 @@ namespace IsengardClient
             rti.Mobs = mobs;
             rti.Items = items;
             rti.ErrorMessages = errorMessages;
-            onSatisfied(rti, damage);
+            onSatisfied(rti, damage, poisoned);
             return true;
         }
 
-        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int> onSatisfied, int damage)
+        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int, bool> onSatisfied, int damage)
         {
+            int lineCount = Lines.Count;
             if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
             {
                 return false;
@@ -1141,7 +1142,30 @@ namespace IsengardClient
                 list3String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
             }
 
-            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage);
+            bool poisoned = false;
+            if (nextLineIndex < lineCount)
+            {
+                string sNextLine = Lines[nextLineIndex];
+                if (string.IsNullOrEmpty(sNextLine))
+                {
+                    nextLineIndex++;
+                    for (int i = nextLineIndex; i < lineCount; i++)
+                    {
+                        sNextLine = Lines[i];
+                        if (sNextLine == "You triggered a hidden dart!")
+                        {
+                            poisoned = true;
+                        }
+                        else
+                        {
+                            int trapDamage = Room.ProcessTrapDamage("You lost ", " hit points.", sNextLine);
+                            if (trapDamage > 0) damage += trapDamage;
+                        }
+                    }
+                }
+            }
+
+            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, poisoned);
         }
 
         private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
@@ -1802,23 +1826,7 @@ namespace IsengardClient
 
         public static int ProcessFallDamage(string nextLine)
         {
-            int ret = 0;
-            if (nextLine.StartsWith(YOU_FELL_AND_HURT_YOURSELF_PREFIX) && nextLine.EndsWith(YOU_FELL_AND_HURT_YOURSELF_SUFFIX))
-            {
-                int iPrefixLen = YOU_FELL_AND_HURT_YOURSELF_PREFIX.Length;
-                int iSuffixLen = YOU_FELL_AND_HURT_YOURSELF_SUFFIX.Length;
-                int iTotalLen = nextLine.Length;
-                int iDamageLen = iTotalLen - iPrefixLen - iSuffixLen;
-                if (iDamageLen > 0)
-                {
-                    string sDamage = nextLine.Substring(iPrefixLen, iDamageLen);
-                    if (int.TryParse(sDamage, out int iThisDamage) && iThisDamage > 0)
-                    {
-                        ret = iThisDamage;
-                    }
-                }
-            }
-            return ret;
+            return Room.ProcessTrapDamage(YOU_FELL_AND_HURT_YOURSELF_PREFIX, YOU_FELL_AND_HURT_YOURSELF_SUFFIX, nextLine);
         }
     }
 
@@ -1960,6 +1968,7 @@ namespace IsengardClient
                 }
                 else if (sLine == "The searing heat burns your flesh." ||
                          sLine == "Water fills your lungs." ||
+                         sLine == "Poison courses through your veins." ||
                          sLine.EndsWith(" just arrived.") ||
                          sLine.EndsWith(" just wandered away."))
                 {
@@ -2117,11 +2126,57 @@ namespace IsengardClient
         }
     }
 
+    public class LifeSpellCastSequence : AOutputProcessingSequence
+    {
+        public Action<FeedLineParameters, BackgroundCommandType> _onSatisfied;
+        public LifeSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public override void FeedLine(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? matchingSpell = null;
+            List<string> Lines = flParams.Lines;
+            int lineCount = Lines.Count;
+            if (lineCount > 0 && lineCount <= 3)
+            {
+                string firstLine = Lines[0];
+                string secondLine = lineCount >= 2 ? Lines[1] : string.Empty;
+                string thirdLine = lineCount >= 3 ? Lines[2] : string.Empty;
+                if (firstLine == "Vigor spell cast." && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine))
+                    matchingSpell = BackgroundCommandType.Vigor;
+                else if (firstLine == "Mend-wounds spell cast." && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine))
+                    matchingSpell = BackgroundCommandType.MendWounds;
+                else if (firstLine == "Bless spell cast." && secondLine == "You feel holy." && string.IsNullOrEmpty(thirdLine))
+                    matchingSpell = BackgroundCommandType.Bless;
+                else if (firstLine == "Protection spell cast." && secondLine == "You feel watched." && string.IsNullOrEmpty(thirdLine))
+                    matchingSpell = BackgroundCommandType.Protection;
+                else if (firstLine == "Curepoison spell cast on yourself." && secondLine == "You feel much better." && string.IsNullOrEmpty(thirdLine))
+                    matchingSpell = BackgroundCommandType.CurePoison;
+            }
+            if (matchingSpell.HasValue)
+            {
+                _onSatisfied(flParams, matchingSpell.Value);
+                flParams.FinishedProcessing = true;
+            }
+        }
+    }
+
     public static class StringProcessing
     {
+        /// <summary>
+        /// retrieves a list. The list is assumed to be comma-delimited ending in a period.
+        /// </summary>
+        /// <param name="inputs">text input information</param>
+        /// <param name="lineIndex">line index to start at</param>
+        /// <param name="startsWith">beginning text for the list</param>
+        /// <param name="requireExactStartsWith">if true it will skip lines that don't match the start index.</param>
+        /// <param name="nextLineIndex">returns the line after the final line containing the list.</param>
+        /// <returns></returns>
         public static string GetListAsString(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
         {
-            nextLineIndex = 0;
+            nextLineIndex = lineIndex;
             bool foundStartsWith = false;
             bool finished = false;
             StringBuilder sb = null;

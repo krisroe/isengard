@@ -95,5 +95,26 @@ namespace IsengardClient
             }
             return defaultMob;
         }
+
+        public static int ProcessTrapDamage(string prefix, string suffix, string nextLine)
+        {
+            int ret = 0;
+            if (nextLine.StartsWith(prefix) && nextLine.EndsWith(suffix))
+            {
+                int iPrefixLen = prefix.Length;
+                int iSuffixLen = suffix.Length;
+                int iTotalLen = nextLine.Length;
+                int iDamageLen = iTotalLen - iPrefixLen - iSuffixLen;
+                if (iDamageLen > 0)
+                {
+                    string sDamage = nextLine.Substring(iPrefixLen, iDamageLen);
+                    if (int.TryParse(sDamage, out int iThisDamage) && iThisDamage > 0)
+                    {
+                        ret = iThisDamage;
+                    }
+                }
+            }
+            return ret;
+        }
     }
 }

@@ -79,6 +79,7 @@ namespace IsengardClient
         Knock,
         Vigor,
         MendWounds,
+        CurePoison,
         Bless,
         Protection,
         Manashield,

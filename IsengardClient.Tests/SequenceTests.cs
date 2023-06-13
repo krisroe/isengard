@@ -652,6 +652,44 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestRoomTransition()
+        {
+            RoomTransitionInfo oRTI = null;
+            int? iDamage = null;
+            bool? poisoned = null;
+            Action<RoomTransitionInfo, int, bool> a = (rti, d, p) =>
+            {
+                oRTI = rti;
+                iDamage = d;
+                poisoned = p;
+            };
+
+            RoomTransitionSequence seq = new RoomTransitionSequence(a, "Despug");
+            FeedLineParameters flParams = new FeedLineParameters(null);
+
+            flParams.Lines = new List<string>()
+            {
+                string.Empty,
+                "Torture Room",
+                string.Empty,
+                "Obvious exits: out.",
+                "You see Eugene the Executioner.",
+                "You see a carved ivory key.",
+                string.Empty,
+                "You triggered a hidden dart!",
+                "You lost 10 hit points."
+            };
+            flParams.PlayerNames = new HashSet<string>();
+            oRTI = null;
+            iDamage = null;
+            poisoned = null;
+            seq.FeedLine(flParams);
+            Assert.IsTrue(oRTI != null);
+            Assert.IsTrue(iDamage == 10);
+            Assert.IsTrue(poisoned.Value);
+        }
+
+        [TestMethod]
         public void TestConstantSequences()
         {
             bool satisfied;
