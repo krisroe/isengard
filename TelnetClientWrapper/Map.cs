@@ -2710,7 +2710,11 @@ namespace IsengardClient
             Room oMountainPath2 = AddRoom("Mountain Path", "Mountain Path");
             AddBidirectionalExits(oMountainPath2, oMountainPath1, BidirectionalExitType.SouthwestNortheast);
             eastOfImladrisGraph.Rooms[oMountainPath2] = new System.Windows.Point(2, 5);
-            //CSRTODO: southeast
+
+            Room oSouthernFootpath1 = AddRoom("Southern Footpath", "Southern Footpath");
+            AddBidirectionalExits(oMountainPath2, oSouthernFootpath1, BidirectionalExitType.SoutheastNorthwest);
+            eastOfImladrisGraph.Rooms[oSouthernFootpath1] = new System.Windows.Point(3, 6);
+            //CSRTODO: south
 
             Room oMountainTrail1 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail1, oMountainPath2, BidirectionalExitType.NorthSouth);
@@ -2719,7 +2723,26 @@ namespace IsengardClient
             Room oIorlasThreshold = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oIorlasThreshold, oMountainTrail1, BidirectionalExitType.SouthwestNortheast);
             eastOfImladrisGraph.Rooms[oIorlasThreshold] = new System.Windows.Point(3, 3);
-            //CSRTODO: east
+
+            Room oMountainTrailEastOfIorlas1 = AddRoom("Mountain Trail", "Mountain Trail");
+            AddBidirectionalExits(oIorlasThreshold, oMountainTrailEastOfIorlas1, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oMountainTrailEastOfIorlas1] = new System.Windows.Point(4, 3);
+
+            Room oMountainTrailEastOfIorlas2 = AddRoom("Mountain Trail", "Mountain Trail");
+            AddBidirectionalExits(oMountainTrailEastOfIorlas1, oMountainTrailEastOfIorlas2, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oMountainTrailEastOfIorlas2] = new System.Windows.Point(5, 3);
+
+            Room oMountainTrailEastOfIorlas3 = AddRoom("Mountain Trail", "Mountain Trail");
+            AddBidirectionalExits(oMountainTrailEastOfIorlas2, oMountainTrailEastOfIorlas3, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oMountainTrailEastOfIorlas3] = new System.Windows.Point(6, 3);
+
+            Room oMountainTrailEastOfIorlas4 = AddRoom("Mountain Trail", "Mountain Trail");
+            AddBidirectionalExits(oMountainTrailEastOfIorlas3, oMountainTrailEastOfIorlas4, BidirectionalExitType.SoutheastNorthwest);
+            eastOfImladrisGraph.Rooms[oMountainTrailEastOfIorlas4] = new System.Windows.Point(7, 4);
+
+            Room oCarrockPlains = AddRoom("Carrock Plains", "Carrock Plains");
+            AddBidirectionalExits(oMountainTrailEastOfIorlas4, oCarrockPlains, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oCarrockPlains] = new System.Windows.Point(8, 4);
 
             Room oMountainTrail3 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail3, oIorlasThreshold, BidirectionalExitType.SouthwestNortheast);
