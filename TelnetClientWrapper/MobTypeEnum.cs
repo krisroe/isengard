@@ -38,6 +38,10 @@
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
 
+        [SingularName("butler")]
+        [PluralName("butlers")]
+        Butler,
+
         [SingularName("Captain Renton")]
         //CSRTODO: no plural
         CaptainRenton,
@@ -45,6 +49,10 @@
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
+
+        [SingularName("the Chancellor of Protection")]
+        //CSRTODO: no plural
+        ChancellorOfProtection,
 
         [SingularName("criminal")]
         [PluralName("criminals")]
@@ -78,6 +86,10 @@
         [PluralName("drunks")]
         Drunk,
 
+        [SingularName("dungeon guard")]
+        [PluralName("dungeon guards")]
+        DungeonGuard,
+
         [SingularName("dwarf")]
         //CSRTODO: plural?
         Dwarf,
@@ -93,6 +105,10 @@
         [SingularName("Eugene the Executioner")]
         //CSRTODO: no plural?
         EugeneTheExecutioner,
+
+        [SingularName("Fallon")]
+        //CSRTODO: no plural?
+        Fallon,
 
         [SingularName("Faornil the Seer")]
         //CSRTODO: no plural?
@@ -181,10 +197,6 @@
         [SingularName("gypsy fighter")]
         [PluralName("gypsy fighters")]
         GypsyFighter,
-
-        [SingularName("Fallon")]
-        //CSRTODO: no plural?
-        Fallon,
 
         [SingularName("half-elf")]
         [PluralName("half-elves")]
@@ -302,6 +314,10 @@
         //CSRTODO: no plural
         MasterJeweler,
 
+        [SingularName("the Mayor Millwood")]
+        //CSRTODO: no plural
+        MayorMillwood,
+
         [SingularName("merchant")]
         [PluralName("merchants")]
         Merchant,
@@ -317,6 +333,10 @@
         [SingularName("monk")]
         [PluralName("monks")]
         Monk,
+
+        [SingularName("morality officer")]
+        [PluralName("morality officers")]
+        MoralityOfficer,
 
         [SingularName("mosquito")]
         [PluralName("mosquitos")] //CSRTODO: dictionary has plural as either mosquito or mosquitoes

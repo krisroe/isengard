@@ -1825,37 +1825,37 @@ namespace IsengardClient
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oWarriorBardMansionEast] = new System.Windows.Point(10, 11);
 
-            Room oNorthHallway1 = AddRoom("North Hallway");
+            Room oNorthHallway1 = AddRoom("North Hallway", "North Hallway");
             AddBidirectionalExits(oNorthHallway1, oMansionFirstFloorToEastStairwell2, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oNorthHallway1] = new System.Windows.Point(7, 10);
 
-            Room oNorthHallway2 = AddRoom("North Hallway");
+            Room oNorthHallway2 = AddRoom("North Hallway", "North Hallway");
             AddBidirectionalExits(oNorthHallway2, oNorthHallway1, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oNorthHallway2] = new System.Windows.Point(7, 9);
 
-            Room oNorthHallway3 = AddRoom("North Hallway");
+            Room oNorthHallway3 = AddRoom("North Hallway", "North Hallway");
             AddBidirectionalExits(oNorthHallway3, oNorthHallway2, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oNorthHallway3] = new System.Windows.Point(7, 8);
 
-            Room oDungeonGuardNorth = AddRoom("Dungeon Guard");
+            Room oDungeonGuardNorth = AddRoom("Dungeon Guard", "North Hallway");
             oDungeonGuardNorth.Mob1 = "guard";
             oDungeonGuardNorth.Experience1 = 120;
             AddBidirectionalExits(oNorthHallway3, oDungeonGuardNorth, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oDungeonGuardNorth] = new System.Windows.Point(8, 8);
 
-            Room oSouthHallway1 = AddRoom("South Hallway");
+            Room oSouthHallway1 = AddRoom("South Hallway", "South Hallway");
             AddBidirectionalExits(oMansionFirstFloorToEastStairwell2, oSouthHallway1, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oSouthHallway1] = new System.Windows.Point(7, 12);
 
-            Room oSouthHallway2 = AddRoom("South Hallway");
+            Room oSouthHallway2 = AddRoom("South Hallway", "South Hallway");
             AddBidirectionalExits(oSouthHallway1, oSouthHallway2, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oSouthHallway2] = new System.Windows.Point(7, 13);
 
-            Room oSouthHallway3 = AddRoom("South Hallway");
+            Room oSouthHallway3 = AddRoom("South Hallway", "South Hallway");
             AddBidirectionalExits(oSouthHallway2, oSouthHallway3, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oSouthHallway3] = new System.Windows.Point(7, 14);
 
-            Room oDungeonGuardSouth = AddRoom("Dungeon Guard");
+            Room oDungeonGuardSouth = AddRoom("Dungeon Guard", "South Hallway");
             oDungeonGuardSouth.Mob1 = "guard";
             oDungeonGuardSouth.Experience1 = 120;
             AddBidirectionalExits(oSouthHallway3, oDungeonGuardSouth, BidirectionalExitType.WestEast);
@@ -1873,98 +1873,98 @@ namespace IsengardClient
             millwoodMansionUpstairsGraph.Rooms[southStairwell] = new System.Windows.Point(1, 12);
             millwoodMansionUpstairsGraph.Rooms[eastStairwell] = new System.Windows.Point(5, 5);
 
-            Room oGrandStaircaseUpstairs = AddRoom("Grand Staircase");
+            Room oGrandStaircaseUpstairs = AddRoom("Grand Staircase", "Grand Staircase");
             AddBidirectionalExits(oGrandStaircaseUpstairs, eastStairwell, BidirectionalExitType.UpDown);
             millwoodMansionUpstairsGraph.Rooms[oGrandStaircaseUpstairs] = new System.Windows.Point(5, 6);
 
-            Room oRoyalHallwayUpstairs = AddRoom("Royal Hallway");
+            Room oRoyalHallwayUpstairs = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallwayUpstairs, oGrandStaircaseUpstairs, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallwayUpstairs] = new System.Windows.Point(4, 6);
 
-            Room oRoyalHallwayToMayor = AddRoom("Royal Hallway");
+            Room oRoyalHallwayToMayor = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallwayUpstairs, oRoyalHallwayToMayor, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallwayToMayor] = new System.Windows.Point(4, 7);
 
-            Room oRoyalHallwayToChancellor = AddRoom("Royal Hallway");
+            Room oRoyalHallwayToChancellor = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallwayToChancellor, oRoyalHallwayUpstairs, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallwayToChancellor] = new System.Windows.Point(4, 5);
 
-            Room oRoyalHallway1 = AddRoom("Royal Hallway");
+            Room oRoyalHallway1 = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallway1, oRoyalHallwayUpstairs, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallway1] = new System.Windows.Point(3, 6);
 
-            Room oRoyalHallway2 = AddRoom("Royal Hallway");
+            Room oRoyalHallway2 = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallway2, oRoyalHallway1, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallway2] = new System.Windows.Point(2, 6);
 
-            Room oRoyalHallway3 = AddRoom("Royal Hallway");
+            Room oRoyalHallway3 = AddRoom("Royal Hallway", "Royal Hallway");
             AddBidirectionalExits(oRoyalHallway3, oRoyalHallway2, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oRoyalHallway3] = new System.Windows.Point(1, 6);
 
-            Room oNorthCorridor1 = AddRoom("North Corridor");
+            Room oNorthCorridor1 = AddRoom("North Corridor", "North Corridor");
             AddBidirectionalExits(oNorthCorridor1, oRoyalHallway3, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor1] = new System.Windows.Point(1, 5);
 
-            Room oNorthCorridor2 = AddRoom("North Corridor");
+            Room oNorthCorridor2 = AddRoom("North Corridor", "North Corridor");
             AddBidirectionalExits(oNorthCorridor2, oNorthCorridor1, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor2] = new System.Windows.Point(1, 4);
 
-            Room oDiningArea = AddRoom("Dining Area");
+            Room oDiningArea = AddRoom("Dining Area", "Dining Area");
             AddBidirectionalExits(oDiningArea, oNorthCorridor2, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oDiningArea] = new System.Windows.Point(0, 4);
 
-            Room oNorthCorridor3 = AddRoom("North Corridor");
+            Room oNorthCorridor3 = AddRoom("North Corridor", "North Corridor");
             AddBidirectionalExits(oNorthCorridor3, oNorthCorridor2, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor3] = new System.Windows.Point(1, 3);
 
-            Room oNorthCorridor4 = AddRoom("North Corridor");
+            Room oNorthCorridor4 = AddRoom("North Corridor", "North Corridor");
             AddBidirectionalExits(oNorthCorridor4, oNorthCorridor3, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor4] = new System.Windows.Point(1, 2);
 
-            Room oMeditationChamber = AddHealingRoom("Meditation Chamber", UNKNOWN_ROOM_NAME, HealingRoom.MillwoodMansion);
+            Room oMeditationChamber = AddHealingRoom("Meditation Chamber", "Meditation Chamber", HealingRoom.MillwoodMansion);
             Exit e = AddExit(oNorthCorridor4, oMeditationChamber, "door");
             e.MustOpen = true;
             AddExit(oMeditationChamber, oNorthCorridor4, "out");
             millwoodMansionUpstairsGraph.Rooms[oMeditationChamber] = new System.Windows.Point(0, 2);
 
-            Room oNorthernStairwell = AddRoom("Northern Stairwell");
+            Room oNorthernStairwell = AddRoom("Northern Stairwell", "Northern Stairwell");
             AddBidirectionalExits(oNorthernStairwell, oNorthCorridor4, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oNorthernStairwell, northStairwell, BidirectionalExitType.UpDown);
             millwoodMansionUpstairsGraph.Rooms[oNorthernStairwell] = new System.Windows.Point(1, 1);
 
-            Room oSouthCorridor1 = AddRoom("South Corridor");
+            Room oSouthCorridor1 = AddRoom("South Corridor", "South Corridor");
             AddBidirectionalExits(oRoyalHallway3, oSouthCorridor1, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oSouthCorridor1] = new System.Windows.Point(1, 7);
 
-            Room oSouthCorridor2 = AddRoom("South Corridor");
+            Room oSouthCorridor2 = AddRoom("South Corridor", "South Corridor");
             AddBidirectionalExits(oSouthCorridor1, oSouthCorridor2, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oSouthCorridor2] = new System.Windows.Point(1, 8);
 
-            Room oKnightsQuarters = AddRoom("Knights' Quarters");
+            Room oKnightsQuarters = AddRoom("Knights' Quarters", "Knights' Quarters");
             AddBidirectionalExits(oKnightsQuarters, oSouthCorridor2, BidirectionalExitType.WestEast);
             millwoodMansionUpstairsGraph.Rooms[oKnightsQuarters] = new System.Windows.Point(0, 8);
 
-            Room oSouthCorridor3 = AddRoom("South Corridor");
+            Room oSouthCorridor3 = AddRoom("South Corridor", "South Corridor");
             AddBidirectionalExits(oSouthCorridor2, oSouthCorridor3, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oSouthCorridor3] = new System.Windows.Point(1, 9);
 
-            Room oSouthCorridor4 = AddRoom("South Corridor");
+            Room oSouthCorridor4 = AddRoom("South Corridor", "South Corridor");
             AddBidirectionalExits(oSouthCorridor3, oSouthCorridor4, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oSouthCorridor4] = new System.Windows.Point(1, 10);
 
-            Room oStorageRoom = AddRoom("Storage Room");
+            Room oStorageRoom = AddRoom("Storage Room", "Storage Room");
             e = AddExit(oSouthCorridor4, oStorageRoom, "door");
             e.MustOpen = true;
             AddExit(oStorageRoom, oSouthCorridor4, "out");
             millwoodMansionUpstairsGraph.Rooms[oStorageRoom] = new System.Windows.Point(0, 10);
 
-            Room oSouthernStairwell = AddRoom("Southern Stairwell");
+            Room oSouthernStairwell = AddRoom("Southern Stairwell", "Southern Stairwell");
             AddBidirectionalExits(oSouthCorridor4, oSouthernStairwell, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oSouthernStairwell, southStairwell, BidirectionalExitType.UpDown);
             millwoodMansionUpstairsGraph.Rooms[oSouthernStairwell] = new System.Windows.Point(1, 11);
 
             //mayor is immune to stun
-            Room oMayorMillwood = AddRoom("Mayor Millwood");
+            Room oMayorMillwood = AddRoom("Mayor Millwood", "Royal Chamber");
             oMayorMillwood.Mob1 = "mayor";
             oMayorMillwood.Experience1 = 220;
             oMayorMillwood.Alignment = AlignmentType.Grey;
@@ -1973,7 +1973,7 @@ namespace IsengardClient
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
             millwoodMansionUpstairsGraph.Rooms[oMayorMillwood] = new System.Windows.Point(4, 8);
 
-            Room oChancellorOfProtection = AddRoom("Chancellor of Protection");
+            Room oChancellorOfProtection = AddRoom("Chancellor of Protection", "The Chancellor of Protection's Chambers");
             oChancellorOfProtection.Mob1 = "chancellor";
             oChancellorOfProtection.Experience1 = 200;
             oChancellorOfProtection.Alignment = AlignmentType.Blue;
@@ -3147,7 +3147,7 @@ namespace IsengardClient
             e.MustOpen = true;
             intangibleGraph.Rooms[oLimbo] = new System.Windows.Point(1, 2);
 
-            Room oDarkTunnel = AddRoom("Dark Tunnel");
+            Room oDarkTunnel = AddRoom("Dark Tunnel", "Dark Tunnel");
             oDarkTunnel.Intangible = true;
             e = AddExit(oLimbo, oDarkTunnel, "blue");
             e.MustOpen = true;
