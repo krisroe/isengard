@@ -76,6 +76,9 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnGoToHealingRoom = new System.Windows.Forms.Button();
+            this.lblTickRoom = new System.Windows.Forms.Label();
+            this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
@@ -206,10 +209,10 @@
             // txtMob
             // 
             this.txtMob.ContextMenuStrip = this.ctxMob;
-            this.txtMob.Location = new System.Drawing.Point(68, 19);
+            this.txtMob.Location = new System.Drawing.Point(76, 19);
             this.txtMob.Margin = new System.Windows.Forms.Padding(2);
             this.txtMob.Name = "txtMob";
-            this.txtMob.Size = new System.Drawing.Size(163, 20);
+            this.txtMob.Size = new System.Drawing.Size(155, 20);
             this.txtMob.TabIndex = 4;
             this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
             // 
@@ -247,10 +250,11 @@
             // 
             // lblMob
             // 
-            this.lblMob.Location = new System.Drawing.Point(14, 15);
+            this.lblMob.AutoSize = true;
+            this.lblMob.Location = new System.Drawing.Point(13, 22);
             this.lblMob.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(52, 27);
+            this.lblMob.Size = new System.Drawing.Size(31, 13);
             this.lblMob.TabIndex = 3;
             this.lblMob.Text = "Mob:";
             this.lblMob.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -339,7 +343,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(721, 26);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(659, 26);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -390,19 +394,20 @@
             // 
             // txtWeapon
             // 
-            this.txtWeapon.Location = new System.Drawing.Point(68, 41);
+            this.txtWeapon.Location = new System.Drawing.Point(76, 41);
             this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
             this.txtWeapon.Name = "txtWeapon";
-            this.txtWeapon.Size = new System.Drawing.Size(162, 20);
+            this.txtWeapon.Size = new System.Drawing.Size(154, 20);
             this.txtWeapon.TabIndex = 42;
             this.txtWeapon.TextChanged += new System.EventHandler(this.txtWeapon_TextChanged);
             // 
             // lblWeapon
             // 
-            this.lblWeapon.Location = new System.Drawing.Point(14, 39);
+            this.lblWeapon.AutoSize = true;
+            this.lblWeapon.Location = new System.Drawing.Point(13, 44);
             this.lblWeapon.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(51, 27);
+            this.lblWeapon.Size = new System.Drawing.Size(51, 13);
             this.lblWeapon.TabIndex = 41;
             this.lblWeapon.Text = "Weapon:";
             this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -461,19 +466,20 @@
             // 
             // txtWand
             // 
-            this.txtWand.Location = new System.Drawing.Point(68, 65);
+            this.txtWand.Location = new System.Drawing.Point(76, 63);
             this.txtWand.Margin = new System.Windows.Forms.Padding(2);
             this.txtWand.Name = "txtWand";
-            this.txtWand.Size = new System.Drawing.Size(162, 20);
+            this.txtWand.Size = new System.Drawing.Size(154, 20);
             this.txtWand.TabIndex = 49;
             this.txtWand.TextChanged += new System.EventHandler(this.txtWand_TextChanged);
             // 
             // lblWand
             // 
-            this.lblWand.Location = new System.Drawing.Point(14, 59);
+            this.lblWand.AutoSize = true;
+            this.lblWand.Location = new System.Drawing.Point(14, 66);
             this.lblWand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWand.Name = "lblWand";
-            this.lblWand.Size = new System.Drawing.Size(51, 27);
+            this.lblWand.Size = new System.Drawing.Size(39, 13);
             this.lblWand.TabIndex = 48;
             this.lblWand.Text = "Wand:";
             this.lblWand.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -528,18 +534,19 @@
             // 
             // txtPotion
             // 
-            this.txtPotion.Location = new System.Drawing.Point(68, 87);
+            this.txtPotion.Location = new System.Drawing.Point(76, 85);
             this.txtPotion.Margin = new System.Windows.Forms.Padding(2);
             this.txtPotion.Name = "txtPotion";
-            this.txtPotion.Size = new System.Drawing.Size(162, 20);
+            this.txtPotion.Size = new System.Drawing.Size(154, 20);
             this.txtPotion.TabIndex = 68;
             // 
             // lblPotion
             // 
-            this.lblPotion.Location = new System.Drawing.Point(14, 81);
+            this.lblPotion.AutoSize = true;
+            this.lblPotion.Location = new System.Drawing.Point(14, 88);
             this.lblPotion.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPotion.Name = "lblPotion";
-            this.lblPotion.Size = new System.Drawing.Size(51, 27);
+            this.lblPotion.Size = new System.Drawing.Size(40, 13);
             this.lblPotion.TabIndex = 67;
             this.lblPotion.Text = "Potion:";
             this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -662,7 +669,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(956, 905);
+            this.tcMain.Size = new System.Drawing.Size(874, 820);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -673,13 +680,16 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(948, 879);
+            this.tabMain.Size = new System.Drawing.Size(866, 794);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnGoToHealingRoom);
+            this.pnlMain.Controls.Add(this.lblTickRoom);
+            this.pnlMain.Controls.Add(this.cboTickRoom);
             this.pnlMain.Controls.Add(this.grpCurrentRoom);
             this.pnlMain.Controls.Add(this.btnLocations);
             this.pnlMain.Controls.Add(this.btnIncrementWand);
@@ -733,6 +743,40 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // btnGoToHealingRoom
+            // 
+            this.btnGoToHealingRoom.Enabled = false;
+            this.btnGoToHealingRoom.Location = new System.Drawing.Point(234, 105);
+            this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(2);
+            this.btnGoToHealingRoom.Name = "btnGoToHealingRoom";
+            this.btnGoToHealingRoom.Size = new System.Drawing.Size(34, 23);
+            this.btnGoToHealingRoom.TabIndex = 145;
+            this.btnGoToHealingRoom.Tag = "";
+            this.btnGoToHealingRoom.Text = "Go";
+            this.btnGoToHealingRoom.UseVisualStyleBackColor = true;
+            this.btnGoToHealingRoom.Click += new System.EventHandler(this.btnGoToHealingRoom_Click);
+            // 
+            // lblTickRoom
+            // 
+            this.lblTickRoom.AutoSize = true;
+            this.lblTickRoom.Location = new System.Drawing.Point(14, 110);
+            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTickRoom.Name = "lblTickRoom";
+            this.lblTickRoom.Size = new System.Drawing.Size(57, 13);
+            this.lblTickRoom.TabIndex = 144;
+            this.lblTickRoom.Text = "Tick room:";
+            this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cboTickRoom
+            // 
+            this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTickRoom.FormattingEnabled = true;
+            this.cboTickRoom.Location = new System.Drawing.Point(76, 107);
+            this.cboTickRoom.Name = "cboTickRoom";
+            this.cboTickRoom.Size = new System.Drawing.Size(155, 21);
+            this.cboTickRoom.TabIndex = 143;
+            this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
+            // 
             // grpCurrentRoom
             // 
             this.grpCurrentRoom.Location = new System.Drawing.Point(656, 10);
@@ -760,7 +804,6 @@
             this.btnIncrementWand.Name = "btnIncrementWand";
             this.btnIncrementWand.Size = new System.Drawing.Size(34, 23);
             this.btnIncrementWand.TabIndex = 139;
-            this.btnIncrementWand.Tag = "up";
             this.btnIncrementWand.Text = "Inc";
             this.btnIncrementWand.UseVisualStyleBackColor = true;
             this.btnIncrementWand.Click += new System.EventHandler(this.btnIncrementWand_Click);
@@ -808,6 +851,7 @@
             // 
             // ctxAutoEscape
             // 
+            this.ctxAutoEscape.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxAutoEscape.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiAutoEscapeIsActive,
             this.tsmiAutoEscapeSeparator1,
@@ -1259,7 +1303,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(948, 879);
+            this.tabAncillary.Size = new System.Drawing.Size(866, 794);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1274,7 +1318,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(944, 875);
+            this.pnlAncillary.Size = new System.Drawing.Size(862, 790);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1283,7 +1327,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 22);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(948, 879);
+            this.tabEmotes.Size = new System.Drawing.Size(866, 794);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1302,7 +1346,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(948, 879);
+            this.pnlEmotes.Size = new System.Drawing.Size(866, 794);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1382,11 +1426,11 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, 32);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -53);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
-            this.grpEmotes.Size = new System.Drawing.Size(948, 847);
+            this.grpEmotes.Size = new System.Drawing.Size(866, 847);
             this.grpEmotes.TabIndex = 10;
             this.grpEmotes.TabStop = false;
             this.grpEmotes.Text = "Emotes";
@@ -1397,7 +1441,7 @@
             this.flpEmotes.Location = new System.Drawing.Point(2, 15);
             this.flpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.flpEmotes.Name = "flpEmotes";
-            this.flpEmotes.Size = new System.Drawing.Size(944, 830);
+            this.flpEmotes.Size = new System.Drawing.Size(862, 830);
             this.flpEmotes.TabIndex = 0;
             // 
             // tabHelp
@@ -1405,7 +1449,7 @@
             this.tabHelp.Controls.Add(this.grpHelp);
             this.tabHelp.Location = new System.Drawing.Point(4, 22);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(948, 879);
+            this.tabHelp.Size = new System.Drawing.Size(866, 794);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1416,7 +1460,7 @@
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(948, 879);
+            this.grpHelp.Size = new System.Drawing.Size(866, 794);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1426,7 +1470,7 @@
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpHelp.Location = new System.Drawing.Point(3, 16);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(942, 860);
+            this.flpHelp.Size = new System.Drawing.Size(860, 775);
             this.flpHelp.TabIndex = 0;
             // 
             // tmr
@@ -1450,8 +1494,8 @@
             // scMain.Panel2
             // 
             this.scMain.Panel2.Controls.Add(this.grpConsole);
-            this.scMain.Size = new System.Drawing.Size(1684, 930);
-            this.scMain.SplitterDistance = 956;
+            this.scMain.Size = new System.Drawing.Size(1540, 845);
+            this.scMain.SplitterDistance = 874;
             this.scMain.SplitterWidth = 3;
             this.scMain.TabIndex = 81;
             // 
@@ -1461,11 +1505,12 @@
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(956, 905);
+            this.pnlTabControl.Size = new System.Drawing.Size(874, 820);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
             // 
+            this.tsTopMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.tsTopMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbInformation,
             this.tsbInventory,
@@ -1478,7 +1523,7 @@
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(956, 25);
+            this.tsTopMenu.Size = new System.Drawing.Size(874, 25);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1587,7 +1632,7 @@
             this.grpConsole.Margin = new System.Windows.Forms.Padding(2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(2);
-            this.grpConsole.Size = new System.Drawing.Size(725, 930);
+            this.grpConsole.Size = new System.Drawing.Size(663, 845);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1598,7 +1643,7 @@
             this.pnlConsoleHolder.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlConsoleHolder.Location = new System.Drawing.Point(2, 15);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(721, 863);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(659, 778);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1613,7 +1658,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(721, 863);
+            this.rtbConsole.Size = new System.Drawing.Size(659, 778);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1636,16 +1681,16 @@
             // 
             this.pnlCommand.Controls.Add(this.txtOneOffCommand);
             this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCommand.Location = new System.Drawing.Point(2, 878);
+            this.pnlCommand.Location = new System.Drawing.Point(2, 793);
             this.pnlCommand.Name = "pnlCommand";
-            this.pnlCommand.Size = new System.Drawing.Size(721, 50);
+            this.pnlCommand.Size = new System.Drawing.Size(659, 50);
             this.pnlCommand.TabIndex = 30;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1684, 930);
+            this.ClientSize = new System.Drawing.Size(1540, 845);
             this.Controls.Add(this.scMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -1830,6 +1875,9 @@
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
         private System.Windows.Forms.Button btnLocations;
         private System.Windows.Forms.GroupBox grpCurrentRoom;
+        private System.Windows.Forms.ComboBox cboTickRoom;
+        private System.Windows.Forms.Label lblTickRoom;
+        private System.Windows.Forms.Button btnGoToHealingRoom;
     }
 }
 

@@ -342,4 +342,16 @@ namespace IsengardClient
         Water = 2,
         Fire = 3,
     }
+
+    public enum HealingRoom
+    {
+        BreeNortheast,
+        BreeSouthwest,
+        Imladris,
+        Tharbad,
+        Nindamos,
+        Underhalls,
+        MillwoodMansion,
+        DeathValley,
+    }
 }

@@ -62,7 +62,10 @@ namespace IsengardClient
         public int? Experience1 { get; set; }
         public int? Experience2 { get; set; }
         public int? Experience3 { get; set; }
-        public bool IsHealingRoom { get; set; }
+        /// <summary>
+        /// region for a healing room
+        /// </summary>
+        public HealingRoom HealingRoom { get; set; }
         /// <summary>
         /// realm for the damage type for rooms that damage periodically
         /// </summary>

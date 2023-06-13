@@ -10,6 +10,7 @@ namespace IsengardClient
         private List<Area> _areas;
         private Dictionary<string, Area> _areasByName;
         private Dictionary<MapType, RoomGraph> _graphs;
+        public Dictionary<HealingRoom, Room> HealingRooms = new Dictionary<HealingRoom, Room>();
 
         private string UNKNOWN_ROOM_NAME = "!@#UNKNOWN$%^";
         public Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
@@ -22,7 +23,6 @@ namespace IsengardClient
         private Room _nindamosVillageCenter = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
-        private Area _aShips;
         private Area _aMisc;
         private Area _aNindamosArmenelos;
         private Area _aInaccessible;
@@ -30,7 +30,6 @@ namespace IsengardClient
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_MISC = "Misc";
-        private const string AREA_SHIPS = "Ships";
         private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
         private const string AREA_INTANGIBLE = "Intangible";
         private const string AREA_INACCESSIBLE = "Inaccessible";
@@ -45,7 +44,6 @@ namespace IsengardClient
             _aBreePerms = AddArea(AREA_BREE_PERMS);
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
             _aMisc = AddArea(AREA_MISC);
-            _aShips = AddArea(AREA_SHIPS);
             _aNindamosArmenelos = AddArea(AREA_NINDAMOS_ARMENELOS);
             AddArea(AREA_INTANGIBLE);
             _aInaccessible = AddArea(AREA_INACCESSIBLE);
@@ -586,8 +584,7 @@ namespace IsengardClient
             AddBidirectionalExits(illusion2, marketBeast, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[marketBeast] = new System.Windows.Point(5, 5);
 
-            Room bardicGuildhall = AddRoom("Bardic Guildhall", "Bardic Guildhall");
-            bardicGuildhall.IsHealingRoom = true;
+            Room bardicGuildhall = AddHealingRoom("Bardic Guildhall", "Bardic Guildhall", HealingRoom.Tharbad);
             AddBidirectionalExits(bardicGuildhall, nightingale3, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[bardicGuildhall] = new System.Windows.Point(2, 9);
 
@@ -872,7 +869,6 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(sabreEvard, oEastGate, "gate");
             tharbadGraph.Rooms[oEastGate] = new System.Windows.Point(11, 8);
 
-            AddLocation(_aImladrisTharbadPerms, bardicGuildhall);
             AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
             AddLocation(_aImladrisTharbadPerms, zathriel);
             AddLocation(_aImladrisTharbadPerms, oOliphaunt);
@@ -984,8 +980,7 @@ namespace IsengardClient
             breeStreets[7, 8] = AddRoom("Main", "Main Street"); //8x9
             breeStreets[10, 8] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x9
             breeStreets[14, 8] = AddRoom("Brownhaven", "Brownhaven Road"); //15x9
-            _orderOfLove = breeStreets[15, 8] = AddRoom("Order of Love", "Order of Love"); //16x9
-            _orderOfLove.IsHealingRoom = true;
+            _orderOfLove = breeStreets[15, 8] = AddHealingRoom("Order of Love", "Order of Love", HealingRoom.BreeNortheast); //16x9
             breeStreets[0, 9] = AddRoom("Wain", "Wain Road North"); //1x10
             breeSewers[0, 9] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x10
             breeStreets[3, 9] = AddRoom("High", "North High Street"); //4x10
@@ -1035,9 +1030,8 @@ namespace IsengardClient
             AddExit(oPoorAlley3, oPeriwinklePoorAlley, "south");
             _breeStreetsGraph.Rooms[oPoorAlley3] = new System.Windows.Point(12, 6);
 
-            Room oCampusFreeClinic = AddRoom("Bree Campus Free Clinic", "Campus Free Clinic");
+            Room oCampusFreeClinic = AddHealingRoom("Bree Campus Free Clinic", "Campus Free Clinic", HealingRoom.BreeSouthwest);
             oCampusFreeClinic.Mob1 = "Student";
-            oCampusFreeClinic.IsHealingRoom = true;
             AddExit(oToCampusFreeClinic, oCampusFreeClinic, "clinic");
             AddExit(oCampusFreeClinic, oToCampusFreeClinic, "west");
             _breeStreetsGraph.Rooms[oCampusFreeClinic] = new System.Windows.Point(4, 9);
@@ -1197,7 +1191,6 @@ namespace IsengardClient
             boatswain.Mob1 = "Boatswain";
             boatswain.Experience1 = 350;
             _breeStreetsGraph.Rooms[boatswain] = new System.Windows.Point(9, 9.5);
-            AddLocation(_aShips, boatswain);
             e = AddExit(breeDocks, boatswain, "steamboat");
             e.PresenceType = ExitPresenceType.Periodic;
             e = AddExit(boatswain, breeDocks, "dock");
@@ -1216,7 +1209,6 @@ namespace IsengardClient
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
 
-            AddLocation(_aBreePerms, _orderOfLove);
             AddLocation(_aInaccessible, oGrant);
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
@@ -1933,11 +1925,10 @@ namespace IsengardClient
             AddBidirectionalExits(oNorthCorridor4, oNorthCorridor3, BidirectionalExitType.NorthSouth);
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor4] = new System.Windows.Point(1, 2);
 
-            Room oMeditationChamber = AddRoom("Meditation Chamber");
+            Room oMeditationChamber = AddHealingRoom("Meditation Chamber", UNKNOWN_ROOM_NAME, HealingRoom.MillwoodMansion);
             Exit e = AddExit(oNorthCorridor4, oMeditationChamber, "door");
             e.MustOpen = true;
             AddExit(oMeditationChamber, oNorthCorridor4, "out");
-            oMeditationChamber.IsHealingRoom = true;
             millwoodMansionUpstairsGraph.Rooms[oMeditationChamber] = new System.Windows.Point(0, 2);
 
             Room oNorthernStairwell = AddRoom("Northern Stairwell");
@@ -2339,8 +2330,7 @@ namespace IsengardClient
             AddBidirectionalExits(oUnderHallsCorridorsBaseJunction, oToCave, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oToCave] = new System.Windows.Point(6, 1);
 
-            Room oGlowingCave = AddRoom("Glowing Cave", "Glowing Cave");
-            oGlowingCave.IsHealingRoom = true;
+            Room oGlowingCave = AddHealingRoom("Glowing Cave", "Glowing Cave", HealingRoom.Underhalls);
             AddExit(oToCave, oGlowingCave, "cave");
             AddExit(oGlowingCave, oToCave, "out");
             breeToImladrisGraph.Rooms[oGlowingCave] = new System.Windows.Point(6, 2);
@@ -2531,8 +2521,7 @@ namespace IsengardClient
             e.Hidden = true;
             imladrisGraph.Rooms[oImladrisCityDump] = new System.Windows.Point(5, 8);
 
-            _healingHand = AddRoom("Healing Hand", "The Healing Hand");
-            _healingHand.IsHealingRoom = true;
+            _healingHand = AddHealingRoom("Healing Hand", "The Healing Hand", HealingRoom.Imladris);
             AddBidirectionalExits(_healingHand, oImladrisMainStreet5, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[_healingHand] = new System.Windows.Point(5, 4.5);
 
@@ -3263,8 +3252,7 @@ namespace IsengardClient
             AddBidirectionalExits(oPaledasenta1, oPaledasenta2, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oPaledasenta2] = new System.Windows.Point(10, 4);
 
-            Room oHealthCenter = AddRoom("Health Center");
-            oHealthCenter.IsHealingRoom = true;
+            Room oHealthCenter = AddHealingRoom("Health Center", UNKNOWN_ROOM_NAME, HealingRoom.Nindamos);
             AddBidirectionalExits(oHealthCenter, oPaledasenta2, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oHealthCenter] = new System.Windows.Point(10, 3.5);
 
@@ -4153,9 +4141,8 @@ namespace IsengardClient
             Room oDeathValleyEast3 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyEast3, oDeathValleyEast2, BidirectionalExitType.NorthSouth);
 
-            Room oTranquilParkKaivo = AddRoom("Kaivo");
+            Room oTranquilParkKaivo = AddHealingRoom("Kaivo", UNKNOWN_ROOM_NAME, HealingRoom.DeathValley);
             oTranquilParkKaivo.Mob1 = "Kaivo";
-            oTranquilParkKaivo.IsHealingRoom = true;
             AddBidirectionalExits(oTranquilParkKaivo, oDeathValleyEast3, BidirectionalExitType.WestEast);
 
             Room oDeathValleyEast4 = AddRoom("Death Valley");
@@ -4535,6 +4522,13 @@ namespace IsengardClient
                     UnambiguousRooms[backendName] = r;
                 }
             }
+            return r;
+        }
+
+        private Room AddHealingRoom(string roomName, string backendName, HealingRoom healingRoom)
+        {
+            Room r = AddRoom(roomName, backendName);
+            HealingRooms[healingRoom] = r;
             return r;
         }
 

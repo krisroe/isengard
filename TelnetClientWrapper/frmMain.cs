@@ -187,6 +187,12 @@ namespace IsengardClient
         {
             InitializeComponent();
 
+            cboTickRoom.Items.Add(string.Empty);
+            foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
+            {
+                cboTickRoom.Items.Add(nextHealingRoom);
+            }
+
             _strategies = Strategy.GetDefaultStrategies();
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
@@ -3355,6 +3361,8 @@ BeforeHazy:
             yield return txtWeapon;
             yield return txtWand;
             yield return txtPotion;
+            yield return cboTickRoom;
+            yield return btnGoToHealingRoom;
             foreach (Button btn in flpOneClickStrategies.Controls)
             {
                 yield return btn;
@@ -5008,6 +5016,16 @@ BeforeHazy:
                 bool differentFromDefault = _autoEscapeActive != sets.DefaultAutoEscapeOnByDefault || _autoEscapeThreshold != sets.DefaultAutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.DefaultAutoEscapeType;
                 tsmiSetDefaultAutoEscape.Enabled = tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
             }
+        }
+
+        private void cboTickRoom_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnGoToHealingRoom.Enabled = cboTickRoom.SelectedIndex > 0;
+        }
+
+        private void btnGoToHealingRoom_Click(object sender, EventArgs e)
+        {
+            GoToRoom(_gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem]);
         }
     }
 }
