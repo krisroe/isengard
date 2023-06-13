@@ -1981,9 +1981,11 @@ namespace IsengardClient
                 }
                 else if (sLine == "The searing heat burns your flesh." ||
                          sLine == "Water fills your lungs." ||
+                         sLine == "The earth swells up around you and smothers you." ||
                          sLine == "Poison courses through your veins." ||
                          sLine.EndsWith(" just arrived.") ||
-                         sLine.EndsWith(" just wandered away."))
+                         sLine.EndsWith(" just wandered away.") ||
+                         sLine.EndsWith(" circles you."))
                 {
                     isMessageToKeep = true;
                     haveDataToDisplay = true;

@@ -382,6 +382,10 @@
         [SingularName("steel-chain armor")]
         SteelChainArmor,
 
+        [SingularName("stone key")]
+        [PluralName("stone keys")]
+        StoneKey,
+
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
         TaupeScroll,

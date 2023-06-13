@@ -1735,10 +1735,39 @@ namespace IsengardClient
             AddBidirectionalExits(oSewerPassageFromValveChamber, oValveChamber, BidirectionalExitType.NorthSouth);
             breeSewersGraph.Rooms[oSewerPassageFromValveChamber] = new System.Windows.Point(12, 7);
 
-            Room oSewerDemonThreshold = AddRoom("Central Sewer Channels", "Central Sewer Channels");
-            oSewerDemonThreshold.Mob1 = "demon";
-            AddBidirectionalExits(oSewerDemonThreshold, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
-            breeSewersGraph.Rooms[oSewerDemonThreshold] = new System.Windows.Point(11, 6);
+            Room oCentralSewerChannels = AddRoom("Central Sewer Channels", "Central Sewer Channels");
+            oCentralSewerChannels.Mob1 = "demon";
+            AddBidirectionalExits(oCentralSewerChannels, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
+            breeSewersGraph.Rooms[oCentralSewerChannels] = new System.Windows.Point(11, 6);
+
+            Room oSewerPassageToSewerDemon = AddRoom("Passage", "Sewer Passage");
+            oSewerPassageToSewerDemon.DamageType = RealmType.Earth;
+            e = AddExit(oCentralSewerChannels, oSewerPassageToSewerDemon, "northwest");
+            e.Hidden = true;
+            AddExit(oSewerPassageToSewerDemon, oCentralSewerChannels, "southeast");
+            breeSewersGraph.Rooms[oSewerPassageToSewerDemon] = new System.Windows.Point(10, 5);
+
+            Room oSewerPassageFromCentChannel = AddRoom("Passage", "Sewer Passage");
+            AddBidirectionalExits(oCentralSewerChannels, oSewerPassageFromCentChannel, BidirectionalExitType.SouthwestNortheast);
+            breeSewersGraph.Rooms[oSewerPassageFromCentChannel] = new System.Windows.Point(10, 7);
+
+            Room oSewerTIntersection = AddRoom("T-Intersection", "Sewer T-Intersection");
+            AddBidirectionalExits(oSewerTIntersection, oSewerPassageFromCentChannel, BidirectionalExitType.WestEast);
+            breeSewersGraph.Rooms[oSewerTIntersection] = new System.Windows.Point(9, 7);
+
+            Room oSewerValveChamber2 = AddRoom("Valve Chamber", "Sewer Valve Chamber");
+            AddBidirectionalExits(oSewerValveChamber2, oSewerTIntersection, BidirectionalExitType.WestEast);
+            breeSewersGraph.Rooms[oSewerValveChamber2] = new System.Windows.Point(8, 7);
+
+            Room oSewerPassageToDrainageChamber = AddRoom("Passage", "Sewer Passage");
+            AddBidirectionalExits(oSewerTIntersection, oSewerPassageToDrainageChamber, BidirectionalExitType.NorthSouth);
+            breeSewersGraph.Rooms[oSewerPassageToDrainageChamber] = new System.Windows.Point(8, 7.5);
+
+            Room oDrainageChamber = AddRoom("Drainage Chamber", "Drainage Chamber");
+            e = AddExit(oSewerPassageToDrainageChamber, oDrainageChamber, "door");
+            e.MustOpen = true;
+            AddExit(oDrainageChamber, oSewerPassageToDrainageChamber, "door");
+            breeSewersGraph.Rooms[oDrainageChamber] = new System.Windows.Point(8, 8);
 
             oSmoulderingVillage = AddRoom("Smoldering Village", "Smoldering village");
             breeSewersGraph.Rooms[oSmoulderingVillage] = new System.Windows.Point(0, 0);
