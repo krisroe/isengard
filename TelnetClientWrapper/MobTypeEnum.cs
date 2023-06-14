@@ -126,6 +126,10 @@
         //CSRTODO: no plural?
         FrodoBaggins,
 
+        [SingularName("gargoyle")]
+        [PluralName("gargoyles")]
+        Gargoyle,
+
         [SingularName("ghost")]
         [PluralName("ghosts")]
         Ghost,
@@ -341,6 +345,18 @@
         [SingularName("mosquito")]
         [PluralName("mosquitos")] //CSRTODO: dictionary has plural as either mosquito or mosquitoes
         Mosquito,
+
+        [SingularName("mountain climber")]
+        [PluralName("mountain climbers")]
+        MountainClimber,
+
+        [SingularName("Mountain Dragon")]
+        //CSRTODO: plural?
+        MountainDragon,
+
+        [SingularName("mountain hiker")]
+        [PluralName("mountain hikers")]
+        MountainHiker,
 
         [SingularName("Naugrim")]
         //CSRTODO: no plural
@@ -569,6 +585,10 @@
         [SingularName("wolf")]
         [PluralName("wolves")]
         Wolf,
+
+        [SingularName("worker")]
+        [PluralName("workers")]
+        Worker,
 
         [SingularName("Zathriel the Minstrel")]
         //CSRTODO: no plural?

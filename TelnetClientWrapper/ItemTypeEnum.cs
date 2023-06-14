@@ -33,6 +33,10 @@
         [PluralName("beastmaster's whips")]
         BeastmastersWhip,
 
+        [SingularName("black cape")]
+        [PluralName("black capes")]
+        BlackCape,
+
         [SingularName("blackened scroll")]
         [PluralName("blackened scrolls")]
         BlackenedScroll,
