@@ -6,6 +6,10 @@
         [PluralName("alley cats")]
         AlleyCat,
 
+        [SingularName("archer")]
+        [PluralName("archers")]
+        Archer,
+
         [SingularName("aristocrat")]
         [PluralName("aristocrats")]
         Aristocrat,
@@ -93,6 +97,10 @@
         [SingularName("dwarf")]
         //CSRTODO: plural?
         Dwarf,
+
+        [SingularName("dwarven miner")]
+        [PluralName("dwarven miners")]
+        DwarvenMiner,
 
         [SingularName("eccentric artist")]
         [PluralName("eccentric artists")]
@@ -329,6 +337,10 @@
         [SingularName("militiaman")]
         [PluralName("militiamen")]
         Militiaman,
+
+        [SingularName("minstrel of Esgaroth")]
+        [PluralName("minstrels of Esgaroth")]
+        MinstrelOfEsgaroth,
 
         [SingularName("mistress")]
         [PluralName("mistresses")]

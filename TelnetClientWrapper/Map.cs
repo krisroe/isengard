@@ -2760,6 +2760,10 @@ namespace IsengardClient
             AddBidirectionalExits(oMountainTrailEastOfIorlas4, oCarrockPlains, BidirectionalExitType.WestEast);
             eastOfImladrisGraph.Rooms[oCarrockPlains] = new System.Windows.Point(8, 4);
 
+            Room oEscarothWestGateOutside = AddRoom("West Gate Outside", "West Entrance to Esgaroth");
+            AddBidirectionalExits(oCarrockPlains, oEscarothWestGateOutside, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[oEscarothWestGateOutside] = new System.Windows.Point(9, 4);
+
             Room oMountainTrail3 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail3, oIorlasThreshold, BidirectionalExitType.SouthwestNortheast);
             eastOfImladrisGraph.Rooms[oMountainTrail3] = new System.Windows.Point(4, 2);

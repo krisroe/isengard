@@ -371,6 +371,9 @@
         [SingularName("sprite boots")]
         SpriteBoots,
 
+        [SingularName("splint mail")]
+        SplintMail,
+
         [SingularName("sprite bracelet")]
         [PluralName("sprite bracelets")]
         SpriteBracelet,

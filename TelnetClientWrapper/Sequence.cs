@@ -2101,11 +2101,11 @@ namespace IsengardClient
                     }
                     else if (remainder.EndsWith(" hurts"))
                     {
-                        matches = true; //CSRTODO: 10-11
+                        matches = iDamage >= 10 && iDamage <= 12;
                     }
                     else if (remainder.EndsWith(" wounds"))
                     {
-                        matches = true; //CSRTODO: 13-15
+                        matches = iDamage >= 13 && iDamage <= 15;
                     }
                     else if (remainder.EndsWith(" smites"))
                     {

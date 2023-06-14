@@ -2400,7 +2400,7 @@ namespace IsengardClient
                             }
                             RunPreExitLogic(nextExit);
                             string nextCommand = GetExitCommand(exitText);
-                            bool targetIsDamageRoom = nextExitTarget.DamageType.HasValue;
+                            bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
 
                             bool keepTryingMovement = true;
                             while (keepTryingMovement)
