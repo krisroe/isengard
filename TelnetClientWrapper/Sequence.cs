@@ -1738,22 +1738,34 @@ namespace IsengardClient
         }
     }
 
-    public class SuccessfulSearchSequence : AOutputProcessingSequence
+    public class SearchSequence : AOutputProcessingSequence
     {
+        private const string YOU_DIDNT_FIND_ANYTHING = "You didn't find anything.";
         private const string YOU_FIND_A_HIDDEN_EXIT = "You find a hidden exit: ";
-        private Action<List<string>, FeedLineParameters> _onSatisfied;
-        public SuccessfulSearchSequence(Action<List<string>, FeedLineParameters> onSatisfied)
+        private Action<List<string>, FeedLineParameters> _onSearchSuccessful;
+        private Action<FeedLineParameters> _onSearchUnsuccessful;
+        public SearchSequence(Action<List<string>, FeedLineParameters> onSearchSuccessful, Action<FeedLineParameters> onSearchUnsuccessful)
         {
-            _onSatisfied = onSatisfied;
+            _onSearchSuccessful = onSearchSuccessful;
+            _onSearchUnsuccessful = onSearchUnsuccessful;
         }
+
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
-            if (!backgroundCommandType.HasValue || backgroundCommandType.Value != BackgroundCommandType.Search)
+            if (Lines.Count > 0 && Lines.Count <= 2)
             {
-                return;
+                string firstLine = Lines[0];
+                string secondLine = Lines.Count > 1 ? Lines[1] : Lines[0];
+                if ((firstLine == YOU_DIDNT_FIND_ANYTHING && string.IsNullOrEmpty(secondLine)) ||
+                    (string.IsNullOrEmpty(firstLine) && secondLine == YOU_DIDNT_FIND_ANYTHING))
+                {
+                    _onSearchUnsuccessful(flParams);
+                    flParams.FinishedProcessing = true;
+                    return;
+                }
             }
+
             List<string> foundExits = null;
             foreach (string nextLine in Lines)
             {
@@ -1771,7 +1783,7 @@ namespace IsengardClient
             }
             if (foundExits != null && foundExits.Count > 0)
             {
-                _onSatisfied(foundExits, flParams);
+                _onSearchSuccessful(foundExits, flParams);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -1812,6 +1824,10 @@ namespace IsengardClient
                 {
                     result = MovementResult.StandFailure;
                 }
+                else if (firstLine == "You have to open it first.")
+                {
+                    result = MovementResult.ClosedDoorFailure;
+                }
                 else if (firstLine.EndsWith(" blocks your exit."))
                 {
                     result = MovementResult.TotalFailure;
@@ -1845,9 +1861,11 @@ namespace IsengardClient
 
     public class InformationalMessagesSequence : AOutputProcessingSequence
     {
-        public Action<List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
+        public const string CELDUIN_EXPRESS_IN_BREE_MESSAGE = "### The Celduin Express is ready for boarding in Bree.";
 
-        public InformationalMessagesSequence(Action<List<InformationalMessages>, List<string>, List<string>, List<string>> onSatisfied)
+        public Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
+
+        public InformationalMessagesSequence(Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1878,16 +1896,6 @@ namespace IsengardClient
                     haveDataToDisplay = true;
                     im = InformationalMessages.NightStart;
                 }
-                else if (sLine == "The Bullroarer has arrived in Mithlond.")
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessages.BullroarerInMithlond;
-                }
-                else if (sLine == "The Bullroarer has arrived in Nindamos.")
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessages.BullroarerInNindamos;
-                }
                 else if (sLine == "You feel less holy.")
                 {
                     haveDataToDisplay = true;
@@ -1907,6 +1915,71 @@ namespace IsengardClient
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessages.ManashieldOff;
+                }
+                else if (sLine == CELDUIN_EXPRESS_IN_BREE_MESSAGE)
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.CelduinExpressInBree;
+                }
+                else if (sLine == "The Celduin Express has departed for Mithlond.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.CelduinExpressLeftBree;
+                }
+                else if (sLine == "The Celduin Express has departed for Bree.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.CelduinExpressLeftMithlond;
+                }
+                else if (sLine == "The Bullroarer has arrived in Mithlond.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BullroarerInMithlond;
+                }
+                else if (sLine == "The Bullroarer has arrived in Nindamos.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BullroarerInNindamos;
+                }
+                else if (sLine == "The Bullroarer is now ready for boarding.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.BullroarerReadyForBoarding;
+                }
+                else if (sLine == "The Harbringer has set sail.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.HarbringerSailed;
+                }
+                else if (sLine == "The Harbringer is ready for boarding.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.HarbringerInPort;
+                }
+                else if (sLine == "The searing heat burns your flesh.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.FireDamage;
+                }
+                else if (sLine == "Water fills your lungs.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.WaterDamage;
+                }
+                else if (sLine == "The earth swells up around you and smothers you.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.EarthDamage;
+                }
+                else if (sLine == "The freezing air chills you to the bone.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.WindDamage;
+                }
+                else if (sLine == "Poison courses through your veins.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessages.PoisonDamage;
                 }
                 else if (sLine == "The air is still and quiet." ||
                          sLine == "Light clouds appear over the mountains." ||
@@ -1936,8 +2009,7 @@ namespace IsengardClient
                          sLine == "The wind gusts, blowing debris through the streets." ||
                          sLine == "Gale force winds blow in from the sea." ||
 
-                         sLine == "Player saved." ||
-                         sLine == "### The Celduin Express is ready for boarding in Bree.")
+                         sLine == "Player saved.")
                 {
                     //These lines are ignored
                 }
@@ -1979,11 +2051,7 @@ namespace IsengardClient
                 {
                     isBroadcast = true;
                 }
-                else if (sLine == "The searing heat burns your flesh." ||
-                         sLine == "Water fills your lungs." ||
-                         sLine == "The earth swells up around you and smothers you." ||
-                         sLine == "Poison courses through your veins." ||
-                         sLine.EndsWith(" just arrived.") ||
+                else if (sLine.EndsWith(" just arrived.") ||
                          sLine.EndsWith(" just wandered away.") ||
                          sLine.EndsWith(" circles you."))
                 {
@@ -2048,7 +2116,7 @@ namespace IsengardClient
             }
             if (messages != null || broadcastMessages != null)
             {
-                _onSatisfied(messages, broadcastMessages, addedPlayers, removedPlayers);
+                _onSatisfied(Parameters, messages, broadcastMessages, addedPlayers, removedPlayers);
             }
         }
     }

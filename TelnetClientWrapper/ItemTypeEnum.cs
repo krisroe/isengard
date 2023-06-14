@@ -60,12 +60,20 @@
         [PluralName("books of knowledge")]
         BookOfKnowledge,
 
+        [SingularName("box of strawberries")]
+        //CSRTODO: plural?
+        BoxOfStrawberries,
+
         [SingularName("bracers of ogre-strength")]
         BracersOfOgreStrength,
 
         [SingularName("broad sword")]
         [PluralName("broad swords")]
         BroadSword,
+
+        [SingularName("bundle of wheat")]
+        [PluralName("bundle of wheats")] //verified 6/14/2023
+        BundleOfWheat,
 
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
@@ -119,9 +127,16 @@
         [PluralName("dildos")]
         Dildo,
 
+        [SingularName("dried seaweed")]
+        //CSRTODO: plural?
+        DriedSeaweed,
+
         [SingularName("elven bow")]
         [PluralName("elven bows")]
         ElvenBow,
+
+        [SingularName("elven cured leather gloves")]
+        ElvenCuredLeatherGloves,
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
@@ -190,6 +205,10 @@
         [SingularName("hazy potion")]
         [PluralName("hazy potions")]
         HazyPotion,
+
+        [SingularName("head of lettuce")]
+        //CSRTODO: plural?
+        HeadOfLettuce,
 
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
@@ -288,6 +307,10 @@
         //CSRTODO: plural?
         PipeWeed,
 
+        [SingularName("port manifest")]
+        [PluralName("port manifests")]
+        PortManifest,
+
         [SingularName("pot helm")]
         [PluralName("pot helms")]
         PotHelm,
@@ -320,6 +343,10 @@
         [PluralName("rusty key")]
         RustyKey,
 
+        [SingularName("sack of potatoes")]
+        [PluralName("sack of potatoeses")] //verified 6/14/2023
+        SackOfPotatoes,
+
         [SingularName("sailor's locket")]
         [PluralName("sailor's lockets")]
         SailorsLocket,
@@ -327,6 +354,10 @@
         [SingularName("scythe")]
         [PluralName("scythes")]
         Scythe,
+
+        [SingularName("sign")]
+        [PluralName("signs")]
+        Sign,
 
         [SingularName("signet ring")]
         [PluralName("signet rings")]
@@ -367,6 +398,10 @@
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
         SmallWoodenShield,
+
+        [SingularName("speckled potion")]
+        [PluralName("speckled potions")]
+        SpeckledPotion,
 
         [SingularName("sprite boots")]
         SpriteBoots,
@@ -425,6 +460,10 @@
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]
         VerdantGreenScroll,
+
+        [SingularName("viscous potion")]
+        [PluralName("viscous potions")]
+        ViscousPotion,
 
         [SingularName("voulge")]
         [PluralName("voulges")]

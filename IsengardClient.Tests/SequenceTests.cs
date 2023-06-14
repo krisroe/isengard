@@ -42,7 +42,7 @@ namespace IsengardClient.Tests
             List<string> broadcasts = null;
             List<string> addedPlayers = null;
             List<string> removedPlayers = null;
-            Action<List<InformationalMessages>, List<string>, List<string>, List<string>> a = (l, s1, s2, s3) =>
+            Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> a = (flParams, l, s1, s2, s3) =>
             {
                 msgs = null;
                 broadcasts = s1;
@@ -552,8 +552,11 @@ namespace IsengardClient.Tests
             {
                 exits = l;
             };
+            Action<FeedLineParameters> a2 = (flParams) =>
+            {
+            };
 
-            SuccessfulSearchSequence sseq = new SuccessfulSearchSequence(a);
+            SearchSequence sseq = new SearchSequence(a, a2);
 
             FeedLineParameters flp = new FeedLineParameters(null);
             flp.BackgroundCommandType = BackgroundCommandType.Search;

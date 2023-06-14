@@ -11,8 +11,19 @@ namespace IsengardClient
 
     internal enum ExitPresenceType
     {
+        /// <summary>
+        /// exits that are always present
+        /// </summary>
         Always,
+
+        /// <summary>
+        /// exits that are sometimes present (e.g. whether boat is present in port)
+        /// </summary>
         Periodic,
+
+        /// <summary>
+        /// hidden exits that require search to be usable. These are assumed to be hidden.
+        /// </summary>
         RequiresSearch,
     }
 
@@ -72,6 +83,7 @@ namespace IsengardClient
     public enum BackgroundCommandType
     {
         Movement,
+        OpenDoor,
         Look,
         LookAtMob,
         Prepare,
@@ -317,12 +329,23 @@ namespace IsengardClient
     {
         DayStart,
         NightStart,
-        BullroarerInMithlond,
-        BullroarerInNindamos,
         BlessOver,
         ProtectionOver,
         FlyOver,
         ManashieldOff,
+        FireDamage,
+        WaterDamage,
+        EarthDamage,
+        WindDamage,
+        PoisonDamage,
+        BullroarerInMithlond,
+        BullroarerInNindamos,
+        BullroarerReadyForBoarding,
+        CelduinExpressInBree,
+        CelduinExpressLeftBree,
+        CelduinExpressLeftMithlond,
+        HarbringerInPort,
+        HarbringerSailed,
     }
 
     public enum SkillWithCooldownType
@@ -338,6 +361,7 @@ namespace IsengardClient
         TotalFailure,
         MapFailure,
         StandFailure,
+        ClosedDoorFailure,
         FallFailure,
     }
 
@@ -367,5 +391,25 @@ namespace IsengardClient
         None = 0,
         PoisonDart = 1,
         Fall = 2,
+    }
+
+    public enum BoatEmbarkOrDisembark
+    {
+        CelduinExpress,
+        CelduinExpressMithlond,
+        CelduinExpressBree,
+        Bullroarer,
+        BullroarerMithlond,
+        BullroarerNindamos,
+        Harbringer,
+        HarbringerMithlond,
+        HarbringerTharbad,
+    }
+
+    internal enum RoomChangeType
+    {
+        NewRoom,
+        AddExit,
+        RemoveExit,
     }
 }

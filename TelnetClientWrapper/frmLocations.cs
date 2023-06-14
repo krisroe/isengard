@@ -82,12 +82,16 @@ namespace IsengardClient
 
         private void btnClose_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
+
         }
 
         private void btnSet_Click(object sender, EventArgs e)
         {
             CurrentRoom = (Room)treeLocations.SelectedNode.Tag;
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         private void btnGo_Click(object sender, EventArgs e)
@@ -99,6 +103,7 @@ namespace IsengardClient
                 MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
                 return;
             }
+            this.DialogResult = DialogResult.OK;
             Close();
         }
 

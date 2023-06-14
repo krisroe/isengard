@@ -34,6 +34,10 @@
         //CSRTODO: no plural
         BilboBaggins,
 
+        [SingularName("bluejacket")]
+        [PluralName("bluejackets")]
+        Bluejacket,
+
         [SingularName("black pegasus")]
         //CSRTODO: plural?
         BlackPegasus,
@@ -41,6 +45,18 @@
         [SingularName("blue flying snake")]
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
+
+        [SingularName("boatswain")]
+        [PluralName("boatswains")]
+        Boatswain,
+
+        [SingularName("bosun's mate")]
+        [PluralName("bosun's mates")]
+        BosunsMate,
+
+        [SingularName("Brent Diehard")]
+        //CSRTODO: no plural?
+        BrentDiehard,
 
         [SingularName("butler")]
         [PluralName("butlers")]
@@ -54,9 +70,17 @@
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
 
+        [SingularName("catapult officer")]
+        [PluralName("catapult officers")]
+        CatapultOfficer,
+
         [SingularName("the Chancellor of Protection")]
         //CSRTODO: no plural
         ChancellorOfProtection,
+
+        [SingularName("court jester")]
+        [PluralName("court jesters")]
+        CourtJester,
 
         [SingularName("criminal")]
         [PluralName("criminals")]
@@ -130,6 +154,10 @@
         [PluralName("field laborers")]
         FieldLaborer,
 
+        [SingularName("fisherman")]
+        [PluralName("fishermen")]
+        Fisherman,
+
         [SingularName("Frodo Baggins")]
         //CSRTODO: no plural?
         FrodoBaggins,
@@ -178,6 +206,10 @@
         [PluralName("grizzly bears")]
         GrizzlyBear,
 
+        [SingularName("Grunkill")]
+        //CSRTODO: no plural?
+        Grunkill,
+
         [SingularName("guard")]
         [PluralName("guards")]
         Guard,
@@ -218,9 +250,17 @@
         [PluralName("halfling ghosts")]
         HalflingGhost,
 
+        [SingularName("harbor master")]
+        [PluralName("harbor masters")]
+        HarborMaster,
+
         [SingularName("hermit fisher")]
         [PluralName("hermit fishers")]
         HermitFisher,
+
+        [SingularName("Hesta")]
+        //CSRTODO: no plural
+        Hesta,
 
         [SingularName("hippie")]
         [PluralName("hippies")]
@@ -238,9 +278,17 @@
         [PluralName("hobbit mothers")]
         HobbitMother,
 
+        [SingularName("hobbit sailor")]
+        [PluralName("hobbit sailors")]
+        HobbitSailor,
+
         [SingularName("Hogoth")]
         //CSRTODO: no plural?
         Hogoth,
+
+        [SingularName("Ho-suan the Penniless")]
+        //CSRTODO: no plural?
+        HoSuanThePenniless,
 
         [SingularName("hound dog")]
         [PluralName("hound dogs")]
@@ -270,6 +318,10 @@
         //CSRTODO: no plural
         KasnarTheGuard,
 
+        [SingularName("Kauka")]
+        //CSRTODO: no plural
+        Kauka,
+
         [SingularName("King Brunden")]
         //CSRTODO: no plural
         KingBrunden,
@@ -281,6 +333,14 @@
         [SingularName("knight")]
         [PluralName("knights")]
         Knight,
+
+        [SingularName("Kosta")]
+        //CSRTODO: no plural
+        Kosta,
+
+        [SingularName("Kralle")]
+        //CSRTODO: plural?
+        Kralle,
 
         [SingularName("laborer")]
         [PluralName("laborers")]
@@ -302,6 +362,10 @@
         [PluralName("little mice")]
         LittleMouse,
 
+        [SingularName("longshoreman")]
+        [PluralName("longshoremen")]
+        Longshoreman,
+
         [SingularName("Madame Nicolov")]
         //CSRTODO: no plural?
         MadameNicolov,
@@ -309,6 +373,10 @@
         [SingularName("madman")]
         [PluralName("madmen")]
         Madman,
+
+        [SingularName("Malika")]
+        //CSRTODO: no plural
+        Malika,
 
         [SingularName("Manager Mulloy")]
         //CSRTODO: no plural?
@@ -326,6 +394,10 @@
         //CSRTODO: no plural
         MasterJeweler,
 
+        [SingularName("Max the vegetable vendor")]
+        //CSRTODO: no plural
+        MaxTheVegetableVendor,
+
         [SingularName("the Mayor Millwood")]
         //CSRTODO: no plural
         MayorMillwood,
@@ -333,6 +405,10 @@
         [SingularName("merchant")]
         [PluralName("merchants")]
         Merchant,
+
+        [SingularName("merchant marine")]
+        [PluralName("merchant marines")]
+        MerchantMarine,
 
         [SingularName("militiaman")]
         [PluralName("militiamen")]
@@ -377,6 +453,10 @@
         [SingularName("nobleman")]
         [PluralName("noblemen")]
         Nobleman,
+
+        [SingularName("Numenorean Warder")]
+        [PluralName("Numenorean Warders")]
+        NumenoreanWarder,
 
         [SingularName("nymph")]
         [PluralName("nymphs")]
@@ -458,6 +538,10 @@
         [PluralName("salamanders")]
         Salamander,
 
+        [SingularName("scallywag")]
+        [PluralName("scallywags")]
+        Scallywag,
+
         [SingularName("scholar")]
         [PluralName("scholars")]
         Scholar,
@@ -490,6 +574,10 @@
         [PluralName("sewer orc guards")]
         SewerOrcGuard,
 
+        [SingularName("Sharkey")]
+        //CSRTODO: no plural?
+        Sharkey,
+
         [SingularName("sheep")]
         [PluralName("sheep")]
         Sheep,
@@ -514,9 +602,17 @@
         [PluralName("small spiders")]
         SmallSpider,
 
+        [SingularName("the smithy")]
+        //CSRTODO: plural?
+        Smithy,
+
         [SingularName("snarling mutt")]
         [PluralName("snarling mutts")]
         SnarlingMutt,
+
+        [SingularName("sobbing girl")]
+        [PluralName("sobbing girls")]
+        SobbingGirl,
 
         [SingularName("sprite guard")]
         [PluralName("sprite guards")]
@@ -570,6 +666,10 @@
         [PluralName("vampire bats")]
         VampireBat,
 
+        [SingularName("village woman")]
+        [PluralName("village women")]
+        VillageWoman,
+
         [SingularName("villager's ghost")]
         [PluralName("villager's ghosts")]
         VillagersGhost,
@@ -581,6 +681,10 @@
         [SingularName("waitress")]
         [PluralName("waitresses")]
         Waitress,
+
+        [SingularName("warrant officer")]
+        [PluralName("warrant officers")]
+        WarrantOfficer,
 
         [SingularName("warrior bard")]
         [PluralName("warrior bards")]

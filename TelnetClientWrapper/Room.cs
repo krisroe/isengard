@@ -76,6 +76,7 @@ namespace IsengardClient
         public bool IsTrapRoom { get; set; }
         public bool Intangible { get; set; }
 
+        public BoatEmbarkOrDisembark? BoatLocationType { get; set; }
         public string GetDefaultMob()
         {
             string defaultMob = this.Mob1;
@@ -116,5 +117,20 @@ namespace IsengardClient
             }
             return ret;
         }
+    }
+
+    internal class RoomChange
+    {
+        public RoomChange()
+        {
+            this.Exits = new List<string>();
+            this.MappedExits = new Dictionary<string, Exit>();
+        }
+        public RoomChangeType ChangeType { get; set; }
+        public Room Room { get; set; }
+        public List<string> Exits { get; set; }
+        public Dictionary<string, Exit> MappedExits { get; set; }
+        public List<Exit> OtherExits = new List<Exit>();
+        public int GlobalCounter { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -114,8 +115,18 @@ namespace IsengardClient
         private object _escapeLock = new object();
 
         private IsengardMap _gameMap;
+
         private Room m_oCurrentRoom;
         private Room m_oCurrentRoomUI;
+        private List<RoomChange> _currentRoomChanges = new List<RoomChange>();
+        private object _roomChangeLock = new object();
+        private int _roomChangeCounter = -1;
+        private int _roomChangeCounterUI = -1;
+        private List<string> _currentObviousExits;
+        private List<string> _foundSearchedExits;
+        private TreeNode _tnObviousExits;
+        private TreeNode _tnOtherExits;
+
         private bool _setTickRoom = false;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
@@ -149,8 +160,6 @@ namespace IsengardClient
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
-        private List<string> _currentObviousExits;
-        private List<string> _foundSearchedExits;
         
         private string _currentlyFightingMob;
         private string _currentlyFightingMobUI;
@@ -189,6 +198,10 @@ namespace IsengardClient
             InitializeComponent();
 
             this.MinimumSize = this.Size;
+            _tnObviousExits = treeCurrentRoom.Nodes["tnObviousExits"];
+            _tnObviousExits.Expand();
+            _tnOtherExits = treeCurrentRoom.Nodes["tnOtherExits"];
+            _tnOtherExits.Expand();
 
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
@@ -1061,7 +1074,7 @@ namespace IsengardClient
             if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None))
             {
                 _initializationSteps |= InitializationStep.Finalization;
-                Room r = SetCurrentRoomIfUnambiguous(sRoomName);
+                Room r = m_oCurrentRoom;
                 _setTickRoom = r != null && r.HealingRoom.HasValue;
             }
             else
@@ -1073,13 +1086,10 @@ namespace IsengardClient
             }
         }
 
-        private Room SetCurrentRoomIfUnambiguous(string sRoomName)
+        private Room GetCurrentRoomIfUnambiguous(string sRoomName)
         {
-            Room ret = null;
-            if (_gameMap.UnambiguousRooms.TryGetValue(sRoomName, out ret))
-            {
-                m_oCurrentRoom = ret;
-            }
+            Room ret;
+            _gameMap.UnambiguousRooms.TryGetValue(sRoomName, out ret);
             return ret;
         }
 
@@ -1095,6 +1105,7 @@ namespace IsengardClient
             {
                 bct = flParams.BackgroundCommandType;
             }
+            bool fromBackgroundLook = false;
             bool fromBackgroundFlee = false;
             bool fromBackgroundMove = false;
             bool fromBackgroundHazy = false;
@@ -1103,11 +1114,18 @@ namespace IsengardClient
             {
                 BackgroundCommandType bctValue = bct.Value;
                 fromBackgroundFlee = bctValue == BackgroundCommandType.Flee;
-                fromBackgroundMove = bctValue == BackgroundCommandType.Look || bctValue == BackgroundCommandType.Movement;
+                fromBackgroundLook = bctValue == BackgroundCommandType.Look;
+                fromBackgroundMove = bctValue == BackgroundCommandType.Movement;
                 fromBackgroundHazy = bctValue == BackgroundCommandType.DrinkHazy;
             }
             
             _currentObviousExits = obviousExits;
+            Room previousRoom = m_oCurrentRoom;
+
+            //first try is always to look for an unambiguous name across the whole map
+            Room newRoom = GetCurrentRoomIfUnambiguous(sRoomName);
+            List<Room> disambiguationRooms = null;
+            bool lookForRoomsByRoomName = false;
             if (rtType == RoomTransitionType.Flee)
             {
                 _fleeing = false;
@@ -1115,6 +1133,36 @@ namespace IsengardClient
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                     _waitSeconds = 0;
+                }
+                if (newRoom == null && previousRoom != null) //determine the room that was fled to if possible
+                {
+                    List<Exit> fleeableExits = new List<Exit>();
+                    foreach (Exit e in IsengardMap.GetRoomExits(_gameMap.MapGraph, previousRoom, FleeExitDiscriminator))
+                    {
+                        if (e.Target.BackendName == sRoomName)
+                        {
+                            fleeableExits.Add(e);
+                        }
+                    }
+                    if (fleeableExits.Count == 0)
+                    {
+                        lookForRoomsByRoomName = true;
+                    }
+                    else
+                    {
+                        if (fleeableExits.Count == 1)
+                        {
+                            newRoom = fleeableExits[0].Target;
+                        }
+                        else
+                        {
+                            disambiguationRooms = new List<Room>();
+                            foreach (Exit nextFleeExit in fleeableExits)
+                            {
+                                disambiguationRooms.Add(nextFleeExit.Target);
+                            }
+                        }
+                    }
                 }
             }
             else if (rtType == RoomTransitionType.Hazy || rtType == RoomTransitionType.Death)
@@ -1133,22 +1181,167 @@ namespace IsengardClient
                         flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                     }
                 }
-                SetCurrentRoomIfUnambiguous(sRoomName);
             }
             else if (rtType == RoomTransitionType.Initial)
             {
-                //Nothing to do here
+                if (newRoom == null)
+                {
+                    lookForRoomsByRoomName = true;
+                }
             }
             else if (fromBackgroundMove)
             {
+                if (newRoom == null && _currentBackgroundExit.Target != null)
+                {
+                    Room targetRoom = _currentBackgroundExit.Target;
+                    if (string.Equals(targetRoom.BackendName, sRoomName))
+                    {
+                        newRoom = targetRoom;
+                    }
+                }
+                if (newRoom == null)
+                {
+                    lookForRoomsByRoomName = true;
+                }
                 flParams.CommandResult = CommandResult.CommandSuccessful;
                 _waitSeconds = 0;
             }
+            else if (fromBackgroundLook)
+            {
+                lookForRoomsByRoomName = previousRoom == null;
+            }
+
             if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
             {
                 _lastCommandDamage = damage;
                 _lastCommandTrapType = trapType;
                 _lastCommandMovementResult = MovementResult.Success;
+            }
+
+            if (lookForRoomsByRoomName)
+            {
+                disambiguationRooms = new List<Room>();
+                if (_gameMap.AmbiguousRooms.TryGetValue(sRoomName, out List<Room> possibleRooms))
+                {
+                    disambiguationRooms.AddRange(possibleRooms);
+                }
+            }
+
+            if (disambiguationRooms != null) //disambiguate based on obvious exits
+            {
+                Room foundRoom = null;
+                foreach (Room nextDisambigRoom in disambiguationRooms)
+                {
+                    bool matches = true;
+                    List<string> nextCheckObviousExits = IsengardMap.GetObviousExits(_gameMap.MapGraph, nextDisambigRoom, out List<string> optionalExits);
+                    if (obviousExits.Count == 1 && string.Equals(obviousExits[0], "None", StringComparison.OrdinalIgnoreCase))
+                    {
+                        matches = nextCheckObviousExits.Count == 0;
+                    }
+                    else
+                    {
+                        foreach (string nextExitText in nextCheckObviousExits)
+                        {
+                            if (!obviousExits.Contains(nextExitText))
+                            {
+                                matches = false;
+                                break;
+                            }
+                        }
+                        if (matches)
+                        {
+                            foreach (string nextExitText in obviousExits)
+                            {
+                                if (!nextCheckObviousExits.Contains(nextExitText) && (optionalExits == null || !optionalExits.Contains(nextExitText)))
+                                {
+                                    matches = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (matches)
+                    {
+                        if (foundRoom == null)
+                        {
+                            foundRoom = nextDisambigRoom;
+                        }
+                        else //still ambiguous
+                        {
+                            foundRoom = null;
+                            break;
+                        }
+                    }
+                }
+                if (foundRoom != null)
+                {
+                    newRoom = foundRoom;
+                }
+            }
+
+            lock (_roomChangeLock) //update the room change list with the next room
+            {
+                _currentRoomChanges.Clear();
+                RoomChange rc = new RoomChange();
+                rc.Room = newRoom;
+                rc.ChangeType = RoomChangeType.NewRoom;
+                rc.Exits = new List<string>(obviousExits);
+                _roomChangeCounter++;
+                rc.GlobalCounter = _roomChangeCounter;
+                if (newRoom != null)
+                {
+                    rc.MappedExits = new Dictionary<string, Exit>();
+                    Dictionary<string, List<Exit>> periodicExits = new Dictionary<string, List<Exit>>();
+                    foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, newRoom))
+                    {
+                        string nextExitText = nextExit.ExitText;
+                        if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
+                        {
+                            List<Exit> nextPeriodicExits;
+                            if (!periodicExits.TryGetValue(nextExitText, out nextPeriodicExits))
+                            {
+                                nextPeriodicExits = new List<Exit>();
+                                periodicExits[nextExitText] = nextPeriodicExits;
+                            }
+                            periodicExits[nextExitText].Add(nextExit);
+                        }
+                        else if (nextExit.PresenceType != ExitPresenceType.RequiresSearch && obviousExits.Contains(nextExitText)) //requires search exits behave like hidden ones
+                        {
+                            rc.MappedExits[nextExitText] = nextExit;
+                        }
+                        else
+                        {
+                            rc.OtherExits.Add(nextExit);
+                        }
+                    }
+                    foreach (var nextPeriodic in periodicExits)
+                    {
+                        string exitText = nextPeriodic.Key;
+                        List<Exit> nextPeriodicList = nextPeriodic.Value;
+                        if (nextPeriodicList.Count > 1)
+                        {
+                            rc.MappedExits[exitText] = null; //indicate ambiguous
+                            foreach (var nextPeriodicExit in nextPeriodicList)
+                            {
+                                rc.OtherExits.Add(nextPeriodicExit);
+                            }
+                        }
+                        else
+                        {
+                            Exit singlePeriodicExit = nextPeriodicList[0];
+                            if (obviousExits.Contains(exitText))
+                            {
+                                rc.MappedExits[exitText] = singlePeriodicExit;
+                            }
+                            else
+                            {
+                                rc.OtherExits.Add(singlePeriodicExit);
+                            }
+                        }
+                    }
+                }
+                _currentRoomChanges.Add(rc);
+                m_oCurrentRoom = newRoom;
             }
 
             List<string> errorMessages = roomTransitionInfo.ErrorMessages;
@@ -1261,6 +1454,24 @@ namespace IsengardClient
             if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
             {
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
+        private static void OpenDoorSuccess(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.OpenDoor)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private static void OpenDoorFailure(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.OpenDoor)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
         }
 
@@ -1447,7 +1658,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnInformationalMessages(List<InformationalMessages> ims, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
+        private void OnInformationalMessages(FeedLineParameters flp, List<InformationalMessages> ims, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
         {
             if (ims != null)
             {
@@ -1478,6 +1689,134 @@ namespace IsengardClient
                             break;
                         case InformationalMessages.ManashieldOff:
                             ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+                            break;
+                        case InformationalMessages.BullroarerInMithlond:
+                            lock (_roomChangeLock)
+                            {
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.Bullroarer:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessages.BullroarerInMithlond, true));
+                                            break;
+                                        case BoatEmbarkOrDisembark.BullroarerMithlond:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.BullroarerInNindamos:
+                            lock (_roomChangeLock)
+                            {
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.Bullroarer:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessages.BullroarerInNindamos, true));
+                                            break;
+                                        case BoatEmbarkOrDisembark.BullroarerNindamos:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.BullroarerReadyForBoarding:
+                            lock (_roomChangeLock)
+                            {
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.BullroarerMithlond:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                            break;
+                                        case BoatEmbarkOrDisembark.BullroarerNindamos:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.CelduinExpressInBree:
+                            lock (_roomChangeLock)
+                            {
+                                bool removeMessage = true;
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.CelduinExpress:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
+                                            removeMessage = false;
+                                            break;
+                                        case BoatEmbarkOrDisembark.CelduinExpressBree:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
+                                            removeMessage = false;
+                                            break;
+                                    }
+                                }
+                                if (removeMessage)
+                                {
+                                    for (int i = 0; i < flp.Lines.Count; i++)
+                                    {
+                                        if (flp.Lines[i] == InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE)
+                                        {
+                                            flp.Lines.RemoveAt(i);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.CelduinExpressLeftBree:
+                            lock (_roomChangeLock)
+                            {
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.CelduinExpress:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
+                                            break;
+                                        case BoatEmbarkOrDisembark.CelduinExpressBree:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.CelduinExpressLeftMithlond:
+                            lock (_roomChangeLock)
+                            {
+                                Room currentRoom = m_oCurrentRoom;
+                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                                {
+                                    switch (currentRoom.BoatLocationType.Value)
+                                    {
+                                        case BoatEmbarkOrDisembark.CelduinExpress:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
+                                            break;
+                                        case BoatEmbarkOrDisembark.CelduinExpressMithlond:
+                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                        case InformationalMessages.HarbringerInPort:
+                            HandleHarbringerStatusChange(true);
+                            break;
+                        case InformationalMessages.HarbringerSailed:
+                            HandleHarbringerStatusChange(false);
                             break;
                     }
                 }
@@ -1534,6 +1873,78 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private void HandleHarbringerStatusChange(bool inPort)
+        {
+            lock (_roomChangeLock)
+            {
+                Room currentRoom = m_oCurrentRoom;
+                if (currentRoom.BoatLocationType.HasValue)
+                {
+                    string sExit = null;
+                    switch (currentRoom.BoatLocationType.Value)
+                    {
+                        case BoatEmbarkOrDisembark.Harbringer:
+                            sExit = "ship";
+                            break;
+                        case BoatEmbarkOrDisembark.HarbringerMithlond:
+                            sExit = "gangplank";
+                            break;
+                        case BoatEmbarkOrDisembark.HarbringerTharbad:
+                            sExit = "gangway";
+                            break;
+                    }
+                    if (sExit != null)
+                    {
+                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// gets a room change object for a periodic exit
+        /// </summary>
+        /// <param name="currentRoom">current room</param>
+        /// <param name="add">true to add the exit, false to remove the exit</param>
+        /// <param name="exitText">exit text</param>
+        /// <returns>room change object</returns>
+        private RoomChange GetAddExitRoomChangeForPeriodicExit(Room currentRoom, bool add, string exitText)
+        {
+            RoomChange rc = new RoomChange();
+            rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
+            _roomChangeCounter++;
+            rc.GlobalCounter = _roomChangeCounter;
+            Exit e = IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
+            rc.Exits.Add(e.ExitText);
+            if (add)
+            {
+                rc.MappedExits[e.ExitText] = e;
+            }
+            return rc;
+        }
+
+        /// <summary>
+        /// gets a room change object for a wait for message exit
+        /// </summary>
+        /// <param name="currentRoom">current room</param>
+        /// <param name="messageType">message type</param>
+        /// <param name="add">true to add the exit, false to remove the exit</param>
+        /// <returns>room change object</returns>
+        private RoomChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessages messageType, bool add)
+        {
+            RoomChange rc = new RoomChange();
+            rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
+            _roomChangeCounter++;
+            rc.GlobalCounter = _roomChangeCounter;
+            Exit e = IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
+            rc.Exits.Add(e.ExitText);
+            if (add)
+            {
+                rc.MappedExits[e.ExitText] = e;
+            }
+            return rc;
         }
 
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
@@ -1735,7 +2146,7 @@ namespace IsengardClient
                 new MobStatusSequence(OnMobStatusSequence),
                 new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
-                new SuccessfulSearchSequence(SuccessfulSearch),
+                new SearchSequence(SuccessfulSearch, FailSearch),
                 new RoomTransitionSequence(OnRoomTransition, _username),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
@@ -1760,9 +2171,10 @@ namespace IsengardClient
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You can fly!", OnFly, ConstantSequenceMatchType.ExactMatch, 0, (BackgroundCommandType?)null),
-
-                //the search find failed output has a blank line before the message so use the second line.
-                new ConstantOutputSequence("You didn't find anything.", FailSearch, ConstantSequenceMatchType.ExactMatch, 1, BackgroundCommandType.Search)
+                new ConstantOutputSequence("I don't see that exit.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
+                new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
+                new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
+                new ConstantOutputSequence("It's locked.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
             };
             return seqs;
         }
@@ -2177,7 +2589,6 @@ namespace IsengardClient
             btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, "cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, "cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
             btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
-            btnLook.Tag = new CommandButtonTag(btnLook, "look", CommandType.None, DependentObjectType.None);
             btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, null, CommandType.Magic, DependentObjectType.None);
             btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, null, CommandType.Magic, DependentObjectType.None);
             btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
@@ -2218,15 +2629,6 @@ namespace IsengardClient
                 _lastCommandDamage = 0;
                 _lastCommandTrapType = TrapType.None;
                 _lastCommandMovementResult = null;
-                Room wentToRoom = bwp.NavigatedToRoom;
-                if (wentToRoom != null)
-                {
-                    SetCurrentRoom(wentToRoom);
-                }
-                if (bwp.ReachedTargetRoom && !string.IsNullOrEmpty(bwp.TargetRoomMob))
-                {
-                    txtMob.Text = bwp.TargetRoomMob;
-                }
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
@@ -2234,22 +2636,22 @@ namespace IsengardClient
             }
         }
 
-        private void SetCurrentRoom(Room r)
-        {
-            string defaultMob = r.GetDefaultMob();
-            if (!string.IsNullOrEmpty(defaultMob))
-            {
-                txtMob.Text = defaultMob;
-            }
-            m_oCurrentRoom = r;
-            RefreshEnabledForSingleMoveButtons();
-        }
+        //CSRTODO: default mob logic with room transition
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             try
             {
+                if (pms.SingleCommandType.HasValue)
+                {
+                    if (pms.SingleCommandType.Value == BackgroundCommandType.Look)
+                    {
+                        RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, null);
+                    }
+                    return;
+                }
+
                 Strategy strategy = pms.Strategy;
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
@@ -2398,7 +2800,10 @@ namespace IsengardClient
                                 backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
                                 if (!backgroundCommandSuccess) return;
                             }
-                            RunPreExitLogic(nextExit);
+                            if (!PreOpenDoorExit(nextExit, pms))
+                            {
+                                return;
+                            }
                             string nextCommand = GetExitCommand(exitText);
                             bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
 
@@ -2410,10 +2815,6 @@ namespace IsengardClient
                                 {
                                     exitList.RemoveAt(0);
                                     keepTryingMovement = false;
-                                    if (nextExitTarget != null)
-                                    {
-                                        pms.NavigatedToRoom = nextExitTarget;
-                                    }
                                     if ((_lastCommandTrapType & TrapType.PoisonDart) != TrapType.None)
                                     {
                                         needCurepoison = true;
@@ -2446,6 +2847,18 @@ namespace IsengardClient
                                     SendCommand("stand", InputEchoType.On);
                                     keepTryingMovement = true;
                                 }
+                                else if (_lastCommandMovementResult == MovementResult.ClosedDoorFailure)
+                                {
+                                    bool openSuccess = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying);
+                                    if (openSuccess)
+                                    {
+                                        keepTryingMovement = true;
+                                    }
+                                    else //couldn't open the door
+                                    {
+                                        return;
+                                    }
+                                }
                                 else if (_lastCommandMovementResult == MovementResult.FallFailure)
                                 {
                                     if (!DoBackgroundHeal(true, false, false, needCurepoison, pms)) return;
@@ -2471,10 +2884,7 @@ namespace IsengardClient
                             _foundSearchedExits = null;
                         }
                     }
-
-                    //if we got here that means all exits were traversed successfully
-                    pms.ReachedTargetRoom = true;
-                    atDestination = true;
+                    atDestination = true; //all exits traversed successfully
                 }
                 else if (!string.IsNullOrEmpty(pms.TargetRoomMob))
                 {
@@ -2715,34 +3125,25 @@ namespace IsengardClient
                             }
 
                             //determine the flee exit if there is only one place to flee to
-                            Exit singleFleeableExit = null;
-                            Room r = pms.NavigatedToRoom;
-                            if (r == null) r = m_oCurrentRoom;
-                            if (r != null && _gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                            Room r = m_oCurrentRoom;
+
+                            //run the preexit logic for all target exits, since it won't be known beforehand
+                            //which exit will be used.
+                            List<Exit> availableExits = new List<Exit>();
+                            foreach (Exit nextExit in IsengardMap.GetRoomExits(_gameMap.MapGraph, r, FleeExitDiscriminator))
                             {
-                                List<Exit> fleeableExits = new List<Exit>();
-                                foreach (Exit nextExit in exits)
+                                if (PreOpenDoorExit(nextExit, pms))
                                 {
-                                    if (!nextExit.Hidden && !nextExit.NoFlee)
-                                    {
-                                        fleeableExits.Add(nextExit);
-                                    }
-                                }
-                                if (fleeableExits.Count == 1) //run preexit logic if the flee is unambiguous
-                                {
-                                    singleFleeableExit = fleeableExits[0];
-                                    RunPreExitLogic(singleFleeableExit);
+                                    availableExits.Add(nextExit);
                                 }
                             }
+                            Exit singleFleeableExit = null;
+                            if (availableExits.Count == 1) singleFleeableExit = availableExits[0];
 
                             backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying);
                             if (backgroundCommandSuccess)
                             {
                                 pms.Fled = true;
-                                if (singleFleeableExit != null)
-                                {
-                                    pms.NavigatedToRoom = singleFleeableExit.Target;
-                                }
                             }
                             else
                             {
@@ -2834,6 +3235,11 @@ BeforeHazy:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        private bool FleeExitDiscriminator(Exit exit)
+        {
+            return !exit.Hidden && !exit.NoFlee;
         }
 
         private bool BreakOutOfBackgroundCombat(bool stopIfMonsterKilled)
@@ -3101,12 +3507,18 @@ BeforeHazy:
             return ret;
         }
 
-        private void RunPreExitLogic(Exit exit)
+        private bool PreOpenDoorExit(Exit exit, BackgroundWorkerParameters pms)
         {
+            bool ret;
             if (exit.MustOpen)
             {
-                SendCommand("open " + exit.ExitText, InputEchoType.On);
+                ret = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exit.ExitText, pms, AbortIfFleeingOrHazying);
             }
+            else //not a door exit
+            {
+                ret = true;
+            }
+            return ret;
         }
 
         private bool CastLifeSpell(string spellName, BackgroundWorkerParameters bwp)
@@ -3394,7 +3806,6 @@ BeforeHazy:
             yield return btnGraph;
             yield return btnLocations;
             yield return btnClearCurrentLocation;
-            yield return chkExecuteMove;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -3405,13 +3816,14 @@ BeforeHazy:
             yield return btnSoutheast;
             yield return btnUp;
             yield return btnDn;
-            yield return btnExitSingleMove;
+            yield return btnOut;
             yield return btnOtherSingleMove;
             yield return btnHeal;
             yield return btnSkills;
             yield return btnSearch;
             yield return btnHide;
             yield return btnSet;
+            yield return btnLook;
         }
 
         private void EnableDisableActionButtons(BackgroundWorkerParameters bwp)
@@ -3510,7 +3922,6 @@ BeforeHazy:
             yield return (CommandButtonTag)btnLevel2OffensiveSpell.Tag;
             yield return (CommandButtonTag)btnLevel3OffensiveSpell.Tag;
             yield return (CommandButtonTag)btnLookAtMob.Tag;
-            yield return (CommandButtonTag)btnLook.Tag;
             yield return (CommandButtonTag)btnCastVigor.Tag;
             yield return (CommandButtonTag)btnCastCurePoison.Tag;
             yield return (CommandButtonTag)btnAttackMob.Tag;
@@ -3587,58 +3998,45 @@ BeforeHazy:
             string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
             if (!string.IsNullOrEmpty(move))
             {
-                DoSingleMove(chkExecuteMove.Checked, move);
+                DoSingleMove(move);
             }
         }
 
         private void btnDoSingleMove_Click(object sender, EventArgs e)
         {
             string direction = ((Button)sender).Tag.ToString();
-            DoSingleMove(chkExecuteMove.Checked, direction);
+            DoSingleMove(direction);
         }
 
-        private void DoSingleMove(bool move, Exit exit)
+        private void DoSingleMove(string direction)
         {
-            if (move)
+            Exit navigateExit = null;
+            bool ambiguous = false;
+            Room currentRoom = m_oCurrentRoom;
+            if (currentRoom != null)
             {
-                NavigateExitsInBackground(new List<Exit>() { exit });
-            }
-            else
-            {
-                SetCurrentRoom(exit.Target);
-            }
-        }
-
-        private void DoSingleMove(bool move, string direction)
-        {
-            if (m_oCurrentRoom != null)
-            {
-                Exit foundExit = null;
-                if (_gameMap.MapGraph.TryGetOutEdges(m_oCurrentRoom, out IEnumerable<Exit> edges))
+                Func<Exit, bool> discriminator = (e) =>
                 {
-                    foreach (Exit nextExit in edges)
+                    return string.Equals(e.ExitText, direction, StringComparison.OrdinalIgnoreCase);
+                };
+                foreach (Exit foundExit in IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, discriminator))
+                {
+                    if (navigateExit == null)
                     {
-                        if (string.Equals(nextExit.ExitText, direction, StringComparison.OrdinalIgnoreCase))
-                        {
-                            foundExit = nextExit;
-                            break;
-                        }
+                        navigateExit = foundExit;
+                    }
+                    else
+                    {
+                        ambiguous = true;
+                        break;
                     }
                 }
-                if (foundExit != null)
-                {
-                    DoSingleMove(move, foundExit);
-                    return;
-                }
-                else
-                {
-                    DoClearCurrentLocation();
-                }
             }
-            if (move)
+            if (ambiguous || navigateExit == null)
             {
-                NavigateExitsInBackground(new List<Exit>() { new Exit(null, null, direction) });
+                navigateExit = new Exit(null, null, direction);
             }
+            NavigateExitsInBackground(new List<Exit>() { navigateExit });
         }
 
         private void ctxConsole_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -3820,8 +4218,6 @@ BeforeHazy:
 
         private class BackgroundWorkerParameters
         {
-            public Room NavigatedToRoom { get; set; }
-
             public List<Exit> Exits { get; set; }
             public bool Cancelled { get; set; }
             public Strategy Strategy { get; set; }
@@ -3837,12 +4233,12 @@ BeforeHazy:
             public bool Quit { get; set; }
             public bool DoScore { get; set; }
             public string TargetRoomMob { get; set; }
-            public bool ReachedTargetRoom { get; set; }
             public bool Foreground { get; set; }
             public bool HealHitpoints { get; set; }
             public bool CureIfPoisoned { get; set; }
             public bool EnsureBlessed { get; set; }
             public bool EnsureProtected { get; set; }
+            public BackgroundCommandType? SingleCommandType { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -4305,6 +4701,90 @@ BeforeHazy:
                     _broadcastMessages.Clear();
                 }
             }
+
+            List <RoomChange> changes = null;
+            int iNewCounter = -1;
+            lock (_roomChangeLock)
+            {
+                if (_roomChangeCounter != _roomChangeCounterUI)
+                {
+                    for (int i = 0; i < _currentRoomChanges.Count; i++)
+                    {
+                        RoomChange nextRoomChange = _currentRoomChanges[i];
+                        int iCounter = nextRoomChange.GlobalCounter;
+                        if (iCounter > _roomChangeCounterUI)
+                        {
+                            if (changes == null) changes = new List<RoomChange>();
+                            changes.Add(nextRoomChange);
+                        }
+                    }
+                }
+            }
+            if (changes != null)
+            {
+                foreach (RoomChange nextRoomChange in changes)
+                {
+                    RoomChangeType rcType = nextRoomChange.ChangeType;
+                    if (rcType == RoomChangeType.NewRoom)
+                    {
+                        bool obviousWasExpanded = _tnOtherExits.IsExpanded;
+                        bool otherWasExpanded = _tnOtherExits.IsExpanded;
+                        _tnObviousExits.Nodes.Clear();
+                        _tnOtherExits.Nodes.Clear();
+                        foreach (string s in nextRoomChange.Exits)
+                        {
+                            _tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, s));
+                        }
+                        foreach (Exit nextExit in nextRoomChange.OtherExits)
+                        {
+                            _tnOtherExits.Nodes.Add(GetOtherExitsNode(nextExit));
+                        }
+                        if (_roomChangeCounterUI == -1 || obviousWasExpanded)
+                        {
+                            _tnObviousExits.Expand();
+                        }
+                        if (_roomChangeCounterUI == -1 || otherWasExpanded)
+                        {
+                            _tnOtherExits.Expand();
+                        }
+                    }
+                    else if (rcType == RoomChangeType.AddExit)
+                    {
+                        string exit = nextRoomChange.Exits[0];
+                        _tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, exit));
+                        TreeNode removeNode = null;
+                        foreach (TreeNode tn in _tnOtherExits.Nodes)
+                        {
+                            if (tn.Tag == nextRoomChange.MappedExits[exit])
+                            {
+                                removeNode = tn;
+                                break;
+                            }
+                        }
+                        _tnOtherExits.Nodes.Remove(removeNode);
+                    }
+                    else if (rcType == RoomChangeType.RemoveExit)
+                    {
+                        string exit = nextRoomChange.Exits[0];
+                        TreeNode removeNode = null;
+                        Exit foundExit = null;
+                        foreach (TreeNode tn in _tnObviousExits.Nodes)
+                        {
+                            foundExit = tn.Tag as Exit;
+                            if (foundExit != null && foundExit.ExitText == exit)
+                            {
+                                removeNode = tn;
+                                break;
+                            }
+                        }
+                        _tnObviousExits.Nodes.Remove(removeNode);
+                        _tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
+                    }
+                    iNewCounter = nextRoomChange.GlobalCounter;
+                }
+                _roomChangeCounterUI = iNewCounter;
+            }
+
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             EnableDisableActionButtons(bwp);
             if (bwp == null) //processing that only happens when a background process is not running
@@ -4335,6 +4815,41 @@ BeforeHazy:
                     StartEscapeBackgroundProcess(hazying, fleeing);
                 }
             }
+        }
+
+        private TreeNode GetOtherExitsNode(Exit nextExit)
+        {
+            string sNodeText = nextExit.ExitText + " (" + nextExit.Target.Name + ")";
+            TreeNode nextTreeNode = new TreeNode(sNodeText);
+            nextTreeNode.Tag = nextExit;
+            return nextTreeNode;
+        }
+
+        private TreeNode GetObviousExitNode(RoomChange nextRoomChange, string s)
+        {
+            string sNodeText = s;
+            Exit foundExit;
+            if (nextRoomChange.MappedExits.TryGetValue(s, out foundExit))
+            {
+                if (foundExit == null)
+                {
+                    sNodeText += " (Ambiguous)";
+                }
+                else
+                {
+                    sNodeText += " (" + foundExit.Target.Name + ")";
+                }
+            }
+            TreeNode nextTreeNode = new TreeNode(sNodeText);
+            if (foundExit != null)
+            {
+                nextTreeNode.Tag = foundExit;
+            }
+            else
+            {
+                nextTreeNode.Tag = s;
+            }
+            return nextTreeNode;
         }
 
         private void ComputeColor(int current, int max, out byte r, out byte g, out byte b)
@@ -4439,7 +4954,73 @@ BeforeHazy:
         {
             if (e.KeyChar == (char)Keys.Return)
             {
-                SendCommand(txtOneOffCommand.Text, InputEchoType.On);
+                string sCommand = txtOneOffCommand.Text;
+
+                string sCommandLower = sCommand.ToLower().Trim();
+                bool isMovement = sCommandLower == "nw" ||
+                                  sCommandLower == "northwest" ||
+                                  sCommandLower == "n" ||
+                                  sCommandLower == "north" ||
+                                  sCommandLower == "ne" ||
+                                  sCommandLower == "northeast" ||
+                                  sCommandLower == "w" ||
+                                  sCommandLower == "west" ||
+                                  sCommandLower == "e" ||
+                                  sCommandLower == "east" ||
+                                  sCommandLower == "sw" ||
+                                  sCommandLower == "southwest" ||
+                                  sCommandLower == "s" ||
+                                  sCommandLower == "south" ||
+                                  sCommandLower == "se" ||
+                                  sCommandLower == "southeast" ||
+                                  sCommandLower == "u" ||
+                                  sCommandLower == "up" ||
+                                  sCommandLower == "d" ||
+                                  sCommandLower == "down" ||
+                                  sCommandLower == "out" ||
+                                  sCommandLower.StartsWith("go ");
+                bool isLook = sCommandLower == "look";
+                if (isMovement || isLook)
+                {
+                    if (_currentBackgroundParameters == null)
+                    {
+                        if (isLook)
+                        {
+                            RunLookBackgroundCommand();
+                        }
+                        else
+                        {
+                            if (sCommand.StartsWith("go "))
+                            {
+                                if (sCommand == "go ")
+                                    sCommand = string.Empty;
+                                else
+                                    sCommand = sCommand.Substring("go ".Length).Trim();
+
+                                if (string.IsNullOrEmpty(sCommand))
+                                {
+                                    MessageBox.Show("Invalid go command.");
+                                    return;
+                                }
+                            }
+                            DoSingleMove(sCommand);
+                        }
+                    }
+                    else if (isLook)
+                    {
+                        MessageBox.Show("Cannot run look command manually when background process running.");
+                        return;
+                    }
+                    else if (isMovement)
+                    {
+                        MessageBox.Show("Cannot run movement command manually when background process running.");
+                        return;
+                    }
+                }
+                else
+                {
+                    SendCommand(txtOneOffCommand.Text, InputEchoType.On);
+                }
                 txtOneOffCommand.SelectAll();
             }
         }
@@ -4597,22 +5178,31 @@ BeforeHazy:
         {
             Room r = m_oCurrentRoom;
             ctxRoomExits.Items.Clear();
-            if (r == null || !_gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> edges))
+            if (r == null)
             {
                 e.Cancel = true;
             }
             else
             {
-                foreach (Exit nextEdge in edges)
+                bool foundExit = false;
+                foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, r))
                 {
+                    foundExit = true;
                     ToolStripMenuItem tsmi = new ToolStripMenuItem();
                     tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
                     tsmi.Tag = nextEdge;
                     ctxRoomExits.Items.Add(tsmi);
                 }
-                ToolStripMenuItem tsmiGraph = new ToolStripMenuItem();
-                tsmiGraph.Text = "Graph";
-                ctxRoomExits.Items.Add(tsmiGraph);
+                if (foundExit)
+                {
+                    ToolStripMenuItem tsmiGraph = new ToolStripMenuItem();
+                    tsmiGraph.Text = "Graph";
+                    ctxRoomExits.Items.Add(tsmiGraph);
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
             }
         }
 
@@ -4622,87 +5212,74 @@ BeforeHazy:
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
             Exit exit = (Exit)clickedItem.Tag;
             Button sourceButton = (Button)ctx.SourceControl;
-            if (sourceButton == btnExitSingleMove)
+            List<Exit> exits;
+            if (clickedItem.Text == "Graph")
             {
-                DoSingleMove(chkExecuteMove.Checked, exit);
+                GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+                frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, levitating, isDay, level);
+                graphForm.ShowDialog();
+                exits = graphForm.SelectedPath;
+                if (exits == null) return;
             }
-            else //one click strategy button
+            else
             {
-                List<Exit> exits;
-                if (clickedItem.Text == "Graph")
-                {
-                    GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-                    frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, levitating, isDay, level);
-                    bool? result = graphForm.ShowDialog();
-                    exits = graphForm.SelectedPath;
-                    if (exits == null) return;
-                }
-                else
-                {
-                    exits = new List<Exit>() { exit };
-                }
-                RunStrategy((Strategy)sourceButton.Tag, exits);
+                exits = new List<Exit>() { exit };
             }
-        }
-
-        private void chkExecuteMove_CheckedChanged(object sender, EventArgs e)
-        {
-            RefreshEnabledForSingleMoveButtons();
+            RunStrategy((Strategy)sourceButton.Tag, exits);
         }
 
         private void RefreshEnabledForSingleMoveButtons()
         {
             Room r = m_oCurrentRoom;
             bool haveCurrentRoom = r != null;
-            bool enable = chkExecuteMove.Checked || haveCurrentRoom;
 
-            bool n, ne, nw, w, e, s, sw, se, u, d;
-            n = ne = nw = w = e = s = sw = se = u = d = false;
+            bool n, ne, nw, w, e, s, sw, se, u, d, o;
+            n = ne = nw = w = e = s = sw = se = u = d = o = false;
             if (haveCurrentRoom)
             {
-                if (_gameMap.MapGraph.TryGetOutEdges(r, out IEnumerable<Exit> exits))
+                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, r))
                 {
-                    foreach (Exit nextExit in exits)
+                    switch (nextExit.ExitText.ToLower())
                     {
-                        switch (nextExit.ExitText.ToLower())
-                        {
-                            case "north":
-                                n = true;
-                                break;
-                            case "northeast":
-                                ne = true;
-                                break;
-                            case "northwest":
-                                nw = true;
-                                break;
-                            case "west":
-                                w = true;
-                                break;
-                            case "east":
-                                e = true;
-                                break;
-                            case "south":
-                                s = true;
-                                break;
-                            case "southeast":
-                                se = true;
-                                break;
-                            case "southwest":
-                                sw = true;
-                                break;
-                            case "up":
-                                u = true;
-                                break;
-                            case "down":
-                                d = true;
-                                break;
-                        }
+                        case "north":
+                            n = true;
+                            break;
+                        case "northeast":
+                            ne = true;
+                            break;
+                        case "northwest":
+                            nw = true;
+                            break;
+                        case "west":
+                            w = true;
+                            break;
+                        case "east":
+                            e = true;
+                            break;
+                        case "south":
+                            s = true;
+                            break;
+                        case "southeast":
+                            se = true;
+                            break;
+                        case "southwest":
+                            sw = true;
+                            break;
+                        case "up":
+                            u = true;
+                            break;
+                        case "down":
+                            d = true;
+                            break;
+                        case "out":
+                            o = true;
+                            break;
                     }
                 }
             }
             else
             {
-                n = ne = nw = w = e = s = sw = se = u = d = enable;
+                n = ne = nw = w = e = s = sw = se = u = d = o = true;
             }
             btnNorth.Enabled = n;
             btnNorthwest.Enabled = nw;
@@ -4714,13 +5291,8 @@ BeforeHazy:
             btnSoutheast.Enabled = se;
             btnUp.Enabled = u;
             btnDn.Enabled = d;
-            btnOtherSingleMove.Enabled = enable;
-            btnExitSingleMove.Enabled = haveCurrentRoom;
-        }
-
-        private void btnExitSingleMove_Click(object sender, EventArgs e)
-        {
-            ctxRoomExits.Show(btnExitSingleMove, new Point(0, 0));
+            btnOut.Enabled = o;
+            btnOtherSingleMove.Enabled = true;
         }
 
         private void tcMain_Selected(object sender, TabControlEventArgs e)
@@ -4791,37 +5363,58 @@ BeforeHazy:
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
+            Room originalCurrentRoom = m_oCurrentRoom;
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
             frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, levitating, isDay, level);
 
-            frm.ShowDialog(); //do not check that form accepted because current room could be set
-
-            if (m_oCurrentRoom != frm.CurrentRoom)
+            if (frm.ShowDialog().GetValueOrDefault(false))
             {
-                SetCurrentRoom(frm.CurrentRoom);
-            }
-            List<Exit> selectedPath = frm.SelectedPath;
-            if (selectedPath != null)
-            {
-                NavigateExitsInBackground(selectedPath);
+                Room newCurrentRoom = m_oCurrentRoom;
+                if (newCurrentRoom == originalCurrentRoom)
+                {
+                    Room selectedRoom = frm.CurrentRoom;
+                    List<Exit> selectedPath = frm.SelectedPath;
+                    if (selectedPath != null)
+                    {
+                        NavigateExitsInBackground(frm.SelectedPath);
+                    }
+                    else
+                    {
+                        lock (_roomChangeLock)
+                        {
+                            m_oCurrentRoom = selectedRoom;
+                            _roomChangeCounterUI = -1;
+                        }
+                    }
+                }
             }
         }
 
         private void btnLocations_Click(object sender, EventArgs e)
         {
+            Room originalCurrentRoom = m_oCurrentRoom;
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            frmLocations frm = new frmLocations(_gameMap, m_oCurrentRoom, flying, levitating, isDay, level);
-
-            frm.ShowDialog(); //do not check that form accepted because current room could be set
-
-            if (m_oCurrentRoom != frm.CurrentRoom)
+            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, flying, levitating, isDay, level);
+            if (frm.ShowDialog() == DialogResult.OK)
             {
-                SetCurrentRoom(frm.CurrentRoom);
-            }
-            List<Exit> selectedPath = frm.SelectedPath;
-            if (selectedPath != null)
-            {
-                NavigateExitsInBackground(selectedPath);
+                Room newCurrentRoom = m_oCurrentRoom;
+                if (newCurrentRoom == originalCurrentRoom)
+                {
+                    Room selectedRoom = frm.CurrentRoom;
+                    List<Exit> selectedPath = frm.SelectedPath;
+                    if (selectedPath != null)
+                    {
+                        NavigateExitsInBackground(frm.SelectedPath);
+                    }
+                    else
+                    {
+                        lock (_roomChangeLock)
+                        {
+                            m_oCurrentRoom = selectedRoom;
+                            _roomChangeCounterUI = -1;
+                        }
+                    }
+                }
             }
         }
 
@@ -5092,6 +5685,67 @@ BeforeHazy:
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)
         {
             GoToRoom(_gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem]);
+        }
+
+        private void treeCurrentRoom_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                treeCurrentRoom.SelectedNode = e.Node;
+            }
+        }
+
+        private void tsmiGoToRoom_Click(object sender, EventArgs e)
+        {
+            TreeNode node = treeCurrentRoom.SelectedNode;
+            Exit exit = node.Tag as Exit;
+            if (exit == null)
+            {
+                string s = node.Tag as String;
+                if (s != null)
+                {
+                    exit = new Exit(null, null, s);
+                }
+            }
+            if (exit != null)
+            {
+                NavigateExitsInBackground(new List<Exit>() { exit });
+            }
+        }
+
+        private void ctxCurrentRoom_Opening(object sender, CancelEventArgs e)
+        {
+            TreeNode node = treeCurrentRoom.SelectedNode;
+            bool isObviousExit = false;
+            bool isOtherExit = false;
+            TreeNode parent = node?.Parent;
+            if (parent == _tnObviousExits)
+            {
+                isObviousExit = true;
+            }
+            else if (parent == _tnOtherExits)
+            {
+                isOtherExit = true;
+            }
+            if (!isOtherExit && !isObviousExit)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void btnLook_Click(object sender, EventArgs e)
+        {
+            if (_currentBackgroundParameters == null)
+            {
+                RunLookBackgroundCommand();
+            }
+        }
+
+        private void RunLookBackgroundCommand()
+        {
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.SingleCommandType = BackgroundCommandType.Look;
+            RunBackgroundProcess(bwp);
         }
     }
 }

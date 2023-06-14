@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Obvious Exits");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Other Exits");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.txtMob = new System.Windows.Forms.TextBox();
@@ -80,6 +82,9 @@
             this.lblTickRoom = new System.Windows.Forms.Label();
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
+            this.treeCurrentRoom = new System.Windows.Forms.TreeView();
+            this.ctxCurrentRoom = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiGoToRoom = new System.Windows.Forms.ToolStripMenuItem();
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
@@ -115,9 +120,7 @@
             this.btnGraph = new System.Windows.Forms.Button();
             this.btnClearCurrentLocation = new System.Windows.Forms.Button();
             this.grpSingleMove = new System.Windows.Forms.GroupBox();
-            this.btnExitSingleMove = new System.Windows.Forms.Button();
-            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.chkExecuteMove = new System.Windows.Forms.CheckBox();
+            this.btnOut = new System.Windows.Forms.Button();
             this.btnOtherSingleMove = new System.Windows.Forms.Button();
             this.btnDn = new System.Windows.Forms.Button();
             this.btnUp = new System.Windows.Forms.Button();
@@ -146,6 +149,7 @@
             this.tabHelp = new System.Windows.Forms.TabPage();
             this.grpHelp = new System.Windows.Forms.GroupBox();
             this.flpHelp = new System.Windows.Forms.FlowLayoutPanel();
+            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.scMain = new System.Windows.Forms.SplitContainer();
             this.pnlTabControl = new System.Windows.Forms.Panel();
@@ -170,6 +174,8 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpCurrentRoom.SuspendLayout();
+            this.ctxCurrentRoom.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
             this.grpMessages.SuspendLayout();
@@ -311,7 +317,7 @@
             this.btnLook.TabIndex = 9;
             this.btnLook.Text = "Look";
             this.btnLook.UseVisualStyleBackColor = true;
-            this.btnLook.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLook.Click += new System.EventHandler(this.btnLook_Click);
             // 
             // btnCastVigor
             // 
@@ -342,7 +348,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(878, 30);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(644, 30);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -563,7 +569,7 @@
             // 
             // btnNortheast
             // 
-            this.btnNortheast.Location = new System.Drawing.Point(120, 49);
+            this.btnNortheast.Location = new System.Drawing.Point(116, 22);
             this.btnNortheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNortheast.Name = "btnNortheast";
             this.btnNortheast.Size = new System.Drawing.Size(45, 28);
@@ -575,7 +581,7 @@
             // 
             // btnNorth
             // 
-            this.btnNorth.Location = new System.Drawing.Point(68, 49);
+            this.btnNorth.Location = new System.Drawing.Point(64, 22);
             this.btnNorth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorth.Name = "btnNorth";
             this.btnNorth.Size = new System.Drawing.Size(45, 28);
@@ -587,7 +593,7 @@
             // 
             // btnNorthwest
             // 
-            this.btnNorthwest.Location = new System.Drawing.Point(19, 49);
+            this.btnNorthwest.Location = new System.Drawing.Point(15, 22);
             this.btnNorthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnNorthwest.Name = "btnNorthwest";
             this.btnNorthwest.Size = new System.Drawing.Size(45, 28);
@@ -599,7 +605,7 @@
             // 
             // btnWest
             // 
-            this.btnWest.Location = new System.Drawing.Point(19, 81);
+            this.btnWest.Location = new System.Drawing.Point(15, 54);
             this.btnWest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWest.Name = "btnWest";
             this.btnWest.Size = new System.Drawing.Size(45, 28);
@@ -611,7 +617,7 @@
             // 
             // btnEast
             // 
-            this.btnEast.Location = new System.Drawing.Point(120, 81);
+            this.btnEast.Location = new System.Drawing.Point(116, 54);
             this.btnEast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnEast.Name = "btnEast";
             this.btnEast.Size = new System.Drawing.Size(45, 28);
@@ -623,7 +629,7 @@
             // 
             // btnSouthwest
             // 
-            this.btnSouthwest.Location = new System.Drawing.Point(19, 114);
+            this.btnSouthwest.Location = new System.Drawing.Point(15, 87);
             this.btnSouthwest.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouthwest.Name = "btnSouthwest";
             this.btnSouthwest.Size = new System.Drawing.Size(45, 28);
@@ -635,7 +641,7 @@
             // 
             // btnSouth
             // 
-            this.btnSouth.Location = new System.Drawing.Point(68, 114);
+            this.btnSouth.Location = new System.Drawing.Point(64, 87);
             this.btnSouth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSouth.Name = "btnSouth";
             this.btnSouth.Size = new System.Drawing.Size(45, 28);
@@ -647,7 +653,7 @@
             // 
             // btnSoutheast
             // 
-            this.btnSoutheast.Location = new System.Drawing.Point(120, 114);
+            this.btnSoutheast.Location = new System.Drawing.Point(116, 87);
             this.btnSoutheast.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSoutheast.Name = "btnSoutheast";
             this.btnSoutheast.Size = new System.Drawing.Size(45, 28);
@@ -668,7 +674,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1165, 1009);
+            this.tcMain.Size = new System.Drawing.Size(1270, 1013);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -679,7 +685,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1157, 980);
+            this.tabMain.Size = new System.Drawing.Size(1262, 984);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -778,6 +784,7 @@
             // 
             // grpCurrentRoom
             // 
+            this.grpCurrentRoom.Controls.Add(this.treeCurrentRoom);
             this.grpCurrentRoom.Location = new System.Drawing.Point(875, 12);
             this.grpCurrentRoom.Margin = new System.Windows.Forms.Padding(4);
             this.grpCurrentRoom.Name = "grpCurrentRoom";
@@ -786,6 +793,39 @@
             this.grpCurrentRoom.TabIndex = 141;
             this.grpCurrentRoom.TabStop = false;
             this.grpCurrentRoom.Text = "Current Room";
+            // 
+            // treeCurrentRoom
+            // 
+            this.treeCurrentRoom.ContextMenuStrip = this.ctxCurrentRoom;
+            this.treeCurrentRoom.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeCurrentRoom.Location = new System.Drawing.Point(4, 19);
+            this.treeCurrentRoom.Name = "treeCurrentRoom";
+            treeNode1.Name = "tnObviousExits";
+            treeNode1.Text = "Obvious Exits";
+            treeNode2.Name = "tnOtherExits";
+            treeNode2.Text = "Other Exits";
+            this.treeCurrentRoom.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode2});
+            this.treeCurrentRoom.Size = new System.Drawing.Size(367, 536);
+            this.treeCurrentRoom.TabIndex = 0;
+            this.treeCurrentRoom.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeCurrentRoom_NodeMouseClick);
+            // 
+            // ctxCurrentRoom
+            // 
+            this.ctxCurrentRoom.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxCurrentRoom.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiGoToRoom});
+            this.ctxCurrentRoom.Name = "ctxCurrentRoom";
+            this.ctxCurrentRoom.Size = new System.Drawing.Size(160, 28);
+            this.ctxCurrentRoom.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCurrentRoom_Opening);
+            // 
+            // tsmiGoToRoom
+            // 
+            this.tsmiGoToRoom.Name = "tsmiGoToRoom";
+            this.tsmiGoToRoom.Size = new System.Drawing.Size(159, 24);
+            this.tsmiGoToRoom.Text = "Go to Room";
+            this.tsmiGoToRoom.Click += new System.EventHandler(this.tsmiGoToRoom_Click);
             // 
             // btnLocations
             // 
@@ -1127,8 +1167,7 @@
             // 
             // grpSingleMove
             // 
-            this.grpSingleMove.Controls.Add(this.btnExitSingleMove);
-            this.grpSingleMove.Controls.Add(this.chkExecuteMove);
+            this.grpSingleMove.Controls.Add(this.btnOut);
             this.grpSingleMove.Controls.Add(this.btnOtherSingleMove);
             this.grpSingleMove.Controls.Add(this.btnNortheast);
             this.grpSingleMove.Controls.Add(this.btnNorth);
@@ -1144,61 +1183,38 @@
             this.grpSingleMove.Margin = new System.Windows.Forms.Padding(4);
             this.grpSingleMove.Name = "grpSingleMove";
             this.grpSingleMove.Padding = new System.Windows.Forms.Padding(4);
-            this.grpSingleMove.Size = new System.Drawing.Size(325, 151);
+            this.grpSingleMove.Size = new System.Drawing.Size(228, 129);
             this.grpSingleMove.TabIndex = 117;
             this.grpSingleMove.TabStop = false;
             this.grpSingleMove.Text = "Single Move";
             // 
-            // btnExitSingleMove
+            // btnOut
             // 
-            this.btnExitSingleMove.ContextMenuStrip = this.ctxRoomExits;
-            this.btnExitSingleMove.Location = new System.Drawing.Point(243, 95);
-            this.btnExitSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnExitSingleMove.Name = "btnExitSingleMove";
-            this.btnExitSingleMove.Size = new System.Drawing.Size(61, 28);
-            this.btnExitSingleMove.TabIndex = 113;
-            this.btnExitSingleMove.Tag = "";
-            this.btnExitSingleMove.Text = "Exit";
-            this.btnExitSingleMove.UseVisualStyleBackColor = true;
-            this.btnExitSingleMove.Click += new System.EventHandler(this.btnExitSingleMove_Click);
-            // 
-            // ctxRoomExits
-            // 
-            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxRoomExits.Name = "ctxRoomExits";
-            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
-            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
-            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
-            // 
-            // chkExecuteMove
-            // 
-            this.chkExecuteMove.AutoSize = true;
-            this.chkExecuteMove.Checked = true;
-            this.chkExecuteMove.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkExecuteMove.Location = new System.Drawing.Point(8, 23);
-            this.chkExecuteMove.Margin = new System.Windows.Forms.Padding(4);
-            this.chkExecuteMove.Name = "chkExecuteMove";
-            this.chkExecuteMove.Size = new System.Drawing.Size(114, 20);
-            this.chkExecuteMove.TabIndex = 0;
-            this.chkExecuteMove.Text = "Execute Move";
-            this.chkExecuteMove.UseVisualStyleBackColor = true;
-            this.chkExecuteMove.CheckedChanged += new System.EventHandler(this.chkExecuteMove_CheckedChanged);
+            this.btnOut.Location = new System.Drawing.Point(167, 87);
+            this.btnOut.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnOut.Name = "btnOut";
+            this.btnOut.Size = new System.Drawing.Size(45, 28);
+            this.btnOut.TabIndex = 113;
+            this.btnOut.Tag = "out";
+            this.btnOut.Text = "Out";
+            this.btnOut.UseVisualStyleBackColor = true;
+            this.btnOut.Click += new System.EventHandler(this.btnDoSingleMove_Click);
             // 
             // btnOtherSingleMove
             // 
-            this.btnOtherSingleMove.Location = new System.Drawing.Point(243, 62);
+            this.btnOtherSingleMove.Location = new System.Drawing.Point(64, 53);
             this.btnOtherSingleMove.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOtherSingleMove.Name = "btnOtherSingleMove";
-            this.btnOtherSingleMove.Size = new System.Drawing.Size(61, 28);
+            this.btnOtherSingleMove.Size = new System.Drawing.Size(45, 28);
             this.btnOtherSingleMove.TabIndex = 112;
             this.btnOtherSingleMove.Tag = "";
-            this.btnOtherSingleMove.Text = "Other";
+            this.btnOtherSingleMove.Text = "?";
             this.btnOtherSingleMove.UseVisualStyleBackColor = true;
             this.btnOtherSingleMove.Click += new System.EventHandler(this.btnOtherSingleMove_Click);
             // 
             // btnDn
             // 
-            this.btnDn.Location = new System.Drawing.Point(171, 94);
+            this.btnDn.Location = new System.Drawing.Point(167, 54);
             this.btnDn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDn.Name = "btnDn";
             this.btnDn.Size = new System.Drawing.Size(45, 28);
@@ -1210,7 +1226,7 @@
             // 
             // btnUp
             // 
-            this.btnUp.Location = new System.Drawing.Point(171, 62);
+            this.btnUp.Location = new System.Drawing.Point(167, 22);
             this.btnUp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUp.Name = "btnUp";
             this.btnUp.Size = new System.Drawing.Size(45, 28);
@@ -1327,7 +1343,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(1157, 984);
+            this.tabAncillary.Size = new System.Drawing.Size(1262, 984);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1342,7 +1358,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1151, 980);
+            this.pnlAncillary.Size = new System.Drawing.Size(1256, 980);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1351,7 +1367,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 25);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1157, 984);
+            this.tabEmotes.Size = new System.Drawing.Size(1262, 984);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1370,7 +1386,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1157, 984);
+            this.pnlEmotes.Size = new System.Drawing.Size(1262, 984);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1453,7 +1469,7 @@
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpEmotes.Size = new System.Drawing.Size(1157, 1042);
+            this.grpEmotes.Size = new System.Drawing.Size(1262, 1042);
             this.grpEmotes.TabIndex = 10;
             this.grpEmotes.TabStop = false;
             this.grpEmotes.Text = "Emotes";
@@ -1464,7 +1480,7 @@
             this.flpEmotes.Location = new System.Drawing.Point(3, 17);
             this.flpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flpEmotes.Name = "flpEmotes";
-            this.flpEmotes.Size = new System.Drawing.Size(1151, 1023);
+            this.flpEmotes.Size = new System.Drawing.Size(1256, 1023);
             this.flpEmotes.TabIndex = 0;
             // 
             // tabHelp
@@ -1473,7 +1489,7 @@
             this.tabHelp.Location = new System.Drawing.Point(4, 25);
             this.tabHelp.Margin = new System.Windows.Forms.Padding(4);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1157, 984);
+            this.tabHelp.Size = new System.Drawing.Size(1262, 984);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1486,7 +1502,7 @@
             this.grpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.grpHelp.Name = "grpHelp";
             this.grpHelp.Padding = new System.Windows.Forms.Padding(4);
-            this.grpHelp.Size = new System.Drawing.Size(1157, 984);
+            this.grpHelp.Size = new System.Drawing.Size(1262, 984);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1497,8 +1513,16 @@
             this.flpHelp.Location = new System.Drawing.Point(4, 19);
             this.flpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1149, 961);
+            this.flpHelp.Size = new System.Drawing.Size(1254, 961);
             this.flpHelp.TabIndex = 0;
+            // 
+            // ctxRoomExits
+            // 
+            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxRoomExits.Name = "ctxRoomExits";
+            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
+            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
             // 
             // tmr
             // 
@@ -1521,18 +1545,18 @@
             // scMain.Panel2
             // 
             this.scMain.Panel2.Controls.Add(this.grpConsole);
-            this.scMain.Size = new System.Drawing.Size(2053, 1040);
-            this.scMain.SplitterDistance = 1165;
+            this.scMain.Size = new System.Drawing.Size(1924, 1040);
+            this.scMain.SplitterDistance = 1270;
             this.scMain.TabIndex = 81;
             // 
             // pnlTabControl
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 31);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1165, 1009);
+            this.pnlTabControl.Size = new System.Drawing.Size(1270, 1013);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1550,7 +1574,7 @@
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(1165, 31);
+            this.tsTopMenu.Size = new System.Drawing.Size(1270, 27);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1560,7 +1584,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(91, 28);
+            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1659,7 +1683,7 @@
             this.grpConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpConsole.Size = new System.Drawing.Size(884, 1040);
+            this.grpConsole.Size = new System.Drawing.Size(650, 1040);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1671,7 +1695,7 @@
             this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 17);
             this.pnlConsoleHolder.Margin = new System.Windows.Forms.Padding(4);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(878, 959);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(644, 959);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1686,7 +1710,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(878, 959);
+            this.rtbConsole.Size = new System.Drawing.Size(644, 959);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1712,14 +1736,14 @@
             this.pnlCommand.Location = new System.Drawing.Point(3, 976);
             this.pnlCommand.Margin = new System.Windows.Forms.Padding(4);
             this.pnlCommand.Name = "pnlCommand";
-            this.pnlCommand.Size = new System.Drawing.Size(878, 62);
+            this.pnlCommand.Size = new System.Drawing.Size(644, 62);
             this.pnlCommand.TabIndex = 30;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2053, 1040);
+            this.ClientSize = new System.Drawing.Size(1924, 1040);
             this.Controls.Add(this.scMain);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimizeBox = false;
@@ -1734,6 +1758,8 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpCurrentRoom.ResumeLayout(false);
+            this.ctxCurrentRoom.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
             this.grpCurrentPlayer.PerformLayout();
@@ -1741,7 +1767,6 @@
             this.grpMob.ResumeLayout(false);
             this.grpMob.PerformLayout();
             this.grpSingleMove.ResumeLayout(false);
-            this.grpSingleMove.PerformLayout();
             this.grpSpells.ResumeLayout(false);
             this.tabAncillary.ResumeLayout(false);
             this.pnlAncillary.ResumeLayout(false);
@@ -1852,8 +1877,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxRoomExits;
         private System.Windows.Forms.Button btnSay;
         private System.Windows.Forms.GroupBox grpSingleMove;
-        private System.Windows.Forms.CheckBox chkExecuteMove;
-        private System.Windows.Forms.Button btnExitSingleMove;
         private System.Windows.Forms.Button btnClearCurrentLocation;
         private System.Windows.Forms.TabPage tabHelp;
         private System.Windows.Forms.GroupBox grpHelp;
@@ -1906,6 +1929,10 @@
         private System.Windows.Forms.ComboBox cboTickRoom;
         private System.Windows.Forms.Label lblTickRoom;
         private System.Windows.Forms.Button btnGoToHealingRoom;
+        private System.Windows.Forms.TreeView treeCurrentRoom;
+        private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
+        private System.Windows.Forms.ToolStripMenuItem tsmiGoToRoom;
+        private System.Windows.Forms.Button btnOut;
     }
 }
 

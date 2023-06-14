@@ -77,26 +77,23 @@ namespace IsengardClient
             foreach (KeyValuePair<Room, Point> next in rg.Rooms)
             {
                 Room nextRoom = next.Key;
-                if (_map.TryGetOutEdges(nextRoom, out IEnumerable<Exit> edges))
+                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_map, nextRoom))
                 {
-                    foreach (Exit nextExit in edges)
+                    Room targetRoom = nextExit.Target;
+                    if (rg.Rooms.ContainsKey(targetRoom))
                     {
-                        Room targetRoom = nextExit.Target;
-                        if (rg.Rooms.ContainsKey(targetRoom))
+                        if (!addedRooms.Contains(nextRoom))
                         {
-                            if (!addedRooms.Contains(nextRoom))
-                            {
-                                rbg.AddVertex(nextRoom);
-                                addedRooms.Add(nextRoom);
-                            }
-                            if (!addedRooms.Contains(targetRoom))
-                            {
-                                rbg.AddVertex(targetRoom);
-                                addedRooms.Add(targetRoom);
-                            }
-                            nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _levitating, _isDay, _level);
-                            rbg.AddEdge(nextExit);
+                            rbg.AddVertex(nextRoom);
+                            addedRooms.Add(nextRoom);
                         }
+                        if (!addedRooms.Contains(targetRoom))
+                        {
+                            rbg.AddVertex(targetRoom);
+                            addedRooms.Add(targetRoom);
+                        }
+                        nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _levitating, _isDay, _level);
+                        rbg.AddEdge(nextExit);
                     }
                 }
             }
@@ -189,16 +186,18 @@ namespace IsengardClient
             SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _levitating, _isDay, _level);
             if (SelectedPath == null)
             {
-                System.Windows.MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
+                MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
                 return;
             }
+            this.DialogResult = true;
             Close();
         }
 
         private void mnuSetRoom_Click(object sender, RoutedEventArgs e)
         {
             CurrentRoom = (Room)_currentVertexControl.Vertex;
-            txtCurrentRoom.Text = CurrentRoom.ToString();
+            this.DialogResult = true;
+            Close();
         }
 
         private void Vc_ContextMenuClosing(object sender, ContextMenuEventArgs e)
