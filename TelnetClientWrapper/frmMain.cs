@@ -5385,10 +5385,14 @@ BeforeHazy:
 
         private void GoToRoom(Room targetRoom)
         {
-            List<Exit> exits = CalculateRouteExits(m_oCurrentRoom, targetRoom);
-            if (exits != null)
+            Room currentRoom = m_oCurrentRoom;
+            if (currentRoom != null)
             {
-                NavigateExitsInBackground(exits);
+                List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom);
+                if (exits != null)
+                {
+                    NavigateExitsInBackground(exits);
+                }
             }
         }
 

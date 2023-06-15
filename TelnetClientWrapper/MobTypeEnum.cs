@@ -174,6 +174,10 @@
         [PluralName("giant crayfish")]
         GiantCrayfish,
 
+        [SingularName("gnomish engineer")]
+        [PluralName("gnomish engineers")]
+        GnomishEngineer,
+
         [SingularName("goat")]
         [PluralName("goats")]
         Goat,
