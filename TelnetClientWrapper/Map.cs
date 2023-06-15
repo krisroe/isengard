@@ -3173,141 +3173,221 @@ namespace IsengardClient
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)
         {
+            RoomGraph spindrilsCastleLevel1Graph = new RoomGraph("Spindril's Castle Level 1");
+            spindrilsCastleLevel1Graph.ScalingFactor = 100;
+            _graphs[MapType.SpindrilsCastleLevel1] = spindrilsCastleLevel1Graph;
+
+            spindrilsCastleLevel1Graph.Rooms[spindrilsCastleOutside] = new System.Windows.Point(11, 10);
+
             Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds", "Dark and Heavy Clouds");
             Exit e = AddExit(spindrilsCastleOutside, spindrilsCastleInside, "up");
             e.FloatRequirement = FloatRequirement.Fly;
             AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
+            spindrilsCastleLevel1Graph.Rooms[spindrilsCastleInside] = new System.Windows.Point(10, 9);
 
             Room oCloudEdge = AddHealingRoom("Cloud Edge", "Cloud Edge", HealingRoom.SpindrilsCastle);
             AddBidirectionalExits(spindrilsCastleInside, oCloudEdge, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oCloudEdge] = new System.Windows.Point(10, 10);
 
             Room oBrokenCastleWall = AddRoom("Broken Castle Wall", "Broken Castle Wall");
             AddBidirectionalExits(oBrokenCastleWall, spindrilsCastleInside, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oBrokenCastleWall] = new System.Windows.Point(10, 8);
             //CSRTODO: rubble
 
             Room oEastCastleWall = AddRoom("East Castle Wall", "East Castle Wall");
             AddBidirectionalExits(oEastCastleWall, oBrokenCastleWall, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oEastCastleWall] = new System.Windows.Point(10, 7);
 
             Room oEastCastleWall2 = AddRoom("East Castle Wall", "East Castle Wall");
             AddBidirectionalExits(oEastCastleWall2, oEastCastleWall, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oEastCastleWall2] = new System.Windows.Point(10, 6);
 
             Room oSewageVault = AddRoom("Sewage Vault", "Sewage Vault");
             e = AddExit(oEastCastleWall2, oSewageVault, "grate");
             e.Hidden = true;
             AddExit(oSewageVault, oEastCastleWall2, "grate");
+            spindrilsCastleLevel1Graph.Rooms[oSewageVault] = new System.Windows.Point(10, 5);
 
             Room oSewageShaft1 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddExit(oSewageVault, oSewageShaft1, "shaft");
             AddExit(oSewageShaft1, oSewageVault, "east");
+            spindrilsCastleLevel1Graph.Rooms[oSewageShaft1] = new System.Windows.Point(9, 5);
 
             Room oSewageShaft2 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft2, oSewageShaft1, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oSewageShaft2] = new System.Windows.Point(8, 5);
 
             Room oSewageShaft3 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft3, oSewageShaft2, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oSewageShaft3] = new System.Windows.Point(7, 5);
 
             Room oSewageShaft4 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft4, oSewageShaft3, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oSewageShaft4] = new System.Windows.Point(6, 5);
 
             Room oKitchenCorridor = AddRoom("Kitchen Corridor", "Kitchen Corridor");
             AddBidirectionalSameNameExit(oSewageShaft4, oKitchenCorridor, "grate");
+            spindrilsCastleLevel1Graph.Rooms[oKitchenCorridor] = new System.Windows.Point(5, 5);
 
             Room oServiceCorridor = AddRoom("Service Corridor", "Service Corridor");
             AddBidirectionalExits(oKitchenCorridor, oServiceCorridor, BidirectionalExitType.SoutheastNorthwest);
+            spindrilsCastleLevel1Graph.Rooms[oServiceCorridor] = new System.Windows.Point(5.5, 5.5);
 
             Room oArieCorridor = AddRoom("Arie Corridor", "Arie Corridor");
             AddBidirectionalExits(oServiceCorridor, oArieCorridor, BidirectionalExitType.SoutheastNorthwest);
+            spindrilsCastleLevel1Graph.Rooms[oArieCorridor] = new System.Windows.Point(6, 6);
             //CSRTODO: ladder
 
             Room oSpindrilsAerie = AddRoom("Spindril's Aerie", "Spindril's Aerie");
             AddExit(oArieCorridor, oSpindrilsAerie, "aerie");
             AddExit(oSpindrilsAerie, oArieCorridor, "entry");
+            spindrilsCastleLevel1Graph.Rooms[oSpindrilsAerie] = new System.Windows.Point(6.5, 5.5);
 
             Room oTuraksAlcove = AddRoom("Turak's Alcove", "Turak's Alcove");
             AddBidirectionalExits(oTuraksAlcove, oKitchenCorridor, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oTuraksAlcove] = new System.Windows.Point(5, 4.5);
             //CSRTODO: up
 
             Room oKitchen = AddRoom("Kitchen", "Kitchen");
             AddBidirectionalExits(oKitchen, oKitchenCorridor, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oKitchen] = new System.Windows.Point(4, 5);
 
             Room oCastleSpindrilCourtyardNE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddExit(oArieCorridor, oCastleSpindrilCourtyardNE, "out");
             AddExit(oCastleSpindrilCourtyardNE, oArieCorridor, "corridor");
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardNE] = new System.Windows.Point(6, 7);
 
             Room oCastleSpindrilCourtyardE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardNE, oCastleSpindrilCourtyardE, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardE] = new System.Windows.Point(6, 8);
 
             Room oCastleSpindrilCourtyardSE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardE, oCastleSpindrilCourtyardSE, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardSE] = new System.Windows.Point(6, 9);
 
             Room oCastleSpindrilCourtyardN = AddRoom("Castle Courtyard", "North Court of Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardNE, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardN] = new System.Windows.Point(5, 7);
 
             Room oCastleSpindrilCourtyardMiddle = AddRoom("Castle Courtyard", "Center Court for Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardE, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardMiddle] = new System.Windows.Point(5, 8);
 
             Room oCastleSpindrilCourtyardS = AddRoom("Castle Courtyard", "South Court of Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardS, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardS, oCastleSpindrilCourtyardSE, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardS] = new System.Windows.Point(5, 9);
 
             Room oCastleSpindrilCourtyardSW = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardSW, oCastleSpindrilCourtyardS, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardSW] = new System.Windows.Point(4, 9);
 
             Room oWestsideTunnelEntry = AddRoom("Westside Tunnel Entry", "Westside Tunnel Entry");
             AddExit(oCastleSpindrilCourtyardSW, oWestsideTunnelEntry, "tunnel");
             AddExit(oWestsideTunnelEntry, oCastleSpindrilCourtyardSW, "out");
+            spindrilsCastleLevel1Graph.Rooms[oWestsideTunnelEntry] = new System.Windows.Point(3, 9);
 
             Room oWestsideHallway1 = AddRoom("Westside Hallway", "Westside Hallway");
             AddBidirectionalExits(oWestsideHallway1, oWestsideTunnelEntry, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oWestsideHallway1] = new System.Windows.Point(3, 8);
 
             Room oWesternHallway2 = AddRoom("Western Hallway", "Western Hallway");
             AddBidirectionalExits(oWesternHallway2, oWestsideHallway1, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oWesternHallway2] = new System.Windows.Point(3, 7);
 
             Room oBaseOfBroadStairs = AddRoom("Stairs Base", "Base of the Broad Stairs");
             AddBidirectionalExits(oBaseOfBroadStairs, oWesternHallway2, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oBaseOfBroadStairs] = new System.Windows.Point(3, 6);
+
+            Room oBroadStairs = AddRoom("Broad Stairs", "Broad Stairs");
+            AddBidirectionalExits(oBroadStairs, oBaseOfBroadStairs, BidirectionalExitType.UpDown);
+            spindrilsCastleLevel1Graph.Rooms[oBroadStairs] = new System.Windows.Point(2, 5);
             //CSRTODO: up
-            //CSRTODO: door
+
+            Room oRedVelvetRoom = AddRoom("Tellia", "Red Velvet Room");
+            AddExit(oBroadStairs, oRedVelvetRoom, "oak");
+            AddExit(oRedVelvetRoom, oBroadStairs, "out");
+            spindrilsCastleLevel1Graph.Rooms[oRedVelvetRoom] = new System.Windows.Point(1, 6);
+
+            Room oBlueVelvetRoom = AddRoom("Blue Velvet", "Blue Velvet Room");
+            AddExit(oBroadStairs, oBlueVelvetRoom, "ash");
+            AddExit(oBlueVelvetRoom, oBroadStairs, "out");
+            spindrilsCastleLevel1Graph.Rooms[oBlueVelvetRoom] = new System.Windows.Point(1, 5);
+
+            Room oGreenVelvetRoom = AddRoom("Lord De'Arnse", "Green Velvet Room");
+            AddExit(oBroadStairs, oGreenVelvetRoom, "hickory");
+            AddExit(oGreenVelvetRoom, oBroadStairs, "out");
+            spindrilsCastleLevel1Graph.Rooms[oGreenVelvetRoom] = new System.Windows.Point(1, 4);
+
+            Room oLowerWesternCorridor = AddRoom("Corridor", "Lower Western Corridor");
+            AddBidirectionalSameNameExit(oBaseOfBroadStairs, oLowerWesternCorridor, "door");
+            spindrilsCastleLevel1Graph.Rooms[oLowerWesternCorridor] = new System.Windows.Point(3, 5);
+
+            Room oLowerWesternCorridor2 = AddRoom("Corridor", "Lower Western Corridor");
+            AddBidirectionalExits(oLowerWesternCorridor2, oLowerWesternCorridor, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oLowerWesternCorridor2] = new System.Windows.Point(3, 4);
+
+            Room oLowerWesternCorridor3 = AddRoom("Corridor", "Lower Western Corridor");
+            AddBidirectionalExits(oLowerWesternCorridor3, oLowerWesternCorridor2, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oLowerWesternCorridor3] = new System.Windows.Point(3, 3);
+
+            Room oWesternCorridorStairs = AddRoom("Stairs", "Western Corridor Stairs");
+            AddBidirectionalExits(oWesternCorridorStairs, oLowerWesternCorridor3, BidirectionalExitType.UpDown);
+            spindrilsCastleLevel1Graph.Rooms[oWesternCorridorStairs] = new System.Windows.Point(3, 2);
+
+            Room oWesternCorridor = AddRoom("Western Corridor", "Western Corridor");
+            AddExit(oWesternCorridorStairs, oWesternCorridor, "up");
+            AddExit(oWesternCorridor, oWesternCorridorStairs, "stairs");
+            spindrilsCastleLevel1Graph.Rooms[oWesternCorridor] = new System.Windows.Point(3, 1);
+            //CSRTODO: north, door
 
             Room oCastleSpindrilCourtyardW = AddRoom("Castle Courtyard", "Western Courtyard for Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardSW, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.WestEast);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardW] = new System.Windows.Point(4, 8);
 
             Room oCastleSpindrilCourtyardNW = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardN, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardW, BidirectionalExitType.NorthSouth);
+            spindrilsCastleLevel1Graph.Rooms[oCastleSpindrilCourtyardNW] = new System.Windows.Point(4, 7);
             //CSRTODO: steps
 
             Room oWeaponsmithShop = AddRoom("Weaponsmith's Shop", "Weaponsmith's Shop");
             AddExit(oCastleSpindrilCourtyardS, oWeaponsmithShop, "door");
             AddExit(oWeaponsmithShop, oCastleSpindrilCourtyardS, "out");
+            spindrilsCastleLevel1Graph.Rooms[oWeaponsmithShop] = new System.Windows.Point(5, 9.5);
 
             Room oGnimbelleGninbalArmory = AddRoom("Gni Armory", "Gnimbelle and Gninbal's Armory");
             AddBidirectionalSameNameExit(oWeaponsmithShop, oGnimbelleGninbalArmory, "door");
+            spindrilsCastleLevel1Graph.Rooms[oGnimbelleGninbalArmory] = new System.Windows.Point(5, 10);
 
             Room oGniPawnShop = AddRoom("Gni Pawn Shop", "Gnimbelle and Gnarbolla's Pawn Shoppe");
             e = AddExit(oGnimbelleGninbalArmory, oGniPawnShop, "passage");
             e.Hidden = true;
             AddExit(oGniPawnShop, oGnimbelleGninbalArmory, "out");
+            spindrilsCastleLevel1Graph.Rooms[oGniPawnShop] = new System.Windows.Point(5, 10.5);
 
             Room oSouthernStairwellAlcove = AddRoom("South Stairwell Alcove", "Southern Tower's Stairwell Alcove");
             AddExit(oCastleSpindrilCourtyardSE, oSouthernStairwellAlcove, "alcove");
             AddExit(oSouthernStairwellAlcove, oCastleSpindrilCourtyardSE, "north");
+            spindrilsCastleLevel1Graph.Rooms[oSouthernStairwellAlcove] = new System.Windows.Point(7, 9);
             //CSRTODO: up
 
             Room oBarracksHallway = AddRoom("Barracks Hallway", "Barracks Hallway");
             AddExit(oSouthernStairwellAlcove, oBarracksHallway, "door");
             AddExit(oBarracksHallway, oSouthernStairwellAlcove, "out");
+            spindrilsCastleLevel1Graph.Rooms[oBarracksHallway] = new System.Windows.Point(8, 9);
 
             Room oCastleBarracks = AddRoom("Castle Barracks", "Castle Barracks");
             AddExit(oBarracksHallway, oCastleBarracks, "barracks");
             AddExit(oCastleBarracks, oBarracksHallway, "out");
+            spindrilsCastleLevel1Graph.Rooms[oCastleBarracks] = new System.Windows.Point(8, 8);
 
             Room oCastleArmory = AddRoom("Castle Armory", "Castle Spindril Armory");
             AddExit(oBarracksHallway, oCastleArmory, "armory");
             AddExit(oCastleArmory, oBarracksHallway, "out");
-
-            AddLocation(_aMisc, oBrokenCastleWall);
+            spindrilsCastleLevel1Graph.Rooms[oCastleArmory] = new System.Windows.Point(8, 10);
         }
 
         private void AddShantyTown(Room oMistyTrail8)

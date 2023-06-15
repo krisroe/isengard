@@ -17,9 +17,17 @@
         [SingularName("adamantine scale mail sleeves")]
         AdamantineScaleMailSleeves,
 
+        [SingularName("Ahrot's magic string")]
+        [PluralName("Ahrot's magic strings")]
+        AhrotsMagicString,
+
         [SingularName("amber scroll")]
         [PluralName("amber scrolls")]
         AmberScroll,
+
+        [SingularName("ancient bag")]
+        [PluralName("ancient bags")]
+        AncientBag,
 
         [SingularName("ancient lyre")]
         [PluralName("ancient lyres")]
@@ -83,6 +91,9 @@
         [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
         CatONineTails,
 
+        [SingularName("chain mail armor")]
+        ChainMailArmor,
+
         [SingularName("chain mail gloves")]
         ChainMailGloves,
 
@@ -111,6 +122,10 @@
         [PluralName("copper rings")]
         CopperRing,
 
+        [SingularName("crystal amulet")]
+        [PluralName("crystal amulets")]
+        CrystalAmulet,
+
         [SingularName("dagger")]
         [PluralName("daggers")]
         Dagger,
@@ -123,6 +138,10 @@
         [PluralName("dark green potions")]
         DarkGreenPotion,
 
+        [SingularName("Death's galvorn sickle")]
+        [PluralName("Death's galvorn sickles")]
+        DeathsGalvornSickle,
+
         [SingularName("dildo")]
         [PluralName("dildos")]
         Dildo,
@@ -130,6 +149,10 @@
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
         DriedSeaweed,
+
+        [SingularName("ear lobe plug")]
+        [PluralName("ear lobe plugs")]
+        EarLobePlug,
 
         [SingularName("elven bow")]
         [PluralName("elven bows")]
@@ -149,6 +172,18 @@
         [SingularName("engagement ring")]
         [PluralName("engagement rings")]
         EngagementRing,
+
+        [SingularName("eye of newt")]
+        //CSRTODO: plural?
+        EyeOfNewt,
+
+        [SingularName("furry sack")]
+        [PluralName("furry sacks")]
+        FurrySack,
+
+        [SingularName("gaff")]
+        [PluralName("gaffs")]
+        Gaff,
 
         [SingularName("galvorn ring")]
         [PluralName("galvorn rings")]
@@ -186,6 +221,10 @@
         [PluralName("gold coins")]
         GoldCoins,
 
+        [SingularName("golden mask of the gods")]
+        //CSRTODO: plural?
+        GoldenMaskOfTheGods,
+
         [SingularName("green potion")]
         [PluralName("green potions")]
         GreenPotion,
@@ -214,6 +253,10 @@
         //CSRTODO: plural?
         HeadOfLettuce,
 
+        [SingularName("hood of the high priest")]
+        //CSRTODO: plural
+        HoodOfTheHighPriest,
+
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
         IceBluePotion,
@@ -221,6 +264,14 @@
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         IronRing,
+
+        [SingularName("knapsack")]
+        [PluralName("knapsacks")]
+        Knapsack,
+
+        [SingularName("large egg")]
+        [PluralName("large eggs")]
+        LargeEgg,
 
         [SingularName("large metal shield")]
         [PluralName("large metal shields")]
@@ -235,6 +286,10 @@
 
         [SingularName("leather gloves")]
         LeatherGloves,
+
+        [SingularName("leather pouch")]
+        [PluralName("leather pouches")]
+        LeatherPouch,
 
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
@@ -266,6 +321,10 @@
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
         MithrilJoStick,
+
+        [SingularName("mithron blade")]
+        [PluralName("mithron blades")]
+        MithronBlade,
 
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
@@ -311,6 +370,10 @@
         [PluralName("pearl handled knives")]
         PearlHandledKnife,
 
+        [SingularName("petrified morning star")]
+        [PluralName("petrified morning stars")]
+        PetrifiedMorningStar,
+
         [SingularName("pipe weed")]
         //CSRTODO: plural?
         PipeWeed,
@@ -327,6 +390,10 @@
         [PluralName("pots of gold")]
         PotOfGold,
 
+        [SingularName("pure white cape")]
+        [PluralName("pure white capes")]
+        PureWhiteCape,
+
         [SingularName("purple wand")]
         [PluralName("purple wands")]
         PurpleWand,
@@ -339,13 +406,24 @@
         [PluralName("quartz stones")]
         QuartzStone,
 
+        [SingularName("rakshasan eviscerator")]
+        [PluralName("rakshasan eviscerators")]
+        RakshasanEviscerator,
+
         [SingularName("repair kit")]
         [PluralName("repair kits")]
         RepairKit,
 
+        [SingularName("ribbed plate hood")]
+        [PluralName("ribbed plate hoods")]
+        RibbedPlateHood,
+
         [SingularName("ribbed plate shield")]
         [PluralName("ribbed plate shields")]
         RibbedPlateShield,
+
+        [SingularName("ribbed plate sleeves")]
+        RibbedPlateSleeves,
 
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]
@@ -440,6 +518,10 @@
         [PluralName("stone keys")]
         StoneKey,
 
+        [SingularName("sundorian tassle")]
+        [PluralName("sundorian tassles")]
+        SundorianTassle,
+
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
         TaupeScroll,
@@ -463,6 +545,9 @@
         [PluralName("training keys")]
         TrainingKey,
 
+        [SingularName("translucent armor")]
+        TranslucentArmor,
+
         [SingularName("translucent leggings")]
         TranslucentLeggings,
 
@@ -477,6 +562,16 @@
         [PluralName("viscous potions")]
         ViscousPotion,
 
+        [SingularName("volcanic boots")]
+        VolcanicBoots,
+
+        [SingularName("volcanic gauntlets")]
+        VolcanicGauntlets,
+
+        [SingularName("volcanic shield")]
+        [PluralName("volcanic shields")]
+        VolcanicShield,
+
         [SingularName("voulge")]
         [PluralName("voulges")]
         Voulge,
@@ -488,6 +583,10 @@
         [SingularName("war harness")]
         [PluralName("war harnesses")]
         WarHarness,
+
+        [SingularName("War's flaming axe")]
+        [PluralName("War's flaming axes")]
+        WarsFlamingAxe,
 
         [SingularName("welcome sign")]
         [PluralName("welcome signs")]

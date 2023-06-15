@@ -1753,12 +1753,14 @@ namespace IsengardClient
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            if (Lines.Count > 0 && Lines.Count <= 2)
+            if (Lines.Count > 0 && Lines.Count <= 3)
             {
                 string firstLine = Lines[0];
-                string secondLine = Lines.Count > 1 ? Lines[1] : Lines[0];
-                if ((firstLine == YOU_DIDNT_FIND_ANYTHING && string.IsNullOrEmpty(secondLine)) ||
-                    (string.IsNullOrEmpty(firstLine) && secondLine == YOU_DIDNT_FIND_ANYTHING))
+                string secondLine = Lines.Count > 1 ? Lines[1] : string.Empty;
+                string thirdLine = Lines.Count > 2 ? Lines[2] : string.Empty;
+                if ((firstLine == YOU_DIDNT_FIND_ANYTHING && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine)) ||
+                    (string.IsNullOrEmpty(firstLine) && secondLine == YOU_DIDNT_FIND_ANYTHING && string.IsNullOrEmpty(thirdLine)) ||
+                    (string.IsNullOrEmpty(firstLine) && string.IsNullOrEmpty(secondLine) && thirdLine == YOU_DIDNT_FIND_ANYTHING))
                 {
                     _onSearchUnsuccessful(flParams);
                     flParams.FinishedProcessing = true;

@@ -38,6 +38,10 @@
         [PluralName("bluejackets")]
         Bluejacket,
 
+        [SingularName("black cat")]
+        [PluralName("black cats")]
+        BlackCat,
+
         [SingularName("black pegasus")]
         //CSRTODO: plural?
         BlackPegasus,
@@ -386,6 +390,10 @@
         [PluralName("longshoremen")]
         Longshoreman,
 
+        [SingularName("Lord De'Arnse")]
+        //CSRTODO: no plural
+        LordDeArnse,
+
         [SingularName("Madame Nicolov")]
         //CSRTODO: no plural?
         MadameNicolov,
@@ -661,6 +669,10 @@
         [SingularName("student")]
         [PluralName("students")]
         Student,
+
+        [SingularName("Tellia the Witch")]
+        //CSRTODO: no plural
+        TelliaTheWitch,
 
         [SingularName("thief")]
         [PluralName("thiefs")]

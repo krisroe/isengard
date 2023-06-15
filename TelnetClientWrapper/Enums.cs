@@ -215,6 +215,7 @@ namespace IsengardClient
         ImladrisToTharbad,
         EastOfImladris,
         ShantyTown,
+        SpindrilsCastleLevel1,
         Tharbad,
         WestOfTharbad,
         AlliskPlainsEastOfTharbad,
