@@ -3182,7 +3182,8 @@ namespace IsengardClient
             Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds", "Dark and Heavy Clouds");
             Exit e = AddExit(spindrilsCastleOutside, spindrilsCastleInside, "up");
             e.FloatRequirement = FloatRequirement.Fly;
-            AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
+            e = AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
+            e.FloatRequirement = FloatRequirement.Fly;
             spindrilsCastleLevel1Graph.Rooms[spindrilsCastleInside] = new System.Windows.Point(10, 9);
 
             Room oCloudEdge = AddHealingRoom("Cloud Edge", "Cloud Edge", HealingRoom.SpindrilsCastle);
@@ -5045,6 +5046,11 @@ namespace IsengardClient
     {
         public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool levitating, bool isDay, int level)
         {
+            if (currentRoom == null)
+            {
+                return null;
+            }
+
             List<Exit> ret = null;
             Dictionary<Room, Exit> pathMapping = new Dictionary<Room, Exit>();
             GenericPriorityQueue<ExitPriorityNode, int> pq = new GenericPriorityQueue<ExitPriorityNode, int>(2000);

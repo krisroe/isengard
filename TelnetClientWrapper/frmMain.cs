@@ -4032,7 +4032,7 @@ BeforeHazy:
             string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
             if (!string.IsNullOrEmpty(move))
             {
-                DoSingleMove(move);
+                DoSingleMove(move.ToLower());
             }
         }
 
@@ -4044,6 +4044,26 @@ BeforeHazy:
 
         private void DoSingleMove(string direction)
         {
+            if (direction == "nw")
+                direction = "northwest";
+            else if (direction == "n")
+                direction = "north";
+            else if (direction == "ne")
+                direction = "northeast";
+            else if (direction == "w")
+                direction = "west";
+            else if (direction == "e")
+                direction = "east";
+            else if (direction == "sw")
+                direction = "southwest";
+            else if (direction == "s")
+                direction = "south";
+            else if (direction == "se")
+                direction = "southeast";
+            else if (direction == "u")
+                direction = "up";
+            else if (direction == "d")
+                direction = "down";
             Exit navigateExit = null;
             bool ambiguous = false;
             Room currentRoom = m_oCurrentRoom;
@@ -5028,20 +5048,16 @@ BeforeHazy:
                         }
                         else
                         {
-                            if (sCommand.StartsWith("go "))
+                            if (sCommandLower.StartsWith("go "))
                             {
-                                if (sCommand == "go ")
-                                    sCommand = string.Empty;
-                                else
-                                    sCommand = sCommand.Substring("go ".Length).Trim();
-
-                                if (string.IsNullOrEmpty(sCommand))
+                                sCommandLower = sCommandLower.Substring("go ".Length).Trim();
+                                if (string.IsNullOrEmpty(sCommandLower))
                                 {
                                     MessageBox.Show("Invalid go command.");
                                     return;
                                 }
                             }
-                            DoSingleMove(sCommand);
+                            DoSingleMove(sCommandLower);
                         }
                     }
                     else if (isLook)

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static IsengardClient.frmMain;
-
 namespace IsengardClient
 {
     internal class Room
@@ -77,6 +75,17 @@ namespace IsengardClient
         public bool Intangible { get; set; }
 
         public BoatEmbarkOrDisembark? BoatLocationType { get; set; }
+        public List<MobTypeEnum> PermanentMobs { get; set; }
+
+        public void AddPermanentMobs(params MobTypeEnum[] mobs)
+        {
+            if (PermanentMobs == null) PermanentMobs = new List<MobTypeEnum>();
+            foreach (MobTypeEnum nextMob in mobs)
+            {
+                PermanentMobs.Add(nextMob);
+            }
+        }
+
         public string GetDefaultMob()
         {
             string defaultMob = this.Mob1;
