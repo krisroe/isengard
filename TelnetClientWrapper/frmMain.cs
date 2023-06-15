@@ -4717,8 +4717,11 @@ BeforeHazy:
                 }
                 grpCurrentRoom.Text = sCurrentRoom;
                 m_oCurrentRoomUI = oCurrentRoom;
-                btnGoToHealingRoom.Enabled = oCurrentRoom != null;
-                RefreshEnabledForSingleMoveButtons();
+                if (_currentBackgroundParameters == null)
+                {
+                    btnGoToHealingRoom.Enabled = oCurrentRoom != null;
+                    RefreshEnabledForSingleMoveButtons();
+                }
             }
 
             RefreshAutoEscapeUI(false);

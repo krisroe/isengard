@@ -2362,7 +2362,8 @@ namespace IsengardClient
             oSpriteGuards.Experience1 = 120;
             oSpriteGuards.Experience2 = 120;
             oSpriteGuards.Alignment = AlignmentType.Blue;
-            AddExit(oBrethilForest, oSpriteGuards, "brush");
+            e = AddExit(oBrethilForest, oSpriteGuards, "brush");
+            e.Hidden = true;
             AddExit(oSpriteGuards, oBrethilForest, "east");
             breeToImladrisGraph.Rooms[oSpriteGuards] = new System.Windows.Point(11, 6);
 
@@ -3465,7 +3466,7 @@ namespace IsengardClient
             AddExit(oDarkTunnel, healingHand, "light");
             intangibleGraph.Rooms[oDarkTunnel] = new System.Windows.Point(1, 1);
 
-            Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds");
+            Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds", "Fluffy clouds above Nindamos");
             oFluffyCloudsAboveNindamos.Intangible = false;
             e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
             e.MustOpen = true;
