@@ -49,6 +49,10 @@ namespace IsengardClient
         /// </summary>
         public int? MaximumLevel { get; set; }
         /// <summary>
+        /// minimum level
+        /// </summary>
+        public int? MinimumLevel { get; set; }
+        /// <summary>
         /// whether the exit is currently deleted for graphing purposes
         /// </summary>
         public bool ShowAsRedOnGraph { get; set; }
@@ -63,6 +67,8 @@ namespace IsengardClient
             if (RequiresDay && !isDay)
                 ret = false;
             else if (MaximumLevel.HasValue && level > MaximumLevel.Value)
+                ret = false;
+            else if (MinimumLevel.HasValue && level < MinimumLevel.Value)
                 ret = false;
             else if (FloatRequirement == FloatRequirement.Fly && !flying)
                 ret = false;

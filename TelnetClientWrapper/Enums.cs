@@ -210,6 +210,7 @@ namespace IsengardClient
         MillwoodMansion,
         MillwoodMansionUpstairs,
         BreeHauntedMansion,
+        WestOfBree,
         BreeToImladris,
         Imladris,
         ImladrisToTharbad,

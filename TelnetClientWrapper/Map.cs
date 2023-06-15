@@ -2856,108 +2856,142 @@ namespace IsengardClient
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage)
         {
+            RoomGraph westOfBreeMap = new RoomGraph("West of Bree");
+            westOfBreeMap.ScalingFactor = 100;
+            _graphs[MapType.WestOfBree] = westOfBreeMap;
+
+            westOfBreeMap.Rooms[oBreeWestGateInside] = new System.Windows.Point(15, 0);
+
             Room oBreeWestGateOutside = AddRoom("West Gate Outside", "West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
             _breeStreetsGraph.Rooms[oBreeWestGateOutside] = new System.Windows.Point(-1, 3);
+            westOfBreeMap.Rooms[oBreeWestGateOutside] = new System.Windows.Point(14, 0);
 
             Room oGrandIntersection = AddRoom("Grand Intersection", "The Grand Intersection - Leviathan Way/North Fork Road/Western Road");
             AddBidirectionalExits(oGrandIntersection, oBreeWestGateOutside, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oGrandIntersection] = new System.Windows.Point(13, 0);
 
             Room oNorthFork1 = AddRoom("North Fork Road", "North Fork Road");
             AddBidirectionalExits(oNorthFork1, oGrandIntersection, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthFork1] = new System.Windows.Point(12, -1);
 
             Room oWesternRoad1 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad1, oGrandIntersection, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad1] = new System.Windows.Point(12, 0);
 
             Room oWesternRoad2 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad2, oWesternRoad1, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad2] = new System.Windows.Point(11, 0);
 
             Room oWesternRoad3 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad3, oWesternRoad2, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad3] = new System.Windows.Point(10, 0);
 
             Room oWesternRoad4 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad4, oWesternRoad3, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad4] = new System.Windows.Point(9, 0);
 
             Room oWesternRoad5 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad5, oWesternRoad4, BidirectionalExitType.WestEast);
             //CSRTODO: north
+            westOfBreeMap.Rooms[oWesternRoad5] = new System.Windows.Point(8, 0);
 
             Room oWesternRoad6 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad6, oWesternRoad5, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad6] = new System.Windows.Point(7, 0);
 
             Room oWesternRoad7 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad7, oWesternRoad6, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad7] = new System.Windows.Point(6, 0);
 
             Room oWesternRoad8 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad8, oWesternRoad7, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad8] = new System.Windows.Point(5, 0);
 
             Room oWesternRoad9 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad9, oWesternRoad8, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oWesternRoad9] = new System.Windows.Point(4, 0);
 
             Room oVillageOfHobbiton1 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
             AddBidirectionalExits(oVillageOfHobbiton1, oWesternRoad9, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oVillageOfHobbiton1] = new System.Windows.Point(3, 0);
 
             Room oMainSquareOfHobbiton = AddRoom("Main Square of Hobbiton", "Main Square of Hobbiton");
             AddBidirectionalExits(oMainSquareOfHobbiton, oVillageOfHobbiton1, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oMainSquareOfHobbiton] = new System.Windows.Point(2, 0);
 
             Room oVillageOfHobbiton2 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
-            AddBidirectionalExits(oMainSquareOfHobbiton, oVillageOfHobbiton2, BidirectionalExitType.NorthSouth);
+            Exit e = AddExit(oMainSquareOfHobbiton, oVillageOfHobbiton2, "south");
+            e.MinimumLevel = 4;
+            AddExit(oVillageOfHobbiton2, oMainSquareOfHobbiton, "north");
+            westOfBreeMap.Rooms[oVillageOfHobbiton2] = new System.Windows.Point(2, 1);
 
             Room oValleyRoad = AddRoom("Valley Road", "Valley Road");
             AddBidirectionalExits(oVillageOfHobbiton2, oValleyRoad, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oValleyRoad] = new System.Windows.Point(2, 2);
 
-            Room oHillAtBagEnd = AddRoom("Hill at Bag End", "The Hill at Bag End");
+            Room oHillAtBagEnd = AddRoom("Bag End Hill", "The Hill at Bag End");
             AddBidirectionalExits(oValleyRoad, oHillAtBagEnd, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oHillAtBagEnd] = new System.Windows.Point(3, 2);
 
-            Room oBilboFrodoHobbitHoleCondo = AddRoom("Bilbo/Frodo Hobbit Hole Condo", "Bilbo and Frodo's Hobbit Hole Condo");
+            Room oBilboFrodoHobbitHoleCondo = AddRoom("Hobbit Hole Condo", "Bilbo and Frodo's Hobbit Hole Condo");
             AddExit(oHillAtBagEnd, oBilboFrodoHobbitHoleCondo, "down");
             AddExit(oBilboFrodoHobbitHoleCondo, oHillAtBagEnd, "out");
+            westOfBreeMap.Rooms[oBilboFrodoHobbitHoleCondo] = new System.Windows.Point(3, 2.25);
 
             Room oBilboFrodoCommonArea = AddRoom("Common Area", "Common Area");
             AddBidirectionalSameNameExit(oBilboFrodoHobbitHoleCondo, oBilboFrodoCommonArea, "curtain");
+            westOfBreeMap.Rooms[oBilboFrodoCommonArea] = new System.Windows.Point(3, 2.5);
 
             Room oEastwingHallway = AddRoom("Eastwing Hallway", "Eastwing Hallway");
             AddExit(oBilboFrodoCommonArea, oEastwingHallway, "eastwing");
             AddExit(oEastwingHallway, oBilboFrodoCommonArea, "common");
+            westOfBreeMap.Rooms[oEastwingHallway] = new System.Windows.Point(4, 2.5);
 
             Room oSouthwingHallway = AddRoom("Southwing Hallway", "Southwing Hallway");
             AddExit(oEastwingHallway, oSouthwingHallway, "southwing");
             AddExit(oSouthwingHallway, oEastwingHallway, "eastwing");
+            westOfBreeMap.Rooms[oSouthwingHallway] = new System.Windows.Point(3, 2.75);
 
             Room oBilboBaggins = AddRoom("Bilbo Baggins", "Bilbo's Living Quarters");
             oBilboBaggins.AddPermanentMobs(MobTypeEnum.BilboBaggins);
             AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", true);
+            westOfBreeMap.Rooms[oBilboBaggins] = new System.Windows.Point(3, 3);
 
             Room oFrodoBaggins = AddRoom("Frodo Baggins", "Frodo's Living Quarters");
             oFrodoBaggins.AddPermanentMobs(MobTypeEnum.FrodoBaggins);
             AddBidirectionalSameNameExit(oSouthwingHallway, oFrodoBaggins, "curtain");
+            westOfBreeMap.Rooms[oFrodoBaggins] = new System.Windows.Point(4, 2.75);
 
             Room oGreatHallOfHeroes = AddRoom("Great Hall of Heroes", "The Great Hall of Heroes.");
             AddExit(oGreatHallOfHeroes, oGrandIntersection, "out");
             AddExit(oGrandIntersection, oGreatHallOfHeroes, "hall");
+            westOfBreeMap.Rooms[oGreatHallOfHeroes] = new System.Windows.Point(13, 0.5);
 
             //something is hasted
-            Room oSomething = AddRoom("Something");
+            Room oSomething = AddRoom("Something", "Kitchen");
             //CSRTODO
             //oSomething.Mob1 = "Something";
             //oSomething.Experience1 = 140;
-            Exit e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
+            e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
             e.MaximumLevel = 10;
             e.Hidden = true;
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
+            westOfBreeMap.Rooms[oSomething] = new System.Windows.Point(13, 1);
 
             Room oShepherd = AddRoom("Shepherd", "Pasture");
             oShepherd.AddPermanentMobs(MobTypeEnum.Shepherd);
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
+            westOfBreeMap.Rooms[oShepherd] = new System.Windows.Point(13, -2);
 
             //Gate is locked (and knocking doesn't work) so not treating as an exit. This is only accessible from the other way around.
             //AddExit(oShepherd, oSmoulderingVillage, "gate");
             AddExit(oSmoulderingVillage, oShepherd, "gate");
+            westOfBreeMap.Rooms[oSmoulderingVillage] = new System.Windows.Point(13, -2.5);
 
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
-            AddLocation(_aBreePerms, oShepherd);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)

@@ -1842,6 +1842,10 @@ namespace IsengardClient
                 {
                     result = MovementResult.TotalFailure;
                 }
+                else if (firstLine.StartsWith("You must be at least level ") && firstLine.EndsWith(" to go that way."))
+                {
+                    result = MovementResult.TotalFailure;
+                }
                 else
                 {
                     int iFoundDamage = ProcessFallDamage(firstLine);
