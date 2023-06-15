@@ -640,6 +640,7 @@ namespace IsengardClient
                 "lawful",
                 "laying", //also hand
                 "learn",
+                "leave", //covers north/northwest/northeast/west/east/southwest/south/southeast/up/down/n/nw/ne/w/e/sw/s/se/u/d
                 "levitate",
                 "light",
                 "lightning",
@@ -1208,6 +1209,8 @@ namespace IsengardClient
             }
             else if (fromBackgroundLook)
             {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+                _waitSeconds = 0;
                 lookForRoomsByRoomName = previousRoom == null;
             }
 
@@ -3498,7 +3501,38 @@ BeforeHazy:
                 case "southwest":
                 case "up":
                 case "down":
+                case "out":
                     ret = target;
+                    break;
+                case "n":
+                    ret = "north";
+                    break;
+                case "ne":
+                    ret = "northeast";
+                    break;
+                case "nw":
+                    ret = "northwest";
+                    break;
+                case "w":
+                    ret = "west";
+                    break;
+                case "e":
+                    ret = "east";
+                    break;
+                case "sw":
+                    ret = "southwest";
+                    break;
+                case "s":
+                    ret = "south";
+                    break;
+                case "se":
+                    ret = "southeast";
+                    break;
+                case "u":
+                    ret = "up";
+                    break;
+                case "d":
+                    ret = "down";
                     break;
                 default:
                     ret = "go " + target;
@@ -4683,6 +4717,7 @@ BeforeHazy:
                 }
                 grpCurrentRoom.Text = sCurrentRoom;
                 m_oCurrentRoomUI = oCurrentRoom;
+                btnGoToHealingRoom.Enabled = oCurrentRoom != null;
                 RefreshEnabledForSingleMoveButtons();
             }
 

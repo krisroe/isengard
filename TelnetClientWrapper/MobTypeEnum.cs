@@ -182,6 +182,10 @@
         [PluralName("goblins")]
         Goblin,
 
+        [SingularName("goblin warrior")]
+        [PluralName("goblin warriors")]
+        GoblinWarrior,
+
         [SingularName("Godfather")]
         //CSRTODO: no plural
         Godfather,
@@ -573,6 +577,10 @@
         [SingularName("sewer orc guard")]
         [PluralName("sewer orc guards")]
         SewerOrcGuard,
+
+        [SingularName("shallow scholar")]
+        [PluralName("shallow scholars")]
+        ShallowScholar,
 
         [SingularName("Sharkey")]
         //CSRTODO: no plural?
