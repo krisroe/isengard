@@ -2376,26 +2376,27 @@ namespace IsengardClient
             AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
             breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new System.Windows.Point(2, 7);
 
-            Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor");
+            Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor", "Parlor");
             AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", true);
             breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new System.Windows.Point(2, 6);
-            Room oManagerMulloy = AddRoom("Manager Mulloy");
+
+            Room oManagerMulloy = AddRoom("Manager Mulloy", "Study");
             oManagerMulloy.AddPermanentMobs(MobTypeEnum.ManagerMulloy);
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
             breeToImladrisGraph.Rooms[oManagerMulloy] = new System.Windows.Point(2, 5);
 
-            Room oFarmKitchen = AddRoom("Kitchen");
+            Room oFarmKitchen = AddRoom("Kitchen", "Study");
             AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
             AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
             breeToImladrisGraph.Rooms[oFarmKitchen] = new System.Windows.Point(1, 5);
 
-            Room oFarmBackPorch = AddRoom("Back Porch");
+            Room oFarmBackPorch = AddRoom("Back Porch", "Back Porch");
             AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
             AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
             breeToImladrisGraph.Rooms[oFarmBackPorch] = new System.Windows.Point(1, 6);
 
-            Room oFarmCat = AddRoom("Farm Cat");
+            Room oFarmCat = AddRoom("Farm Cat", "The Woodshed");
             oFarmCat.AddPermanentMobs(MobTypeEnum.FarmCat);
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
             e = AddExit(oFarmCat, oFarmBackPorch, "out");
