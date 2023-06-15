@@ -3173,123 +3173,137 @@ namespace IsengardClient
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)
         {
-            Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds");
+            Room spindrilsCastleInside = AddRoom("Dark/Heavy Clouds", "Dark and Heavy Clouds");
             Exit e = AddExit(spindrilsCastleOutside, spindrilsCastleInside, "up");
             e.FloatRequirement = FloatRequirement.Fly;
             AddExit(spindrilsCastleInside, spindrilsCastleOutside, "down");
 
-            Room oCloudEdge = AddRoom("Cloud Edge");
+            Room oCloudEdge = AddHealingRoom("Cloud Edge", "Cloud Edge", HealingRoom.SpindrilsCastle);
             AddBidirectionalExits(spindrilsCastleInside, oCloudEdge, BidirectionalExitType.NorthSouth);
 
-            Room oBrokenCastleWall = AddRoom("Broken Castle Wall");
+            Room oBrokenCastleWall = AddRoom("Broken Castle Wall", "Broken Castle Wall");
             AddBidirectionalExits(oBrokenCastleWall, spindrilsCastleInside, BidirectionalExitType.NorthSouth);
             //CSRTODO: rubble
 
-            Room oEastCastleWall = AddRoom("East Castle Wall");
+            Room oEastCastleWall = AddRoom("East Castle Wall", "East Castle Wall");
             AddBidirectionalExits(oEastCastleWall, oBrokenCastleWall, BidirectionalExitType.NorthSouth);
 
-            Room oEastCastleWall2 = AddRoom("East Castle Wall");
+            Room oEastCastleWall2 = AddRoom("East Castle Wall", "East Castle Wall");
             AddBidirectionalExits(oEastCastleWall2, oEastCastleWall, BidirectionalExitType.NorthSouth);
 
-            Room oSewageVault = AddRoom("Sewage Vault");
+            Room oSewageVault = AddRoom("Sewage Vault", "Sewage Vault");
             e = AddExit(oEastCastleWall2, oSewageVault, "grate");
             e.Hidden = true;
             AddExit(oSewageVault, oEastCastleWall2, "grate");
 
-            Room oSewageShaft1 = AddRoom("Sewage Shaft");
+            Room oSewageShaft1 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddExit(oSewageVault, oSewageShaft1, "shaft");
             AddExit(oSewageShaft1, oSewageVault, "east");
 
-            Room oSewageShaft2 = AddRoom("Sewage Shaft");
+            Room oSewageShaft2 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft2, oSewageShaft1, BidirectionalExitType.WestEast);
 
-            Room oSewageShaft3 = AddRoom("Sewage Shaft");
+            Room oSewageShaft3 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft3, oSewageShaft2, BidirectionalExitType.WestEast);
 
-            Room oSewageShaft4 = AddRoom("Sewage Shaft");
+            Room oSewageShaft4 = AddRoom("Sewage Shaft", "Sewage Shaft");
             AddBidirectionalExits(oSewageShaft4, oSewageShaft3, BidirectionalExitType.WestEast);
 
-            Room oKitchenCorridor = AddRoom("Kitchen Corridor");
+            Room oKitchenCorridor = AddRoom("Kitchen Corridor", "Kitchen Corridor");
             AddBidirectionalSameNameExit(oSewageShaft4, oKitchenCorridor, "grate");
 
-            Room oServiceCorridor = AddRoom("Service Corridor");
+            Room oServiceCorridor = AddRoom("Service Corridor", "Service Corridor");
             AddBidirectionalExits(oKitchenCorridor, oServiceCorridor, BidirectionalExitType.SoutheastNorthwest);
 
-            Room oArieCorridor = AddRoom("Arie Corridor");
+            Room oArieCorridor = AddRoom("Arie Corridor", "Arie Corridor");
             AddBidirectionalExits(oServiceCorridor, oArieCorridor, BidirectionalExitType.SoutheastNorthwest);
             //CSRTODO: ladder
 
-            Room oSpindrilsAerie = AddRoom("Spindril's Aerie");
+            Room oSpindrilsAerie = AddRoom("Spindril's Aerie", "Spindril's Aerie");
             AddExit(oArieCorridor, oSpindrilsAerie, "aerie");
             AddExit(oSpindrilsAerie, oArieCorridor, "entry");
 
-            Room oTuraksAlcove = AddRoom("Turak's Alcove");
+            Room oTuraksAlcove = AddRoom("Turak's Alcove", "Turak's Alcove");
             AddBidirectionalExits(oTuraksAlcove, oKitchenCorridor, BidirectionalExitType.NorthSouth);
             //CSRTODO: up
 
-            Room oKitchen = AddRoom("Kitchen");
+            Room oKitchen = AddRoom("Kitchen", "Kitchen");
             AddBidirectionalExits(oKitchen, oKitchenCorridor, BidirectionalExitType.WestEast);
 
-            Room oCastleSpindrilCourtyardNE = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardNE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddExit(oArieCorridor, oCastleSpindrilCourtyardNE, "out");
             AddExit(oCastleSpindrilCourtyardNE, oArieCorridor, "corridor");
 
-            Room oCastleSpindrilCourtyardE = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardNE, oCastleSpindrilCourtyardE, BidirectionalExitType.NorthSouth);
 
-            Room oCastleSpindrilCourtyardSE = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardSE = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardE, oCastleSpindrilCourtyardSE, BidirectionalExitType.NorthSouth);
 
-            Room oCastleSpindrilCourtyardN = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardN = AddRoom("Castle Courtyard", "North Court of Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardNE, BidirectionalExitType.WestEast);
 
-            Room oCastleSpindrilCourtyardMiddle = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardMiddle = AddRoom("Castle Courtyard", "Center Court for Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardN, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardE, BidirectionalExitType.WestEast);
 
-            Room oCastleSpindrilCourtyardS = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardS = AddRoom("Castle Courtyard", "South Court of Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardMiddle, oCastleSpindrilCourtyardS, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardS, oCastleSpindrilCourtyardSE, BidirectionalExitType.WestEast);
 
-            Room oCastleSpindrilCourtyardSW = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardSW = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardSW, oCastleSpindrilCourtyardS, BidirectionalExitType.WestEast);
-            //CSRTODO: tunnel
 
-            Room oCastleSpindrilCourtyardW = AddRoom("Castle Courtyard");
+            Room oWestsideTunnelEntry = AddRoom("Westside Tunnel Entry", "Westside Tunnel Entry");
+            AddExit(oCastleSpindrilCourtyardSW, oWestsideTunnelEntry, "tunnel");
+            AddExit(oWestsideTunnelEntry, oCastleSpindrilCourtyardSW, "out");
+
+            Room oWestsideHallway1 = AddRoom("Westside Hallway", "Westside Hallway");
+            AddBidirectionalExits(oWestsideHallway1, oWestsideTunnelEntry, BidirectionalExitType.NorthSouth);
+
+            Room oWesternHallway2 = AddRoom("Western Hallway", "Western Hallway");
+            AddBidirectionalExits(oWesternHallway2, oWestsideHallway1, BidirectionalExitType.NorthSouth);
+
+            Room oBaseOfBroadStairs = AddRoom("Stairs Base", "Base of the Broad Stairs");
+            AddBidirectionalExits(oBaseOfBroadStairs, oWesternHallway2, BidirectionalExitType.NorthSouth);
+            //CSRTODO: up
+            //CSRTODO: door
+
+            Room oCastleSpindrilCourtyardW = AddRoom("Castle Courtyard", "Western Courtyard for Castle Spindril");
             AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardSW, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oCastleSpindrilCourtyardW, oCastleSpindrilCourtyardMiddle, BidirectionalExitType.WestEast);
 
-            Room oCastleSpindrilCourtyardNW = AddRoom("Castle Courtyard");
+            Room oCastleSpindrilCourtyardNW = AddRoom("Castle Courtyard", "Castle Spindril Courtyard");
             AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardN, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oCastleSpindrilCourtyardNW, oCastleSpindrilCourtyardW, BidirectionalExitType.NorthSouth);
             //CSRTODO: steps
 
-            Room oWeaponsmithShop = AddRoom("Weaponsmith's Shop");
+            Room oWeaponsmithShop = AddRoom("Weaponsmith's Shop", "Weaponsmith's Shop");
             AddExit(oCastleSpindrilCourtyardS, oWeaponsmithShop, "door");
             AddExit(oWeaponsmithShop, oCastleSpindrilCourtyardS, "out");
 
-            Room oGnimbelleGninbalArmory = AddRoom("Gni Armory");
+            Room oGnimbelleGninbalArmory = AddRoom("Gni Armory", "Gnimbelle and Gninbal's Armory");
             AddBidirectionalSameNameExit(oWeaponsmithShop, oGnimbelleGninbalArmory, "door");
 
-            Room oGniPawnShop = AddRoom("Gni Pawn Shop");
+            Room oGniPawnShop = AddRoom("Gni Pawn Shop", "Gnimbelle and Gnarbolla's Pawn Shoppe");
             e = AddExit(oGnimbelleGninbalArmory, oGniPawnShop, "passage");
             e.Hidden = true;
             AddExit(oGniPawnShop, oGnimbelleGninbalArmory, "out");
 
-            Room oSouthernStairwellAlcove = AddRoom("South Stairwell Alcove");
+            Room oSouthernStairwellAlcove = AddRoom("South Stairwell Alcove", "Southern Tower's Stairwell Alcove");
             AddExit(oCastleSpindrilCourtyardSE, oSouthernStairwellAlcove, "alcove");
             AddExit(oSouthernStairwellAlcove, oCastleSpindrilCourtyardSE, "north");
             //CSRTODO: up
 
-            Room oBarracksHallway = AddRoom("Barracks Hallway");
+            Room oBarracksHallway = AddRoom("Barracks Hallway", "Barracks Hallway");
             AddExit(oSouthernStairwellAlcove, oBarracksHallway, "door");
             AddExit(oBarracksHallway, oSouthernStairwellAlcove, "out");
 
-            Room oCastleBarracks = AddRoom("Castle Barracks");
+            Room oCastleBarracks = AddRoom("Castle Barracks", "Castle Barracks");
             AddExit(oBarracksHallway, oCastleBarracks, "barracks");
             AddExit(oCastleBarracks, oBarracksHallway, "out");
 
-            Room oCastleArmory = AddRoom("Castle Armory");
+            Room oCastleArmory = AddRoom("Castle Armory", "Castle Spindril Armory");
             AddExit(oBarracksHallway, oCastleArmory, "armory");
             AddExit(oCastleArmory, oBarracksHallway, "out");
 

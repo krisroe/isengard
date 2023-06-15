@@ -174,6 +174,18 @@
         [PluralName("giant crayfish")]
         GiantCrayfish,
 
+        [SingularName("Gnarbolla")]
+        //CSRTODO: no plural
+        Gnarbolla,
+
+        [SingularName("Gnibal")]
+        //CSRTODO: no plural
+        Gnibal,
+
+        [SingularName("Gnimbelle")]
+        //CSRTODO: no plural
+        Gnimbelle,
+
         [SingularName("gnomish engineer")]
         [PluralName("gnomish engineers")]
         GnomishEngineer,
@@ -494,6 +506,14 @@
         [PluralName("orc guards")]
         OrcGuard,
 
+        [SingularName("orcish corpse")]
+        [PluralName("orcish corpses")]
+        OrcishCorpse,
+
+        [SingularName("orcish skeleton")]
+        [PluralName("orcish skeletons")]
+        OrcishSkeleton,
+
         [SingularName("orc miner")]
         [PluralName("orc miners")]
         OrcMiner,
@@ -537,6 +557,10 @@
         [SingularName("raving lunatic")]
         [PluralName("raving lunatics")]
         RavingLunatic,
+
+        [SingularName("Roc")]
+        //CSRTODO: no plural
+        Roc,
 
         [SingularName("sailor")]
         [PluralName("sailors")]

@@ -174,6 +174,10 @@
         //CSRTODO: glitter (does not use some)
         Glitter,
 
+        [SingularName("glowing pendant")]
+        [PluralName("glowing pendants")]
+        GlowingPendant,
+
         [SingularName("godentag")]
         [PluralName("godentags")]
         Godentag,
@@ -283,6 +287,10 @@
         [PluralName("onyx amulets")]
         OnyxAmulet,
 
+        [SingularName("orc's sword")]
+        [PluralName("orc's swords")]
+        OrcsSword,
+
         [SingularName("ork blade")]
         [PluralName("ork blades")]
         OrkBlade,
@@ -334,6 +342,10 @@
         [SingularName("repair kit")]
         [PluralName("repair kits")]
         RepairKit,
+
+        [SingularName("ribbed plate shield")]
+        [PluralName("ribbed plate shields")]
+        RibbedPlateShield,
 
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]

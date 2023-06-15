@@ -379,6 +379,7 @@ namespace IsengardClient
         BreeSouthwest,
         Imladris,
         Tharbad,
+        SpindrilsCastle,
         Nindamos,
         Underhalls,
         MillwoodMansion,
