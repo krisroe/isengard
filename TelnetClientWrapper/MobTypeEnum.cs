@@ -466,6 +466,10 @@
         //CSRTODO: no plural
         LordDeArnse,
 
+        [SingularName("Madame Despana")]
+        //CSRTODO: no plural
+        MadameDespana,
+
         [SingularName("Madame Nicolov")]
         //CSRTODO: no plural?
         [Experience(180)]

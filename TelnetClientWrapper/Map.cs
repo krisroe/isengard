@@ -3184,6 +3184,7 @@ namespace IsengardClient
             //CSRTODO: ladder
 
             Room oSpindrilsAerie = AddRoom("Spindril's Aerie", "Spindril's Aerie");
+            oSpindrilsAerie.AddPermanentMobs(MobTypeEnum.Roc);
             AddExit(oArieCorridor, oSpindrilsAerie, "aerie");
             AddExit(oSpindrilsAerie, oArieCorridor, "entry");
             spindrilsCastleLevel1Graph.Rooms[oSpindrilsAerie] = new System.Windows.Point(6.5, 5.5);
@@ -3251,6 +3252,7 @@ namespace IsengardClient
             //CSRTODO: up
 
             Room oRedVelvetRoom = AddRoom("Tellia", "Red Velvet Room");
+            oRedVelvetRoom.AddPermanentMobs(MobTypeEnum.TelliaTheWitch);
             AddExit(oBroadStairs, oRedVelvetRoom, "oak");
             AddExit(oRedVelvetRoom, oBroadStairs, "out");
             spindrilsCastleLevel1Graph.Rooms[oRedVelvetRoom] = new System.Windows.Point(1, 6);
@@ -3261,6 +3263,7 @@ namespace IsengardClient
             spindrilsCastleLevel1Graph.Rooms[oBlueVelvetRoom] = new System.Windows.Point(1, 5);
 
             Room oGreenVelvetRoom = AddRoom("Lord De'Arnse", "Green Velvet Room");
+            oGreenVelvetRoom.AddPermanentMobs(MobTypeEnum.LordDeArnse);
             AddExit(oBroadStairs, oGreenVelvetRoom, "hickory");
             AddExit(oGreenVelvetRoom, oBroadStairs, "out");
             spindrilsCastleLevel1Graph.Rooms[oGreenVelvetRoom] = new System.Windows.Point(1, 4);
@@ -3299,15 +3302,18 @@ namespace IsengardClient
             //CSRTODO: steps
 
             Room oWeaponsmithShop = AddRoom("Weaponsmith's Shop", "Weaponsmith's Shop");
+            oWeaponsmithShop.AddPermanentMobs(MobTypeEnum.Gnimbelle);
             AddExit(oCastleSpindrilCourtyardS, oWeaponsmithShop, "door");
             AddExit(oWeaponsmithShop, oCastleSpindrilCourtyardS, "out");
             spindrilsCastleLevel1Graph.Rooms[oWeaponsmithShop] = new System.Windows.Point(5, 9.5);
 
             Room oGnimbelleGninbalArmory = AddRoom("Gni Armory", "Gnimbelle and Gninbal's Armory");
+            oGnimbelleGninbalArmory.AddPermanentMobs(MobTypeEnum.Gnibal);
             AddBidirectionalSameNameExit(oWeaponsmithShop, oGnimbelleGninbalArmory, "door");
             spindrilsCastleLevel1Graph.Rooms[oGnimbelleGninbalArmory] = new System.Windows.Point(5, 10);
 
             Room oGniPawnShop = AddRoom("Gni Pawn Shop", "Gnimbelle and Gnarbolla's Pawn Shoppe");
+            oGniPawnShop.AddPermanentMobs(MobTypeEnum.Gnarbolla);
             e = AddExit(oGnimbelleGninbalArmory, oGniPawnShop, "passage");
             e.Hidden = true;
             AddExit(oGniPawnShop, oGnimbelleGninbalArmory, "out");
@@ -3351,8 +3357,17 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oRuttedDirtRoad] = new System.Windows.Point(3, 7);
 
             Room oHouseOfPleasure = AddRoom("mistress", "House of Pleasure");
+            oHouseOfPleasure.AddPermanentMobs(MobTypeEnum.Mistress);
             AddBidirectionalSameNameExit(oRuttedDirtRoad, oHouseOfPleasure, "door");
             oShantyTownGraph.Rooms[oHouseOfPleasure] = new System.Windows.Point(4, -1);
+
+            Room oMadameDespana = AddRoom("Madame Despana", "Private Bedchamber");
+            oMadameDespana.AddPermanentMobs(MobTypeEnum.MadameDespana);
+            Exit e = AddExit(oHouseOfPleasure, oMadameDespana, "crimson");
+            e.MustOpen = true;
+            e = AddExit(oMadameDespana, oHouseOfPleasure, "crimson");
+            e.MustOpen = true;
+            oShantyTownGraph.Rooms[oMadameDespana] = new System.Windows.Point(3, -1);
 
             Room oNorthEdgeOfShantyTown = AddRoom("Shanty Town", "North Edge of Shanty Town");
             AddBidirectionalExits(oRuttedDirtRoad, oNorthEdgeOfShantyTown, BidirectionalExitType.NorthSouth);
@@ -3454,7 +3469,7 @@ namespace IsengardClient
 
             Room oGraddyOgre = AddRoom("Ogre", "Graddy's Ogre Pen");
             oGraddyOgre.AddPermanentMobs(MobTypeEnum.Ogre);
-            Exit e = AddExit(oGraddy, oGraddyOgre, "gate");
+            e = AddExit(oGraddy, oGraddyOgre, "gate");
             e.MustOpen = true;
             e = AddExit(oGraddyOgre, oGraddy, "gate");
             e.MustOpen = true;
