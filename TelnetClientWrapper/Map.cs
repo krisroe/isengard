@@ -2339,7 +2339,7 @@ namespace IsengardClient
             AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oNorthBrethilForest4] = new System.Windows.Point(12, 0);
 
-            Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2");
+            Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2", "North Brethil Forest");
             oNorthBrethilForest5GobAmbush.Mob1 = "goblin";
             oNorthBrethilForest5GobAmbush.Experience1 = 70;
             oNorthBrethilForest5GobAmbush.Experience2 = 50;
@@ -2348,15 +2348,15 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(13, 0);
 
             //South Brethil Forest
-            Room oDeepForest = AddRoom("Deep Forest");
+            Room oDeepForest = AddRoom("Deep Forest", "Deep Forest");
             AddBidirectionalExits(oGreatEastRoad9, oDeepForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oDeepForest] = new System.Windows.Point(12, 5);
 
-            Room oBrethilForest = AddRoom("Brethil Forest");
+            Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");
             AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oBrethilForest] = new System.Windows.Point(12, 6);
 
-            Room oSpriteGuards = AddRoom("Sprite Guards");
+            Room oSpriteGuards = AddRoom("Sprite Guards", "Brethil Forest");
             oSpriteGuards.Mob1 = "guard 2";
             oSpriteGuards.Mob2 = "guard 1";
             oSpriteGuards.Experience1 = 120;

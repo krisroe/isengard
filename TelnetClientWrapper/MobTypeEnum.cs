@@ -654,6 +654,10 @@
         [PluralName("traveling horses")]
         TravelingHorse,
 
+        [SingularName("treant")]
+        [PluralName("treants")]
+        Treant,
+
         [SingularName("Tyrie")]
         //CSRTODO: no plural
         Tyrie,
