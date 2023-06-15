@@ -1834,6 +1834,10 @@ namespace IsengardClient
                 {
                     result = MovementResult.TotalFailure;
                 }
+                else if (firstLine == "Your gender prevents you from using that exit.")
+                {
+                    result = MovementResult.TotalFailure;
+                }
                 else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
                 {
                     result = MovementResult.TotalFailure;
@@ -2288,22 +2292,19 @@ namespace IsengardClient
                 foundStartsWith = true;
                 sb = new StringBuilder();
                 int startsWithLength = startsWith.Length;
-                if (sNextLine.Length != startsWithLength)
+                int lineLen = sNextLine.Length;
+                if (lineLen > startsWithLength + 1)
                 {
-                    int iPeriodIndex = sNextLine.IndexOf('.', startsWithLength);
-                    if (iPeriodIndex == 0)
+                    int iPeriodIndex = sNextLine.LastIndexOf('.');
+                    if (iPeriodIndex == lineLen - 1)
                     {
-                        return null;
-                    }
-                    else if (iPeriodIndex < 0)
-                    {
-                        sb.AppendLine(sNextLine.Substring(startsWithLength));
+                        sb.Append(sNextLine.Substring(startsWithLength, lineLen - startsWithLength - 1));
+                        finished = true;
+                        nextLineIndex = lineIndex + 1;
                     }
                     else
                     {
-                        sb.AppendLine(sNextLine.Substring(startsWithLength, iPeriodIndex - startsWithLength));
-                        finished = true;
-                        nextLineIndex = lineIndex + 1;
+                        sb.AppendLine(sNextLine.Substring(startsWithLength));
                     }
                 }
             }
@@ -2319,21 +2320,17 @@ namespace IsengardClient
                     sNextLine = inputs[lineIndex];
                     if (sNextLine != null)
                     {
-                        int iPeriodIndex = sNextLine.IndexOf('.');
-                        if (iPeriodIndex == 0)
+                        int lineLen = sNextLine.Length;
+                        int iPeriodIndex = sNextLine.LastIndexOf('.');
+                        if (iPeriodIndex == lineLen - 1)
                         {
+                            sb.Append(sNextLine.Substring(0, lineLen - 1));
                             nextLineIndex = lineIndex + 1;
                             break;
                         }
-                        else if (iPeriodIndex < 0)
+                        else
                         {
                             sb.AppendLine(sNextLine);
-                        }
-                        else if (iPeriodIndex > 0)
-                        {
-                            nextLineIndex = lineIndex + 1;
-                            sb.AppendLine(sNextLine.Substring(0, iPeriodIndex));
-                            break;
                         }
                     }
                 }

@@ -303,6 +303,10 @@
         [PluralName("long bows")]
         LongBow,
 
+        [SingularName("lunch money")]
+        //CSRTODO: plural?
+        LunchMoney,
+
         [SingularName("magical tabulator")]
         [PluralName("magical tabulators")]
         MagicalTabulator,
@@ -480,6 +484,10 @@
         [SingularName("small knife")]
         [PluralName("small knives")] //CSRTODO: correct plural?
         SmallKnife,
+
+        [SingularName("small pearl")]
+        [PluralName("small pearls")]
+        SmallPearl,
 
         [SingularName("small silver chest")]
         [PluralName("small silver chests")]

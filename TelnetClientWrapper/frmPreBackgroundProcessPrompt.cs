@@ -12,50 +12,7 @@ namespace IsengardClient
 
             _isCombatBackgroundProcess = isCombatMacro;
 
-            string sCurrentMob;
-            if (targetRoom == null || string.IsNullOrEmpty(targetRoom.Mob1))
-            {
-                sCurrentMob = currentMob;
-            }
-            else if (currentMob.Equals(targetRoom.Mob1, StringComparison.OrdinalIgnoreCase))
-            {
-                sCurrentMob = currentMob;
-            }
-            else if (currentMob.Equals(targetRoom.Mob2, StringComparison.OrdinalIgnoreCase))
-            {
-                sCurrentMob = currentMob;
-            }
-            else if (currentMob.Equals(targetRoom.Mob3, StringComparison.OrdinalIgnoreCase))
-            {
-                sCurrentMob = currentMob;
-            }
-            else
-            {
-                sCurrentMob = targetRoom.Mob1;
-            }
-            if (targetRoom != null)
-            {
-                if (!string.IsNullOrEmpty(targetRoom.Mob1))
-                {
-                    cboMob.Items.Add(targetRoom.Mob1);
-                }
-                if (!string.IsNullOrEmpty(targetRoom.Mob2))
-                {
-                    cboMob.Items.Add(targetRoom.Mob2);
-                }
-                if (!string.IsNullOrEmpty(targetRoom.Mob3))
-                {
-                    cboMob.Items.Add(targetRoom.Mob3);
-                }
-            }
-            if (cboMob.Items.Contains(sCurrentMob))
-            {
-                cboMob.SelectedItem = sCurrentMob;
-            }
-            else
-            {
-                cboMob.Text = sCurrentMob;
-            }
+            //CSRTODO: mob handling
 
             bool showPowerAttack = (skills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
             chkPowerAttack.Visible = showPowerAttack;

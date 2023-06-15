@@ -35,9 +35,6 @@
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.txtMob = new System.Windows.Forms.TextBox();
             this.ctxMob = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiMob1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiMob2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiMob3 = new System.Windows.Forms.ToolStripMenuItem();
             this.lblMob = new System.Windows.Forms.Label();
             this.btnLevel2OffensiveSpell = new System.Windows.Forms.Button();
             this.btnFlee = new System.Windows.Forms.Button();
@@ -169,7 +166,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.ctxMob.SuspendLayout();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -225,34 +221,9 @@
             // ctxMob
             // 
             this.ctxMob.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxMob.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiMob1,
-            this.tsmiMob2,
-            this.tsmiMob3});
             this.ctxMob.Name = "ctxMob";
-            this.ctxMob.Size = new System.Drawing.Size(118, 76);
+            this.ctxMob.Size = new System.Drawing.Size(61, 4);
             this.ctxMob.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMob_Opening);
-            // 
-            // tsmiMob1
-            // 
-            this.tsmiMob1.Name = "tsmiMob1";
-            this.tsmiMob1.Size = new System.Drawing.Size(117, 24);
-            this.tsmiMob1.Text = "Mob1";
-            this.tsmiMob1.Click += new System.EventHandler(this.tsmiMob_Click);
-            // 
-            // tsmiMob2
-            // 
-            this.tsmiMob2.Name = "tsmiMob2";
-            this.tsmiMob2.Size = new System.Drawing.Size(117, 24);
-            this.tsmiMob2.Text = "Mob2";
-            this.tsmiMob2.Click += new System.EventHandler(this.tsmiMob_Click);
-            // 
-            // tsmiMob3
-            // 
-            this.tsmiMob3.Name = "tsmiMob3";
-            this.tsmiMob3.Size = new System.Drawing.Size(117, 24);
-            this.tsmiMob3.Text = "Mob3";
-            this.tsmiMob3.Click += new System.EventHandler(this.tsmiMob_Click);
             // 
             // lblMob
             // 
@@ -1752,7 +1723,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Isengard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
-            this.ctxMob.ResumeLayout(false);
             this.grpOneClickStrategies.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
@@ -1871,9 +1841,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxConsole;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearConsole;
         private System.Windows.Forms.ContextMenuStrip ctxMob;
-        private System.Windows.Forms.ToolStripMenuItem tsmiMob1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiMob2;
-        private System.Windows.Forms.ToolStripMenuItem tsmiMob3;
         private System.Windows.Forms.ContextMenuStrip ctxRoomExits;
         private System.Windows.Forms.Button btnSay;
         private System.Windows.Forms.GroupBox grpSingleMove;

@@ -33,6 +33,14 @@ namespace IsengardClient.Tests
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
             Assert.IsTrue(output[1] == "b");
+
+            list.Clear();
+            list.Add("Stuff: a,");
+            list.Add("Mr. Wartnose.");
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            Assert.IsTrue(output.Count == 2);
+            Assert.IsTrue(output[0] == "a");
+            Assert.IsTrue(output[1] == "Mr. Wartnose");
         }
 
         [TestMethod]
@@ -56,7 +64,7 @@ namespace IsengardClient.Tests
             broadcasts = addedPlayers = removedPlayers = null;
             flp.Lines = new List<string>() { "The heat today is unbearable.", "### The Celduin Express is ready for boarding in Bree." };
             seq.FeedLine(flp);
-            Assert.IsTrue(flp.Lines.Count == 0);
+            Assert.IsTrue(flp.Lines.Count == 1); //celduin express message stays because it might stay or go depending on location
 
             msgs = null;
             broadcasts = addedPlayers = removedPlayers = null;

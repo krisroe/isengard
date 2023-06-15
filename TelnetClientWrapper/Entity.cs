@@ -354,6 +354,7 @@ namespace IsengardClient
 
     public class MobEntity : Entity
     {
+        public static Dictionary<MobTypeEnum, string> MobToSingularMapping = new Dictionary<MobTypeEnum, string>();
         public static Dictionary<string, MobTypeEnum> SingularMobMapping = new Dictionary<string, MobTypeEnum>();
         public static Dictionary<string, MobTypeEnum> PluralMobMapping = new Dictionary<string, MobTypeEnum>();
 
@@ -369,7 +370,8 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
                 else
-                    sSingular = null;
+                    throw new InvalidOperationException();
+                MobToSingularMapping[nextEnum] = sSingular;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -385,6 +387,27 @@ namespace IsengardClient
             this.MobType = mt;
             this.Count = count;
             this.SetCount = setCount;
+        }
+
+        /// <summary>
+        /// pick a word for the mob, choosing the longest word in the singular name.
+        /// This isn't necessarily the best since there could be ambiguity with multiple mobs
+        /// </summary>
+        /// <param name="nextMob">mob to pick</param>
+        /// <returns>word for the mob</returns>
+        public static string PickWordForMob(MobTypeEnum nextMob)
+        {
+            string sName = MobToSingularMapping[nextMob];
+            string[] sWords = sName.Split(new char[] { ' ' });
+            string sBestWord = string.Empty;
+            foreach (string sNextWord in sWords)
+            {
+                if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
+                {
+                    sBestWord = sNextWord;
+                }
+            }
+            return sBestWord;
         }
 
         private static void AddMob(MobTypeEnum type, string singular, string plural)
@@ -610,5 +633,23 @@ namespace IsengardClient
         {
             this.Name = Name;
         }
+    }
+
+    public class ExperienceAttribute : Attribute
+    {
+        public ExperienceAttribute(int Experience)
+        {
+            this.Experience = Experience;
+        }
+        public int Experience { get; set; }
+    }
+
+    internal class AlignmentAttribute : Attribute
+    {
+        public AlignmentAttribute(AlignmentType Alignment)
+        {
+            this.Alignment = Alignment;
+        }
+        public AlignmentType Alignment { get; set; }
     }
 }

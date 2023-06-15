@@ -21,16 +21,14 @@ namespace IsengardClient
         private Room _orderOfLove = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
-        private Area _aMisc;
         private Area _aNindamosArmenelos;
-        private Area _aInaccessible;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
-        private const string AREA_MISC = "Misc";
         private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
         private const string AREA_INACCESSIBLE = "Inaccessible";
 
+        //CSRTODO: what to do with preferred alignment (drunk/doctor at order of love)
         public IsengardMap(AlignmentType preferredAlignment)
         {
             _graphs = new Dictionary<MapType, RoomGraph>();
@@ -40,9 +38,7 @@ namespace IsengardClient
 
             _aBreePerms = AddArea(AREA_BREE_PERMS);
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
-            _aMisc = AddArea(AREA_MISC);
             _aNindamosArmenelos = AddArea(AREA_NINDAMOS_ARMENELOS);
-            _aInaccessible = AddArea(AREA_INACCESSIBLE);
 
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
             graphMillwoodMansion.ScalingFactor = 100;
@@ -65,8 +61,6 @@ namespace IsengardClient
             AddEldemondeCity(oEldemondeEastGateOutside);
             AddMithlond(boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
-
-            SetAlignment(preferredAlignment);
 
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
             {
@@ -262,6 +256,7 @@ namespace IsengardClient
             AddBidirectionalExits(oSouthPathAlliskPlains6, oPathToOgres1, BidirectionalExitType.NorthSouth);
             tharbadEastGraph.Rooms[oPathToOgres1] = new System.Windows.Point(5, 13);
 
+            //CSRTODO: ogre rangers
             Room oTrakardOgreRanger = AddRoom("Ogre Rangers");
             AddBidirectionalExits(oPathToOgres1, oTrakardOgreRanger, BidirectionalExitType.SouthwestNortheast);
             tharbadEastGraph.Rooms[oTrakardOgreRanger] = new System.Windows.Point(4, 14);
@@ -289,6 +284,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[marinersAnchor] = new System.Windows.Point(4, 6);
 
             Room dalePurves = AddRoom("Dale Purves", "Dale's Beach");
+            dalePurves.AddPermanentMobs(MobTypeEnum.DalePurves);
             AddExit(marinersAnchor, dalePurves, "back");
             AddExit(dalePurves, marinersAnchor, "east");
             tharbadWestGraph.Rooms[dalePurves] = new System.Windows.Point(3, 6);
@@ -344,6 +340,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oLelionParkHillside] = new System.Windows.Point(5, 4);
 
             Room oChildrensTidalPool = AddRoom("Children's Tidal Pool", "Children's Tidal Pool");
+            oChildrensTidalPool.AddPermanentMobs(MobTypeEnum.SmallCrab, MobTypeEnum.UglyKid);
             AddBidirectionalExits(oChildrensTidalPool, oLelionParkHillside, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[oChildrensTidalPool] = new System.Windows.Point(5, 3);
 
@@ -454,6 +451,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[boatswain] = new System.Windows.Point(1, 5);
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
+            oCelduinExpressSlip.AddPermanentMobs(MobTypeEnum.HarborMaster);
             oCelduinExpressSlip.BoatLocationType = BoatEmbarkOrDisembark.CelduinExpressMithlond;
             Exit e = AddExit(boatswain, oCelduinExpressSlip, "pier");
             e.PresenceType = ExitPresenceType.Periodic;
@@ -510,6 +508,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oDeadEnd] = new System.Windows.Point(1, 1.5);
 
             Room oSharkey = AddRoom("Sharkey", "Skarkey's Shippers");
+            oSharkey.AddPermanentMobs(MobTypeEnum.Sharkey);
             e = AddExit(oDeadEnd, oSharkey, "west");
             e.Hidden = true;
             AddExit(oSharkey, oDeadEnd, "east");
@@ -520,6 +519,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oPicadilyAvenue] = new System.Windows.Point(3, 2);
 
             Room oHosuan = AddRoom("Ho-suan", "The Opium Den of Chon-Loc");
+            oHosuan.AddPermanentMobs(MobTypeEnum.HoSuanThePenniless);
             AddExit(oPicadilyAvenue, oHosuan, "north");
             AddExit(oHosuan, oPicadilyAvenue, "out");
             mithlondGraph.Rooms[oHosuan] = new System.Windows.Point(3, 1);
@@ -529,6 +529,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oMithlondGateInside] = new System.Windows.Point(2, 1);
 
             Room oGrunkillCharters = AddRoom("Grunkill Charters", "Grunkill Charters");
+            oGrunkillCharters.AddPermanentMobs(MobTypeEnum.Grunkill);
             AddBidirectionalExits(oGrunkillCharters, oMithlondGateInside, BidirectionalExitType.WestEast);
             mithlondGraph.Rooms[oGrunkillCharters] = new System.Windows.Point(1, 1);
 
@@ -574,6 +575,7 @@ namespace IsengardClient
         private void AddHarbringer(RoomGraph mithlondGraph, Room mithlondEntrance, Room tharbadDocks, RoomGraph tharbadGraph)
         {
             Room oHarbringerTop = AddRoom("Bluejacket", "Bow of the Harbringer.");
+            oHarbringerTop.AddPermanentMobs(MobTypeEnum.Bluejacket, MobTypeEnum.Scallywag);
             mithlondGraph.Rooms[oHarbringerTop] = new System.Windows.Point(4.5, 5.5);
 
             Room oHarbringerWest1 = AddRoom("Harbringer", "Starboad-side of the Harbringer");
@@ -621,6 +623,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oHarbringerEast4] = new System.Windows.Point(5, 7.5);
 
             Room oKralle = AddRoom("Kralle", "Stern of the Harbringer");
+            oKralle.AddPermanentMobs(MobTypeEnum.Kralle);
             AddBidirectionalExits(oHarbringerWest4, oKralle, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oHarbringerEast4, oKralle, BidirectionalExitType.SouthwestNortheast);
             mithlondGraph.Rooms[oKralle] = new System.Windows.Point(4.5, 8);
@@ -675,6 +678,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
 
             Room brentDiehard = AddRoom("Brent Diehard", "Engine Room");
+            brentDiehard.AddPermanentMobs(MobTypeEnum.BrentDiehard);
             e = AddExit(fishHold, brentDiehard, "hatchway");
             e.MustOpen = true;
             e = AddExit(brentDiehard, fishHold, "hatchway");
@@ -805,8 +809,7 @@ namespace IsengardClient
             tharbadGraph.Rooms[bardicGuildhall] = new System.Windows.Point(2, 9);
 
             Room oGuildmasterAnsette = AddRoom("Ansette", "Guildmaster's Office");
-            oGuildmasterAnsette.Mob1 = "Ansette";
-            oGuildmasterAnsette.Experience1 = 1200;
+            oGuildmasterAnsette.AddPermanentMobs(MobTypeEnum.GuildmasterAnsette, MobTypeEnum.PrucillaTheGroupie);
             e = AddExit(bardicGuildhall, oGuildmasterAnsette, "door");
             e.Hidden = true;
             e.RequiresDay = true;
@@ -848,9 +851,7 @@ namespace IsengardClient
             tharbadGraph.Rooms[marketDistrictClothiers] = new System.Windows.Point(5, 6);
 
             Room oMasterJeweler = AddRoom("Jeweler", "Market District - Precious Gems");
-            oMasterJeweler.Mob1 = "Jeweler";
-            oMasterJeweler.Experience1 = 170;
-            oMasterJeweler.Alignment = AlignmentType.Red;
+            oMasterJeweler.AddPermanentMobs(MobTypeEnum.MasterJeweler, MobTypeEnum.ElvenGuard);
             AddBidirectionalExits(marketDistrictClothiers, oMasterJeweler, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oMasterJeweler] = new System.Windows.Point(6, 6);
 
@@ -890,32 +891,25 @@ namespace IsengardClient
             tharbadGraph.Rooms[oKingBrundensWagon] = new System.Windows.Point(8, 4);
 
             Room oKingBrunden = AddRoom("King Brunden", "Gypsy King's Lounge");
-            oKingBrunden.Mob1 = "king";
-            oKingBrunden.Experience1 = 300;
+            oKingBrunden.AddPermanentMobs(MobTypeEnum.KingBrunden);
             AddExit(oKingBrundensWagon, oKingBrunden, "back");
             AddExit(oKingBrunden, oKingBrundensWagon, "out");
             tharbadGraph.Rooms[oKingBrunden] = new System.Windows.Point(8, 3);
 
             Room oGypsyBlademaster = AddRoom("Blademaster", "Fighters' Tent");
-            oGypsyBlademaster.Mob1 = "Blademaster";
-            oGypsyBlademaster.Experience1 = 160;
-            oGypsyBlademaster.Alignment = AlignmentType.Blue;
+            oGypsyBlademaster.AddPermanentMobs(MobTypeEnum.GypsyBlademaster);
             AddExit(oGypsyRow3, oGypsyBlademaster, "tent");
             AddExit(oGypsyBlademaster, oGypsyRow3, "out");
             tharbadGraph.Rooms[oGypsyBlademaster] = new System.Windows.Point(9, 4);
 
             Room oKingsMoneychanger = AddRoom("Moneychanger", "Gypsy Moneychanger");
-            oKingsMoneychanger.Mob1 = "Moneychanger";
-            oKingsMoneychanger.Experience1 = 150;
-            oKingsMoneychanger.Alignment = AlignmentType.Red;
+            oKingsMoneychanger.AddPermanentMobs(MobTypeEnum.KingsMoneychanger);
             AddExit(oGypsyRow2, oKingsMoneychanger, "tent");
             AddExit(oKingsMoneychanger, oGypsyRow2, "out");
             tharbadGraph.Rooms[oKingsMoneychanger] = new System.Windows.Point(9, 6.5);
 
             Room oMadameNicolov = AddRoom("Nicolov", "Madame Nicolov's Wagon");
-            oMadameNicolov.Mob1 = "Madame";
-            oMadameNicolov.Experience1 = 180;
-            oMadameNicolov.Alignment = AlignmentType.Blue;
+            oMadameNicolov.AddPermanentMobs(MobTypeEnum.MadameNicolov);
             AddExit(oGypsyRow1, oMadameNicolov, "wagon");
             AddExit(oMadameNicolov, oGypsyRow1, "out");
             tharbadGraph.Rooms[oMadameNicolov] = new System.Windows.Point(8, 5.5);
@@ -925,9 +919,7 @@ namespace IsengardClient
             tharbadGraph.Rooms[gildedApple] = new System.Windows.Point(2, 7.5);
 
             Room zathriel = AddRoom("Zathriel the Minstrel", "Gilded Apple - Stage");
-            zathriel.Mob1 = "Minstrel";
-            zathriel.Experience1 = 220;
-            zathriel.Alignment = AlignmentType.Blue;
+            zathriel.AddPermanentMobs(MobTypeEnum.ZathrielTheMinstrel);
             e = AddExit(gildedApple, zathriel, "stage");
             e.Hidden = true;
             AddExit(zathriel, gildedApple, "down");
@@ -938,9 +930,7 @@ namespace IsengardClient
             tharbadGraph.Rooms[oOliphauntsTattoos] = new System.Windows.Point(8, 1.5);
 
             Room oOliphaunt = AddRoom("Oliphaunt", "Oliphaunt's Workroom");
-            oOliphaunt.Mob1 = "Oliphaunt";
-            oOliphaunt.Experience1 = 310;
-            oOliphaunt.Alignment = AlignmentType.Blue;
+            oOliphaunt.AddPermanentMobs(MobTypeEnum.OliphauntTheTattooArtist);
             AddBidirectionalSameNameExit(oOliphauntsTattoos, oOliphaunt, "curtain");
             tharbadGraph.Rooms[oOliphaunt] = new System.Windows.Point(8, 2);
 
@@ -1004,6 +994,7 @@ namespace IsengardClient
             tharbadGraph.Rooms[oMainAudienceChamber] = new System.Windows.Point(3.5, 10);
 
             Room oCaptainRenton = AddRoom("Throne Room", "Throne Room");
+            oCaptainRenton.AddPermanentMobs(MobTypeEnum.CaptainRenton);
             AddBidirectionalExits(oCaptainRenton, oMainAudienceChamber, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oCaptainRenton] = new System.Windows.Point(2.5, 10);
 
@@ -1167,6 +1158,7 @@ namespace IsengardClient
             breeStreets[3, 5] = AddRoom("High", "South High Street"); //4x6
             breeStreets[7, 5] = AddRoom("Main", "Main Street"); //8x6
             Room oBigPapa = breeStreets[8, 5] = AddRoom("Big Papa", "Papa Joe's"); //9x6
+            oBigPapa.AddPermanentMobs(MobTypeEnum.BigPapa);
             breeStreets[10, 5] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x6
             breeStreets[14, 5] = AddRoom("Brownhaven", "Brownhaven Road"); //15x6
             breeStreets[0, 6] = AddRoom("Wain", "Wain Road South"); //1x7
@@ -1183,6 +1175,7 @@ namespace IsengardClient
             breeStreets[3, 7] = AddRoom("Leviathan/High", "Leviathan Way/High Street"); //4x8
             breeStreets[4, 7] = AddRoom("Leviathan", "Leviathan Way"); //5x8
             oBreeTownSquare = breeStreets[5, 7] = AddRoom("Town Square", "Bree Town Square"); //6x8
+            oBreeTownSquare.AddPermanentMobs(MobTypeEnum.TheTownCrier, MobTypeEnum.Scribe, MobTypeEnum.SmallSpider, MobTypeEnum.Vagrant);
             breeStreets[6, 7] = AddRoom("Leviathan", "Leviathan Way"); //7x8
             breeStreets[7, 7] = AddRoom("Leviathan/Main", "Leviathan Way/Main Street"); //8x8
             breeStreets[8, 7] = AddRoom("Leviathan", "Leviathan Way"); //9x8
@@ -1199,6 +1192,7 @@ namespace IsengardClient
             breeStreets[10, 8] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x9
             breeStreets[14, 8] = AddRoom("Brownhaven", "Brownhaven Road"); //15x9
             _orderOfLove = breeStreets[15, 8] = AddHealingRoom("Order of Love", "Order of Love", HealingRoom.BreeNortheast); //16x9
+            _orderOfLove.AddNonPermanentMobs(MobTypeEnum.Drunk, MobTypeEnum.HobbitishDoctor);
             breeStreets[0, 9] = AddRoom("Wain", "Wain Road North"); //1x10
             breeSewers[0, 9] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x10
             breeStreets[3, 9] = AddRoom("High", "North High Street"); //4x10
@@ -1249,7 +1243,7 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oPoorAlley3] = new System.Windows.Point(12, 6);
 
             Room oCampusFreeClinic = AddHealingRoom("Bree Campus Free Clinic", "Campus Free Clinic", HealingRoom.BreeSouthwest);
-            oCampusFreeClinic.Mob1 = "Student";
+            oCampusFreeClinic.AddNonPermanentMobs(MobTypeEnum.Student);
             AddExit(oToCampusFreeClinic, oCampusFreeClinic, "clinic");
             AddExit(oCampusFreeClinic, oToCampusFreeClinic, "west");
             _breeStreetsGraph.Rooms[oCampusFreeClinic] = new System.Windows.Point(4, 9);
@@ -1259,8 +1253,8 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(11, -0.5);
             graphMillwoodMansion.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(3, 1);
 
-            oIxell = AddRoom("Ixell 70 Bl", "Kista Hills Show Home");
-            oIxell.Mob1 = "Ixell";
+            oIxell = AddRoom("Ixell", "Kista Hills Show Home");
+            oIxell.AddPermanentMobs(MobTypeEnum.IxellDeSantis);
             AddExit(oBreeRealEstateOffice, oIxell, "door");
             AddExit(oIxell, oBreeRealEstateOffice, "out");
             _breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, -1);
@@ -1273,69 +1267,62 @@ namespace IsengardClient
             Room oChurchsEnglishGarden = AddRoom("Chuch's English Garden", "Church's English Garden");
             AddBidirectionalSameNameExit(oKistaHillsHousing, oChurchsEnglishGarden, "gate");
             Room oFallon = AddRoom("Fallon", "The Home of Church, the Cleric");
-            oFallon.Mob1 = "Fallon";
-            oFallon.Experience1 = 350;
-            oFallon.Alignment = AlignmentType.Blue;
+            oFallon.AddPermanentMobs(MobTypeEnum.Fallon);
             AddExit(oChurchsEnglishGarden, oFallon, "door");
             AddExit(oFallon, oChurchsEnglishGarden, "out");
             _breeStreetsGraph.Rooms[oChurchsEnglishGarden] = new System.Windows.Point(13, -1);
             _breeStreetsGraph.Rooms[oFallon] = new System.Windows.Point(13, -1.5);
 
-            Room oGrantsStables = AddRoom("Grant's stables");
+            Room oGrantsStables = AddRoom("Grant's stables", "Grant's stables");
             e = AddExit(oToGrantsStables, oGrantsStables, "stable");
             e.MaximumLevel = 10;
             AddExit(oGrantsStables, oToGrantsStables, "south");
+            _breeStreetsGraph.Rooms[oGrantsStables] = new System.Windows.Point(13, 2.5);
 
-            Room oGrant = AddRoom("Grant");
-            oGrant.Mob1 = "Grant";
-            oGrant.Experience1 = 170;
+            Room oGrant = AddRoom("Grant", "Grant's Office");
+            oGrant.AddPermanentMobs(MobTypeEnum.Grant);
             Exit oToGrant = AddExit(oGrantsStables, oGrant, "gate");
             oToGrant.MustOpen = true;
             AddExit(oGrant, oGrantsStables, "out");
+            _breeStreetsGraph.Rooms[oGrant] = new System.Windows.Point(13, 2);
+
+            Room oDTansLeatherArmory = AddRoom("Leather Armory", "D'Tan's Leather Armory");
+            AddExit(oToGrantsStables, oDTansLeatherArmory, "armory");
+            AddExit(oDTansLeatherArmory, oToGrantsStables, "north");
+            _breeStreetsGraph.Rooms[oDTansLeatherArmory] = new System.Windows.Point(13, 3.5);
 
             Room oPansy = AddRoom("Pansy Smallburrows", "Gambling Pit");
-            oPansy.Mob1 = "Pansy";
-            oPansy.Experience1 = 95;
-            oPansy.Alignment = AlignmentType.Red;
+            oPansy.AddPermanentMobs(MobTypeEnum.PansySmallburrows);
             AddBidirectionalExits(oPansy, oToGamblingPit, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oPansy] = new System.Windows.Point(13, 1);
 
             oDroolie = AddRoom("Droolie", "Under North Bridge");
-            oDroolie.Mob1 = "Droolie";
-            oDroolie.Experience1 = 100;
-            oDroolie.Alignment = AlignmentType.Red;
+            oDroolie.AddPermanentMobs(MobTypeEnum.DroolieTheTroll);
             e = AddExit(oNorthBridge, oDroolie, "rope");
             e.Hidden = true;
             AddExit(oDroolie, oNorthBridge, "up");
             _breeStreetsGraph.Rooms[oDroolie] = new System.Windows.Point(9, 3.5);
 
             Room oIgor = AddRoom("Igor", "Blind Pig Pub");
-            oIgor.Mob1 = "Igor";
-            oIgor.Experience1 = 130;
-            oIgor.Alignment = AlignmentType.Grey;
+            oIgor.AddPermanentMobs(MobTypeEnum.IgorTheBouncer);
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
             AddExit(oToBlindPigPubAndUniversity, oIgor, "pub");
             _breeStreetsGraph.Rooms[oIgor] = new System.Windows.Point(2, 6);
 
             Room oSnarlingMutt = AddRoom("Snarling Mutt", "Snar Slystone's Apothecary and Curio Shoppe");
-            oSnarlingMutt.Mob1 = "Mutt";
-            oSnarlingMutt.Experience1 = 50;
-            oSnarlingMutt.Alignment = AlignmentType.Red;
+            oSnarlingMutt.AddPermanentMobs(MobTypeEnum.SnarlingMutt);
             AddExit(oToSnarSlystoneShoppe, oSnarlingMutt, "shoppe");
             AddExit(oSnarlingMutt, oToSnarSlystoneShoppe, "out");
             _breeStreetsGraph.Rooms[oSnarlingMutt] = new System.Windows.Point(9, 6);
 
             Room oGuido = AddRoom("Guido", "Godfather's House of Games");
-            oGuido.Mob1 = "Guido";
-            oGuido.Experience1 = 350;
-            oGuido.Alignment = AlignmentType.Red;
+            oGuido.AddPermanentMobs(MobTypeEnum.Guido);
             AddExit(oToCasino, oGuido, "casino");
             AddExit(oGuido, oToCasino, "north");
             _breeStreetsGraph.Rooms[oGuido] = new System.Windows.Point(4, -0.5);
 
             Room oGodfather = AddRoom("Godfather", "Godfather's Office");
-            oGodfather.Mob1 = "Godfather";
-            oGodfather.Experience1 = 1200;
+            oGodfather.AddPermanentMobs(MobTypeEnum.Godfather);
             e = AddExit(oGuido, oGodfather, "door");
             e.Hidden = true;
             e.MustOpen = true;
@@ -1344,9 +1331,7 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oGodfather] = new System.Windows.Point(4, -1);
 
             Room oSergeantGrimgall = AddRoom("Sergeant Grimgall", "Guard Headquarters");
-            oSergeantGrimgall.Mob1 = "Sergeant";
-            oSergeantGrimgall.Experience1 = 350;
-            oSergeantGrimgall.Alignment = AlignmentType.Blue;
+            oSergeantGrimgall.AddPermanentMobs(MobTypeEnum.SergeantGrimgall);
             AddExit(oToBarracks, oSergeantGrimgall, "barracks");
             AddExit(oSergeantGrimgall, oToBarracks, "east");
             _breeStreetsGraph.Rooms[oSergeantGrimgall] = new System.Windows.Point(6, 8);
@@ -1354,10 +1339,6 @@ namespace IsengardClient
             Room oGuardsRecRoom = AddRoom("Guard's Rec Room", "Guard's Rec Room");
             AddBidirectionalExits(oSergeantGrimgall, oGuardsRecRoom, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oGuardsRecRoom] = new System.Windows.Point(6, 8.5);
-
-            oBigPapa.Mob1 = "papa";
-            oBigPapa.Experience1 = 350;
-            oBigPapa.Alignment = AlignmentType.Blue;
 
             Room oBreePawnShopWest = AddRoom("Ixell's Antique Shop", "Ixell's Antique Shop");
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
@@ -1397,18 +1378,15 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oScranlinsTrainingArea] = new System.Windows.Point(2, -2);
 
             Room oScranlin = AddRoom("Scranlin", "Scranlin's Outhouse");
-            oScranlin.Mob1 = "Scranlin";
-            oScranlin.Experience1 = 500;
-            oScranlin.Alignment = AlignmentType.Red;
+            oScranlin.AddPermanentMobs(MobTypeEnum.Scranlin);
             e = AddExit(oScranlinsTrainingArea, oScranlin, "outhouse");
             e.Hidden = true;
             AddExit(oScranlin, oScranlinsTrainingArea, "out");
             _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
 
             boatswain = AddRoom("Boatswain", "Stern of the Celduin Express");
+            boatswain.AddPermanentMobs(MobTypeEnum.Boatswain);
             boatswain.BoatLocationType = BoatEmbarkOrDisembark.CelduinExpress;
-            boatswain.Mob1 = "Boatswain";
-            boatswain.Experience1 = 350;
             _breeStreetsGraph.Rooms[boatswain] = new System.Windows.Point(9, 9.5);
             e = AddExit(breeDocks, boatswain, "steamboat");
             e.PresenceType = ExitPresenceType.Periodic;
@@ -1421,14 +1399,10 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 3.5);
 
             Room oBartenderWaitress = AddRoom("Prancing Pony Bar/Wait", "Prancing Pony Tavern");
-            oBartenderWaitress.Mob1 = "Bartender";
-            oBartenderWaitress.Mob2 = "Waitress";
-            oBartenderWaitress.Experience1 = 15;
-            oBartenderWaitress.Experience2 = 7;
+            oBartenderWaitress.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
 
-            AddLocation(_aInaccessible, oGrant);
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
@@ -1436,19 +1410,6 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oScranlin);
 
             AddHauntedMansion(oHauntedMansionEntrance, _breeStreetsGraph);
-        }
-
-        public void SetAlignment(AlignmentType preferredAlignment)
-        {
-            switch (preferredAlignment)
-            {
-                case AlignmentType.Blue:
-                    _orderOfLove.Mob1 = "Drunk";
-                    break;
-                case AlignmentType.Red:
-                    _orderOfLove.Mob1 = "Doctor";
-                    break;
-            }
         }
 
         private void AddHauntedMansion(Room hauntedMansionEntrance, RoomGraph breeStreetsGraph)
@@ -1610,9 +1571,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSewerPipe] = new System.Windows.Point(7, 3);
 
             Room oSalamander = AddRoom("Salamander", "The Brandywine River");
-            oSalamander.Mob1 = "Salamander";
-            oSalamander.Experience1 = 100;
-            oSalamander.Alignment = AlignmentType.Red;
+            oSalamander.AddPermanentMobs(MobTypeEnum.Salamander);
             AddExit(oBrandywineRiverShore, oSalamander, "reeds");
             AddExit(oSalamander, oBrandywineRiverShore, "shore");
             underBreeGraph.Rooms[oSalamander] = new System.Windows.Point(9, 7);
@@ -1631,8 +1590,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oBrandywineRiver2] = new System.Windows.Point(1, 1);
 
             Room oOohlgrist = AddRoom("Oohlgrist", "Small Boat");
-            oOohlgrist.Mob1 = "Oohlgrist";
-            oOohlgrist.Experience1 = 110;
+            oOohlgrist.AddPermanentMobs(MobTypeEnum.Oohlgrist);
             AddExit(oBrandywineRiver2, oOohlgrist, "boat");
             AddExit(oOohlgrist, oBrandywineRiver2, "river");
             underBreeGraph.Rooms[oOohlgrist] = new System.Windows.Point(2, 1);
@@ -1651,8 +1609,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oRockyBeach2] = new System.Windows.Point(5, 1);
 
             Room oHermitsCave = AddRoom("Hermit Fisher", "Hermit's Cave");
-            oHermitsCave.Mob1 = "Fisher";
-            oHermitsCave.Experience1 = 60;
+            oHermitsCave.AddPermanentMobs(MobTypeEnum.HermitFisher);
             e = AddExit(oRockyBeach2, oHermitsCave, "cave");
             e.Hidden = true;
             AddExit(oHermitsCave, oRockyBeach2, "out");
@@ -1693,10 +1650,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 3);
 
             Room oSewerOrcChamber = AddRoom("Sewer Orc Guards", "Sewer Orc Chamber");
-            oSewerOrcChamber.Mob1 = "Guard 2";
-            oSewerOrcChamber.Mob2 = "Guard 1";
-            oSewerOrcChamber.Experience1 = 70;
-            oSewerOrcChamber.Experience2 = 70;
+            oSewerOrcChamber.AddPermanentMobs(MobTypeEnum.SewerOrcGuard, MobTypeEnum.SewerOrcGuard);
             e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
             e.Hidden = true;
             e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted");
@@ -1773,6 +1727,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oTunnel] = new System.Windows.Point(4, 2);
 
             Room oLatrine = AddRoom("Latrine", "Latrine");
+            oLatrine.DamageType = RealmType.Wind;
             AddExit(oTunnel, oLatrine, "south");
             e = AddExit(oLatrine, oTunnel, "north");
             e.Hidden = true;
@@ -1783,20 +1738,21 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oEugenesDungeon] = new System.Windows.Point(3, 2);
 
             Room oShadowOfIncendius = AddRoom("Shadow of Incendius", "Honorary Holding");
+            oShadowOfIncendius.AddPermanentMobs(MobTypeEnum.ShadowOfIncendius);
             AddBidirectionalExits(oShadowOfIncendius, oEugenesDungeon, BidirectionalExitType.WestEast);
             breeSewersGraph.Rooms[oShadowOfIncendius] = new System.Windows.Point(2, 2);
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
+            oEugeneTheExecutioner.AddPermanentMobs(MobTypeEnum.EugeneTheExecutioner);
             oEugeneTheExecutioner.DamageType = RealmType.Fire;
-            e = AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
+            AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
             oEugeneTheExecutioner.IsTrapRoom = true;
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
 
             Room oBurnedRemainsOfNimrodel = AddRoom("Nimrodel", "Cellar");
-            oBurnedRemainsOfNimrodel.Mob1 = "Nimrodel";
-            oBurnedRemainsOfNimrodel.Experience1 = 300;
+            oBurnedRemainsOfNimrodel.AddPermanentMobs(MobTypeEnum.BurnedRemainsOfNimrodel);
             AddExit(oEugeneTheExecutioner, oBurnedRemainsOfNimrodel, "out");
-            e = AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
+            AddExit(oBurnedRemainsOfNimrodel, oEugeneTheExecutioner, "door");
             breeSewersGraph.Rooms[oBurnedRemainsOfNimrodel] = new System.Windows.Point(2, 1);
 
             Room aqueduct = AddRoom("Aqueduct", "Aqueduct");
@@ -1805,10 +1761,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[aqueduct] = new System.Windows.Point(1, 2);
 
             Room oShirriff = breeSewers[7, 3];
-            oShirriff.Mob1 = "shirriff 2";
-            oShirriff.Mob2 = "shirriff 1";
-            oShirriff.Experience1 = 325;
-            oShirriff.Experience2 = 325;
+            oShirriff.AddPermanentMobs(MobTypeEnum.Shirriff, MobTypeEnum.Shirriff);
 
             Room oValveChamber = AddRoom("Valve Chamber", "Valve chamber");
             e = AddExit(breeSewers[7, 3], oValveChamber, "valve");
@@ -1821,7 +1774,8 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oSewerPassageFromValveChamber] = new System.Windows.Point(12, 7);
 
             Room oCentralSewerChannels = AddRoom("Central Sewer Channels", "Central Sewer Channels");
-            oCentralSewerChannels.Mob1 = "demon";
+            //CSRTODO
+            //oCentralSewerChannels.Mob1 = "demon";
             AddBidirectionalExits(oCentralSewerChannels, oSewerPassageFromValveChamber, BidirectionalExitType.SoutheastNorthwest);
             breeSewersGraph.Rooms[oCentralSewerChannels] = new System.Windows.Point(11, 6);
 
@@ -1863,8 +1817,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oWell] = new System.Windows.Point(1, 0);
 
             Room oKasnarTheGuard = AddRoom("Kasnar", "Water Pipe");
-            oKasnarTheGuard.Mob1 = "Kasnar";
-            oKasnarTheGuard.Experience1 = 535;
+            oKasnarTheGuard.AddPermanentMobs(MobTypeEnum.KasnarTheGuard);
             AddExit(oWell, oKasnarTheGuard, "pipe");
             AddExit(oKasnarTheGuard, oWell, "north");
             breeSewersGraph.Rooms[oKasnarTheGuard] = new System.Windows.Point(1, 1);
@@ -1914,7 +1867,6 @@ namespace IsengardClient
         private void AddMayorMillwoodMansion(Room oIxell)
         {
             RoomGraph graphMillwoodMansion = _graphs[MapType.MillwoodMansion];
-            string sWarriorBard = "Warrior bard";
 
             Room oPathToMansion1 = AddRoom("Construction Site", "Construction Site");
             AddExit(oIxell, oPathToMansion1, "back");
@@ -1930,11 +1882,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oPathToMansion3] = new System.Windows.Point(1, 3);
 
             Room oPathToMansion4WarriorBardsx2 = AddRoom("Warrior Bards (Path)", "Stone Path");
-            oPathToMansion4WarriorBardsx2.Mob1 = sWarriorBard + " 2";
-            oPathToMansion4WarriorBardsx2.Mob2 = sWarriorBard + " 1";
-            oPathToMansion4WarriorBardsx2.Experience1 = 100;
-            oPathToMansion4WarriorBardsx2.Experience2 = 100;
-            oPathToMansion4WarriorBardsx2.Alignment = AlignmentType.Red;
+            oPathToMansion4WarriorBardsx2.AddPermanentMobs(MobTypeEnum.WarriorBard, MobTypeEnum.WarriorBard);
             AddExit(oPathToMansion3, oPathToMansion4WarriorBardsx2, "stone");
             AddExit(oPathToMansion4WarriorBardsx2, oPathToMansion3, "north");
             graphMillwoodMansion.Rooms[oPathToMansion4WarriorBardsx2] = new System.Windows.Point(1, 4);
@@ -1972,9 +1920,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oPathToMansion12] = new System.Windows.Point(2, 11);
 
             Room oGrandPorch = AddRoom("Warrior Bard (Porch)", "Grand Porch");
-            oGrandPorch.Mob1 = sWarriorBard;
-            oGrandPorch.Experience1 = 100;
-            oGrandPorch.Alignment = AlignmentType.Red;
+            oGrandPorch.AddPermanentMobs(MobTypeEnum.WarriorBard);
             AddExit(oPathToMansion12, oGrandPorch, "porch");
             AddExit(oGrandPorch, oPathToMansion12, "path");
             graphMillwoodMansion.Rooms[oGrandPorch] = new System.Windows.Point(3, 11);
@@ -2008,9 +1954,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oMansionFirstFloorToNorthStairwell5] = new System.Windows.Point(6, 7);
 
             Room oWarriorBardMansionNorth = AddRoom("Warrior Bard Mansion N", "Northern Stairwell");
-            oWarriorBardMansionNorth.Mob1 = sWarriorBard;
-            oWarriorBardMansionNorth.Experience1 = 100;
-            oWarriorBardMansionNorth.Alignment = AlignmentType.Red;
+            oWarriorBardMansionNorth.AddPermanentMobs(MobTypeEnum.WarriorBard);
             AddBidirectionalExits(oWarriorBardMansionNorth, oMansionFirstFloorToNorthStairwell5, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oWarriorBardMansionNorth] = new System.Windows.Point(6, 6);
 
@@ -2035,9 +1979,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oMansionFirstFloorToSouthStairwell5] = new System.Windows.Point(6, 15);
 
             Room oWarriorBardMansionSouth = AddRoom("Warrior Bard Mansion S", "Southern Stairwell");
-            oWarriorBardMansionSouth.Mob1 = sWarriorBard;
-            oWarriorBardMansionSouth.Experience1 = 100;
-            oWarriorBardMansionSouth.Alignment = AlignmentType.Red;
+            oWarriorBardMansionSouth.AddPermanentMobs(MobTypeEnum.WarriorBard);
             AddBidirectionalExits(oMansionFirstFloorToSouthStairwell5, oWarriorBardMansionSouth, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oWarriorBardMansionSouth] = new System.Windows.Point(6, 16);
 
@@ -2071,9 +2013,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oMansionFirstFloorToEastStairwell7] = new System.Windows.Point(10, 12);
 
             Room oWarriorBardMansionEast = AddRoom("Warrior Bard Mansion E", "Grand Staircase");
-            oWarriorBardMansionEast.Mob1 = sWarriorBard;
-            oWarriorBardMansionEast.Experience1 = 100;
-            oWarriorBardMansionEast.Alignment = AlignmentType.Red;
+            oWarriorBardMansionEast.AddPermanentMobs(MobTypeEnum.WarriorBard);
             AddBidirectionalExits(oWarriorBardMansionEast, oMansionFirstFloorToEastStairwell6, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oWarriorBardMansionEast] = new System.Windows.Point(10, 11);
 
@@ -2090,8 +2030,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oNorthHallway3] = new System.Windows.Point(7, 8);
 
             Room oDungeonGuardNorth = AddRoom("Dungeon Guard", "North Hallway");
-            oDungeonGuardNorth.Mob1 = "guard";
-            oDungeonGuardNorth.Experience1 = 120;
+            oDungeonGuardNorth.AddPermanentMobs(MobTypeEnum.DungeonGuard);
             AddBidirectionalExits(oNorthHallway3, oDungeonGuardNorth, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oDungeonGuardNorth] = new System.Windows.Point(8, 8);
 
@@ -2108,8 +2047,7 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oSouthHallway3] = new System.Windows.Point(7, 14);
 
             Room oDungeonGuardSouth = AddRoom("Dungeon Guard", "South Hallway");
-            oDungeonGuardSouth.Mob1 = "guard";
-            oDungeonGuardSouth.Experience1 = 120;
+            oDungeonGuardSouth.AddPermanentMobs(MobTypeEnum.DungeonGuard);
             AddBidirectionalExits(oSouthHallway3, oDungeonGuardSouth, BidirectionalExitType.WestEast);
             graphMillwoodMansion.Rooms[oDungeonGuardSouth] = new System.Windows.Point(8, 14);
 
@@ -2215,20 +2153,15 @@ namespace IsengardClient
             AddBidirectionalExits(oSouthernStairwell, southStairwell, BidirectionalExitType.UpDown);
             millwoodMansionUpstairsGraph.Rooms[oSouthernStairwell] = new System.Windows.Point(1, 11);
 
-            //mayor is immune to stun
             Room oMayorMillwood = AddRoom("Mayor Millwood", "Royal Chamber");
-            oMayorMillwood.Mob1 = "mayor";
-            oMayorMillwood.Experience1 = 220;
-            oMayorMillwood.Alignment = AlignmentType.Grey;
+            oMayorMillwood.AddPermanentMobs(MobTypeEnum.MayorMillwood);
             e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
             e.MustOpen = true;
             AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
             millwoodMansionUpstairsGraph.Rooms[oMayorMillwood] = new System.Windows.Point(4, 8);
 
             Room oChancellorOfProtection = AddRoom("Chancellor of Protection", "The Chancellor of Protection's Chambers");
-            oChancellorOfProtection.Mob1 = "chancellor";
-            oChancellorOfProtection.Experience1 = 200;
-            oChancellorOfProtection.Alignment = AlignmentType.Blue;
+            oChancellorOfProtection.AddPermanentMobs(MobTypeEnum.ChancellorOfProtection);
             e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
             e.MustOpen = true;
             AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
@@ -2279,10 +2212,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oGreatEastRoad6] = new System.Windows.Point(9, 4);
 
             Room oGreatEastRoadGoblinAmbushGobLrgLrg = AddRoom("Gob Ambush #1", "Great East Road");
-            oGreatEastRoadGoblinAmbushGobLrgLrg.Mob1 = "goblin";
-            oGreatEastRoadGoblinAmbushGobLrgLrg.Experience1 = 50;
-            oGreatEastRoadGoblinAmbushGobLrgLrg.Experience2 = 50;
-            oGreatEastRoadGoblinAmbushGobLrgLrg.Experience3 = 45;
+            oGreatEastRoadGoblinAmbushGobLrgLrg.AddPermanentMobs(MobTypeEnum.Goblin, MobTypeEnum.LargeGoblin, MobTypeEnum.LargeGoblin);
             AddBidirectionalExits(oGreatEastRoadGoblinAmbushGobLrgLrg, oGreatEastRoad6, BidirectionalExitType.SouthwestNortheast);
             breeToImladrisGraph.Rooms[oGreatEastRoadGoblinAmbushGobLrgLrg] = new System.Windows.Point(10, 3);
 
@@ -2340,10 +2270,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oNorthBrethilForest4] = new System.Windows.Point(12, 0);
 
             Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2", "North Brethil Forest");
-            oNorthBrethilForest5GobAmbush.Mob1 = "goblin";
-            oNorthBrethilForest5GobAmbush.Experience1 = 70;
-            oNorthBrethilForest5GobAmbush.Experience2 = 50;
-            oNorthBrethilForest5GobAmbush.Experience3 = 50;
+            oNorthBrethilForest5GobAmbush.AddPermanentMobs(MobTypeEnum.GoblinWarrior, MobTypeEnum.GoblinWarrior, MobTypeEnum.LargeGoblin);
             AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(13, 0);
 
@@ -2357,11 +2284,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oBrethilForest] = new System.Windows.Point(12, 6);
 
             Room oSpriteGuards = AddRoom("Sprite Guards", "Brethil Forest");
-            oSpriteGuards.Mob1 = "guard 2";
-            oSpriteGuards.Mob2 = "guard 1";
-            oSpriteGuards.Experience1 = 120;
-            oSpriteGuards.Experience2 = 120;
-            oSpriteGuards.Alignment = AlignmentType.Blue;
+            oSpriteGuards.AddPermanentMobs(MobTypeEnum.SpriteGuard, MobTypeEnum.SpriteGuard);
             e = AddExit(oBrethilForest, oSpriteGuards, "brush");
             e.Hidden = true;
             AddExit(oSpriteGuards, oBrethilForest, "east");
@@ -2407,50 +2330,57 @@ namespace IsengardClient
             AddExit(oSwimmingPond, oOuthouse, "west");
             breeToImladrisGraph.Rooms[oSwimmingPond] = new System.Windows.Point(6, 8);
 
+            Room oPond = AddRoom("Pond", "Pond");
+            oPond.AddPermanentMobs(MobTypeEnum.WaterTurtle);
+            AddExit(oSwimmingPond, oPond, "pond");
+            AddExit(oPond, oSwimmingPond, "out");
+            breeToImladrisGraph.Rooms[oPond] = new System.Windows.Point(6, 7.5);
+
             Room oMuddyPath = AddRoom("Muddy Path", "Muddy Path");
             Exit e = AddExit(oSwimmingPond, oMuddyPath, "path");
             e.Hidden = true;
             AddExit(oMuddyPath, oSwimmingPond, "pond");
             breeToImladrisGraph.Rooms[oMuddyPath] = new System.Windows.Point(7, 8);
 
-            Room oSmallPlayground = AddRoom("Small Playground", "Small Playground");
+            Room oSmallPlayground = AddRoom("Playground", "Small Playground");
             AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
-            breeToImladrisGraph.Rooms[oSmallPlayground] = new System.Windows.Point(8, 7);
+            breeToImladrisGraph.Rooms[oSmallPlayground] = new System.Windows.Point(7.5, 7.5);
 
-            Room oUglyKidSchoolEntrance = AddRoom("Ugly Kid School Entrance", "Ugly Kid School Entrance");
+            Room oUglyKidSchoolEntrance = AddRoom("School Entrance", "Ugly Kid School Entrance");
             AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
-            breeToImladrisGraph.Rooms[oUglyKidSchoolEntrance] = new System.Windows.Point(9, 7);
+            breeToImladrisGraph.Rooms[oUglyKidSchoolEntrance] = new System.Windows.Point(8.5, 7.5);
 
-            Room oMuddyFoyer = AddRoom("Muddy Foyer");
+            Room oMuddyFoyer = AddRoom("Muddy Foyer", "Muddy Foyer");
             e = AddExit(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
             e.MaximumLevel = 10;
             AddExit(oMuddyFoyer, oUglyKidSchoolEntrance, "out");
-            breeToImladrisGraph.Rooms[oMuddyFoyer] = new System.Windows.Point(9, 6.5);
+            breeToImladrisGraph.Rooms[oMuddyFoyer] = new System.Windows.Point(8.5, 7.25);
 
-            Room oUglyKidClassroomK7 = AddRoom("Ugly Kid Classroom K-7");
+            Room oUglyKidClassroomK7 = AddRoom("Classroom K-7", "Ugly Kid Classroom K-7");
             AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");
             AddExit(oUglyKidClassroomK7, oMuddyFoyer, "foyer");
+            breeToImladrisGraph.Rooms[oUglyKidClassroomK7] = new System.Windows.Point(8.5, 7);
 
-            Room oHallway = AddRoom("Hallway");
+            Room oHallway = AddRoom("Hallway", "Hallway");
             AddExit(oUglyKidClassroomK7, oHallway, "hallway");
             AddExit(oHallway, oUglyKidClassroomK7, "classroom");
+            breeToImladrisGraph.Rooms[oHallway] = new System.Windows.Point(8.5, 6.75);
+
+            Room oHallwayEnd = AddRoom("Hallway End", "Hallway End");
+            AddBidirectionalExits(oHallwayEnd, oHallway, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oHallwayEnd] = new System.Windows.Point(8.5, 6.5);
 
             Room oRoadToFarm7HoundDog = AddRoom("Hound Dog", "Front Porch");
-            oRoadToFarm7HoundDog.Mob1 = "dog";
-            oRoadToFarm7HoundDog.Experience1 = 150;
-            oRoadToFarm7HoundDog.Alignment = AlignmentType.Blue;
+            oRoadToFarm7HoundDog.AddPermanentMobs(MobTypeEnum.HoundDog);
             AddExit(oRoadToFarm7HoundDog, oRoadToFarm6, "out");
             AddExit(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
             breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new System.Windows.Point(2, 7);
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor");
-            oFarmParlorManagerMulloyThreshold.Mob1 = "manager";
             AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", true);
             breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new System.Windows.Point(2, 6);
             Room oManagerMulloy = AddRoom("Manager Mulloy");
-            oManagerMulloy.Mob1 = "manager";
-            oManagerMulloy.Experience1 = 600;
-            oManagerMulloy.Alignment = AlignmentType.Blue;
+            oManagerMulloy.AddPermanentMobs(MobTypeEnum.ManagerMulloy);
             AddExit(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             AddExit(oManagerMulloy, oFarmParlorManagerMulloyThreshold, "out");
             breeToImladrisGraph.Rooms[oManagerMulloy] = new System.Windows.Point(2, 5);
@@ -2466,30 +2396,27 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oFarmBackPorch] = new System.Windows.Point(1, 6);
 
             Room oFarmCat = AddRoom("Farm Cat");
-            oFarmCat.Mob1 = "cat";
-            oFarmCat.Experience1 = 550;
+            oFarmCat.AddPermanentMobs(MobTypeEnum.FarmCat);
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
             e = AddExit(oFarmCat, oFarmBackPorch, "out");
             e.NoFlee = true;
             breeToImladrisGraph.Rooms[oFarmCat] = new System.Windows.Point(1, 7);
 
-            Room oCrabbe = AddRoom("Crabbe");
-            oCrabbe.Mob1 = "Crabbe";
-            oCrabbe.Experience1 = 250;
+            Room oCrabbe = AddRoom("Crabbe", "Detention Room");
+            oCrabbe.AddPermanentMobs(MobTypeEnum.CrabbeTheClassBully);
             AddExit(oHallway, oCrabbe, "detention");
             AddExit(oCrabbe, oHallway, "out");
+            breeToImladrisGraph.Rooms[oCrabbe] = new System.Windows.Point(7.5, 6.75);
 
-            Room oMrWartnose = AddRoom("Mr. Wartnose");
-            oMrWartnose.Mob1 = "Wartnose";
-            oMrWartnose.Experience1 = 235;
+            Room oMrWartnose = AddRoom("Mr. Wartnose", "Mr. Wartnose's Office");
+            oMrWartnose.AddPermanentMobs(MobTypeEnum.MrWartnose);
             AddExit(oUglyKidClassroomK7, oMrWartnose, "office");
             AddExit(oMrWartnose, oUglyKidClassroomK7, "out");
+            breeToImladrisGraph.Rooms[oMrWartnose] = new System.Windows.Point(7.5, 7);
 
             AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
             AddLocation(_aBreePerms, oManagerMulloy);
             AddLocation(_aBreePerms, oFarmCat);
-            AddLocation(_aInaccessible, oMrWartnose);
-            AddLocation(_aInaccessible, oCrabbe);
         }
 
         private void AddGalbasiDowns(Room oGreatEastRoad2, Room oGreatEastRoad3, RoomGraph breeToImladrisGraph)
@@ -2559,7 +2486,8 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oGalbasiHalls] = new System.Windows.Point(5, 1.5);
 
             Room oUnderHallsCorridorsGreenSlime = AddRoom("Green Slime", "Underhalls Corridors");
-            oUnderHallsCorridorsGreenSlime.Mob1 = "slime";
+            //CSRTODO
+            //oUnderHallsCorridorsGreenSlime.Mob1 = "slime";
             AddBidirectionalExits(oUnderHallsCorridorsGreenSlime, oGalbasiHalls, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderHallsCorridorsGreenSlime] = new System.Windows.Point(5, 1.25);
 
@@ -2753,10 +2681,7 @@ namespace IsengardClient
             imladrisGraph.Rooms[oRearAlley] = new System.Windows.Point(5, 7);
 
             Room oPoisonedDagger = AddRoom("Master Assassins", "The Poisoned Dagger");
-            oPoisonedDagger.Mob1 = "assassin 2";
-            oPoisonedDagger.Mob2 = "assassin 1";
-            oPoisonedDagger.Experience1 = 600;
-            oPoisonedDagger.Experience2 = 600;
+            oPoisonedDagger.AddPermanentMobs(MobTypeEnum.MasterAssassin, MobTypeEnum.MasterAssassin);
             AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
             imladrisGraph.Rooms[oPoisonedDagger] = new System.Windows.Point(5, 6.5);
 
@@ -2893,7 +2818,7 @@ namespace IsengardClient
             eastOfImladrisGraph.Rooms[oLoftyTrail4] = new System.Windows.Point(6, -2);
 
             Room oMountainDragon = AddRoom("Mountain Dragon", "Lofty Trail");
-            oMountainDragon.Mob1 = "dragon";
+            oMountainDragon.AddPermanentMobs(MobTypeEnum.MountainDragon);
             AddExit(oLoftyTrail4, oMountainDragon, "up");
             AddExit(oMountainDragon, oLoftyTrail4, "down");
             eastOfImladrisGraph.Rooms[oMountainDragon] = new System.Windows.Point(6, -2.5);
@@ -2921,9 +2846,7 @@ namespace IsengardClient
             eastOfImladrisGraph.Rooms[oLarsMagnusGrunwald] = new System.Windows.Point(3, -2);
 
             Room oIorlas = AddRoom("Iorlas", "Hermit's Shack");
-            oIorlas.Mob1 = "Iorlas";
-            oIorlas.Experience1 = 200;
-            oIorlas.Alignment = AlignmentType.Grey;
+            oIorlas.AddPermanentMobs(MobTypeEnum.IorlasTheHermit);
             AddExit(oIorlasThreshold, oIorlas, "shack");
             AddExit(oIorlas, oIorlasThreshold, "door");
             eastOfImladrisGraph.Rooms[oIorlas] = new System.Windows.Point(2, 3);
@@ -3002,15 +2925,11 @@ namespace IsengardClient
             AddExit(oSouthwingHallway, oEastwingHallway, "eastwing");
 
             Room oBilboBaggins = AddRoom("Bilbo Baggins", "Bilbo's Living Quarters");
-            oBilboBaggins.Mob1 = "Bilbo";
-            oBilboBaggins.Experience1 = 260;
-            oBilboBaggins.Alignment = AlignmentType.Blue;
+            oBilboBaggins.AddPermanentMobs(MobTypeEnum.BilboBaggins);
             AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", true);
 
             Room oFrodoBaggins = AddRoom("Frodo Baggins", "Frodo's Living Quarters");
-            oFrodoBaggins.Mob1 = "Frodo";
-            oFrodoBaggins.Experience1 = 260;
-            oFrodoBaggins.Alignment = AlignmentType.Blue;
+            oFrodoBaggins.AddPermanentMobs(MobTypeEnum.FrodoBaggins);
             AddBidirectionalSameNameExit(oSouthwingHallway, oFrodoBaggins, "curtain");
 
             Room oGreatHallOfHeroes = AddRoom("Great Hall of Heroes", "The Great Hall of Heroes.");
@@ -3019,17 +2938,16 @@ namespace IsengardClient
 
             //something is hasted
             Room oSomething = AddRoom("Something");
-            oSomething.Mob1 = "Something";
-            oSomething.Experience1 = 140;
+            //CSRTODO
+            //oSomething.Mob1 = "Something";
+            //oSomething.Experience1 = 140;
             Exit e = AddExit(oGreatHallOfHeroes, oSomething, "curtain");
             e.MaximumLevel = 10;
             e.Hidden = true;
             AddExit(oSomething, oGreatHallOfHeroes, "curtain");
 
             Room oShepherd = AddRoom("Shepherd", "Pasture");
-            oShepherd.Mob1 = "Shepherd";
-            oShepherd.Experience1 = 60;
-            oShepherd.Alignment = AlignmentType.Blue;
+            oShepherd.AddPermanentMobs(MobTypeEnum.Shepherd);
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
 
@@ -3037,7 +2955,6 @@ namespace IsengardClient
             //AddExit(oShepherd, oSmoulderingVillage, "gate");
             AddExit(oSmoulderingVillage, oShepherd, "gate");
 
-            AddLocation(_aInaccessible, oSomething);
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
             AddLocation(_aBreePerms, oShepherd);
@@ -3062,19 +2979,14 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oBrunskidTradersGuild1] = new System.Windows.Point(4, 0);
 
             Room oGuildmaster = AddRoom("Guildmaster", "Brunskid Trader's Guild Office");
-            oGuildmaster.Mob1 = "Guildmaster";
+            oGuildmaster.AddPermanentMobs(MobTypeEnum.Guildmaster);
             AddBidirectionalExits(oGuildmaster, oBrunskidTradersGuild1, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 11);
             imladrisToTharbadGraph.Rooms[oGuildmaster] = new System.Windows.Point(3, 0);
 
             Room oCutthroatAssassin = AddRoom("Hiester", "Brunskid Trader's Guild Acquisitions Room");
             AddBidirectionalExits(oCutthroatAssassin, oGuildmaster, BidirectionalExitType.WestEast);
-            oCutthroatAssassin.Mob1 = "hiester";
-            oCutthroatAssassin.Mob2 = "assassin";
-            oCutthroatAssassin.Mob3 = "cutthroat"; //hiester is also cutthroat
-            oCutthroatAssassin.Experience1 = 1200;
-            oCutthroatAssassin.Experience2 = 600;
-            oCutthroatAssassin.Experience3 = 500;
+            oCutthroatAssassin.AddPermanentMobs(MobTypeEnum.GregoryHiester, MobTypeEnum.MasterAssassin, MobTypeEnum.Cutthroat);
             imladrisGraph.Rooms[oCutthroatAssassin] = new System.Windows.Point(2, 11);
             imladrisToTharbadGraph.Rooms[oCutthroatAssassin] = new System.Windows.Point(2, 0);
 
@@ -3091,9 +3003,8 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oMistyTrail4] = new System.Windows.Point(4, 3);
 
             Room oPotionFactoryReception = AddRoom("Potion Factory Guard", "Reception Area of Potion Factory");
+            oPotionFactoryReception.AddPermanentMobs(MobTypeEnum.Guard);
             AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
-            oPotionFactoryReception.Mob1 = "Guard";
-            oPotionFactoryReception.Experience1 = 110;
             imladrisToTharbadGraph.Rooms[oPotionFactoryReception] = new System.Windows.Point(3, 3);
 
             Room oPotionFactoryAdministrativeOffices = AddRoom("Potion Factory Administrative Offices", "Administrative Offices");
@@ -3101,8 +3012,7 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oPotionFactoryAdministrativeOffices] = new System.Windows.Point(3, 4);
 
             Room oMarkFrey = AddRoom("Mark Frey", "Potent Potions, Inc.");
-            oMarkFrey.Mob1 = "Frey";
-            oMarkFrey.Experience1 = 450;
+            oMarkFrey.AddPermanentMobs(MobTypeEnum.MarkFrey);
             AddExit(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
             AddExit(oMarkFrey, oPotionFactoryAdministrativeOffices, "out");
             imladrisToTharbadGraph.Rooms[oMarkFrey] = new System.Windows.Point(3, 5);
@@ -3149,8 +3059,7 @@ namespace IsengardClient
             imladrisToTharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(0, 13);
 
             Room oGrassyField = AddRoom("Grassy Field", "Grassy Field");
-            oGrassyField.Mob1 = "griffon";
-            oGrassyField.Experience1 = 140;
+            oGrassyField.AddNonPermanentMobs(MobTypeEnum.Griffon);
             AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
             imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
 
@@ -3479,47 +3388,37 @@ namespace IsengardClient
             oShantyTownGraph.Rooms[oPentampurisPalace] = new System.Windows.Point(4, 6);
 
             Room oPrinceBrunden = AddRoom("Prince Brunden", "King of the Gypsies Wagon");
-            oPrinceBrunden.Mob1 = "Prince";
-            oPrinceBrunden.Experience1 = 150;
-            oPrinceBrunden.Alignment = AlignmentType.Blue;
+            oPrinceBrunden.AddPermanentMobs(MobTypeEnum.PrinceBrunden);
             AddExit(oGypsyCamp, oPrinceBrunden, "wagon");
             AddExit(oPrinceBrunden, oGypsyCamp, "out");
             oShantyTownGraph.Rooms[oPrinceBrunden] = new System.Windows.Point(2, -1);
 
             Room oNaugrim = AddRoom("Naugrim", "Naugrim's Wine Cask Home");
-            oNaugrim.Mob1 = "Naugrim";
-            oNaugrim.Experience1 = 205;
-            oNaugrim.Alignment = AlignmentType.Red;
+            oNaugrim.AddPermanentMobs(MobTypeEnum.Naugrim);
             AddExit(oNorthShantyTown, oNaugrim, "cask");
             AddExit(oNaugrim, oNorthShantyTown, "out");
             oShantyTownGraph.Rooms[oNaugrim] = new System.Windows.Point(1, 1);
 
             Room oHogoth = AddRoom("Hogoth", "Hogoth's Home");
-            oHogoth.Mob1 = "Hogoth";
-            oHogoth.Experience1 = 260;
-            oHogoth.Alignment = AlignmentType.Blue;
+            oHogoth.AddPermanentMobs(MobTypeEnum.Hogoth);
             AddExit(oShantyTownWest, oHogoth, "shack");
             AddExit(oHogoth, oShantyTownWest, "out");
             oShantyTownGraph.Rooms[oHogoth] = new System.Windows.Point(0, 4);
 
             Room oFaornil = AddRoom("Faornil", "Seer's Tent");
-            oFaornil.Mob1 = "Faornil";
-            oFaornil.Experience1 = 250;
-            oFaornil.Alignment = AlignmentType.Red;
+            oFaornil.AddPermanentMobs(MobTypeEnum.FaornilTheSeer);
             AddExit(oShantyTown1, oFaornil, "tent");
             AddExit(oFaornil, oShantyTown1, "out");
             oShantyTownGraph.Rooms[oFaornil] = new System.Windows.Point(5, 2);
 
             Room oGraddy = AddRoom("Graddy", "Graddy the Dwarf's Wagon");
-            oGraddy.Mob1 = "Graddy";
-            oGraddy.Experience1 = 350;
+            oGraddy.AddPermanentMobs(MobTypeEnum.Graddy);
             AddExit(oShantyTown2, oGraddy, "wagon");
             AddExit(oGraddy, oShantyTown2, "out");
             oShantyTownGraph.Rooms[oGraddy] = new System.Windows.Point(5, 3);
 
             Room oGraddyOgre = AddRoom("Ogre", "Graddy's Ogre Pen");
-            oGraddyOgre.Mob1 = "Ogre";
-            oGraddyOgre.Experience1 = 150;
+            oGraddyOgre.AddPermanentMobs(MobTypeEnum.Ogre);
             Exit e = AddExit(oGraddy, oGraddyOgre, "gate");
             e.MustOpen = true;
             e = AddExit(oGraddyOgre, oGraddy, "gate");
@@ -3576,6 +3475,7 @@ namespace IsengardClient
             _graphs[MapType.Nindamos] = nindamosGraph;
 
             nindamosVillageCenter = AddRoom("Village Center", "Nindamos Village Center");
+            nindamosVillageCenter.AddPermanentMobs(MobTypeEnum.MaxTheVegetableVendor);
             nindamosGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(8, 4);
 
             Room oSandstoneNorth1 = AddRoom("Sandstone", "Sandstone Road North");
@@ -3606,6 +3506,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oMarketplace] = new System.Windows.Point(9.5, 2.6);
 
             Room oSmithy = AddRoom("Smithy", "The Marketplace");
+            oSmithy.AddPermanentMobs(MobTypeEnum.Smithy);
             AddBidirectionalExits(oSmithy, oMarketplace, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oSmithy] = new System.Windows.Point(8.5, 2.6);
 
@@ -3622,12 +3523,14 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandstoneSouth2] = new System.Windows.Point(8, 6);
 
             Room oKKsIronWorksKosta = AddRoom("Kosta", "KK's Ironworks");
+            oKKsIronWorksKosta.AddPermanentMobs(MobTypeEnum.Kosta);
             e = AddExit(oSandstoneSouth2, oKKsIronWorksKosta, "path");
             e.RequiresDay = true;
             AddExit(oKKsIronWorksKosta, oSandstoneSouth2, "out");
             nindamosGraph.Rooms[oKKsIronWorksKosta] = new System.Windows.Point(7, 6);
 
             Room oKauka = AddRoom("Kauka", "Kauka's Living Room");
+            oKauka.AddPermanentMobs(MobTypeEnum.Kauka);
             AddExit(oKKsIronWorksKosta, oKauka, "doorway");
             AddExit(oKauka, oKKsIronWorksKosta, "out");
             nindamosGraph.Rooms[oKauka] = new System.Windows.Point(7, 7);
@@ -3682,6 +3585,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oLimestone1] = new System.Windows.Point(9, 7);
 
             Room oSandPlaygroundSW = AddRoom("Malika", "The Sand Playground");
+            oSandPlaygroundSW.AddPermanentMobs(MobTypeEnum.Malika);
             AddBidirectionalExits(oSandPlaygroundSW, oLimestone1, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oSandPlaygroundSW] = new System.Windows.Point(9, 6.5);
 
@@ -3699,6 +3603,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oSandPlaygroundSE] = new System.Windows.Point(10, 6.5);
 
             Room oSandcastle = AddRoom("sobbing girl", "Inside the Sandcastle");
+            oSandcastle.AddPermanentMobs(MobTypeEnum.SobbingGirl);
             AddExit(oSandPlaygroundNE, oSandcastle, "sandcastle");
             AddExit(oSandcastle, oSandPlaygroundNE, "out");
             nindamosGraph.Rooms[oSandcastle] = new System.Windows.Point(10, 5.5);
@@ -3708,8 +3613,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oLimestone2] = new System.Windows.Point(10, 7);
 
             Room oLimestoneElysia = AddRoom("Numenorean Warder", "Elysia Street / Limestone Street");
-            oLimestoneElysia.Mob1 = "warder";
-            oLimestoneElysia.Experience1 = 450;
+            oLimestoneElysia.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oLimestone2, oLimestoneElysia, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[oLimestoneElysia] = new System.Windows.Point(11, 7);
 
@@ -3803,6 +3707,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oElysia2] = new System.Windows.Point(11, 3);
 
             Room oHestasMarket = AddRoom("Hesta's Market", "Hesta's Market");
+            oHestasMarket.AddPermanentMobs(MobTypeEnum.Hesta);
             e = AddExit(oElysia2, oHestasMarket, "market");
             e.RequiresDay = true;
             AddExit(oHestasMarket, oElysia2, "out");
@@ -3826,6 +3731,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oGranitePath2] = new System.Windows.Point(6, 4);
 
             Room oAlasse = AddRoom("Alasse's Pub", "Alasse's Pub");
+            oAlasse.AddPermanentMobs(MobTypeEnum.Alasse);
             e = AddExit(oGranitePath2, oAlasse, "south");
             e.RequiresDay = true;
             AddExit(oAlasse, oGranitePath2, "out");
@@ -3852,8 +3758,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oGranitePath7] = new System.Windows.Point(1, 2);
 
             oSouthernJunction = AddRoom("Southern Junction", "Southern Junction");
-            oSouthernJunction.Mob1 = "warder";
-            oSouthernJunction.Experience1 = 450;
+            oSouthernJunction.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oSouthernJunction, oGranitePath7, BidirectionalExitType.SoutheastNorthwest);
             nindamosGraph.Rooms[oSouthernJunction] = new System.Windows.Point(0, 1);
 
@@ -4341,8 +4246,7 @@ namespace IsengardClient
             Room oLastLiara = r;
 
             Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma");
-            oBaseOfMenelTarma.Mob1 = "warder";
-            oBaseOfMenelTarma.Experience1 = 450;
+            oBaseOfMenelTarma.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
 
             Room oHiddenPath1 = AddRoom("Hidden Path");
@@ -4516,7 +4420,8 @@ namespace IsengardClient
             AddBidirectionalExits(oDeathValleyWest2, oDeathValleyWest1, BidirectionalExitType.NorthSouth);
 
             Room oAmlug = AddRoom("Amlug");
-            oAmlug.Mob1 = "Amlug";
+            //CSRTODO
+            //oAmlug.Mob1 = "Amlug";
             AddExit(oDeathValleyWest2, oAmlug, "tomb");
             AddExit(oAmlug, oDeathValleyWest2, "out");
 
@@ -4527,7 +4432,8 @@ namespace IsengardClient
             AddBidirectionalExits(oDeathValleyWest4, oDeathValleyWest3, BidirectionalExitType.NorthSouth);
 
             Room oKallo = AddRoom("Kallo");
-            oKallo.Mob1 = "Kallo";
+            //CSRTODO
+            //oKallo.Mob1 = "Kallo";
             AddExit(oDeathValleyWest4, oKallo, "tomb");
             AddExit(oKallo, oDeathValleyWest4, "out");
 
@@ -4538,7 +4444,7 @@ namespace IsengardClient
             AddBidirectionalExits(oDeathValleyWest6, oDeathValleyWest5, BidirectionalExitType.NorthSouth);
 
             Room oWizard = AddRoom("Wizard of the First Order");
-            oWizard.Mob1 = "Wizard";
+            //CSRTODO: oWizard.Mob1 = "Wizard";
             AddExit(oDeathValleyWest6, oWizard, "vault");
             AddExit(oWizard, oDeathValleyWest6, "out");
 
@@ -4556,7 +4462,8 @@ namespace IsengardClient
             AddBidirectionalExits(oDeathValleyEast3, oDeathValleyEast2, BidirectionalExitType.NorthSouth);
 
             Room oTranquilParkKaivo = AddHealingRoom("Kaivo", UNKNOWN_ROOM_NAME, HealingRoom.DeathValley);
-            oTranquilParkKaivo.Mob1 = "Kaivo";
+            //CSRTODO
+            //oTranquilParkKaivo.Mob1 = "Kaivo";
             AddBidirectionalExits(oTranquilParkKaivo, oDeathValleyEast3, BidirectionalExitType.WestEast);
 
             Room oDeathValleyEast4 = AddRoom("Death Valley");

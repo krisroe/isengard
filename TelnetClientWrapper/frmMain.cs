@@ -1281,6 +1281,10 @@ namespace IsengardClient
                     newRoom = foundRoom;
                 }
             }
+            if (newRoom == null && fromBackgroundLook && previousRoom != null)
+            {
+                newRoom = previousRoom;
+            }
 
             lock (_roomChangeLock) //update the room change list with the next room
             {
@@ -1860,6 +1864,7 @@ namespace IsengardClient
             {
                 foreach (string s in addedPlayers)
                 {
+                    if (_players == null) _players = new HashSet<string>();
                     if (!_players.Contains(s))
                     {
                         _players.Add(s);
@@ -5142,17 +5147,24 @@ BeforeHazy:
         private void ctxMob_Opening(object sender, CancelEventArgs e)
         {
             Room r = m_oCurrentRoom;
-            if (r == null || string.IsNullOrEmpty(r.Mob1))
+            if (r == null || r.PermanentMobs == null)
             {
                 e.Cancel = true;
             }
             else
             {
-                tsmiMob1.Text = r.Mob1;
-                tsmiMob2.Text = r.Mob2;
-                tsmiMob2.Visible = !string.IsNullOrEmpty(r.Mob2);
-                tsmiMob3.Text = r.Mob3;
-                tsmiMob3.Visible = !string.IsNullOrEmpty(r.Mob3);
+                ctxMob.Items.Clear();
+                HashSet<MobTypeEnum> mobs = new HashSet<MobTypeEnum>();
+                foreach (MobTypeEnum nextMob in r.PermanentMobs)
+                {
+                    if (!mobs.Contains(nextMob))
+                    {
+                        ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                        tsmi.Text = MobEntity.PickWordForMob(nextMob);
+                        ctxMob.Items.Add(tsmi);
+                        mobs.Add(nextMob);
+                    }
+                }
             }
         }
 
@@ -5536,7 +5548,6 @@ BeforeHazy:
                 IsengardSettings sets = IsengardSettings.Default;
                 _queryMonsterStatus = sets.QueryMonsterStatus;
                 _verboseMode = sets.VerboseMode;
-                _gameMap.SetAlignment(frm.PreferredAlignment);
                 _fullColor = sets.FullColor;
                 _emptyColor = sets.EmptyColor;
 

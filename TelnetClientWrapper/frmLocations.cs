@@ -49,34 +49,13 @@ namespace IsengardClient
                 tArea.Tag = a;
                 treeLocations.Nodes.Add(tArea);
                 tArea.Expand();
-                a.Locations.Sort(new RoomComparer());
+                //CSRTODO: comparison?
                 foreach (Room r in a.Locations)
                 {
                     TreeNode tRoom = new TreeNode(r.ToString());
                     tRoom.Tag = r;
                     tArea.Nodes.Add(tRoom);
                 }
-            }
-        }
-
-        private class RoomComparer : IComparer<Room>
-        {
-            public int Compare(Room x, Room y)
-            {
-                int ret;
-                if (x.Experience1.HasValue != y.Experience1.HasValue)
-                {
-                    ret = x.Experience1.HasValue ? 1 : -1;
-                }
-                else if (!x.Experience1.HasValue && !y.Experience1.HasValue)
-                {
-                    ret = 0;
-                }
-                else
-                {
-                    ret = x.Experience1.Value.CompareTo(y.Experience1.Value);
-                }
-                return ret;
             }
         }
 
