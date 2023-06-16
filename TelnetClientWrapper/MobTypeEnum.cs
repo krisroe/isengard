@@ -269,6 +269,10 @@
         [Experience(170)]
         Grant,
 
+        [SingularName("grave digger")]
+        [PluralName("grave diggers")]
+        GraveDigger,
+
         [SingularName("gray elf")]
         [PluralName("gray elves")]
         GrayElf,

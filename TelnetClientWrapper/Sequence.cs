@@ -1138,6 +1138,9 @@ namespace IsengardClient
         internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int, TrapType> onSatisfied, int damage, ref TrapType trapType)
         {
             int lineCount = Lines.Count;
+
+StartProcessRoom:
+
             if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
             {
                 return false;
@@ -1168,6 +1171,11 @@ namespace IsengardClient
                         if (sNextLine == "You triggered a hidden dart!")
                         {
                             trapType = trapType | TrapType.PoisonDart;
+                        }
+                        else if (sNextLine == "You fell into a pit trap!")
+                        {
+                            nextLineIndex = i + 1;
+                            goto StartProcessRoom;
                         }
                         else
                         {
