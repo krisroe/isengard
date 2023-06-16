@@ -156,6 +156,10 @@
         [Alignment(AlignmentType.Red)]
         Drunk,
 
+        [SingularName("drunken greek")]
+        [PluralName("drunken greeks")]
+        DrunkenGreek,
+
         [SingularName("dungeon guard")]
         [PluralName("dungeon guards")]
         [Experience(120)]
@@ -847,6 +851,10 @@
         [SingularName("student")]
         [PluralName("students")]
         Student,
+
+        [SingularName("student activist")]
+        [PluralName("student activists")]
+        StudentActivist,
 
         [SingularName("Tellia the Witch")]
         //CSRTODO: no plural
