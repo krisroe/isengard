@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+
 namespace IsengardClient
 {
     public interface IOutputItemSequence
@@ -18,11 +19,6 @@ namespace IsengardClient
 
     public abstract class AOutputProcessingSequence
     {
-        public virtual bool IsActive()
-        {
-            return true;
-        }
-
         public abstract void FeedLine(FeedLineParameters Parameters);
     }
 
@@ -31,6 +27,7 @@ namespace IsengardClient
         public FeedLineParameters(List<string> Lines)
         {
             this.Lines = Lines;
+            this.InfoMessages = new List<InformationalMessages>();
         }
         public List<string> Lines { get; set; }
         public BackgroundCommandType? BackgroundCommandType { get; set; }
@@ -39,6 +36,8 @@ namespace IsengardClient
         public bool SuppressEcho { get; set; }
         public CommandResult? CommandResult { get; set; }
         public HashSet<string> PlayerNames { get; set; }
+        public int NextLineIndex { get; set; }
+        public List<InformationalMessages> InfoMessages { get; set; }
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -768,43 +767,26 @@ namespace IsengardClient
     internal class InitialLoginSequence : AOutputProcessingSequence
     {
         public Action<InitialLoginInfo> _onSatisfied;
-        public bool Active { get; set; }
 
         public InitialLoginSequence(Action<InitialLoginInfo> onSatisfied)
         {
             _onSatisfied = onSatisfied;
-            this.Active = true;
-        }
-
-        public override bool IsActive()
-        {
-            return this.Active;
         }
 
         public override void FeedLine(FeedLineParameters flParams)
         {
-            List<string> lines = flParams.Lines;
-            bool foundLoggedInBroadcast = false;
-            int? foundBlankLine = null;
-            for (int i = 0; i < lines.Count; i++)
+            bool isLogin = false;
+            foreach (var nextMessage in flParams.InfoMessages)
             {
-                string nextLine = lines[i];
-                if (foundLoggedInBroadcast)
+                if (nextMessage.MessageType == InformationalMessageType.InitialLogin)
                 {
-                    if (string.IsNullOrEmpty(nextLine))
-                    {
-                        foundBlankLine = i;
-                        break;
-                    }
-                }
-                else if (nextLine.StartsWith("###") && nextLine.EndsWith(" just logged in."))
-                {
-                    foundLoggedInBroadcast = true;
+                    isLogin = true;
+                    break;
                 }
             }
-            if (foundBlankLine.HasValue)
+            if (isLogin)
             {
-                InitialLoginInfo ili = RoomTransitionSequence.ProcessRoomForInitialization(lines, foundBlankLine.Value);
+                InitialLoginInfo ili = RoomTransitionSequence.ProcessRoomForInitialization(flParams.Lines, flParams.NextLineIndex);
                 if (ili != null)
                 {
                     _onSatisfied(ili);
@@ -816,144 +798,113 @@ namespace IsengardClient
 
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
-        private string _userName;
         private Action<RoomTransitionInfo, int, TrapType> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo, int, TrapType> onSatisfied, string userName)
+        public RoomTransitionSequence(Action<RoomTransitionInfo, int, TrapType> onSatisfied)
         {
             _onSatisfied = onSatisfied;
-            _userName = userName;
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            int lineCount = Lines.Count;
-            RoomTransitionType rtType = RoomTransitionType.Move;
-            int nextLineIndex = 0;
-            int iDamage = 0;
             TrapType eTrapType = TrapType.None;
-            while (true)
+            RoomTransitionType rtType = RoomTransitionType.Move;
+            int iDamage = 0;
+            foreach (var nextMessage in flParams.InfoMessages)
             {
-                string nextLine = Lines[nextLineIndex];
-                if (string.IsNullOrEmpty(nextLine))
+                InformationalMessageType eType = nextMessage.MessageType;
+                if (eType == InformationalMessageType.Flee)
                 {
-                    break;
+                    rtType = RoomTransitionType.Flee;
                 }
-                else if (nextLine.StartsWith("Scared of going "))
+                else if (eType == InformationalMessageType.WordOfRecall)
                 {
-                    //skipped
+                    rtType = RoomTransitionType.Hazy;
                 }
-                else
+                else if (eType == InformationalMessageType.Death)
                 {
-                    int iFoundDamage = FailMovementSequence.ProcessFallDamage(nextLine);
-                    if (iFoundDamage > 0) //skip but process the damage
+                    rtType = RoomTransitionType.Death;
+                }
+                else if (eType == InformationalMessageType.FallDamage)
+                {
+                    eTrapType |= TrapType.Fall;
+                    int iNextDamage = nextMessage.Damage;
+                    if (iNextDamage > 0)
                     {
-                        eTrapType = eTrapType | TrapType.Fall;
-                        iDamage += iFoundDamage;
-                    }
-                    else //something else, so skip to the following logic
-                    {
-                        break;
+                        iDamage += iNextDamage;
                     }
                 }
-                nextLineIndex++;
-                if (nextLineIndex == lineCount) //reached the end of the input
-                {
-                    return;
-                }
             }
-
-            string sNextLine = Lines[nextLineIndex];
-            if (Lines[nextLineIndex] == "You run like a chicken.")
-            {
-                rtType = RoomTransitionType.Flee;
-                nextLineIndex++;
-
-                //check if didn't actually flee
-                if (Lines[nextLineIndex] == "You are thrown back by an invisible force.")
-                {
-                    return;
-                }
-            }
-            else if (sNextLine == "You phase in and out of existence.")
-            {
-                rtType = RoomTransitionType.Hazy;
-                nextLineIndex++;
-            }
-            else if (sNextLine.StartsWith("### Sadly, " + _userName + " "))
-            {
-                rtType = RoomTransitionType.Death;
-                nextLineIndex++;
-            }
-
-            //blank line before room name
-            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return;
-
-            if (ProcessRoom(Lines, nextLineIndex, rtType, flParams, _onSatisfied, iDamage, ref eTrapType))
+            if (ProcessRoom(Lines, flParams.NextLineIndex, rtType, flParams, _onSatisfied, iDamage, ref eTrapType))
             {
                 flParams.FinishedProcessing = true;
             }
         }
 
-        /// <summary>
-        /// processes a room name as
-        /// [blank line]
-        /// Room name (non blank)
-        /// [blank line]
-        /// </summary>
-        /// <param name="Lines">list of output lines</param>
-        /// <param name="nextLineIndex">starting index for the room</param>
-        /// <param name="sRoomName">returns the room name</param>
-        /// <returns>true if the room name was successfully processed, false otherwise</returns>
-        internal static bool ProcessRoomName(List<string> Lines, ref int nextLineIndex, out string sRoomName)
-        {
-            sRoomName = string.Empty;
-
-            if (!string.IsNullOrEmpty(Lines[nextLineIndex])) return false;
-            nextLineIndex++;
-
-            if (nextLineIndex >= Lines.Count) return false;
-            sRoomName = (Lines[nextLineIndex] ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(sRoomName)) return false;
-            nextLineIndex++;
-
-            //blank line after room name
-            if (Lines[nextLineIndex] != string.Empty) return false;
-            nextLineIndex++;
-
-            return true;
-        }
-
         internal static InitialLoginInfo ProcessRoomForInitialization(List<string> Lines, int nextLineIndex)
         {
-            if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
+            InitialLoginInfo ili;
+            if (ProcessRoomContent(Lines, ref nextLineIndex, out string sRoomName, out string exitsString, out string room1List, out string room2List, out string room3List))
             {
-                return null;
+                ili = new InitialLoginInfo();
+                ili.RoomName = sRoomName;
+                ili.ObviousExits = exitsString;
+                ili.List1 = room1List;
+                ili.List2 = room2List;
+                ili.List3 = room3List;
             }
+            else
+            {
+                ili = null;
+            }
+            return ili;
+        }
 
-            string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
+        /// <summary>
+        /// processes content of a room
+        /// </summary>
+        /// <param name="Lines">line information</param>
+        /// <param name="nextLineIndex">starting index. the room is processed if it starts at a blank line before the room name.</param>
+        internal static bool ProcessRoomContent(List<string> Lines, ref int nextLineIndex, out string sRoomName, out string exitsString, out string room1List, out string room2List, out string room3List)
+        {
+            int lineCount = Lines.Count;
+            int tempIndex = nextLineIndex;
+            exitsString = room1List = room2List = room3List = null;
+            sRoomName = string.Empty;
+
+            //blank line before room name
+            if (tempIndex >= lineCount) return false;
+            if (!string.IsNullOrEmpty(Lines[tempIndex])) return false;
+
+            //room name
+            tempIndex++;
+            if (tempIndex >= lineCount) return false;
+            sRoomName = (Lines[tempIndex] ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(sRoomName)) return false;
+
+            //blank line after room name
+            tempIndex++;
+            if (tempIndex >= lineCount) return false;
+            if (Lines[tempIndex] != string.Empty) return false;
+
+            tempIndex++;
+            exitsString = StringProcessing.GetListAsString(Lines, tempIndex, "Obvious exits: ", true, out tempIndex);
             if (exitsString == null)
             {
-                return null;
+                return false;
             }
-            string room1List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
-            string room2List = null;
-            string room3List = null;
+            room1List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
+            room2List = null;
+            room3List = null;
             if (room1List != null)
             {
-                room2List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+                room2List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
                 if (room2List != null)
                 {
-                    room3List = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
+                    room3List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
                 }
             }
-
-            InitialLoginInfo ili = new InitialLoginInfo();
-            ili.RoomName = sRoomName;
-            ili.ObviousExits = exitsString;
-            ili.List1 = room1List;
-            ili.List2 = room2List;
-            ili.List3 = room3List;
-            return ili;
+            nextLineIndex = tempIndex;
+            return true;
         }
 
         public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType)
@@ -1141,22 +1092,9 @@ namespace IsengardClient
 
 StartProcessRoom:
 
-            if (!ProcessRoomName(Lines, ref nextLineIndex, out string sRoomName))
+            if (!ProcessRoomContent(Lines, ref nextLineIndex, out string sRoomName, out string exitsString, out string list1String, out string list2String, out string list3String))
             {
                 return false;
-            }
-
-            string exitsString = StringProcessing.GetListAsString(Lines, nextLineIndex, "Obvious exits: ", true, out nextLineIndex);
-            string list1String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
-            string list2String = null;
-            string list3String = null;
-            if (list1String != null)
-            {
-                list2String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
-            }
-            if (list2String != null)
-            {
-                list3String = StringProcessing.GetListAsString(Lines, nextLineIndex, "You see ", true, out nextLineIndex);
             }
 
             if (nextLineIndex < lineCount)
@@ -1881,123 +1819,166 @@ StartProcessRoom:
     {
         public const string CELDUIN_EXPRESS_IN_BREE_MESSAGE = "### The Celduin Express is ready for boarding in Bree.";
 
-        public Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> _onSatisfied;
+        public Action<FeedLineParameters, List<string>, List<string>, List<string>> _onSatisfied;
+        private string _userLoginPrefix;
+        private string _deathPrefixMessage;
 
-        public InformationalMessagesSequence(Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> onSatisfied)
+        public InformationalMessagesSequence(string userName, Action<FeedLineParameters, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
+            _userLoginPrefix = "### " + userName + " the ";
+            _deathPrefixMessage = "### Sadly, " + userName + " ";
         }
 
         public override void FeedLine(FeedLineParameters Parameters)
         {
-            List<InformationalMessages> messages = null;
             List<string> broadcastMessages = null;
             List<string> Lines = Parameters.Lines;
             List<string> addedPlayers = null;
             List<string> removedPlayers = null;
             List<int> linesToRemove = null;
             bool haveDataToDisplay = false;
+
+            //process the initial user login. This happenens first because of a blank line before the message, so it needs to be
+            //handled beforehand because the later logic stops at a blank line.
+            int iStartIndex = 0;
             for (int i = 0; i < Lines.Count; i++)
             {
+                string sNextLine = Lines[i];
+                if (sNextLine.StartsWith(_userLoginPrefix) && sNextLine.EndsWith(" just logged in."))
+                {
+                    Parameters.InfoMessages.Add(new InformationalMessages(InformationalMessageType.InitialLogin));
+                    iStartIndex = i + 1;
+                    haveDataToDisplay = true;
+                    break;
+                }
+            }
+
+            for (int i = iStartIndex; i < Lines.Count; i++)
+            {
                 bool isMessageToKeep = false;
-                bool whitespaceLine = false;
-                InformationalMessages? im = null;
+                InformationalMessageType? im = null;
                 string sLine = Lines[i];
                 bool isBroadcast = false;
-                if (sLine == "The sun rises.")
+                if (string.IsNullOrWhiteSpace(sLine))
+                {
+                    Parameters.NextLineIndex = i;
+                    break;
+                }
+                else if (sLine == "The sun rises.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.DayStart;
+                    im = InformationalMessageType.DayStart;
                 }
                 else if (sLine == "The sun disappears over the horizon.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.NightStart;
+                    im = InformationalMessageType.NightStart;
                 }
                 else if (sLine == "You feel less holy.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.BlessOver;
+                    im = InformationalMessageType.BlessOver;
                 }
                 else if (sLine == "You feel less protected.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.ProtectionOver;
+                    im = InformationalMessageType.ProtectionOver;
                 }
                 else if (sLine == "You can no longer fly.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.FlyOver;
+                    im = InformationalMessageType.FlyOver;
                 }
                 else if (sLine == "Your manashield dissipates.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.ManashieldOff;
+                    im = InformationalMessageType.ManashieldOff;
                 }
                 else if (sLine == CELDUIN_EXPRESS_IN_BREE_MESSAGE)
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.CelduinExpressInBree;
+                    im = InformationalMessageType.CelduinExpressInBree;
                 }
                 else if (sLine == "The Celduin Express has departed for Mithlond.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.CelduinExpressLeftBree;
+                    im = InformationalMessageType.CelduinExpressLeftBree;
                 }
                 else if (sLine == "The Celduin Express has departed for Bree.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.CelduinExpressLeftMithlond;
+                    im = InformationalMessageType.CelduinExpressLeftMithlond;
                 }
                 else if (sLine == "The Bullroarer has arrived in Mithlond.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.BullroarerInMithlond;
+                    im = InformationalMessageType.BullroarerInMithlond;
                 }
                 else if (sLine == "The Bullroarer has arrived in Nindamos.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.BullroarerInNindamos;
+                    im = InformationalMessageType.BullroarerInNindamos;
                 }
                 else if (sLine == "The Bullroarer is now ready for boarding.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.BullroarerReadyForBoarding;
+                    im = InformationalMessageType.BullroarerReadyForBoarding;
                 }
                 else if (sLine == "The Harbringer has set sail.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.HarbringerSailed;
+                    im = InformationalMessageType.HarbringerSailed;
                 }
                 else if (sLine == "The Harbringer is ready for boarding.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.HarbringerInPort;
+                    im = InformationalMessageType.HarbringerInPort;
                 }
                 else if (sLine == "The searing heat burns your flesh.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.FireDamage;
+                    im = InformationalMessageType.FireDamage;
                 }
                 else if (sLine == "Water fills your lungs.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.WaterDamage;
+                    im = InformationalMessageType.WaterDamage;
                 }
                 else if (sLine == "The earth swells up around you and smothers you.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.EarthDamage;
+                    im = InformationalMessageType.EarthDamage;
                 }
                 else if (sLine == "The freezing air chills you to the bone.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.WindDamage;
+                    im = InformationalMessageType.WindDamage;
                 }
                 else if (sLine == "Poison courses through your veins.")
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessages.PoisonDamage;
+                    im = InformationalMessageType.PoisonDamage;
+                }
+                else if (sLine == "You run like a chicken.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.Flee;
+                }
+                else if (sLine == "You are thrown back by an invisible force.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.FleeFailed;
+                }
+                else if (sLine == "You phase in and out of existence.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.WordOfRecall;
+                }
+                else if (sLine.StartsWith(_deathPrefixMessage))
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.Death;
                 }
                 else if (sLine == "The air is still and quiet." ||
                          sLine == "Light clouds appear over the mountains." ||
@@ -2007,7 +1988,7 @@ StartProcessRoom:
                          sLine == "The sun shines brightly across the land." ||
                          sLine == "The glaring sun beats down upon the inhabitants of the world." ||
                          sLine == "The heat today is unbearable." ||
-                         
+
                          sLine == "The earth trembles under your feet." ||
 
                          sLine == "The sky is dark as pitch." ||
@@ -2015,14 +1996,14 @@ StartProcessRoom:
                          sLine == "The night sky is lit by the waxing moon." ||
                          sLine == "Half a moon lights the evening skies." ||
                          sLine == "A sliver of silver can be seen in the night sky." ||
-                         
+
                          sLine == "Thunderheads roll in from the east." ||
                          sLine == "A heavy fog blankets the earth." ||
                          sLine == "A light rain falls quietly." ||
                          sLine == "Sheets of rain pour down from the skies." ||
                          sLine == "A torrent soaks the ground." ||
                          sLine == "A heavy rain begins to fall." ||
-                         
+
                          sLine == "A strong wind blows across the land." ||
                          sLine == "The wind gusts, blowing debris through the streets." ||
                          sLine == "Gale force winds blow in from the sea." ||
@@ -2071,54 +2052,66 @@ StartProcessRoom:
                 }
                 else if (sLine.EndsWith(" just arrived.") ||
                          sLine.EndsWith(" just wandered away.") ||
-                         sLine.EndsWith(" circles you."))
+                         sLine.EndsWith(" circles you.") ||
+                         sLine.EndsWith(" killed you.") ||
+                         sLine.StartsWith("Scared of going "))
                 {
                     isMessageToKeep = true;
                     haveDataToDisplay = true;
                 }
-                else if (!string.IsNullOrWhiteSpace(sLine)) //not an informational message
+                else //not an informational message
                 {
+                    InformationalMessages nextMsg;
+                    int iDamage = FailMovementSequence.ProcessFallDamage(sLine);
+                    if (iDamage > 0)
+                    {
+                        nextMsg = new InformationalMessages(InformationalMessageType.FallDamage);
+                        nextMsg.Damage = iDamage;
+                        Parameters.InfoMessages.Add(nextMsg);
+                    }
+
+                    int? iDamage2 = CheckIfEnemyAttacksYou(sLine);
+                    if (iDamage2.HasValue)
+                    {
+                        nextMsg = new InformationalMessages(InformationalMessageType.EnemyAttacksYou);
+                        nextMsg.Damage = iDamage2.Value;
+                        Parameters.InfoMessages.Add(nextMsg);
+                    }
+
                     haveDataToDisplay = true;
                     break;
                 }
-                else //whitespace
+
+                bool removeLine = false;
+                bool addAsBroadcastMessage = false;
+                if (isBroadcast)
                 {
-                    whitespaceLine = true;
+                    addAsBroadcastMessage = true;
+                    removeLine = true;
                 }
-                if (!whitespaceLine)
+                else if (im.HasValue)
                 {
-                    bool removeLine = false;
-                    bool addAsBroadcastMessage = false;
-                    if (isBroadcast)
-                    {
-                        addAsBroadcastMessage = true;
-                        removeLine = true;
-                    }
-                    else if (im.HasValue)
-                    {
-                        InformationalMessages imVal = im.Value;
-                        if (messages == null)
-                            messages = new List<InformationalMessages>();
-                        messages.Add(imVal);
-                    }
-                    else if (!isMessageToKeep)
-                    {
-                        removeLine = true;
-                    }
-                    if (addAsBroadcastMessage)
-                    {
-                        if (broadcastMessages == null)
-                            broadcastMessages = new List<string>();
-                        broadcastMessages.Add(sLine);
-                    }
-                    if (removeLine)
-                    {
-                        if (linesToRemove == null)
-                            linesToRemove = new List<int>();
-                        linesToRemove.Add(i);
-                    }
+                    Parameters.InfoMessages.Add(new InformationalMessages(im.Value));
+                }
+                else if (!isMessageToKeep)
+                {
+                    removeLine = true;
+                }
+                if (addAsBroadcastMessage)
+                {
+                    if (broadcastMessages == null)
+                        broadcastMessages = new List<string>();
+                    broadcastMessages.Add(sLine);
+                }
+                if (removeLine)
+                {
+                    if (linesToRemove == null)
+                        linesToRemove = new List<int>();
+                    linesToRemove.Add(i);
                 }
             }
+
+            //remove from output lines that shouldn't display
             if (linesToRemove != null)
             {
                 linesToRemove.Reverse();
@@ -2132,17 +2125,90 @@ StartProcessRoom:
                     Parameters.FinishedProcessing = true;
                 }
             }
-            if (messages != null || broadcastMessages != null)
+
+            if (Parameters.InfoMessages.Count > 0 || broadcastMessages != null)
             {
-                _onSatisfied(Parameters, messages, broadcastMessages, addedPlayers, removedPlayers);
+                _onSatisfied(Parameters, broadcastMessages, addedPlayers, removedPlayers);
             }
+        }
+
+        private const string DAMAGE_END_STRING = " damage!";
+        private const string YOU_FOR_STRING = " you for ";
+        public static int? CheckIfEnemyAttacksYou(string firstLine)
+        {
+            if (firstLine.EndsWith(" missed you."))
+            {
+                return 0;
+            }
+            else if (firstLine.EndsWith(DAMAGE_END_STRING))
+            {
+                int iDamage = AttackSequence.GetDamage(firstLine, YOU_FOR_STRING, DAMAGE_END_STRING);
+                if (iDamage <= 0)
+                {
+                    return null;
+                }
+
+                int len = firstLine.Length;
+                int backlen = YOU_FOR_STRING.Length + DAMAGE_END_STRING.Length + iDamage.ToString().Length;
+                if (len == backlen) return null;
+
+                string remainder = firstLine.Substring(0, len - backlen);
+                bool matches;
+                if (remainder.EndsWith(" barely nicks"))
+                {
+                    matches = iDamage >= 1 && iDamage <= 2;
+                }
+                else if (remainder.EndsWith(" scratches"))
+                {
+                    matches = iDamage >= 3 && iDamage <= 5;
+                }
+                else if (remainder.EndsWith(" bruises"))
+                {
+                    matches = iDamage >= 6 && iDamage <= 9;
+                }
+                else if (remainder.EndsWith(" hurts"))
+                {
+                    matches = iDamage >= 10 && iDamage <= 12;
+                }
+                else if (remainder.EndsWith(" wounds"))
+                {
+                    matches = iDamage >= 13 && iDamage <= 15;
+                }
+                else if (remainder.EndsWith(" smites"))
+                {
+                    matches = true; //CSRTODO: 16-20
+                }
+                else if (remainder.EndsWith(" maims"))
+                {
+                    matches = true; //CSRTODO: 22-23
+                }
+                else if (remainder.EndsWith(" pulverizes"))
+                {
+                    matches = true; //CSRTODO: 26-27
+                }
+                else if (remainder.EndsWith(" devestates"))
+                {
+                    matches = true; //CSRTODO: 33
+                }
+                else if (remainder.EndsWith(" spell on"))
+                {
+                    matches = true;
+                }
+                else
+                {
+                    matches = false;
+                }
+                if (matches)
+                {
+                    return iDamage;
+                }
+            }
+            return null;
         }
     }
 
     public class EntityAttacksYouSequence : AOutputProcessingSequence
     {
-        private const string DAMAGE_END_STRING = " damage!";
-        private const string YOU_FOR_STRING = " you for ";
         public Action<FeedLineParameters> _onSatisfied;
 
         public EntityAttacksYouSequence(Action<FeedLineParameters> onSatisfied)
@@ -2151,77 +2217,12 @@ StartProcessRoom:
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
-            List<string> Lines = flParams.Lines;
-            if (Lines.Count > 0)
+            foreach (InformationalMessages nextMessage in flParams.InfoMessages)
             {
-                string firstLine = Lines[0];
-                bool matches = false;
-                if (firstLine.EndsWith(" missed you."))
+                if (nextMessage.MessageType == InformationalMessageType.EnemyAttacksYou)
                 {
-                    matches = true;
-                }
-                else if (firstLine.EndsWith(DAMAGE_END_STRING))
-                {
-                    int iDamage = AttackSequence.GetDamage(firstLine, YOU_FOR_STRING, DAMAGE_END_STRING);
-                    if (iDamage <= 0)
-                    {
-                        return;
-                    }
-
-                    int len = firstLine.Length;
-                    int backlen = YOU_FOR_STRING.Length + DAMAGE_END_STRING.Length + iDamage.ToString().Length;
-                    if (len == backlen) return;
-
-                    string remainder = firstLine.Substring(0, len - backlen);
-                    if (remainder.EndsWith(" barely nicks"))
-                    {
-                        matches = iDamage >= 1 && iDamage <= 2;
-                    }
-                    else if (remainder.EndsWith(" scratches"))
-                    {
-                        matches = iDamage >= 3 && iDamage <= 5;
-                    }
-                    else if (remainder.EndsWith(" bruises"))
-                    {
-                        matches = iDamage >= 6 && iDamage <= 9;
-                    }
-                    else if (remainder.EndsWith(" hurts"))
-                    {
-                        matches = iDamage >= 10 && iDamage <= 12;
-                    }
-                    else if (remainder.EndsWith(" wounds"))
-                    {
-                        matches = iDamage >= 13 && iDamage <= 15;
-                    }
-                    else if (remainder.EndsWith(" smites"))
-                    {
-                        matches = true; //CSRTODO: 16-20
-                    }
-                    else if (remainder.EndsWith(" maims"))
-                    {
-                        matches = true; //CSRTODO: 22-23
-                    }
-                    else if (remainder.EndsWith(" pulverizes"))
-                    {
-                        matches = true; //CSRTODO: 26-27
-                    }
-                    else if (remainder.EndsWith(" devestates"))
-                    {
-                        matches = true; //CSRTODO: 33
-                    }
-                    else if (remainder.EndsWith(" spell on"))
-                    {
-                        matches = true;
-                    }
-                    else
-                    {
-                        matches = false;
-                    }
-                }
-                if (matches)
-                {
-                    flParams.FinishedProcessing = true;
                     _onSatisfied(flParams);
+                    break;
                 }
             }
         }

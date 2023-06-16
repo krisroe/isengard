@@ -132,7 +132,6 @@ namespace IsengardClient
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
         private PleaseWaitSequence _pleaseWaitSequence;
-        private InitialLoginSequence _initializationLoginSequence;
         private Color _fullColor;
         private Color _emptyColor;
 
@@ -212,7 +211,6 @@ namespace IsengardClient
             _strategies = Strategy.GetDefaultStrategies();
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
-            _initializationLoginSequence = new InitialLoginSequence(OnInitialLogin);
 
             SetButtonTags();
 
@@ -842,7 +840,6 @@ namespace IsengardClient
         private void DoConnect()
         {
             _initializationSteps = InitializationStep.None;
-            _initializationLoginSequence.Active = true;
             _loginInfo = null;
             _players = null;
             lock (_timeLock)
@@ -1055,7 +1052,6 @@ namespace IsengardClient
 
         private void OnInitialLogin(InitialLoginInfo initialLoginInfo)
         {
-            _initializationLoginSequence.Active = false;
             SendCommand("score", InputEchoType.Off);
             SendCommand("who", InputEchoType.Off);
             SendCommand("remove all", InputEchoType.Off);
@@ -1665,192 +1661,195 @@ namespace IsengardClient
             }
         }
 
-        private void OnInformationalMessages(FeedLineParameters flp, List<InformationalMessages> ims, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
+        private void OnInformationalMessages(FeedLineParameters flp, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
         {
-            if (ims != null)
+            List<InformationalMessages> infoMsgs = flp.InfoMessages;
+            List<string> spellsOff = null;
+            bool finishedProcessing = false;
+            bool exitMessageReceived = false;
+            Exit currentBackgroundExit = _currentBackgroundExit;
+            foreach (InformationalMessages next in infoMsgs)
             {
-                List<string> spellsOff = null;
-                foreach (InformationalMessages nextMessage in ims)
+                InformationalMessageType nextMessage = next.MessageType;
+
+                if (currentBackgroundExit != null && currentBackgroundExit.WaitForMessage.HasValue && currentBackgroundExit.WaitForMessage.Value == nextMessage)
                 {
-                    switch (nextMessage)
-                    {
-                        case InformationalMessages.DayStart:
-                            _time = SUNRISE_GAME_HOUR;
-                            _timeLastUpdatedUTC = DateTime.UtcNow;
-                            break;
-                        case InformationalMessages.NightStart:
-                            _time = SUNSET_GAME_HOUR;
-                            _timeLastUpdatedUTC = DateTime.UtcNow;
-                            break;
-                        case InformationalMessages.BlessOver:
-                            if (spellsOff == null) spellsOff = new List<string>();
-                            spellsOff.Add("bless");
-                            break;
-                        case InformationalMessages.ProtectionOver:
-                            if (spellsOff == null) spellsOff = new List<string>();
-                            spellsOff.Add("protection");
-                            break;
-                        case InformationalMessages.FlyOver:
-                            if (spellsOff == null) spellsOff = new List<string>();
-                            spellsOff.Add("fly");
-                            break;
-                        case InformationalMessages.ManashieldOff:
-                            ChangeSkillActive(SkillWithCooldownType.Manashield, false);
-                            break;
-                        case InformationalMessages.BullroarerInMithlond:
-                            lock (_roomChangeLock)
-                            {
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.Bullroarer:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessages.BullroarerInMithlond, true));
-                                            break;
-                                        case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.BullroarerInNindamos:
-                            lock (_roomChangeLock)
-                            {
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.Bullroarer:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessages.BullroarerInNindamos, true));
-                                            break;
-                                        case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.BullroarerReadyForBoarding:
-                            lock (_roomChangeLock)
-                            {
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
-                                            break;
-                                        case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.CelduinExpressInBree:
-                            lock (_roomChangeLock)
-                            {
-                                bool removeMessage = true;
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.CelduinExpress:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
-                                            removeMessage = false;
-                                            break;
-                                        case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
-                                            removeMessage = false;
-                                            break;
-                                    }
-                                }
-                                if (removeMessage)
-                                {
-                                    for (int i = 0; i < flp.Lines.Count; i++)
-                                    {
-                                        if (flp.Lines[i] == InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE)
-                                        {
-                                            flp.Lines.RemoveAt(i);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.CelduinExpressLeftBree:
-                            lock (_roomChangeLock)
-                            {
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.CelduinExpress:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
-                                            break;
-                                        case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.CelduinExpressLeftMithlond:
-                            lock (_roomChangeLock)
-                            {
-                                Room currentRoom = m_oCurrentRoom;
-                                if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
-                                {
-                                    switch (currentRoom.BoatLocationType.Value)
-                                    {
-                                        case BoatEmbarkOrDisembark.CelduinExpress:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
-                                            break;
-                                        case BoatEmbarkOrDisembark.CelduinExpressMithlond:
-                                            _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case InformationalMessages.HarbringerInPort:
-                            HandleHarbringerStatusChange(true);
-                            break;
-                        case InformationalMessages.HarbringerSailed:
-                            HandleHarbringerStatusChange(false);
-                            break;
-                    }
+                    _currentBackgroundExitMessageReceived = true;
                 }
-                if (spellsOff != null)
+
+                switch (nextMessage)
                 {
-                    lock (_spellsCast)
-                    {
-                        foreach (string nextSpell in spellsOff)
+                    case InformationalMessageType.DayStart:
+                        _time = SUNRISE_GAME_HOUR;
+                        _timeLastUpdatedUTC = DateTime.UtcNow;
+                        break;
+                    case InformationalMessageType.NightStart:
+                        _time = SUNSET_GAME_HOUR;
+                        _timeLastUpdatedUTC = DateTime.UtcNow;
+                        break;
+                    case InformationalMessageType.BlessOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("bless");
+                        break;
+                    case InformationalMessageType.ProtectionOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("protection");
+                        break;
+                    case InformationalMessageType.FlyOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("fly");
+                        break;
+                    case InformationalMessageType.ManashieldOff:
+                        ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+                        break;
+                    case InformationalMessageType.FleeFailed:
+                        finishedProcessing = true;
+                        break;
+                    case InformationalMessageType.BullroarerInMithlond:
+                        lock (_roomChangeLock)
                         {
-                            if (_spellsCast.Contains(nextSpell))
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
-                                _spellsCast.Remove(nextSpell);
-                                _refreshSpellsCast = true;
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.Bullroarer:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
+                                        break;
+                                    case BoatEmbarkOrDisembark.BullroarerMithlond:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        break;
+                                }
                             }
+                        }
+                        break;
+                    case InformationalMessageType.BullroarerInNindamos:
+                        lock (_roomChangeLock)
+                        {
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.Bullroarer:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
+                                        break;
+                                    case BoatEmbarkOrDisembark.BullroarerNindamos:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case InformationalMessageType.BullroarerReadyForBoarding:
+                        lock (_roomChangeLock)
+                        {
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.BullroarerMithlond:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        break;
+                                    case BoatEmbarkOrDisembark.BullroarerNindamos:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case InformationalMessageType.CelduinExpressInBree:
+                        lock (_roomChangeLock)
+                        {
+                            bool removeMessage = true;
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.CelduinExpress:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
+                                        removeMessage = false;
+                                        break;
+                                    case BoatEmbarkOrDisembark.CelduinExpressBree:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
+                                        removeMessage = false;
+                                        break;
+                                }
+                            }
+                            if (removeMessage)
+                            {
+                                for (int i = 0; i < flp.Lines.Count; i++)
+                                {
+                                    if (flp.Lines[i] == InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE)
+                                    {
+                                        flp.Lines.RemoveAt(i);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case InformationalMessageType.CelduinExpressLeftBree:
+                        lock (_roomChangeLock)
+                        {
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.CelduinExpress:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
+                                        break;
+                                    case BoatEmbarkOrDisembark.CelduinExpressBree:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case InformationalMessageType.CelduinExpressLeftMithlond:
+                        lock (_roomChangeLock)
+                        {
+                            Room currentRoom = m_oCurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.CelduinExpress:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
+                                        break;
+                                    case BoatEmbarkOrDisembark.CelduinExpressMithlond:
+                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case InformationalMessageType.HarbringerInPort:
+                        HandleHarbringerStatusChange(true);
+                        break;
+                    case InformationalMessageType.HarbringerSailed:
+                        HandleHarbringerStatusChange(false);
+                        break;
+                }
+            }
+            if (spellsOff != null)
+            {
+                lock (_spellsCast)
+                {
+                    foreach (string nextSpell in spellsOff)
+                    {
+                        if (_spellsCast.Contains(nextSpell))
+                        {
+                            _spellsCast.Remove(nextSpell);
+                            _refreshSpellsCast = true;
                         }
                     }
                 }
-                Exit currentBackgroundExit = _currentBackgroundExit;
-                if (currentBackgroundExit != null)
-                {
-                    InformationalMessages? waitForExit = currentBackgroundExit.WaitForMessage;
-                    if (waitForExit.HasValue && ims.Contains(waitForExit.Value))
-                    {
-                        _currentBackgroundExitMessageReceived = true;
-                    }
-                }
             }
+
             if (broadcasts != null)
             {
                 lock (_broadcastMessagesLock)
@@ -1858,6 +1857,7 @@ namespace IsengardClient
                     _broadcastMessages.AddRange(broadcasts);
                 }
             }
+
             //add/remove players logging in or out
             //don't worry if the list doesn't match up since the player list isn't necessarily accurate
             if (addedPlayers != null)
@@ -1871,6 +1871,7 @@ namespace IsengardClient
                     }
                 }
             }
+
             if (removedPlayers != null)
             {
                 foreach (string s in removedPlayers)
@@ -1880,6 +1881,11 @@ namespace IsengardClient
                         _players.Remove(s);
                     }
                 }
+            }
+
+            if (finishedProcessing)
+            {
+                flp.FinishedProcessing = true;
             }
         }
 
@@ -1940,7 +1946,7 @@ namespace IsengardClient
         /// <param name="messageType">message type</param>
         /// <param name="add">true to add the exit, false to remove the exit</param>
         /// <returns>room change object</returns>
-        private RoomChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessages messageType, bool add)
+        private RoomChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessageType messageType, bool add)
         {
             RoomChange rc = new RoomChange();
             rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
@@ -2047,27 +2053,24 @@ namespace IsengardClient
 
                             foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
                             {
-                                if (nextProcessingSequence.IsActive())
+                                try
                                 {
-                                    try
+                                    nextProcessingSequence.FeedLine(flParams);
+                                }
+                                catch (Exception ex)
+                                {
+                                    lock (_consoleTextLock)
                                     {
-                                        nextProcessingSequence.FeedLine(flParams);
+                                        _newConsoleText.Add(ex.ToString());
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        lock (_consoleTextLock)
-                                        {
-                                            _newConsoleText.Add(ex.ToString());
-                                        }
-                                    }
-                                    if (flParams.SuppressEcho && !_verboseMode)
-                                    {
-                                        echoType = InputEchoType.Off;
-                                    }
-                                    if (flParams.FinishedProcessing)
-                                    {
-                                        break;
-                                    }
+                                }
+                                if (flParams.SuppressEcho && !_verboseMode)
+                                {
+                                    echoType = InputEchoType.Off;
+                                }
+                                if (flParams.FinishedProcessing)
+                                {
+                                    break;
                                 }
                             }
 
@@ -2146,16 +2149,16 @@ namespace IsengardClient
         {
             List<AOutputProcessingSequence> seqs = new List<AOutputProcessingSequence>
             {
-                _initializationLoginSequence,
-                new InformationalMessagesSequence(OnInformationalMessages),
+                new SearchSequence(SuccessfulSearch, FailSearch),
+                new InformationalMessagesSequence(_username, OnInformationalMessages),
+                new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
                 new WhoOutputSequence(OnWho),
                 new RemoveEquipmentSequence(OnRemoveEquipment),
                 new MobStatusSequence(OnMobStatusSequence),
                 new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
-                new SearchSequence(SuccessfulSearch, FailSearch),
-                new RoomTransitionSequence(OnRoomTransition, _username),
+                new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),

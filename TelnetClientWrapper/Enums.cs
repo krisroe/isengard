@@ -327,8 +327,21 @@ namespace IsengardClient
         Death,
     }
 
-    public enum InformationalMessages
+    public class InformationalMessages
     {
+        public InformationalMessages(InformationalMessageType msgType)
+        {
+            this.MessageType = msgType;
+        }
+
+        public InformationalMessageType MessageType { get; set; }
+        public int Damage { get; set; }
+    }
+
+    public enum InformationalMessageType
+    {
+        InitialLogin,
+        Death,
         DayStart,
         NightStart,
         BlessOver,
@@ -340,6 +353,9 @@ namespace IsengardClient
         EarthDamage,
         WindDamage,
         PoisonDamage,
+        Flee,
+        FleeFailed,
+        WordOfRecall,
         BullroarerInMithlond,
         BullroarerInNindamos,
         BullroarerReadyForBoarding,
@@ -348,6 +364,8 @@ namespace IsengardClient
         CelduinExpressLeftMithlond,
         HarbringerInPort,
         HarbringerSailed,
+        EnemyAttacksYou,
+        FallDamage,
     }
 
     public enum SkillWithCooldownType

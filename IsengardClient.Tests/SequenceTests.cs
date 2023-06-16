@@ -46,27 +46,25 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestInformationalMessageProcessing()
         {
-            List<InformationalMessages> msgs = null;
             List<string> broadcasts = null;
             List<string> addedPlayers = null;
             List<string> removedPlayers = null;
-            Action<FeedLineParameters, List<InformationalMessages>, List<string>, List<string>, List<string>> a = (flParams, l, s1, s2, s3) =>
+            Action<FeedLineParameters, List<string>, List<string>, List<string>> a = (flParams, s1, s2, s3) =>
             {
-                msgs = null;
                 broadcasts = s1;
                 addedPlayers = s2;
                 removedPlayers = s3;
             };
-            InformationalMessagesSequence seq = new InformationalMessagesSequence(a);
+            InformationalMessagesSequence seq = new InformationalMessagesSequence("Despug", a);
             FeedLineParameters flp = new FeedLineParameters(null);
 
-            msgs = null;
+            flp.InfoMessages = new List<InformationalMessages>();
             broadcasts = addedPlayers = removedPlayers = null;
             flp.Lines = new List<string>() { "The heat today is unbearable.", "### The Celduin Express is ready for boarding in Bree." };
             seq.FeedLine(flp);
             Assert.IsTrue(flp.Lines.Count == 1); //celduin express message stays because it might stay or go depending on location
 
-            msgs = null;
+            flp.InfoMessages = new List<InformationalMessages>();
             broadcasts = addedPlayers = removedPlayers = null;
             flp.Lines = new List<string>() { "A hobbit just arrived." };
             seq.FeedLine(flp);
@@ -679,7 +677,7 @@ namespace IsengardClient.Tests
                 trapType = tt;
             };
 
-            RoomTransitionSequence seq = new RoomTransitionSequence(a, "Despug");
+            RoomTransitionSequence seq = new RoomTransitionSequence(a);
             FeedLineParameters flParams = new FeedLineParameters(null);
 
             flParams.Lines = new List<string>()

@@ -522,6 +522,10 @@
         [SingularName("steel-chain armor")]
         SteelChainArmor,
 
+        [SingularName("stilleto")]
+        //CSRTODO: plural?
+        Stilleto,
+
         [SingularName("stone key")]
         [PluralName("stone keys")]
         StoneKey,
