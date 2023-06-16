@@ -101,7 +101,7 @@
         [PluralName("catapult officers")]
         CatapultOfficer,
 
-        [SingularName("the Chancellor of Protection")]
+        [SingularName("Chancellor of Protection")]
         //CSRTODO: no plural
         [Experience(200)]
         [Alignment(AlignmentType.Blue)]
@@ -552,7 +552,7 @@
         MaxTheVegetableVendor,
 
         //immune to stun
-        [SingularName("the Mayor Millwood")]
+        [SingularName("Mayor Millwood")]
         //CSRTODO: no plural
         [Experience(220)]
         [Alignment(AlignmentType.Grey)]
@@ -789,7 +789,7 @@
         [PluralName("sheep")]
         Sheep,
 
-        [SingularName("the shepherd")]
+        [SingularName("shepherd")]
         //CSRTODO: no plural?
         [Experience(60)]
         [Alignment(AlignmentType.Blue)]
@@ -812,7 +812,7 @@
         [PluralName("small spiders")]
         SmallSpider,
 
-        [SingularName("the smithy")]
+        [SingularName("smithy")]
         //CSRTODO: plural?
         Smithy,
 

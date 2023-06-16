@@ -2140,11 +2140,7 @@ StartProcessRoom:
 
                     haveDataToDisplay = true;
 
-                    if (nextMsg != null)
-                    {
-                        Parameters.InfoMessages.Add(nextMsg);
-                    }
-                    else //not an informational message
+                    if (nextMsg == null) //not an informational message
                     {
                         break;
                     }
