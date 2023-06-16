@@ -1581,7 +1581,7 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled, int damage, bool killedMonster, int experience, bool powerAttacked, FeedLineParameters flParams)
+        private void OnAttack(bool fumbled, int damage, bool killedMonster, MobTypeEnum? eMobType, int experience, bool powerAttacked, FeedLineParameters flParams)
         {
             if (powerAttacked)
             {
@@ -1594,6 +1594,10 @@ namespace IsengardClient
                 else if (killedMonster) _monsterKilled = true;
                 _monsterDamage += damage;
             }
+            if (eMobType.HasValue)
+            {
+                RemoveMobs(eMobType.Value, 1);
+            }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
             {
@@ -1602,13 +1606,17 @@ namespace IsengardClient
             }
         }
 
-        private void OnCastOffensiveSpell(int damage, bool killedMonster, int experience, FeedLineParameters flParams)
+        private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, FeedLineParameters flParams)
         {
             _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 _monsterDamage += damage;
                 if (killedMonster) _monsterKilled = true;
+            }
+            if (mobType.HasValue)
+            {
+                RemoveMobs(mobType.Value, 1);
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
@@ -1867,20 +1875,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
-                        rc = new RoomChange();
-                        rc.ChangeType = RoomChangeType.RemoveMob;
-                        rc.Mobs = new List<MobTypeEnum>();
-                        for (int i = 0; i < next.MobCount; i++)
-                        {
-                            rc.Mobs.Add(next.Mob);
-                        }
-                        rc.GlobalCounter = _roomChangeCounter;
-                        lock (_roomChangeLock)
-                        {
-                            _roomChangeCounter++;
-                            rc.GlobalCounter = _roomChangeCounter;
-                            _currentRoomChanges.Add(rc);
-                        }
+                        RemoveMobs(next.Mob, next.MobCount);
                         break;
                 }
             }
@@ -1935,6 +1930,24 @@ namespace IsengardClient
             if (finishedProcessing)
             {
                 flp.FinishedProcessing = true;
+            }
+        }
+
+        private void RemoveMobs(MobTypeEnum mobType, int Count)
+        {
+            RoomChange rc = new RoomChange();
+            rc.ChangeType = RoomChangeType.RemoveMob;
+            rc.Mobs = new List<MobTypeEnum>();
+            for (int i = 0; i < Count; i++)
+            {
+                rc.Mobs.Add(mobType);
+            }
+            rc.GlobalCounter = _roomChangeCounter;
+            lock (_roomChangeLock)
+            {
+                _roomChangeCounter++;
+                rc.GlobalCounter = _roomChangeCounter;
+                _currentRoomChanges.Add(rc);
             }
         }
 

@@ -1216,8 +1216,8 @@ StartProcessRoom:
             }
         }
 
-        public Action<int, bool, int, FeedLineParameters> _onSatisfied;
-        public CastOffensiveSpellSequence(Action<int, bool, int, FeedLineParameters> onSatisfied)
+        public Action<int, bool, MobTypeEnum?, int, FeedLineParameters> _onSatisfied;
+        public CastOffensiveSpellSequence(Action<int, bool, MobTypeEnum?, int, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1264,9 +1264,10 @@ StartProcessRoom:
             }
 
             int iExperience;
-            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(Lines, 1, out iExperience);
+            MobTypeEnum? mobType;
+            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(flParams, 1, out iExperience, out mobType);
             flParams.FinishedProcessing = true;
-            _onSatisfied(damage, monsterKilled, iExperience, flParams);
+            _onSatisfied(damage, monsterKilled, mobType, iExperience, flParams);
         }
     }
 
@@ -1280,8 +1281,8 @@ StartProcessRoom:
         private const string YOU_GAINED_PREFIX = "You gained";
         private const string EXPERIENCE_FOR_THE_DEATH_SUFFIX = " experience for the death of ";
 
-        public Action<bool, int, bool, int, bool, FeedLineParameters> _onSatisfied;
-        public AttackSequence(Action<bool, int, bool, int, bool, FeedLineParameters> onSatisfied)
+        public Action<bool, int, bool, MobTypeEnum?, int, bool, FeedLineParameters> _onSatisfied;
+        public AttackSequence(Action<bool, int, bool, MobTypeEnum?, int, bool, FeedLineParameters> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1350,18 +1351,21 @@ StartProcessRoom:
             {
                 bool monsterKilled = false;
                 int iExperience = 0;
+                MobTypeEnum? eMobType = null;
                 if (damage > 0)
                 {
-                    monsterKilled = ProcessMonsterKilledMessages(Lines, iIndex + 1, out iExperience);
+                    monsterKilled = ProcessMonsterKilledMessages(flParams, iIndex + 1, out iExperience, out eMobType);
                 }
                 flParams.FinishedProcessing = true;
-                _onSatisfied(fumbled, damage, monsterKilled, iExperience, powerAttacked, flParams);
+                _onSatisfied(fumbled, damage, monsterKilled, eMobType, iExperience, powerAttacked, flParams);
             }
         }
 
-        internal static bool ProcessMonsterKilledMessages(List<string> Lines, int startLineIndex, out int experience)
+        internal static bool ProcessMonsterKilledMessages(FeedLineParameters flParams, int startLineIndex, out int experience, out MobTypeEnum? monsterType)
         {
+            List<string> Lines = flParams.Lines;
             experience = 0;
+            monsterType = null;
             int lineCount = Lines.Count;
             if (startLineIndex >= lineCount)
             {
@@ -1385,6 +1389,19 @@ StartProcessRoom:
                 if (!ParseNumber(nextLine, iSpaceIndex - 1, out iNextExperience, out int _))
                 {
                     continue;
+                }
+
+                int remainingLength = iLineLen - iSpaceIndex - EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length - 1;
+                if (remainingLength <= 0)
+                {
+                    continue;
+                }
+                string remaining = nextLine.Substring(iSpaceIndex + EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length, remainingLength);
+
+                MobEntity ment = Entity.GetEntity(remaining, EntityTypeFlags.Mob | EntityTypeFlags.Player, flParams.ErrorMessages, null, false) as MobEntity;
+                if (ment != null && ment.MobType.HasValue)
+                {
+                    monsterType = ment.MobType.Value;
                 }
 
                 experience += iNextExperience;

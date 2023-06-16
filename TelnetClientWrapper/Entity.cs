@@ -184,7 +184,7 @@ namespace IsengardClient
         public static int? ParseNumberWord(string input, bool expectCapitalized)
         {
             int? count = null;
-            if (input == GetCapitalized("a", expectCapitalized) || input == GetCapitalized("an", expectCapitalized) || input == GetCapitalized("some", expectCapitalized))
+            if (input == GetCapitalized("the", expectCapitalized) || input == GetCapitalized("a", expectCapitalized) || input == GetCapitalized("an", expectCapitalized) || input == GetCapitalized("some", expectCapitalized))
             {
                 count = 1;
             }
