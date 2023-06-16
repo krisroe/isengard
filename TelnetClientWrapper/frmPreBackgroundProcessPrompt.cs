@@ -18,7 +18,7 @@ namespace IsengardClient
                 for (int i = 0; i < targetRoom.PermanentMobs.Count; i++)
                 {
                     MobTypeEnum eNextPerm = targetRoom.PermanentMobs[i];
-                    cboMob.Items.Add(MobEntity.PickMobTextWithinList(eNextPerm, IterateThroughMobs(targetRoom.PermanentMobs, i + 1)));
+                    cboMob.Items.Add(MobEntity.PickMobTextWithinList(eNextPerm, MobEntity.IterateThroughMobs(targetRoom.PermanentMobs, i + 1)));
                 }
             }
             cboMob.Text = currentMob;
@@ -30,14 +30,6 @@ namespace IsengardClient
             bool showManashield = (skills & PromptedSkills.Manashield) == PromptedSkills.Manashield;
             chkManashield.Visible = showManashield;
             chkManashield.Enabled = showManashield;
-        }
-
-        private IEnumerable<MobTypeEnum> IterateThroughMobs(List<MobTypeEnum> mobs, int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                yield return mobs[i];
-            }
         }
 
         public string Mob

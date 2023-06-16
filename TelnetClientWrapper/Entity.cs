@@ -429,6 +429,14 @@ namespace IsengardClient
             return sWord + " " + iCounter;
         }
 
+        public static IEnumerable<MobTypeEnum> IterateThroughMobs(List<MobTypeEnum> mobs, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return mobs[i];
+            }
+        }
+
         private static void AddMob(MobTypeEnum type, string singular, string plural)
         {
             bool hasSingular = !string.IsNullOrEmpty(singular);

@@ -1371,6 +1371,7 @@ namespace IsengardClient
                     }
                 }
                 rc.Mobs = mobEnums;
+                _currentRoomMobs = new List<MobTypeEnum>(mobEnums);
 
                 _currentRoomChanges.Add(rc);
                 m_oCurrentRoom = newRoom;
@@ -2682,6 +2683,22 @@ namespace IsengardClient
                 {
                     setMobToFirstAvailable = true;
                 }
+                if (setMobToFirstAvailable)
+                {
+                    string sText = null;
+                    lock (_roomChangeLock)
+                    {
+                        if (_currentRoomMobs.Count > 0)
+                        {
+                            sText = MobEntity.PickMobTextWithinList(_currentRoomMobs[0], MobEntity.IterateThroughMobs(_currentRoomMobs, 1));
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(sText))
+                    {
+                        txtMob.Text = sText;
+                    }
+                }
+
                 if (setMobToFirstAvailable && _tnObviousMobs.Nodes.Count > 0)
                 {
                     treeCurrentRoom.SelectedNode = _tnObviousMobs.Nodes[0];
@@ -4903,7 +4920,7 @@ BeforeHazy:
                                     _tnOtherExits.Expand();
                                 }
                             }
-                            if (oCurrentRoom.PermanentMobs != null)
+                            if (oCurrentRoom?.PermanentMobs != null)
                             {
                                 foreach (MobTypeEnum nextPerm in oCurrentRoom.PermanentMobs)
                                 {
