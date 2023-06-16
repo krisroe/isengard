@@ -867,6 +867,10 @@
         [PluralName("traveling horses")]
         TravelingHorse,
 
+        [SingularName("Trakard ogre ranger")]
+        [PluralName("Trakard ogre rangers")]
+        TrakardOgreRanger,
+
         [SingularName("treant")]
         [PluralName("treants")]
         Treant,

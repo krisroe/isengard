@@ -255,8 +255,8 @@ namespace IsengardClient
             AddBidirectionalExits(oSouthPathAlliskPlains6, oPathToOgres1, BidirectionalExitType.NorthSouth);
             tharbadEastGraph.Rooms[oPathToOgres1] = new System.Windows.Point(5, 13);
 
-            //CSRTODO: ogre rangers
-            Room oTrakardOgreRanger = AddRoom("Ogre Rangers");
+            Room oTrakardOgreRanger = AddRoom("Ogre Rangers", "Path around Allisk Plains");
+            oTrakardOgreRanger.AddPermanentMobs(MobTypeEnum.TrakardOgreRanger, MobTypeEnum.TrakardOgreRanger);
             AddBidirectionalExits(oPathToOgres1, oTrakardOgreRanger, BidirectionalExitType.SouthwestNortheast);
             tharbadEastGraph.Rooms[oTrakardOgreRanger] = new System.Windows.Point(4, 14);
         }
