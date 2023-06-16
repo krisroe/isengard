@@ -399,15 +399,17 @@ namespace IsengardClient.Tests
             bool success = false;
             bool? fumbled = null;
             bool? killed = null;
+            MobTypeEnum? mobType = null;
             int? tnl = null;
             int? damage = null;
             bool? powerAttacked = null;
-            Action<bool, int, bool, int, bool, FeedLineParameters> a = (f, d, k, t, p, flp) =>
+            Action<bool, int, bool, MobTypeEnum?, int, bool, FeedLineParameters> a = (f, d, k, mt, t, p, flp) =>
             {
                 success = true;
                 fumbled = f;
                 damage = d;
                 killed = k;
+                mobType = mt;
                 tnl = t;
                 powerAttacked = p;
             };
@@ -419,6 +421,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "Your slash attack hits for 3 damage." };
             aseq.FeedLine(flParams);
@@ -431,6 +434,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "You attack the drunk.", "Your slash attack hits for 16 damage." };
             aseq.FeedLine(flParams);
@@ -443,6 +447,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "Your slash attack hits for 10 damage.", "You gained 15 experience for the death of the hobbitish doctor." };
             aseq.FeedLine(flParams);
@@ -455,6 +460,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "You attack the hobbitish doctor", "Your slash attack hits for 17 damage.", "You gained 15 experience for the death of the hobbitish doctor." };
             aseq.FeedLine(flParams);
@@ -467,6 +473,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "Your power attack cleave hits for 10 damage." };
             aseq.FeedLine(flParams);
@@ -479,6 +486,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "Your power attack cleave missed." };
             aseq.FeedLine(flParams);
@@ -491,6 +499,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "Your power attack has no effect on Manager Mulloy." };
             aseq.FeedLine(flParams);
@@ -503,6 +512,7 @@ namespace IsengardClient.Tests
             success = false;
             fumbled = null;
             killed = null;
+            mobType = null;
             damage = null;
             flParams.Lines = new List<string>() { "You FUMBLED your weapon." };
             aseq.FeedLine(flParams);
@@ -519,12 +529,14 @@ namespace IsengardClient.Tests
             bool success = false;
             int? damage = null;
             bool? killed = null;
+            MobTypeEnum? mobType = null;
             int? tnl = null;
-            Action<int, bool, int, FeedLineParameters> a = (d, k, t, flp) =>
+            Action<int, bool, MobTypeEnum?, int, FeedLineParameters> a = (d, k, mt, t, flp) =>
             {
                 success = true;
                 damage = d;
                 killed = k;
+                mobType = mt;
                 tnl = t;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
@@ -534,6 +546,7 @@ namespace IsengardClient.Tests
             success = false;
             damage = null;
             killed = null;
+            mobType = null;
             flParams.Lines = new List<string>() { "You cast a rumble spell on the drunk for 10 damage." };
             cseq.FeedLine(flParams);
             Assert.IsTrue(success);
@@ -543,6 +556,7 @@ namespace IsengardClient.Tests
             success = false;
             damage = null;
             killed = null;
+            mobType = null;
             flParams.Lines = new List<string>() { "You cast a rumble spell on Igor the Bouncer for 2 damage.", "You gained 130 experience for the death of Igor the Bouncer." };
             cseq.FeedLine(flParams);
             Assert.IsTrue(success);

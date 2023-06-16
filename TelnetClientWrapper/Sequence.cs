@@ -2066,9 +2066,12 @@ StartProcessRoom:
                 {
                     isBroadcast = true;
                 }
-                else if (sLine.EndsWith(" circles you.") ||
-                         sLine.EndsWith(" killed you.") ||
-                         sLine.StartsWith("Scared of going "))
+                else if (sLine.EndsWith(" killed you.")) //skip this message and use the broadcast to trigger death logic
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
+                else if (sLine.StartsWith("Scared of going "))
                 {
                     isMessageToKeep = true;
                     haveDataToDisplay = true;
@@ -2099,10 +2102,10 @@ StartProcessRoom:
 
                         if (!isLeft)
                         {
-                            int iKilledThe = sLine.IndexOf(" killed the ");
-                            if (iKilledThe > 0 && iKilledThe + " killed the ".Length - 1 > lineLength)
+                            int iKilledThe = sLine.IndexOf(" killed ");
+                            if (iKilledThe > 0 && iKilledThe + " killed ".Length - 1 > lineLength)
                             {
-                                sWhat = sLine.Substring(iKilledThe + " killed the ".Length, lineLength - iKilledThe - " killed the ".Length - 1);
+                                sWhat = sLine.Substring(iKilledThe + " killed ".Length, lineLength - iKilledThe - " killed ".Length - 1);
                                 isLeft = true;
                             }
                         }
@@ -2138,8 +2141,26 @@ StartProcessRoom:
                         }
                     }
 
-                    haveDataToDisplay = true;
+                    if (nextMsg == null) //these are valid informational messages that aren't currently processed
+                    {
+                        if (sLine.Contains(" missed ") ||
+                            sLine.Contains(" barely nicks ") ||
+                            sLine.Contains(" scratches ") ||
+                            sLine.Contains(" bruises ") ||
+                            sLine.Contains(" hurts ") ||
+                            sLine.Contains(" wounds ") ||
+                            sLine.Contains(" smites ") ||
+                            sLine.Contains(" maims ") ||
+                            sLine.Contains(" pulverizes ") ||
+                            sLine.Contains(" devestates ") ||
+                            sLine.Contains(" circles "))
+                        {
+                            haveDataToDisplay = true;
+                            continue;
+                        }
+                    }
 
+                    haveDataToDisplay = true;
                     if (nextMsg == null) //not an informational message
                     {
                         break;
