@@ -68,6 +68,10 @@
         [PluralName("bosun's mates")]
         BosunsMate,
 
+        [SingularName("bowyer")]
+        [PluralName("bowyers")]
+        Bowyer,
+
         [SingularName("Branco the hobbits' chief")]
         //CSRTODO: no plural
         BrancoTheHobbitsChief,

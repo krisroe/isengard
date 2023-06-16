@@ -64,6 +64,10 @@
         [SingularName("bone armor")]
         BoneArmor,
 
+        [SingularName("bone shield")]
+        [PluralName("bone shields")]
+        BoneShield,
+
         [SingularName("book of knowledge")]
         [PluralName("books of knowledge")]
         BookOfKnowledge,

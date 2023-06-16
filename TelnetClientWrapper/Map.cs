@@ -1517,6 +1517,7 @@ namespace IsengardClient
             hauntedMansionGraph.Rooms[hauntedMansionEntrance] = new System.Windows.Point(2, 8);
 
             Room oOldGardener = AddRoom("Old Gardener", "Path to Mansion");
+            oOldGardener.AddPermanentMobs(MobTypeEnum.OldGardener);
             Exit e = AddExit(hauntedMansionEntrance, oOldGardener, "gate");
             e.KeyType = KeyType.SilverKey;
             e.MustOpen = true;
@@ -1548,6 +1549,7 @@ namespace IsengardClient
             hauntedMansionGraph.Rooms[oDarkHallway] = new System.Windows.Point(1, 4);
 
             Room oStudy = AddRoom("Damaged Skeleton", "Study");
+            oStudy.AddPermanentMobs(MobTypeEnum.DamagedSkeleton);
             e = AddExit(oDarkHallway, oStudy, "door");
             e.MustOpen = true;
             AddExit(oStudy, oDarkHallway, "door");

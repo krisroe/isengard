@@ -1872,6 +1872,7 @@ StartProcessRoom:
             {
                 bool isMessageToKeep = false;
                 InformationalMessageType? im = null;
+                InformationalMessages nextMsg = null;
                 string sLine = Lines[i];
                 int lineLength = sLine.Length;
                 bool isBroadcast = false;
@@ -2072,12 +2073,10 @@ StartProcessRoom:
                     isMessageToKeep = true;
                     haveDataToDisplay = true;
                 }
-                else //not an informational message
+                else
                 {
-                    InformationalMessages nextMsg = null;
-
                     bool isArrived = false;
-                    bool isWanderedAway = false;
+                    bool isLeft = false;
                     string sWhat = null;
                     if (sLine.EndsWith(" just arrived.") && lineLength != " just arrived.".Length)
                     {
@@ -2086,7 +2085,7 @@ StartProcessRoom:
                     }
                     else if (sLine.EndsWith(" just wandered away.") && lineLength != " just wandered away.".Length)
                     {
-                        isWanderedAway = true;
+                        isLeft = true;
                         sWhat = sLine.Substring(0, lineLength - " just wandered away.".Length);
                     }
                     else
@@ -2095,10 +2094,20 @@ StartProcessRoom:
                         if (iJustWanderedIndex > 0)
                         {
                             sWhat = sLine.Substring(0, iJustWanderedIndex);
-                            isWanderedAway = true;
+                            isLeft = true;
+                        }
+
+                        if (!isLeft)
+                        {
+                            int iKilledThe = sLine.IndexOf(" killed the ");
+                            if (iKilledThe > 0 && iKilledThe + " killed the ".Length - 1 > lineLength)
+                            {
+                                sWhat = sLine.Substring(iKilledThe + " killed the ".Length, lineLength - iKilledThe - " killed the ".Length - 1);
+                                isLeft = true;
+                            }
                         }
                     }
-                    if (isArrived || isWanderedAway)
+                    if (isArrived || isLeft)
                     {
                         MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, true) as MobEntity;
                         if (ment != null && ment.MobType.HasValue)
@@ -2129,13 +2138,16 @@ StartProcessRoom:
                         }
                     }
 
+                    haveDataToDisplay = true;
+
                     if (nextMsg != null)
                     {
                         Parameters.InfoMessages.Add(nextMsg);
                     }
-
-                    haveDataToDisplay = true;
-                    break;
+                    else //not an informational message
+                    {
+                        break;
+                    }
                 }
 
                 bool removeLine = false;
@@ -2145,9 +2157,13 @@ StartProcessRoom:
                     addAsBroadcastMessage = true;
                     removeLine = true;
                 }
-                else if (im.HasValue)
+                else if (im.HasValue || nextMsg != null)
                 {
-                    Parameters.InfoMessages.Add(new InformationalMessages(im.Value));
+                    if (nextMsg == null)
+                    {
+                        nextMsg = new InformationalMessages(im.Value);
+                    }
+                    Parameters.InfoMessages.Add(nextMsg);
                 }
                 else if (!isMessageToKeep)
                 {
