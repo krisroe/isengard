@@ -150,6 +150,9 @@
         //CSRTODO: plural?
         DriedSeaweed,
 
+        [SingularName("dwarven mithril gaiters")]
+        DwarvenMithrilGaiters,
+
         [SingularName("ear lobe plug")]
         [PluralName("ear lobe plugs")]
         EarLobePlug,
@@ -192,6 +195,10 @@
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
         GateWarning,
+
+        [SingularName("gaudy scepter")]
+        [PluralName("gaudy scepters")]
+        GaudyScepter,
 
         [SingularName("gawdy ear hoop")]
         [PluralName("gawdy ear hoops")]
@@ -333,6 +340,10 @@
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
         MithronHelmet,
+
+        [SingularName("mithron hood")]
+        [PluralName("mithron hoods")]
+        MithronHood,
 
         [SingularName("mithron shield")]
         [PluralName("mithron shields")]
