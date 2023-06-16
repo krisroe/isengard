@@ -29,8 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Obvious Exits");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Other Exits");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Obvious Mobs");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Obvious Exits");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Other Exits");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Permanent Mobs");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.txtMob = new System.Windows.Forms.TextBox();
@@ -319,7 +321,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(644, 30);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(644, 26);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -433,7 +435,7 @@
             this.chkSetOn.Location = new System.Drawing.Point(267, 21);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(53, 20);
+            this.chkSetOn.Size = new System.Drawing.Size(50, 20);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -645,7 +647,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1270, 1013);
+            this.tcMain.Size = new System.Drawing.Size(1270, 1015);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -656,7 +658,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1262, 984);
+            this.tabMain.Size = new System.Drawing.Size(1262, 986);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -771,15 +773,24 @@
             this.treeCurrentRoom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeCurrentRoom.Location = new System.Drawing.Point(4, 19);
             this.treeCurrentRoom.Name = "treeCurrentRoom";
-            treeNode1.Name = "tnObviousExits";
-            treeNode1.Text = "Obvious Exits";
-            treeNode2.Name = "tnOtherExits";
-            treeNode2.Text = "Other Exits";
+            treeNode1.Name = "tnObviousMobs";
+            treeNode1.Text = "Obvious Mobs";
+            treeNode2.Name = "tnObviousExits";
+            treeNode2.Text = "Obvious Exits";
+            treeNode3.Name = "tnOtherExits";
+            treeNode3.Text = "Other Exits";
+            treeNode4.Name = "tnPermanentMobs";
+            treeNode4.Text = "Permanent Mobs";
             this.treeCurrentRoom.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
-            treeNode2});
+            treeNode2,
+            treeNode3,
+            treeNode4});
             this.treeCurrentRoom.Size = new System.Drawing.Size(367, 536);
             this.treeCurrentRoom.TabIndex = 0;
+            this.treeCurrentRoom.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterCollapse);
+            this.treeCurrentRoom.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterExpand);
+            this.treeCurrentRoom.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterSelect);
             this.treeCurrentRoom.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeCurrentRoom_NodeMouseClick);
             // 
             // ctxCurrentRoom
@@ -788,13 +799,13 @@
             this.ctxCurrentRoom.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiGoToRoom});
             this.ctxCurrentRoom.Name = "ctxCurrentRoom";
-            this.ctxCurrentRoom.Size = new System.Drawing.Size(160, 28);
+            this.ctxCurrentRoom.Size = new System.Drawing.Size(139, 26);
             this.ctxCurrentRoom.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCurrentRoom_Opening);
             // 
             // tsmiGoToRoom
             // 
             this.tsmiGoToRoom.Name = "tsmiGoToRoom";
-            this.tsmiGoToRoom.Size = new System.Drawing.Size(159, 24);
+            this.tsmiGoToRoom.Size = new System.Drawing.Size(138, 22);
             this.tsmiGoToRoom.Text = "Go to Room";
             this.tsmiGoToRoom.Click += new System.EventHandler(this.tsmiGoToRoom_Click);
             // 
@@ -882,68 +893,68 @@
             this.tsmiSetDefaultAutoEscape,
             this.tsmiRestoreDefaultAutoEscape});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(223, 190);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(189, 176);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
             // 
             this.tsmiAutoEscapeIsActive.Name = "tsmiAutoEscapeIsActive";
-            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(188, 22);
             this.tsmiAutoEscapeIsActive.Text = "Is Active?";
             this.tsmiAutoEscapeIsActive.Click += new System.EventHandler(this.tsmiToggleAutoEscapeActive_Click);
             // 
             // tsmiAutoEscapeSeparator1
             // 
             this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
-            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(219, 6);
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(185, 6);
             // 
             // tsmiSetAutoEscapeThreshold
             // 
             this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
-            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(188, 22);
             this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
             this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
             // tsmiClearAutoEscapeThreshold
             // 
             this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
-            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(188, 22);
             this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
             this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
             // 
             // tsmiAutoEscapeSeparator2
             // 
             this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
-            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(219, 6);
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(185, 6);
             // 
             // tsmiAutoEscapeFlee
             // 
             this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
-            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(188, 22);
             this.tsmiAutoEscapeFlee.Text = "Flee";
             // 
             // tsmiAutoEscapeHazy
             // 
             this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
-            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(188, 22);
             this.tsmiAutoEscapeHazy.Text = "Hazy";
             // 
             // tsmiAutoEscapeSeparator3
             // 
             this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
-            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(219, 6);
+            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(185, 6);
             // 
             // tsmiSetDefaultAutoEscape
             // 
             this.tsmiSetDefaultAutoEscape.Name = "tsmiSetDefaultAutoEscape";
-            this.tsmiSetDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
+            this.tsmiSetDefaultAutoEscape.Size = new System.Drawing.Size(188, 22);
             this.tsmiSetDefaultAutoEscape.Text = "Set Current as Default";
             this.tsmiSetDefaultAutoEscape.Click += new System.EventHandler(this.tsmiSetDefaultAutoEscape_Click);
             // 
             // tsmiRestoreDefaultAutoEscape
             // 
             this.tsmiRestoreDefaultAutoEscape.Name = "tsmiRestoreDefaultAutoEscape";
-            this.tsmiRestoreDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
+            this.tsmiRestoreDefaultAutoEscape.Size = new System.Drawing.Size(188, 22);
             this.tsmiRestoreDefaultAutoEscape.Text = "Restore Default";
             this.tsmiRestoreDefaultAutoEscape.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoEscape_Click);
             // 
@@ -1314,7 +1325,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(1262, 984);
+            this.tabAncillary.Size = new System.Drawing.Size(1262, 986);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1329,7 +1340,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1256, 980);
+            this.pnlAncillary.Size = new System.Drawing.Size(1256, 982);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1338,7 +1349,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 25);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1262, 984);
+            this.tabEmotes.Size = new System.Drawing.Size(1262, 986);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1357,7 +1368,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1262, 984);
+            this.pnlEmotes.Size = new System.Drawing.Size(1262, 986);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1379,7 +1390,7 @@
             this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(379, 42);
             this.chkShowEmotesWithoutTarget.Margin = new System.Windows.Forms.Padding(4);
             this.chkShowEmotesWithoutTarget.Name = "chkShowEmotesWithoutTarget";
-            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(197, 20);
+            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(194, 20);
             this.chkShowEmotesWithoutTarget.TabIndex = 14;
             this.chkShowEmotesWithoutTarget.Text = "Show Emotes without Target";
             this.chkShowEmotesWithoutTarget.UseVisualStyleBackColor = true;
@@ -1436,7 +1447,7 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, -58);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -56);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -1460,7 +1471,7 @@
             this.tabHelp.Location = new System.Drawing.Point(4, 25);
             this.tabHelp.Margin = new System.Windows.Forms.Padding(4);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1262, 984);
+            this.tabHelp.Size = new System.Drawing.Size(1262, 986);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1473,7 +1484,7 @@
             this.grpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.grpHelp.Name = "grpHelp";
             this.grpHelp.Padding = new System.Windows.Forms.Padding(4);
-            this.grpHelp.Size = new System.Drawing.Size(1262, 984);
+            this.grpHelp.Size = new System.Drawing.Size(1262, 986);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1484,7 +1495,7 @@
             this.flpHelp.Location = new System.Drawing.Point(4, 19);
             this.flpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1254, 961);
+            this.flpHelp.Size = new System.Drawing.Size(1254, 963);
             this.flpHelp.TabIndex = 0;
             // 
             // ctxRoomExits
@@ -1524,10 +1535,10 @@
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1270, 1013);
+            this.pnlTabControl.Size = new System.Drawing.Size(1270, 1015);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1545,7 +1556,7 @@
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(1270, 27);
+            this.tsTopMenu.Size = new System.Drawing.Size(1270, 25);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1555,7 +1566,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
+            this.tsbInformation.Size = new System.Drawing.Size(74, 22);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1566,7 +1577,7 @@
             this.tsbInventory.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventory.Image")));
             this.tsbInventory.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInventory.Name = "tsbInventory";
-            this.tsbInventory.Size = new System.Drawing.Size(74, 24);
+            this.tsbInventory.Size = new System.Drawing.Size(61, 22);
             this.tsbInventory.Text = "Inventory";
             this.tsbInventory.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
@@ -1576,7 +1587,7 @@
             this.tsbEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbEquipment.Image")));
             this.tsbEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbEquipment.Name = "tsbEquipment";
-            this.tsbEquipment.Size = new System.Drawing.Size(85, 24);
+            this.tsbEquipment.Size = new System.Drawing.Size(69, 22);
             this.tsbEquipment.Tag = "equipment";
             this.tsbEquipment.Text = "Equipment";
             this.tsbEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1587,7 +1598,7 @@
             this.tsbWho.Image = ((System.Drawing.Image)(resources.GetObject("tsbWho.Image")));
             this.tsbWho.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWho.Name = "tsbWho";
-            this.tsbWho.Size = new System.Drawing.Size(44, 24);
+            this.tsbWho.Size = new System.Drawing.Size(36, 22);
             this.tsbWho.Tag = "who";
             this.tsbWho.Text = "Who";
             this.tsbWho.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1598,7 +1609,7 @@
             this.tsbUptime.Image = ((System.Drawing.Image)(resources.GetObject("tsbUptime.Image")));
             this.tsbUptime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbUptime.Name = "tsbUptime";
-            this.tsbUptime.Size = new System.Drawing.Size(62, 24);
+            this.tsbUptime.Size = new System.Drawing.Size(50, 22);
             this.tsbUptime.Tag = "uptime";
             this.tsbUptime.Text = "Uptime";
             this.tsbUptime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1609,7 +1620,7 @@
             this.tsbScore.Image = ((System.Drawing.Image)(resources.GetObject("tsbScore.Image")));
             this.tsbScore.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbScore.Name = "tsbScore";
-            this.tsbScore.Size = new System.Drawing.Size(50, 24);
+            this.tsbScore.Size = new System.Drawing.Size(40, 22);
             this.tsbScore.Tag = "";
             this.tsbScore.Text = "Score";
             this.tsbScore.Click += new System.EventHandler(this.btnScore_Click);
@@ -1620,7 +1631,7 @@
             this.tsbTime.Image = ((System.Drawing.Image)(resources.GetObject("tsbTime.Image")));
             this.tsbTime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbTime.Name = "tsbTime";
-            this.tsbTime.Size = new System.Drawing.Size(46, 24);
+            this.tsbTime.Size = new System.Drawing.Size(37, 22);
             this.tsbTime.Tag = "time";
             this.tsbTime.Text = "Time";
             this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1631,7 +1642,7 @@
             this.tsbConfiguration.Image = ((System.Drawing.Image)(resources.GetObject("tsbConfiguration.Image")));
             this.tsbConfiguration.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbConfiguration.Name = "tsbConfiguration";
-            this.tsbConfiguration.Size = new System.Drawing.Size(104, 24);
+            this.tsbConfiguration.Size = new System.Drawing.Size(85, 22);
             this.tsbConfiguration.Text = "Configuration";
             this.tsbConfiguration.Click += new System.EventHandler(this.tsbConfiguration_Click);
             // 
@@ -1641,7 +1652,7 @@
             this.tsbQuit.Image = ((System.Drawing.Image)(resources.GetObject("tsbQuit.Image")));
             this.tsbQuit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbQuit.Name = "tsbQuit";
-            this.tsbQuit.Size = new System.Drawing.Size(41, 24);
+            this.tsbQuit.Size = new System.Drawing.Size(34, 22);
             this.tsbQuit.Text = "Quit";
             this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
@@ -1691,13 +1702,13 @@
             this.ctxConsole.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiClearConsole});
             this.ctxConsole.Name = "ctxConsole";
-            this.ctxConsole.Size = new System.Drawing.Size(113, 28);
+            this.ctxConsole.Size = new System.Drawing.Size(102, 26);
             this.ctxConsole.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxConsole_ItemClicked);
             // 
             // tsmiClearConsole
             // 
             this.tsmiClearConsole.Name = "tsmiClearConsole";
-            this.tsmiClearConsole.Size = new System.Drawing.Size(112, 24);
+            this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
             this.tsmiClearConsole.Text = "Clear";
             // 
             // pnlCommand

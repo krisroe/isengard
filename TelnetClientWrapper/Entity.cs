@@ -410,6 +410,25 @@ namespace IsengardClient
             return sBestWord;
         }
 
+        public static string PickMobTextWithinList(MobTypeEnum nextMob, IEnumerable<MobTypeEnum> mobList)
+        {
+            string sWord = PickWordForMob(nextMob);
+            int iCounter = 0;
+            foreach (MobTypeEnum nextMobInList in mobList)
+            {
+                string sSingular = MobToSingularMapping[nextMobInList];
+                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                {
+                    if (nextWord.StartsWith(sWord, StringComparison.OrdinalIgnoreCase))
+                    {
+                        iCounter++;
+                        break;
+                    }
+                }
+            }
+            return sWord + " " + iCounter;
+        }
+
         private static void AddMob(MobTypeEnum type, string singular, string plural)
         {
             bool hasSingular = !string.IsNullOrEmpty(singular);

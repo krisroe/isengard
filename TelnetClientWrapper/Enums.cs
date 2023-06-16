@@ -432,5 +432,7 @@ namespace IsengardClient
         NewRoom,
         AddExit,
         RemoveExit,
+        AddMob,
+        RemoveMob,
     }
 }

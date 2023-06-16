@@ -94,6 +94,7 @@ namespace IsengardClient
         public RoomChangeType ChangeType { get; set; }
         public Room Room { get; set; }
         public List<string> Exits { get; set; }
+        public List<MobTypeEnum> Mobs { get; set; }
         public Dictionary<string, Exit> MappedExits { get; set; }
         public List<Exit> OtherExits = new List<Exit>();
         public int GlobalCounter { get; set; }
