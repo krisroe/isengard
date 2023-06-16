@@ -295,6 +295,10 @@
         [PluralName("grizzly bears")]
         GrizzlyBear,
 
+        [SingularName("groundskeeper")]
+        [PluralName("groundskeepers")]
+        Groundskeeper,
+
         [SingularName("Grunkill")]
         //CSRTODO: no plural?
         Grunkill,
