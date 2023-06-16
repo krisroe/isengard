@@ -427,6 +427,7 @@
         //CSRTODO: no plural
         [Experience(70)]
         [Alignment(AlignmentType.Blue)]
+        [SingularSelection("Ixell")]
         IxellDeSantis,
 
         [SingularName("Kasnar the Guard")]

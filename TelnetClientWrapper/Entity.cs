@@ -372,6 +372,7 @@ namespace IsengardClient
 
     public class MobEntity : Entity
     {
+        public static Dictionary<MobTypeEnum, string> MobToSingularMappingForSelection = new Dictionary<MobTypeEnum, string>();
         public static Dictionary<MobTypeEnum, string> MobToSingularMapping = new Dictionary<MobTypeEnum, string>();
         public static Dictionary<string, MobTypeEnum> SingularMobMapping = new Dictionary<string, MobTypeEnum>();
         public static Dictionary<string, MobTypeEnum> PluralMobMapping = new Dictionary<string, MobTypeEnum>();
@@ -390,6 +391,13 @@ namespace IsengardClient
                 else
                     throw new InvalidOperationException();
                 MobToSingularMapping[nextEnum] = sSingular;
+
+                string sSingularSelection = null;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularSelectionAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sSingularSelection = ((SingularSelectionAttribute)valueAttributes[0]).Name;
+                if (!string.IsNullOrEmpty(sSingularSelection)) MobToSingularMappingForSelection[nextEnum] = sSingularSelection;
+
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -415,14 +423,17 @@ namespace IsengardClient
         /// <returns>word for the mob</returns>
         public static string PickWordForMob(MobTypeEnum nextMob)
         {
-            string sName = MobToSingularMapping[nextMob];
-            string[] sWords = sName.Split(new char[] { ' ' });
             string sBestWord = string.Empty;
-            foreach (string sNextWord in sWords)
+            if (!MobToSingularMappingForSelection.TryGetValue(nextMob, out sBestWord))
             {
-                if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
+                string sName = MobToSingularMapping[nextMob];
+                string[] sWords = sName.Split(new char[] { ' ' });
+                foreach (string sNextWord in sWords)
                 {
-                    sBestWord = sNextWord;
+                    if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
+                    {
+                        sBestWord = sNextWord;
+                    }
                 }
             }
             return sBestWord;
@@ -667,6 +678,14 @@ namespace IsengardClient
     public class SingularNameAttribute : NameAttribute
     {
         public SingularNameAttribute(string Name)
+        {
+            this.Name = Name;
+        }
+    }
+
+    public class SingularSelectionAttribute : NameAttribute
+    {
+        public SingularSelectionAttribute(string Name)
         {
             this.Name = Name;
         }
