@@ -44,10 +44,10 @@ namespace IsengardClient
             graphMillwoodMansion.ScalingFactor = 100;
             _graphs[MapType.MillwoodMansion] = graphMillwoodMansion;
 
-            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain);
+            AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain, out Room breeEastGateOutside, out Room oCemetery);
             AddMayorMillwoodMansion(oIxell);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
-            AddBreeToImladris(out Room oOuthouse, breeEastGateInside, out Room imladrisWestGateOutside);
+            AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand);
             AddEastOfImladris(oEastGateOfImladrisOutside);
@@ -1087,7 +1087,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
-        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain)
+        private void AddBreeCity(out Room oIxell, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, RoomGraph graphMillwoodMansion, out Room oDroolie, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain, out Room breeEastGateOutside, out Room oCemetery)
         {
             _breeStreetsGraph = new RoomGraph("Bree Streets");
             _breeStreetsGraph.ScalingFactor = 100;
@@ -1357,32 +1357,90 @@ namespace IsengardClient
             AddBidirectionalExits(oLeonardosSwords, oLeonardosFoundry, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oLeonardosSwords] = new System.Windows.Point(9, 0.5);
 
-            Room oZooEntrance = AddRoom("Scranlin's Zoological Wonders", "Scranlin's Zoological Wonders");
+            Room oZooEntrance = AddRoom("Zoo Entrance", "Scranlin's Zoological Wonders");
             AddExit(oToZoo, oZooEntrance, "zoo");
             AddExit(oZooEntrance, oToZoo, "exit");
             _breeStreetsGraph.Rooms[oZooEntrance] = new System.Windows.Point(2, -0.5);
 
-            Room oPathThroughScranlinsZoo = AddRoom("Path through Scranlin's Zoo", "Path through Scranlin's Zoo");
+            Room oPathThroughScranlinsZoo = AddRoom("Path", "Path through Scranlin's Zoo");
             AddBidirectionalExits(oPathThroughScranlinsZoo, oZooEntrance, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo] = new System.Windows.Point(2, -1);
 
-            Room oScranlinsPettingZoo = AddRoom("Scranlin's Petting Zoo", "Scranlin's Petting Zoo");
+            Room oScranlinsPettingZoo = AddRoom("Petting Zoo", "Scranlin's Petting Zoo");
             AddExit(oPathThroughScranlinsZoo, oScranlinsPettingZoo, "north");
             AddExit(oScranlinsPettingZoo, oPathThroughScranlinsZoo, "south");
-            _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.5);
+            _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.25);
 
-            Room oScranlinsTrainingArea = AddRoom("Scranlin's Training Area", "Scranlin's Training Area");
+            Room oScranlinsTrainingArea = AddRoom("Training Area", "Scranlin's Training Area");
             e = AddExit(oScranlinsPettingZoo, oScranlinsTrainingArea, "clearing");
             e.Hidden = true;
             AddExit(oScranlinsTrainingArea, oScranlinsPettingZoo, "gate");
-            _breeStreetsGraph.Rooms[oScranlinsTrainingArea] = new System.Windows.Point(2, -2);
+            _breeStreetsGraph.Rooms[oScranlinsTrainingArea] = new System.Windows.Point(2, -1.5);
 
             Room oScranlin = AddRoom("Scranlin", "Scranlin's Outhouse");
             oScranlin.AddPermanentMobs(MobTypeEnum.Scranlin);
             e = AddExit(oScranlinsTrainingArea, oScranlin, "outhouse");
             e.Hidden = true;
             AddExit(oScranlin, oScranlinsTrainingArea, "out");
-            _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -2.5);
+            _breeStreetsGraph.Rooms[oScranlin] = new System.Windows.Point(2, -1.75);
+
+            Room oPathThroughScranlinsZoo2 = AddRoom("Path", "Path through Scranlin's Zoo");
+            AddBidirectionalExits(oPathThroughScranlinsZoo2, oPathThroughScranlinsZoo, BidirectionalExitType.SoutheastNorthwest);
+            _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo2] = new System.Windows.Point(1, -2);
+
+            Room oPathThroughScranlinsZoo3 = AddRoom("Path", "Path through Scranlin's Zoo");
+            AddBidirectionalExits(oPathThroughScranlinsZoo3, oPathThroughScranlinsZoo2, BidirectionalExitType.SouthwestNortheast);
+            _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo3] = new System.Windows.Point(2, -3);
+
+            Room oPathThroughScranlinsZoo4 = AddRoom("Path", "Path through Scranlin's Zoo");
+            e = AddExit(oPathThroughScranlinsZoo3, oPathThroughScranlinsZoo4, "southeast");
+            e.MaximumLevel = 10;
+            AddExit(oPathThroughScranlinsZoo4, oPathThroughScranlinsZoo3, "northwest");
+            e = AddExit(oPathThroughScranlinsZoo, oPathThroughScranlinsZoo4, "northeast");
+            e.MaximumLevel = 10;
+            AddExit(oPathThroughScranlinsZoo4, oPathThroughScranlinsZoo, "southwest");
+            _breeStreetsGraph.Rooms[oPathThroughScranlinsZoo4] = new System.Windows.Point(3, -2);
+
+            Room oDogHouse = AddRoom("Dog House", "The Dog House");
+            oDogHouse.AddPermanentMobs(MobTypeEnum.Lathlorien);
+            AddExit(oPathThroughScranlinsZoo2, oDogHouse, "doghouse");
+            AddExit(oDogHouse, oPathThroughScranlinsZoo2, "out");
+            _breeStreetsGraph.Rooms[oDogHouse] = new System.Windows.Point(1, -1);
+
+            Room oMonkeyHouse = AddRoom("Monkey House", "Monkey House");
+            AddBidirectionalExits(oMonkeyHouse, oPathThroughScranlinsZoo4, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oMonkeyHouse] = new System.Windows.Point(2.67, -2);
+
+            Room oReptileHouse = AddRoom("Reptile House", "Reptile House");
+            AddBidirectionalExits(oPathThroughScranlinsZoo4, oReptileHouse, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oReptileHouse] = new System.Windows.Point(4, -2);
+
+            Room oCreaturesOfMyth = AddRoom("Creatures of Myth", "Creatures of Myth");
+            e = AddExit(oPathThroughScranlinsZoo2, oCreaturesOfMyth, "west");
+            e.MinimumLevel = 10;
+            AddExit(oCreaturesOfMyth, oPathThroughScranlinsZoo2, "east");
+            _breeStreetsGraph.Rooms[oCreaturesOfMyth] = new System.Windows.Point(0, -2);
+
+            Room oGeneticBlunders = AddRoom("Genetic Blunders", "Genetic Blunders");
+            e = AddExit(oPathThroughScranlinsZoo2, oGeneticBlunders, "east");
+            e.MinimumLevel = 4;
+            AddExit(oGeneticBlunders, oPathThroughScranlinsZoo2, "west");
+            _breeStreetsGraph.Rooms[oGeneticBlunders] = new System.Windows.Point(1.67, -2);
+
+            Room oBeastsOfFire = AddRoom("Beasts of Fire", "Beasts of Fire");
+            e = AddExit(oPathThroughScranlinsZoo3, oBeastsOfFire, "north");
+            e.MustOpen = true;
+            e.MinimumLevel = 5;
+            e = AddExit(oBeastsOfFire, oPathThroughScranlinsZoo3, "door");
+            e.MustOpen = true;
+            _breeStreetsGraph.Rooms[oBeastsOfFire] = new System.Windows.Point(2, -4);
+
+            Room oOceania = AddRoom("Oceania", "Oceania");
+            e = AddExit(oPathThroughScranlinsZoo3, oOceania, "south");
+            e.MinimumLevel = 4;
+            AddExit(oOceania, oPathThroughScranlinsZoo3, "north");
+            _breeStreetsGraph.Rooms[oOceania] = new System.Windows.Point(2, -2.5);
+            //CSRTODO: tank (fly)
 
             boatswain = AddRoom("Boatswain", "Stern of the Celduin Express");
             boatswain.AddPermanentMobs(MobTypeEnum.Boatswain);
@@ -1402,6 +1460,60 @@ namespace IsengardClient
             oBartenderWaitress.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
+
+            Room oHobbitsHideawayEntrance = AddRoom("Hideaway Entrance", "Entrance to the Hobbit's Hideaway");
+            e = AddExit(_orderOfLove, oHobbitsHideawayEntrance, "cubbyhole");
+            e.Hidden = true;
+            e.MaximumLevel = 8;
+            AddExit(oHobbitsHideawayEntrance, _orderOfLove, "west");
+            _breeStreetsGraph.Rooms[oHobbitsHideawayEntrance] = new System.Windows.Point(16, 2);
+
+            Room oHobbitClearing = AddRoom("Hobbit Clearing", "Hobbit Clearing");
+            AddBidirectionalExits(oHobbitsHideawayEntrance, oHobbitClearing, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oHobbitClearing] = new System.Windows.Point(17, 2);
+
+            Room oChiefsHole = AddRoom("Chief's Hole", "Chief's Hole");
+            AddExit(oHobbitClearing, oChiefsHole, "chief's");
+            AddExit(oChiefsHole, oHobbitClearing, "out");
+            _breeStreetsGraph.Rooms[oChiefsHole] = new System.Windows.Point(16, 1);
+
+            Room oBranco = AddRoom("Branco", "The Chief's Bedchambers");
+            oBranco.AddPermanentMobs(MobTypeEnum.BrancoTheHobbitsChief);
+            AddExit(oChiefsHole, oBranco, "bedchambers");
+            AddExit(oBranco, oChiefsHole, "out");
+            _breeStreetsGraph.Rooms[oBranco] = new System.Windows.Point(15, 1);
+
+            Room oHobbitsTemple = AddRoom("Temple", "The Hobbit's Temple");
+            AddExit(oHobbitClearing, oHobbitsTemple, "temple");
+            AddExit(oHobbitsTemple, oHobbitClearing, "out");
+            _breeStreetsGraph.Rooms[oHobbitsTemple] = new System.Windows.Point(16, 2.5);
+
+            Room oBeneathTheHobbitsAltar = AddRoom("Under Altar", "Beneath the Hobbit's Altar");
+            oBeneathTheHobbitsAltar.AddPermanentMobs(MobTypeEnum.LuthicTheHighPriestess);
+            oBeneathTheHobbitsAltar.IsTrapRoom = true;
+            e = AddExit(oHobbitsTemple, oBeneathTheHobbitsAltar, "altar");
+            e.Hidden = true;
+            AddExit(oBeneathTheHobbitsAltar, oHobbitsTemple, "up");
+            _breeStreetsGraph.Rooms[oBeneathTheHobbitsAltar] = new System.Windows.Point(17, 2.5);
+
+            breeEastGateOutside = AddRoom("East Gate Outside", "East Gate of Bree");
+            _breeStreetsGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(18, 3);
+
+            oCemetery = AddRoom("Cemetery", "The Cemetery");
+            e = AddExit(breeEastGateOutside, oCemetery, "path");
+            e.RequiresDay = true;
+            AddExit(oCemetery, oHobbitClearing, "west");
+            _breeStreetsGraph.Rooms[oCemetery] = new System.Windows.Point(18, 2);
+
+            Room oCommonArea = AddRoom("Common Area", "The Common Area");
+            AddExit(oHobbitClearing, oCommonArea, "common");
+            AddExit(oCommonArea, oHobbitClearing, "out");
+            _breeStreetsGraph.Rooms[oCommonArea] = new System.Windows.Point(17, 1);
+
+            Room oMainDiningHall = AddRoom("Dining Hall", "The Main Dining Hall");
+            AddExit(oCommonArea, oMainDiningHall, "dining");
+            AddExit(oMainDiningHall, oCommonArea, "out");
+            _breeStreetsGraph.Rooms[oMainDiningHall] = new System.Windows.Point(17, 0);
 
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
@@ -2171,15 +2283,16 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oMayorMillwood);
         }
 
-        private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, out Room imladrisWestGateOutside)
+        private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, Room breeEastGateOutside, out Room imladrisWestGateOutside, Room oCemetery)
         {
             RoomGraph breeToImladrisGraph = new RoomGraph("Bree/Imladris");
             breeToImladrisGraph.ScalingFactor = 100;
             _graphs[MapType.BreeToImladris] = breeToImladrisGraph;
 
-            Room breeEastGateOutside = AddRoom("East Gate Outside", "East Gate of Bree");
+            breeToImladrisGraph.Rooms[breeEastGateInside] = new System.Windows.Point(2, 4);
+            breeToImladrisGraph.Rooms[oCemetery] = new System.Windows.Point(2, 3);
+
             AddExit(breeEastGateInside, breeEastGateOutside, "gate");
-            _breeStreetsGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(15, 3);
             breeToImladrisGraph.Rooms[breeEastGateOutside] = new System.Windows.Point(3, 4);
             Exit e = AddExit(breeEastGateOutside, breeEastGateInside, "gate");
             e.RequiresDay = true;
@@ -2843,6 +2956,7 @@ namespace IsengardClient
             eastOfImladrisGraph.Rooms[oMountainTrail6] = new System.Windows.Point(3, -1);
 
             Room oLarsMagnusGrunwald = AddRoom("Lars Magnus Grunwald", "The Greywold Goldmine");
+            oLarsMagnusGrunwald.AddPermanentMobs(MobTypeEnum.LarsMagnusGrunwald);
             AddBidirectionalSameNameExit(oMountainTrail6, oLarsMagnusGrunwald, "gate");
             eastOfImladrisGraph.Rooms[oLarsMagnusGrunwald] = new System.Windows.Point(3, -2);
 

@@ -68,6 +68,10 @@
         [PluralName("bosun's mates")]
         BosunsMate,
 
+        [SingularName("Branco the hobbits' chief")]
+        //CSRTODO: no plural
+        BrancoTheHobbitsChief,
+
         [SingularName("Brent Diehard")]
         //CSRTODO: no plural?
         BrentDiehard,
@@ -216,6 +220,10 @@
         [PluralName("giant crayfish")]
         GiantCrayfish,
 
+        [SingularName("giant rat")]
+        [PluralName("giant rats")]
+        GiantRat,
+
         [SingularName("Gnarbolla")]
         //CSRTODO: no plural
         Gnarbolla,
@@ -350,6 +358,14 @@
         [PluralName("hobbits")]
         Hobbit,
 
+        [SingularName("hobbit chef")]
+        [PluralName("hobbit chefs")]
+        HobbitChef,
+
+        [SingularName("hobbit cleric")]
+        [PluralName("hobbit clerics")]
+        HobbitCleric,
+
         [SingularName("hobbitish doctor")]
         [PluralName("hobbitish doctors")]
         [Alignment(AlignmentType.Blue)]
@@ -362,6 +378,10 @@
         [SingularName("hobbit sailor")]
         [PluralName("hobbit sailors")]
         HobbitSailor,
+
+        [SingularName("hobbit warrior")]
+        [PluralName("hobbit warriors")]
+        HobbitWarrior,
 
         [SingularName("Hogoth")]
         //CSRTODO: no plural?
@@ -454,6 +474,10 @@
         //CSRTODO no plural
         LarsMagnusGrunwald,
 
+        [SingularName("Lathlorien")]
+        //CSRTODO: no plural
+        Lathlorien,
+
         [SingularName("little mouse")]
         [PluralName("little mice")]
         LittleMouse,
@@ -465,6 +489,10 @@
         [SingularName("Lord De'Arnse")]
         //CSRTODO: no plural
         LordDeArnse,
+
+        [SingularName("Luthic the High Priestess")]
+        //CSRTODO: no plural
+        LuthicTheHighPriestess,
 
         [SingularName("Madame Despana")]
         //CSRTODO: no plural
@@ -569,6 +597,10 @@
         //CSRTODO: no plural
         [Experience(235)]
         MrWartnose,
+
+        [SingularName("naked hobbit")]
+        [PluralName("naked hobbits")]
+        NakedHobbit,
 
         [SingularName("Naugrim")]
         //CSRTODO: no plural
@@ -810,6 +842,10 @@
         [SingularName("thief")]
         [PluralName("thiefs")]
         Thief,
+
+        [SingularName("tour guide")]
+        [PluralName("tour guides")]
+        TourGuide,
 
         [SingularName("tourist")]
         [PluralName("tourists")]
