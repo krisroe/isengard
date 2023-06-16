@@ -28,6 +28,7 @@ namespace IsengardClient
         {
             this.Lines = Lines;
             this.InfoMessages = new List<InformationalMessages>();
+            this.ErrorMessages = new List<string>();
         }
         public List<string> Lines { get; set; }
         public BackgroundCommandType? BackgroundCommandType { get; set; }
@@ -38,6 +39,7 @@ namespace IsengardClient
         public HashSet<string> PlayerNames { get; set; }
         public int NextLineIndex { get; set; }
         public List<InformationalMessages> InfoMessages { get; set; }
+        public List<string> ErrorMessages { get; set; }
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -757,11 +759,9 @@ namespace IsengardClient
         public RoomTransitionType TransitionType { get; set; }
         public string RoomName { get; set; }
         public List<string> ObviousExits { get; set; }
-        public FeedLineParameters FeedLineParameters { get; set; }
         public List<PlayerEntity> Players { get; set; }
         public List<ItemEntity> Items { get; set; }
         public List<MobEntity> Mobs { get; set; }
-        public List<string> ErrorMessages { get; set; }
     }
 
     internal class InitialLoginSequence : AOutputProcessingSequence
@@ -798,8 +798,8 @@ namespace IsengardClient
 
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
-        private Action<RoomTransitionInfo, int, TrapType> _onSatisfied;
-        public RoomTransitionSequence(Action<RoomTransitionInfo, int, TrapType> onSatisfied)
+        private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> _onSatisfied;
+        public RoomTransitionSequence(Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -907,7 +907,7 @@ namespace IsengardClient
             return true;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -918,7 +918,6 @@ namespace IsengardClient
             List<ItemEntity> items = new List<ItemEntity>();
             List<MobEntity> mobs = new List<MobEntity>();
             List<PlayerEntity> players = new List<PlayerEntity>();
-            List<string> errorMessages = new List<string>();
             HashSet<string> playerNames = flParams.PlayerNames;
 
             List<string> roomList3 = null;
@@ -939,7 +938,7 @@ namespace IsengardClient
 
             if (roomList3 != null) //this is known to be the item list
             {
-                LoadItems(items, roomList3, errorMessages, EntityTypeFlags.Item);
+                LoadItems(items, roomList3, flParams.ErrorMessages, EntityTypeFlags.Item);
             }
             if (roomList2 != null)
             {
@@ -947,7 +946,7 @@ namespace IsengardClient
                 EntityType? foundType = null;
                 foreach (string next in roomList2)
                 {
-                    Entity e = Entity.GetEntity(next, possibleTypes, errorMessages, playerNames);
+                    Entity e = Entity.GetEntity(next, possibleTypes, flParams.ErrorMessages, playerNames, false);
                     EntityType eType = e.Type;
                     if (eType != EntityType.Unknown)
                     {
@@ -960,11 +959,11 @@ namespace IsengardClient
                     EntityType foundTypeValue = foundType.Value;
                     if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList2, errorMessages, EntityTypeFlags.Mob);
+                        LoadMobs(mobs, roomList2, flParams.ErrorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList2, errorMessages, EntityTypeFlags.Item);
+                        LoadItems(items, roomList2, flParams.ErrorMessages, EntityTypeFlags.Item);
                     }
                     else
                     {
@@ -975,7 +974,7 @@ namespace IsengardClient
                 {
                     foreach (string s in roomList2)
                     {
-                        errorMessages.Add("Failed to identify " + s);
+                        flParams.ErrorMessages.Add("Failed to identify " + s);
                     }
                 }
             }
@@ -1006,7 +1005,7 @@ namespace IsengardClient
                 bool canBePlayers = true;
                 foreach (string next in roomList1)
                 {
-                    Entity e = Entity.GetEntity(next, possibleTypes, errorMessages, playerNames);
+                    Entity e = Entity.GetEntity(next, possibleTypes, flParams.ErrorMessages, playerNames, false);
                     EntityType eType = e.Type;
                     if (eType != EntityType.Unknown)
                     {
@@ -1023,15 +1022,15 @@ namespace IsengardClient
                     EntityType foundTypeValue = foundType.Value;
                     if (foundTypeValue == EntityType.Player)
                     {
-                        LoadPlayers(players, roomList1, errorMessages, playerNames, EntityTypeFlags.Player);
+                        LoadPlayers(players, roomList1, flParams.ErrorMessages, playerNames, EntityTypeFlags.Player);
                     }
                     else if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList1, errorMessages, EntityTypeFlags.Mob);
+                        LoadMobs(mobs, roomList1, flParams.ErrorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList1, errorMessages, EntityTypeFlags.Item);
+                        LoadItems(items, roomList1, flParams.ErrorMessages, EntityTypeFlags.Item);
                     }
                     else
                     {
@@ -1040,18 +1039,18 @@ namespace IsengardClient
                 }
                 else if (canBePlayers) //presumably players
                 {
-                    LoadPlayers(players, roomList1, errorMessages, playerNames, possibleTypes);
+                    LoadPlayers(players, roomList1, flParams.ErrorMessages, playerNames, possibleTypes);
                 }
                 else
                 {
                     possibleTypes &= ~EntityTypeFlags.Player;
                     if (mobs.Count == 0)
                     {
-                        LoadMobs(mobs, roomList1, errorMessages, possibleTypes);
+                        LoadMobs(mobs, roomList1, flParams.ErrorMessages, possibleTypes);
                     }
                     else
                     {
-                        LoadItems(items, roomList1, errorMessages, possibleTypes);
+                        LoadItems(items, roomList1, flParams.ErrorMessages, possibleTypes);
                     }
                 }
             }
@@ -1061,7 +1060,7 @@ namespace IsengardClient
                 UnknownItemEntity uie = nextItem as UnknownItemEntity;
                 if (uie != null)
                 {
-                    errorMessages.Add("Unknown mob/item: " + uie.Name);
+                    flParams.ErrorMessages.Add("Unknown mob/item: " + uie.Name);
                 }
             }
             foreach (var nextMob in mobs)
@@ -1069,7 +1068,7 @@ namespace IsengardClient
                 UnknownMobEntity ume = nextMob as UnknownMobEntity;
                 if (ume != null)
                 {
-                    errorMessages.Add("Unknown mob/item: " + ume.Name);
+                    flParams.ErrorMessages.Add("Unknown mob/item: " + ume.Name);
                 }
             }
 
@@ -1077,16 +1076,14 @@ namespace IsengardClient
             rti.TransitionType = rtType;
             rti.RoomName = sRoomName;
             rti.ObviousExits = exits;
-            rti.FeedLineParameters = flParams;
             rti.Players = players;
             rti.Mobs = mobs;
             rti.Items = items;
-            rti.ErrorMessages = errorMessages;
-            onSatisfied(rti, damage, trapType);
+            onSatisfied(flParams, rti, damage, trapType);
             return true;
         }
 
-        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<RoomTransitionInfo, int, TrapType> onSatisfied, int damage, ref TrapType trapType)
+        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, int damage, ref TrapType trapType)
         {
             int lineCount = Lines.Count;
 
@@ -1131,7 +1128,7 @@ StartProcessRoom:
         {
             foreach (string next in itemNames)
             {
-                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null);
+                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
                 if (e != null)
                 {
                     if (e is ItemEntity)
@@ -1156,7 +1153,7 @@ StartProcessRoom:
         {
             foreach (string next in mobNames)
             {
-                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null);
+                Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
                 if (e != null)
                 {
                     if (e is MobEntity)
@@ -1182,7 +1179,7 @@ StartProcessRoom:
         {
             foreach (string next in currentPlayerNames)
             {
-                PlayerEntity pEntity = (PlayerEntity)Entity.GetEntity(next, possibleEntityTypes, errorMessages, allPlayerNames);
+                PlayerEntity pEntity = (PlayerEntity)Entity.GetEntity(next, possibleEntityTypes, errorMessages, allPlayerNames, false);
                 if (pEntity != null)
                 {
                     players.Add(pEntity);
@@ -1859,6 +1856,7 @@ StartProcessRoom:
                 bool isMessageToKeep = false;
                 InformationalMessageType? im = null;
                 string sLine = Lines[i];
+                int lineLength = sLine.Length;
                 bool isBroadcast = false;
                 if (string.IsNullOrWhiteSpace(sLine))
                 {
@@ -2050,9 +2048,7 @@ StartProcessRoom:
                 {
                     isBroadcast = true;
                 }
-                else if (sLine.EndsWith(" just arrived.") ||
-                         sLine.EndsWith(" just wandered away.") ||
-                         sLine.EndsWith(" circles you.") ||
+                else if (sLine.EndsWith(" circles you.") ||
                          sLine.EndsWith(" killed you.") ||
                          sLine.StartsWith("Scared of going "))
                 {
@@ -2061,20 +2057,63 @@ StartProcessRoom:
                 }
                 else //not an informational message
                 {
-                    InformationalMessages nextMsg;
-                    int iDamage = FailMovementSequence.ProcessFallDamage(sLine);
-                    if (iDamage > 0)
+                    InformationalMessages nextMsg = null;
+
+                    bool isArrived = false;
+                    bool isWanderedAway = false;
+                    string sWhat = null;
+                    if (sLine.EndsWith(" just arrived.") && lineLength != " just arrived.".Length)
                     {
-                        nextMsg = new InformationalMessages(InformationalMessageType.FallDamage);
-                        nextMsg.Damage = iDamage;
-                        Parameters.InfoMessages.Add(nextMsg);
+                        isArrived = true;
+                        sWhat = sLine.Substring(0, lineLength - " just arrived.".Length);
+                    }
+                    else if (sLine.EndsWith(" just wandered away.") && lineLength != " just wandered away.".Length)
+                    {
+                        isWanderedAway = true;
+                        sWhat = sLine.Substring(0, lineLength - " just wandered away.".Length);
+                    }
+                    else
+                    {
+                        int iJustWanderedIndex = sLine.IndexOf(" just wandered to the ");
+                        if (iJustWanderedIndex > 0)
+                        {
+                            sWhat = sLine.Substring(0, iJustWanderedIndex);
+                            isWanderedAway = true;
+                        }
+                    }
+                    if (isArrived || isWanderedAway)
+                    {
+                        MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, true) as MobEntity;
+                        if (ment != null && ment.MobType.HasValue)
+                        {
+                            nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
+                            nextMsg.Mob = ment.MobType.Value;
+                            nextMsg.MobCount = ment.Count;
+                        }
                     }
 
-                    int? iDamage2 = CheckIfEnemyAttacksYou(sLine);
-                    if (iDamage2.HasValue)
+                    if (nextMsg == null)
                     {
-                        nextMsg = new InformationalMessages(InformationalMessageType.EnemyAttacksYou);
-                        nextMsg.Damage = iDamage2.Value;
+                        int iDamage = FailMovementSequence.ProcessFallDamage(sLine);
+                        if (iDamage > 0)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.FallDamage);
+                            nextMsg.Damage = iDamage;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        int? iDamage2 = CheckIfEnemyAttacksYou(sLine);
+                        if (iDamage2.HasValue)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.EnemyAttacksYou);
+                            nextMsg.Damage = iDamage2.Value;
+                        }
+                    }
+
+                    if (nextMsg != null)
+                    {
                         Parameters.InfoMessages.Add(nextMsg);
                     }
 

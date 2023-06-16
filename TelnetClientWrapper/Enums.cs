@@ -336,6 +336,8 @@ namespace IsengardClient
 
         public InformationalMessageType MessageType { get; set; }
         public int Damage { get; set; }
+        public int MobCount { get; set; }
+        public MobTypeEnum Mob { get; set; }
     }
 
     public enum InformationalMessageType
@@ -366,6 +368,8 @@ namespace IsengardClient
         HarbringerSailed,
         EnemyAttacksYou,
         FallDamage,
+        MobArrived,
+        MobWanderedAway,
     }
 
     public enum SkillWithCooldownType

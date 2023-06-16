@@ -1084,10 +1084,7 @@ namespace IsengardClient
             }
             else
             {
-                lock (_broadcastMessagesLock)
-                {
-                    _broadcastMessages.Add("Initial login failed!");
-                }
+                flp.ErrorMessages.Add("Initial login failed!");
             }
         }
 
@@ -1098,12 +1095,11 @@ namespace IsengardClient
             return ret;
         }
 
-        private void OnRoomTransition(RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType)
+        private void OnRoomTransition(FeedLineParameters flParams, RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType)
         {
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
             List<string> obviousExits = roomTransitionInfo.ObviousExits;
-            FeedLineParameters flParams = roomTransitionInfo.FeedLineParameters;
 
             BackgroundCommandType? bct = null;
             if (flParams != null)
@@ -1375,15 +1371,6 @@ namespace IsengardClient
 
                 _currentRoomChanges.Add(rc);
                 m_oCurrentRoom = newRoom;
-            }
-
-            List<string> errorMessages = roomTransitionInfo.ErrorMessages;
-            if (errorMessages.Count > 0)
-            {
-                lock (_broadcastMessagesLock)
-                {
-                    _broadcastMessages.AddRange(errorMessages);
-                }
             }
         }
 
@@ -1697,6 +1684,7 @@ namespace IsengardClient
             List<string> spellsOff = null;
             bool finishedProcessing = false;
             Exit currentBackgroundExit = _currentBackgroundExit;
+            RoomChange rc;
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
@@ -1861,6 +1849,38 @@ namespace IsengardClient
                         break;
                     case InformationalMessageType.HarbringerSailed:
                         HandleHarbringerStatusChange(false);
+                        break;
+                    case InformationalMessageType.MobArrived:
+                        rc = new RoomChange();
+                        rc.ChangeType = RoomChangeType.AddMob;
+                        rc.Mobs = new List<MobTypeEnum>();
+                        for (int i = 0; i < next.MobCount; i++)
+                        {
+                            rc.Mobs.Add(next.Mob);
+                        }
+                        rc.GlobalCounter = _roomChangeCounter;
+                        lock (_roomChangeLock)
+                        {
+                            _roomChangeCounter++;
+                            rc.GlobalCounter = _roomChangeCounter;
+                            _currentRoomChanges.Add(rc);
+                        }
+                        break;
+                    case InformationalMessageType.MobWanderedAway:
+                        rc = new RoomChange();
+                        rc.ChangeType = RoomChangeType.RemoveMob;
+                        rc.Mobs = new List<MobTypeEnum>();
+                        for (int i = 0; i < next.MobCount; i++)
+                        {
+                            rc.Mobs.Add(next.Mob);
+                        }
+                        rc.GlobalCounter = _roomChangeCounter;
+                        lock (_roomChangeLock)
+                        {
+                            _roomChangeCounter++;
+                            rc.GlobalCounter = _roomChangeCounter;
+                            _currentRoomChanges.Add(rc);
+                        }
                         break;
                 }
             }
@@ -2100,6 +2120,17 @@ namespace IsengardClient
                                 if (flParams.FinishedProcessing)
                                 {
                                     break;
+                                }
+                            }
+
+                            if (flParams.ErrorMessages.Count > 0)
+                            {
+                                lock (_broadcastMessagesLock)
+                                {
+                                    foreach (string s in flParams.ErrorMessages)
+                                    {
+                                        _broadcastMessages.Add(s);
+                                    }
                                 }
                             }
 
@@ -4825,6 +4856,8 @@ BeforeHazy:
                 }
             }
 
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+
             lock (_roomChangeLock)
             {
                 List<RoomChange> changes = null;
@@ -4939,6 +4972,7 @@ BeforeHazy:
                         else if (rcType == RoomChangeType.AddExit)
                         {
                             string exit = nextRoomChange.Exits[0];
+                            bool hasNodes = _tnObviousExits.Nodes.Count > 0;
                             _tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, exit));
                             TreeNode removeNode = null;
                             foreach (TreeNode tn in _tnOtherExits.Nodes)
@@ -4949,7 +4983,15 @@ BeforeHazy:
                                     break;
                                 }
                             }
+                            if (!hasNodes)
+                            {
+                                InsertTopLevelTreeNode(_tnObviousExits);
+                            }
                             _tnOtherExits.Nodes.Remove(removeNode);
+                            if (_tnOtherExits.Nodes.Count == 0)
+                            {
+                                treeCurrentRoom.Nodes.Remove(_tnOtherExits);
+                            }
                         }
                         else if (rcType == RoomChangeType.RemoveExit)
                         {
@@ -4965,16 +5007,77 @@ BeforeHazy:
                                     break;
                                 }
                             }
-                            _tnObviousExits.Nodes.Remove(removeNode);
-                            _tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
+                            if (removeNode != null)
+                            {
+                                _tnObviousExits.Nodes.Remove(removeNode);
+                                if (_tnObviousExits.Nodes.Count == 0)
+                                {
+                                    treeCurrentRoom.Nodes.Remove(_tnObviousExits);
+                                }
+                                _tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
+                            }
                         }
+                        else if (rcType == RoomChangeType.AddMob)
+                        {
+                            bool hasNodes = _tnObviousMobs.Nodes.Count > 0;
+                            bool isFirst = true;
+                            MobTypeEnum? firstMob = null;
+                            TreeNode firstInserted = null;
+                            foreach (MobTypeEnum nextMobType in nextRoomChange.Mobs)
+                            {
+                                int iInsertionPoint = FindNewMobInsertionPoint(nextMobType);
+                                TreeNode inserted = GetMobsNode(nextMobType);
+                                if (iInsertionPoint == -1)
+                                {
+                                    _tnObviousMobs.Nodes.Add(inserted);
+                                }
+                                else
+                                {
+                                    _tnObviousMobs.Nodes.Insert(iInsertionPoint, inserted);
+                                }
+                                if (isFirst)
+                                {
+                                    firstMob = nextMobType;
+                                    isFirst = false;
+                                    firstInserted = inserted;
+                                }
+                            }
+                            if (!hasNodes)
+                            {
+                                InsertTopLevelTreeNode(_tnObviousMobs);
+                                if (bwp == null)
+                                {
+                                    txtMob.Text = GetTextForMob(_tnObviousMobs, firstInserted);
+                                }
+                            }
+                        }
+                        else if (rcType == RoomChangeType.RemoveMob)
+                        {
+                            bool somethingRemoved = false;
+                            foreach (MobTypeEnum nextMobType in nextRoomChange.Mobs)
+                            {
+                                int removalIndex = FindMobIndex(nextMobType);
+                                if (removalIndex != -1)
+                                {
+                                    somethingRemoved = true;
+                                    _tnObviousMobs.Nodes.RemoveAt(removalIndex);
+                                }
+                            }
+                            if (somethingRemoved)
+                            {
+                                if (_tnObviousMobs.Nodes.Count == 0)
+                                {
+                                    treeCurrentRoom.Nodes.Remove(_tnObviousMobs);
+                                }
+                            }
+                        }
+                        
                         iNewCounter = nextRoomChange.GlobalCounter;
                     }
                     _roomChangeCounterUI = iNewCounter;
                 }
             }
 
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             EnableDisableActionButtons(bwp);
             if (bwp == null) //processing that only happens when a background process is not running
             {
@@ -5004,6 +5107,113 @@ BeforeHazy:
                     StartEscapeBackgroundProcess(hazying, fleeing);
                 }
             }
+        }
+
+        private int FindMobIndex(MobTypeEnum mobType)
+        {
+            int i = 0;
+            int iFoundIndex = -1;
+            foreach (TreeNode tn in _tnObviousMobs.Nodes)
+            {
+                MobTypeEnum nextMob = (MobTypeEnum)tn.Tag;
+                if (nextMob == mobType)
+                {
+                    iFoundIndex = i;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        private int FindNewMobInsertionPoint(MobTypeEnum newMob)
+        {
+            string sSingular = MobEntity.MobToSingularMapping[newMob];
+            int i = 0;
+            int iFoundIndex = -1;
+            foreach (TreeNode tn in _tnObviousMobs.Nodes)
+            {
+                MobTypeEnum nextMob = (MobTypeEnum)tn.Tag;
+                string sNextSingular = MobEntity.MobToSingularMapping[newMob];
+                if (sSingular.CompareTo(sNextSingular) < 0)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        private void InsertTopLevelTreeNode(TreeNode topLevelTreeNode)
+        {
+            if (!treeCurrentRoom.Nodes.Contains(topLevelTreeNode))
+            {
+                int iIndex = GetTopLevelTreeNodeLogicalIndex(topLevelTreeNode);
+                bool found = false;
+                for (int i = 0; i < treeCurrentRoom.Nodes.Count; i++)
+                {
+                    TreeNode next = treeCurrentRoom.Nodes[i];
+                    int nextIndex = GetTopLevelTreeNodeLogicalIndex(next);
+                    if (iIndex < nextIndex)
+                    {
+                        treeCurrentRoom.Nodes.Insert(i, topLevelTreeNode);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    treeCurrentRoom.Nodes.Add(topLevelTreeNode);
+                }
+                if (GetTopLevelTreeNodeExpanded(topLevelTreeNode))
+                {
+                    topLevelTreeNode.Expand();
+                }
+            }
+        }
+
+        private bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)
+        {
+            bool ret = false;
+            if (topLevelTreeNode == _tnObviousMobs)
+            {
+                ret = _obviousMobsTNExpanded;
+            }
+            else if (topLevelTreeNode == _tnObviousExits)
+            {
+                ret = _obviousExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == _tnOtherExits)
+            {
+                ret = _otherExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == _tnPermanentMobs)
+            {
+                ret = _permMobsTNExpanded;
+            }
+            return ret;
+        }
+
+        private int GetTopLevelTreeNodeLogicalIndex(TreeNode topLevelTreeNode)
+        {
+            int i = 0;
+            if (topLevelTreeNode == _tnObviousMobs)
+            {
+                i = 1;
+            }
+            else if (topLevelTreeNode == _tnObviousExits)
+            {
+                i = 2;
+            }
+            else if (topLevelTreeNode == _tnOtherExits)
+            {
+                i = 3;
+            }
+            else if (topLevelTreeNode == _tnPermanentMobs)
+            {
+                i = 4;
+            }
+            return i;
         }
 
         private TreeNode GetOtherExitsNode(Exit nextExit)

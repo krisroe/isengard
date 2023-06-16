@@ -670,7 +670,7 @@ namespace IsengardClient.Tests
             RoomTransitionInfo oRTI = null;
             int? iDamage = null;
             TrapType? trapType = null;
-            Action<RoomTransitionInfo, int, TrapType> a = (rti, d, tt) =>
+            Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> a = (flp, rti, d, tt) =>
             {
                 oRTI = rti;
                 iDamage = d;

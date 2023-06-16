@@ -45,7 +45,7 @@ namespace IsengardClient
             }
         }
 
-        public static Entity GetEntity(string fullName, EntityTypeFlags possibleEntityTypes, List<string> errorMessages, HashSet<string> playerNames)
+        public static Entity GetEntity(string fullName, EntityTypeFlags possibleEntityTypes, List<string> errorMessages, HashSet<string> playerNames, bool expectCapitalized)
         {
             string remainder = fullName;
 
@@ -74,7 +74,7 @@ namespace IsengardClient
             else
             {
                 string firstWord = remainder.Substring(0, iSpaceIndex);
-                int? parsedCount = ParseNumberWord(firstWord);
+                int? parsedCount = ParseNumberWord(firstWord, expectCapitalized);
                 if (!parsedCount.HasValue)
                 {
                     return ParseNamedEntity(remainder, possibleEntityTypes, null);
@@ -107,7 +107,7 @@ namespace IsengardClient
                     else
                     {
                         firstWord = remainder.Substring(0, iSpaceIndex);
-                        parsedCount = ParseNumberWord(firstWord);
+                        parsedCount = ParseNumberWord(firstWord, false);
                         if (!parsedCount.HasValue) //sets of [1] singular thing
                         {
                             Entity e = GetEntity(1, 1, remainder, possibleEntityTypes, errorMessages);
@@ -163,86 +163,104 @@ namespace IsengardClient
             return new UnknownTypeEntity(input, 1, possibleEntityTypes);
         }
 
-        public static int? ParseNumberWord(string input)
+        private static string GetCapitalized(string input, bool expectCapitalized)
+        {
+            string ret;
+            if (expectCapitalized)
+            {
+                ret = char.ToUpper(input[0]).ToString();
+                if (input.Length > 1)
+                {
+                    ret += input.Substring(1);
+                }
+            }
+            else
+            {
+                ret = input;
+            }
+            return ret;
+        }
+
+        public static int? ParseNumberWord(string input, bool expectCapitalized)
         {
             int? count = null;
-            if (input == "a" || input == "an" || input == "some")
+            if (input == GetCapitalized("a", expectCapitalized) || input == GetCapitalized("an", expectCapitalized) || input == GetCapitalized("some", expectCapitalized))
             {
                 count = 1;
             }
-            else if (input == "two")
+            else if (input == GetCapitalized("two", expectCapitalized))
             {
                 count = 2;
             }
-            else if (input == "three")
+            else if (input == GetCapitalized("three", expectCapitalized))
             {
                 count = 3;
             }
-            else if (input == "four")
+            else if (input == GetCapitalized("four", expectCapitalized))
             {
                 count = 4;
             }
-            else if (input == "five")
+            else if (input == GetCapitalized("five", expectCapitalized))
             {
                 count = 5;
             }
-            else if (input == "six")
+            else if (input == GetCapitalized("six", expectCapitalized))
             {
                 count = 6;
             }
-            else if (input == "seven")
+            else if (input == GetCapitalized("seven", expectCapitalized))
             {
                 count = 7;
             }
-            else if (input == "eight")
+            else if (input == GetCapitalized("eight", expectCapitalized))
             {
                 count = 8;
             }
-            else if (input == "nine")
+            else if (input == GetCapitalized("nine", expectCapitalized))
             {
                 count = 9;
             }
-            else if (input == "ten")
+            else if (input == GetCapitalized("ten", expectCapitalized))
             {
                 count = 10;
             }
-            else if (input == "eleven")
+            else if (input == GetCapitalized("eleven", expectCapitalized))
             {
                 count = 11;
             }
-            else if (input == "twelve")
+            else if (input == GetCapitalized("twelve", expectCapitalized))
             {
                 count = 12;
             }
-            else if (input == "thirteen")
+            else if (input == GetCapitalized("thirteen", expectCapitalized))
             {
                 count = 13;
             }
-            else if (input == "fourteen")
+            else if (input == GetCapitalized("fourteen", expectCapitalized))
             {
                 count = 14;
             }
-            else if (input == "fifteen")
+            else if (input == GetCapitalized("fifteen", expectCapitalized))
             {
                 count = 15;
             }
-            else if (input == "sixteen")
+            else if (input == GetCapitalized("sixteen", expectCapitalized))
             {
                 count = 16;
             }
-            else if (input == "seventeen")
+            else if (input == GetCapitalized("seventeen", expectCapitalized))
             {
                 count = 17;
             }
-            else if (input == "eighteen")
+            else if (input == GetCapitalized("eighteen", expectCapitalized))
             {
                 count = 18;
             }
-            else if (input == "nineteen")
+            else if (input == GetCapitalized("nineteen", expectCapitalized))
             {
                 count = 19;
             }
-            else if (input == "twenty")
+            else if (input == GetCapitalized("twenty", expectCapitalized))
             {
                 count = 20;
             }
