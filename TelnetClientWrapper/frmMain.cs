@@ -3656,7 +3656,7 @@ BeforeHazy:
 
         private string GetExitCommand(Exit exit)
         {
-            string target = exit.ExitText.ToLower();
+            string target = exit.ExitText.ToLower().Trim();
             string ret = null;
             switch (target)
             {
@@ -3704,6 +3704,7 @@ BeforeHazy:
                     ret = "down";
                     break;
             }
+            string sWord = MobEntity.PickWord(target);
             if (ret == null)
             {
                 Room oSource = exit.Source;
@@ -3714,10 +3715,10 @@ BeforeHazy:
                     foreach (Exit nextExit in oSource.Exits)
                     {
                         string sNextExitText = nextExit.ExitText;
-                        if (sNextExitText.StartsWith(target))
+                        if (sNextExitText.StartsWith(sWord))
                         {
                             iCounter++;
-                            if (sNextExitText == target)
+                            if (sNextExitText == sWord)
                             {
                                 foundExactMatch = true;
                                 break;
@@ -3726,13 +3727,13 @@ BeforeHazy:
                     }
                     if (foundExactMatch && iCounter > 1)
                     {
-                        ret = "go " + target + " " + iCounter;
+                        ret = "go " + sWord + " " + iCounter;
                     }
                 }
             }
             if (ret == null)
             {
-                ret = "go " + target;
+                ret = "go " + sWord;
             }
             return ret;
         }

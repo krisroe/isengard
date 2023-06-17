@@ -423,17 +423,23 @@ namespace IsengardClient
         /// <returns>word for the mob</returns>
         public static string PickWordForMob(MobTypeEnum nextMob)
         {
-            string sBestWord = string.Empty;
+            string sBestWord;
             if (!MobToSingularMappingForSelection.TryGetValue(nextMob, out sBestWord))
             {
-                string sName = MobToSingularMapping[nextMob];
-                string[] sWords = sName.Split(new char[] { ' ' });
-                foreach (string sNextWord in sWords)
+                sBestWord = PickWord(MobToSingularMapping[nextMob]);
+            }
+            return sBestWord;
+        }
+
+        public static string PickWord(string input)
+        {
+            string sBestWord = string.Empty;
+            string[] sWords = input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string sNextWord in sWords)
+            {
+                if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
                 {
-                    if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
-                    {
-                        sBestWord = sNextWord;
-                    }
+                    sBestWord = sNextWord;
                 }
             }
             return sBestWord;

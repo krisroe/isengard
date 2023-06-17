@@ -1488,6 +1488,13 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oCommonArea, oMainDiningHall, "dining");
             _breeStreetsGraph.Rooms[oMainDiningHall] = new System.Windows.Point(17, 0);
 
+            Room oBigPapaSmallHallway = AddRoom("Small Hallway", "Small hallway");
+            e = AddExit(oBigPapa, oBigPapaSmallHallway, "panel");
+            e.Hidden = true;
+            e = AddExit(oBigPapaSmallHallway, oBigPapa, "panel");
+            e.MustOpen = true;
+            _breeStreetsGraph.Rooms[oBigPapaSmallHallway] = new System.Windows.Point(8, 4.5);
+
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
@@ -1735,9 +1742,9 @@ namespace IsengardClient
 
             Room oSewerOrcChamber = AddRoom("Sewer Orc Guards", "Sewer Orc Chamber");
             oSewerOrcChamber.AddPermanentMobs(MobTypeEnum.SewerOrcGuard, MobTypeEnum.SewerOrcGuard);
-            e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted");
+            e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted board");
             e.Hidden = true;
-            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted");
+            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted board");
             e.Hidden = true;
             underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
 
