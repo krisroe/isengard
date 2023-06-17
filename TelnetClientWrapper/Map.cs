@@ -1195,6 +1195,7 @@ namespace IsengardClient
             breeSewers[0, 10] = AddRoom("Sewers Ormenel/Wain", "Wain Road Sewer Main"); //1x11
             Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
             e.MustOpen = true;
+            e.MinimumLevel = 4;
             breeStreets[1, 10] = AddRoom("Ormenel", "Ormenel Street"); //2x11
             Room oToZoo = breeStreets[2, 10] = AddRoom("Ormenel", "Ormenel Street"); //3x11
             breeStreets[3, 10] = AddRoom("Ormenel/High", "North High Street/Ormenel Street Intersection"); //4x11
@@ -3575,6 +3576,7 @@ namespace IsengardClient
             oDarkTunnel.Intangible = true;
             e = AddExit(oLimbo, oDarkTunnel, "blue");
             e.MustOpen = true;
+            e.MinimumLevel = 4;
             AddExit(oDarkTunnel, healingHand, "light");
             intangibleGraph.Rooms[oDarkTunnel] = new System.Windows.Point(1, 1);
 
