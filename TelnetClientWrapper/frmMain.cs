@@ -176,6 +176,7 @@ namespace IsengardClient
         private int _monsterDamageUI;
         private bool _monsterStunned;
         private bool _monsterKilled;
+        private MobTypeEnum? _monsterKilledType;
 
         /// <summary>
         /// number of times to try to attempt a background command before giving up
@@ -1594,8 +1595,15 @@ namespace IsengardClient
             _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
-                if (fumbled) _fumbled = true;
-                else if (killedMonster) _monsterKilled = true;
+                if (fumbled)
+                {
+                    _fumbled = true;
+                }
+                else if (killedMonster)
+                {
+                    _monsterKilled = true;
+                    _monsterKilledType = eMobType;
+                }
                 _monsterDamage += damage;
             }
             if (eMobType.HasValue)
@@ -1616,7 +1624,11 @@ namespace IsengardClient
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
                 _monsterDamage += damage;
-                if (killedMonster) _monsterKilled = true;
+                if (killedMonster)
+                {
+                    _monsterKilled = true;
+                    _monsterKilledType = mobType;
+                }
             }
             if (mobType.HasValue)
             {
@@ -2722,18 +2734,31 @@ namespace IsengardClient
                 _lastCommandTrapType = TrapType.None;
                 _lastCommandMovementResult = null;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
-                bool setMobToFirstAvailable;
-                if (bwp.AtDestination)
+                bool setMobToFirstAvailable = true;
+                if (bwp.AtDestination && !string.IsNullOrEmpty(bwp.TargetRoomMob))
                 {
-                    setMobToFirstAvailable = bwp.MonsterKilled || string.IsNullOrEmpty(bwp.TargetRoomMob);
-                    if (!setMobToFirstAvailable)
+                    if (bwp.MonsterKilled)
+                    {
+                        if (bwp.MonsterKilledType.HasValue)
+                        {
+                            MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
+                            setMobToFirstAvailable = true;
+
+                            //choose first monster of the same type
+                            foreach (TreeNode nextNode in _tnObviousMobs.Nodes)
+                            {
+                                if (eMobValue == (MobTypeEnum)nextNode.Tag)
+                                {
+                                    txtMob.Text = GetTextForMob(_tnObviousMobs, nextNode);
+                                    setMobToFirstAvailable = false;
+                                }
+                            }
+                        }
+                    }
+                    else //presumably the mob is still there so leave it selected
                     {
                         txtMob.Text = bwp.TargetRoomMob;
                     }
-                }
-                else
-                {
-                    setMobToFirstAvailable = true;
                 }
                 if (setMobToFirstAvailable)
                 {
@@ -2819,8 +2844,7 @@ namespace IsengardClient
                 }
 
                 Exit previousExit = null;
-                bool haveExits = pms.Exits != null && pms.Exits.Count > 0;
-                if (haveExits)
+                if (pms.Exits != null && pms.Exits.Count > 0)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.Movement;
                     List<Exit> exitList = new List<Exit>(pms.Exits);
@@ -3017,8 +3041,12 @@ namespace IsengardClient
                     }
                     pms.AtDestination = true; //all exits traversed successfully
                 }
+                else
+                {
+                    pms.AtDestination = true;
+                }
 
-               if (!string.IsNullOrEmpty(pms.TargetRoomMob) && (pms.AtDestination || !haveExits))
+               if (!string.IsNullOrEmpty(pms.TargetRoomMob) && pms.AtDestination)
                {
                     _mob = pms.TargetRoomMob;
                 }
@@ -3053,6 +3081,7 @@ namespace IsengardClient
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunned = false;
                         _monsterKilled = false;
+                        _monsterKilledType = null;
                         if (useManaPool)
                         {
                             _currentMana = pms.ManaPool;
@@ -3298,12 +3327,14 @@ BeforeHazy:
                     finally
                     {
                         pms.MonsterKilled = _monsterKilled;
+                        pms.MonsterKilledType = _monsterKilledType;
                         _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                         _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                         _currentlyFightingMob = null;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunned = false;
                         _monsterKilled = false;
+                        _monsterKilledType = null;
                         _currentMana = HP_OR_MP_UNKNOWN;
                     }
                 }
@@ -4425,6 +4456,7 @@ BeforeHazy:
             public bool EnsureProtected { get; set; }
             public BackgroundCommandType? SingleCommandType { get; set; }
             public bool MonsterKilled { get; set; }
+            public MobTypeEnum? MonsterKilledType { get; set; }
             public bool AtDestination { get; set; }
         }
 
