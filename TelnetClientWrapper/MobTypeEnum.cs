@@ -610,6 +610,10 @@
         [PluralName("mountain hikers")]
         MountainHiker,
 
+        [SingularName("mountain lion")]
+        [PluralName("mountain lions")]
+        MountainLion,
+
         [SingularName("Mr. Wartnose")]
         //CSRTODO: no plural
         [Experience(235)]

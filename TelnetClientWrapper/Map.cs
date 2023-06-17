@@ -49,11 +49,12 @@ namespace IsengardClient
             AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery);
             AddUnderBree(oDroolie, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand);
-            AddEastOfImladris(oEastGateOfImladrisOutside);
+            AddEastOfImladris(oEastGateOfImladrisOutside, out Room westGateOfEsgaroth);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate);
             AddWestOfTharbad(tharbadWestGateOutside);
             AddEastOfTharbad(tharbadEastGate);
+            AddEsgaroth(westGateOfEsgaroth);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
@@ -2740,7 +2741,9 @@ namespace IsengardClient
             imladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(9, 5);
 
             oEastGateOfImladrisOutside = AddRoom("East Gate Outside", "Gates of Imladris");
-            AddBidirectionalSameNameExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
+            e = AddExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
+            e.MinimumLevel = 3;
+            AddExit(oEastGateOfImladrisOutside, oEastGateOfImladrisInside, "gate");
             imladrisGraph.Rooms[oEastGateOfImladrisOutside] = new System.Windows.Point(10, 5);
 
             Room oImladrisCircle6 = AddRoom("Circle", "Imladris Circle");
@@ -2796,7 +2799,7 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
-        private void AddEastOfImladris(Room oEastGateOfImladrisOutside)
+        private void AddEastOfImladris(Room oEastGateOfImladrisOutside, out Room westGateOfEsgaroth)
         {
             RoomGraph eastOfImladrisGraph = new RoomGraph("East of Imladris");
             eastOfImladrisGraph.ScalingFactor = 100;
@@ -2861,9 +2864,9 @@ namespace IsengardClient
             AddBidirectionalExits(oMountainTrailEastOfIorlas4, oCarrockPlains, BidirectionalExitType.WestEast);
             eastOfImladrisGraph.Rooms[oCarrockPlains] = new System.Windows.Point(8, 4);
 
-            Room oEscarothWestGateOutside = AddRoom("West Gate Outside", "West Entrance to Esgaroth");
-            AddBidirectionalExits(oCarrockPlains, oEscarothWestGateOutside, BidirectionalExitType.WestEast);
-            eastOfImladrisGraph.Rooms[oEscarothWestGateOutside] = new System.Windows.Point(9, 4);
+            westGateOfEsgaroth = AddRoom("West Gate Outside", "West Entrance to Esgaroth");
+            AddBidirectionalExits(oCarrockPlains, westGateOfEsgaroth, BidirectionalExitType.WestEast);
+            eastOfImladrisGraph.Rooms[westGateOfEsgaroth] = new System.Windows.Point(9, 4);
 
             Room oMountainTrail3 = AddRoom("Mountain Trail", "Mountain Trail");
             AddBidirectionalExits(oMountainTrail3, oIorlasThreshold, BidirectionalExitType.SouthwestNortheast);
@@ -3199,6 +3202,15 @@ namespace IsengardClient
 
             AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
+        }
+
+        private void AddEsgaroth(Room westGateOfEsgaroth)
+        {
+            RoomGraph esgarothGraph = new RoomGraph("Esgaroth");
+            esgarothGraph.ScalingFactor = 100;
+            _graphs[MapType.Esgaroth] = esgarothGraph;
+
+            esgarothGraph.Rooms[westGateOfEsgaroth] = new System.Windows.Point(0, 6);
         }
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)
