@@ -1124,7 +1124,7 @@ StartProcessRoom:
             return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType);
         }
 
-        private static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
+        public static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in itemNames)
             {
@@ -1279,6 +1279,7 @@ StartProcessRoom:
         private const string AFTER_DAMAGE = " damage.";
 
         private const string YOU_GAINED_PREFIX = "You gained";
+        private const string WAS_CARRYING_MID = " was carrying: ";
         private const string EXPERIENCE_FOR_THE_DEATH_SUFFIX = " experience for the death of ";
 
         public Action<bool, int, bool, MobTypeEnum?, int, bool, FeedLineParameters> _onSatisfied;
@@ -1372,41 +1373,64 @@ StartProcessRoom:
                 return false;
             }
             bool monsterKilled = false;
-            for (int i = startLineIndex; i < lineCount; i++)
+            int i = startLineIndex;
+            while (true)
             {
+                bool skipToNextLine = true;
                 string nextLine = Lines[i];
                 if (nextLine == null) continue;
-                if (!nextLine.StartsWith(YOU_GAINED_PREFIX)) continue;
-
-                int iLineLen = nextLine.Length;
-                int iExpStart = YOU_GAINED_PREFIX.Length;
-                if (iLineLen == iExpStart) continue;
-
-                int iSpaceIndex = nextLine.IndexOf(EXPERIENCE_FOR_THE_DEATH_SUFFIX, iExpStart);
-                if (iSpaceIndex == iExpStart) continue;
-
-                int iNextExperience;
-                if (!ParseNumber(nextLine, iSpaceIndex - 1, out iNextExperience, out int _))
+                if (nextLine.StartsWith(YOU_GAINED_PREFIX))
                 {
-                    continue;
-                }
+                    int iLineLen = nextLine.Length;
+                    int iExpStart = YOU_GAINED_PREFIX.Length;
+                    if (iLineLen == iExpStart) continue;
 
-                int remainingLength = iLineLen - iSpaceIndex - EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length - 1;
-                if (remainingLength <= 0)
+                    int iSpaceIndex = nextLine.IndexOf(EXPERIENCE_FOR_THE_DEATH_SUFFIX, iExpStart);
+                    if (iSpaceIndex == iExpStart) continue;
+
+                    int iNextExperience;
+                    if (!ParseNumber(nextLine, iSpaceIndex - 1, out iNextExperience, out int _))
+                    {
+                        continue;
+                    }
+
+                    int remainingLength = iLineLen - iSpaceIndex - EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length - 1;
+                    if (remainingLength <= 0)
+                    {
+                        continue;
+                    }
+                    string remaining = nextLine.Substring(iSpaceIndex + EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length, remainingLength);
+
+                    MobEntity ment = Entity.GetEntity(remaining, EntityTypeFlags.Mob | EntityTypeFlags.Player, flParams.ErrorMessages, null, false) as MobEntity;
+                    if (ment != null && ment.MobType.HasValue)
+                    {
+                        monsterType = ment.MobType.Value;
+                    }
+
+                    experience += iNextExperience;
+                    monsterKilled = true;
+                }
+                else
                 {
-                    continue;
+                    int iFoundCarrying = nextLine.IndexOf(WAS_CARRYING_MID);
+                    if (iFoundCarrying > 0)
+                    {
+                        string sPrefix = nextLine.Substring(0, iFoundCarrying + WAS_CARRYING_MID.Length);
+                        string itemList = StringProcessing.GetListAsString(Lines, i, sPrefix, true, out i);
+                        skipToNextLine = false;
+                        List<string> itemsString = StringProcessing.ParseList(itemList);
+                        List<ItemEntity> oItems = new List<ItemEntity>();
+                        RoomTransitionSequence.LoadItems(oItems, itemsString, flParams.ErrorMessages, EntityTypeFlags.Item);
+                    }
                 }
-                string remaining = nextLine.Substring(iSpaceIndex + EXPERIENCE_FOR_THE_DEATH_SUFFIX.Length, remainingLength);
-
-                MobEntity ment = Entity.GetEntity(remaining, EntityTypeFlags.Mob | EntityTypeFlags.Player, flParams.ErrorMessages, null, false) as MobEntity;
-                if (ment != null && ment.MobType.HasValue)
+                if (skipToNextLine)
                 {
-                    monsterType = ment.MobType.Value;
+                    i++;
                 }
-
-                experience += iNextExperience;
-                monsterKilled = true;
-                break;
+                if (i >= lineCount)
+                {
+                    break;
+                }
             }
             return monsterKilled;
         }
@@ -2081,6 +2105,7 @@ StartProcessRoom:
                     bool isArrived = false;
                     bool isLeft = false;
                     string sWhat = null;
+                    bool expectCapitalized = true;
                     if (sLine.EndsWith(" just arrived.") && lineLength != " just arrived.".Length)
                     {
                         isArrived = true;
@@ -2103,16 +2128,21 @@ StartProcessRoom:
                         if (!isLeft)
                         {
                             int iKilledThe = sLine.IndexOf(" killed ");
-                            if (iKilledThe > 0 && iKilledThe + " killed ".Length - 1 > lineLength)
+                            if (iKilledThe > 0)
                             {
-                                sWhat = sLine.Substring(iKilledThe + " killed ".Length, lineLength - iKilledThe - " killed ".Length - 1);
-                                isLeft = true;
+                                int targetLength = lineLength - iKilledThe - " killed ".Length - 1;
+                                if (targetLength > 0)
+                                {
+                                    sWhat = sLine.Substring(iKilledThe + " killed ".Length, targetLength);
+                                    isLeft = true;
+                                    expectCapitalized = false;
+                                }
                             }
                         }
                     }
                     if (isArrived || isLeft)
                     {
-                        MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, true) as MobEntity;
+                        MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, expectCapitalized) as MobEntity;
                         if (ment != null && ment.MobType.HasValue)
                         {
                             nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);

@@ -1443,6 +1443,10 @@ namespace IsengardClient
             {
                 if (!_spellsCast.Contains(spellName))
                 {
+                    if (_spellsCast.Contains("None"))
+                    {
+                        _spellsCast.Remove("None");
+                    }
                     _spellsCast.Add(spellName);
                     _refreshSpellsCast = true;
                 }
@@ -1888,6 +1892,10 @@ namespace IsengardClient
                         if (_spellsCast.Contains(nextSpell))
                         {
                             _spellsCast.Remove(nextSpell);
+                            if (_spellsCast.Count == 0)
+                            {
+                                _spellsCast.Add("None");
+                            }
                             _refreshSpellsCast = true;
                         }
                     }

@@ -276,6 +276,10 @@
         [PluralName("iron rings")]
         IronRing,
 
+        [SingularName("Kasnar's red key")]
+        [PluralName("Kasnar's red keys")]
+        KasnarsRedKey,
+
         [SingularName("knapsack")]
         [PluralName("knapsacks")]
         Knapsack,
@@ -563,6 +567,10 @@
 
         [SingularName("tiger shark leather armor")]
         TigerSharkLeatherArmor,
+
+        [SingularName("toilet paper")]
+        //CSRTODO: collective plural?
+        ToiletPaper,
 
         [SingularName("torch")]
         [PluralName("torches")]
