@@ -519,6 +519,10 @@
         [PluralName("small knives")] //CSRTODO: correct plural?
         SmallKnife,
 
+        [SingularName("small metal shield")]
+        [PluralName("small metal shields")]
+        SmallMetalShield,
+
         [SingularName("small pearl")]
         [PluralName("small pearls")]
         SmallPearl,
