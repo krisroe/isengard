@@ -5146,7 +5146,7 @@ BeforeHazy:
             foreach (TreeNode tn in _tnObviousMobs.Nodes)
             {
                 MobTypeEnum nextMob = (MobTypeEnum)tn.Tag;
-                string sNextSingular = MobEntity.MobToSingularMapping[newMob];
+                string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
                 if (sSingular.CompareTo(sNextSingular) < 0)
                 {
                     iFoundIndex = i;

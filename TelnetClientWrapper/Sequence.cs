@@ -2143,7 +2143,7 @@ StartProcessRoom:
 
                     if (nextMsg == null) //these are valid informational messages that aren't currently processed
                     {
-                        if (sLine.Contains(" missed ") ||
+                        if (sLine.Contains(" misses ") ||
                             sLine.Contains(" barely nicks ") ||
                             sLine.Contains(" scratches ") ||
                             sLine.Contains(" bruises ") ||
