@@ -13,9 +13,14 @@ namespace IsengardClient
         {
             this.Name = name;
             this.BackendName = backendName;
+            this.Exits = new List<Exit>();
         }
         public string Name { get; set; }
         public string BackendName { get; set; }
+        /// <summary>
+        /// exits
+        /// </summary>
+        public List<Exit> Exits { get; set; }
         /// <summary>
         /// region for a healing room
         /// </summary>

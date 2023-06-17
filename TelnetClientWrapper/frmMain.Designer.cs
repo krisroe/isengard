@@ -36,7 +36,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.btnLevel1OffensiveSpell = new System.Windows.Forms.Button();
             this.txtMob = new System.Windows.Forms.TextBox();
-            this.ctxMob = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.lblMob = new System.Windows.Forms.Label();
             this.btnLevel2OffensiveSpell = new System.Windows.Forms.Button();
             this.btnFlee = new System.Windows.Forms.Button();
@@ -213,20 +212,12 @@
             // 
             // txtMob
             // 
-            this.txtMob.ContextMenuStrip = this.ctxMob;
             this.txtMob.Location = new System.Drawing.Point(101, 23);
             this.txtMob.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtMob.Name = "txtMob";
             this.txtMob.Size = new System.Drawing.Size(205, 22);
             this.txtMob.TabIndex = 4;
             this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
-            // 
-            // ctxMob
-            // 
-            this.ctxMob.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxMob.Name = "ctxMob";
-            this.ctxMob.Size = new System.Drawing.Size(61, 4);
-            this.ctxMob.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMob_Opening);
             // 
             // lblMob
             // 
@@ -1864,7 +1855,6 @@
         private System.Windows.Forms.CheckBox chkShowEmotesWithoutTarget;
         private System.Windows.Forms.ContextMenuStrip ctxConsole;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearConsole;
-        private System.Windows.Forms.ContextMenuStrip ctxMob;
         private System.Windows.Forms.ContextMenuStrip ctxRoomExits;
         private System.Windows.Forms.Button btnSay;
         private System.Windows.Forms.GroupBox grpSingleMove;

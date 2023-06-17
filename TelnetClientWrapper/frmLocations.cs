@@ -7,7 +7,6 @@ namespace IsengardClient
 {
     internal partial class frmLocations : Form
     {
-        private AdjacencyGraph<Room, Exit> _map;
         private IsengardMap _fullMap;
         private bool _flying;
         private bool _levitating;
@@ -19,7 +18,6 @@ namespace IsengardClient
             InitializeComponent();
 
             _fullMap = fullMap;
-            _map = fullMap.MapGraph;
             CurrentRoom = currentRoom;
             _flying = flying;
             _levitating = levitating;
@@ -76,7 +74,7 @@ namespace IsengardClient
         private void btnGo_Click(object sender, EventArgs e)
         {
             Room selectedRoom = (Room)treeLocations.SelectedNode.Tag;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _levitating, _isDay, _level);
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _flying, _levitating, _isDay, _level);
             if (SelectedPath == null)
             {
                 MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);

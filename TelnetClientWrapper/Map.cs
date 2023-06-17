@@ -74,36 +74,30 @@ namespace IsengardClient
             }
         }
 
-        public static IEnumerable<Exit> GetAllRoomExits(AdjacencyGraph<Room, Exit> mapGraph, Room room)
+        public static IEnumerable<Exit> GetAllRoomExits(Room room)
         {
-            if (mapGraph.TryGetOutEdges(room, out IEnumerable<Exit> edges))
+            foreach (Exit nextExit in room.Exits)
             {
-                foreach (Exit nextExit in edges)
+                yield return nextExit;
+            }
+        }
+
+        public static IEnumerable<Exit> GetRoomExits(Room room, Func<Exit, bool> exitDiscriminator)
+        {
+            foreach (Exit nextExit in room.Exits)
+            {
+                if (exitDiscriminator(nextExit))
                 {
                     yield return nextExit;
                 }
             }
         }
 
-        public static IEnumerable<Exit> GetRoomExits(AdjacencyGraph<Room, Exit> mapGraph, Room room, Func<Exit, bool> exitDiscriminator)
-        {
-            if (mapGraph.TryGetOutEdges(room, out IEnumerable<Exit> edges))
-            {
-                foreach (Exit nextExit in edges)
-                {
-                    if (exitDiscriminator(nextExit))
-                    {
-                        yield return nextExit;
-                    }
-                }
-            }
-        }
-
-        public static List<string> GetObviousExits(AdjacencyGraph<Room, Exit> mapGraph, Room r, out List<string> optionalExits)
+        public static List<string> GetObviousExits(Room r, out List<string> optionalExits)
         {
             List<string> ret = new List<string>();
             optionalExits = null;
-            foreach (Exit nextExit in GetRoomExits(mapGraph, r, HiddenExitDiscriminator))
+            foreach (Exit nextExit in GetRoomExits(r, HiddenExitDiscriminator))
             {
                 string exitText = nextExit.ExitText;
                 if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
@@ -669,19 +663,12 @@ namespace IsengardClient
 
             Room fishHold = AddRoom("Fish Hold", "Fish Hold");
             fishHold.DamageType = RealmType.Wind;
-            e = AddExit(cargoHold, fishHold, "hatch");
-            e.MustOpen = true;
-            e = AddExit(fishHold, cargoHold, "hatch 2");
-            e.MustOpen = true;
-            mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
-
             Room brentDiehard = AddRoom("Brent Diehard", "Engine Room");
             brentDiehard.AddPermanentMobs(MobTypeEnum.BrentDiehard);
-            e = AddExit(fishHold, brentDiehard, "hatchway");
-            e.MustOpen = true;
-            e = AddExit(brentDiehard, fishHold, "hatchway");
-            e.MustOpen = true;
+            mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
             mithlondGraph.Rooms[brentDiehard] = new System.Windows.Point(4.5, 2.5);
+            AddBidirectionalSameNameExit(fishHold, brentDiehard, "hatchway", true);
+            AddBidirectionalSameNameExit(cargoHold, fishHold, "hatch", true);
         }
 
         public AdjacencyGraph<Room, Exit> MapGraph
@@ -4974,8 +4961,14 @@ namespace IsengardClient
         private Exit AddExit(Room a, Room b, string exitText)
         {
             Exit e = new Exit(a, b, exitText);
-            _map.AddEdge(e);
+            AddExit(e);
             return e;
+        }
+
+        private void AddExit(Exit exit)
+        {
+            exit.Source.Exits.Add(exit);
+            _map.AddEdge(exit);
         }
 
         private void AddBidirectionalExitsWithOut(Room aRoom, Room bRoom, string inText)
@@ -4993,10 +4986,10 @@ namespace IsengardClient
         {
             Exit e = new Exit(aRoom, bRoom, exitText);
             e.MustOpen = mustOpen;
-            _map.AddEdge(e);
+            AddExit(e);
             e = new Exit(bRoom, aRoom, exitText);
             e.MustOpen = mustOpen;
-            _map.AddEdge(e);
+            AddExit(e);
         }
 
         private void AddBidirectionalExits(Room aRoom, Room bRoom, BidirectionalExitType exitType)
@@ -5035,10 +5028,10 @@ namespace IsengardClient
             }
             Exit e = new Exit(aRoom, bRoom, exitAtoB);
             e.Hidden = hidden;
-            _map.AddEdge(e);
+            AddExit(e);
             e = new Exit(bRoom, aRoom, exitBtoA);
-            _map.AddEdge(e);
             e.Hidden = hidden;
+            AddExit(e);
         }
 
         private Area AddArea(string areaName)
@@ -5069,7 +5062,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, AdjacencyGraph<Room, Exit> mapGraph, bool flying, bool levitating, bool isDay, int level)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, bool flying, bool levitating, bool isDay, int level)
         {
             if (currentRoom == null)
             {
@@ -5086,7 +5079,7 @@ namespace IsengardClient
             {
                 return !pathMapping.ContainsKey(exit.Target) && exit.ExitIsUsable(flying, levitating, isDay, level);
             };
-            foreach (Exit e in IsengardMap.GetRoomExits(mapGraph, currentRoom, discriminator))
+            foreach (Exit e in IsengardMap.GetRoomExits(currentRoom, discriminator))
             {
                 pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
             }
@@ -5115,7 +5108,7 @@ namespace IsengardClient
                     }
                     else
                     {
-                        foreach (Exit e in IsengardMap.GetRoomExits(mapGraph, nextNodeTarget, discriminator))
+                        foreach (Exit e in IsengardMap.GetRoomExits(nextNodeTarget, discriminator))
                         {
                             pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
                         }

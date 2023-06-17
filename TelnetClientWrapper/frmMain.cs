@@ -1142,7 +1142,7 @@ namespace IsengardClient
                 if (newRoom == null && previousRoom != null) //determine the room that was fled to if possible
                 {
                     List<Exit> fleeableExits = new List<Exit>();
-                    foreach (Exit e in IsengardMap.GetRoomExits(_gameMap.MapGraph, previousRoom, FleeExitDiscriminator))
+                    foreach (Exit e in IsengardMap.GetRoomExits(previousRoom, FleeExitDiscriminator))
                     {
                         if (e.Target.BackendName == sRoomName)
                         {
@@ -1240,7 +1240,7 @@ namespace IsengardClient
                 foreach (Room nextDisambigRoom in disambiguationRooms)
                 {
                     bool matches = true;
-                    List<string> nextCheckObviousExits = IsengardMap.GetObviousExits(_gameMap.MapGraph, nextDisambigRoom, out List<string> optionalExits);
+                    List<string> nextCheckObviousExits = IsengardMap.GetObviousExits(nextDisambigRoom, out List<string> optionalExits);
                     if (obviousExits.Count == 1 && string.Equals(obviousExits[0], "None", StringComparison.OrdinalIgnoreCase))
                     {
                         matches = nextCheckObviousExits.Count == 0;
@@ -1305,7 +1305,7 @@ namespace IsengardClient
                 {
                     rc.MappedExits = new Dictionary<string, Exit>();
                     Dictionary<string, List<Exit>> periodicExits = new Dictionary<string, List<Exit>>();
-                    foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, newRoom))
+                    foreach (Exit nextExit in IsengardMap.GetAllRoomExits(newRoom))
                     {
                         string nextExitText = nextExit.ExitText;
                         if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
@@ -2016,7 +2016,7 @@ namespace IsengardClient
             rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
             _roomChangeCounter++;
             rc.GlobalCounter = _roomChangeCounter;
-            Exit e = IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
+            Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
             {
@@ -2038,7 +2038,7 @@ namespace IsengardClient
             rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
             _roomChangeCounter++;
             rc.GlobalCounter = _roomChangeCounter;
-            Exit e = IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
+            Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
             {
@@ -2965,7 +2965,7 @@ namespace IsengardClient
                             {
                                 return;
                             }
-                            string nextCommand = GetExitCommand(exitText);
+                            string nextCommand = GetExitCommand(nextExit);
                             bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
 
                             bool keepTryingMovement = true;
@@ -3297,7 +3297,7 @@ namespace IsengardClient
                             //run the preexit logic for all target exits, since it won't be known beforehand
                             //which exit will be used.
                             List<Exit> availableExits = new List<Exit>();
-                            foreach (Exit nextExit in IsengardMap.GetRoomExits(_gameMap.MapGraph, r, FleeExitDiscriminator))
+                            foreach (Exit nextExit in IsengardMap.GetRoomExits(r, FleeExitDiscriminator))
                             {
                                 if (PreOpenDoorExit(nextExit, pms))
                                 {
@@ -3654,9 +3654,10 @@ BeforeHazy:
             }
         }
 
-        private string GetExitCommand(string target)
+        private string GetExitCommand(Exit exit)
         {
-            string ret;
+            string target = exit.ExitText.ToLower();
+            string ret = null;
             switch (target)
             {
                 case "north":
@@ -3702,9 +3703,36 @@ BeforeHazy:
                 case "d":
                     ret = "down";
                     break;
-                default:
-                    ret = "go " + target;
-                    break;
+            }
+            if (ret == null)
+            {
+                Room oSource = exit.Source;
+                if (oSource != null)
+                {
+                    int iCounter = 0;
+                    bool foundExactMatch = false;
+                    foreach (Exit nextExit in oSource.Exits)
+                    {
+                        string sNextExitText = nextExit.ExitText;
+                        if (sNextExitText.StartsWith(target))
+                        {
+                            iCounter++;
+                            if (sNextExitText == target)
+                            {
+                                foundExactMatch = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundExactMatch && iCounter > 1)
+                    {
+                        ret = "go " + target + " " + iCounter;
+                    }
+                }
+            }
+            if (ret == null)
+            {
+                ret = "go " + target;
             }
             return ret;
         }
@@ -4276,7 +4304,7 @@ BeforeHazy:
                 {
                     return string.Equals(e.ExitText, direction, StringComparison.OrdinalIgnoreCase);
                 };
-                foreach (Exit foundExit in IsengardMap.GetRoomExits(_gameMap.MapGraph, currentRoom, discriminator))
+                foreach (Exit foundExit in IsengardMap.GetRoomExits(currentRoom, discriminator))
                 {
                     if (navigateExit == null)
                     {
@@ -5591,30 +5619,6 @@ BeforeHazy:
             }
         }
 
-        private void ctxMob_Opening(object sender, CancelEventArgs e)
-        {
-            Room r = m_oCurrentRoom;
-            if (r == null || r.PermanentMobs == null)
-            {
-                e.Cancel = true;
-            }
-            else
-            {
-                ctxMob.Items.Clear();
-                HashSet<MobTypeEnum> mobs = new HashSet<MobTypeEnum>();
-                foreach (MobTypeEnum nextMob in r.PermanentMobs)
-                {
-                    if (!mobs.Contains(nextMob))
-                    {
-                        ToolStripMenuItem tsmi = new ToolStripMenuItem();
-                        tsmi.Text = MobEntity.PickWordForMob(nextMob);
-                        ctxMob.Items.Add(tsmi);
-                        mobs.Add(nextMob);
-                    }
-                }
-            }
-        }
-
         private void tsmiMob_Click(object sender, EventArgs e)
         {
             txtMob.Text = ((ToolStripMenuItem)sender).Text;
@@ -5698,7 +5702,7 @@ BeforeHazy:
             else
             {
                 bool foundExit = false;
-                foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, r))
+                foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(r))
                 {
                     foundExit = true;
                     ToolStripMenuItem tsmi = new ToolStripMenuItem();
@@ -5750,7 +5754,7 @@ BeforeHazy:
             n = ne = nw = w = e = s = sw = se = u = d = o = false;
             if (haveCurrentRoom)
             {
-                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_gameMap.MapGraph, r))
+                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(r))
                 {
                     switch (nextExit.ExitText.ToLower())
                     {
@@ -5850,7 +5854,7 @@ BeforeHazy:
         private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, _gameMap.MapGraph, flying, levitating, isDay, level);
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, flying, levitating, isDay, level);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");

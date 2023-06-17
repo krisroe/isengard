@@ -12,7 +12,6 @@ namespace IsengardClient
     /// </summary>
     internal partial class frmGraph : Window
     {
-        private AdjacencyGraph<Room, Exit> _map;
         private VertexControl _currentVertexControl;
         private Dictionary<MapType, RoomGraph> _graphs;
         private bool _forVertexSelection;
@@ -32,7 +31,6 @@ namespace IsengardClient
             _graphs = fullMap.Graphs;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
-            _map = fullMap.MapGraph;
             CurrentRoom = currentRoom;
             _forVertexSelection = forVertexSelection;
 
@@ -77,7 +75,7 @@ namespace IsengardClient
             foreach (KeyValuePair<Room, Point> next in rg.Rooms)
             {
                 Room nextRoom = next.Key;
-                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(_map, nextRoom))
+                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(nextRoom))
                 {
                     Room targetRoom = nextExit.Target;
                     if (rg.Rooms.ContainsKey(targetRoom))
@@ -183,7 +181,7 @@ namespace IsengardClient
         private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
             Room selectedRoom = (Room)_currentVertexControl.Vertex;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _map, _flying, _levitating, _isDay, _level);
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _flying, _levitating, _isDay, _level);
             if (SelectedPath == null)
             {
                 MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);

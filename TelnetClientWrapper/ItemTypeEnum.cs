@@ -437,6 +437,9 @@
         [PluralName("repair kits")]
         RepairKit,
 
+        [SingularName("ribbed plate boots")]
+        RibbedPlateBoots,
+
         [SingularName("ribbed plate hood")]
         [PluralName("ribbed plate hoods")]
         RibbedPlateHood,
