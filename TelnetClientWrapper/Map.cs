@@ -1771,6 +1771,11 @@ namespace IsengardClient
             AddBidirectionalExits(oSewerPassageInFrontOfGate, oSmoothedSewerPassage, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSmoothedSewerPassage] = new System.Windows.Point(12, 5);
 
+            Room oSlopingSewerPassage2 = AddRoom("Sloping Sewer Passage", "Sloping Sewer Passage");
+            oSlopingSewerPassage2.AddPermanentMobs(MobTypeEnum.SewerWolf);
+            AddBidirectionalExits(oSlopingSewerPassage2, oSmoothedSewerPassage, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oSlopingSewerPassage2] = new System.Windows.Point(11, 5);
+
             AddLocation(_aBreePerms, oSalamander);
         }
 

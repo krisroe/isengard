@@ -789,6 +789,10 @@
         [PluralName("sewer rats")]
         SewerRat,
 
+        [SingularName("sewer wolf")]
+        [PluralName("sewer wolves")]
+        SewerWolf,
+
         [SingularName("Shadow of Incendius")]
         //CSRTODO: no plural
         ShadowOfIncendius,
