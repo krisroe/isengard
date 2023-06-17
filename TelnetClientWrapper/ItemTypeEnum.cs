@@ -61,6 +61,10 @@
         [PluralName("blue bubbly potions")]
         BlueBubblyPotion,
 
+        [SingularName("boiler key")]
+        [PluralName("boiler keys")]
+        BoilerKey,
+
         [SingularName("bone armor")]
         BoneArmor,
 
@@ -471,6 +475,10 @@
         [PluralName("scythes")]
         Scythe,
 
+        [SingularName("sextant")]
+        [PluralName("sextants")]
+        Sextant,
+
         [SingularName("sign")]
         [PluralName("signs")]
         Sign,
@@ -478,6 +486,10 @@
         [SingularName("signet ring")]
         [PluralName("signet rings")]
         SignetRing,
+
+        [SingularName("silima blade")]
+        [PluralName("silima blades")]
+        SilimaBlade,
 
         [SingularName("Silver-blue scale")]
         [PluralName("Silver-blue scales")]

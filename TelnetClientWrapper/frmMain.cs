@@ -2961,11 +2961,21 @@ namespace IsengardClient
                                 backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
                                 if (!backgroundCommandSuccess) return;
                             }
-                            if (!PreOpenDoorExit(nextExit, pms))
+                            bool useGo;
+                            string sExitWord = GetExitWord(nextExit, out useGo);
+                            if (!PreOpenDoorExit(nextExit, sExitWord, pms))
                             {
                                 return;
                             }
-                            string nextCommand = GetExitCommand(nextExit);
+                            string nextCommand;
+                            if (useGo)
+                            {
+                                nextCommand = "go " + sExitWord;
+                            }
+                            else
+                            {
+                                nextCommand = sExitWord;
+                            }
                             bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
 
                             bool keepTryingMovement = true;
@@ -3299,7 +3309,8 @@ namespace IsengardClient
                             List<Exit> availableExits = new List<Exit>();
                             foreach (Exit nextExit in IsengardMap.GetRoomExits(r, FleeExitDiscriminator))
                             {
-                                if (PreOpenDoorExit(nextExit, pms))
+                                string sExitWord = GetExitWord(nextExit, out _);
+                                if (PreOpenDoorExit(nextExit, sExitWord, pms))
                                 {
                                     availableExits.Add(nextExit);
                                 }
@@ -3654,8 +3665,9 @@ BeforeHazy:
             }
         }
 
-        private string GetExitCommand(Exit exit)
+        private string GetExitWord(Exit exit, out bool useGo)
         {
+            useGo = false;
             string target = exit.ExitText.ToLower().Trim();
             string ret = null;
             switch (target)
@@ -3727,23 +3739,25 @@ BeforeHazy:
                     }
                     if (foundExactMatch && iCounter > 1)
                     {
-                        ret = "go " + sWord + " " + iCounter;
+                        useGo = true;
+                        ret = sWord + " " + iCounter;
                     }
                 }
             }
             if (ret == null)
             {
-                ret = "go " + sWord;
+                useGo = true;
+                ret = sWord;
             }
             return ret;
         }
 
-        private bool PreOpenDoorExit(Exit exit, BackgroundWorkerParameters pms)
+        private bool PreOpenDoorExit(Exit exit, string exitWord, BackgroundWorkerParameters pms)
         {
             bool ret;
             if (exit.MustOpen)
             {
-                ret = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exit.ExitText, pms, AbortIfFleeingOrHazying);
+                ret = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitWord, pms, AbortIfFleeingOrHazying);
             }
             else //not a door exit
             {
