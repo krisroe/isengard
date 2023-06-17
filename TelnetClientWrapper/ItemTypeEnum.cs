@@ -553,6 +553,10 @@
         [PluralName("sundorian tassles")]
         SundorianTassle,
 
+        [SingularName("tattoo of a snake")]
+        //CSRTODO: plural?
+        TattooOfASnake,
+
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
         TaupeScroll,
