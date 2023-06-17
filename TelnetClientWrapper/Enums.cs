@@ -158,9 +158,10 @@ namespace IsengardClient
         Score = 4,
         Time = 8,
         Who = 16,
-        BeforeFinalization = 31,
-        Finalization = 32,
-        All = 63,
+        Spells = 32,
+        BeforeFinalization = 63,
+        Finalization = 64,
+        All = 127,
     }
 
     public enum EntityType
@@ -243,6 +244,7 @@ namespace IsengardClient
         OffensiveSpellLevel1,
         OffensiveSpellLevel2,
         OffensiveSpellLevel3,
+        OffensiveSpellLevel4,
         Vigor,
         MendWounds,
         GenericHeal,

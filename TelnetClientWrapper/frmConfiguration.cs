@@ -42,7 +42,7 @@ namespace IsengardClient
         private int _currentAutoSpellLevelMinimumOriginal;
         private int _currentAutoSpellLevelMaximumOriginal;
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
-        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 3;
+        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 4;
 
         private string _defaultWeaponOriginal;
         private string _currentWeaponOriginal;

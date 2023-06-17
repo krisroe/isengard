@@ -158,6 +158,7 @@
             this.tsbEquipment = new System.Windows.Forms.ToolStripButton();
             this.tsbWho = new System.Windows.Forms.ToolStripButton();
             this.tsbUptime = new System.Windows.Forms.ToolStripButton();
+            this.tsbSpells = new System.Windows.Forms.ToolStripButton();
             this.tsbScore = new System.Windows.Forms.ToolStripButton();
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
             this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
@@ -1550,6 +1551,7 @@
             this.tsbEquipment,
             this.tsbWho,
             this.tsbUptime,
+            this.tsbSpells,
             this.tsbScore,
             this.tsbTime,
             this.tsbConfiguration,
@@ -1613,6 +1615,17 @@
             this.tsbUptime.Tag = "uptime";
             this.tsbUptime.Text = "Uptime";
             this.tsbUptime.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbSpells
+            // 
+            this.tsbSpells.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbSpells.Image = ((System.Drawing.Image)(resources.GetObject("tsbSpells.Image")));
+            this.tsbSpells.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSpells.Name = "tsbSpells";
+            this.tsbSpells.Size = new System.Drawing.Size(41, 22);
+            this.tsbSpells.Tag = "spells";
+            this.tsbSpells.Text = "Spells";
+            this.tsbSpells.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // tsbScore
             // 
@@ -1911,6 +1924,7 @@
         private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
         private System.Windows.Forms.ToolStripMenuItem tsmiGoToRoom;
         private System.Windows.Forms.Button btnOut;
+        private System.Windows.Forms.ToolStripButton tsbSpells;
     }
 }
 

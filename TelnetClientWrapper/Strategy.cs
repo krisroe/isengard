@@ -485,6 +485,36 @@ namespace IsengardClient
 
             return allStrategies;
         }
+
+        public static void GetMinMaxOffensiveSpellLevels(Strategy strategy, int currentMinLevel, int currentMaxLevel, List<string> knownSpells, List<string> realmSpells, out int? calculatedMinLevel, out int? calculatedMaxLevel)
+        {
+            if (strategy == null || strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
+            {
+                calculatedMinLevel = currentMinLevel;
+                calculatedMaxLevel = currentMaxLevel;
+            }
+            else
+            {
+                calculatedMinLevel = strategy.AutoSpellLevelMin;
+                calculatedMaxLevel = strategy.AutoSpellLevelMax;
+            }
+            while (true)
+            {
+                if (knownSpells.Contains(realmSpells[calculatedMaxLevel.Value - 1]))
+                {
+                    break;
+                }
+                else
+                {
+                    calculatedMaxLevel = calculatedMaxLevel.Value - 1;
+                    if (calculatedMaxLevel.Value < calculatedMinLevel.Value)
+                    {
+                        calculatedMaxLevel = null;
+                        calculatedMinLevel = null;
+                    }
+                }
+            }
+        }
     }
 
     public abstract class AMagicStrategyStep
@@ -514,6 +544,7 @@ namespace IsengardClient
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel1 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel1, '1');
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel2 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel2, '2');
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel3 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel3, '3');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel4 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel4, '4');
         public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor, 'V');
         public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds, 'M');
         public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal, 'H');
@@ -557,6 +588,9 @@ namespace IsengardClient
                     break;
                 case MagicStrategyStep.OffensiveSpellLevel3:
                     ret = MagicStepOffensiveSpellLevel3;
+                    break;
+                case MagicStrategyStep.OffensiveSpellLevel4:
+                    ret = MagicStepOffensiveSpellLevel4;
                     break;
                 case MagicStrategyStep.Vigor:
                     ret = MagicStepVigor;
@@ -877,29 +911,19 @@ namespace IsengardClient
     public class StrategyInstance
     {
         private Strategy Strategy;
-        private int minAutoSpellLevel;
-        private int maxAutoSpellLevel;
+        private int? _minAutoSpellLevel;
+        private int? _maxAutoSpellLevel;
         private string currentMob;
-        private string _realm1spell;
-        private string _realm2spell;
-        private string _realm3spell;
-        public StrategyInstance(Strategy strategy, int systemMinAutoSpellLevel, int systemMaxAutoSpellLevel, string currentlyFightingMob, string realm1spell, string realm2spell, string realm3spell)
+        private List<string> _realmSpells;
+        private List<string> _knownSpells;
+        public StrategyInstance(Strategy strategy, int? minAutoSpellLevel, int? maxAutoSpellLevel, string currentlyFightingMob, List<string> realmSpells, List<string> knownSpells)
         {
+            _minAutoSpellLevel = minAutoSpellLevel;
+            _maxAutoSpellLevel = maxAutoSpellLevel;
             Strategy = strategy;
-            if (strategy == null || strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
-            {
-                minAutoSpellLevel = systemMinAutoSpellLevel;
-                maxAutoSpellLevel = systemMaxAutoSpellLevel;
-            }
-            else
-            {
-                minAutoSpellLevel = strategy.AutoSpellLevelMin;
-                maxAutoSpellLevel = strategy.AutoSpellLevelMax;
-            }
             currentMob = currentlyFightingMob;
-            _realm1spell = realm1spell;
-            _realm2spell = realm2spell;
-            _realm3spell = realm3spell;
+            _realmSpells = realmSpells;
+            _knownSpells = knownSpells;
         }
 
         public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)
@@ -984,17 +1008,23 @@ namespace IsengardClient
             {
                 if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
                 {
-                    int iMaxOffLevel = maxAutoSpellLevel;
-                    int iMinOffLevel = minAutoSpellLevel;
-                    if (currentMP >= 10 && iMinOffLevel <= 3 && iMaxOffLevel >= 3)
+                    if (!_minAutoSpellLevel.HasValue || !_maxAutoSpellLevel.HasValue)
+                    {
+                        ret = MagicCommandChoiceResult.OutOfMana;
+                    }
+                    else if (currentMP >= 15 && _minAutoSpellLevel.Value <= 4 && _maxAutoSpellLevel.Value >= 4)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
+                    }
+                    else if (currentMP >= 10 && _minAutoSpellLevel.Value <= 3 && _maxAutoSpellLevel.Value >= 3)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                     }
-                    else if (currentMP >= 7 && iMinOffLevel <= 2 && iMaxOffLevel >= 2)
+                    else if (currentMP >= 7 && _minAutoSpellLevel.Value <= 2 && _maxAutoSpellLevel.Value >= 2)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
                     }
-                    else if (currentMP >= 3 && iMinOffLevel <= 1 && iMaxOffLevel >= 1)
+                    else if (currentMP >= 3 && _minAutoSpellLevel.Value <= 1 && _maxAutoSpellLevel.Value >= 1)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
                     }
@@ -1005,27 +1035,40 @@ namespace IsengardClient
                 }
                 if (ret == MagicCommandChoiceResult.Cast)
                 {
-                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
+                    string spell;
+                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
                     {
-                        command = "cast " + _realm3spell + " " + currentMob;
+                        spell = _realmSpells[3];
+                        manaDrain = 15;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
+                    {
+                        spell = _realmSpells[2];
                         manaDrain = 10;
-                        bct = BackgroundCommandType.OffensiveSpell;
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
                     {
-                        command = "cast " + _realm2spell + " " + currentMob;
+                        spell = _realmSpells[1];
                         manaDrain = 7;
-                        bct = BackgroundCommandType.OffensiveSpell;
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
                     {
-                        command = "cast " + _realm1spell + " " + currentMob;
+                        spell = _realmSpells[0];
                         manaDrain = 3;
-                        bct = BackgroundCommandType.OffensiveSpell;
                     }
                     else
                     {
                         throw new InvalidOperationException();
+                    }
+                    if (_knownSpells.Contains(spell))
+                    {
+                        command = "cast " + spell + " " + currentMob;
+                        bct = BackgroundCommandType.OffensiveSpell;
+                    }
+                    else
+                    {
+                        manaDrain = 0;
+                        ret = MagicCommandChoiceResult.OutOfMana;
                     }
                 }
             }

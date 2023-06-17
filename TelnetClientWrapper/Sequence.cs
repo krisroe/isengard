@@ -662,6 +662,44 @@ namespace IsengardClient
         }
     }
 
+    public class SpellsSequence : AOutputProcessingSequence
+    {
+        private const string SPELLS_KNOWN_PREFIX = "Spells known: ";
+        private Action<FeedLineParameters, List<string>> _onSatisfied;
+        public SpellsSequence(Action<FeedLineParameters, List<string>> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public override void FeedLine(FeedLineParameters Parameters)
+        {
+            List<string> Lines = Parameters.Lines;
+            for (int i = 0; i < Lines.Count; i++)
+            {
+                string sNextLine = Lines[i];
+                if (!string.IsNullOrEmpty(sNextLine))
+                {
+                    if (sNextLine.StartsWith(SPELLS_KNOWN_PREFIX))
+                    {
+                        string sList = StringProcessing.GetListAsString(Lines, i, SPELLS_KNOWN_PREFIX, true, out _);
+                        if (string.IsNullOrEmpty(sList)) break;
+                        List<string> list = StringProcessing.ParseList(sList);
+                        if (list.Count == 1 && list[0] == "None")
+                        {
+                            list.Clear();
+                        }
+                        _onSatisfied(Parameters, list);
+                        Parameters.FinishedProcessing = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     public class WhoOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, HashSet<string>> _onSatisfied;
@@ -1199,6 +1237,29 @@ StartProcessRoom:
         internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast", "bloodboil" };
         internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt", "lightning" };
         internal static HashSet<string> ALL_OFFENSIVE_SPELLS;
+
+        public static List<string> GetOffensiveSpellsForRealm(RealmType realm)
+        {
+            List<string> ret;
+            switch (realm)
+            {
+                case RealmType.Earth:
+                    ret = EARTH_OFFENSIVE_SPELLS;
+                    break;
+                case RealmType.Fire:
+                    ret = FIRE_OFFENSIVE_SPELLS;
+                    break;
+                case RealmType.Water:
+                    ret = WATER_OFFENSIVE_SPELLS;
+                    break;
+                case RealmType.Wind:
+                    ret = WIND_OFFENSIVE_SPELLS;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
+        }
 
         private const string YOU_CAST_A_PREFIX = "You cast a ";
         private const string DAMAGE_PREFIX = " for ";

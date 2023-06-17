@@ -19,9 +19,6 @@ namespace IsengardClient
         private int _autoSpellLevelMin = -1;
         private int _autoSpellLevelMax = -1;
 
-        private string _realm1Spell;
-        private string _realm2Spell;
-        private string _realm3Spell;
         private string _mob;
         private string _weapon;
         private string _wand;
@@ -59,8 +56,10 @@ namespace IsengardClient
         private bool _queryMonsterStatus;
         private bool _finishedQuit;
 
-        private object _spellsLock = new object();
+        private object _spellsCastLock = new object();
         private List<string> _spellsCast = new List<string>();
+        private object _spellsKnownLock = new object();
+        private List<string> _spellsKnown = new List<string>();
         private bool _refreshSpellsCast = false;
 
         /// <summary>
@@ -231,7 +230,7 @@ namespace IsengardClient
             _fullColor = sets.FullColor;
             _emptyColor = sets.EmptyColor;
 
-            InitializeRealm(true);
+            InitializeRealm();
             InitializeAutoSpellLevels();
 
             AlignmentType ePreferredAlignment;
@@ -870,7 +869,7 @@ namespace IsengardClient
             {
                 _cooldowns.Clear();
             }
-            lock (_spellsLock)
+            lock (_spellsCastLock)
             {
                 _spellsCast.Clear();
                 _refreshSpellsCast = true;
@@ -951,7 +950,7 @@ namespace IsengardClient
                     }
                 }
             }
-            lock (_spellsLock)
+            lock (_spellsCastLock)
             {
                 _spellsCast.Clear();
                 _spellsCast.AddRange(spells);
@@ -967,12 +966,7 @@ namespace IsengardClient
 
             if (forInit)
             {
-                currentStep |= InitializationStep.Score;
-                _initializationSteps = currentStep;
-                if (currentStep == InitializationStep.BeforeFinalization)
-                {
-                    ProcessInitialLogin(flParams);
-                }
+                AfterProcessInitializationStep(currentStep, InitializationStep.Score, flParams);
             }
 
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -986,6 +980,22 @@ namespace IsengardClient
             flParams.SuppressEcho = suppressEcho;
         }
 
+        private void OnSpells(FeedLineParameters flParams, List<string> SpellsList)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Spells) == InitializationStep.None;
+
+            lock (_spellsKnownLock)
+            {
+                _spellsKnown = SpellsList;
+            }
+
+            if (forInit)
+            {
+                AfterProcessInitializationStep(currentStep, InitializationStep.Spells, flParams);
+            }
+        }
+
         private void OnWho(FeedLineParameters flParams, HashSet<string> playerNames)
         {
             InitializationStep currentStep = _initializationSteps;
@@ -995,14 +1005,19 @@ namespace IsengardClient
 
             if (forInit)
             {
-                currentStep |= InitializationStep.Who;
-                _initializationSteps = currentStep;
-                if (currentStep == InitializationStep.BeforeFinalization)
-                {
-                    ProcessInitialLogin(flParams);
-                }
-                flParams.SuppressEcho = true;
+                AfterProcessInitializationStep(currentStep, InitializationStep.Who, flParams);
             }
+        }
+
+        private void AfterProcessInitializationStep(InitializationStep finishedSteps, InitializationStep currentStep, FeedLineParameters flp)
+        {
+            finishedSteps |= currentStep;
+            _initializationSteps = finishedSteps;
+            if (finishedSteps == InitializationStep.BeforeFinalization)
+            {
+                ProcessInitialLogin(flp);
+            }
+            flp.SuppressEcho = true;
         }
 
         private void OnTime(FeedLineParameters flParams, int hour)
@@ -1020,13 +1035,7 @@ namespace IsengardClient
             }
             if (forInit)
             {
-                currentStep |= InitializationStep.Time;
-                _initializationSteps = currentStep;
-                if (currentStep == InitializationStep.BeforeFinalization)
-                {
-                    ProcessInitialLogin(flParams);
-                }
-                flParams.SuppressEcho = true;
+                AfterProcessInitializationStep(currentStep, InitializationStep.Time, flParams);
             }
         }
 
@@ -1039,13 +1048,7 @@ namespace IsengardClient
 
             if (forInit)
             {
-                currentStep |= InitializationStep.RemoveAll;
-                _initializationSteps = currentStep;
-                if (currentStep == InitializationStep.BeforeFinalization)
-                {
-                    ProcessInitialLogin(flParams);
-                }
-                flParams.SuppressEcho = true;
+                AfterProcessInitializationStep(currentStep, InitializationStep.RemoveAll, flParams);
             }
         }
 
@@ -1065,6 +1068,7 @@ namespace IsengardClient
             SendCommand("who", InputEchoType.Off);
             SendCommand("remove all", InputEchoType.Off);
             SendCommand("time", InputEchoType.Off);
+            SendCommand("spells", InputEchoType.Off);
             _initializationSteps |= InitializationStep.Initialization;
             _loginInfo = initialLoginInfo;
         }
@@ -2247,6 +2251,7 @@ namespace IsengardClient
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
                 new WhoOutputSequence(OnWho),
+                new SpellsSequence(OnSpells),
                 new RemoveEquipmentSequence(OnRemoveEquipment),
                 new MobStatusSequence(OnMobStatusSequence),
                 new TimeOutputSequence(OnTime),
@@ -2712,6 +2717,7 @@ namespace IsengardClient
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbEquipment.Tag = new CommandButtonTag(tsbEquipment, "equipment", CommandType.None, DependentObjectType.None);
+            tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
         }
 
         private void btnOneClick_Click(object sender, EventArgs e)
@@ -3075,7 +3081,16 @@ namespace IsengardClient
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             stopIfMonsterKilled = strategy.StopWhenKillMonster;
                         }
-                        stratCurrent = new StrategyInstance(strategy, _autoSpellLevelMin, _autoSpellLevelMax, _currentlyFightingMob, _realm1Spell, _realm2Spell, _realm3Spell);
+                        List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
+                        List<string> knownSpells;
+                        lock (_spellsKnownLock)
+                        {
+                            knownSpells = _spellsKnown;
+                        }
+                        int? calculatedMinLevel, calculatedMaxLevel;
+                        Strategy.GetMinMaxOffensiveSpellLevels(strategy, _autoSpellLevelMin, _autoSpellLevelMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
+
+                        stratCurrent = new StrategyInstance(strategy, calculatedMinLevel, calculatedMaxLevel, _currentlyFightingMob, offensiveSpells, knownSpells);
 
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
@@ -3454,7 +3469,7 @@ BeforeHazy:
             if (doBless)
             {
                 bool hasBless;
-                lock (_spellsLock)
+                lock (_spellsCastLock)
                 {
                     hasBless = _spellsCast != null && _spellsCast.Contains("bless");
                 }
@@ -3472,7 +3487,7 @@ BeforeHazy:
             if (doProtection)
             {
                 bool hasProtection;
-                lock (_spellsLock)
+                lock (_spellsCastLock)
                 {
                     hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
                 }
@@ -3574,7 +3589,8 @@ BeforeHazy:
                 if (nextMagicStep.Value == MagicStrategyStep.OffensiveSpellAuto ||
                     nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
                     nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
-                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3)
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3 ||
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel4)
                 {
                     didDamage = true;
                 }
@@ -4030,8 +4046,15 @@ BeforeHazy:
             {
                 sMob = _mob;
             }
+            List<string> knownSpells;
+            List<string> realmSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
+            lock (_spellsKnownLock)
+            {
+                knownSpells = _spellsKnown;
+            }
             foreach (CommandButtonTag oTag in GetButtonsForEnablingDisabling())
             {
+                object oControl = oTag.Control;
                 if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(sMob))
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && string.IsNullOrEmpty(_weapon))
@@ -4048,7 +4071,30 @@ BeforeHazy:
                     enabled = false;
                 else //combat buttons are only enabled if the strategy isn't doing that kind of combat
                     enabled = (oTag.CommandType & eRunningCombatCommandTypes) == CommandType.None;
-                object oControl = oTag.Control;
+
+                if (enabled)
+                {
+                    string sSpell = null;
+                    if (oControl == btnLevel1OffensiveSpell)
+                        sSpell = realmSpells[0];
+                    else if (oControl == btnLevel2OffensiveSpell)
+                        sSpell = realmSpells[1];
+                    else if (oControl == btnLevel3OffensiveSpell)
+                        sSpell = realmSpells[2];
+                    else if (oControl == btnStunMob)
+                        sSpell = "stun";
+                    else if (oControl == btnCastVigor)
+                        sSpell = "vigor";
+                    else if (oControl == btnCastMend)
+                        sSpell = "mend-wounds";
+                    else if (oControl == btnCastCurePoison)
+                        sSpell = "cure-poison";
+                    if (!string.IsNullOrEmpty(sSpell))
+                    {
+                        enabled = knownSpells.Contains(sSpell);
+                    }
+                }
+
                 bool isToolStripButton = oTag.IsToolStripButton;
                 bool isEnabled;
                 if (isToolStripButton)
@@ -4390,10 +4436,15 @@ BeforeHazy:
             {
                 sMob = _mob;
             }
-            return command.Replace("{realm1spell}", _realm1Spell)
-                          .Replace("{realm2spell}", _realm2Spell)
-                          .Replace("{realm3spell}", _realm3Spell)
-                          .Replace("{mob}", sMob)
+            if (command.Contains("{realm1spell}") || command.Contains("{realm2spell}") || command.Contains("{realm3spell}") || command.Contains("{realm4spell}"))
+            {
+                List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
+                command = command.Replace("{realm1spell}", offensiveSpells[0])
+                                 .Replace("{realm2spell}", offensiveSpells[1])
+                                 .Replace("{realm3spell}", offensiveSpells[2])
+                                 .Replace("{realm4spell}", offensiveSpells[3]);
+            }
+            return command.Replace("{mob}", sMob)
                           .Replace("{weapon}", _weapon)
                           .Replace("{wand}", _wand);
         }
@@ -4808,7 +4859,7 @@ BeforeHazy:
                 if (_refreshSpellsCast)
                 {
                     List<string> spells = new List<string>();
-                    lock (_spellsLock)
+                    lock (_spellsCastLock)
                     {
                         spells.AddRange(_spellsCast);
                         _refreshSpellsCast = false;
@@ -5779,7 +5830,7 @@ BeforeHazy:
 
         private void GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level)
         {
-            lock (_spellsLock)
+            lock (_spellsCastLock)
             {
                 if (_spellsCast == null)
                 {
@@ -5884,33 +5935,18 @@ BeforeHazy:
             }
         }
 
-        private void InitializeRealm(bool doDefault)
+        private void InitializeRealm()
         {
-            if (doDefault)
+            IsengardSettings sets = IsengardSettings.Default;
+            _currentRealm = (RealmType)sets.DefaultRealm;
+            if (_currentRealm != RealmType.Earth &&
+                _currentRealm != RealmType.Fire &&
+                _currentRealm != RealmType.Water &&
+                _currentRealm != RealmType.Wind)
             {
-                IsengardSettings sets = IsengardSettings.Default;
-                _currentRealm = (RealmType)sets.DefaultRealm;
-                if (_currentRealm != RealmType.Earth &&
-                    _currentRealm != RealmType.Fire &&
-                    _currentRealm != RealmType.Water &&
-                    _currentRealm != RealmType.Wind)
-                {
-                    _currentRealm = RealmType.Earth;
-                    sets.DefaultRealm = Convert.ToInt32(_currentRealm);
-                }
+                _currentRealm = RealmType.Earth;
+                sets.DefaultRealm = Convert.ToInt32(_currentRealm);
             }
-            List<string> spellList;
-            if (_currentRealm == RealmType.Earth)
-                spellList = CastOffensiveSpellSequence.EARTH_OFFENSIVE_SPELLS;
-            else if (_currentRealm == RealmType.Fire)
-                spellList = CastOffensiveSpellSequence.FIRE_OFFENSIVE_SPELLS;
-            else if (_currentRealm == RealmType.Water)
-                spellList = CastOffensiveSpellSequence.WATER_OFFENSIVE_SPELLS;
-            else //wind
-                spellList = CastOffensiveSpellSequence.WIND_OFFENSIVE_SPELLS;
-            _realm1Spell = spellList[0];
-            _realm2Spell = spellList[1];
-            _realm3Spell = spellList[2];
         }
 
         private void InitializeAutoSpellLevels()
@@ -5951,8 +5987,6 @@ BeforeHazy:
                 _autoSpellLevelMin = frm.CurrentAutoSpellLevelMin;
                 _autoSpellLevelMax = frm.CurrentAutoSpellLevelMax;
                 txtWeapon.Text = frm.CurrentWeapon;
-
-                InitializeRealm(false);
 
                 bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
                 int newAutoEscapeThreshold = frm.CurrentAutoEscapeThreshold;
