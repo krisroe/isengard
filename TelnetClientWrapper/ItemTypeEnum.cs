@@ -8,6 +8,9 @@
     /// </summary>
     public enum ItemTypeEnum
     {
+        [SingularName("adamantine scale mail armor")]
+        AdamantineScaleMailArmor,
+
         [SingularName("adamantine scale mail gloves")]
         AdamantineScaleMailGloves,
 
@@ -164,6 +167,10 @@
         [SingularName("ear lobe plug")]
         [PluralName("ear lobe plugs")]
         EarLobePlug,
+
+        [SingularName("Eat At Denethore's decorative mug")]
+        [PluralName("Eat At Denethore's decorative mugs")]
+        EatAtDenethoresDecorativeMug,
 
         [SingularName("elven bow")]
         [PluralName("elven bows")]
@@ -436,6 +443,10 @@
         [SingularName("rakshasan eviscerator")]
         [PluralName("rakshasan eviscerators")]
         RakshasanEviscerator,
+
+        [SingularName("reddish-orange potion")]
+        [PluralName("reddish-orange potions")]
+        ReddishOrangePotion,
 
         [SingularName("repair kit")]
         [PluralName("repair kits")]

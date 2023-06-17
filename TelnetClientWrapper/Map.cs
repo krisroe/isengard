@@ -1746,25 +1746,29 @@ namespace IsengardClient
             e.Hidden = true;
             underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
 
-            Room oSewerOrcLair = AddRoom("Sewer Orc Lair");
+            Room oSewerOrcLair = AddRoom("Sewer Orc Lair", "Sewer Orc Lair");
             AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerOrcLair] = new System.Windows.Point(10, 2);
 
-            Room oSewerPassage = AddRoom("Sewer Passage");
+            Room oSewerPassage = AddRoom("Sewer Passage", "Sewer Passage");
             AddBidirectionalExits(oSewerOrcLair, oSewerPassage, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSewerPassage] = new System.Windows.Point(11, 2);
 
-            Room oSewerOrcStorageRoom = AddRoom("Storage Room");
+            Room oSewerOrcStorageRoom = AddRoom("Storage Room", "Sewer Orc Storage Room");
             AddBidirectionalExits(oSewerPassage, oSewerOrcStorageRoom, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSewerOrcStorageRoom] = new System.Windows.Point(12, 2);
 
-            Room oSlopingSewerPassage = AddRoom("Sloping Sewer Passage");
+            Room oSlopingSewerPassage = AddRoom("Sloping Sewer Passage", "Sloping Sewer Passage");
             AddBidirectionalExits(oSewerOrcStorageRoom, oSlopingSewerPassage, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSlopingSewerPassage] = new System.Windows.Point(12, 3);
 
-            Room oSewerPassageInFrontOfGate = AddRoom("Sewer Passage");
+            Room oSewerPassageInFrontOfGate = AddRoom("Sewer Passage", "Sewer Passage");
             AddBidirectionalExits(oSlopingSewerPassage, oSewerPassageInFrontOfGate, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerPassageInFrontOfGate] = new System.Windows.Point(12, 4);
+
+            Room oSmoothedSewerPassage = AddRoom("Smoothed Passage", "Smoothed Sewer Passage");
+            AddBidirectionalExits(oSewerPassageInFrontOfGate, oSmoothedSewerPassage, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSmoothedSewerPassage] = new System.Windows.Point(12, 5);
 
             AddLocation(_aBreePerms, oSalamander);
         }

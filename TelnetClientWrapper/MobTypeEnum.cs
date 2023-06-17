@@ -785,6 +785,10 @@
         [Experience(70)]
         SewerOrcGuard,
 
+        [SingularName("sewer rat")]
+        [PluralName("sewer rats")]
+        SewerRat,
+
         [SingularName("Shadow of Incendius")]
         //CSRTODO: no plural
         ShadowOfIncendius,
