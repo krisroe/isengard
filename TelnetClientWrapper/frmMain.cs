@@ -6260,7 +6260,20 @@ BeforeHazy:
                     break;
                 }
             }
-            return word + " " + iCounter;
+            string ret;
+            if (iCounter == 0)
+            {
+                ret = string.Empty;
+            }
+            else if (iCounter > 1)
+            {
+                ret = word + " " + iCounter;
+            }
+            else
+            {
+                ret = word;
+            }
+            return ret;
         }
 
         private void SetExpandFlag(TreeNode node, bool expanded)

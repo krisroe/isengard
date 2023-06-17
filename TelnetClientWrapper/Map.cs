@@ -1260,9 +1260,7 @@ namespace IsengardClient
 
             Room oGrant = AddRoom("Grant", "Grant's Office");
             oGrant.AddPermanentMobs(MobTypeEnum.Grant);
-            Exit oToGrant = AddExit(oGrantsStables, oGrant, "gate");
-            oToGrant.MustOpen = true;
-            AddExit(oGrant, oGrantsStables, "out");
+            AddBidirectionalExitsWithOut(oGrantsStables, oGrant, "gate", true);
             _breeStreetsGraph.Rooms[oGrant] = new System.Windows.Point(13, 2);
 
             Room oDTansLeatherArmory = AddRoom("Leather Armory", "D'Tan's Leather Armory");
@@ -2201,9 +2199,7 @@ namespace IsengardClient
             millwoodMansionUpstairsGraph.Rooms[oNorthCorridor4] = new System.Windows.Point(1, 2);
 
             Room oMeditationChamber = AddHealingRoom("Meditation Chamber", "Meditation Chamber", HealingRoom.MillwoodMansion);
-            Exit e = AddExit(oNorthCorridor4, oMeditationChamber, "door");
-            e.MustOpen = true;
-            AddExit(oMeditationChamber, oNorthCorridor4, "out");
+            AddBidirectionalExitsWithOut(oNorthCorridor4, oMeditationChamber, "door", true);
             millwoodMansionUpstairsGraph.Rooms[oMeditationChamber] = new System.Windows.Point(0, 2);
 
             Room oNorthernStairwell = AddRoom("Northern Stairwell", "Northern Stairwell");
@@ -2232,9 +2228,7 @@ namespace IsengardClient
             millwoodMansionUpstairsGraph.Rooms[oSouthCorridor4] = new System.Windows.Point(1, 10);
 
             Room oStorageRoom = AddRoom("Storage Room", "Storage Room");
-            e = AddExit(oSouthCorridor4, oStorageRoom, "door");
-            e.MustOpen = true;
-            AddExit(oStorageRoom, oSouthCorridor4, "out");
+            AddBidirectionalExitsWithOut(oSouthCorridor4, oStorageRoom, "door", true);
             millwoodMansionUpstairsGraph.Rooms[oStorageRoom] = new System.Windows.Point(0, 10);
 
             Room oSouthernStairwell = AddRoom("Southern Stairwell", "Southern Stairwell");
@@ -2244,16 +2238,12 @@ namespace IsengardClient
 
             Room oMayorMillwood = AddRoom("Mayor Millwood", "Royal Chamber");
             oMayorMillwood.AddPermanentMobs(MobTypeEnum.MayorMillwood);
-            e = AddExit(oRoyalHallwayToMayor, oMayorMillwood, "chamber");
-            e.MustOpen = true;
-            AddExit(oMayorMillwood, oRoyalHallwayToMayor, "out");
+            AddBidirectionalExitsWithOut(oRoyalHallwayToMayor, oMayorMillwood, "chamber", true);
             millwoodMansionUpstairsGraph.Rooms[oMayorMillwood] = new System.Windows.Point(4, 8);
 
             Room oChancellorOfProtection = AddRoom("Chancellor of Protection", "The Chancellor of Protection's Chambers");
             oChancellorOfProtection.AddPermanentMobs(MobTypeEnum.ChancellorOfProtection);
-            e = AddExit(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber");
-            e.MustOpen = true;
-            AddExit(oChancellorOfProtection, oRoyalHallwayToChancellor, "out");
+            AddBidirectionalExitsWithOut(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber", true);
             millwoodMansionUpstairsGraph.Rooms[oChancellorOfProtection] = new System.Windows.Point(4, 4);
 
             AddLocation(_aBreePerms, oChancellorOfProtection);
@@ -4980,7 +4970,13 @@ namespace IsengardClient
 
         private void AddBidirectionalExitsWithOut(Room aRoom, Room bRoom, string inText)
         {
-            AddExit(aRoom, bRoom, inText);
+            AddBidirectionalExitsWithOut(aRoom, bRoom, inText, false);
+        }
+
+        private void AddBidirectionalExitsWithOut(Room aRoom, Room bRoom, string inText, bool inExitIsMustOpen)
+        {
+            Exit e = AddExit(aRoom, bRoom, inText);
+            e.MustOpen = inExitIsMustOpen;
             AddExit(bRoom, aRoom, "out");
         }
 
