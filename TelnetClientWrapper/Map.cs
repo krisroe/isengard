@@ -1747,6 +1747,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
 
             Room oSewerOrcLair = AddRoom("Sewer Orc Lair", "Sewer Orc Lair");
+            oSewerOrcLair.AddPermanentMobs(MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerRat, MobTypeEnum.SewerRat);
             AddBidirectionalExits(oSewerOrcLair, oSewerOrcChamber, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerOrcLair] = new System.Windows.Point(10, 2);
 
