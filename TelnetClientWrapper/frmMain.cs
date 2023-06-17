@@ -2747,10 +2747,8 @@ namespace IsengardClient
                     {
                         if (bwp.MonsterKilledType.HasValue)
                         {
-                            MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
-                            setMobToFirstAvailable = true;
-
                             //choose first monster of the same type
+                            MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
                             foreach (TreeNode nextNode in _tnObviousMobs.Nodes)
                             {
                                 if (eMobValue == (MobTypeEnum)nextNode.Tag)
@@ -2764,6 +2762,7 @@ namespace IsengardClient
                     else //presumably the mob is still there so leave it selected
                     {
                         txtMob.Text = bwp.TargetRoomMob;
+                        setMobToFirstAvailable = false;
                     }
                 }
                 if (setMobToFirstAvailable)
