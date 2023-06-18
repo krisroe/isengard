@@ -222,6 +222,10 @@
         [PluralName("fishermen")]
         Fisherman,
 
+        [SingularName("forest sprite")]
+        [PluralName("forest sprites")]
+        ForestSprite,
+
         [SingularName("Frodo Baggins")]
         //CSRTODO: no plural?
         [Experience(260)]
@@ -579,6 +583,10 @@
         [Alignment(AlignmentType.Red)]
         MasterJeweler,
 
+        [SingularName("Matriarch Alliyana of Isengard")]
+        //CSRTODO: no plural
+        MatriarchAlliyanaOfIsengard,
+
         [SingularName("Max the vegetable vendor")]
         //CSRTODO: no plural
         MaxTheVegetableVendor,
@@ -736,6 +744,10 @@
         [PluralName("poor fishermen")]
         PoorFisherman,
 
+        [SingularName("priest")]
+        [PluralName("priests")]
+        Priest,
+
         [SingularName("Prince Brunden")]
         //CSRTODO: no plural?
         [Experience(150)]
@@ -749,6 +761,10 @@
         [SingularName("rabbit")]
         [PluralName("rabbits")]
         Rabbit,
+
+        [SingularName("raccoon")]
+        [PluralName("raccoons")]
+        Raccoon,
 
         [SingularName("ram")]
         [PluralName("rams")]

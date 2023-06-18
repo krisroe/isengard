@@ -3204,13 +3204,44 @@ namespace IsengardClient
             esgarothGraph.ScalingFactor = 100;
             _graphs[MapType.Esgaroth] = esgarothGraph;
 
-            esgarothGraph.Rooms[westGateOfEsgaroth] = new System.Windows.Point(0, 6);
+            esgarothGraph.Rooms[westGateOfEsgaroth] = new System.Windows.Point(0, 7);
 
             Room plymouthIndigo = AddRoom("Plymouth/Indigo", "Plymouth Road/Indigo Avenue Intersection");
             AddBidirectionalSameNameExit(westGateOfEsgaroth, plymouthIndigo, "gate");
             esgarothGraph.Rooms[plymouthIndigo] = new System.Windows.Point(1, 6);
-            //CSRTODO: cathedral
-            //CSRTODO: south
+
+            Room cathedralEntrance = AddRoom("Cathedral Entrance", "Cathedral of Worldly Bliss Court");
+            AddExit(plymouthIndigo, cathedralEntrance, "cathedral");
+            AddExit(cathedralEntrance, plymouthIndigo, "east");
+            esgarothGraph.Rooms[cathedralEntrance] = new System.Windows.Point(0, 6);
+
+            Room cathedralNorthFoyer = AddRoom("Foyer", "Northern Entrance Foyer");
+            AddBidirectionalExits(cathedralNorthFoyer, cathedralEntrance, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[cathedralNorthFoyer] = new System.Windows.Point(0, 5.5);
+
+            Room cathedralSouthFoyer = AddRoom("Foyer", "Southern Entrance Foyer");
+            AddBidirectionalExits(cathedralEntrance, cathedralSouthFoyer, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[cathedralSouthFoyer] = new System.Windows.Point(0, 6.5);
+
+            Room insideCathedral = AddRoom("Cathedral", "Cathedral of Worldly Bliss");
+            AddExit(cathedralNorthFoyer, insideCathedral, "door");
+            AddExit(cathedralSouthFoyer, insideCathedral, "door");
+            AddExit(insideCathedral, cathedralNorthFoyer, "north door");
+            AddExit(insideCathedral, cathedralSouthFoyer, "south door");
+            esgarothGraph.Rooms[insideCathedral] = new System.Windows.Point(-2, 6);
+
+            Room alliyana = AddRoom("Alliyana", "Matriarch Alliyana's Quarters");
+            alliyana.AddPermanentMobs(MobTypeEnum.MatriarchAlliyanaOfIsengard);
+            Exit e = AddExit(insideCathedral, alliyana, "east door");
+            e.Hidden = true;
+            e.MustOpen = true;
+            e = AddExit(alliyana, insideCathedral, "out");
+            e.MustOpen = true;
+            esgarothGraph.Rooms[alliyana] = new System.Windows.Point(-1, 6);
+
+            Room holyBankOfEsgaroth = AddRoom("Holy Bank", "Holy Bank of Esgaroth");
+            AddBidirectionalExits(plymouthIndigo, holyBankOfEsgaroth, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[holyBankOfEsgaroth] = new System.Windows.Point(1, 7);
 
             Room plymouthMagenta = AddRoom("Plymouth/Magenta", "Plymouth Road/Magenta Avenue Intersection");
             AddBidirectionalExits(plymouthIndigo, plymouthMagenta, BidirectionalExitType.WestEast);
@@ -3262,9 +3293,23 @@ namespace IsengardClient
             esgarothGraph.Rooms[briarFuchsia] = new System.Windows.Point(6, 5);
 
             Room theaterMainSeating = AddRoom("Theater Main Seating", "Esgaroth Amphitheater Main Seating");
+            theaterMainSeating.AddPermanentMobs(MobTypeEnum.MinstrelOfEsgaroth);
             AddBidirectionalExits(briarFuchsia, theaterMainSeating, BidirectionalExitType.WestEast);
             AddBidirectionalExits(theaterGrassSeating, theaterMainSeating, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[theaterMainSeating] = new System.Windows.Point(7, 5);
+
+            Room dragonpawFuchsia = AddRoom("Dragonpaw/Fuchsia", "Dragonpaw Lane/Fuchsia Way Intersection");
+            AddBidirectionalExits(dragonpawFuchsia, briarFuchsia, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[dragonpawFuchsia] = new System.Windows.Point(6, 4.5);
+
+            Room dragonpaw = AddRoom("Dragonpaw", "Dragonpaw Lane");
+            AddBidirectionalExits(dragonpawFuchsia, dragonpaw, BidirectionalExitType.WestEast);
+            esgarothGraph.Rooms[dragonpaw] = new System.Windows.Point(7, 4.5);
+
+            Room theaterStage = AddRoom("Theater Stage", "Esgaroth Amphitheater Stage");
+            AddBidirectionalExits(dragonpaw, theaterStage, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(theaterStage, theaterMainSeating, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[theaterStage] = new System.Windows.Point(7, 4.75);
 
             Room sweetwaterIndigo = AddRoom("Sweetwater/Indigo", "Sweetwater Lane/Indigo Avenue Intersection");
             AddBidirectionalExits(sweetwaterIndigo, briarIndigo, BidirectionalExitType.NorthSouth);
@@ -3286,11 +3331,12 @@ namespace IsengardClient
 
             Room sweetwaterFuchsia = AddRoom("Sweetwater/Fuchsia", "Sweetwater Lane/Fuchsia Way");
             AddBidirectionalExits(sweetwaterLane, sweetwaterFuchsia, BidirectionalExitType.WestEast);
-            AddBidirectionalExits(sweetwaterFuchsia, briarFuchsia, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(sweetwaterFuchsia, dragonpawFuchsia, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[sweetwaterFuchsia] = new System.Windows.Point(6, 4);
 
             Room parthRecreationField = AddRoom("Recreation Field", "Parth Recreation Field");
             AddBidirectionalExits(sweetwaterFuchsia, parthRecreationField, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(parthRecreationField, dragonpaw, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[parthRecreationField] = new System.Windows.Point(7, 4);
 
             Room frostIndigo = AddRoom("Frost/Indigo", "Frost Lane/Indigo Avenue Intersection");
@@ -3322,12 +3368,16 @@ namespace IsengardClient
             AddBidirectionalExits(frostFuchsia, frostEastLake, BidirectionalExitType.WestEast);
             esgarothGraph.Rooms[frostEastLake] = new System.Windows.Point(7, 3);
 
-            Room northEntrance = AddRoom("North Entrance", "North Entrance to Esgaroth");
-            AddBidirectionalExits(northEntrance, frostIndigo, BidirectionalExitType.NorthSouth);
-            esgarothGraph.Rooms[northEntrance] = new System.Windows.Point(1, 2);
+            Room northEntranceInside = AddRoom("North Gate Inside", "North Entrance to Esgaroth");
+            AddBidirectionalExits(northEntranceInside, frostIndigo, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[northEntranceInside] = new System.Windows.Point(1, 2);
+
+            Room northEntranceOutside = AddRoom("North Gate Outside", "North Entrance to Esgaroth");
+            AddBidirectionalSameNameExit(northEntranceInside, northEntranceOutside, "gate");
+            esgarothGraph.Rooms[northEntranceOutside] = new System.Windows.Point(1, 1.5);
 
             Room stablesExerciseYard = AddRoom("Stables/Exercise", "Esgaroth Stables and Exercise Yard");
-            AddBidirectionalExits(northEntrance, stablesExerciseYard, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(northEntranceInside, stablesExerciseYard, BidirectionalExitType.WestEast);
             AddExit(stablesExerciseYard, frostMagenta, "south");
             esgarothGraph.Rooms[stablesExerciseYard] = new System.Windows.Point(2, 2);
 
@@ -3350,6 +3400,49 @@ namespace IsengardClient
             AddBidirectionalExits(dairyProduction, lakeCircle2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(lakeCircle2, frostEastLake, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[lakeCircle2] = new System.Windows.Point(7, 2);
+
+            Room lakeParthShore = AddRoom("Shore", "Lake Parth Shore");
+            AddBidirectionalExits(lakeParthShore, lakeCircle2, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(lakeParthShore, dairyProduction, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(lakeParthShore, lakeCircle, BidirectionalExitType.SouthwestNortheast);
+            esgarothGraph.Rooms[lakeParthShore] = new System.Windows.Point(6, 1);
+
+            Room lakeViewDrive1 = AddRoom("Lakeview", "Lakeview Drive");
+            AddBidirectionalExits(lakeViewDrive1, lakeParthShore, BidirectionalExitType.SouthwestNortheast);
+            esgarothGraph.Rooms[lakeViewDrive1] = new System.Windows.Point(7, 0);
+
+            Room lakeViewDrive2 = AddRoom("Lakeview", "Lakeview Drive");
+            AddBidirectionalExits(lakeViewDrive2, lakeViewDrive1, BidirectionalExitType.SouthwestNortheast);
+            esgarothGraph.Rooms[lakeViewDrive2] = new System.Windows.Point(8, -1);
+
+            Room lakeViewDrive3 = AddRoom("Lakeview", "Lakeview Drive");
+            AddBidirectionalExits(lakeViewDrive3, lakeViewDrive2, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[lakeViewDrive3] = new System.Windows.Point(8, -2);
+
+            Room lakeViewDrive4 = AddRoom("Lakeview", "Lakeview Drive");
+            AddBidirectionalExits(lakeViewDrive4, lakeViewDrive3, BidirectionalExitType.SoutheastNorthwest);
+            esgarothGraph.Rooms[lakeViewDrive4] = new System.Windows.Point(7, -3);
+
+            Room lakeViewDrive5 = AddRoom("Lakeview", "Lakeview Drive");
+            AddBidirectionalExits(lakeViewDrive5, lakeViewDrive4, BidirectionalExitType.WestEast);
+            esgarothGraph.Rooms[lakeViewDrive5] = new System.Windows.Point(6, -3);
+
+            Room lakeCircle3 = AddRoom("Lake Circle", "Lake Circle Road");
+            AddBidirectionalExits(lakeViewDrive5, lakeCircle3, BidirectionalExitType.SouthwestNortheast);
+            esgarothGraph.Rooms[lakeCircle3] = new System.Windows.Point(5, -2);
+
+            Room lakeCircle4 = AddRoom("Lake Circle", "Lake Circle Road");
+            AddBidirectionalExits(lakeCircle3, lakeCircle4, BidirectionalExitType.SouthwestNortheast);
+            esgarothGraph.Rooms[lakeCircle4] = new System.Windows.Point(1.5, 0.5);
+
+            Room lakeCircle5 = AddRoom("Lake Circle", "Lake Circle Road");
+            AddBidirectionalExits(lakeCircle4, lakeCircle5, BidirectionalExitType.SoutheastNorthwest);
+            esgarothGraph.Rooms[lakeCircle5] = new System.Windows.Point(2, 1);
+
+            Room lakeCircle6 = AddRoom("Lake Circle", "Lake Circle Road");
+            AddBidirectionalExits(lakeCircle5, lakeCircle6, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(lakeCircle6, lakeCircle, BidirectionalExitType.SoutheastNorthwest);
+            esgarothGraph.Rooms[lakeCircle6] = new System.Windows.Point(2.5, 1.5);
         }
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)

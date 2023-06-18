@@ -456,6 +456,10 @@
         [PluralName("rakshasan eviscerators")]
         RakshasanEviscerator,
 
+        [SingularName("red bubbly potion")]
+        [PluralName("red bubbly potions")]
+        RedBubblyPotion,
+
         [SingularName("reddish-orange potion")]
         [PluralName("reddish-orange potions")]
         ReddishOrangePotion,
@@ -520,6 +524,10 @@
         [SingularName("Silver-blue scale")]
         [PluralName("Silver-blue scales")]
         SilverBlueScale,
+
+        [SingularName("silver dagger")]
+        [PluralName("silver daggers")]
+        SilverDagger,
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
