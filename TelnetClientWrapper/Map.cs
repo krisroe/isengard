@@ -54,7 +54,8 @@ namespace IsengardClient
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate);
             AddWestOfTharbad(tharbadWestGateOutside);
             AddEastOfTharbad(tharbadEastGate);
-            AddEsgaroth(westGateOfEsgaroth);
+            AddEsgaroth(westGateOfEsgaroth, out Room esgarothNorthGateOutside);
+            AddNorthOfEsgaroth(esgarothNorthGateOutside);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter);
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
@@ -3198,7 +3199,52 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oMarkFrey);
         }
 
-        private void AddEsgaroth(Room westGateOfEsgaroth)
+        private void AddNorthOfEsgaroth(Room esgarothNorthGateOutside)
+        {
+            RoomGraph northOfEsgarothGraph = new RoomGraph("North of Esgaroth");
+            northOfEsgarothGraph.ScalingFactor = 100;
+            _graphs[MapType.NorthOfEsgaroth] = northOfEsgarothGraph;
+
+            northOfEsgarothGraph.Rooms[esgarothNorthGateOutside] = new System.Windows.Point(5, 10);
+
+            Room mountainTrail1 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail1, esgarothNorthGateOutside, BidirectionalExitType.SouthwestNortheast);
+            northOfEsgarothGraph.Rooms[mountainTrail1] = new System.Windows.Point(6, 9);
+
+            Room mountainTrail2 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail2, mountainTrail1, BidirectionalExitType.NorthSouth);
+            northOfEsgarothGraph.Rooms[mountainTrail2] = new System.Windows.Point(6, 8);
+            //CSRTODO: southeast
+
+            Room mountainTrail3 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail3, mountainTrail2, BidirectionalExitType.SoutheastNorthwest);
+            northOfEsgarothGraph.Rooms[mountainTrail3] = new System.Windows.Point(5, 7);
+            //CSRTODO: west
+
+            Room mountainTrail4 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail4, mountainTrail3, BidirectionalExitType.SouthwestNortheast);
+            northOfEsgarothGraph.Rooms[mountainTrail4] = new System.Windows.Point(6, 6);
+
+            Room mountainTrail5 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail5, mountainTrail4, BidirectionalExitType.SoutheastNorthwest);
+            northOfEsgarothGraph.Rooms[mountainTrail5] = new System.Windows.Point(5, 5);
+            //CSRTODO: west
+
+            Room mountainTrail6 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail6, mountainTrail5, BidirectionalExitType.SouthwestNortheast);
+            northOfEsgarothGraph.Rooms[mountainTrail6] = new System.Windows.Point(6, 4);
+
+            Room mountainTrail7 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail6, mountainTrail7, BidirectionalExitType.WestEast);
+            northOfEsgarothGraph.Rooms[mountainTrail7] = new System.Windows.Point(7, 4);
+
+            Room mountainTrail8 = AddRoom("Trail", "Mountain Trail");
+            AddBidirectionalExits(mountainTrail7, mountainTrail8, BidirectionalExitType.NorthSouth);
+            northOfEsgarothGraph.Rooms[mountainTrail8] = new System.Windows.Point(7, 5);
+
+        }
+
+        private void AddEsgaroth(Room westGateOfEsgaroth, out Room northGateOutside)
         {
             RoomGraph esgarothGraph = new RoomGraph("Esgaroth");
             esgarothGraph.ScalingFactor = 100;
@@ -3372,9 +3418,9 @@ namespace IsengardClient
             AddBidirectionalExits(northEntranceInside, frostIndigo, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[northEntranceInside] = new System.Windows.Point(1, 2);
 
-            Room northEntranceOutside = AddRoom("North Gate Outside", "North Entrance to Esgaroth");
-            AddBidirectionalSameNameExit(northEntranceInside, northEntranceOutside, "gate");
-            esgarothGraph.Rooms[northEntranceOutside] = new System.Windows.Point(1, 1.5);
+            northGateOutside = AddRoom("North Gate Outside", "North Entrance to Esgaroth");
+            AddBidirectionalSameNameExit(northEntranceInside, northGateOutside, "gate");
+            esgarothGraph.Rooms[northGateOutside] = new System.Windows.Point(1, 1.5);
 
             Room stablesExerciseYard = AddRoom("Stables/Exercise", "Esgaroth Stables and Exercise Yard");
             AddBidirectionalExits(northEntranceInside, stablesExerciseYard, BidirectionalExitType.WestEast);

@@ -222,6 +222,7 @@ namespace IsengardClient
         WestOfTharbad,
         AlliskPlainsEastOfTharbad,
         Esgaroth,
+        NorthOfEsgaroth,
         Mithlond,
         Nindamos,
         Armenelos,

@@ -31,6 +31,10 @@
         [Experience(15)]
         Bartender,
 
+        [SingularName("bear")]
+        [PluralName("bears")]
+        Bear,
+
         [SingularName("Big Papa")]
         //CSRTODO: no plural?
         [Experience(350)]
@@ -109,6 +113,10 @@
         [PluralName("catapult officers")]
         CatapultOfficer,
 
+        [SingularName("centaur")]
+        [PluralName("centaurs")]
+        Centaur,
+
         [SingularName("Chancellor of Protection")]
         //CSRTODO: no plural
         [Experience(200)]
@@ -167,6 +175,10 @@
         [SingularName("drunken greek")]
         [PluralName("drunken greeks")]
         DrunkenGreek,
+
+        [SingularName("dryad")]
+        [PluralName("dryads")]
+        Dryad,
 
         [SingularName("dungeon guard")]
         [PluralName("dungeon guards")]

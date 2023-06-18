@@ -376,6 +376,10 @@
         [PluralName("mithron shields")]
         MithronShield,
 
+        [SingularName("molten iron key")]
+        [PluralName("molten iron keys")]
+        MoltenIronKey,
+
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
         MOMTattoo,
