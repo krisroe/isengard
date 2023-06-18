@@ -341,12 +341,14 @@ namespace IsengardClient
         public int Damage { get; set; }
         public int MobCount { get; set; }
         public MobTypeEnum Mob { get; set; }
+        public int WaitSeconds { get; set; }
     }
 
     public enum InformationalMessageType
     {
         InitialLogin,
         Death,
+        PleaseWait,
         DayStart,
         NightStart,
         BlessOver,

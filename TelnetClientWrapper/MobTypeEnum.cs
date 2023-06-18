@@ -43,6 +43,10 @@
         [Alignment(AlignmentType.Blue)]
         BilboBaggins,
 
+        [SingularName("blade")]
+        [PluralName("blades")]
+        Blade,
+
         [SingularName("bluejacket")]
         [PluralName("bluejackets")]
         Bluejacket,
@@ -357,6 +361,10 @@
         [PluralName("harbor masters")]
         HarborMaster,
 
+        [SingularName("herald")]
+        [PluralName("heralds")]
+        Herald,
+
         [SingularName("hermit fisher")]
         [PluralName("hermit fishers")]
         [Experience(60)]
@@ -565,6 +573,10 @@
         [Experience(220)]
         [Alignment(AlignmentType.Grey)]
         MayorMillwood,
+
+        [SingularName("meistersinger")]
+        [PluralName("meistersingers")]
+        Meistersinger,
 
         [SingularName("merchant")]
         [PluralName("merchants")]
@@ -819,6 +831,10 @@
         [PluralName("shirriffs")]
         [Experience(325)]
         Shirriff,
+
+        [SingularName("skald")]
+        [PluralName("skalds")]
+        Skald,
 
         [SingularName("skeleton")]
         [PluralName("skeletons")]

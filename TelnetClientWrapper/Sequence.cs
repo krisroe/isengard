@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-
 namespace IsengardClient
 {
     public interface IOutputItemSequence
@@ -1686,83 +1685,39 @@ StartProcessRoom:
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
-            if (!backgroundCommandType.HasValue)
+            if (backgroundCommandType.HasValue)
             {
-                return;
-            }
-            BackgroundCommandType bctValue = backgroundCommandType.Value;
-            int? waitSeconds = null;
-            foreach (string nextLine in Lines)
-            {
-                //skip empty lines. I don't have evidence this ever happens, but adding to be safer.
-                if (string.IsNullOrEmpty(nextLine))
+                BackgroundCommandType bctValue = backgroundCommandType.Value;
+                foreach (InformationalMessages msg in flParams.InfoMessages)
                 {
-                    continue;
-                }
-                if (!nextLine.StartsWith(PLEASE_WAIT_PREFIX) || nextLine.Length == PLEASE_WAIT_PREFIX.Length)
-                {
-                    break;
-                }
-                string remainder = nextLine.Substring(PLEASE_WAIT_PREFIX.Length);
-                if (remainder == "1 more second.")
-                {
-                    waitSeconds = 1;
-                    break;
-                }
-                if (remainder.EndsWith(ENDS_WITH_MINUTES_SUFFIX))
-                {
-                    if (remainder.Length == ENDS_WITH_MINUTES_SUFFIX.Length)
+                    if (msg.MessageType == InformationalMessageType.PleaseWait)
                     {
-                        break;
-                    }
-                    string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_MINUTES_SUFFIX.Length);
-                    int? iParsedSeconds = ParseMinutesAndSecondsToSeconds(rest);
-                    if (!iParsedSeconds.HasValue)
-                    {
-                        break;
-                    }
-                    waitSeconds = iParsedSeconds.Value;
-                }
-                else if (remainder.EndsWith(ENDS_WITH_SECONDS_SUFFIX))
-                {
-                    if (remainder.Length == ENDS_WITH_SECONDS_SUFFIX.Length)
-                    {
-                        break;
-                    }
-                    string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_SECONDS_SUFFIX.Length);
-                    if (int.TryParse(rest, out int iSeconds))
-                    {
-                        waitSeconds = iSeconds;
+                        int? lastWaitSeconds = null;
+                        int newWaitSeconds = msg.WaitSeconds;
+                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                        {
+                            lastWaitSeconds = _lastMagicWaitSeconds;
+                        }
+                        else if (bctValue == BackgroundCommandType.Attack)
+                        {
+                            lastWaitSeconds = _lastMeleeWaitSeconds;
+                        }
+                        if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds && flParams.InfoMessages.Count == 1)
+                        {
+                            flParams.SuppressEcho = true;
+                        }
+                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                        {
+                            _lastMagicWaitSeconds = newWaitSeconds;
+                        }
+                        else if (bctValue == BackgroundCommandType.Attack)
+                        {
+                            _lastMeleeWaitSeconds = newWaitSeconds;
+                        }
+                        flParams.FinishedProcessing = true;
+                        _onSatisfied(newWaitSeconds, flParams);
                     }
                 }
-                break;
-            }
-            if (waitSeconds.HasValue)
-            {
-                int? lastWaitSeconds = null;
-                int newWaitSeconds = waitSeconds.Value;
-                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
-                {
-                    lastWaitSeconds = _lastMagicWaitSeconds;
-                }
-                else if (bctValue == BackgroundCommandType.Attack)
-                {
-                    lastWaitSeconds = _lastMeleeWaitSeconds;
-                }
-                if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds)
-                {
-                    flParams.SuppressEcho = true;
-                }
-                if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
-                {
-                    _lastMagicWaitSeconds = newWaitSeconds;
-                }
-                else if (bctValue == BackgroundCommandType.Attack)
-                {
-                    _lastMeleeWaitSeconds = newWaitSeconds;
-                }
-                flParams.FinishedProcessing = true;
-                _onSatisfied(newWaitSeconds, flParams);
             }
         }
 
@@ -1777,6 +1732,39 @@ StartProcessRoom:
                 if (sPieces.Length == 2 && int.TryParse(sPieces[0], out iMinutes) && int.TryParse(sPieces[1], out iSeconds))
                 {
                     ret = (iMinutes * 60) + iSeconds;
+                }
+            }
+            return ret;
+        }
+
+        public static int? GetPleaseWaitSeconds(string input)
+        {
+            int? ret = null;
+            if (input.StartsWith(PLEASE_WAIT_PREFIX) && input.Length != PLEASE_WAIT_PREFIX.Length)
+            {
+                string remainder = input.Substring(PLEASE_WAIT_PREFIX.Length);
+                if (remainder == "1 more second.")
+                {
+                    ret = 1;
+                }
+                else if (remainder.EndsWith(ENDS_WITH_MINUTES_SUFFIX))
+                {
+                    if (remainder.Length != ENDS_WITH_MINUTES_SUFFIX.Length)
+                    {
+                        string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_MINUTES_SUFFIX.Length);
+                        ret = ParseMinutesAndSecondsToSeconds(rest);
+                    }
+                }
+                else if (remainder.EndsWith(ENDS_WITH_SECONDS_SUFFIX))
+                {
+                    if (remainder.Length != ENDS_WITH_SECONDS_SUFFIX.Length)
+                    {
+                        string rest = remainder.Substring(0, remainder.Length - ENDS_WITH_SECONDS_SUFFIX.Length);
+                        if (int.TryParse(rest, out int iSeconds))
+                        {
+                            ret = iSeconds;
+                        }
+                    }
                 }
             }
             return ret;
@@ -2229,6 +2217,16 @@ StartProcessRoom:
                         {
                             nextMsg = new InformationalMessages(InformationalMessageType.EnemyAttacksYou);
                             nextMsg.Damage = iDamage2.Value;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        int? pleaseWaitSeconds = PleaseWaitSequence.GetPleaseWaitSeconds(sLine);
+                        if (pleaseWaitSeconds.HasValue)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.PleaseWait);
+                            nextMsg.WaitSeconds = pleaseWaitSeconds.Value;
                         }
                     }
 
