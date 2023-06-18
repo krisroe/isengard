@@ -1189,7 +1189,11 @@ StartProcessRoom:
             bool ret = false;
             if (e != null)
             {
-                if (e is ItemEntity)
+                if (e is UnknownTypeEntity)
+                {
+                    errorMessages.Add("Unknown type entity (looking for items): " + next);
+                }
+                else if (e is ItemEntity)
                 {
                     if (e is UnknownItemEntity)
                     {
@@ -1220,7 +1224,11 @@ StartProcessRoom:
             bool ret = false;
             if (e != null)
             {
-                if (e is MobEntity)
+                if (e is UnknownTypeEntity)
+                {
+                    errorMessages.Add("Unknown type entity (looking for mobs): " + next);
+                }
+                else if (e is MobEntity)
                 {
                     if (e is UnknownMobEntity)
                     {
@@ -2226,12 +2234,16 @@ StartProcessRoom:
                     }
                     if (isArrived || isLeft)
                     {
-                        MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, expectCapitalized) as MobEntity;
-                        if (RoomTransitionSequence.CheckForValidMob(sWhat, ment, Parameters.ErrorMessages, EntityTypeFlags.Mob | EntityTypeFlags.Player) && ment.MobType.HasValue)
+                        Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, expectCapitalized);
+                        if (RoomTransitionSequence.CheckForValidMob(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Mob | EntityTypeFlags.Player))
                         {
-                            nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
-                            nextMsg.Mob = ment.MobType.Value;
-                            nextMsg.MobCount = ment.Count;
+                            MobEntity ment = (MobEntity)e;
+                            if (ment.MobType.HasValue)
+                            {
+                                nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
+                                nextMsg.Mob = ment.MobType.Value;
+                                nextMsg.MobCount = ment.Count;
+                            }
                         }
                     }
 

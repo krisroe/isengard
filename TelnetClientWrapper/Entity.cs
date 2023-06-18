@@ -49,13 +49,13 @@ namespace IsengardClient
         {
             string remainder = fullName;
 
-            if (remainder.EndsWith(" (F)")) //forged
+            while (remainder.EndsWith(" (H)") || remainder.EndsWith(" (F)")) //honed or forged
             {
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item)
                     return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);
                 else
                     possibleEntityTypes = EntityTypeFlags.Item;
-                if (remainder == " (F)")
+                if (remainder.Length == " (F)".Length)
                     return null;
                 else
                     remainder = remainder.Substring(0, remainder.Length - " (F)".Length);
