@@ -84,6 +84,10 @@
         //CSRTODO: no plural?
         BrentDiehard,
 
+        [SingularName("bull")]
+        [PluralName("bulls")]
+        Bull,
+
         [SingularName("The burned remains of Nimrodel")]
         //CSRTODO: no plural.
         [Experience(300)]
@@ -176,6 +180,10 @@
         [SingularName("dwarven miner")]
         [PluralName("dwarven miners")]
         DwarvenMiner,
+
+        [SingularName("dwarven outcast")]
+        [PluralName("dwarven outcasts")]
+        DwarvenOutcast,
 
         [SingularName("eccentric artist")]
         [PluralName("eccentric artists")]
@@ -515,6 +523,10 @@
         //CSRTODO: no plural
         LordDeArnse,
 
+        [SingularName("lumberjack")]
+        [PluralName("lumberjacks")]
+        Lumberjack,
+
         [SingularName("Luthic the High Priestess")]
         //CSRTODO: no plural
         LuthicTheHighPriestess,
@@ -625,6 +637,10 @@
         [SingularName("mountain lion")]
         [PluralName("mountain lions")]
         MountainLion,
+
+        [SingularName("mountain raider")]
+        [PluralName("mountain raiders")]
+        MountainRaider,
 
         [SingularName("Mr. Wartnose")]
         //CSRTODO: no plural
@@ -904,6 +920,10 @@
         //CSRTODO: no plural?
         TheTownCrier,
 
+        [SingularName("tracker")]
+        [PluralName("trackers")]
+        Tracker,
+
         [SingularName("traveler")]
         [PluralName("travelers")]
         Traveler,
@@ -911,6 +931,10 @@
         [SingularName("traveling horse")]
         [PluralName("traveling horses")]
         TravelingHorse,
+
+        [SingularName("traveling minstrel")]
+        [PluralName("traveling minstrels")]
+        TravelingMinstrel,
 
         [SingularName("Trakard ogre ranger")]
         [PluralName("Trakard ogre rangers")]
@@ -974,6 +998,10 @@
         [SingularName("water turtle")]
         [PluralName("water turtles")]
         WaterTurtle,
+
+        [SingularName("white knight")]
+        [PluralName("white knights")]
+        WhiteKnight,
 
         [SingularName("wildman")]
         [PluralName("wildmen")]

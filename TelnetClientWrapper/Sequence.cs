@@ -1166,23 +1166,9 @@ StartProcessRoom:
             foreach (string next in itemNames)
             {
                 Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
-                if (e != null)
+                if (CheckForValidItem(next, e, errorMessages, possibleEntityTypes))
                 {
-                    if (e is ItemEntity)
-                    {
-                        items.Add((ItemEntity)e);
-                    }
-                    else
-                    {
-                        if (possibleEntityTypes == EntityTypeFlags.Item)
-                        {
-                            errorMessages.Add("Nonitem found in item list: " + next);
-                        }
-                        else
-                        {
-                            errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
-                        }
-                    }
+                    items.Add((ItemEntity)e);
                 }
             }
         }
@@ -1191,25 +1177,73 @@ StartProcessRoom:
             foreach (string next in mobNames)
             {
                 Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
-                if (e != null)
+                if (CheckForValidMob(next, e, errorMessages, possibleEntityTypes))
                 {
-                    if (e is MobEntity)
+                    mobs.Add((MobEntity)e);
+                }
+            }
+        }
+
+        public static bool CheckForValidItem(string next, Entity e, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
+        {
+            bool ret = false;
+            if (e != null)
+            {
+                if (e is ItemEntity)
+                {
+                    if (e is UnknownItemEntity)
                     {
-                        mobs.Add((MobEntity)e);
+                        errorMessages.Add("Unknown item entity: " + next);
                     }
                     else
                     {
-                        if (possibleEntityTypes == EntityTypeFlags.Mob)
-                        {
-                            errorMessages.Add("Nonmob found in mob list: " + next);
-                        }
-                        else
-                        {
-                            errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
-                        }
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    if (possibleEntityTypes == EntityTypeFlags.Item)
+                    {
+                        errorMessages.Add("Nonitem found in item list: " + next);
+                    }
+                    else
+                    {
+                        errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
                     }
                 }
             }
+            return ret;
+        }
+
+        public static bool CheckForValidMob(string next, Entity e, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
+        {
+            bool ret = false;
+            if (e != null)
+            {
+                if (e is MobEntity)
+                {
+                    if (e is UnknownMobEntity)
+                    {
+                        errorMessages.Add("Unknown mob entity: " + next);
+                    }
+                    else
+                    {
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    if (possibleEntityTypes == EntityTypeFlags.Mob)
+                    {
+                        errorMessages.Add("Nonmob found in mob list: " + next);
+                    }
+                    else
+                    {
+                        errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
+                    }
+                }
+            }
+            return ret;
         }
 
         private static void LoadPlayers(List<PlayerEntity> players, List<string> currentPlayerNames, List<string> errorMessages, HashSet<string> allPlayerNames, EntityTypeFlags possibleEntityTypes)
@@ -2192,7 +2226,7 @@ StartProcessRoom:
                     if (isArrived || isLeft)
                     {
                         MobEntity ment = Entity.GetEntity(sWhat, EntityTypeFlags.Mob | EntityTypeFlags.Player, Parameters.ErrorMessages, null, expectCapitalized) as MobEntity;
-                        if (ment != null && ment.MobType.HasValue)
+                        if (RoomTransitionSequence.CheckForValidMob(sWhat, ment, Parameters.ErrorMessages, EntityTypeFlags.Mob | EntityTypeFlags.Player) && ment.MobType.HasValue)
                         {
                             nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
                             nextMsg.Mob = ment.MobType.Value;

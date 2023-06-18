@@ -412,6 +412,10 @@
         //CSRTODO: plural?
         PipeWeed,
 
+        [SingularName("platinum pieces")]
+        [PluralName("platinum pieces")]
+        PlatinumPieces,
+
         [SingularName("port manifest")]
         [PluralName("port manifests")]
         PortManifest,
