@@ -1750,6 +1750,7 @@ StartProcessRoom:
                         }
                         flParams.FinishedProcessing = true;
                         _onSatisfied(newWaitSeconds, flParams);
+                        break;
                     }
                 }
             }
