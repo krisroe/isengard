@@ -511,6 +511,10 @@
         //CSRTODO: no plural
         Lathlorien,
 
+        [SingularName("leprechaun")]
+        [PluralName("leprechauns")]
+        Leprechaun,
+
         [SingularName("little mouse")]
         [PluralName("little mice")]
         LittleMouse,

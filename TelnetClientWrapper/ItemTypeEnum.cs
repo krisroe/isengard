@@ -90,6 +90,10 @@
         [PluralName("broad swords")]
         BroadSword,
 
+        [SingularName("bucket")]
+        [PluralName("buckets")]
+        Bucket,
+
         [SingularName("bundle of wheat")]
         [PluralName("bundle of wheats")] //verified 6/14/2023
         BundleOfWheat,
@@ -132,6 +136,10 @@
         [SingularName("copper ring")]
         [PluralName("copper rings")]
         CopperRing,
+
+        [SingularName("crossbow")]
+        [PluralName("crossbows")]
+        Crossbow,
 
         [SingularName("crystal amulet")]
         [PluralName("crystal amulets")]
@@ -505,6 +513,9 @@
         [SingularName("silima blade")]
         [PluralName("silima blades")]
         SilimaBlade,
+
+        [SingularName("silver arm-bands")]
+        SilverArmBands,
 
         [SingularName("Silver-blue scale")]
         [PluralName("Silver-blue scales")]

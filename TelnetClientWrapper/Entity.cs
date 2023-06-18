@@ -461,7 +461,11 @@ namespace IsengardClient
                     }
                 }
             }
-            return sWord + " " + iCounter;
+            if (iCounter > 1)
+            {
+                sWord += " " + iCounter;
+            }
+            return sWord;
         }
 
         public static IEnumerable<MobTypeEnum> IterateThroughMobs(List<MobTypeEnum> mobs, int count)
