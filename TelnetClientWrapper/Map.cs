@@ -2531,6 +2531,7 @@ namespace IsengardClient
             Exit e = AddExit(oGreatEastRoad3, oGalbasiDownsSoutheast, "north");
             e.Hidden = true;
             AddExit(oGalbasiDownsSoutheast, oGreatEastRoad3, "south");
+            AddBidirectionalExits(oGalbasiDownsEntrance, oGalbasiDownsSoutheast, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGalbasiDownsSoutheast] = new System.Windows.Point(6, 3.5);
 
             Room oGalbasiDownsSouthwest = AddRoom("Galbasi Downs", "Galbasi Downs");
