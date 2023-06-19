@@ -361,6 +361,7 @@ namespace IsengardClient
         EarthDamage,
         WindDamage,
         PoisonDamage,
+        RoomPoisoned,
         Flee,
         FleeFailed,
         WordOfRecall,

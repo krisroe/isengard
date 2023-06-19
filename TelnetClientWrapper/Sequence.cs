@@ -2093,6 +2093,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.WindDamage;
                 }
+                else if (sLine == "The toxic air poisoned you.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.RoomPoisoned;
+                }
                 else if (sLine == "Poison courses through your veins.")
                 {
                     haveDataToDisplay = true;

@@ -1639,19 +1639,32 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oBrandywineRiverShore, oDrainPipe2, "grate");
             underBreeGraph.Rooms[oBrandywineRiverShore] = new System.Windows.Point(8, 7);
 
-            Room oSewerDitch = AddRoom("Sewer Ditch", "Sewer Ditch");
+            Room oSewerDitch = AddRoom("Ditch", "Sewer Ditch");
             AddBidirectionalExitsWithOut(oBrandywineRiverShore, oSewerDitch, "ditch");
             underBreeGraph.Rooms[oSewerDitch] = new System.Windows.Point(8, 6);
 
-            Room oSewerTunnel1 = AddRoom("Sewer Tunnel", "Sewer Tunnel");
+            Room oSewerTunnel1 = AddRoom("Tunnel", "Sewer Tunnel");
             AddBidirectionalExits(oSewerTunnel1, oSewerDitch, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerTunnel1] = new System.Windows.Point(8, 5);
 
-            Room oSewerTConnection = AddRoom("Sewer T-Connection", "Sewer T-Connection");
+            Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
+            oBoardedSewerTunnel.IsTrapRoom = true;
+            AddBidirectionalExits(oSewerTunnel1, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 5);
+
+            Room oSewagePit = AddRoom("Sewage Pit", "Sewage Pit");
+            oSewagePit.AddPermanentMobs(MobTypeEnum.Monster);
+            underBreeGraph.Rooms[oSewagePit] = new System.Windows.Point(10, 4.5);
+
+            Room oStagnantCesspool = AddRoom("Stagnant Cesspool", "Stagnant Cesspool");
+            AddBidirectionalExits(oSewagePit, oStagnantCesspool, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oStagnantCesspool] = new System.Windows.Point(10, 5);
+
+            Room oSewerTConnection = AddRoom("T-Connection", "Sewer T-Connection");
             AddBidirectionalExits(oSewerTConnection, oSewerTunnel1, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerTConnection] = new System.Windows.Point(8, 4);
 
-            Room oSewerTunnel2 = AddRoom("Sewer Tunnel", "Sewer Tunnel");
+            Room oSewerTunnel2 = AddRoom("Tunnel", "Sewer Tunnel");
             AddBidirectionalExits(oSewerTunnel2, oSewerTConnection, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSewerTunnel2] = new System.Windows.Point(7, 4);
 
@@ -1736,15 +1749,15 @@ namespace IsengardClient
             AddBidirectionalExits(sewerTunnelToTConnection, oSewerTConnection, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[sewerTunnelToTConnection] = new System.Windows.Point(8, 3);
 
-            Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
-            AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
-            underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 3);
+            Room oBoardedSewerTunnel2 = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
+            AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel2, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBoardedSewerTunnel2] = new System.Windows.Point(9, 3);
 
             Room oSewerOrcChamber = AddRoom("Sewer Orc Guards", "Sewer Orc Chamber");
             oSewerOrcChamber.AddPermanentMobs(MobTypeEnum.SewerOrcGuard, MobTypeEnum.SewerOrcGuard);
-            e = AddExit(oBoardedSewerTunnel, oSewerOrcChamber, "busted board");
+            e = AddExit(oBoardedSewerTunnel2, oSewerOrcChamber, "busted board");
             e.Hidden = true;
-            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel, "busted board");
+            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel2, "busted board");
             e.Hidden = true;
             underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
 
@@ -1775,6 +1788,7 @@ namespace IsengardClient
 
             Room oSlopingSewerPassage2 = AddRoom("Sloping Sewer Passage", "Sloping Sewer Passage");
             oSlopingSewerPassage2.AddPermanentMobs(MobTypeEnum.SewerWolf);
+            AddBidirectionalExits(oStagnantCesspool, oSlopingSewerPassage2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oSlopingSewerPassage2, oSmoothedSewerPassage, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSlopingSewerPassage2] = new System.Windows.Point(11, 5);
 
