@@ -3289,7 +3289,7 @@ namespace IsengardClient
             northOfEsgarothGraph.Rooms[ambush] = new System.Windows.Point(4, 5.5);
 
             Room disfiguredStatue = AddRoom("Disfigured Statue", "Disfigured Statue");
-            AddBidirectionalExitsWithOut(mountainTrail3, disfiguredStatue, "disfigured statue");
+            AddBidirectionalExitsWithOut(mountainTrail3, disfiguredStatue, "disfigured"); //says disfigured statue but statue doesn't work
             northOfEsgarothGraph.Rooms[disfiguredStatue] = new System.Windows.Point(6, 7);
         }
 
