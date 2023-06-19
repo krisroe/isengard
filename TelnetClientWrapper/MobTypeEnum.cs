@@ -670,6 +670,10 @@
         [PluralName("monks")]
         Monk,
 
+        [SingularName("monster")]
+        [PluralName("monsters")]
+        Monster,
+
         [SingularName("morality officer")]
         [PluralName("morality officers")]
         MoralityOfficer,

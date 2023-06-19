@@ -314,6 +314,10 @@
         [PluralName("Kasnar's red keys")]
         KasnarsRedKey,
 
+        [SingularName("kelp necklace")]
+        [PluralName("kelp necklaces")]
+        KelpNecklace,
+
         [SingularName("khopesh sword")]
         [PluralName("khopesh swords")]
         KhopeshSword,
