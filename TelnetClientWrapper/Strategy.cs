@@ -389,7 +389,6 @@ namespace IsengardClient
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
             allStrategies.Add(s);

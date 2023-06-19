@@ -384,6 +384,9 @@
         [PluralName("mithril jo sticks")]
         MithrilJoStick,
 
+        [SingularName("mithril lamella leggings")]
+        MithrilLamellaLeggings,
+
         [SingularName("mithron blade")]
         [PluralName("mithron blades")]
         MithronBlade,
