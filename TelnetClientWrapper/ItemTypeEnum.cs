@@ -40,6 +40,9 @@
         [PluralName("aquamarine potions")]
         AquamarinePotion,
 
+        [SingularName("banded mail armor")]
+        BandedMailArmor,
+
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
         BeastmastersWhip,
