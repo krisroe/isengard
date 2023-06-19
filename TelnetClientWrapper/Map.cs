@@ -1648,7 +1648,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSewerTunnel1] = new System.Windows.Point(8, 5);
 
             Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
-            oBoardedSewerTunnel.IsTrapRoom = true;
+            oBoardedSewerTunnel.IsTrapRoom = true; //trap only triggers if the user lacks fly/levitation
             AddBidirectionalExits(oSewerTunnel1, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 5);
 

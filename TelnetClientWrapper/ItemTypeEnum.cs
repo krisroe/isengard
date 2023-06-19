@@ -418,6 +418,10 @@
         [PluralName("MOM tattoos")]
         MOMTattoo,
 
+        [SingularName("morning star")]
+        [PluralName("morning stars")]
+        MorningStar,
+
         [SingularName("old wooden sign")]
         [PluralName("old wooden signs")]
         OldWoodenSign,
@@ -642,6 +646,10 @@
         [SingularName("stilleto")]
         //CSRTODO: plural?
         Stilleto,
+
+        [SingularName("stone hammer")]
+        [PluralName("stone hammers")]
+        StoneHammer,
 
         [SingularName("stone key")]
         [PluralName("stone keys")]

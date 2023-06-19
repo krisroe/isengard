@@ -495,6 +495,10 @@
         [Alignment(AlignmentType.Grey)]
         IorlasTheHermit,
 
+        [SingularName("irrigation engineer")]
+        [PluralName("irrigation engineers")]
+        IrrigationEngineer,
+
         [SingularName("Ixell DeSantis")]
         //CSRTODO: no plural
         [Experience(70)]
