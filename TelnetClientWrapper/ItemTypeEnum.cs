@@ -365,6 +365,10 @@
         [PluralName("marble chess sets")]
         MarbleChessSet,
 
+        [SingularName("mask of darkness")]
+        //CSRTODO: plural?
+        MaskOfDarkness,
+
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
         MetalHelmet,

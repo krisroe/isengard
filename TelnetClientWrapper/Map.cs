@@ -1497,6 +1497,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
+            AddLocation(_aBreePerms, oSergeantGrimgall);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
 

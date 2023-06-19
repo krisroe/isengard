@@ -18,6 +18,10 @@
         [PluralName("aristocrats")]
         Aristocrat,
 
+        [SingularName("art student")]
+        [PluralName("art students")]
+        ArtStudent,
+
         [SingularName("barbarian guard")]
         [PluralName("barbarian guards")]
         BarbarianGuard,
@@ -1080,6 +1084,7 @@
         Worker,
 
         [SingularName("Zathriel the Minstrel")]
+        [SingularSelection("Minstrel")]
         //CSRTODO: no plural?
         [Experience(220)]
         [Alignment(AlignmentType.Blue)]
