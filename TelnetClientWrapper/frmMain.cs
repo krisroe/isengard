@@ -1744,6 +1744,10 @@ namespace IsengardClient
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("fly");
                         break;
+                    case InformationalMessageType.LevitationOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("levitation");
+                        break;
                     case InformationalMessageType.ManashieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Manashield, false);
                         break;

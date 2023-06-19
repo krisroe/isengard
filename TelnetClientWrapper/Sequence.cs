@@ -2028,6 +2028,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.FlyOver;
                 }
+                else if (sLine == "Your feet hit the ground.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.LevitationOver;
+                }
                 else if (sLine == "Your manashield dissipates.")
                 {
                     haveDataToDisplay = true;

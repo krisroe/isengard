@@ -355,6 +355,7 @@ namespace IsengardClient
         BlessOver,
         ProtectionOver,
         FlyOver,
+        LevitationOver,
         ManashieldOff,
         FireDamage,
         WaterDamage,
