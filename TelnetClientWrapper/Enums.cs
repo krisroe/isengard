@@ -405,6 +405,15 @@ namespace IsengardClient
         Fire = 3,
     }
 
+    public enum RoomDamageType
+    {
+        Earth = 0,
+        Wind = 1,
+        Water = 2,
+        Fire = 3,
+        Poison = 4,
+    }
+
     public enum HealingRoom
     {
         BreeNortheast,

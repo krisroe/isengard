@@ -284,23 +284,23 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[dalePurves] = new System.Windows.Point(3, 6);
 
             Room greyfloodRiver1 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver1.DamageType = RealmType.Water;
+            greyfloodRiver1.DamageType = RoomDamageType.Water;
             AddExit(dalePurves, greyfloodRiver1, "river");
             AddExit(greyfloodRiver1, dalePurves, "beach");
             tharbadWestGraph.Rooms[greyfloodRiver1] = new System.Windows.Point(2, 6);
 
             Room greyfloodRiver2 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver2.DamageType = RealmType.Water;
+            greyfloodRiver2.DamageType = RoomDamageType.Water;
             AddBidirectionalExits(greyfloodRiver1, greyfloodRiver2, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[greyfloodRiver2] = new System.Windows.Point(2, 7);
 
             Room greyfloodRiver3 = AddRoom("Greyflood River", "The Greyflood River");
-            greyfloodRiver3.DamageType = RealmType.Water;
+            greyfloodRiver3.DamageType = RoomDamageType.Water;
             AddBidirectionalExits(greyfloodRiver2, greyfloodRiver3, BidirectionalExitType.NorthSouth);
             tharbadWestGraph.Rooms[greyfloodRiver3] = new System.Windows.Point(2, 8);
 
             Room riverMouth = AddRoom("River Mouth", "The Mouth of the Greyflood River");
-            riverMouth.DamageType = RealmType.Water;
+            riverMouth.DamageType = RoomDamageType.Water;
             AddExit(greyfloodRiver3, riverMouth, "southwest");
             AddExit(riverMouth, greyfloodRiver3, "river");
             tharbadWestGraph.Rooms[riverMouth] = new System.Windows.Point(1, 9);
@@ -663,7 +663,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[cargoHold] = new System.Windows.Point(4.5, 3.5);
 
             Room fishHold = AddRoom("Fish Hold", "Fish Hold");
-            fishHold.DamageType = RealmType.Wind;
+            fishHold.DamageType = RoomDamageType.Wind;
             Room brentDiehard = AddRoom("Brent Diehard", "Engine Room");
             brentDiehard.AddPermanentMobs(MobTypeEnum.BrentDiehard);
             mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
@@ -1653,7 +1653,10 @@ namespace IsengardClient
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 5);
 
             Room oSewagePit = AddRoom("Sewage Pit", "Sewage Pit");
+            oSewagePit.DamageType = RoomDamageType.Poison;
             oSewagePit.AddPermanentMobs(MobTypeEnum.Monster);
+            Exit e = AddExit(oSewagePit, oBoardedSewerTunnel, "up");
+            e.FloatRequirement = FloatRequirement.FlyOrLevitation;
             underBreeGraph.Rooms[oSewagePit] = new System.Windows.Point(10, 4.5);
 
             Room oStagnantCesspool = AddRoom("Stagnant Cesspool", "Stagnant Cesspool");
@@ -1681,15 +1684,15 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSalamander] = new System.Windows.Point(9, 7);
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River", "The Brandywine River");
-            oBrandywineRiver1.DamageType = RealmType.Water;
+            oBrandywineRiver1.DamageType = RoomDamageType.Water;
             AddExit(droolie, oBrandywineRiver1, "down");
-            Exit e = AddExit(oBrandywineRiver1, droolie, "rope");
+            e = AddExit(oBrandywineRiver1, droolie, "rope");
             e.FloatRequirement = FloatRequirement.Fly;
             underBreeGraph.Rooms[oBrandywineRiver1] = new System.Windows.Point(0, 1);
             //CSRTODO: north
 
             Room oBrandywineRiver2 = AddRoom("Brandywine River", "The Brandywine River");
-            oBrandywineRiver2.DamageType = RealmType.Water;
+            oBrandywineRiver2.DamageType = RoomDamageType.Water;
             AddBidirectionalExits(oBrandywineRiver1, oBrandywineRiver2, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oBrandywineRiver2] = new System.Windows.Point(1, 1);
 
@@ -1842,7 +1845,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oTunnel] = new System.Windows.Point(4, 2);
 
             Room oLatrine = AddRoom("Latrine", "Latrine");
-            oLatrine.DamageType = RealmType.Wind;
+            oLatrine.DamageType = RoomDamageType.Wind;
             AddExit(oTunnel, oLatrine, "south");
             e = AddExit(oLatrine, oTunnel, "north");
             e.Hidden = true;
@@ -1859,7 +1862,7 @@ namespace IsengardClient
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
             oEugeneTheExecutioner.AddPermanentMobs(MobTypeEnum.EugeneTheExecutioner);
-            oEugeneTheExecutioner.DamageType = RealmType.Fire;
+            oEugeneTheExecutioner.DamageType = RoomDamageType.Fire;
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
             oEugeneTheExecutioner.IsTrapRoom = true;
             breeSewersGraph.Rooms[oEugeneTheExecutioner] = new System.Windows.Point(3, 1);
@@ -1893,7 +1896,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oCentralSewerChannels] = new System.Windows.Point(11, 6);
 
             Room oSewerPassageToSewerDemon = AddRoom("Passage", "Sewer Passage");
-            oSewerPassageToSewerDemon.DamageType = RealmType.Earth;
+            oSewerPassageToSewerDemon.DamageType = RoomDamageType.Earth;
             e = AddExit(oCentralSewerChannels, oSewerPassageToSewerDemon, "northwest");
             e.Hidden = true;
             AddExit(oSewerPassageToSewerDemon, oCentralSewerChannels, "southeast");
@@ -2579,7 +2582,7 @@ namespace IsengardClient
             Room oAntechamber = AddRoom("Antechamber DMG", "Antechamber");
             AddExit(oBarrow, oAntechamber, "altar");
             AddExit(oAntechamber, oBarrow, "up");
-            oAntechamber.DamageType = RealmType.Fire;
+            oAntechamber.DamageType = RoomDamageType.Fire;
             breeToImladrisGraph.Rooms[oAntechamber] = new System.Windows.Point(5, 1.75);
 
             Room oGalbasiHalls = AddRoom("Galbasi Halls", "Galbasi Halls");

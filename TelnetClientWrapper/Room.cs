@@ -28,7 +28,7 @@ namespace IsengardClient
         /// <summary>
         /// realm for the damage type for rooms that damage periodically
         /// </summary>
-        public RealmType? DamageType { get; set; }
+        public RoomDamageType? DamageType { get; set; }
         /// <summary>
         /// is a room that has a trap when the player enters it
         /// </summary>
