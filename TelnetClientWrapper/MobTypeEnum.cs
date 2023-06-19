@@ -18,6 +18,10 @@
         [PluralName("aristocrats")]
         Aristocrat,
 
+        [SingularName("barbarian guard")]
+        [PluralName("barbarian guards")]
+        BarbarianGuard,
+
         [SingularName("barmaid")]
         [PluralName("barmaids")]
         Barmaid,
@@ -397,6 +401,10 @@
         [SingularName("Hesta")]
         //CSRTODO: no plural
         Hesta,
+
+        [SingularName("hill giant")]
+        [PluralName("hill giants")]
+        HillGiant,
 
         [SingularName("hippie")]
         [PluralName("hippies")]
@@ -975,6 +983,10 @@
         [SingularName("treant")]
         [PluralName("treants")]
         Treant,
+
+        [SingularName("tree sprite")]
+        [PluralName("tree sprites")]
+        TreeSprite,
 
         [SingularName("Tyrie")]
         //CSRTODO: no plural
