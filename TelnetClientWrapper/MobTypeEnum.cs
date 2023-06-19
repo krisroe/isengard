@@ -219,6 +219,7 @@
 
         [SingularName("evil sorcerer")]
         [PluralName("evil sorcerers")]
+        [Experience(210)]
         EvilSorcerer,
 
         [SingularName("Eugene the Executioner")]
@@ -268,9 +269,11 @@
         [PluralName("ghosts")]
         Ghost,
 
-        [SingularName("giant crayfish")]
-        [PluralName("giant crayfish")]
-        GiantCrayfish,
+        [SingularName("giant catfish")]
+        //CSRTODO: plural?
+        GiantCatfish,
+
+        //CSRTODO: giant crayfish?
 
         [SingularName("giant rat")]
         [PluralName("giant rats")]
@@ -648,6 +651,7 @@
 
         [SingularName("mercenary captain")]
         [PluralName("mercenary captains")]
+        [Experience(150)]
         MercenaryCaptain,
 
         [SingularName("merchant")]

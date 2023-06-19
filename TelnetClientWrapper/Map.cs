@@ -1432,7 +1432,7 @@ namespace IsengardClient
             AddExit(oPearlAlley, oBreeTownSquare, "north");
             _breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 3.5);
 
-            Room oBartenderWaitress = AddRoom("Prancing Pony Bar/Wait", "Prancing Pony Tavern");
+            Room oBartenderWaitress = AddRoom("Prancing Pony", "Prancing Pony Tavern");
             oBartenderWaitress.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
             AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);

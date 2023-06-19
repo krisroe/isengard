@@ -198,6 +198,10 @@
         [PluralName("elven leather whips")]
         ElvenLeatherWhip,
 
+        [SingularName("emerald")]
+        [PluralName("emeralds")]
+        Emerald,
+
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
         EmeraldCollar,
