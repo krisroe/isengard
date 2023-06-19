@@ -393,6 +393,10 @@
         [PluralName("gypsy fighters")]
         GypsyFighter,
 
+        [SingularName("gypsy fire eater")]
+        [PluralName("gypsy fire eaters")]
+        GypsyFireEater,
+
         [SingularName("half-elf")]
         [PluralName("half-elves")]
         HalfElf,
