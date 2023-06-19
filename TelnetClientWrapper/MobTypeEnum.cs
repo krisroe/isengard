@@ -140,6 +140,10 @@
         [PluralName("criminals")]
         Criminal,
 
+        [SingularName("crow")]
+        [PluralName("crows")]
+        Crow,
+
         [SingularName("cutthroat")]
         [PluralName("cutthroats")]
         [Experience(500)]
@@ -208,6 +212,10 @@
         [SingularName("elven guard")]
         [PluralName("elven guards")]
         ElvenGuard,
+
+        [SingularName("evil sorcerer")]
+        [PluralName("evil sorcerers")]
+        EvilSorcerer,
 
         [SingularName("Eugene the Executioner")]
         //CSRTODO: no plural?
@@ -625,6 +633,10 @@
         [SingularName("meistersinger")]
         [PluralName("meistersingers")]
         Meistersinger,
+
+        [SingularName("mercenary captain")]
+        [PluralName("mercenary captains")]
+        MercenaryCaptain,
 
         [SingularName("merchant")]
         [PluralName("merchants")]

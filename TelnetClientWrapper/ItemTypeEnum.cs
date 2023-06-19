@@ -680,6 +680,10 @@
         [PluralName("wagonmaster's whips")]
         WagonmastersWhip,
 
+        [SingularName("warhammer")]
+        [PluralName("warhammers")]
+        Warhammer,
+
         [SingularName("war harness")]
         [PluralName("war harnesses")]
         WarHarness,
