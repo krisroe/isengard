@@ -157,6 +157,10 @@
         [PluralName("dark green potions")]
         DarkGreenPotion,
 
+        [SingularName("dead rat carcass")]
+        //CSRTODO: plural?
+        DeadRatCarcass,
+
         [SingularName("Death's galvorn sickle")]
         [PluralName("Death's galvorn sickles")]
         DeathsGalvornSickle,
@@ -251,6 +255,10 @@
         [PluralName("gold coins")]
         GoldCoins,
 
+        [SingularName("golden dagger")]
+        [PluralName("golden daggers")]
+        GoldenDagger,
+
         [SingularName("golden mask of the gods")]
         //CSRTODO: plural?
         GoldenMaskOfTheGods,
@@ -262,6 +270,10 @@
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
         GreyScroll,
+
+        [SingularName("gypsy cape")]
+        [PluralName("gypsy capes")]
+        GypsyCape,
 
         [SingularName("halberd")]
         [PluralName("halberds")]
@@ -352,6 +364,10 @@
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
         MarbleChessSet,
+
+        [SingularName("metal helmet")]
+        [PluralName("metal helmets")]
+        MetalHelmet,
 
         [SingularName("metal mask")]
         [PluralName("metal masks")]
@@ -545,6 +561,10 @@
         [PluralName("silver wands")]
         SilverWand,
 
+        [SingularName("slaying sword")]
+        [PluralName("slaying swords")]
+        SlayingSword,
+
         [SingularName("sling")]
         [PluralName("slings")]
         Sling,
@@ -583,6 +603,9 @@
 
         [SingularName("sprite boots")]
         SpriteBoots,
+
+        [SingularName("sprite leather armor")]
+        SpriteLeatherArmor,
 
         [SingularName("splint mail")]
         SplintMail,

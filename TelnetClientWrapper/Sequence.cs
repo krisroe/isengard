@@ -1228,7 +1228,11 @@ StartProcessRoom:
             {
                 if (e is UnknownTypeEntity)
                 {
-                    errorMessages.Add("Unknown type entity (looking for mobs): " + next);
+                    UnknownTypeEntity ute = (UnknownTypeEntity)e;
+                    if ((possibleEntityTypes & EntityTypeFlags.Player) == EntityTypeFlags.None)
+                    {
+                        errorMessages.Add("Unknown type entity (looking for mobs): " + next);
+                    }
                 }
                 else if (e is MobEntity)
                 {
