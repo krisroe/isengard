@@ -3282,6 +3282,7 @@ namespace IsengardClient
             northOfEsgarothGraph.Rooms[mountainTrailWest5] = new System.Windows.Point(4, 5);
 
             Room ambush = AddRoom("Ambush", "Ambush!");
+            ambush.AddPermanentMobs(MobTypeEnum.BarbarianGuard, MobTypeEnum.BarbarianGuard, MobTypeEnum.HillGiant, MobTypeEnum.HillGiant);
             Exit e = AddExit(mountainTrailWest4, ambush, "brush");
             e.Hidden = true;
             AddExit(ambush, mountainTrailWest4, "out");
