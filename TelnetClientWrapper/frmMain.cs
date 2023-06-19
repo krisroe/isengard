@@ -2798,9 +2798,14 @@ namespace IsengardClient
             {
                 if (pms.SingleCommandType.HasValue)
                 {
-                    if (pms.SingleCommandType.Value == BackgroundCommandType.Look)
+                    BackgroundCommandType cmdType = pms.SingleCommandType.Value;
+                    if (cmdType == BackgroundCommandType.Look)
                     {
                         RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, null);
+                    }
+                    else if (cmdType == BackgroundCommandType.Search)
+                    {
+                        RunSingleCommand(BackgroundCommandType.Search, "search", pms, null);
                     }
                     return;
                 }
@@ -5538,7 +5543,7 @@ BeforeHazy:
                     {
                         if (isLook)
                         {
-                            RunLookBackgroundCommand();
+                            RunSingleBackgroundCommand(BackgroundCommandType.Look);
                         }
                         else
                         {
@@ -6338,15 +6343,23 @@ BeforeHazy:
         {
             if (_currentBackgroundParameters == null)
             {
-                RunLookBackgroundCommand();
+                RunSingleBackgroundCommand(BackgroundCommandType.Look);
             }
         }
 
-        private void RunLookBackgroundCommand()
+        private void RunSingleBackgroundCommand(BackgroundCommandType commandType)
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            bwp.SingleCommandType = BackgroundCommandType.Look;
+            bwp.SingleCommandType = commandType;
             RunBackgroundProcess(bwp);
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (_currentBackgroundParameters == null)
+            {
+                RunSingleBackgroundCommand(BackgroundCommandType.Search);
+            }
         }
     }
 }

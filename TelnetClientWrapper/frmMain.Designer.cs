@@ -1305,10 +1305,10 @@
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(133, 34);
             this.btnSearch.TabIndex = 79;
-            this.btnSearch.Tag = "search";
+            this.btnSearch.Tag = "";
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
-            this.btnSearch.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // tabAncillary
             // 
