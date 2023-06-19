@@ -172,6 +172,10 @@
         [PluralName("dildos")]
         Dildo,
 
+        [SingularName("dirk")]
+        [PluralName("dirks")]
+        Dirk,
+
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
         DriedSeaweed,
