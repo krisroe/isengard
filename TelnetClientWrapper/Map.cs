@@ -3282,11 +3282,15 @@ namespace IsengardClient
             northOfEsgarothGraph.Rooms[mountainTrailWest5] = new System.Windows.Point(4, 5);
 
             Room ambush = AddRoom("Ambush", "Ambush!");
-            ambush.AddPermanentMobs(MobTypeEnum.BarbarianGuard, MobTypeEnum.BarbarianGuard, MobTypeEnum.HillGiant, MobTypeEnum.HillGiant);
+            ambush.AddPermanentMobs(MobTypeEnum.BarbarianGuard, MobTypeEnum.BarbarianGuard, MobTypeEnum.HillGiant, MobTypeEnum.HillGiant, MobTypeEnum.EvilSorcerer, MobTypeEnum.MercenaryCaptain);
             Exit e = AddExit(mountainTrailWest4, ambush, "brush");
             e.Hidden = true;
             AddExit(ambush, mountainTrailWest4, "out");
             northOfEsgarothGraph.Rooms[ambush] = new System.Windows.Point(4, 5.5);
+
+            Room disfiguredStatue = AddRoom("Disfigured Statue", "Disfigured Statue");
+            AddBidirectionalExitsWithOut(mountainTrail3, disfiguredStatue, "disfigured statue");
+            northOfEsgarothGraph.Rooms[disfiguredStatue] = new System.Windows.Point(6, 7);
         }
 
         private void AddEsgaroth(Room westGateOfEsgaroth, out Room northGateOutside)
@@ -3438,12 +3442,10 @@ namespace IsengardClient
             AddBidirectionalExits(frostIndigo, frostMagenta, BidirectionalExitType.WestEast);
             AddBidirectionalExits(frostMagenta, sweetwaterMagenta, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[frostMagenta] = new System.Windows.Point(2, 3);
-            //CSRTODO: door
 
             Room frostWestLake = AddRoom("Frost/WestLake", "Frost Lane/West Lake Circle");
             AddBidirectionalExits(frostMagenta, frostWestLake, BidirectionalExitType.WestEast);
             esgarothGraph.Rooms[frostWestLake] = new System.Windows.Point(3, 3);
-            //CSRTODO: door
 
             Room frostAquamarine = AddRoom("Frost/Aquamarine", "Frost Lane/Aquamarine Way Intersection");
             AddBidirectionalExits(frostWestLake, frostAquamarine, BidirectionalExitType.WestEast);
@@ -3534,6 +3536,25 @@ namespace IsengardClient
             AddBidirectionalExits(lakeCircle5, lakeCircle6, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(lakeCircle6, lakeCircle, BidirectionalExitType.SoutheastNorthwest);
             esgarothGraph.Rooms[lakeCircle6] = new System.Windows.Point(2.5, 1.5);
+
+            Room prospectorInn = AddRoom("Prospector Inn", "Prospector Inn");
+            AddBidirectionalSameNameExit(frostWestLake, prospectorInn, "door");
+            esgarothGraph.Rooms[prospectorInn] = new System.Windows.Point(3, 3.25);
+
+            Room redDragonTavern = AddRoom("Red Dragon Tavern", "The Red Dragon Tavern");
+            AddBidirectionalSameNameExit(prospectorInn, redDragonTavern, "red"); //says red door but door doesn't work
+            AddBidirectionalSameNameExit(redDragonTavern, sweetwaterAquamarine, "door");
+            esgarothGraph.Rooms[redDragonTavern] = new System.Windows.Point(3, 3.5);
+
+            Room jaysSmithShoppe = AddRoom("Smithy", "Jay's Smith Shoppe");
+            jaysSmithShoppe.AddPermanentMobs(MobTypeEnum.Smithy);
+            AddBidirectionalSameNameExit(frostMagenta, jaysSmithShoppe, "door");
+            esgarothGraph.Rooms[jaysSmithShoppe] = new System.Windows.Point(2.33, 2.75);
+
+            Room foundry = AddRoom("Foundry", "Foundry");
+            foundry.AddPermanentMobs(MobTypeEnum.SivalTheArtificer);
+            AddBidirectionalExitsWithOut(jaysSmithShoppe, foundry, "foundry");
+            esgarothGraph.Rooms[foundry] = new System.Windows.Point(2.33, 2.5);
         }
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)

@@ -904,6 +904,10 @@
         [Experience(325)]
         Shirriff,
 
+        [SingularName("Sival the Artificer")]
+        //CSRTODO: no plural
+        SivalTheArtificer,
+
         [SingularName("skald")]
         [PluralName("skalds")]
         Skald,

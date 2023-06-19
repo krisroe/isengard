@@ -1944,7 +1944,7 @@ namespace IsengardClient
             {
                 foreach (string s in removedPlayers)
                 {
-                    if (_players.Contains(s))
+                    if (_players != null && _players.Contains(s))
                     {
                         _players.Remove(s);
                     }
@@ -2770,7 +2770,7 @@ namespace IsengardClient
                     string sText = null;
                     lock (_roomChangeLock)
                     {
-                        if (_currentRoomMobs.Count > 0)
+                        if (_currentRoomMobs != null && _currentRoomMobs.Count > 0)
                         {
                             sText = MobEntity.PickMobTextWithinList(_currentRoomMobs[0], MobEntity.IterateThroughMobs(_currentRoomMobs, 1));
                         }

@@ -923,12 +923,14 @@ namespace IsengardClient
             if (tempIndex >= lineCount) return false;
             if (Lines[tempIndex] != string.Empty) return false;
 
+            //get the obvious exits. If long or short descriptions are on, lines may be skipped.
             tempIndex++;
-            exitsString = StringProcessing.GetListAsString(Lines, tempIndex, "Obvious exits: ", true, out tempIndex);
+            exitsString = StringProcessing.GetListAsString(Lines, tempIndex, "Obvious exits: ", false, out tempIndex);
             if (exitsString == null)
             {
                 return false;
             }
+
             room1List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
             room2List = null;
             room3List = null;
