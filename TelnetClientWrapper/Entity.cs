@@ -49,7 +49,7 @@ namespace IsengardClient
         {
             string remainder = fullName;
 
-            while (remainder.EndsWith(" (H)") || remainder.EndsWith(" (F)")) //honed or forged
+            while (remainder.EndsWith(" (H)") || remainder.EndsWith(" (F)") || remainder.EndsWith(" (M)")) //honed or forged or magic
             {
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item)
                     return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);

@@ -835,6 +835,7 @@ namespace IsengardClient
             if (Lines.Count > 0)
             {
                 List<ItemTypeEnum> itemsManaged = null;
+                bool expectCapitalized = false;
                 foreach (string nextLine in Lines)
                 {
                     int lineLength = nextLine.Length;
@@ -881,7 +882,27 @@ namespace IsengardClient
                         if (objectLen <= 0) return;
                         objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
                     }
-                    else if (nextLine == "Thanks for recycling.")
+                    else if (nextLine.EndsWith(" disintegrates."))
+                    {
+                        if (isAdd.HasValue && isAdd.Value)
+                        {
+                            return;
+                        }
+                        isAdd = false;
+                        int suffixIndex = nextLine.IndexOf(" disintegrates.");
+                        if (suffixIndex > 0)
+                        {
+                            objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
+                        }
+                        expectCapitalized = true;
+                    }
+                    else if (nextLine == "Thanks for recycling." ||
+                             nextLine == "You feel better." || //vigor/mend
+                             nextLine == "Your eyes feel funny." || //detect-magic potion
+                             nextLine == "You turn invisible." || //red bubbly potion
+                             nextLine == "You become shielded from the normal fire element." || //red potion
+                             nextLine == "Yuck!  Tastes awful!" ||
+                             nextLine == "Substance consumed.")
                     {
                         continue;
                     }
@@ -908,7 +929,7 @@ namespace IsengardClient
                     }
                     if (!string.IsNullOrEmpty(objectText))
                     {
-                        ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, false) as ItemEntity;
+                        ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
                         if (ie != null)
                         {
                             if (ie is UnknownItemEntity)
