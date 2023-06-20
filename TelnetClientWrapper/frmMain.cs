@@ -1103,7 +1103,7 @@ namespace IsengardClient
 
             InitialLoginInfo info = _loginInfo;
             string sRoomName = info.RoomName;
-            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None))
+            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false))
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 Room r = _currentRoomInfo.CurrentRoom;
@@ -1192,13 +1192,17 @@ namespace IsengardClient
                     }
                 }
             }
-            else if (rtType == RoomTransitionType.Hazy || rtType == RoomTransitionType.Death)
+            else if (rtType == RoomTransitionType.WordOfRecall || rtType == RoomTransitionType.Death)
             {
                 _hazying = false;
                 _fleeing = false;
+                if (roomTransitionInfo.DrankHazy)
+                {
+                    AddOrRemoveItemsFromInventory(new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, false);
+                }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
-                    if (fromBackgroundHazy && rtType == RoomTransitionType.Hazy)
+                    if (fromBackgroundHazy && rtType == RoomTransitionType.WordOfRecall)
                     {
                         flParams.CommandResult = CommandResult.CommandSuccessful;
                         _waitSeconds = 0;
@@ -2153,6 +2157,26 @@ namespace IsengardClient
 
         private void OnInventoryManagement(List<ItemTypeEnum> items, bool isAdd, int? gold, int sellGold, List<string> activeSpells)
         {
+            if (items != null && items.Count > 0)
+            {
+                AddOrRemoveItemsFromInventory(items, isAdd);
+            }
+            if (gold.HasValue)
+            {
+                _gold = gold.Value;
+            }
+            else if (sellGold > 0)
+            {
+                _gold += sellGold;
+            }
+            if (activeSpells != null && activeSpells.Count > 0)
+            {
+                AddActiveSpells(activeSpells);
+            }
+        }
+        
+        private void AddOrRemoveItemsFromInventory(List<ItemTypeEnum> items, bool isAdd)
+        {
             InventoryEquipmentChange iec = new InventoryEquipmentChange();
             iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
             iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
@@ -2193,18 +2217,6 @@ namespace IsengardClient
                         _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                     }
                 }
-            }
-            if (gold.HasValue)
-            {
-                _gold = gold.Value;
-            }
-            else if (sellGold > 0)
-            {
-                _gold += sellGold;
-            }
-            if (activeSpells != null && activeSpells.Count > 0)
-            {
-                AddActiveSpells(activeSpells);
             }
         }
 

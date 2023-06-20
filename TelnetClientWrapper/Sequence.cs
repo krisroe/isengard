@@ -997,6 +997,7 @@ namespace IsengardClient
         public List<PlayerEntity> Players { get; set; }
         public List<ItemEntity> Items { get; set; }
         public List<MobEntity> Mobs { get; set; }
+        public bool DrankHazy { get; set; }
     }
 
     internal class InitialLoginSequence : AOutputProcessingSequence
@@ -1054,7 +1055,7 @@ namespace IsengardClient
                 }
                 else if (eType == InformationalMessageType.WordOfRecall)
                 {
-                    rtType = RoomTransitionType.Hazy;
+                    rtType = RoomTransitionType.WordOfRecall;
                 }
                 else if (eType == InformationalMessageType.Death)
                 {
@@ -1145,7 +1146,7 @@ namespace IsengardClient
             return true;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType, bool drankHazy)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1317,6 +1318,7 @@ namespace IsengardClient
             rti.Players = players;
             rti.Mobs = mobs;
             rti.Items = items;
+            rti.DrankHazy = drankHazy;
             onSatisfied(flParams, rti, damage, trapType);
             return true;
         }
@@ -1331,6 +1333,8 @@ StartProcessRoom:
             {
                 return false;
             }
+
+            bool drankHazy = false;
 
             if (nextLineIndex < lineCount)
             {
@@ -1350,6 +1354,15 @@ StartProcessRoom:
                             nextLineIndex = i + 1;
                             goto StartProcessRoom;
                         }
+                        else if (sNextLine == "The hazy potion disintegrates.")
+                        {
+                            drankHazy = true;
+                        }
+                        else if (sNextLine == "You tingle all over" || //part of word of recall / hazy
+                                 sNextLine == "Substance consumed.") //part of drinking hazy
+                        {
+                            //skipped
+                        }
                         else
                         {
                             int trapDamage = Room.ProcessTrapDamage("You lost ", " hit points.", sNextLine);
@@ -1359,7 +1372,7 @@ StartProcessRoom:
                 }
             }
 
-            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType);
+            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType, drankHazy);
         }
 
         public static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)

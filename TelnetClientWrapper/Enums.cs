@@ -328,7 +328,7 @@ namespace IsengardClient
         Initial,
         Move,
         Flee,
-        Hazy,
+        WordOfRecall,
         Death,
     }
 
