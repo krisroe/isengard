@@ -59,7 +59,7 @@ namespace IsengardClient
         /// <summary>
         /// index where the object should be inserted/removed. This is -1 when inserted at the end of the list.
         /// </summary>
-        public int InventoryIndex { get; set; }
+        public List<int> InventoryIndices { get; set; }
         public int GlobalCounter { get; set; }
     }
 

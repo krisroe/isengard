@@ -818,33 +818,82 @@ namespace IsengardClient
 
     public class InventoryEquipmentManagementSequence : AOutputProcessingSequence
     {
-        private const string YOU_GET_A_PREFIX = "You get a ";
-        private const string YOU_DROP_A_PREFIX = "You drop a ";
-        private Action<ItemTypeEnum, bool, int?> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<ItemTypeEnum, bool, int?> onSatisfied)
+        private const string YOU_GET_A_PREFIX = "You get ";
+        private const string YOU_DROP_A_PREFIX = "You drop ";
+        private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
+        private Action<List<ItemTypeEnum>, bool, int?, int> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<List<ItemTypeEnum>, bool, int?, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
         public override void FeedLine(FeedLineParameters flp)
         {
             List<string> Lines = flp.Lines;
+            int iSellGold = 0;
+            int? iTotalGold = null;
+            bool? isAdd = null;
             if (Lines.Count > 0)
             {
-                string firstLine = Lines[0];
-                string objectText = string.Empty;
-                bool isAdd = false;
-                if (firstLine.StartsWith(YOU_GET_A_PREFIX) && firstLine != YOU_GET_A_PREFIX)
+                List<ItemTypeEnum> itemsManaged = null;
+                foreach (string nextLine in Lines)
                 {
-                    isAdd = true;
-                    objectText = firstLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
-                }
-                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != YOU_DROP_A_PREFIX)
-                {
-                    isAdd = false;
-                    objectText = firstLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
-                }
-                if (!string.IsNullOrEmpty(objectText))
-                {
+                    int lineLength = nextLine.Length;
+                    string objectText = string.Empty;
+                    if (nextLine.StartsWith(YOU_GET_A_PREFIX) && nextLine != YOU_GET_A_PREFIX)
+                    {
+                        isAdd = true;
+                        objectText = nextLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
+                    }
+                    else if (nextLine.StartsWith(YOU_DROP_A_PREFIX) && nextLine != YOU_DROP_A_PREFIX)
+                    {
+                        isAdd = false;
+                        objectText = nextLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
+                    }
+                    else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
+                    {
+                        isAdd = false;
+                        if (!nextLine.EndsWith("."))
+                        {
+                            return;
+                        }
+                        int goldForPrefixIndex = nextLine.IndexOf(" gold for ");
+                        int goldLength = goldForPrefixIndex - THE_SHOPKEEP_GIVES_YOU_PREFIX.Length;
+                        if (goldLength <= 0) return;
+                        string sGold = nextLine.Substring(THE_SHOPKEEP_GIVES_YOU_PREFIX.Length, goldLength);
+                        if (!int.TryParse(sGold, out int iNextGold))
+                        {
+                            return;
+                        }
+                        iSellGold += iNextGold;
+                        int objectLen = lineLength - goldForPrefixIndex - " gold for ".Length - 1;
+                        if (objectLen <= 0) return;
+                        objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
+                    }
+                    else if (nextLine == "Thanks for recycling.")
+                    {
+                        continue;
+                    }
+                    else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
+                    {
+                        if (nextLine.Length == "You have ".Length + " gold.".Length)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            string sGold = nextLine.Substring("You have ".Length, nextLine.Length - "You have ".Length - " gold.".Length);
+                            if (!int.TryParse(sGold, out int iFoundGold))
+                            {
+                                return;
+                            }
+                            iTotalGold = iFoundGold;
+                        }
+                        continue;
+                    }
+                    else if (!string.IsNullOrEmpty(nextLine))
+                    {
+                        return;
+                    }
                     ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, false) as ItemEntity;
                     if (ie != null)
                     {
@@ -858,39 +907,18 @@ namespace IsengardClient
                         }
                         else
                         {
-                            int? gold = null;
-                            for (int i = 1; i < Lines.Count; i++)
+                            if (itemsManaged == null)
                             {
-                                string sNextLine = Lines[i];
-                                if (sNextLine == "Thanks for recycling.")
-                                {
-                                    //skip
-                                }
-                                else if (sNextLine.StartsWith("You have ") && sNextLine.EndsWith(" gold."))
-                                {
-                                    if (sNextLine.Length == "You have ".Length + " gold.".Length)
-                                    {
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        string sGold = sNextLine.Substring("You have ".Length, sNextLine.Length - "You have ".Length - " gold.".Length);
-                                        if (!int.TryParse(sGold, out int iFoundGold))
-                                        {
-                                            return;
-                                        }
-                                        gold = iFoundGold;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(sNextLine))
-                                {
-                                    return;
-                                }
+                                itemsManaged = new List<ItemTypeEnum>();
                             }
-                            _onSatisfied(ie.ItemType.Value, isAdd, gold);
-                            flp.FinishedProcessing = true;
+                            itemsManaged.Add(ie.ItemType.Value);
                         }
                     }
+                }
+                if (itemsManaged != null)
+                {
+                    _onSatisfied(itemsManaged, isAdd.Value, iTotalGold, iSellGold);
+                    flp.FinishedProcessing = true;
                 }
             }
         }

@@ -2121,48 +2121,56 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(ItemTypeEnum item, bool isAdd, int? gold)
+        private void OnInventoryManagement(List<ItemTypeEnum> items, bool isAdd, int? gold, int sellGold)
         {
             InventoryEquipmentChange iec = new InventoryEquipmentChange();
             iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
             iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
-            iec.InventoryItems = new List<ItemTypeEnum>() { item };
+            iec.InventoryItems = new List<ItemTypeEnum>(items);
+            iec.InventoryIndices = new List<int>();
             lock (_inventoryEquipment.InventoryEquipmentLock)
             {
-                int foundIndex = _inventoryEquipment.InventoryItems.LastIndexOf(item);
-                int changeIndex = -1;
-                bool effectChange = false;
-                if (isAdd)
+                foreach (ItemTypeEnum nextItem in items)
                 {
-                    changeIndex = _inventoryEquipment.FindNewItemInsertionPoint(item);
-                    effectChange = true;
-                    if (changeIndex == -1)
+                    int foundIndex = _inventoryEquipment.InventoryItems.LastIndexOf(nextItem);
+                    int changeIndex;
+                    bool effectChange = false;
+                    if (isAdd)
                     {
-                        _inventoryEquipment.InventoryItems.Add(item);
+                        changeIndex = _inventoryEquipment.FindNewItemInsertionPoint(nextItem);
+                        effectChange = true;
+                        if (changeIndex == -1)
+                        {
+                            _inventoryEquipment.InventoryItems.Add(nextItem);
+                        }
+                        else
+                        {
+                            _inventoryEquipment.InventoryItems.Insert(changeIndex, nextItem);
+                        }
                     }
                     else
                     {
-                        _inventoryEquipment.InventoryItems.Insert(changeIndex, item);
+                        changeIndex = foundIndex;
+                        if (foundIndex >= 0)
+                        {
+                            _inventoryEquipment.InventoryItems.RemoveAt(foundIndex);
+                            effectChange = true;
+                        }
                     }
-                }
-                else
-                {
-                    changeIndex = foundIndex;
-                    if (foundIndex >= 0)
+                    if (effectChange)
                     {
-                        _inventoryEquipment.InventoryItems.RemoveAt(foundIndex);
-                        effectChange = true;
+                        iec.InventoryIndices.Add(changeIndex);
+                        _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                     }
-                }
-                if (effectChange)
-                {
-                    iec.InventoryIndex = changeIndex;
-                    _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                 }
             }
             if (gold.HasValue)
             {
                 _gold = gold.Value;
+            }
+            else if (sellGold > 0)
+            {
+                _gold += sellGold;
             }
         }
 
@@ -5379,18 +5387,24 @@ BeforeHazy:
                             }
                             else if (iect == InventoryEquipmentChangeType.RemoveItemFromInventory)
                             {
-                                lstInventory.Items.RemoveAt(nextInvEqChange.InventoryIndex);
+                                for (int j = 0; j < nextInvEqChange.InventoryIndices.Count; j++)
+                                {
+                                    lstInventory.Items.RemoveAt(j);
+                                }
                             }
                             else if (iect == InventoryEquipmentChangeType.AddItemToInventory)
                             {
-                                ItemInList it = new ItemInList(nextInvEqChange.InventoryItems[0]);
-                                if (nextInvEqChange.InventoryIndex == -1)
+                                for (int j = 0; j < nextInvEqChange.InventoryIndices.Count; j++)
                                 {
-                                    lstInventory.Items.Add(it);
-                                }
-                                else
-                                {
-                                    lstInventory.Items.Insert(nextInvEqChange.InventoryIndex, it);
+                                    ItemInList it = new ItemInList(nextInvEqChange.InventoryItems[j]);
+                                    if (nextInvEqChange.InventoryIndices[j] == -1)
+                                    {
+                                        lstInventory.Items.Add(it);
+                                    }
+                                    else
+                                    {
+                                        lstInventory.Items.Insert(nextInvEqChange.InventoryIndices[j], it);
+                                    }
                                 }
                             }
                             iNewCounter = nextInvEqChange.GlobalCounter;

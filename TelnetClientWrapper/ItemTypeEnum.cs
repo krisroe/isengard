@@ -682,6 +682,10 @@
         //CSRTODO: plural?
         TattooOfASnake,
 
+        [SingularName("tattoo of a wench")]
+        //CSRTODO: plural?
+        TattooOfAWench,
+
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
         TaupeScroll,
