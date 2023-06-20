@@ -1897,7 +1897,7 @@ namespace IsengardClient
                             {
                                 iInsertionPoint = FindNewMobInsertionPoint(nextMob);
                             }
-                            bool insertAtEnd = iInsertionPoint == _currentRoomMobs.Count;
+                            bool insertAtEnd = iInsertionPoint == -1;
                             rc.Index = insertAtEnd ? -1 : iInsertionPoint;
                             for (int i = 0; i < next.MobCount; i++)
                             {
