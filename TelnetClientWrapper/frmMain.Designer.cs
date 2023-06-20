@@ -147,9 +147,7 @@
             this.tabHelp = new System.Windows.Forms.TabPage();
             this.grpHelp = new System.Windows.Forms.GroupBox();
             this.flpHelp = new System.Windows.Forms.FlowLayoutPanel();
-            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tmr = new System.Windows.Forms.Timer(this.components);
-            this.scMain = new System.Windows.Forms.SplitContainer();
+            this.pnlOverallLeft = new System.Windows.Forms.Panel();
             this.pnlTabControl = new System.Windows.Forms.Panel();
             this.tsTopMenu = new System.Windows.Forms.ToolStrip();
             this.tsbInformation = new System.Windows.Forms.ToolStripButton();
@@ -162,6 +160,8 @@
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
             this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
+            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tmr = new System.Windows.Forms.Timer(this.components);
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
             this.rtbConsole = new System.Windows.Forms.RichTextBox();
@@ -187,10 +187,7 @@
             this.grpEmotes.SuspendLayout();
             this.tabHelp.SuspendLayout();
             this.grpHelp.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.scMain)).BeginInit();
-            this.scMain.Panel1.SuspendLayout();
-            this.scMain.Panel2.SuspendLayout();
-            this.scMain.SuspendLayout();
+            this.pnlOverallLeft.SuspendLayout();
             this.pnlTabControl.SuspendLayout();
             this.tsTopMenu.SuspendLayout();
             this.grpConsole.SuspendLayout();
@@ -313,7 +310,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(644, 26);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(815, 26);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -639,7 +636,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1270, 1015);
+            this.tcMain.Size = new System.Drawing.Size(1263, 1015);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -650,7 +647,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1262, 986);
+            this.tabMain.Size = new System.Drawing.Size(1255, 986);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -1317,7 +1314,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(1262, 986);
+            this.tabAncillary.Size = new System.Drawing.Size(1348, 986);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1332,7 +1329,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1256, 982);
+            this.pnlAncillary.Size = new System.Drawing.Size(1342, 982);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1341,7 +1338,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 25);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1262, 986);
+            this.tabEmotes.Size = new System.Drawing.Size(1348, 986);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1360,7 +1357,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1262, 986);
+            this.pnlEmotes.Size = new System.Drawing.Size(1348, 986);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1443,7 +1440,7 @@
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpEmotes.Size = new System.Drawing.Size(1262, 1042);
+            this.grpEmotes.Size = new System.Drawing.Size(1348, 1042);
             this.grpEmotes.TabIndex = 10;
             this.grpEmotes.TabStop = false;
             this.grpEmotes.Text = "Emotes";
@@ -1454,7 +1451,7 @@
             this.flpEmotes.Location = new System.Drawing.Point(3, 17);
             this.flpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.flpEmotes.Name = "flpEmotes";
-            this.flpEmotes.Size = new System.Drawing.Size(1256, 1023);
+            this.flpEmotes.Size = new System.Drawing.Size(1342, 1023);
             this.flpEmotes.TabIndex = 0;
             // 
             // tabHelp
@@ -1463,7 +1460,7 @@
             this.tabHelp.Location = new System.Drawing.Point(4, 25);
             this.tabHelp.Margin = new System.Windows.Forms.Padding(4);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1262, 986);
+            this.tabHelp.Size = new System.Drawing.Size(1348, 986);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1476,7 +1473,7 @@
             this.grpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.grpHelp.Name = "grpHelp";
             this.grpHelp.Padding = new System.Windows.Forms.Padding(4);
-            this.grpHelp.Size = new System.Drawing.Size(1262, 986);
+            this.grpHelp.Size = new System.Drawing.Size(1348, 986);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1487,41 +1484,19 @@
             this.flpHelp.Location = new System.Drawing.Point(4, 19);
             this.flpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1254, 963);
+            this.flpHelp.Size = new System.Drawing.Size(1340, 963);
             this.flpHelp.TabIndex = 0;
             // 
-            // ctxRoomExits
+            // pnlOverallLeft
             // 
-            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxRoomExits.Name = "ctxRoomExits";
-            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
-            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
-            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
-            // 
-            // tmr
-            // 
-            this.tmr.Enabled = true;
-            this.tmr.Interval = 20;
-            this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
-            // 
-            // scMain
-            // 
-            this.scMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scMain.Location = new System.Drawing.Point(0, 0);
-            this.scMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.scMain.Name = "scMain";
-            // 
-            // scMain.Panel1
-            // 
-            this.scMain.Panel1.Controls.Add(this.pnlTabControl);
-            this.scMain.Panel1.Controls.Add(this.tsTopMenu);
-            // 
-            // scMain.Panel2
-            // 
-            this.scMain.Panel2.Controls.Add(this.grpConsole);
-            this.scMain.Size = new System.Drawing.Size(1924, 1040);
-            this.scMain.SplitterDistance = 1270;
-            this.scMain.TabIndex = 81;
+            this.pnlOverallLeft.Controls.Add(this.pnlTabControl);
+            this.pnlOverallLeft.Controls.Add(this.tsTopMenu);
+            this.pnlOverallLeft.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlOverallLeft.Location = new System.Drawing.Point(0, 0);
+            this.pnlOverallLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.pnlOverallLeft.Name = "pnlOverallLeft";
+            this.pnlOverallLeft.Size = new System.Drawing.Size(1263, 1040);
+            this.pnlOverallLeft.TabIndex = 0;
             // 
             // pnlTabControl
             // 
@@ -1530,7 +1505,7 @@
             this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1270, 1015);
+            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1015);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1549,7 +1524,7 @@
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(1270, 25);
+            this.tsTopMenu.Size = new System.Drawing.Size(1263, 25);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1660,16 +1635,30 @@
             this.tsbQuit.Text = "Quit";
             this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
+            // ctxRoomExits
+            // 
+            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxRoomExits.Name = "ctxRoomExits";
+            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
+            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
+            // 
+            // tmr
+            // 
+            this.tmr.Enabled = true;
+            this.tmr.Interval = 20;
+            this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
+            // 
             // grpConsole
             // 
             this.grpConsole.Controls.Add(this.pnlConsoleHolder);
             this.grpConsole.Controls.Add(this.pnlCommand);
             this.grpConsole.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpConsole.Location = new System.Drawing.Point(0, 0);
+            this.grpConsole.Location = new System.Drawing.Point(1263, 0);
             this.grpConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpConsole.Size = new System.Drawing.Size(650, 1040);
+            this.grpConsole.Size = new System.Drawing.Size(821, 1040);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1681,7 +1670,7 @@
             this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 17);
             this.pnlConsoleHolder.Margin = new System.Windows.Forms.Padding(4);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(644, 959);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(815, 959);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1696,7 +1685,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(644, 959);
+            this.rtbConsole.Size = new System.Drawing.Size(815, 959);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1722,15 +1711,16 @@
             this.pnlCommand.Location = new System.Drawing.Point(3, 976);
             this.pnlCommand.Margin = new System.Windows.Forms.Padding(4);
             this.pnlCommand.Name = "pnlCommand";
-            this.pnlCommand.Size = new System.Drawing.Size(644, 62);
+            this.pnlCommand.Size = new System.Drawing.Size(815, 62);
             this.pnlCommand.TabIndex = 30;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1924, 1040);
-            this.Controls.Add(this.scMain);
+            this.ClientSize = new System.Drawing.Size(2084, 1040);
+            this.Controls.Add(this.grpConsole);
+            this.Controls.Add(this.pnlOverallLeft);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimizeBox = false;
             this.Name = "frmMain";
@@ -1762,11 +1752,8 @@
             this.grpEmotes.ResumeLayout(false);
             this.tabHelp.ResumeLayout(false);
             this.grpHelp.ResumeLayout(false);
-            this.scMain.Panel1.ResumeLayout(false);
-            this.scMain.Panel1.PerformLayout();
-            this.scMain.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.scMain)).EndInit();
-            this.scMain.ResumeLayout(false);
+            this.pnlOverallLeft.ResumeLayout(false);
+            this.pnlOverallLeft.PerformLayout();
             this.pnlTabControl.ResumeLayout(false);
             this.tsTopMenu.ResumeLayout(false);
             this.tsTopMenu.PerformLayout();
@@ -1822,6 +1809,7 @@
         private System.Windows.Forms.Button btnSoutheast;
         private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.TabPage tabMain;
+        private System.Windows.Forms.Panel pnlOverallLeft;
         private System.Windows.Forms.Panel pnlMain;
         private System.Windows.Forms.TabPage tabAncillary;
         private System.Windows.Forms.Panel pnlAncillary;
@@ -1846,7 +1834,6 @@
         private System.Windows.Forms.TextBox txtCommandText;
         private System.Windows.Forms.Label lblCommandText;
         private System.Windows.Forms.Panel pnlEmotes;
-        private System.Windows.Forms.SplitContainer scMain;
         private System.Windows.Forms.GroupBox grpConsole;
         private System.Windows.Forms.RichTextBox rtbConsole;
         private System.Windows.Forms.Label lblEmoteTarget;
