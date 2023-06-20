@@ -562,13 +562,13 @@ namespace IsengardClient
                     return;
                 }
 
-                List<string> skillsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SKILLS_PREFIX, true, out iNextLineIndex);
+                List<string> skillsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SKILLS_PREFIX, true, out iNextLineIndex, SPELLS_PREFIX);
                 if (skillsRaw == null)
                 {
                     return;
                 }
 
-                List<string> spellsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SPELLS_PREFIX, false, out iNextLineIndex);
+                List<string> spellsRaw = StringProcessing.GetList(Lines, iNextLineIndex, SPELLS_PREFIX, false, out iNextLineIndex, null);
                 if (spellsRaw == null)
                 {
                     return;
@@ -651,16 +651,26 @@ namespace IsengardClient
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0 && !string.IsNullOrEmpty(Lines[0]) && Lines[0].StartsWith(YOU_HAVE_PREFIX))
             {
-                List<string> items = StringProcessing.GetList(Lines, 0, YOU_HAVE_PREFIX, true, out _);
-                if (items != null)
+                string sFullContent = StringProcessing.GetListAsString(Lines, 0, YOU_HAVE_PREFIX, true, out _, null);
+                int totalInventoryWeightIndex = sFullContent.IndexOf("Inventory weight is ");
+                if (totalInventoryWeightIndex > 0)
                 {
-                    List<ItemEntity> itemList = new List<ItemEntity>();
-                    if (items.Count > 1 || items[0] != "nothing")
+                    sFullContent = sFullContent.Substring(0, totalInventoryWeightIndex).Trim();
+                    if (sFullContent.EndsWith(".") && sFullContent != ".")
                     {
-                        RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        sFullContent = sFullContent.Substring(0, sFullContent.Length - 1);
+                        List<string> items = StringProcessing.ParseList(sFullContent);
+                        if (items != null)
+                        {
+                            List<ItemEntity> itemList = new List<ItemEntity>();
+                            if (items.Count > 1 || items[0] != "nothing")
+                            {
+                                RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                            }
+                            _onSatisfied(flParams, itemList);
+                            flParams.FinishedProcessing = true;
+                        }
                     }
-                    _onSatisfied(flParams, itemList);
-                    flParams.FinishedProcessing = true;
                 }
             }
         }
@@ -692,6 +702,7 @@ namespace IsengardClient
     public class SpellsSequence : AOutputProcessingSequence
     {
         private const string SPELLS_KNOWN_PREFIX = "Spells known: ";
+        private const string SPELLS_CAST_PREFIX = "Spells cast: ";
         private Action<FeedLineParameters, List<string>> _onSatisfied;
         public SpellsSequence(Action<FeedLineParameters, List<string>> onSatisfied)
         {
@@ -708,7 +719,7 @@ namespace IsengardClient
                 {
                     if (sNextLine.StartsWith(SPELLS_KNOWN_PREFIX))
                     {
-                        string sList = StringProcessing.GetListAsString(Lines, i, SPELLS_KNOWN_PREFIX, true, out _);
+                        string sList = StringProcessing.GetListAsString(Lines, i, SPELLS_KNOWN_PREFIX, true, out _, SPELLS_CAST_PREFIX);
                         if (string.IsNullOrEmpty(sList)) break;
                         List<string> list = StringProcessing.ParseList(sList);
                         if (list.Count == 1 && list[0] == "None")
@@ -863,6 +874,7 @@ namespace IsengardClient
 
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
+        private const string YOU_SEE_PREFIX = "You see ";
         private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> _onSatisfied;
         public RoomTransitionSequence(Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied)
         {
@@ -953,21 +965,21 @@ namespace IsengardClient
 
             //get the obvious exits. If long or short descriptions are on, lines may be skipped.
             tempIndex++;
-            exitsString = StringProcessing.GetListAsString(Lines, tempIndex, "Obvious exits: ", false, out tempIndex);
+            exitsString = StringProcessing.GetListAsString(Lines, tempIndex, "Obvious exits: ", false, out tempIndex, YOU_SEE_PREFIX);
             if (exitsString == null)
             {
                 return false;
             }
 
-            room1List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
+            room1List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex, YOU_SEE_PREFIX);
             room2List = null;
             room3List = null;
             if (room1List != null)
             {
-                room2List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
+                room2List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex, YOU_SEE_PREFIX);
                 if (room2List != null)
                 {
-                    room3List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex);
+                    room3List = StringProcessing.GetListAsString(Lines, tempIndex, "You see ", true, out tempIndex, null);
                 }
             }
             nextLineIndex = tempIndex;
@@ -1552,7 +1564,7 @@ StartProcessRoom:
                     if (iFoundCarrying > 0)
                     {
                         string sPrefix = nextLine.Substring(0, iFoundCarrying + WAS_CARRYING_MID.Length);
-                        string itemList = StringProcessing.GetListAsString(Lines, i, sPrefix, true, out i);
+                        string itemList = StringProcessing.GetListAsString(Lines, i, sPrefix, true, out i, null);
                         skipToNextLine = false;
                         List<string> itemsString = StringProcessing.ParseList(itemList);
                         List<ItemEntity> oItems = new List<ItemEntity>();
@@ -2545,13 +2557,13 @@ StartProcessRoom:
         /// <param name="requireExactStartsWith">if true it will skip lines that don't match the start index.</param>
         /// <param name="nextLineIndex">returns the line after the final line containing the list.</param>
         /// <returns></returns>
-        public static string GetListAsString(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
+        public static string GetListAsString(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex, string stopAtPrefix)
         {
             nextLineIndex = lineIndex;
             bool foundStartsWith = false;
             bool finished = false;
             StringBuilder sb = null;
-            string sNextLine;
+            string sNextLine = null;
             while (!foundStartsWith)
             {
                 if (lineIndex >= inputs.Count) //reached the end of the list
@@ -2592,41 +2604,48 @@ StartProcessRoom:
             }
             if (!finished)
             {
+                bool stopProcessing;
+                string previousLine = null;
                 while (true)
                 {
                     lineIndex++;
                     if (lineIndex >= inputs.Count)
                     {
-                        return null;
+                        stopProcessing = true;
                     }
-                    sNextLine = inputs[lineIndex];
-                    if (sNextLine != null)
+                    else
                     {
-                        int lineLen = sNextLine.Length;
-                        int iPeriodIndex = sNextLine.IndexOf('.');
-                        if (iPeriodIndex == lineLen - 1) //period is the last line in the string
-                        {
-                            sb.Append(sNextLine.Substring(0, lineLen - 1));
-                            nextLineIndex = lineIndex + 1;
-                            break;
-                        }
-                        else if (iPeriodIndex == 0)
-                        {
-                            break;
-                        }
-                        else if (iPeriodIndex > 0)
-                        {
-                            sb.AppendLine(sNextLine.Substring(0, iPeriodIndex));
-                            break;
-                        }
-                        else
-                        {
-                            sb.AppendLine(sNextLine);
-                        }
+                        sNextLine = inputs[lineIndex];
+                        stopProcessing = string.IsNullOrEmpty(sNextLine) || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
                     }
+                    
+                    if (stopProcessing)
+                    {
+                        nextLineIndex = lineIndex;
+                        previousLine = previousLine.Trim();
+                        if (!previousLine.EndsWith("."))
+                        {
+                            return null;
+                        }
+                        else if (previousLine != ".")
+                        {
+                            sb.AppendLine(previousLine.Substring(0, previousLine.Length - 1));
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        sb.AppendLine(previousLine);
+                    }
+                    previousLine = sNextLine;
                 }
             }
-            return sb.ToString().Replace(Environment.NewLine, " ");
+            string ret = sb.ToString().Replace(Environment.NewLine, " ");
+            while (ret.Contains("  "))
+            {
+                ret = ret.Replace("  ", " ");
+            }
+            return ret;
         }
 
         public static List<string> ParseList(string sFullContent)
@@ -2663,9 +2682,9 @@ StartProcessRoom:
             return ret;
         }
 
-        public static List<string> GetList(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex)
+        public static List<string> GetList(List<string> inputs, int lineIndex, string startsWith, bool requireExactStartsWith, out int nextLineIndex, string stopAtPrefix)
         {
-            string sFullContent = GetListAsString(inputs, lineIndex, startsWith, requireExactStartsWith, out nextLineIndex);
+            string sFullContent = GetListAsString(inputs, lineIndex, startsWith, requireExactStartsWith, out nextLineIndex, stopAtPrefix);
             return ParseList(sFullContent);
         }
     }

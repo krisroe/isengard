@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 namespace IsengardClient
 {
     internal enum FloatRequirement
@@ -344,6 +344,20 @@ namespace IsengardClient
         public int MobCount { get; set; }
         public MobTypeEnum Mob { get; set; }
         public int WaitSeconds { get; set; }
+
+        public static bool ContainsType(List<InformationalMessages> messages, InformationalMessageType type)
+        {
+            bool ret = false;
+            foreach (var nextMessage in messages)
+            {
+                if (nextMessage.MessageType == type)
+                {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
+        }
     }
 
     public enum InformationalMessageType

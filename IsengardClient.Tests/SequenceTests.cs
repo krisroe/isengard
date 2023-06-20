@@ -15,13 +15,13 @@ namespace IsengardClient.Tests
 
             list.Clear();
             list.Add("Stuff: a.");
-            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 1);
             Assert.IsTrue(output[0] == "a");
 
             list.Clear();
             list.Add("Stuff: a,b.");
-            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
             Assert.IsTrue(output[1] == "b");
@@ -29,7 +29,7 @@ namespace IsengardClient.Tests
             list.Clear();
             list.Add("Stuff: a,");
             list.Add("b.");
-            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
             Assert.IsTrue(output[1] == "b");
@@ -37,7 +37,7 @@ namespace IsengardClient.Tests
             list.Clear();
             list.Add("Stuff: a,");
             list.Add("Mr. Wartnose.");
-            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex);
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
             Assert.IsTrue(output[1] == "Mr. Wartnose");
@@ -69,6 +69,114 @@ namespace IsengardClient.Tests
             flp.Lines = new List<string>() { "A hobbit just arrived." };
             seq.FeedLine(flp);
             Assert.IsTrue(flp.Lines.Count == 1);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Scranlin barely nicks you for 1 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Scranlin barely nicks you for 2 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Scranlin scratches you for 3 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Scranlin scratches you for 4 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Scranlin scratches you for 5 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit bruises you for 6 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit hurts you for 11 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit wounds you for 13 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit smites you for 16 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit maims you for 22 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit pulverizes you for 26 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit devestates you for 26 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit missed you." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The hobbit casts a rumble spell on you for 6 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(InformationalMessages.ContainsType(flp.InfoMessages, InformationalMessageType.EnemyAttacksYou));
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Please wait 2 seconds." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].WaitSeconds == 2);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Please wait 12 seconds." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].WaitSeconds == 12);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Please wait 1 more second." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].WaitSeconds == 1);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Please wait 1:05 minutes." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].WaitSeconds == 65);
         }
 
         [TestMethod]
@@ -360,40 +468,6 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
-        public void TestWaitXSecondsSequence()
-        {
-            int waited = -1;
-            Action<int, FeedLineParameters> waitedAction = (seconds, flp) =>
-            {
-                waited = seconds;
-            };
-
-            PleaseWaitSequence plxss = new PleaseWaitSequence(waitedAction);
-            FeedLineParameters oFLP = new FeedLineParameters(null);
-            oFLP.BackgroundCommandType = BackgroundCommandType.Quit;
-
-            waited = -1;
-            oFLP.Lines = new List<string>() { "Please wait 2 seconds." };
-            plxss.FeedLine(oFLP);
-            Assert.IsTrue(waited == 2);
-
-            waited = -1;
-            oFLP.Lines = new List<string>() { "Please wait 12 seconds." };
-            plxss.FeedLine(oFLP);
-            Assert.IsTrue(waited == 12);
-
-            waited = -1;
-            oFLP.Lines = new List<string>() { "Please wait 1 more second." };
-            plxss.FeedLine(oFLP);
-            Assert.IsTrue(waited == 1);
-
-            waited = -1;
-            oFLP.Lines = new List<string>() { "Please wait 1:05 minutes." };
-            plxss.FeedLine(oFLP);
-            Assert.IsTrue(waited == 65);
-        }
-
-        [TestMethod]
         public void TestAttackSequence()
         {
             bool success = false;
@@ -593,89 +667,6 @@ namespace IsengardClient.Tests
             Assert.IsTrue(exits != null);
             Assert.IsTrue(exits.Contains("test"));
             Assert.IsTrue(exits.Contains("test2"));
-        }
-
-        [TestMethod]
-        public void TestEntityAttacksYouSequence()
-        {
-            bool? satisfied = null;
-            Action<FeedLineParameters> a = (flParams) =>
-            {
-                satisfied = true;
-            };
-
-            EntityAttacksYouSequence seq = new EntityAttacksYouSequence(a);
-            FeedLineParameters flp = new FeedLineParameters(null);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin barely nicks you for 1 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin barely nicks you for 2 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin scratches you for 3 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin scratches you for 4 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "Scranlin scratches you for 5 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit bruises you for 6 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit hurts you for 11 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit wounds you for 13 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit smites you for 16 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit maims you for 22 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit pulverizes you for 26 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit devestates you for 26 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit missed you." };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
-
-            satisfied = null;
-            flp.Lines = new List<string>() { "The hobbit casts a rumble spell on you for 6 damage!" };
-            seq.FeedLine(flp);
-            Assert.IsTrue(satisfied);
         }
 
         [TestMethod]
