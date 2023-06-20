@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Forms;
+
 namespace IsengardClient
 {
     internal class Room
@@ -96,5 +98,134 @@ namespace IsengardClient
         public Dictionary<string, Exit> MappedExits { get; set; }
         public List<Exit> OtherExits = new List<Exit>();
         public int GlobalCounter { get; set; }
+    }
+
+    internal class CurrentRoomInfo
+    {
+        public Room CurrentRoom { get; set; }
+        public Room CurrentRoomUI { get; set; }
+        public List<RoomChange> CurrentRoomChanges { get; set; }
+        public List<MobTypeEnum> CurrentRoomMobs { get; set; }
+        public object RoomChangeLock { get; set; }
+        public int RoomChangeCounter { get; set; }
+        public int RoomChangeCounterUI { get; set; }
+        public List<string> CurrentObviousExits { get; set; }
+        public TreeNode tnObviousMobs { get; set; }
+        public bool ObviousMobsTNExpanded { get; set; }
+        public TreeNode tnObviousExits { get; set; }
+        public bool ObviousExitsTNExpanded { get; set; }
+        public TreeNode tnOtherExits { get; set; }
+        public bool OtherExitsTNExpanded { get; set; }
+        public TreeNode tnPermanentMobs { get; set; }
+        public bool PermMobsTNExpanded { get; set; }
+
+        public CurrentRoomInfo()
+        {
+            CurrentRoomChanges = new List<RoomChange>();
+            CurrentRoomMobs = new List<MobTypeEnum>();
+            RoomChangeLock = new object();
+            RoomChangeCounter = -1;
+            RoomChangeCounterUI = -1;
+            CurrentObviousExits = new List<string>();
+            ObviousExitsTNExpanded = true;
+            ObviousMobsTNExpanded = true;
+            OtherExitsTNExpanded = true;
+            PermMobsTNExpanded = true;
+
+            tnObviousMobs = new TreeNode("Obvious Mobs");
+            tnObviousMobs.Name = "tnObviousMobs";
+            tnObviousMobs.Text = "Obvious Mobs";
+            tnObviousExits = new TreeNode("Obvious Exits");
+            tnObviousExits.Name = "tnObviousExits";
+            tnObviousExits.Text = "Obvious Exits";
+            tnOtherExits = new TreeNode("Other Exits");
+            tnOtherExits.Name = "tnOtherExits";
+            tnOtherExits.Text = "Other Exits";
+            tnPermanentMobs = new TreeNode("Permanent Mobs");
+            tnPermanentMobs.Name = "tnPermanentMobs";
+            tnPermanentMobs.Text = "Permanent Mobs";
+        }
+
+        public bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)
+        {
+            bool ret = false;
+            if (topLevelTreeNode == tnObviousMobs)
+            {
+                ret = ObviousMobsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnObviousExits)
+            {
+                ret = ObviousExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnOtherExits)
+            {
+                ret = OtherExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnPermanentMobs)
+            {
+                ret = PermMobsTNExpanded;
+            }
+            return ret;
+        }
+
+        public int GetTopLevelTreeNodeLogicalIndex(TreeNode topLevelTreeNode)
+        {
+            int i = 0;
+            if (topLevelTreeNode == tnObviousMobs)
+            {
+                i = 1;
+            }
+            else if (topLevelTreeNode == tnObviousExits)
+            {
+                i = 2;
+            }
+            else if (topLevelTreeNode == tnOtherExits)
+            {
+                i = 3;
+            }
+            else if (topLevelTreeNode == tnPermanentMobs)
+            {
+                i = 4;
+            }
+            return i;
+        }
+
+        public int FindNewMobInsertionPoint(MobTypeEnum newMob)
+        {
+            string sSingular = MobEntity.MobToSingularMapping[newMob];
+            int i = 0;
+            int iFoundIndex = -1;
+            foreach (MobTypeEnum nextMob in CurrentRoomMobs)
+            {
+                string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
+                if (sSingular.CompareTo(sNextSingular) < 0)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        public void SetExpandFlag(TreeNode node, bool expanded)
+        {
+            if (node == tnObviousMobs)
+            {
+                ObviousMobsTNExpanded = expanded;
+            }
+            else if (node == tnObviousExits)
+            {
+                ObviousExitsTNExpanded = expanded;
+            }
+            else if (node == tnOtherExits)
+            {
+                OtherExitsTNExpanded = expanded;
+            }
+            else if (node == tnPermanentMobs)
+            {
+                PermMobsTNExpanded = expanded;
+            }
+        }
     }
 }

@@ -115,23 +115,8 @@ namespace IsengardClient
 
         private IsengardMap _gameMap;
 
-        private Room m_oCurrentRoom;
-        private Room m_oCurrentRoomUI;
-        private List<RoomChange> _currentRoomChanges = new List<RoomChange>();
-        private List<MobTypeEnum> _currentRoomMobs = new List<MobTypeEnum>();
-        private object _roomChangeLock = new object();
-        private int _roomChangeCounter = -1;
-        private int _roomChangeCounterUI = -1;
-        private List<string> _currentObviousExits;
+        private CurrentRoomInfo _currentRoomInfo = new CurrentRoomInfo();
         private List<string> _foundSearchedExits;
-        private TreeNode _tnObviousMobs;
-        private bool _obviousMobsTNExpanded = true;
-        private TreeNode _tnObviousExits;
-        private bool _obviousExitsTNExpanded = true;
-        private TreeNode _tnOtherExits;
-        private bool _otherExitsTNExpanded = true;
-        private TreeNode _tnPermanentMobs;
-        private bool _permMobsTNExpanded = true;
         private bool _programmaticUI = false;
 
         private bool _setTickRoom = false;
@@ -205,10 +190,6 @@ namespace IsengardClient
             InitializeComponent();
 
             this.MinimumSize = this.Size;
-            _tnObviousMobs = treeCurrentRoom.Nodes["tnObviousMobs"];
-            _tnObviousExits = treeCurrentRoom.Nodes["tnObviousExits"];
-            _tnOtherExits = treeCurrentRoom.Nodes["tnOtherExits"];
-            _tnPermanentMobs = treeCurrentRoom.Nodes["tnPermanentMobs"];
 
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
@@ -1084,7 +1065,7 @@ namespace IsengardClient
             if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None))
             {
                 _initializationSteps |= InitializationStep.Finalization;
-                Room r = m_oCurrentRoom;
+                Room r = _currentRoomInfo.CurrentRoom;
                 _setTickRoom = r != null && r.HealingRoom.HasValue;
             }
             else
@@ -1125,7 +1106,7 @@ namespace IsengardClient
                 fromBackgroundHazy = bctValue == BackgroundCommandType.DrinkHazy;
             }
             
-            Room previousRoom = m_oCurrentRoom;
+            Room previousRoom = _currentRoomInfo.CurrentRoom;
 
             //first try is always to look for an unambiguous name across the whole map
             Room newRoom = GetCurrentRoomIfUnambiguous(sRoomName);
@@ -1290,17 +1271,17 @@ namespace IsengardClient
                 newRoom = previousRoom;
             }
 
-            lock (_roomChangeLock) //update the room change list with the next room
+            lock (_currentRoomInfo.RoomChangeLock) //update the room change list with the next room
             {
-                _currentObviousExits = obviousExits;
+                _currentRoomInfo.CurrentObviousExits.Clear();
+                _currentRoomInfo.CurrentObviousExits.AddRange(obviousExits);
 
-                _currentRoomChanges.Clear();
+                _currentRoomInfo.CurrentRoomChanges.Clear();
                 RoomChange rc = new RoomChange();
                 rc.Room = newRoom;
                 rc.ChangeType = RoomChangeType.NewRoom;
                 rc.Exits = new List<string>(obviousExits);
-                _roomChangeCounter++;
-                rc.GlobalCounter = _roomChangeCounter;
+                rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
                 if (newRoom != null)
                 {
                     rc.MappedExits = new Dictionary<string, Exit>();
@@ -1352,7 +1333,8 @@ namespace IsengardClient
                             }
                         }
                     }
-                    _currentRoomMobs.Clear();
+                    List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                    currentRoomMobs.Clear();
                     List<MobEntity> mobs = roomTransitionInfo.Mobs;
                     if (mobs != null)
                     {
@@ -1364,14 +1346,14 @@ namespace IsengardClient
                                 MobTypeEnum mobTypeValue = mobType.Value;
                                 for (int i = 0; i < nextMob.Count; i++)
                                 {
-                                    _currentRoomMobs.Add(mobTypeValue);
+                                    currentRoomMobs.Add(mobTypeValue);
                                 }
                             }
                         }
                     }
-                    rc.Mobs = new List<MobTypeEnum>(_currentRoomMobs);
-                    _currentRoomChanges.Add(rc);
-                    m_oCurrentRoom = newRoom;
+                    rc.Mobs = new List<MobTypeEnum>(currentRoomMobs);
+                    _currentRoomInfo.CurrentRoomChanges.Add(rc);
+                    _currentRoomInfo.CurrentRoom = newRoom;
                 }
             }
         }
@@ -1765,74 +1747,74 @@ namespace IsengardClient
                         finishedProcessing = true;
                         break;
                     case InformationalMessageType.BullroarerInMithlond:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
                         }
                         break;
                     case InformationalMessageType.BullroarerInNindamos:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
                         }
                         break;
                     case InformationalMessageType.BullroarerReadyForBoarding:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
                             bool removeMessage = true;
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
                                         removeMessage = false;
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
                                         removeMessage = false;
                                         break;
                                 }
@@ -1851,36 +1833,36 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftBree:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
                                         break;
                                 }
                             }
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftMithlond:
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            Room currentRoom = m_oCurrentRoom;
+                            Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressMithlond:
-                                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
+                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
                                         break;
                                 }
                             }
@@ -1896,11 +1878,12 @@ namespace IsengardClient
                         rc = new RoomChange();
                         rc.ChangeType = RoomChangeType.AddMob;
                         rc.Mobs = new List<MobTypeEnum>();
-                        rc.GlobalCounter = _roomChangeCounter;
+                        rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
                         MobTypeEnum nextMob = next.Mob;
-                        lock (_roomChangeLock)
+                        List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            int index = _currentRoomMobs.LastIndexOf(nextMob);
+                            int index = currentRoomMobs.LastIndexOf(nextMob);
                             int iInsertionPoint;
                             if (index >= 0)
                             {
@@ -1908,7 +1891,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                iInsertionPoint = FindNewMobInsertionPoint(nextMob);
+                                iInsertionPoint = _currentRoomInfo.FindNewMobInsertionPoint(nextMob);
                             }
                             bool insertAtEnd = iInsertionPoint == -1;
                             rc.Index = insertAtEnd ? -1 : iInsertionPoint;
@@ -1916,13 +1899,12 @@ namespace IsengardClient
                             {
                                 rc.Mobs.Add(nextMob);
                                 if (insertAtEnd)
-                                    _currentRoomMobs.Add(nextMob);
+                                    currentRoomMobs.Add(nextMob);
                                 else
-                                    _currentRoomMobs.Insert(iInsertionPoint, nextMob);
+                                    currentRoomMobs.Insert(iInsertionPoint, nextMob);
                             }
-                            _roomChangeCounter++;
-                            rc.GlobalCounter = _roomChangeCounter;
-                            _currentRoomChanges.Add(rc);
+                            rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
+                            _currentRoomInfo.CurrentRoomChanges.Add(rc);
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
@@ -1993,18 +1975,19 @@ namespace IsengardClient
             RoomChange rc = new RoomChange();
             rc.ChangeType = RoomChangeType.RemoveMob;
             rc.Mobs = new List<MobTypeEnum>();
-            lock (_roomChangeLock)
+            List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+            lock (_currentRoomInfo.RoomChangeLock)
             {
-                int index = _currentRoomMobs.LastIndexOf(mobType);
+                int index = currentRoomMobs.LastIndexOf(mobType);
                 if (index >= 0)
                 {
                     int iLastIndexCount = Count - 1;
                     for (int i = 0; i < Count; i++)
                     {
-                        if (_currentRoomMobs[index] == mobType)
+                        if (currentRoomMobs[index] == mobType)
                         {
                             rc.Mobs.Add(mobType);
-                            _currentRoomMobs.RemoveAt(index);
+                            currentRoomMobs.RemoveAt(index);
                         }
                         else
                         {
@@ -2019,19 +2002,18 @@ namespace IsengardClient
                             index--;
                         }
                     }
-                    _roomChangeCounter++;
-                    rc.GlobalCounter = _roomChangeCounter;
+                    rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
                     rc.Index = index;
-                    _currentRoomChanges.Add(rc);
+                    _currentRoomInfo.CurrentRoomChanges.Add(rc);
                 }
             }
         }
 
         private void HandleHarbringerStatusChange(bool inPort)
         {
-            lock (_roomChangeLock)
+            lock (_currentRoomInfo.RoomChangeLock)
             {
-                Room currentRoom = m_oCurrentRoom;
+                Room currentRoom = _currentRoomInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
                 {
                     string sExit = null;
@@ -2049,7 +2031,7 @@ namespace IsengardClient
                     }
                     if (sExit != null)
                     {
-                        _currentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
+                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
                     }
                 }
             }
@@ -2066,8 +2048,8 @@ namespace IsengardClient
         {
             RoomChange rc = new RoomChange();
             rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
-            _roomChangeCounter++;
-            rc.GlobalCounter = _roomChangeCounter;
+            _currentRoomInfo.RoomChangeCounter++;
+            rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
             Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
@@ -2088,8 +2070,7 @@ namespace IsengardClient
         {
             RoomChange rc = new RoomChange();
             rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
-            _roomChangeCounter++;
-            rc.GlobalCounter = _roomChangeCounter;
+            rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
             Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
@@ -2755,15 +2736,15 @@ namespace IsengardClient
             btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, null, CommandType.Magic, DependentObjectType.None);
             btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, null, CommandType.Magic, DependentObjectType.None);
             btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
-            btnDrinkYellow.Tag = new CommandButtonTag(btnDrinkYellow, "drink yellow", CommandType.Potions, DependentObjectType.None);
-            btnDrinkGreen.Tag = new CommandButtonTag(btnDrinkGreen, "drink green", CommandType.Potions, DependentObjectType.None);
+            btnDrinkVigor.Tag = new CommandButtonTag(btnDrinkVigor, "drink yellow", CommandType.Potions, DependentObjectType.None);
+            btnDrinkCurepoison.Tag = new CommandButtonTag(btnDrinkCurepoison, "drink green", CommandType.Potions, DependentObjectType.None);
             btnWieldWeapon.Tag = new CommandButtonTag(btnWieldWeapon, "wield {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, "zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
             btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
             btnRemoveWeapon.Tag = new CommandButtonTag(btnRemoveWeapon, "remove {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnRemoveAll.Tag = new CommandButtonTag(btnRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
             btnCastMend.Tag = new CommandButtonTag(btnCastMend, null, CommandType.Magic, DependentObjectType.None);
-            btnReddishOrange.Tag = new CommandButtonTag(btnReddishOrange, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
+            btnDrinkMend.Tag = new CommandButtonTag(btnDrinkMend, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
             tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
             tsbInformation.Tag = new CommandButtonTag(tsbInformation, "information", CommandType.None, DependentObjectType.None);
@@ -2803,11 +2784,13 @@ namespace IsengardClient
                         {
                             //choose first monster of the same type
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
-                            foreach (TreeNode nextNode in _tnObviousMobs.Nodes)
+                            List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                            lock (_currentRoomInfo.RoomChangeLock)
                             {
-                                if (eMobValue == (MobTypeEnum)nextNode.Tag)
+                                int iIndexOfMonster = currentRoomMobs.IndexOf(eMobValue);
+                                if (iIndexOfMonster >= 0)
                                 {
-                                    txtMob.Text = GetTextForMob(_tnObviousMobs, nextNode);
+                                    txtMob.Text = GetTextForMob(currentRoomMobs, iIndexOfMonster);
                                     setMobToFirstAvailable = false;
                                 }
                             }
@@ -2822,11 +2805,12 @@ namespace IsengardClient
                 if (setMobToFirstAvailable)
                 {
                     string sText = null;
-                    lock (_roomChangeLock)
+                    List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                    lock (_currentRoomInfo.RoomChangeLock)
                     {
-                        if (_currentRoomMobs != null && _currentRoomMobs.Count > 0)
+                        if (currentRoomMobs.Count > 0)
                         {
-                            sText = MobEntity.PickMobTextWithinList(_currentRoomMobs[0], MobEntity.IterateThroughMobs(_currentRoomMobs, 1));
+                            sText = MobEntity.PickMobTextWithinList(currentRoomMobs[0], MobEntity.IterateThroughMobs(currentRoomMobs, 1));
                         }
                     }
                     if (!string.IsNullOrEmpty(sText))
@@ -2835,9 +2819,9 @@ namespace IsengardClient
                     }
                 }
 
-                if (setMobToFirstAvailable && _tnObviousMobs.Nodes.Count > 0)
+                if (setMobToFirstAvailable && _currentRoomInfo.tnObviousMobs.Nodes.Count > 0)
                 {
-                    treeCurrentRoom.SelectedNode = _tnObviousMobs.Nodes[0];
+                    treeCurrentRoom.SelectedNode = _currentRoomInfo.tnObviousMobs.Nodes[0];
                 }
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
@@ -2938,19 +2922,10 @@ namespace IsengardClient
                                 {
                                     if (presenceType == ExitPresenceType.Periodic)
                                     {
-                                        lock (_currentRoomChanges)
-                                        {
-                                            _currentObviousExits = null;
-                                        }
                                         backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying);
                                         if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                         {
-                                            List<string> currentObviousExits;
-                                            lock (_currentRoomChanges)
-                                            {
-                                                currentObviousExits = _currentObviousExits;
-                                            }
-                                            if (currentObviousExits.Contains(exitText))
+                                            if (_currentRoomInfo.CurrentObviousExits.Contains(exitText))
                                             {
                                                 foundExit = true;
                                             }
@@ -3360,7 +3335,7 @@ namespace IsengardClient
                             }
 
                             //determine the flee exit if there is only one place to flee to
-                            Room r = m_oCurrentRoom;
+                            Room r = _currentRoomInfo.CurrentRoom;
 
                             //run the preexit logic for all target exits, since it won't be known beforehand
                             //which exit will be used.
@@ -3494,7 +3469,7 @@ BeforeHazy:
                 ret = true;
             else
             {
-                Room r = m_oCurrentRoom;
+                Room r = _currentRoomInfo.CurrentRoom;
                 if (r != null && r.Intangible)
                     ret = true;
                 else
@@ -4108,7 +4083,6 @@ BeforeHazy:
             }
             yield return btnGraph;
             yield return btnLocations;
-            yield return btnClearCurrentLocation;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -4263,15 +4237,15 @@ BeforeHazy:
             yield return (CommandButtonTag)btnCastVigor.Tag;
             yield return (CommandButtonTag)btnCastCurePoison.Tag;
             yield return (CommandButtonTag)btnAttackMob.Tag;
-            yield return (CommandButtonTag)btnDrinkYellow.Tag;
-            yield return (CommandButtonTag)btnDrinkGreen.Tag;
+            yield return (CommandButtonTag)btnDrinkVigor.Tag;
+            yield return (CommandButtonTag)btnDrinkCurepoison.Tag;
             yield return (CommandButtonTag)btnWieldWeapon.Tag;
             yield return (CommandButtonTag)btnUseWandOnMob.Tag;
             yield return (CommandButtonTag)btnPowerAttackMob.Tag;
             yield return (CommandButtonTag)btnRemoveWeapon.Tag;
             yield return (CommandButtonTag)btnRemoveAll.Tag;
             yield return (CommandButtonTag)btnCastMend.Tag;
-            yield return (CommandButtonTag)btnReddishOrange.Tag;
+            yield return (CommandButtonTag)btnDrinkMend.Tag;
             yield return (CommandButtonTag)btnStunMob.Tag;
             yield return (CommandButtonTag)tsbTime.Tag;
             yield return (CommandButtonTag)tsbInformation.Tag;
@@ -4370,7 +4344,7 @@ BeforeHazy:
                 direction = "down";
             Exit navigateExit = null;
             bool ambiguous = false;
-            Room currentRoom = m_oCurrentRoom;
+            Room currentRoom = _currentRoomInfo.CurrentRoom;
             if (currentRoom != null)
             {
                 Func<Exit, bool> discriminator = (e) =>
@@ -4565,17 +4539,6 @@ BeforeHazy:
             }
         }
 
-        private void btnClearCurrentLocation_Click(object sender, EventArgs e)
-        {
-            DoClearCurrentLocation();
-        }
-
-        private void DoClearCurrentLocation()
-        {
-            m_oCurrentRoom = null;
-            RefreshEnabledForSingleMoveButtons();
-        }
-
         private void RunBackgroundProcess(BackgroundWorkerParameters backgroundParameters)
         {
             _currentBackgroundParameters = backgroundParameters;
@@ -4722,7 +4685,7 @@ BeforeHazy:
             Room targetRoom;
             if (preExits == null)
             {
-                targetRoom = m_oCurrentRoom;
+                targetRoom = _currentRoomInfo.CurrentRoom;
             }
             else
             {
@@ -5063,12 +5026,12 @@ BeforeHazy:
 
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
 
-            lock (_roomChangeLock)
+            lock (_currentRoomInfo.RoomChangeLock)
             {
                 List<RoomChange> changes = null;
                 int iNewCounter = -1;
-                Room oCurrentRoom = m_oCurrentRoom;
-                if (oCurrentRoom != m_oCurrentRoomUI)
+                Room oCurrentRoom = _currentRoomInfo.CurrentRoom;
+                if (oCurrentRoom != _currentRoomInfo.CurrentRoomUI)
                 {
                     if (_setTickRoom)
                     {
@@ -5089,20 +5052,21 @@ BeforeHazy:
                         sCurrentRoom = "No Current Room";
                     }
                     grpCurrentRoom.Text = sCurrentRoom;
-                    m_oCurrentRoomUI = oCurrentRoom;
+                    _currentRoomInfo.CurrentRoomUI = oCurrentRoom;
                     if (_currentBackgroundParameters == null)
                     {
                         btnGoToHealingRoom.Enabled = oCurrentRoom != null;
                         RefreshEnabledForSingleMoveButtons();
                     }
                 }
-                if (_roomChangeCounter != _roomChangeCounterUI)
+                if (_currentRoomInfo.RoomChangeCounter != _currentRoomInfo.RoomChangeCounterUI)
                 {
-                    for (int i = 0; i < _currentRoomChanges.Count; i++)
+                    List<RoomChange> currentRoomChanges = _currentRoomInfo.CurrentRoomChanges;
+                    for (int i = 0; i < currentRoomChanges.Count; i++)
                     {
-                        RoomChange nextRoomChange = _currentRoomChanges[i];
+                        RoomChange nextRoomChange = currentRoomChanges[i];
                         int iCounter = nextRoomChange.GlobalCounter;
-                        if (iCounter > _roomChangeCounterUI)
+                        if (iCounter > _currentRoomInfo.RoomChangeCounterUI)
                         {
                             if (changes == null) changes = new List<RoomChange>();
                             changes.Add(nextRoomChange);
@@ -5111,65 +5075,69 @@ BeforeHazy:
                 }
                 if (changes != null)
                 {
+                    TreeNode tnObviousMobs = _currentRoomInfo.tnObviousMobs;
+                    TreeNode tnObviousExits = _currentRoomInfo.tnObviousExits;
+                    TreeNode tnOtherExits = _currentRoomInfo.tnOtherExits;
+                    TreeNode tnPermanentMobs = _currentRoomInfo.tnPermanentMobs;
                     foreach (RoomChange nextRoomChange in changes)
                     {
                         RoomChangeType rcType = nextRoomChange.ChangeType;
                         if (rcType == RoomChangeType.NewRoom)
                         {
-                            bool firstTimeThrough = _roomChangeCounterUI == -1;
+                            bool firstTimeThrough = _currentRoomInfo.RoomChangeCounterUI == -1;
                             treeCurrentRoom.Nodes.Clear();
-                            _tnObviousMobs.Nodes.Clear();
-                            _tnObviousExits.Nodes.Clear();
-                            _tnOtherExits.Nodes.Clear();
-                            _tnPermanentMobs.Nodes.Clear();
+                            tnObviousMobs.Nodes.Clear();
+                            tnObviousExits.Nodes.Clear();
+                            tnOtherExits.Nodes.Clear();
+                            tnPermanentMobs.Nodes.Clear();
                             foreach (MobTypeEnum nextMob in nextRoomChange.Mobs)
                             {
-                                _tnObviousMobs.Nodes.Add(GetMobsNode(nextMob));
+                                tnObviousMobs.Nodes.Add(GetMobsNode(nextMob));
                             }
-                            if (_tnObviousMobs.Nodes.Count > 0)
+                            if (tnObviousMobs.Nodes.Count > 0)
                             {
-                                treeCurrentRoom.Nodes.Add(_tnObviousMobs);
-                                if (firstTimeThrough || _obviousMobsTNExpanded)
+                                treeCurrentRoom.Nodes.Add(tnObviousMobs);
+                                if (firstTimeThrough || _currentRoomInfo.ObviousMobsTNExpanded)
                                 {
-                                    _tnObviousMobs.Expand();
+                                    tnObviousMobs.Expand();
                                 }
                             }
                             foreach (string s in nextRoomChange.Exits)
                             {
-                                _tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, s));
+                                tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, s));
                             }
-                            if (_tnObviousExits.Nodes.Count > 0)
+                            if (tnObviousExits.Nodes.Count > 0)
                             {
-                                treeCurrentRoom.Nodes.Add(_tnObviousExits);
-                                if (firstTimeThrough || _obviousExitsTNExpanded)
+                                treeCurrentRoom.Nodes.Add(tnObviousExits);
+                                if (firstTimeThrough || _currentRoomInfo.ObviousExitsTNExpanded)
                                 {
-                                    _tnObviousExits.Expand();
+                                    tnObviousExits.Expand();
                                 }
                             }
                             foreach (Exit nextExit in nextRoomChange.OtherExits)
                             {
-                                _tnOtherExits.Nodes.Add(GetOtherExitsNode(nextExit));
+                                tnOtherExits.Nodes.Add(GetOtherExitsNode(nextExit));
                             }
-                            if (_tnOtherExits.Nodes.Count > 0)
+                            if (tnOtherExits.Nodes.Count > 0)
                             {
-                                treeCurrentRoom.Nodes.Add(_tnOtherExits);
-                                if (firstTimeThrough || _otherExitsTNExpanded)
+                                treeCurrentRoom.Nodes.Add(tnOtherExits);
+                                if (firstTimeThrough || _currentRoomInfo.OtherExitsTNExpanded)
                                 {
-                                    _tnOtherExits.Expand();
+                                    tnOtherExits.Expand();
                                 }
                             }
                             if (oCurrentRoom?.PermanentMobs != null)
                             {
                                 foreach (MobTypeEnum nextPerm in oCurrentRoom.PermanentMobs)
                                 {
-                                    _tnPermanentMobs.Nodes.Add(GetMobsNode(nextPerm));
+                                    tnPermanentMobs.Nodes.Add(GetMobsNode(nextPerm));
                                 }
-                                if (_tnPermanentMobs.Nodes.Count > 0)
+                                if (tnPermanentMobs.Nodes.Count > 0)
                                 {
-                                    treeCurrentRoom.Nodes.Add(_tnPermanentMobs);
-                                    if (firstTimeThrough || _permMobsTNExpanded)
+                                    treeCurrentRoom.Nodes.Add(tnPermanentMobs);
+                                    if (firstTimeThrough || _currentRoomInfo.PermMobsTNExpanded)
                                     {
-                                        _tnPermanentMobs.Expand();
+                                        tnPermanentMobs.Expand();
                                     }
                                 }
                             }
@@ -5177,10 +5145,10 @@ BeforeHazy:
                         else if (rcType == RoomChangeType.AddExit)
                         {
                             string exit = nextRoomChange.Exits[0];
-                            bool hasNodes = _tnObviousExits.Nodes.Count > 0;
-                            _tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, exit));
+                            bool hasNodes = tnObviousExits.Nodes.Count > 0;
+                            tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, exit));
                             TreeNode removeNode = null;
-                            foreach (TreeNode tn in _tnOtherExits.Nodes)
+                            foreach (TreeNode tn in tnOtherExits.Nodes)
                             {
                                 if (tn.Tag == nextRoomChange.MappedExits[exit])
                                 {
@@ -5190,12 +5158,12 @@ BeforeHazy:
                             }
                             if (!hasNodes)
                             {
-                                InsertTopLevelTreeNode(_tnObviousExits);
+                                InsertTopLevelTreeNode(tnObviousExits);
                             }
-                            _tnOtherExits.Nodes.Remove(removeNode);
-                            if (_tnOtherExits.Nodes.Count == 0)
+                            tnOtherExits.Nodes.Remove(removeNode);
+                            if (tnOtherExits.Nodes.Count == 0)
                             {
-                                treeCurrentRoom.Nodes.Remove(_tnOtherExits);
+                                treeCurrentRoom.Nodes.Remove(tnOtherExits);
                             }
                         }
                         else if (rcType == RoomChangeType.RemoveExit)
@@ -5203,7 +5171,7 @@ BeforeHazy:
                             string exit = nextRoomChange.Exits[0];
                             TreeNode removeNode = null;
                             Exit foundExit = null;
-                            foreach (TreeNode tn in _tnObviousExits.Nodes)
+                            foreach (TreeNode tn in tnObviousExits.Nodes)
                             {
                                 foundExit = tn.Tag as Exit;
                                 if (foundExit != null && foundExit.ExitText == exit)
@@ -5214,17 +5182,17 @@ BeforeHazy:
                             }
                             if (removeNode != null)
                             {
-                                _tnObviousExits.Nodes.Remove(removeNode);
-                                if (_tnObviousExits.Nodes.Count == 0)
+                                tnObviousExits.Nodes.Remove(removeNode);
+                                if (tnObviousExits.Nodes.Count == 0)
                                 {
-                                    treeCurrentRoom.Nodes.Remove(_tnObviousExits);
+                                    treeCurrentRoom.Nodes.Remove(tnObviousExits);
                                 }
-                                _tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
+                                tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
                             }
                         }
                         else if (rcType == RoomChangeType.AddMob)
                         {
-                            bool hasNodes = _tnObviousMobs.Nodes.Count > 0;
+                            bool hasNodes = tnObviousMobs.Nodes.Count > 0;
                             bool isFirst = true;
                             MobTypeEnum? firstMob = null;
                             TreeNode firstInserted = null;
@@ -5235,11 +5203,11 @@ BeforeHazy:
                                 TreeNode inserted = GetMobsNode(nextMobType);
                                 if (insertAtEnd)
                                 {
-                                    _tnObviousMobs.Nodes.Add(inserted);
+                                    tnObviousMobs.Nodes.Add(inserted);
                                 }
                                 else
                                 {
-                                    _tnObviousMobs.Nodes.Insert(iAddIndex, inserted);
+                                    tnObviousMobs.Nodes.Insert(iAddIndex, inserted);
                                 }
                                 if (isFirst)
                                 {
@@ -5250,10 +5218,18 @@ BeforeHazy:
                             }
                             if (!hasNodes)
                             {
-                                InsertTopLevelTreeNode(_tnObviousMobs);
+                                InsertTopLevelTreeNode(tnObviousMobs);
                                 if (bwp == null)
                                 {
-                                    txtMob.Text = GetTextForMob(_tnObviousMobs, firstInserted);
+                                    string sNewMobText = string.Empty;
+                                    lock (_currentRoomInfo.RoomChangeLock)
+                                    {
+                                        if (_currentRoomInfo.CurrentRoomMobs.Count > 0)
+                                        {
+                                            sNewMobText = GetTextForMob(_currentRoomInfo.CurrentRoomMobs, 0);
+                                        }
+                                    }
+                                    txtMob.Text = sNewMobText;
                                 }
                             }
                         }
@@ -5262,17 +5238,17 @@ BeforeHazy:
                             int iRemoveIndex = nextRoomChange.Index;
                             for (int i = 0; i < nextRoomChange.Mobs.Count; i++)
                             {
-                                _tnObviousMobs.Nodes.RemoveAt(iRemoveIndex);
+                                tnObviousMobs.Nodes.RemoveAt(iRemoveIndex);
                             }
-                            if (_tnObviousMobs.Nodes.Count == 0)
+                            if (tnObviousMobs.Nodes.Count == 0)
                             {
-                                treeCurrentRoom.Nodes.Remove(_tnObviousMobs);
+                                treeCurrentRoom.Nodes.Remove(tnObviousMobs);
                             }
                         }
                         
                         iNewCounter = nextRoomChange.GlobalCounter;
                     }
-                    _roomChangeCounterUI = iNewCounter;
+                    _currentRoomInfo.RoomChangeCounterUI = iNewCounter;
                 }
             }
 
@@ -5307,50 +5283,16 @@ BeforeHazy:
             }
         }
 
-        private int FindMobIndex(MobTypeEnum mobType)
-        {
-            int i = 0;
-            int iFoundIndex = -1;
-            foreach (TreeNode tn in _tnObviousMobs.Nodes)
-            {
-                MobTypeEnum nextMob = (MobTypeEnum)tn.Tag;
-                if (nextMob == mobType)
-                {
-                    iFoundIndex = i;
-                }
-                i++;
-            }
-            return iFoundIndex;
-        }
-
-        private int FindNewMobInsertionPoint(MobTypeEnum newMob)
-        {
-            string sSingular = MobEntity.MobToSingularMapping[newMob];
-            int i = 0;
-            int iFoundIndex = -1;
-            foreach (MobTypeEnum nextMob in _currentRoomMobs)
-            {
-                string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
-                if (sSingular.CompareTo(sNextSingular) < 0)
-                {
-                    iFoundIndex = i;
-                    break;
-                }
-                i++;
-            }
-            return iFoundIndex;
-        }
-
         private void InsertTopLevelTreeNode(TreeNode topLevelTreeNode)
         {
             if (!treeCurrentRoom.Nodes.Contains(topLevelTreeNode))
             {
-                int iIndex = GetTopLevelTreeNodeLogicalIndex(topLevelTreeNode);
+                int iIndex = _currentRoomInfo.GetTopLevelTreeNodeLogicalIndex(topLevelTreeNode);
                 bool found = false;
                 for (int i = 0; i < treeCurrentRoom.Nodes.Count; i++)
                 {
                     TreeNode next = treeCurrentRoom.Nodes[i];
-                    int nextIndex = GetTopLevelTreeNodeLogicalIndex(next);
+                    int nextIndex = _currentRoomInfo.GetTopLevelTreeNodeLogicalIndex(next);
                     if (iIndex < nextIndex)
                     {
                         treeCurrentRoom.Nodes.Insert(i, topLevelTreeNode);
@@ -5362,55 +5304,11 @@ BeforeHazy:
                 {
                     treeCurrentRoom.Nodes.Add(topLevelTreeNode);
                 }
-                if (GetTopLevelTreeNodeExpanded(topLevelTreeNode))
+                if (_currentRoomInfo.GetTopLevelTreeNodeExpanded(topLevelTreeNode))
                 {
                     topLevelTreeNode.Expand();
                 }
             }
-        }
-
-        private bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)
-        {
-            bool ret = false;
-            if (topLevelTreeNode == _tnObviousMobs)
-            {
-                ret = _obviousMobsTNExpanded;
-            }
-            else if (topLevelTreeNode == _tnObviousExits)
-            {
-                ret = _obviousExitsTNExpanded;
-            }
-            else if (topLevelTreeNode == _tnOtherExits)
-            {
-                ret = _otherExitsTNExpanded;
-            }
-            else if (topLevelTreeNode == _tnPermanentMobs)
-            {
-                ret = _permMobsTNExpanded;
-            }
-            return ret;
-        }
-
-        private int GetTopLevelTreeNodeLogicalIndex(TreeNode topLevelTreeNode)
-        {
-            int i = 0;
-            if (topLevelTreeNode == _tnObviousMobs)
-            {
-                i = 1;
-            }
-            else if (topLevelTreeNode == _tnObviousExits)
-            {
-                i = 2;
-            }
-            else if (topLevelTreeNode == _tnOtherExits)
-            {
-                i = 3;
-            }
-            else if (topLevelTreeNode == _tnPermanentMobs)
-            {
-                i = 4;
-            }
-            return i;
         }
 
         private TreeNode GetOtherExitsNode(Exit nextExit)
@@ -5758,7 +5656,7 @@ BeforeHazy:
 
         private void ctxRoomExits_Opening(object sender, CancelEventArgs e)
         {
-            Room r = m_oCurrentRoom;
+            Room r = _currentRoomInfo.CurrentRoom;
             ctxRoomExits.Items.Clear();
             if (r == null)
             {
@@ -5798,7 +5696,7 @@ BeforeHazy:
             if (clickedItem.Text == "Graph")
             {
                 GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-                frmGraph graphForm = new frmGraph(_gameMap, m_oCurrentRoom, true, flying, levitating, isDay, level);
+                frmGraph graphForm = new frmGraph(_gameMap, _currentRoomInfo.CurrentRoom, true, flying, levitating, isDay, level);
                 graphForm.ShowDialog();
                 exits = graphForm.SelectedPath;
                 if (exits == null) return;
@@ -5812,7 +5710,7 @@ BeforeHazy:
 
         private void RefreshEnabledForSingleMoveButtons()
         {
-            Room r = m_oCurrentRoom;
+            Room r = _currentRoomInfo.CurrentRoom;
             bool haveCurrentRoom = r != null;
 
             bool n, ne, nw, w, e, s, sw, se, u, d, o;
@@ -5929,7 +5827,7 @@ BeforeHazy:
 
         private void GoToRoom(Room targetRoom)
         {
-            Room currentRoom = m_oCurrentRoom;
+            Room currentRoom = _currentRoomInfo.CurrentRoom;
             if (currentRoom != null)
             {
                 List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom);
@@ -5949,13 +5847,13 @@ BeforeHazy:
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            Room originalCurrentRoom = m_oCurrentRoom;
+            Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            frmGraph frm = new frmGraph(_gameMap, m_oCurrentRoom, false, flying, levitating, isDay, level);
+            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, flying, levitating, isDay, level);
 
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
-                Room newCurrentRoom = m_oCurrentRoom;
+                Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
                 if (newCurrentRoom == originalCurrentRoom)
                 {
                     Room selectedRoom = frm.CurrentRoom;
@@ -5966,10 +5864,10 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            m_oCurrentRoom = selectedRoom;
-                            _roomChangeCounterUI = -1;
+                            _currentRoomInfo.CurrentRoom = selectedRoom;
+                            _currentRoomInfo.RoomChangeCounterUI = -1;
                         }
                     }
                 }
@@ -5978,12 +5876,12 @@ BeforeHazy:
 
         private void btnLocations_Click(object sender, EventArgs e)
         {
-            Room originalCurrentRoom = m_oCurrentRoom;
+            Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
             frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, flying, levitating, isDay, level);
             if (frm.ShowDialog() == DialogResult.OK)
             {
-                Room newCurrentRoom = m_oCurrentRoom;
+                Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
                 if (newCurrentRoom == originalCurrentRoom)
                 {
                     Room selectedRoom = frm.CurrentRoom;
@@ -5994,10 +5892,10 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_roomChangeLock)
+                        lock (_currentRoomInfo.RoomChangeLock)
                         {
-                            m_oCurrentRoom = selectedRoom;
-                            _roomChangeCounterUI = -1;
+                            _currentRoomInfo.CurrentRoom = selectedRoom;
+                            _currentRoomInfo.RoomChangeCounterUI = -1;
                         }
                     }
                 }
@@ -6267,7 +6165,7 @@ BeforeHazy:
         {
             if (!_programmaticUI)
             {
-                SetExpandFlag(e.Node, true);
+                _currentRoomInfo.SetExpandFlag(e.Node, true);
             }
         }
 
@@ -6275,7 +6173,7 @@ BeforeHazy:
         {
             if (!_programmaticUI)
             {
-                SetExpandFlag(e.Node, false);
+                _currentRoomInfo.SetExpandFlag(e.Node, false);
             }
         }
 
@@ -6283,20 +6181,67 @@ BeforeHazy:
         {
             TreeNode selectedNode = e.Node;
             TreeNode parentNode = selectedNode.Parent;
-            if (parentNode == _tnObviousMobs || parentNode == _tnPermanentMobs)
+            bool isObviousMobs = parentNode == _currentRoomInfo.tnObviousMobs;
+            bool isPermanentMobs = parentNode == _currentRoomInfo.tnPermanentMobs;
+            if (isObviousMobs || isPermanentMobs)
             {
-                txtMob.Text = GetTextForMob(parentNode, selectedNode);
+                MobTypeEnum selectedMob = (MobTypeEnum)selectedNode.Tag;
+                lock (_currentRoomInfo.RoomChangeLock)
+                {
+                    Room currentRoom = _currentRoomInfo.CurrentRoom;
+
+                    //find the counter for the mob type of the selected mob
+                    int iMobIndex = 0;
+                    foreach (TreeNode nextTreeNode in parentNode.Nodes)
+                    {
+                        MobTypeEnum nextMobType = (MobTypeEnum)nextTreeNode.Tag;
+                        if (nextMobType == selectedMob)
+                        {
+                            iMobIndex++;
+                        }
+                        if (nextTreeNode == selectedNode)
+                        {
+                            break;
+                        }
+                    }
+
+                    //find the equivalent numbered mob in the current room list
+                    List<MobTypeEnum> mobList = isObviousMobs ? _currentRoomInfo.CurrentRoomMobs : currentRoom.PermanentMobs;
+                    if (mobList != null)
+                    {
+                        int iFoundMobIndex = 0;
+                        int iCurrentMobIndex = -1;
+                        int iIteratorMobIndex = 0;
+                        foreach (MobTypeEnum nextMobType in mobList)
+                        {
+                            if (nextMobType == selectedMob)
+                            {
+                                iCurrentMobIndex = iIteratorMobIndex;
+                                iFoundMobIndex++;
+                                if (iFoundMobIndex == iMobIndex)
+                                {
+                                    break;
+                                }
+                            }
+                            iIteratorMobIndex++;
+                        }
+                        if (iCurrentMobIndex >= 0)
+                        {
+                            txtMob.Text = GetTextForMob(mobList, iCurrentMobIndex);
+                        }
+                    }
+                }
             }
         }
 
-        private string GetTextForMob(TreeNode parentNode, TreeNode selectedNode)
+        private string GetTextForMob(List<MobTypeEnum> mobList, int index)
         {
-            MobTypeEnum eMT = (MobTypeEnum)selectedNode.Tag;
+            MobTypeEnum eMT = mobList[index];
             string word = MobEntity.PickWordForMob(eMT);
             int iCounter = 0;
-            foreach (TreeNode nextTreeNode in parentNode.Nodes)
+            int currentIndex = 0;
+            foreach (MobTypeEnum eNextMT in mobList)
             {
-                MobTypeEnum eNextMT = (MobTypeEnum)nextTreeNode.Tag;
                 string sSingular = MobEntity.MobToSingularMapping[eNextMT];
                 foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                 {
@@ -6306,10 +6251,11 @@ BeforeHazy:
                         break;
                     }
                 }
-                if (nextTreeNode == selectedNode)
+                if (currentIndex == index)
                 {
                     break;
                 }
+                currentIndex++;
             }
             string ret;
             if (iCounter == 0)
@@ -6325,26 +6271,6 @@ BeforeHazy:
                 ret = word;
             }
             return ret;
-        }
-
-        private void SetExpandFlag(TreeNode node, bool expanded)
-        {
-            if (node == _tnObviousMobs)
-            {
-                _obviousMobsTNExpanded = expanded;
-            }
-            else if (node == _tnObviousExits)
-            {
-                _obviousExitsTNExpanded = expanded;
-            }
-            else if (node == _tnOtherExits)
-            {
-                _otherExitsTNExpanded = expanded;
-            }
-            else if (node == _tnPermanentMobs)
-            {
-                _permMobsTNExpanded = expanded;
-            }
         }
 
         private void tsmiGoToRoom_Click(object sender, EventArgs e)
@@ -6371,11 +6297,11 @@ BeforeHazy:
             bool isObviousExit = false;
             bool isOtherExit = false;
             TreeNode parent = node?.Parent;
-            if (parent == _tnObviousExits)
+            if (parent == _currentRoomInfo.tnObviousExits)
             {
                 isObviousExit = true;
             }
-            else if (parent == _tnOtherExits)
+            else if (parent == _currentRoomInfo.tnOtherExits)
             {
                 isOtherExit = true;
             }
