@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 namespace IsengardClient
 {
     internal class Room
@@ -55,16 +54,6 @@ namespace IsengardClient
             {
                 NonPermanentMobs.Add(nextMob);
             }
-        }
-
-        public string GetDefaultMob()
-        {
-            string ret = string.Empty;
-            if (PermanentMobs != null)
-            {
-                ret = MobEntity.PickWordForMob(PermanentMobs[0]);
-            }
-            return ret;
         }
 
         public static int ProcessTrapDamage(string prefix, string suffix, string nextLine)

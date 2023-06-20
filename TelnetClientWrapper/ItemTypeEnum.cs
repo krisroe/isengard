@@ -119,6 +119,9 @@
         [SingularName("chain mail gloves")]
         ChainMailGloves,
 
+        [SingularName("chain mail sleeves")]
+        ChainMailSleeves,
+
         [SingularName("cloth armor")]
         ClothArmor,
 
