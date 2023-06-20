@@ -336,6 +336,10 @@
         [PluralName("gray elves")]
         GrayElf,
 
+        [SingularName("green slime")]
+        //CSRTODO: plurals?
+        GreenSlime,
+
         [SingularName("Gregory Hiester")]
         //CSRTODO: no plural?
         [Experience(1200)]

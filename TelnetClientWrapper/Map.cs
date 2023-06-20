@@ -2592,8 +2592,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oGalbasiHalls] = new System.Windows.Point(5, 1.5);
 
             Room oUnderHallsCorridorsGreenSlime = AddRoom("Green Slime", "Underhalls Corridors");
-            //CSRTODO
-            //oUnderHallsCorridorsGreenSlime.Mob1 = "slime";
+            oUnderHallsCorridorsGreenSlime.AddPermanentMobs(MobTypeEnum.GreenSlime, MobTypeEnum.GreenSlime);
             AddBidirectionalExits(oUnderHallsCorridorsGreenSlime, oGalbasiHalls, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderHallsCorridorsGreenSlime] = new System.Windows.Point(5, 1.25);
 
@@ -2606,6 +2605,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsWest] = new System.Windows.Point(4, 1);
 
             Room oDarkCorner = AddRoom("Skeleton", "Dark Corner");
+            oDarkCorner.AddPermanentMobs(MobTypeEnum.Skeleton);
             AddBidirectionalExits(oDarkCorner, oUnderhallsCorridorsWest, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oDarkCorner] = new System.Windows.Point(3, 1);
 
