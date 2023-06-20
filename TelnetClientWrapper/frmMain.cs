@@ -79,6 +79,8 @@ namespace IsengardClient
         private bool _enteredPassword;
         private int _totalhp = 0;
         private int _totalmp = 0;
+        private int _gold = -1;
+        private int _goldUI = -1;
         private int _tnl = -1;
         private int _tnlUI = -1;
         private bool _poisoned;
@@ -845,6 +847,8 @@ namespace IsengardClient
             _automp = HP_OR_MP_UNKNOWN;
             _currentMana = HP_OR_MP_UNKNOWN;
             _currentPlayerHeaderUI = null;
+            _gold = -1;
+            _goldUI = -1;
             _tnl = -1;
             _tnlUI = -1;
             lock (_skillsLock)
@@ -891,7 +895,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
+        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -942,6 +946,8 @@ namespace IsengardClient
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
+
+            _gold = gold;
             _tnl = tnl;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
             _poisoned = poisoned;
@@ -2115,7 +2121,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(ItemTypeEnum item, bool isAdd)
+        private void OnInventoryManagement(ItemTypeEnum item, bool isAdd, int? gold)
         {
             InventoryEquipmentChange iec = new InventoryEquipmentChange();
             iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
@@ -2153,6 +2159,10 @@ namespace IsengardClient
                     iec.InventoryIndex = changeIndex;
                     _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                 }
+            }
+            if (gold.HasValue)
+            {
+                _gold = gold.Value;
             }
         }
 
@@ -2369,7 +2379,7 @@ namespace IsengardClient
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
-                new InventoryManagementSequence(OnInventoryManagement),
+                new InventoryEquipmentManagementSequence(OnInventoryManagement),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
@@ -5079,10 +5089,16 @@ BeforeHazy:
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
             }
 
+            int iGold = _gold;
+            if (iGold != _goldUI)
+            {
+                lblGold.Text = "Gold: " + iGold.ToString();
+                _goldUI = iGold;
+            }
             int iTNL = _tnl;
             if (iTNL != _tnlUI)
             {
-                lblToNextLevelValue.Text = iTNL.ToString();
+                lblToNextLevelValue.Text = "TNL: " + iTNL.ToString();
                 _tnlUI = iTNL;
             }
 

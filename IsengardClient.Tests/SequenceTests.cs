@@ -187,13 +187,15 @@ namespace IsengardClient.Tests
             int iLevel = -1;
             int iMaxHP = -1;
             int iMaxMP = -1;
+            int iGold = -1;
             int iTNL = -1;
             bool? poisoned = null;
-            Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, l, hp, mp, tnl, cs, ss, p) =>
+            Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, l, hp, mp, g, tnl, cs, ss, p) =>
             {
                 iLevel = l;
                 iMaxHP = hp;
                 iMaxMP = mp;
+                iGold = g;
                 iTNL = tnl;
                 cooldowns = cs;
                 spells = ss;
@@ -224,6 +226,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 12);
             Assert.AreEqual(iMaxHP, 59);
             Assert.AreEqual(iMaxMP, 61);
+            Assert.AreEqual(iGold, 376933);
             Assert.AreEqual(iTNL, 24115);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);

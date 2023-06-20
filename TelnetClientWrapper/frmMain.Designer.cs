@@ -72,6 +72,8 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblGold = new System.Windows.Forms.Label();
+            this.lblToNextLevelValue = new System.Windows.Forms.Label();
             this.grpInventory = new System.Windows.Forms.GroupBox();
             this.lstInventory = new System.Windows.Forms.ListBox();
             this.grpEquipment = new System.Windows.Forms.GroupBox();
@@ -102,8 +104,6 @@
             this.tsmiRestoreDefaultAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
             this.lblTime = new System.Windows.Forms.Label();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
-            this.lblToNextLevelValue = new System.Windows.Forms.Label();
-            this.lblToNextLevel = new System.Windows.Forms.Label();
             this.lblManaValue = new System.Windows.Forms.Label();
             this.lblHitpointsValue = new System.Windows.Forms.Label();
             this.lblMana = new System.Windows.Forms.Label();
@@ -318,7 +318,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(994, 773);
+            this.btnAbort.Location = new System.Drawing.Point(996, 735);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(107, 34);
@@ -381,7 +381,7 @@
             // 
             // btnWieldWeapon
             // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(1038, 849);
+            this.btnWieldWeapon.Location = new System.Drawing.Point(1035, 832);
             this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnWieldWeapon.Name = "btnWieldWeapon";
             this.btnWieldWeapon.Size = new System.Drawing.Size(133, 34);
@@ -521,7 +521,7 @@
             // 
             // btnRemoveWeapon
             // 
-            this.btnRemoveWeapon.Location = new System.Drawing.Point(1038, 888);
+            this.btnRemoveWeapon.Location = new System.Drawing.Point(1035, 871);
             this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveWeapon.Name = "btnRemoveWeapon";
             this.btnRemoveWeapon.Size = new System.Drawing.Size(133, 34);
@@ -655,6 +655,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblGold);
+            this.pnlMain.Controls.Add(this.lblToNextLevelValue);
             this.pnlMain.Controls.Add(this.grpInventory);
             this.pnlMain.Controls.Add(this.grpEquipment);
             this.pnlMain.Controls.Add(this.btnGoToHealingRoom);
@@ -711,6 +713,28 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1356, 1108);
             this.pnlMain.TabIndex = 0;
+            // 
+            // lblGold
+            // 
+            this.lblGold.BackColor = System.Drawing.Color.YellowGreen;
+            this.lblGold.Location = new System.Drawing.Point(718, 66);
+            this.lblGold.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblGold.Name = "lblGold";
+            this.lblGold.Size = new System.Drawing.Size(144, 22);
+            this.lblGold.TabIndex = 148;
+            this.lblGold.Text = "Value";
+            this.lblGold.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblToNextLevelValue
+            // 
+            this.lblToNextLevelValue.BackColor = System.Drawing.Color.LightGray;
+            this.lblToNextLevelValue.Location = new System.Drawing.Point(718, 40);
+            this.lblToNextLevelValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblToNextLevelValue.Name = "lblToNextLevelValue";
+            this.lblToNextLevelValue.Size = new System.Drawing.Size(144, 22);
+            this.lblToNextLevelValue.TabIndex = 131;
+            this.lblToNextLevelValue.Text = "Value";
+            this.lblToNextLevelValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // grpInventory
             // 
@@ -863,7 +887,7 @@
             // 
             // btnHeal
             // 
-            this.btnHeal.Location = new System.Drawing.Point(1108, 811);
+            this.btnHeal.Location = new System.Drawing.Point(1110, 773);
             this.btnHeal.Margin = new System.Windows.Forms.Padding(4);
             this.btnHeal.Name = "btnHeal";
             this.btnHeal.Size = new System.Drawing.Size(103, 34);
@@ -874,7 +898,7 @@
             // 
             // btnSkills
             // 
-            this.btnSkills.Location = new System.Drawing.Point(1108, 773);
+            this.btnSkills.Location = new System.Drawing.Point(1110, 735);
             this.btnSkills.Margin = new System.Windows.Forms.Padding(4);
             this.btnSkills.Name = "btnSkills";
             this.btnSkills.Size = new System.Drawing.Size(103, 34);
@@ -888,10 +912,10 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(713, 161);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(718, 92);
             this.lblAutoEscapeValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
-            this.lblAutoEscapeValue.Size = new System.Drawing.Size(149, 18);
+            this.lblAutoEscapeValue.Size = new System.Drawing.Size(144, 22);
             this.lblAutoEscapeValue.TabIndex = 134;
             this.lblAutoEscapeValue.Text = "Auto Escape";
             this.lblAutoEscapeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -979,18 +1003,16 @@
             // lblTime
             // 
             this.lblTime.BackColor = System.Drawing.Color.LightGray;
-            this.lblTime.Location = new System.Drawing.Point(713, 137);
+            this.lblTime.Location = new System.Drawing.Point(718, 14);
             this.lblTime.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new System.Drawing.Size(149, 18);
+            this.lblTime.Size = new System.Drawing.Size(144, 22);
             this.lblTime.TabIndex = 125;
             this.lblTime.Text = "Time";
             this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // grpCurrentPlayer
             // 
-            this.grpCurrentPlayer.Controls.Add(this.lblToNextLevelValue);
-            this.grpCurrentPlayer.Controls.Add(this.lblToNextLevel);
             this.grpCurrentPlayer.Controls.Add(this.lblManaValue);
             this.grpCurrentPlayer.Controls.Add(this.lblHitpointsValue);
             this.grpCurrentPlayer.Controls.Add(this.lblMana);
@@ -999,31 +1021,10 @@
             this.grpCurrentPlayer.Margin = new System.Windows.Forms.Padding(4);
             this.grpCurrentPlayer.Name = "grpCurrentPlayer";
             this.grpCurrentPlayer.Padding = new System.Windows.Forms.Padding(4);
-            this.grpCurrentPlayer.Size = new System.Drawing.Size(251, 105);
+            this.grpCurrentPlayer.Size = new System.Drawing.Size(251, 77);
             this.grpCurrentPlayer.TabIndex = 122;
             this.grpCurrentPlayer.TabStop = false;
             this.grpCurrentPlayer.Text = "Current Player";
-            // 
-            // lblToNextLevelValue
-            // 
-            this.lblToNextLevelValue.BackColor = System.Drawing.Color.LightGray;
-            this.lblToNextLevelValue.Location = new System.Drawing.Point(129, 68);
-            this.lblToNextLevelValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblToNextLevelValue.Name = "lblToNextLevelValue";
-            this.lblToNextLevelValue.Size = new System.Drawing.Size(115, 18);
-            this.lblToNextLevelValue.TabIndex = 131;
-            this.lblToNextLevelValue.Text = "Value";
-            this.lblToNextLevelValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblToNextLevel
-            // 
-            this.lblToNextLevel.AutoSize = true;
-            this.lblToNextLevel.Location = new System.Drawing.Point(7, 68);
-            this.lblToNextLevel.Name = "lblToNextLevel";
-            this.lblToNextLevel.Size = new System.Drawing.Size(93, 16);
-            this.lblToNextLevel.TabIndex = 130;
-            this.lblToNextLevel.Text = "To Next Level:";
-            this.lblToNextLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblManaValue
             // 
@@ -1096,7 +1097,7 @@
             this.grpMob.Controls.Add(this.lblMobStatus);
             this.grpMob.Controls.Add(this.txtMobDamage);
             this.grpMob.Controls.Add(this.lblMobDamage);
-            this.grpMob.Location = new System.Drawing.Point(996, 690);
+            this.grpMob.Location = new System.Drawing.Point(996, 653);
             this.grpMob.Margin = new System.Windows.Forms.Padding(4);
             this.grpMob.Name = "grpMob";
             this.grpMob.Padding = new System.Windows.Forms.Padding(4);
@@ -1248,7 +1249,7 @@
             // 
             // btnRemoveAll
             // 
-            this.btnRemoveAll.Location = new System.Drawing.Point(1036, 927);
+            this.btnRemoveAll.Location = new System.Drawing.Point(1033, 910);
             this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveAll.Name = "btnRemoveAll";
             this.btnRemoveAll.Size = new System.Drawing.Size(133, 34);
@@ -1903,7 +1904,6 @@
         private System.Windows.Forms.Button btnHeal;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoEscape;
         private System.Windows.Forms.Label lblToNextLevelValue;
-        private System.Windows.Forms.Label lblToNextLevel;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;
         private System.Windows.Forms.Button btnIncrementWand;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator1;
@@ -1925,6 +1925,7 @@
         private System.Windows.Forms.ListBox lstEquipment;
         private System.Windows.Forms.GroupBox grpInventory;
         private System.Windows.Forms.ListBox lstInventory;
+        private System.Windows.Forms.Label lblGold;
     }
 }
 

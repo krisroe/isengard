@@ -439,13 +439,14 @@ namespace IsengardClient
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
+        public Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
-        private const string TO_NEXT_LEVEL_PREFIX = "To Next Level:";
+        private const string GOLD_PREFIX = "Gold: ";
+        private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -552,6 +553,14 @@ namespace IsengardClient
 
                 sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine == null) return;
+                int iGoldPrefixIndex = sNextLine.IndexOf(GOLD_PREFIX);
+                int iTNLPrefixIndex = sNextLine.IndexOf(TO_NEXT_LEVEL_PREFIX);
+                if (iTNLPrefixIndex - iGoldPrefixIndex - GOLD_PREFIX.Length <= 0) return;
+                string sGold = sNextLine.Substring(iGoldPrefixIndex + GOLD_PREFIX.Length, iTNLPrefixIndex - iGoldPrefixIndex - GOLD_PREFIX.Length);
+                if (!int.TryParse(sGold, out int iGold))
+                {
+                    return;
+                }
                 iIndex = sNextLine.IndexOf(TO_NEXT_LEVEL_PREFIX);
                 if (iIndex < 0) return;
                 iIndex += TO_NEXT_LEVEL_PREFIX.Length;
@@ -632,7 +641,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iTNL, cooldowns, spells, poisoned);
+                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iGold, iTNL, cooldowns, spells, poisoned);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -807,12 +816,12 @@ namespace IsengardClient
         }
     }
 
-    public class InventoryManagementSequence : AOutputProcessingSequence
+    public class InventoryEquipmentManagementSequence : AOutputProcessingSequence
     {
         private const string YOU_GET_A_PREFIX = "You get a ";
         private const string YOU_DROP_A_PREFIX = "You drop a ";
-        private Action<ItemTypeEnum, bool> _onSatisfied;
-        public InventoryManagementSequence(Action<ItemTypeEnum, bool> onSatisfied)
+        private Action<ItemTypeEnum, bool, int?> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<ItemTypeEnum, bool, int?> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -849,7 +858,36 @@ namespace IsengardClient
                         }
                         else
                         {
-                            _onSatisfied(ie.ItemType.Value, isAdd);
+                            int? gold = null;
+                            for (int i = 1; i < Lines.Count; i++)
+                            {
+                                string sNextLine = Lines[i];
+                                if (sNextLine == "Thanks for recycling.")
+                                {
+                                    //skip
+                                }
+                                else if (sNextLine.StartsWith("You have ") && sNextLine.EndsWith(" gold."))
+                                {
+                                    if (sNextLine.Length == "You have ".Length + " gold.".Length)
+                                    {
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        string sGold = sNextLine.Substring("You have ".Length, sNextLine.Length - "You have ".Length - " gold.".Length);
+                                        if (!int.TryParse(sGold, out int iFoundGold))
+                                        {
+                                            return;
+                                        }
+                                        gold = iFoundGold;
+                                    }
+                                }
+                                else if (!string.IsNullOrEmpty(sNextLine))
+                                {
+                                    return;
+                                }
+                            }
+                            _onSatisfied(ie.ItemType.Value, isAdd, gold);
                             flp.FinishedProcessing = true;
                         }
                     }
