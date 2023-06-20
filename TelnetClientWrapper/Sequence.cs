@@ -901,6 +901,9 @@ namespace IsengardClient
                              nextLine == "Your eyes feel funny." || //detect-magic potion
                              nextLine == "You turn invisible." || //red bubbly potion
                              nextLine == "You become shielded from the normal fire element." || //red potion
+                             nextLine == "You become shielded from the normal wind element." || //little brown jug
+                             nextLine == "You become shielded from the normal earth element." ||
+                             nextLine == "You become shielded from the normal water element." ||
                              nextLine == "Yuck!  Tastes awful!" ||
                              nextLine == "Substance consumed.")
                     {
@@ -2225,6 +2228,31 @@ StartProcessRoom:
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.LevitationOver;
+                }
+                else if (sLine == "Your invisibility fades.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.InvisibilityOver;
+                }
+                else if (sLine == "You no longer endure fire.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.EndureFireOver;
+                }
+                else if (sLine == "You no longer endure earth.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.EndureEarthOver;
+                }
+                else if (sLine == "You no longer endure water.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.EndureWaterOver;
+                }
+                else if (sLine == "You no longer endure cold.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.EndureColdOver;
                 }
                 else if (sLine == "Your manashield dissipates.")
                 {

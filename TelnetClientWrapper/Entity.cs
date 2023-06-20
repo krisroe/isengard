@@ -49,16 +49,42 @@ namespace IsengardClient
         {
             string remainder = fullName;
 
-            while (remainder.EndsWith(" (H)") || remainder.EndsWith(" (F)") || remainder.EndsWith(" (M)")) //honed or forged or magic
+            while (remainder.EndsWith(" (H)") || remainder.EndsWith(" (F)") || remainder.EndsWith(" (M)") || remainder.EndsWith(" (+1)") || remainder.EndsWith(" (+2)") || remainder.EndsWith(" (+3)") || remainder.EndsWith(" (+4)") || remainder.EndsWith(" (+5)"))
             {
-                if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item)
-                    return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);
+                bool isHoned = remainder.EndsWith(" (H)");
+                bool isForged = remainder.EndsWith(" (F)");
+                bool isMagic = remainder.EndsWith(" (M)");
+                bool isPlus = remainder.EndsWith(" (+1)") || remainder.EndsWith(" (+2)") || remainder.EndsWith(" (+3)") || remainder.EndsWith(" (+4)") || remainder.EndsWith(" (+5)");
+                int extraLength = isPlus ? " (+1)".Length : " (H)".Length;
+                bool mustBeItem = isHoned || isForged || isPlus;
+                bool mustBeItemOrMob = isMagic;
+                if (mustBeItem)
+                {
+                    if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item)
+                        return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);
+                    else
+                        possibleEntityTypes = EntityTypeFlags.Item;
+                }
+                else if (mustBeItemOrMob)
+                {
+                    if (((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.Item) &&
+                        ((possibleEntityTypes & EntityTypeFlags.Mob) != EntityTypeFlags.Mob))
+                    {
+                        return new UnknownTypeEntity(fullName, 1, possibleEntityTypes);
+                    }
+                    else
+                    {
+                        possibleEntityTypes = possibleEntityTypes & (EntityTypeFlags.Item | EntityTypeFlags.Mob);
+                    }
+                }
                 else
-                    possibleEntityTypes = EntityTypeFlags.Item;
-                if (remainder.Length == " (F)".Length)
+                {
+                    return null;
+                }
+                if (remainder.Length == extraLength)
                     return null;
                 else
-                    remainder = remainder.Substring(0, remainder.Length - " (F)".Length);
+                    remainder = remainder.Substring(0, remainder.Length - extraLength);
             }
 
             int iSpaceIndex = remainder.IndexOf(' ');

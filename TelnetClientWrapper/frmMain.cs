@@ -1781,6 +1781,26 @@ namespace IsengardClient
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("levitation");
                         break;
+                    case InformationalMessageType.InvisibilityOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("invisibility");
+                        break;
+                    case InformationalMessageType.EndureFireOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("endure-fire");
+                        break;
+                    case InformationalMessageType.EndureColdOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("endure-cold");
+                        break;
+                    case InformationalMessageType.EndureEarthOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("endure-earth");
+                        break;
+                    case InformationalMessageType.EndureWaterOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("endure-water");
+                        break;
                     case InformationalMessageType.ManashieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Manashield, false);
                         break;
