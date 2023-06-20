@@ -333,6 +333,10 @@
         [PluralName("kelp necklaces")]
         KelpNecklace,
 
+        [SingularName("key of the elements")]
+        //CSRTODO: plural?
+        KeyOfTheElements,
+
         [SingularName("khopesh sword")]
         [PluralName("khopesh swords")]
         KhopeshSword,
