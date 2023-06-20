@@ -117,6 +117,7 @@ namespace IsengardClient
 
         private CurrentRoomInfo _currentRoomInfo = new CurrentRoomInfo();
         private List<string> _foundSearchedExits;
+        private InventoryEquipment _inventoryEquipment = new InventoryEquipment();
         private bool _programmaticUI = false;
 
         private bool _setTickRoom = false;
@@ -1033,6 +1034,39 @@ namespace IsengardClient
             }
         }
 
+        private void OnInventory(FeedLineParameters flParams, List<ItemEntity> items)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Inventory) == InitializationStep.None;
+
+            lock (_inventoryEquipment.InventoryEquipmentLock)
+            {
+                InventoryEquipmentChange changes = new InventoryEquipmentChange();
+                changes.ChangeType = InventoryEquipmentChangeType.Refresh;
+                changes.InventoryItems = new List<ItemTypeEnum>();
+                _inventoryEquipment.InventoryItems.Clear();
+                foreach (ItemEntity nextItemEntity in items)
+                {
+                    if (nextItemEntity.ItemType.HasValue)
+                    {
+                        ItemTypeEnum nextItemValue = nextItemEntity.ItemType.Value;
+                        for (int i = 0; i < nextItemEntity.Count; i++)
+                        {
+                            _inventoryEquipment.InventoryItems.Add(nextItemValue);
+                            changes.InventoryItems.Add(nextItemValue);
+                        }
+                    }
+                }
+                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
+                _inventoryEquipment.InventoryEquipmentChanges.Add(changes);
+            }
+
+            if (forInit)
+            {
+                AfterProcessInitializationStep(currentStep, InitializationStep.Inventory, flParams);
+            }
+        }
+
         private void OnFailFlee(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -1048,6 +1082,7 @@ namespace IsengardClient
             SendCommand("score", InputEchoType.Off);
             SendCommand("who", InputEchoType.Off);
             SendCommand("remove all", InputEchoType.Off);
+            SendCommand("inventory", InputEchoType.Off);
             SendCommand("time", InputEchoType.Off);
             SendCommand("spells", InputEchoType.Off);
             _initializationSteps |= InitializationStep.Initialization;
@@ -1271,7 +1306,7 @@ namespace IsengardClient
                 newRoom = previousRoom;
             }
 
-            lock (_currentRoomInfo.RoomChangeLock) //update the room change list with the next room
+            lock (_currentRoomInfo.CurrentRoomInfoLock) //update the room change list with the next room
             {
                 _currentRoomInfo.CurrentObviousExits.Clear();
                 _currentRoomInfo.CurrentObviousExits.AddRange(obviousExits);
@@ -1747,7 +1782,7 @@ namespace IsengardClient
                         finishedProcessing = true;
                         break;
                     case InformationalMessageType.BullroarerInMithlond:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1765,7 +1800,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerInNindamos:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1783,7 +1818,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerReadyForBoarding:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1801,7 +1836,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             bool removeMessage = true;
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
@@ -1833,7 +1868,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftBree:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1851,7 +1886,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftMithlond:
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1881,7 +1916,7 @@ namespace IsengardClient
                         rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
                         MobTypeEnum nextMob = next.Mob;
                         List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             int index = currentRoomMobs.LastIndexOf(nextMob);
                             int iInsertionPoint;
@@ -1976,7 +2011,7 @@ namespace IsengardClient
             rc.ChangeType = RoomChangeType.RemoveMob;
             rc.Mobs = new List<MobTypeEnum>();
             List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-            lock (_currentRoomInfo.RoomChangeLock)
+            lock (_currentRoomInfo.CurrentRoomInfoLock)
             {
                 int index = currentRoomMobs.LastIndexOf(mobType);
                 if (index >= 0)
@@ -2011,7 +2046,7 @@ namespace IsengardClient
 
         private void HandleHarbringerStatusChange(bool inPort)
         {
-            lock (_currentRoomInfo.RoomChangeLock)
+            lock (_currentRoomInfo.CurrentRoomInfoLock)
             {
                 Room currentRoom = _currentRoomInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
@@ -2286,6 +2321,7 @@ namespace IsengardClient
                 new WhoOutputSequence(OnWho),
                 new SpellsSequence(OnSpells),
                 new RemoveEquipmentSequence(OnRemoveEquipment),
+                new InventorySequence(OnInventory),
                 new MobStatusSequence(OnMobStatusSequence),
                 new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
@@ -2785,7 +2821,7 @@ namespace IsengardClient
                             //choose first monster of the same type
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
                             List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                            lock (_currentRoomInfo.RoomChangeLock)
+                            lock (_currentRoomInfo.CurrentRoomInfoLock)
                             {
                                 int iIndexOfMonster = currentRoomMobs.IndexOf(eMobValue);
                                 if (iIndexOfMonster >= 0)
@@ -2806,7 +2842,7 @@ namespace IsengardClient
                 {
                     string sText = null;
                     List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                    lock (_currentRoomInfo.RoomChangeLock)
+                    lock (_currentRoomInfo.CurrentRoomInfoLock)
                     {
                         if (currentRoomMobs.Count > 0)
                         {
@@ -5026,7 +5062,7 @@ BeforeHazy:
 
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
 
-            lock (_currentRoomInfo.RoomChangeLock)
+            lock (_currentRoomInfo.CurrentRoomInfoLock)
             {
                 List<RoomChange> changes = null;
                 int iNewCounter = -1;
@@ -5222,7 +5258,7 @@ BeforeHazy:
                                 if (bwp == null)
                                 {
                                     string sNewMobText = string.Empty;
-                                    lock (_currentRoomInfo.RoomChangeLock)
+                                    lock (_currentRoomInfo.CurrentRoomInfoLock)
                                     {
                                         if (_currentRoomInfo.CurrentRoomMobs.Count > 0)
                                         {
@@ -5249,6 +5285,44 @@ BeforeHazy:
                         iNewCounter = nextRoomChange.GlobalCounter;
                     }
                     _currentRoomInfo.RoomChangeCounterUI = iNewCounter;
+                }
+            }
+
+            lock (_inventoryEquipment.InventoryEquipmentLock)
+            {
+                List<InventoryEquipmentChange> changes = null;
+                int iNewCounter = -1;
+                if (_inventoryEquipment.InventoryEquipmentCounter != _inventoryEquipment.InventoryEquipmentCounterUI)
+                {
+                    List<InventoryEquipmentChange> currentInvEqChanges = _inventoryEquipment.InventoryEquipmentChanges;
+                    for (int i = 0; i < currentInvEqChanges.Count; i++)
+                    {
+                        InventoryEquipmentChange nextInvEqChange = currentInvEqChanges[i];
+                        int iCounter = nextInvEqChange.GlobalCounter;
+                        if (iCounter > _inventoryEquipment.InventoryEquipmentCounterUI)
+                        {
+                            if (changes == null) changes = new List<InventoryEquipmentChange>();
+                            changes.Add(nextInvEqChange);
+                        }
+                    }
+                    if (changes != null)
+                    {
+                        foreach (InventoryEquipmentChange nextInvEqChange in changes)
+                        {
+                            InventoryEquipmentChangeType iect = nextInvEqChange.ChangeType;
+                            if (iect == InventoryEquipmentChangeType.Refresh)
+                            {
+                                lstEquipment.Items.Clear();
+                                lstInventory.Items.Clear();
+                                foreach (ItemTypeEnum nextItem in nextInvEqChange.InventoryItems)
+                                {
+                                    lstInventory.Items.Add(new ItemInList(nextItem));
+                                }
+                            }
+                            iNewCounter = nextInvEqChange.GlobalCounter;
+                        }
+                        _inventoryEquipment.InventoryEquipmentCounterUI = iNewCounter;
+                    }
                 }
             }
 
@@ -5864,7 +5938,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             _currentRoomInfo.CurrentRoom = selectedRoom;
                             _currentRoomInfo.RoomChangeCounterUI = -1;
@@ -5892,7 +5966,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_currentRoomInfo.RoomChangeLock)
+                        lock (_currentRoomInfo.CurrentRoomInfoLock)
                         {
                             _currentRoomInfo.CurrentRoom = selectedRoom;
                             _currentRoomInfo.RoomChangeCounterUI = -1;
@@ -6186,7 +6260,7 @@ BeforeHazy:
             if (isObviousMobs || isPermanentMobs)
             {
                 MobTypeEnum selectedMob = (MobTypeEnum)selectedNode.Tag;
-                lock (_currentRoomInfo.RoomChangeLock)
+                lock (_currentRoomInfo.CurrentRoomInfoLock)
                 {
                     Room currentRoom = _currentRoomInfo.CurrentRoom;
 

@@ -519,6 +519,7 @@ namespace IsengardClient
     {
         public static Dictionary<string, ItemTypeEnum> SingularItemMapping = new Dictionary<string, ItemTypeEnum>();
         public static Dictionary<string, ItemTypeEnum> PluralItemMapping = new Dictionary<string, ItemTypeEnum>();
+        public static Dictionary<ItemTypeEnum, string> ItemToSingularString = new Dictionary<ItemTypeEnum, string>();
 
         static ItemEntity()
         {
@@ -532,7 +533,7 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
                 else
-                    sSingular = null;
+                    throw new InvalidOperationException();
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -556,7 +557,11 @@ namespace IsengardClient
         {
             bool hasSingular = !string.IsNullOrEmpty(singular);
             bool hasPlural = !string.IsNullOrEmpty(plural);
-            if (hasSingular && hasPlural)
+            if (!hasSingular)
+            {
+                throw new InvalidOperationException();
+            }
+            else if (hasPlural)
             {
                 if (SingularItemMapping.ContainsKey(singular))
                 {
@@ -569,7 +574,7 @@ namespace IsengardClient
                 SingularItemMapping[singular] = type;
                 PluralItemMapping[plural] = type;
             }
-            else if (hasSingular)
+            else
             {
                 if (SingularItemMapping.ContainsKey(singular))
                 {
@@ -581,10 +586,7 @@ namespace IsengardClient
                 }
                 SingularItemMapping[singular] = type;
             }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+            ItemToSingularString[type] = singular;
         }
     }
 

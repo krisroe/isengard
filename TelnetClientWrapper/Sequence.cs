@@ -638,6 +638,34 @@ namespace IsengardClient
         }
     }
 
+    public class InventorySequence : AOutputProcessingSequence
+    {
+        private const string YOU_HAVE_PREFIX = "You have: ";
+        private Action<FeedLineParameters, List<ItemEntity>> _onSatisfied;
+        public InventorySequence(Action<FeedLineParameters, List<ItemEntity>> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public override void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0 && !string.IsNullOrEmpty(Lines[0]) && Lines[0].StartsWith(YOU_HAVE_PREFIX))
+            {
+                List<string> items = StringProcessing.GetList(Lines, 0, YOU_HAVE_PREFIX, true, out _);
+                if (items != null)
+                {
+                    List<ItemEntity> itemList = new List<ItemEntity>();
+                    if (items.Count > 1 || items[0] != "nothing")
+                    {
+                        RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                    }
+                    _onSatisfied(flParams, itemList);
+                    flParams.FinishedProcessing = true;
+                }
+            }
+        }
+    }
+
     public class RemoveEquipmentSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters> _onSatisfied;
@@ -2575,11 +2603,20 @@ StartProcessRoom:
                     if (sNextLine != null)
                     {
                         int lineLen = sNextLine.Length;
-                        int iPeriodIndex = sNextLine.LastIndexOf('.');
-                        if (iPeriodIndex == lineLen - 1)
+                        int iPeriodIndex = sNextLine.IndexOf('.');
+                        if (iPeriodIndex == lineLen - 1) //period is the last line in the string
                         {
                             sb.Append(sNextLine.Substring(0, lineLen - 1));
                             nextLineIndex = lineIndex + 1;
+                            break;
+                        }
+                        else if (iPeriodIndex == 0)
+                        {
+                            break;
+                        }
+                        else if (iPeriodIndex > 0)
+                        {
+                            sb.AppendLine(sNextLine.Substring(0, iPeriodIndex));
                             break;
                         }
                         else

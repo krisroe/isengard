@@ -984,6 +984,10 @@
         [PluralName("student activists")]
         StudentActivist,
 
+        [SingularName("swarm of flies")]
+        [PluralName("swarm of flies")]
+        SwarmOfFlies,
+
         [SingularName("Tellia the Witch")]
         //CSRTODO: no plural
         TelliaTheWitch,

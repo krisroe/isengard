@@ -521,6 +521,10 @@
         [PluralName("reddish-orange potions")]
         ReddishOrangePotion,
 
+        [SingularName("red potion")]
+        [PluralName("red potions")]
+        RedPotion,
+
         [SingularName("repair kit")]
         [PluralName("repair kits")]
         RepairKit,

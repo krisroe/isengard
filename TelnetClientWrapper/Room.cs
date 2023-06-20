@@ -106,7 +106,7 @@ namespace IsengardClient
         public Room CurrentRoomUI { get; set; }
         public List<RoomChange> CurrentRoomChanges { get; set; }
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
-        public object RoomChangeLock { get; set; }
+        public object CurrentRoomInfoLock { get; set; }
         public int RoomChangeCounter { get; set; }
         public int RoomChangeCounterUI { get; set; }
         public List<string> CurrentObviousExits { get; set; }
@@ -123,7 +123,7 @@ namespace IsengardClient
         {
             CurrentRoomChanges = new List<RoomChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
-            RoomChangeLock = new object();
+            CurrentRoomInfoLock = new object();
             RoomChangeCounter = -1;
             RoomChangeCounterUI = -1;
             CurrentObviousExits = new List<string>();
@@ -193,12 +193,23 @@ namespace IsengardClient
         public int FindNewMobInsertionPoint(MobTypeEnum newMob)
         {
             string sSingular = MobEntity.MobToSingularMapping[newMob];
+            bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
             foreach (MobTypeEnum nextMob in CurrentRoomMobs)
             {
                 string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
-                if (sSingular.CompareTo(sNextSingular) < 0)
+                bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                bool isBefore = false;
+                if (isCapitalized != nextIsCapitalized)
+                {
+                    isBefore = isCapitalized;
+                }
+                else
+                {
+                    isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                }
+                if (isBefore)
                 {
                     iFoundIndex = i;
                     break;

@@ -72,6 +72,10 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.grpInventory = new System.Windows.Forms.GroupBox();
+            this.lstInventory = new System.Windows.Forms.ListBox();
+            this.grpEquipment = new System.Windows.Forms.GroupBox();
+            this.lstEquipment = new System.Windows.Forms.ListBox();
             this.btnGoToHealingRoom = new System.Windows.Forms.Button();
             this.lblTickRoom = new System.Windows.Forms.Label();
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
@@ -163,14 +167,12 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.grpEquipment = new System.Windows.Forms.GroupBox();
-            this.lstEquipment = new System.Windows.Forms.ListBox();
-            this.grpInventory = new System.Windows.Forms.GroupBox();
-            this.lstInventory = new System.Windows.Forms.ListBox();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpInventory.SuspendLayout();
+            this.grpEquipment.SuspendLayout();
             this.grpCurrentRoom.SuspendLayout();
             this.ctxCurrentRoom.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
@@ -193,8 +195,6 @@
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
             this.pnlCommand.SuspendLayout();
-            this.grpEquipment.SuspendLayout();
-            this.grpInventory.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLevel1OffensiveSpell
@@ -711,6 +711,46 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1356, 1108);
             this.pnlMain.TabIndex = 0;
+            // 
+            // grpInventory
+            // 
+            this.grpInventory.Controls.Add(this.lstInventory);
+            this.grpInventory.Location = new System.Drawing.Point(283, 572);
+            this.grpInventory.Name = "grpInventory";
+            this.grpInventory.Size = new System.Drawing.Size(242, 380);
+            this.grpInventory.TabIndex = 147;
+            this.grpInventory.TabStop = false;
+            this.grpInventory.Text = "Inventory";
+            // 
+            // lstInventory
+            // 
+            this.lstInventory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstInventory.FormattingEnabled = true;
+            this.lstInventory.ItemHeight = 16;
+            this.lstInventory.Location = new System.Drawing.Point(3, 18);
+            this.lstInventory.Name = "lstInventory";
+            this.lstInventory.Size = new System.Drawing.Size(236, 359);
+            this.lstInventory.TabIndex = 0;
+            // 
+            // grpEquipment
+            // 
+            this.grpEquipment.Controls.Add(this.lstEquipment);
+            this.grpEquipment.Location = new System.Drawing.Point(31, 571);
+            this.grpEquipment.Name = "grpEquipment";
+            this.grpEquipment.Size = new System.Drawing.Size(242, 380);
+            this.grpEquipment.TabIndex = 146;
+            this.grpEquipment.TabStop = false;
+            this.grpEquipment.Text = "Equipment";
+            // 
+            // lstEquipment
+            // 
+            this.lstEquipment.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstEquipment.FormattingEnabled = true;
+            this.lstEquipment.ItemHeight = 16;
+            this.lstEquipment.Location = new System.Drawing.Point(3, 18);
+            this.lstEquipment.Name = "lstEquipment";
+            this.lstEquipment.Size = new System.Drawing.Size(236, 359);
+            this.lstEquipment.TabIndex = 0;
             // 
             // btnGoToHealingRoom
             // 
@@ -1692,46 +1732,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(655, 62);
             this.pnlCommand.TabIndex = 30;
             // 
-            // grpEquipment
-            // 
-            this.grpEquipment.Controls.Add(this.lstEquipment);
-            this.grpEquipment.Location = new System.Drawing.Point(31, 571);
-            this.grpEquipment.Name = "grpEquipment";
-            this.grpEquipment.Size = new System.Drawing.Size(242, 380);
-            this.grpEquipment.TabIndex = 146;
-            this.grpEquipment.TabStop = false;
-            this.grpEquipment.Text = "Equipment";
-            // 
-            // lstEquipment
-            // 
-            this.lstEquipment.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstEquipment.FormattingEnabled = true;
-            this.lstEquipment.ItemHeight = 16;
-            this.lstEquipment.Location = new System.Drawing.Point(3, 18);
-            this.lstEquipment.Name = "lstEquipment";
-            this.lstEquipment.Size = new System.Drawing.Size(236, 359);
-            this.lstEquipment.TabIndex = 0;
-            // 
-            // grpInventory
-            // 
-            this.grpInventory.Controls.Add(this.lstInventory);
-            this.grpInventory.Location = new System.Drawing.Point(283, 572);
-            this.grpInventory.Name = "grpInventory";
-            this.grpInventory.Size = new System.Drawing.Size(242, 380);
-            this.grpInventory.TabIndex = 147;
-            this.grpInventory.TabStop = false;
-            this.grpInventory.Text = "Inventory";
-            // 
-            // lstInventory
-            // 
-            this.lstInventory.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstInventory.FormattingEnabled = true;
-            this.lstInventory.ItemHeight = 16;
-            this.lstInventory.Location = new System.Drawing.Point(3, 18);
-            this.lstInventory.Name = "lstInventory";
-            this.lstInventory.Size = new System.Drawing.Size(236, 359);
-            this.lstInventory.TabIndex = 0;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1751,6 +1751,8 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpInventory.ResumeLayout(false);
+            this.grpEquipment.ResumeLayout(false);
             this.grpCurrentRoom.ResumeLayout(false);
             this.ctxCurrentRoom.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
@@ -1780,8 +1782,6 @@
             this.ctxConsole.ResumeLayout(false);
             this.pnlCommand.ResumeLayout(false);
             this.pnlCommand.PerformLayout();
-            this.grpEquipment.ResumeLayout(false);
-            this.grpInventory.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
