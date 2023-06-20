@@ -14,6 +14,35 @@ namespace IsengardClient
             this.InventoryEquipmentChanges = new List<InventoryEquipmentChange>();
             this.InventoryEquipmentLock = new object();
         }
+
+        public int FindNewItemInsertionPoint(ItemTypeEnum newItem)
+        {
+           string sSingular = ItemEntity.ItemToSingularString[newItem];
+            bool isCapitalized = char.IsUpper(sSingular[0]);
+            int i = 0;
+            int iFoundIndex = -1;
+            foreach (ItemTypeEnum nextItem in InventoryItems)
+            {
+                string sNextSingular = ItemEntity.ItemToSingularString[nextItem];
+                bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                bool isBefore = false;
+                if (isCapitalized != nextIsCapitalized)
+                {
+                    isBefore = isCapitalized;
+                }
+                else
+                {
+                    isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                }
+                if (isBefore)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
     }
 
     internal class InventoryEquipmentChange

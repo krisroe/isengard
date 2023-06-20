@@ -807,6 +807,57 @@ namespace IsengardClient
         }
     }
 
+    public class InventoryManagementSequence : AOutputProcessingSequence
+    {
+        private const string YOU_GET_A_PREFIX = "You get a ";
+        private const string YOU_DROP_A_PREFIX = "You drop a ";
+        private Action<ItemTypeEnum, bool> _onSatisfied;
+        public InventoryManagementSequence(Action<ItemTypeEnum, bool> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public override void FeedLine(FeedLineParameters flp)
+        {
+            List<string> Lines = flp.Lines;
+            if (Lines.Count > 0)
+            {
+                string firstLine = Lines[0];
+                string objectText = string.Empty;
+                bool isAdd = false;
+                if (firstLine.StartsWith(YOU_GET_A_PREFIX) && firstLine != YOU_GET_A_PREFIX)
+                {
+                    isAdd = true;
+                    objectText = firstLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
+                }
+                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != YOU_DROP_A_PREFIX)
+                {
+                    isAdd = false;
+                    objectText = firstLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
+                }
+                if (!string.IsNullOrEmpty(objectText))
+                {
+                    ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, false) as ItemEntity;
+                    if (ie != null)
+                    {
+                        if (ie is UnknownItemEntity)
+                        {
+                            flp.ErrorMessages.Add("Unknown item: " + objectText);
+                        }
+                        else if (ie.Count != 1)
+                        {
+                            flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
+                        }
+                        else
+                        {
+                            _onSatisfied(ie.ItemType.Value, isAdd);
+                            flp.FinishedProcessing = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public class SkillCooldown
     {
         public SkillCooldown()

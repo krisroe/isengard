@@ -2115,6 +2115,47 @@ namespace IsengardClient
             return rc;
         }
 
+        private void OnInventoryManagement(ItemTypeEnum item, bool isAdd)
+        {
+            InventoryEquipmentChange iec = new InventoryEquipmentChange();
+            iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
+            iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
+            iec.InventoryItems = new List<ItemTypeEnum>() { item };
+            lock (_inventoryEquipment.InventoryEquipmentLock)
+            {
+                int foundIndex = _inventoryEquipment.InventoryItems.LastIndexOf(item);
+                int changeIndex = -1;
+                bool effectChange = false;
+                if (isAdd)
+                {
+                    changeIndex = _inventoryEquipment.FindNewItemInsertionPoint(item);
+                    effectChange = true;
+                    if (changeIndex == -1)
+                    {
+                        _inventoryEquipment.InventoryItems.Add(item);
+                    }
+                    else
+                    {
+                        _inventoryEquipment.InventoryItems.Insert(changeIndex, item);
+                    }
+                }
+                else
+                {
+                    changeIndex = foundIndex;
+                    if (foundIndex >= 0)
+                    {
+                        _inventoryEquipment.InventoryItems.RemoveAt(foundIndex);
+                        effectChange = true;
+                    }
+                }
+                if (effectChange)
+                {
+                    iec.InventoryIndex = changeIndex;
+                    _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
+                }
+            }
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<int> currentOutputItemData = new List<int>();
@@ -2328,6 +2369,7 @@ namespace IsengardClient
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
+                new InventoryManagementSequence(OnInventoryManagement),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
@@ -5317,6 +5359,22 @@ BeforeHazy:
                                 foreach (ItemTypeEnum nextItem in nextInvEqChange.InventoryItems)
                                 {
                                     lstInventory.Items.Add(new ItemInList(nextItem));
+                                }
+                            }
+                            else if (iect == InventoryEquipmentChangeType.RemoveItemFromInventory)
+                            {
+                                lstInventory.Items.RemoveAt(nextInvEqChange.InventoryIndex);
+                            }
+                            else if (iect == InventoryEquipmentChangeType.AddItemToInventory)
+                            {
+                                ItemInList it = new ItemInList(nextInvEqChange.InventoryItems[0]);
+                                if (nextInvEqChange.InventoryIndex == -1)
+                                {
+                                    lstInventory.Items.Add(it);
+                                }
+                                else
+                                {
+                                    lstInventory.Items.Insert(nextInvEqChange.InventoryIndex, it);
                                 }
                             }
                             iNewCounter = nextInvEqChange.GlobalCounter;
