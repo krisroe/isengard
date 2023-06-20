@@ -841,16 +841,28 @@ namespace IsengardClient
                     string objectText = string.Empty;
                     if (nextLine.StartsWith(YOU_GET_A_PREFIX) && nextLine != YOU_GET_A_PREFIX)
                     {
+                        if (isAdd.HasValue && !isAdd.Value)
+                        {
+                            return;
+                        }
                         isAdd = true;
                         objectText = nextLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
                     }
                     else if (nextLine.StartsWith(YOU_DROP_A_PREFIX) && nextLine != YOU_DROP_A_PREFIX)
                     {
+                        if (isAdd.HasValue && isAdd.Value)
+                        {
+                            return;
+                        }
                         isAdd = false;
                         objectText = nextLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
                     }
                     else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
                     {
+                        if (isAdd.HasValue && isAdd.Value)
+                        {
+                            return;
+                        }
                         isAdd = false;
                         if (!nextLine.EndsWith("."))
                         {
@@ -894,24 +906,27 @@ namespace IsengardClient
                     {
                         return;
                     }
-                    ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, false) as ItemEntity;
-                    if (ie != null)
+                    if (!string.IsNullOrEmpty(objectText))
                     {
-                        if (ie is UnknownItemEntity)
+                        ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, false) as ItemEntity;
+                        if (ie != null)
                         {
-                            flp.ErrorMessages.Add("Unknown item: " + objectText);
-                        }
-                        else if (ie.Count != 1)
-                        {
-                            flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
-                        }
-                        else
-                        {
-                            if (itemsManaged == null)
+                            if (ie is UnknownItemEntity)
                             {
-                                itemsManaged = new List<ItemTypeEnum>();
+                                flp.ErrorMessages.Add("Unknown item: " + objectText);
                             }
-                            itemsManaged.Add(ie.ItemType.Value);
+                            else if (ie.Count != 1)
+                            {
+                                flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
+                            }
+                            else
+                            {
+                                if (itemsManaged == null)
+                                {
+                                    itemsManaged = new List<ItemTypeEnum>();
+                                }
+                                itemsManaged.Add(ie.ItemType.Value);
+                            }
                         }
                     }
                 }

@@ -5389,7 +5389,7 @@ BeforeHazy:
                             {
                                 for (int j = 0; j < nextInvEqChange.InventoryIndices.Count; j++)
                                 {
-                                    lstInventory.Items.RemoveAt(j);
+                                    lstInventory.Items.RemoveAt(nextInvEqChange.InventoryIndices[j]);
                                 }
                             }
                             else if (iect == InventoryEquipmentChangeType.AddItemToInventory)
