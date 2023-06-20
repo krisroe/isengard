@@ -100,6 +100,10 @@ namespace IsengardClient
         public Room Room { get; set; }
         public List<string> Exits { get; set; }
         public List<MobTypeEnum> Mobs { get; set; }
+        /// <summary>
+        /// index where the object should be inserted/removed. This is -1 when inserted at the end of the list.
+        /// </summary>
+        public int Index { get; set; }
         public Dictionary<string, Exit> MappedExits { get; set; }
         public List<Exit> OtherExits = new List<Exit>();
         public int GlobalCounter { get; set; }

@@ -118,12 +118,12 @@ namespace IsengardClient
         private Room m_oCurrentRoom;
         private Room m_oCurrentRoomUI;
         private List<RoomChange> _currentRoomChanges = new List<RoomChange>();
+        private List<MobTypeEnum> _currentRoomMobs = new List<MobTypeEnum>();
         private object _roomChangeLock = new object();
         private int _roomChangeCounter = -1;
         private int _roomChangeCounterUI = -1;
         private List<string> _currentObviousExits;
         private List<string> _foundSearchedExits;
-        private List<MobTypeEnum> _currentRoomMobs;
         private TreeNode _tnObviousMobs;
         private bool _obviousMobsTNExpanded = true;
         private TreeNode _tnObviousExits;
@@ -1352,30 +1352,27 @@ namespace IsengardClient
                             }
                         }
                     }
-                }
-
-                List<MobTypeEnum> mobEnums = new List<MobTypeEnum>();
-                List<MobEntity> mobs = roomTransitionInfo.Mobs;
-                if (mobs != null)
-                {
-                    foreach (var nextMob in mobs)
+                    _currentRoomMobs.Clear();
+                    List<MobEntity> mobs = roomTransitionInfo.Mobs;
+                    if (mobs != null)
                     {
-                        MobTypeEnum? mobType = nextMob.MobType;
-                        if (mobType.HasValue)
+                        foreach (var nextMob in mobs)
                         {
-                            MobTypeEnum mobTypeValue = mobType.Value;
-                            for (int i = 0; i < nextMob.Count; i++)
+                            MobTypeEnum? mobType = nextMob.MobType;
+                            if (mobType.HasValue)
                             {
-                                mobEnums.Add(mobTypeValue);
+                                MobTypeEnum mobTypeValue = mobType.Value;
+                                for (int i = 0; i < nextMob.Count; i++)
+                                {
+                                    _currentRoomMobs.Add(mobTypeValue);
+                                }
                             }
                         }
                     }
+                    rc.Mobs = new List<MobTypeEnum>(_currentRoomMobs);
+                    _currentRoomChanges.Add(rc);
+                    m_oCurrentRoom = newRoom;
                 }
-                rc.Mobs = mobEnums;
-                _currentRoomMobs = new List<MobTypeEnum>(mobEnums);
-
-                _currentRoomChanges.Add(rc);
-                m_oCurrentRoom = newRoom;
             }
         }
 
@@ -1886,13 +1883,30 @@ namespace IsengardClient
                         rc = new RoomChange();
                         rc.ChangeType = RoomChangeType.AddMob;
                         rc.Mobs = new List<MobTypeEnum>();
-                        for (int i = 0; i < next.MobCount; i++)
-                        {
-                            rc.Mobs.Add(next.Mob);
-                        }
                         rc.GlobalCounter = _roomChangeCounter;
+                        MobTypeEnum nextMob = next.Mob;
                         lock (_roomChangeLock)
                         {
+                            int index = _currentRoomMobs.LastIndexOf(nextMob);
+                            int iInsertionPoint;
+                            if (index >= 0)
+                            {
+                                iInsertionPoint = index + 1;
+                            }
+                            else
+                            {
+                                iInsertionPoint = FindNewMobInsertionPoint(nextMob);
+                            }
+                            bool insertAtEnd = iInsertionPoint == _currentRoomMobs.Count;
+                            rc.Index = insertAtEnd ? -1 : iInsertionPoint;
+                            for (int i = 0; i < next.MobCount; i++)
+                            {
+                                rc.Mobs.Add(nextMob);
+                                if (insertAtEnd)
+                                    _currentRoomMobs.Add(nextMob);
+                                else
+                                    _currentRoomMobs.Insert(iInsertionPoint, nextMob);
+                            }
                             _roomChangeCounter++;
                             rc.GlobalCounter = _roomChangeCounter;
                             _currentRoomChanges.Add(rc);
@@ -1966,16 +1980,36 @@ namespace IsengardClient
             RoomChange rc = new RoomChange();
             rc.ChangeType = RoomChangeType.RemoveMob;
             rc.Mobs = new List<MobTypeEnum>();
-            for (int i = 0; i < Count; i++)
-            {
-                rc.Mobs.Add(mobType);
-            }
-            rc.GlobalCounter = _roomChangeCounter;
             lock (_roomChangeLock)
             {
-                _roomChangeCounter++;
-                rc.GlobalCounter = _roomChangeCounter;
-                _currentRoomChanges.Add(rc);
+                int index = _currentRoomMobs.LastIndexOf(mobType);
+                if (index >= 0)
+                {
+                    for (int i = 0; i < Count; i++)
+                    {
+                        if (_currentRoomMobs[index] == mobType)
+                        {
+                            rc.Mobs.Add(mobType);
+                            _currentRoomMobs.RemoveAt(index);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                        if (index == 0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            index--;
+                        }
+                    }
+                    _roomChangeCounter++;
+                    rc.GlobalCounter = _roomChangeCounter;
+                    rc.Index = index;
+                    _currentRoomChanges.Add(rc);
+                }
             }
         }
 
@@ -5178,17 +5212,18 @@ BeforeHazy:
                             bool isFirst = true;
                             MobTypeEnum? firstMob = null;
                             TreeNode firstInserted = null;
+                            int iAddIndex = nextRoomChange.Index;
+                            bool insertAtEnd = iAddIndex == -1;
                             foreach (MobTypeEnum nextMobType in nextRoomChange.Mobs)
                             {
-                                int iInsertionPoint = FindNewMobInsertionPoint(nextMobType);
                                 TreeNode inserted = GetMobsNode(nextMobType);
-                                if (iInsertionPoint == -1)
+                                if (insertAtEnd)
                                 {
                                     _tnObviousMobs.Nodes.Add(inserted);
                                 }
                                 else
                                 {
-                                    _tnObviousMobs.Nodes.Insert(iInsertionPoint, inserted);
+                                    _tnObviousMobs.Nodes.Insert(iAddIndex, inserted);
                                 }
                                 if (isFirst)
                                 {
@@ -5208,22 +5243,14 @@ BeforeHazy:
                         }
                         else if (rcType == RoomChangeType.RemoveMob)
                         {
-                            bool somethingRemoved = false;
-                            foreach (MobTypeEnum nextMobType in nextRoomChange.Mobs)
+                            int iRemoveIndex = nextRoomChange.Index;
+                            for (int i = 0; i < nextRoomChange.Mobs.Count; i++)
                             {
-                                int removalIndex = FindMobIndex(nextMobType);
-                                if (removalIndex != -1)
-                                {
-                                    somethingRemoved = true;
-                                    _tnObviousMobs.Nodes.RemoveAt(removalIndex);
-                                }
+                                _tnObviousMobs.Nodes.RemoveAt(iRemoveIndex);
                             }
-                            if (somethingRemoved)
+                            if (_tnObviousMobs.Nodes.Count == 0)
                             {
-                                if (_tnObviousMobs.Nodes.Count == 0)
-                                {
-                                    treeCurrentRoom.Nodes.Remove(_tnObviousMobs);
-                                }
+                                treeCurrentRoom.Nodes.Remove(_tnObviousMobs);
                             }
                         }
                         
@@ -5285,9 +5312,8 @@ BeforeHazy:
             string sSingular = MobEntity.MobToSingularMapping[newMob];
             int i = 0;
             int iFoundIndex = -1;
-            foreach (TreeNode tn in _tnObviousMobs.Nodes)
+            foreach (MobTypeEnum nextMob in _currentRoomMobs)
             {
-                MobTypeEnum nextMob = (MobTypeEnum)tn.Tag;
                 string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
                 if (sSingular.CompareTo(sNextSingular) < 0)
                 {
