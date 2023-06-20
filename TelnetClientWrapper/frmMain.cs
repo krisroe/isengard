@@ -1985,6 +1985,7 @@ namespace IsengardClient
                 int index = _currentRoomMobs.LastIndexOf(mobType);
                 if (index >= 0)
                 {
+                    int iLastIndexCount = Count - 1;
                     for (int i = 0; i < Count; i++)
                     {
                         if (_currentRoomMobs[index] == mobType)
@@ -2000,7 +2001,7 @@ namespace IsengardClient
                         {
                             break;
                         }
-                        else
+                        else if (i != iLastIndexCount)
                         {
                             index--;
                         }

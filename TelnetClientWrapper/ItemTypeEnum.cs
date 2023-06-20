@@ -63,6 +63,10 @@
         [PluralName("black iron keys")]
         BlackIronKey,
 
+        [SingularName("black vestments")]
+        //CSRTODO: plural?
+        BlackVestments,
+
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
         BlueBubblyPotion,
