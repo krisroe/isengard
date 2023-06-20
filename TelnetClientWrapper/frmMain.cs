@@ -1444,19 +1444,14 @@ namespace IsengardClient
             }
         }
 
-        private void OnLifeSpellCast(FeedLineParameters flParams, BackgroundCommandType lifeSpellCommandType)
+        private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, string activeSpell)
         {
-            string activeSpell = null;
-            if (lifeSpellCommandType == BackgroundCommandType.Bless)
-                activeSpell = "bless";
-            else if (lifeSpellCommandType == BackgroundCommandType.Protection)
-                activeSpell = "protection";
             if (!string.IsNullOrEmpty(activeSpell))
             {
                 AddActiveSpell(activeSpell);
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == lifeSpellCommandType)
+            if (bct.HasValue && commandType.HasValue && bct.Value == commandType.Value)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
@@ -1464,23 +1459,34 @@ namespace IsengardClient
 
         private void AddActiveSpell(string spellName)
         {
-            lock (_spellsCast)
-            {
-                if (!_spellsCast.Contains(spellName))
-                {
-                    if (_spellsCast.Contains("None"))
-                    {
-                        _spellsCast.Remove("None");
-                    }
-                    _spellsCast.Add(spellName);
-                    _refreshSpellsCast = true;
-                }
-            }
+            AddActiveSpells(new List<string>() { spellName });
         }
 
-        private void OnFly(FeedLineParameters flParams)
+        private void AddActiveSpells(List<string> spellNames)
         {
-            AddActiveSpell("fly");
+            bool changed = false;
+            if (spellNames != null && spellNames.Count > 0)
+            {
+                lock (_spellsCast)
+                {
+                    foreach (string nextSpell in spellNames)
+                    {
+                        if (!_spellsCast.Contains(nextSpell))
+                        {
+                            if (_spellsCast.Contains("None"))
+                            {
+                                _spellsCast.Remove("None");
+                            }
+                            _spellsCast.Add(nextSpell);
+                            changed = true;
+                        }
+                    }
+                    if (changed)
+                    {
+                        _refreshSpellsCast = true;
+                    }
+                }
+            }
         }
 
         private void FailMovement(FeedLineParameters flParams, MovementResult movementResult, int damage)
@@ -1800,6 +1806,10 @@ namespace IsengardClient
                     case InformationalMessageType.EndureWaterOver:
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("endure-water");
+                        break;
+                    case InformationalMessageType.DetectMagicOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("detect-magic");
                         break;
                     case InformationalMessageType.ManashieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Manashield, false);
@@ -2141,7 +2151,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(List<ItemTypeEnum> items, bool isAdd, int? gold, int sellGold)
+        private void OnInventoryManagement(List<ItemTypeEnum> items, bool isAdd, int? gold, int sellGold, List<string> activeSpells)
         {
             InventoryEquipmentChange iec = new InventoryEquipmentChange();
             iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
@@ -2191,6 +2201,10 @@ namespace IsengardClient
             else if (sellGold > 0)
             {
                 _gold += sellGold;
+            }
+            if (activeSpells != null && activeSpells.Count > 0)
+            {
+                AddActiveSpells(activeSpells);
             }
         }
 
@@ -2411,7 +2425,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
-                new LifeSpellCastSequence(OnLifeSpellCast),
+                new SelfSpellCastSequence(OnSelfSpellCast),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
@@ -2430,7 +2444,6 @@ namespace IsengardClient
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
-                new ConstantOutputSequence("You can fly!", OnFly, ConstantSequenceMatchType.ExactMatch, 0, (BackgroundCommandType?)null),
                 new ConstantOutputSequence("I don't see that exit.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),

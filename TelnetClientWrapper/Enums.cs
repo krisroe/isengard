@@ -376,6 +376,7 @@ namespace IsengardClient
         EndureColdOver,
         EndureWaterOver,
         EndureEarthOver,
+        DetectMagicOver,
         ManashieldOff,
         FireDamage,
         WaterDamage,

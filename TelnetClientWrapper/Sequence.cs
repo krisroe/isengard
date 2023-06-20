@@ -821,8 +821,8 @@ namespace IsengardClient
         private const string YOU_GET_A_PREFIX = "You get ";
         private const string YOU_DROP_A_PREFIX = "You drop ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<List<ItemTypeEnum>, bool, int?, int> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<List<ItemTypeEnum>, bool, int?, int> onSatisfied)
+        private Action<List<ItemTypeEnum>, bool, int?, int, List<string>> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<List<ItemTypeEnum>, bool, int?, int, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -832,6 +832,7 @@ namespace IsengardClient
             int iSellGold = 0;
             int? iTotalGold = null;
             bool? isAdd = null;
+            List<string> activeSpells = null;
             if (Lines.Count > 0)
             {
                 List<ItemTypeEnum> itemsManaged = null;
@@ -898,16 +899,18 @@ namespace IsengardClient
                     }
                     else if (nextLine == "Thanks for recycling." ||
                              nextLine == "You feel better." || //vigor/mend
-                             nextLine == "Your eyes feel funny." || //detect-magic potion
-                             nextLine == "You turn invisible." || //red bubbly potion
-                             nextLine == "You become shielded from the normal fire element." || //red potion
-                             nextLine == "You become shielded from the normal wind element." || //little brown jug
-                             nextLine == "You become shielded from the normal earth element." ||
-                             nextLine == "You become shielded from the normal water element." ||
-                             nextLine == "Yuck!  Tastes awful!" ||
+                             nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
+                             nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
                              nextLine == "Substance consumed.")
                     {
-                        continue;
+                        continue; //skipped
+                    }
+                    else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
+                    {
+                        if (activeSpells == null)
+                        {
+                            activeSpells = new List<string>() { activeSpell };
+                        }
                     }
                     else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
                     {
@@ -956,7 +959,7 @@ namespace IsengardClient
                 }
                 if (itemsManaged != null)
                 {
-                    _onSatisfied(itemsManaged, isAdd.Value, iTotalGold, iSellGold);
+                    _onSatisfied(itemsManaged, isAdd.Value, iTotalGold, iSellGold, activeSpells);
                     flp.FinishedProcessing = true;
                 }
             }
@@ -2690,10 +2693,25 @@ StartProcessRoom:
         }
     }
 
-    public class LifeSpellCastSequence : AOutputProcessingSequence
+    public class SelfSpellCastSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, BackgroundCommandType> _onSatisfied;
-        public LifeSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType> onSatisfied)
+        public static Dictionary<string, string> ACTIVE_SPELL_TO_ACTIVE_TEXT = new Dictionary<string, string>()
+        {
+            { "You feel holy.", "bless" },
+            { "You feel watched.", "protection" },
+            { "You can fly!", "fly"},
+            { "Your eyes feel funny.", "detect-magic" },
+            { "You turn invisible.", "invisibility" },
+            { "You become shielded from the normal fire element.", "endure-fire" },
+            { "You become shielded from the normal wind element.", "endure-cold" },
+            { "You become shielded from the normal earth element.", "endure-earth" },
+            { "You become shielded from the normal water element.", "endure-water" },
+            { "You begin to float.", "levitation" },
+            { "Your eyes tingle.", "detect-invisible"}, //comes with "You start to feel real strange, as if connected to another dimension."
+        };
+
+        public Action<FeedLineParameters, BackgroundCommandType?, string> _onSatisfied;
+        public SelfSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType?, string> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -2703,6 +2721,7 @@ StartProcessRoom:
             BackgroundCommandType? matchingSpell = null;
             List<string> Lines = flParams.Lines;
             int lineCount = Lines.Count;
+            string activeSpell = null;
             if (lineCount > 0 && lineCount <= 3)
             {
                 string firstLine = Lines[0];
@@ -2712,16 +2731,26 @@ StartProcessRoom:
                     matchingSpell = BackgroundCommandType.Vigor;
                 else if (firstLine == "Mend-wounds spell cast." && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine))
                     matchingSpell = BackgroundCommandType.MendWounds;
-                else if (firstLine == "Bless spell cast." && secondLine == "You feel holy." && string.IsNullOrEmpty(thirdLine))
-                    matchingSpell = BackgroundCommandType.Bless;
-                else if (firstLine == "Protection spell cast." && secondLine == "You feel watched." && string.IsNullOrEmpty(thirdLine))
-                    matchingSpell = BackgroundCommandType.Protection;
                 else if (firstLine == "Curepoison spell cast on yourself." && secondLine == "You feel much better." && string.IsNullOrEmpty(thirdLine))
                     matchingSpell = BackgroundCommandType.CurePoison;
+                else if (firstLine.EndsWith(" spell cast."))
+                {
+                    if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(secondLine, out activeSpell))
+                    {
+                        if (activeSpell == "bless")
+                        {
+                            matchingSpell = BackgroundCommandType.Bless;
+                        }
+                        else if (activeSpell == "protection")
+                        {
+                            matchingSpell = BackgroundCommandType.Protection;
+                        }
+                    }
+                }
             }
-            if (matchingSpell.HasValue)
+            if (matchingSpell.HasValue || !string.IsNullOrEmpty(activeSpell))
             {
-                _onSatisfied(flParams, matchingSpell.Value);
+                _onSatisfied(flParams, matchingSpell.Value, activeSpell);
                 flParams.FinishedProcessing = true;
             }
         }
