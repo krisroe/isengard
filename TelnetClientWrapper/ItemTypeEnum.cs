@@ -110,6 +110,10 @@
         [WeaponType(WeaponType.Slash)]
         BroadSword,
 
+        [SingularName("brown bag")]
+        [PluralName("brown bags")]
+        BrownBag,
+
         [SingularName("bucket")]
         [PluralName("buckets")]
         Bucket,
@@ -124,7 +128,7 @@
 
         [SingularName("cat o' nine tails")]
         [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
         CatONineTails,
 
         [SingularName("chain mail armor")]
@@ -748,6 +752,10 @@
         [SingularName("sprite leather armor")]
         [EquipmentType(EquipmentType.Torso)]
         SpriteLeatherArmor,
+
+        [SingularName("sprite leather leggings")]
+        [EquipmentType(EquipmentType.Legs)]
+        SpriteLeatherLeggings,
 
         [SingularName("splint mail")]
         [EquipmentType(EquipmentType.Unknown)]
