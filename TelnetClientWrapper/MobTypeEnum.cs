@@ -1224,5 +1224,9 @@
         [Experience(220)]
         [Alignment(AlignmentType.Blue)]
         ZathrielTheMinstrel,
+
+        [SingularName("zombie")]
+        [PluralName("zombies")]
+        Zombie,
     }
 }

@@ -442,6 +442,10 @@ namespace IsengardClient
                     sPlural = null;
                 if (!string.IsNullOrEmpty(sPlural)) smd.PluralName = sPlural;
 
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(AggressiveAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.Aggressive = ((AggressiveAttribute)valueAttributes[0]).Aggressive;
+
                 bool hasSingular = !string.IsNullOrEmpty(smd.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(smd.PluralName);
                 if (hasSingular)
