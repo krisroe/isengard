@@ -2717,7 +2717,7 @@ namespace IsengardClient
             e = AddExit(oUnderhallsCorridorsStoneDoor, oUnderhallsBugbearsLair, "stone");
             e.KeyType = KeyType.UnknownKnockable;
             e.MustOpen = true;
-            AddExit(oUnderhallsBugbearsLair, oUnderhallsCorridorsStoneDoor, "stone");
+            e = AddExit(oUnderhallsBugbearsLair, oUnderhallsCorridorsStoneDoor, "stone");
             e.KeyType = KeyType.UnknownKnockable;
             e.MustOpen = true;
             breeToImladrisGraph.Rooms[oUnderhallsBugbearsLair] = new System.Windows.Point(4, -2);
@@ -2725,6 +2725,7 @@ namespace IsengardClient
             Room oHiddenCubicle = AddRoom("Hidden Cubicle", "Hidden Cubicle");
             e = AddBidirectionalExitsWithOut(oUnderhallsBugbearsLair, oHiddenCubicle, "hidden");
             e.Hidden = true;
+            e.KeyType = KeyType.UnknownKnockable;
             e.MustOpen = true;
             breeToImladrisGraph.Rooms[oHiddenCubicle] = new System.Windows.Point(5, -2);
 
@@ -2749,6 +2750,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsToOtherDoor4] = new System.Windows.Point(-1, -1);
 
             Room oUnderhallsCorridorsOtherDoor = AddRoom("To Door", "Underhalls Corridors");
+            oUnderhallsCorridorsOtherDoor.AddPermanentMobs(MobTypeEnum.DoorMimic);
             AddBidirectionalExits(oUnderhallsCorridorsOtherDoor, oUnderhallsCorridorsToOtherDoor4, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsOtherDoor] = new System.Windows.Point(-1, -2);
 

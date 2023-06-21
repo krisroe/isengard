@@ -205,6 +205,10 @@
         [PluralName("disillusioned drunks")]
         DisillusionedDrunk,
 
+        [SingularName("door mimic")]
+        [PluralName("door mimics")]
+        DoorMimic,
+
         [SingularName("Dori")]
         //CSRTODO: no plural?
         Dori,

@@ -232,6 +232,10 @@
         //CSRTODO: plural?
         DriedSeaweed,
 
+        [SingularName("dungeon key")]
+        [PluralName("dungeon keys")]
+        DungeonKey,
+
         [SingularName("dwarven mithril gaiters")]
         [EquipmentType(EquipmentType.Unknown)]
         DwarvenMithrilGaiters,
@@ -665,7 +669,7 @@
         RingOfInvisibility,
 
         [SingularName("ruby")]
-        [PluralName("rubies")]
+        [PluralName("rubys")] //verified 6/21/23
         Ruby,
 
         [SingularName("rusty key")]
