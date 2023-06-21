@@ -116,6 +116,7 @@
 
         [SingularName("bucket")]
         [PluralName("buckets")]
+        [EquipmentType(EquipmentType.Held)]
         Bucket,
 
         [SingularName("bundle of wheat")]
@@ -162,7 +163,7 @@
 
         [SingularName("club")]
         [PluralName("clubs")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Blunt)]
         Club,
 
         [SingularName("copper pieces")]
@@ -184,7 +185,7 @@
 
         [SingularName("dagger")]
         [PluralName("daggers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         Dagger,
 
         [SingularName("dark blade")]
@@ -592,7 +593,7 @@
 
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Polearm)]
         Quarterstaff,
 
         [SingularName("quartz stone")]
