@@ -227,7 +227,7 @@ namespace IsengardClient
         public override string ToString()
         {
             StaticItemData sid = ItemEntity.StaticItemData[ItemType];
-            return sid.SingularName + "(" + sid.EquipmentType.Value.ToString() + ")";
+            return sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
         }
     }
 }

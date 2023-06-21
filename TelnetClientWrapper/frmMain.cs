@@ -2241,9 +2241,9 @@ namespace IsengardClient
                     if (isEquipment)
                     {
                         StaticItemData sid = ItemEntity.StaticItemData[nextItem];
-                        if (sid.EquipmentType.HasValue && sid.EquipmentType.Value != EquipmentType.Unknown)
+                        if (sid.EquipmentType != EquipmentType.Unknown)
                         {
-                            foreach (EquipmentSlot nextSlot in InventoryEquipment.GetSlotsForEquipmentType(sid.EquipmentType.Value, !isAdd))
+                            foreach (EquipmentSlot nextSlot in InventoryEquipment.GetSlotsForEquipmentType(sid.EquipmentType, !isAdd))
                             {
                                 int iSlotIndex = (int)nextSlot;
                                 if (isAdd)

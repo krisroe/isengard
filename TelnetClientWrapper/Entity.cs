@@ -527,7 +527,7 @@ namespace IsengardClient
     public class StaticItemData
     {
         public ItemTypeEnum ItemType { get; set; }
-        public EquipmentType? EquipmentType { get; set; }
+        public EquipmentType EquipmentType { get; set; }
         public WeaponType? WeaponType { get; set; }
         public string SingularName { get; set; }
         public string PluralName { get; set; }
