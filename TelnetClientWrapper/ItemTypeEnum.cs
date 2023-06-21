@@ -381,6 +381,11 @@
         [EquipmentType(EquipmentType.Finger)]
         IronRing,
 
+        [SingularName("iron spear")]
+        [PluralName("iron spears")]
+        [WeaponType(WeaponType.Polearm)]
+        IronSpear,
+
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
         KasnarsRedKey,
