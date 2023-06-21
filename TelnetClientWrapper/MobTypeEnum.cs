@@ -237,6 +237,10 @@
         [PluralName("dwarven outcasts")]
         DwarvenOutcast,
 
+        [SingularName("Eald the Wise")]
+        //CSRTODO: no plural
+        EaldTheWise,
+
         [SingularName("eccentric artist")]
         [PluralName("eccentric artists")]
         EccentricArtist,

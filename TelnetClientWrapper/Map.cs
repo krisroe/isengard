@@ -1925,7 +1925,39 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oDrainageChamber] = new System.Windows.Point(8, 8);
 
             oSmoulderingVillage = AddRoom("Smoldering Village", "Smoldering village");
-            breeSewersGraph.Rooms[oSmoulderingVillage] = new System.Windows.Point(0, 0);
+            breeSewersGraph.Rooms[oSmoulderingVillage] = new System.Windows.Point(1, -1);
+
+            Room oFirePit = AddRoom("Fire Pit", "Fire Pit");
+            AddExit(oSmoulderingVillage, oFirePit, "fire");
+            AddExit(oFirePit, oSmoulderingVillage, "village");
+            breeSewersGraph.Rooms[oFirePit] = new System.Windows.Point(0, -1);
+
+            Room oCeremonialPit = AddRoom("Ceremonial Pit", "Ceremonial Pit");
+            e = AddExit(oFirePit, oCeremonialPit, "down");
+            e.Hidden = true;
+            AddExit(oCeremonialPit, oFirePit, "fire");
+            breeSewersGraph.Rooms[oCeremonialPit] = new System.Windows.Point(0, -0.5);
+
+            Room oMasterCeremonyRoom = AddRoom("Ceremony Room", "Master Ceremony Room");
+            AddExit(oCeremonialPit, oMasterCeremonyRoom, "west");
+            AddExit(oMasterCeremonyRoom, oCeremonialPit, "pit");
+            AddExit(oMasterCeremonyRoom, oSmoulderingVillage, "village");
+            breeSewersGraph.Rooms[oMasterCeremonyRoom] = new System.Windows.Point(0, 0);
+
+            Room oBurntHut = AddRoom("Burnt Hut", "Burnt Hut");
+            AddBidirectionalExitsWithOut(oSmoulderingVillage, oBurntHut, "hut");
+            breeSewersGraph.Rooms[oBurntHut] = new System.Windows.Point(2, -1);
+
+            Room oEaldsHideout = AddRoom("Eald the Wise", "Eald's Hideout");
+            oEaldsHideout.AddPermanentMobs(MobTypeEnum.EaldTheWise);
+            e = AddExit(oBurntHut, oEaldsHideout, "sliding");
+            e.Hidden = true;
+            e.MustOpen = true;
+            AddExit(oEaldsHideout, oBurntHut, "out");
+            e = AddExit(oEaldsHideout, oBurnedRemainsOfNimrodel, "trap");
+            e.KeyType = KeyType.UnknownKnockable;
+            AddExit(oBurnedRemainsOfNimrodel, oEaldsHideout, "up");
+            breeSewersGraph.Rooms[oEaldsHideout] = new System.Windows.Point(2, 0);
 
             Room oWell = AddRoom("Well", "Well");
             AddExit(oSmoulderingVillage, oWell, "well");
@@ -1942,6 +1974,11 @@ namespace IsengardClient
             e = AddExit(oKasnarTheGuard, aqueduct, "south");
             e.KeyType = KeyType.KasnarsRedKey;
             e.MustOpen = true;
+
+            Room oOldMansReadingRoom = AddRoom("Reading Room", "Old man's reading room");
+            AddBidirectionalSameNameExit(oBurnedRemainsOfNimrodel, oOldMansReadingRoom, "hallway");
+            breeSewersGraph.Rooms[oOldMansReadingRoom] = new System.Windows.Point(3, 0);
+            //CSRTODO: safe
 
             AddLocation(_aBreePerms, oShirriff);
             AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);

@@ -84,6 +84,7 @@
         BoilerKey,
 
         [SingularName("bone armor")]
+        [PluralName("bone armors")] //verified 6/21/23
         [EquipmentType(EquipmentType.Torso)]
         BoneArmor,
 
