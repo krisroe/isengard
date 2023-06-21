@@ -2696,6 +2696,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oOrcsQuarry] = new System.Windows.Point(8, 0);
 
             Room oOrcsQuarry2 = AddRoom("Orc Guard", "Orcs' Quarry");
+            oOrcsQuarry2.AddPermanentMobs(MobTypeEnum.OrcGuard, MobTypeEnum.OrcMiner, MobTypeEnum.OrcMiner, MobTypeEnum.OrcMiner);
             AddBidirectionalExits(oOrcsQuarry, oOrcsQuarry2, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oUnderhallsCorridorsToQuarry, oOrcsQuarry2, BidirectionalExitType.UpDown);
             breeToImladrisGraph.Rooms[oOrcsQuarry2] = new System.Windows.Point(8, 0.5);

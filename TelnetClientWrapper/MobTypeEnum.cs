@@ -201,6 +201,10 @@
         [PluralName("dervishes")] //CSRTODO: plural?
         Dervish,
 
+        [SingularName("disillusioned drunk")]
+        [PluralName("disillusioned drunks")]
+        DisillusionedDrunk,
+
         [SingularName("Dori")]
         //CSRTODO: no plural?
         Dori,

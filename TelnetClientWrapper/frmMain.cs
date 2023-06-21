@@ -1330,7 +1330,7 @@ namespace IsengardClient
                             }
                             periodicExits[nextExitText].Add(nextExit);
                         }
-                        else if (nextExit.PresenceType != ExitPresenceType.RequiresSearch && obviousExits.Contains(nextExitText)) //requires search exits behave like hidden ones
+                        else if (nextExit.PresenceType != ExitPresenceType.RequiresSearch && ExitExistsInList(obviousExits, nextExitText)) //requires search exits behave like hidden ones
                         {
                             rc.MappedExits[nextExitText] = nextExit;
                         }
@@ -1387,6 +1387,26 @@ namespace IsengardClient
                     _currentRoomInfo.CurrentRoom = newRoom;
                 }
             }
+        }
+
+        private bool ExitExistsInList(List<string> displayedObviousExits, string mapExitText)
+        {
+            bool ret = false;
+            foreach (string sNextExit in displayedObviousExits)
+            {
+                string sCheck = sNextExit.Trim();
+                int iFirstSpace = sCheck.IndexOf(' ');
+                if (iFirstSpace > 0)
+                {
+                    sCheck = sCheck.Substring(0, iFirstSpace);
+                }
+                if (sCheck == mapExitText)
+                {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
         }
 
         private static void OnFailManashield(FeedLineParameters flParams)
