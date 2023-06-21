@@ -372,6 +372,7 @@ namespace IsengardClient
         FlyOver,
         LevitationOver,
         InvisibilityOver,
+        DetectInvisibleOver,
         EndureFireOver,
         EndureColdOver,
         EndureWaterOver,
@@ -485,5 +486,49 @@ namespace IsengardClient
         RemoveItemFromInventory,
         EquipItem,
         UnequipItem,
+    }
+
+    public enum EquipmentType
+    {
+        Torso,
+        Arms,
+        Legs,
+        Feet,
+        Head,
+        Hands,
+        Finger,
+        Ears,
+        Held,
+        Shield,
+        Weapon,
+        Unknown,
+    }
+
+    public enum WeaponType
+    {
+        Slash,
+        Stab,
+        Blunt,
+        Polearm,
+        Missile,
+        Unknown,
+    }
+
+    internal enum EquipmentSlot
+    {
+        Torso = 0,
+        Arms = 1,
+        Legs = 2,
+        Feet = 3,
+        Head = 4,
+        Hands = 5,
+        Finger1 = 6,
+        Finger2 = 7,
+        Ears = 8,
+        Held = 9,
+        Shield = 10,
+        Weapon1 = 11,
+        Weapon2 = 12,
+        Count = 13,
     }
 }

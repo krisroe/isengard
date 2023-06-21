@@ -8,22 +8,71 @@ namespace IsengardClient
         public object InventoryEquipmentLock { get; set; }
         public int InventoryEquipmentCounter { get; set; }
         public int InventoryEquipmentCounterUI { get; set; }
+        public ItemTypeEnum?[] Equipment { get; set; }
+
         public InventoryEquipment()
         {
             this.InventoryItems = new List<ItemTypeEnum>();
             this.InventoryEquipmentChanges = new List<InventoryEquipmentChange>();
             this.InventoryEquipmentLock = new object();
+            this.Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
+        }
+
+        public int FindEquipmentRemovalPoint(EquipmentSlot slot)
+        {
+            int iSlot = (int)slot;
+            int previousEntries = 0;
+            for (int i = 0; i < iSlot; i++)
+            {
+                if (Equipment[i] != null)
+                {
+                    previousEntries++;
+                }
+            }
+            return previousEntries;
+        }
+
+        public int FindNewEquipmentInsertionPoint(EquipmentSlot slot)
+        {
+            int iSlot = (int)slot;
+            int previousEntries = 0;
+            bool haveAfter = false;
+            for (int i = 0; i < Equipment.Length; i++)
+            {
+                if (Equipment[i] != null)
+                {
+                    if (i < iSlot)
+                    {
+                        previousEntries++;
+                    }
+                    else if (i > iSlot)
+                    {
+                        haveAfter = true;
+                        break;
+                    }
+                }
+            }
+            int iRet;
+            if (haveAfter)
+            {
+                iRet = previousEntries;
+            }
+            else
+            {
+                iRet = -1;
+            }
+            return iRet;
         }
 
         public int FindNewItemInsertionPoint(ItemTypeEnum newItem)
         {
-           string sSingular = ItemEntity.ItemToSingularString[newItem];
+            string sSingular = ItemEntity.StaticItemData[newItem].SingularName;
             bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
             foreach (ItemTypeEnum nextItem in InventoryItems)
             {
-                string sNextSingular = ItemEntity.ItemToSingularString[nextItem];
+                string sNextSingular = ItemEntity.StaticItemData[nextItem].SingularName;
                 bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
                 bool isBefore = false;
                 if (isCapitalized != nextIsCapitalized)
@@ -43,6 +92,64 @@ namespace IsengardClient
             }
             return iFoundIndex;
         }
+
+        public static IEnumerable<EquipmentSlot> GetSlotsForEquipmentType(EquipmentType type, bool reverse)
+        {
+            switch (type)
+            {
+                case EquipmentType.Torso:
+                    yield return EquipmentSlot.Torso;
+                    break;
+                case EquipmentType.Arms:
+                    yield return EquipmentSlot.Arms;
+                    break;
+                case EquipmentType.Legs:
+                    yield return EquipmentSlot.Legs;
+                    break;
+                case EquipmentType.Feet:
+                    yield return EquipmentSlot.Feet;
+                    break;
+                case EquipmentType.Head:
+                    yield return EquipmentSlot.Head;
+                    break;
+                case EquipmentType.Hands:
+                    yield return EquipmentSlot.Hands;
+                    break;
+                case EquipmentType.Finger:
+                    if (reverse)
+                    {
+                        yield return EquipmentSlot.Finger2;
+                        yield return EquipmentSlot.Finger1;
+                    }
+                    else
+                    {
+                        yield return EquipmentSlot.Finger1;
+                        yield return EquipmentSlot.Finger2;
+                    }
+                    break;
+                case EquipmentType.Ears:
+                    yield return EquipmentSlot.Ears;
+                    break;
+                case EquipmentType.Held:
+                    yield return EquipmentSlot.Held;
+                    break;
+                case EquipmentType.Shield:
+                    yield return EquipmentSlot.Shield;
+                    break;
+                case EquipmentType.Weapon:
+                    if (reverse)
+                    {
+                        yield return EquipmentSlot.Weapon2;
+                        yield return EquipmentSlot.Weapon1;
+                    }
+                    else
+                    {
+                        yield return EquipmentSlot.Weapon1;
+                        yield return EquipmentSlot.Weapon2;
+                    }
+                    break;
+            }
+        }
     }
 
     internal class InventoryEquipmentChange
@@ -51,28 +158,76 @@ namespace IsengardClient
         /// <summary>
         /// items being changed
         /// </summary>
-        public List<ItemTypeEnum> InventoryItems { get; set; }
+        public List<ItemTypeEnum> Items { get; set; }
         /// <summary>
-        /// equipment items
-        /// </summary>
-        public List<ItemTypeEnum> EquipmentItems { get; set; }
-        /// <summary>
-        /// index where the object should be inserted/removed. This is -1 when inserted at the end of the list.
+        /// index where the inventory object should be inserted/removed. This is -1 when inserted at the end of the list.
         /// </summary>
         public List<int> InventoryIndices { get; set; }
+        /// <summary>
+        /// index where the equipment object should be inserted/removed. This is -1 when inserted at the end of the list.
+        /// </summary>
+        public List<int> EquipmentIndices { get; set; }
         public int GlobalCounter { get; set; }
+
+        public bool AddOrRemoveInventoryItem(InventoryEquipment inventoryEquipment, ItemTypeEnum nextItem, bool isAdd)
+        {
+            int foundIndex = inventoryEquipment.InventoryItems.LastIndexOf(nextItem);
+            int changeIndex;
+            bool effectChange = false;
+            if (isAdd)
+            {
+                changeIndex = inventoryEquipment.FindNewItemInsertionPoint(nextItem);
+                effectChange = true;
+                if (changeIndex == -1)
+                {
+                    inventoryEquipment.InventoryItems.Add(nextItem);
+                }
+                else
+                {
+                    inventoryEquipment.InventoryItems.Insert(changeIndex, nextItem);
+                }
+            }
+            else
+            {
+                changeIndex = foundIndex;
+                if (foundIndex >= 0)
+                {
+                    inventoryEquipment.InventoryItems.RemoveAt(foundIndex);
+                    effectChange = true;
+                }
+            }
+            if (effectChange)
+            {
+                this.InventoryIndices.Add(changeIndex);
+            }
+            return effectChange;
+        }
     }
 
-    internal class ItemInList
+    internal class ItemInInventoryList
     {
         public ItemTypeEnum ItemType { get; set; }
-        public ItemInList(ItemTypeEnum itemType)
+        public ItemInInventoryList(ItemTypeEnum itemType)
         {
             this.ItemType = itemType;
         }
         public override string ToString()
         {
-            return ItemEntity.ItemToSingularString[ItemType];
+            return ItemEntity.StaticItemData[ItemType].SingularName;
+        }
+    }
+
+    internal class ItemInEquipmentList
+    {
+        public ItemTypeEnum ItemType { get; set; }
+        public ItemInEquipmentList(ItemTypeEnum itemType)
+        {
+            this.ItemType = itemType;
+        }
+        public override string ToString()
+        {
+            StaticItemData sid = ItemEntity.StaticItemData[ItemType];
+            return sid.SingularName + "(" + sid.EquipmentType.Value.ToString() + ")";
         }
     }
 }

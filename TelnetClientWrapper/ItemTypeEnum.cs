@@ -9,15 +9,19 @@
     public enum ItemTypeEnum
     {
         [SingularName("adamantine scale mail armor")]
+        [EquipmentType(EquipmentType.Torso)]
         AdamantineScaleMailArmor,
 
         [SingularName("adamantine scale mail gloves")]
+        [EquipmentType(EquipmentType.Hands)]
         AdamantineScaleMailGloves,
 
         [SingularName("adamantine scale mail leggings")]
+        [EquipmentType(EquipmentType.Legs)]
         AdamantineScaleMailLeggings,
 
         [SingularName("adamantine scale mail sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
         AdamantineScaleMailSleeves,
 
         [SingularName("Ahrot's magic string")]
@@ -41,14 +45,17 @@
         AquamarinePotion,
 
         [SingularName("banded mail armor")]
+        [EquipmentType(EquipmentType.Torso)]
         BandedMailArmor,
 
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
+        [WeaponType(WeaponType.Unknown)]
         BeastmastersWhip,
 
         [SingularName("black cape")]
         [PluralName("black capes")]
+        [EquipmentType(EquipmentType.Unknown)]
         BlackCape,
 
         [SingularName("blackened scroll")]
@@ -65,6 +72,7 @@
 
         [SingularName("black vestments")]
         //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Torso)]
         BlackVestments,
 
         [SingularName("blue bubbly potion")]
@@ -76,10 +84,12 @@
         BoilerKey,
 
         [SingularName("bone armor")]
+        [EquipmentType(EquipmentType.Torso)]
         BoneArmor,
 
         [SingularName("bone shield")]
         [PluralName("bone shields")]
+        [EquipmentType(EquipmentType.Shield)]
         BoneShield,
 
         [SingularName("book of knowledge")]
@@ -91,10 +101,12 @@
         BoxOfStrawberries,
 
         [SingularName("bracers of ogre-strength")]
+        [EquipmentType(EquipmentType.Unknown)]
         BracersOfOgreStrength,
 
         [SingularName("broad sword")]
         [PluralName("broad swords")]
+        [WeaponType(WeaponType.Slash)]
         BroadSword,
 
         [SingularName("bucket")]
@@ -111,32 +123,41 @@
 
         [SingularName("cat o' nine tails")]
         [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
+        [WeaponType(WeaponType.Unknown)]
         CatONineTails,
 
         [SingularName("chain mail armor")]
+        [EquipmentType(EquipmentType.Torso)]
         ChainMailArmor,
 
         [SingularName("chain mail gloves")]
+        [EquipmentType(EquipmentType.Hands)]
         ChainMailGloves,
 
         [SingularName("chain mail sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
         ChainMailSleeves,
 
         [SingularName("cloth armor")]
+        [EquipmentType(EquipmentType.Torso)]
         ClothArmor,
 
         [SingularName("cloth boots")]
+        [EquipmentType(EquipmentType.Feet)]
         ClothBoots,
 
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]
+        [EquipmentType(EquipmentType.Head)]
         ClothHat,
 
         [SingularName("cloth pants")]
+        [EquipmentType(EquipmentType.Legs)]
         ClothPants,
 
         [SingularName("club")]
         [PluralName("clubs")]
+        [WeaponType(WeaponType.Unknown)]
         Club,
 
         [SingularName("copper pieces")]
@@ -149,6 +170,7 @@
 
         [SingularName("crossbow")]
         [PluralName("crossbows")]
+        [WeaponType(WeaponType.Unknown)]
         Crossbow,
 
         [SingularName("crystal amulet")]
@@ -157,10 +179,12 @@
 
         [SingularName("dagger")]
         [PluralName("daggers")]
+        [WeaponType(WeaponType.Unknown)]
         Dagger,
 
         [SingularName("dark blade")]
         [PluralName("dark blades")]
+        [WeaponType(WeaponType.Unknown)]
         DarkBlade,
 
         [SingularName("dark green potion")]
@@ -173,6 +197,7 @@
 
         [SingularName("Death's galvorn sickle")]
         [PluralName("Death's galvorn sickles")]
+        [WeaponType(WeaponType.Unknown)]
         DeathsGalvornSickle,
 
         [SingularName("dildo")]
@@ -181,6 +206,7 @@
 
         [SingularName("dirk")]
         [PluralName("dirks")]
+        [WeaponType(WeaponType.Unknown)]
         Dirk,
 
         [SingularName("dried seaweed")]
@@ -188,10 +214,12 @@
         DriedSeaweed,
 
         [SingularName("dwarven mithril gaiters")]
+        [EquipmentType(EquipmentType.Unknown)]
         DwarvenMithrilGaiters,
 
         [SingularName("ear lobe plug")]
         [PluralName("ear lobe plugs")]
+        [EquipmentType(EquipmentType.Unknown)]
         EarLobePlug,
 
         [SingularName("Eat At Denethore's decorative mug")]
@@ -200,13 +228,16 @@
 
         [SingularName("elven bow")]
         [PluralName("elven bows")]
+        [WeaponType(WeaponType.Unknown)]
         ElvenBow,
 
         [SingularName("elven cured leather gloves")]
+        [EquipmentType(EquipmentType.Hands)]
         ElvenCuredLeatherGloves,
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
+        [WeaponType(WeaponType.Unknown)]
         ElvenLeatherWhip,
 
         [SingularName("emerald")]
@@ -215,10 +246,12 @@
 
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
+        [EquipmentType(EquipmentType.Unknown)]
         EmeraldCollar,
 
         [SingularName("engagement ring")]
         [PluralName("engagement rings")]
+        [EquipmentType(EquipmentType.Finger)]
         EngagementRing,
 
         [SingularName("eye of newt")]
@@ -231,10 +264,12 @@
 
         [SingularName("gaff")]
         [PluralName("gaffs")]
+        [WeaponType(WeaponType.Unknown)]
         Gaff,
 
         [SingularName("galvorn ring")]
         [PluralName("galvorn rings")]
+        [EquipmentType(EquipmentType.Finger)]
         GalvornRing,
 
         [SingularName("gate warning")]
@@ -243,10 +278,12 @@
 
         [SingularName("gaudy scepter")]
         [PluralName("gaudy scepters")]
+        [WeaponType(WeaponType.Unknown)]
         GaudyScepter,
 
         [SingularName("gawdy ear hoop")]
         [PluralName("gawdy ear hoops")]
+        [EquipmentType(EquipmentType.Ears)]
         GawdyEarHoop,
 
         [SingularName("giant stylus")]
@@ -263,10 +300,12 @@
 
         [SingularName("glowing pendant")]
         [PluralName("glowing pendants")]
+        [EquipmentType(EquipmentType.Unknown)]
         GlowingPendant,
 
         [SingularName("godentag")]
         [PluralName("godentags")]
+        [WeaponType(WeaponType.Unknown)]
         Godentag,
 
         [SingularName("gold coins")]
@@ -275,10 +314,12 @@
 
         [SingularName("golden dagger")]
         [PluralName("golden daggers")]
+        [WeaponType(WeaponType.Unknown)]
         GoldenDagger,
 
         [SingularName("golden mask of the gods")]
         //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Unknown)]
         GoldenMaskOfTheGods,
 
         [SingularName("green potion")]
@@ -291,18 +332,22 @@
 
         [SingularName("gypsy cape")]
         [PluralName("gypsy capes")]
+        [EquipmentType(EquipmentType.Unknown)]
         GypsyCape,
 
         [SingularName("halberd")]
         [PluralName("halberds")]
+        [WeaponType(WeaponType.Unknown)]
         Halberd,
 
         [SingularName("hand axe")]
         [PluralName("hand axes")]
+        [WeaponType(WeaponType.Slash)]
         HandAxe,
 
         [SingularName("hardwood shield")]
         [PluralName("hardwood shields")]
+        [EquipmentType(EquipmentType.Shield)]
         HardwoodShield,
 
         [SingularName("hazy potion")]
@@ -315,6 +360,7 @@
 
         [SingularName("hood of the high priest")]
         //CSRTODO: plural
+        [EquipmentType(EquipmentType.Unknown)]
         HoodOfTheHighPriest,
 
         [SingularName("ice blue potion")]
@@ -323,6 +369,7 @@
 
         [SingularName("iron ring")]
         [PluralName("iron rings")]
+        [EquipmentType(EquipmentType.Finger)]
         IronRing,
 
         [SingularName("Kasnar's red key")]
@@ -331,6 +378,7 @@
 
         [SingularName("kelp necklace")]
         [PluralName("kelp necklaces")]
+        [EquipmentType(EquipmentType.Unknown)]
         KelpNecklace,
 
         [SingularName("key of the elements")]
@@ -339,6 +387,7 @@
 
         [SingularName("khopesh sword")]
         [PluralName("khopesh swords")]
+        [WeaponType(WeaponType.Unknown)]
         KhopeshSword,
 
         [SingularName("knapsack")]
@@ -351,16 +400,24 @@
 
         [SingularName("large metal shield")]
         [PluralName("large metal shields")]
+        [EquipmentType(EquipmentType.Shield)]
         LargeMetalShield,
 
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]
+        [WeaponType(WeaponType.Unknown)]
         LeadHammer,
 
         [SingularName("leather armor")]
+        [EquipmentType(EquipmentType.Torso)]
         LeatherArmor,
 
+        [SingularName("leather boots")]
+        [EquipmentType(EquipmentType.Feet)]
+        LeatherBoots,
+
         [SingularName("leather gloves")]
+        [EquipmentType(EquipmentType.Hands)]
         LeatherGloves,
 
         [SingularName("leather pouch")]
@@ -377,6 +434,7 @@
 
         [SingularName("long bow")]
         [PluralName("long bows")]
+        [WeaponType(WeaponType.Unknown)]
         LongBow,
 
         [SingularName("lunch money")]
@@ -389,44 +447,55 @@
 
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
+        [EquipmentType(EquipmentType.Held)]
         MarbleChessSet,
 
         [SingularName("mask of darkness")]
         //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Unknown)]
         MaskOfDarkness,
 
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
+        [EquipmentType(EquipmentType.Head)]
         MetalHelmet,
 
         [SingularName("metal mask")]
         [PluralName("metal masks")]
+        [EquipmentType(EquipmentType.Unknown)]
         MetalMask,
 
         [SingularName("mithril chain armor")]
+        [EquipmentType(EquipmentType.Torso)]
         MithrilChainArmor,
 
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
+        [WeaponType(WeaponType.Unknown)]
         MithrilJoStick,
 
         [SingularName("mithril lamella leggings")]
+        [EquipmentType(EquipmentType.Legs)]
         MithrilLamellaLeggings,
 
         [SingularName("mithron blade")]
         [PluralName("mithron blades")]
+        [WeaponType(WeaponType.Unknown)]
         MithronBlade,
 
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
+        [EquipmentType(EquipmentType.Head)]
         MithronHelmet,
 
         [SingularName("mithron hood")]
         [PluralName("mithron hoods")]
+        [EquipmentType(EquipmentType.Unknown)]
         MithronHood,
 
         [SingularName("mithron shield")]
         [PluralName("mithron shields")]
+        [EquipmentType(EquipmentType.Shield)]
         MithronShield,
 
         [SingularName("molten iron key")]
@@ -435,10 +504,12 @@
 
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
+        [EquipmentType(EquipmentType.Unknown)]
         MOMTattoo,
 
         [SingularName("morning star")]
         [PluralName("morning stars")]
+        [WeaponType(WeaponType.Unknown)]
         MorningStar,
 
         [SingularName("old wooden sign")]
@@ -455,6 +526,7 @@
 
         [SingularName("ork blade")]
         [PluralName("ork blades")]
+        [WeaponType(WeaponType.Unknown)]
         OrkBlade,
 
         [SingularName("out of order sign")]
@@ -471,10 +543,12 @@
 
         [SingularName("pearl handled knife")]
         [PluralName("pearl handled knives")]
+        [WeaponType(WeaponType.Unknown)]
         PearlHandledKnife,
 
         [SingularName("petrified morning star")]
         [PluralName("petrified morning stars")]
+        [WeaponType(WeaponType.Unknown)]
         PetrifiedMorningStar,
 
         [SingularName("pipe weed")]
@@ -491,6 +565,7 @@
 
         [SingularName("pot helm")]
         [PluralName("pot helms")]
+        [EquipmentType(EquipmentType.Head)]
         PotHelm,
 
         [SingularName("pot of gold")]
@@ -499,6 +574,7 @@
 
         [SingularName("pure white cape")]
         [PluralName("pure white capes")]
+        [EquipmentType(EquipmentType.Unknown)]
         PureWhiteCape,
 
         [SingularName("purple wand")]
@@ -507,6 +583,7 @@
 
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
+        [WeaponType(WeaponType.Unknown)]
         Quarterstaff,
 
         [SingularName("quartz stone")]
@@ -534,21 +611,26 @@
         RepairKit,
 
         [SingularName("ribbed plate boots")]
+        [EquipmentType(EquipmentType.Feet)]
         RibbedPlateBoots,
 
         [SingularName("ribbed plate hood")]
         [PluralName("ribbed plate hoods")]
+        [EquipmentType(EquipmentType.Unknown)]
         RibbedPlateHood,
 
         [SingularName("ribbed plate shield")]
         [PluralName("ribbed plate shields")]
+        [EquipmentType(EquipmentType.Shield)]
         RibbedPlateShield,
 
         [SingularName("ribbed plate sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
         RibbedPlateSleeves,
 
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]
+        [EquipmentType(EquipmentType.Held)]
         RingOfInvisibility,
 
         [SingularName("rusty key")]
@@ -561,6 +643,7 @@
 
         [SingularName("sailor's locket")]
         [PluralName("sailor's lockets")]
+        [EquipmentType(EquipmentType.Unknown)]
         SailorsLocket,
 
         [SingularName("scythe")]
@@ -577,13 +660,16 @@
 
         [SingularName("signet ring")]
         [PluralName("signet rings")]
+        [EquipmentType(EquipmentType.Finger)]
         SignetRing,
 
         [SingularName("silima blade")]
         [PluralName("silima blades")]
+        [WeaponType(WeaponType.Unknown)]
         SilimaBlade,
 
         [SingularName("silver arm-bands")]
+        [EquipmentType(EquipmentType.Unknown)]
         SilverArmBands,
 
         [SingularName("Silver-blue scale")]
@@ -592,10 +678,12 @@
 
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
+        [WeaponType(WeaponType.Unknown)]
         SilverDagger,
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
+        [WeaponType(WeaponType.Slash)]
         SilverScimitar,
 
         [SingularName("silver wand")]
@@ -604,14 +692,17 @@
 
         [SingularName("slaying sword")]
         [PluralName("slaying swords")]
+        [WeaponType(WeaponType.Unknown)]
         SlayingSword,
 
         [SingularName("sling")]
         [PluralName("slings")]
+        [WeaponType(WeaponType.Unknown)]
         Sling,
 
         [SingularName("small ash bow")]
         [PluralName("small ash bows")]
+        [WeaponType(WeaponType.Unknown)]
         SmallAshBow,
 
         [SingularName("small bag")]
@@ -620,10 +711,12 @@
 
         [SingularName("small knife")]
         [PluralName("small knives")] //CSRTODO: correct plural?
+        [WeaponType(WeaponType.Unknown)]
         SmallKnife,
 
         [SingularName("small metal shield")]
         [PluralName("small metal shields")]
+        [EquipmentType(EquipmentType.Shield)]
         SmallMetalShield,
 
         [SingularName("small pearl")]
@@ -636,6 +729,7 @@
 
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
+        [EquipmentType(EquipmentType.Shield)]
         SmallWoodenShield,
 
         [SingularName("speckled potion")]
@@ -643,16 +737,20 @@
         SpeckledPotion,
 
         [SingularName("sprite boots")]
+        [EquipmentType(EquipmentType.Feet)]
         SpriteBoots,
 
         [SingularName("sprite leather armor")]
+        [EquipmentType(EquipmentType.Torso)]
         SpriteLeatherArmor,
 
         [SingularName("splint mail")]
+        [EquipmentType(EquipmentType.Unknown)]
         SplintMail,
 
         [SingularName("sprite bracelet")]
         [PluralName("sprite bracelets")]
+        [EquipmentType(EquipmentType.Unknown)]
         SpriteBracelet,
 
         [SingularName("spyglass")]
@@ -664,14 +762,17 @@
         StatuetteOfBalthazar,
 
         [SingularName("steel-chain armor")]
+        [EquipmentType(EquipmentType.Unknown)]
         SteelChainArmor,
 
         [SingularName("stilleto")]
         //CSRTODO: plural?
+        [WeaponType(WeaponType.Unknown)]
         Stilleto,
 
         [SingularName("stone hammer")]
         [PluralName("stone hammers")]
+        [WeaponType(WeaponType.Unknown)]
         StoneHammer,
 
         [SingularName("stone key")]
@@ -680,14 +781,17 @@
 
         [SingularName("sundorian tassle")]
         [PluralName("sundorian tassles")]
+        [EquipmentType(EquipmentType.Unknown)]
         SundorianTassle,
 
         [SingularName("tattoo of a snake")]
         //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Unknown)]
         TattooOfASnake,
 
         [SingularName("tattoo of a wench")]
         //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Unknown)]
         TattooOfAWench,
 
         [SingularName("taupe scroll")]
@@ -700,9 +804,11 @@
 
         [SingularName("throwing axe")]
         [PluralName("throwing axes")]
+        [WeaponType(WeaponType.Unknown)]
         ThrowingAxe,
 
         [SingularName("tiger shark leather armor")]
+        [EquipmentType(EquipmentType.Torso)]
         TigerSharkLeatherArmor,
 
         [SingularName("toilet paper")]
@@ -718,12 +824,15 @@
         TrainingKey,
 
         [SingularName("translucent armor")]
+        [EquipmentType(EquipmentType.Torso)]
         TranslucentArmor,
 
         [SingularName("translucent leggings")]
+        [EquipmentType(EquipmentType.Legs)]
         TranslucentLeggings,
 
         [SingularName("translucent sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
         TranslucentSleeves,
 
         [SingularName("verdant green scroll")]
@@ -735,33 +844,41 @@
         ViscousPotion,
 
         [SingularName("volcanic boots")]
+        [EquipmentType(EquipmentType.Feet)]
         VolcanicBoots,
 
         [SingularName("volcanic gauntlets")]
+        [EquipmentType(EquipmentType.Unknown)]
         VolcanicGauntlets,
 
         [SingularName("volcanic shield")]
         [PluralName("volcanic shields")]
+        [EquipmentType(EquipmentType.Shield)]
         VolcanicShield,
 
         [SingularName("voulge")]
         [PluralName("voulges")]
+        [WeaponType(WeaponType.Unknown)]
         Voulge,
 
         [SingularName("wagonmaster's whip")]
         [PluralName("wagonmaster's whips")]
+        [WeaponType(WeaponType.Unknown)]
         WagonmastersWhip,
 
         [SingularName("warhammer")]
         [PluralName("warhammers")]
+        [WeaponType(WeaponType.Unknown)]
         Warhammer,
 
         [SingularName("war harness")]
         [PluralName("war harnesses")]
+        [EquipmentType(EquipmentType.Unknown)]
         WarHarness,
 
         [SingularName("War's flaming axe")]
         [PluralName("War's flaming axes")]
+        [WeaponType(WeaponType.Unknown)]
         WarsFlamingAxe,
 
         [SingularName("welcome sign")]

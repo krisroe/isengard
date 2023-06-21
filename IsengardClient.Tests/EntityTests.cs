@@ -31,29 +31,6 @@ namespace IsengardClient.Tests
                     throw new InvalidOperationException();
                 }
             }
-
-            HashSet<ItemTypeEnum> validateItemTypes = new HashSet<ItemTypeEnum>();
-            foreach (var next in ItemEntity.SingularItemMapping)
-            {
-                if (!validateItemTypes.Contains(next.Value))
-                {
-                    validateItemTypes.Add(next.Value);
-                }
-            }
-            foreach (var next in ItemEntity.PluralItemMapping)
-            {
-                if (!validateItemTypes.Contains(next.Value))
-                {
-                    validateItemTypes.Add(next.Value);
-                }
-            }
-            foreach (ItemTypeEnum next in Enum.GetValues(typeof(ItemTypeEnum)))
-            {
-                if (!validateItemTypes.Contains(next))
-                {
-                    throw new InvalidOperationException();
-                }
-            }
         }
 
         [TestMethod]
@@ -162,7 +139,7 @@ namespace IsengardClient.Tests
             oRTI = null;
             iDamage = null;
             trapType = null;
-            RoomTransitionSequence.ProcessRoom("Room", "None", "an elven guard", null, null, a, flp, RoomTransitionType.Initial, 0, TrapType.None);
+            RoomTransitionSequence.ProcessRoom("Room", "None", "an elven guard", null, null, a, flp, RoomTransitionType.Initial, 0, TrapType.None, false);
             Assert.IsTrue(oRTI != null);
             Assert.IsTrue(oRTI.Mobs.Count == 1);
             Assert.IsTrue(oRTI.Mobs[0] is MobEntity);

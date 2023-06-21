@@ -1027,19 +1027,6 @@ namespace IsengardClient
             }
         }
 
-        private void OnRemoveEquipment(FeedLineParameters flParams)
-        {
-            InitializationStep currentStep = _initializationSteps;
-            bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
-
-            //currently there is no processing of removing equipment
-
-            if (forInit)
-            {
-                AfterProcessInitializationStep(currentStep, InitializationStep.RemoveAll, flParams);
-            }
-        }
-
         private void OnInventory(FeedLineParameters flParams, List<ItemEntity> items)
         {
             InitializationStep currentStep = _initializationSteps;
@@ -1049,7 +1036,7 @@ namespace IsengardClient
             {
                 InventoryEquipmentChange changes = new InventoryEquipmentChange();
                 changes.ChangeType = InventoryEquipmentChangeType.Refresh;
-                changes.InventoryItems = new List<ItemTypeEnum>();
+                changes.Items = new List<ItemTypeEnum>();
                 _inventoryEquipment.InventoryItems.Clear();
                 foreach (ItemEntity nextItemEntity in items)
                 {
@@ -1059,7 +1046,7 @@ namespace IsengardClient
                         for (int i = 0; i < nextItemEntity.Count; i++)
                         {
                             _inventoryEquipment.InventoryItems.Add(nextItemValue);
-                            changes.InventoryItems.Add(nextItemValue);
+                            changes.Items.Add(nextItemValue);
                         }
                     }
                 }
@@ -1198,7 +1185,7 @@ namespace IsengardClient
                 _fleeing = false;
                 if (roomTransitionInfo.DrankHazy)
                 {
-                    AddOrRemoveItemsFromInventory(new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, false);
+                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, false, false);
                 }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
@@ -1795,6 +1782,10 @@ namespace IsengardClient
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("invisibility");
                         break;
+                    case InformationalMessageType.DetectInvisibleOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("detect-invisible");
+                        break;
                     case InformationalMessageType.EndureFireOver:
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("endure-fire");
@@ -2155,11 +2146,14 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(List<ItemTypeEnum> items, bool isAdd, int? gold, int sellGold, List<string> activeSpells)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, bool isAdd, bool isEquipment, int? gold, int sellGold, List<string> activeSpells)
         {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
+
             if (items != null && items.Count > 0)
             {
-                AddOrRemoveItemsFromInventory(items, isAdd);
+                AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, isAdd, isEquipment);
             }
             if (gold.HasValue)
             {
@@ -2173,49 +2167,95 @@ namespace IsengardClient
             {
                 AddActiveSpells(activeSpells);
             }
+
+            if (forInit)
+            {
+                AfterProcessInitializationStep(currentStep, InitializationStep.RemoveAll, flParams);
+            }
         }
-        
-        private void AddOrRemoveItemsFromInventory(List<ItemTypeEnum> items, bool isAdd)
+
+        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemTypeEnum> items, bool isAdd, bool isEquipment)
         {
             InventoryEquipmentChange iec = new InventoryEquipmentChange();
-            iec.ChangeType = isAdd ? InventoryEquipmentChangeType.AddItemToInventory : InventoryEquipmentChangeType.RemoveItemFromInventory;
+            InventoryEquipmentChangeType changeType;
+            if (isEquipment)
+            {
+                if (isAdd)
+                {
+                    changeType = InventoryEquipmentChangeType.EquipItem;
+                }
+                else
+                {
+                    changeType = InventoryEquipmentChangeType.UnequipItem;
+                }
+            }
+            else
+            {
+                if (isAdd)
+                {
+                    changeType = InventoryEquipmentChangeType.AddItemToInventory;
+                }
+                else
+                {
+                    changeType = InventoryEquipmentChangeType.RemoveItemFromInventory;
+                }
+            }
+
+            iec.ChangeType = changeType;
             iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
-            iec.InventoryItems = new List<ItemTypeEnum>(items);
+            iec.Items = new List<ItemTypeEnum>(items);
+            iec.EquipmentIndices = new List<int>();
             iec.InventoryIndices = new List<int>();
             lock (_inventoryEquipment.InventoryEquipmentLock)
             {
+                bool madeChange = false;
                 foreach (ItemTypeEnum nextItem in items)
                 {
-                    int foundIndex = _inventoryEquipment.InventoryItems.LastIndexOf(nextItem);
-                    int changeIndex;
-                    bool effectChange = false;
-                    if (isAdd)
+                    if (isEquipment)
                     {
-                        changeIndex = _inventoryEquipment.FindNewItemInsertionPoint(nextItem);
-                        effectChange = true;
-                        if (changeIndex == -1)
+                        StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+                        if (sid.EquipmentType.HasValue && sid.EquipmentType.Value != EquipmentType.Unknown)
                         {
-                            _inventoryEquipment.InventoryItems.Add(nextItem);
+                            foreach (EquipmentSlot nextSlot in InventoryEquipment.GetSlotsForEquipmentType(sid.EquipmentType.Value, !isAdd))
+                            {
+                                int iSlotIndex = (int)nextSlot;
+                                if (isAdd)
+                                {
+                                    if (_inventoryEquipment.Equipment[iSlotIndex] == null)
+                                    {
+                                        iec.EquipmentIndices.Add(_inventoryEquipment.FindNewEquipmentInsertionPoint(nextSlot));
+                                        _inventoryEquipment.Equipment[iSlotIndex] = sid.ItemType;
+                                        iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, false);
+                                        madeChange = true;
+                                        break;
+                                    }
+                                }
+                                else //remove
+                                {
+                                    if (_inventoryEquipment.Equipment[iSlotIndex] == nextItem)
+                                    {
+                                        iec.EquipmentIndices.Add(_inventoryEquipment.FindEquipmentRemovalPoint(nextSlot));
+                                        _inventoryEquipment.Equipment[iSlotIndex] = null;
+                                        iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, true);
+                                        madeChange = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         else
                         {
-                            _inventoryEquipment.InventoryItems.Insert(changeIndex, nextItem);
+                            flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
                         }
                     }
                     else
                     {
-                        changeIndex = foundIndex;
-                        if (foundIndex >= 0)
-                        {
-                            _inventoryEquipment.InventoryItems.RemoveAt(foundIndex);
-                            effectChange = true;
-                        }
+                        madeChange = iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, isAdd);
                     }
-                    if (effectChange)
-                    {
-                        iec.InventoryIndices.Add(changeIndex);
-                        _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
-                    }
+                }
+                if (madeChange)
+                {
+                    _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                 }
             }
         }
@@ -2425,7 +2465,6 @@ namespace IsengardClient
                 new ScoreOutputSequence(_username, OnScore),
                 new WhoOutputSequence(OnWho),
                 new SpellsSequence(OnSpells),
-                new RemoveEquipmentSequence(OnRemoveEquipment),
                 new InventorySequence(OnInventory),
                 new MobStatusSequence(OnMobStatusSequence),
                 new TimeOutputSequence(OnTime),
@@ -5425,23 +5464,23 @@ BeforeHazy:
                             {
                                 lstEquipment.Items.Clear();
                                 lstInventory.Items.Clear();
-                                foreach (ItemTypeEnum nextItem in nextInvEqChange.InventoryItems)
+                                foreach (ItemTypeEnum nextItem in nextInvEqChange.Items)
                                 {
-                                    lstInventory.Items.Add(new ItemInList(nextItem));
+                                    lstInventory.Items.Add(new ItemInInventoryList(nextItem));
                                 }
                             }
-                            else if (iect == InventoryEquipmentChangeType.RemoveItemFromInventory)
+                            if (iect == InventoryEquipmentChangeType.RemoveItemFromInventory || iect == InventoryEquipmentChangeType.EquipItem)
                             {
                                 for (int j = 0; j < nextInvEqChange.InventoryIndices.Count; j++)
                                 {
                                     lstInventory.Items.RemoveAt(nextInvEqChange.InventoryIndices[j]);
                                 }
                             }
-                            else if (iect == InventoryEquipmentChangeType.AddItemToInventory)
+                            if (iect == InventoryEquipmentChangeType.AddItemToInventory || iect == InventoryEquipmentChangeType.UnequipItem)
                             {
                                 for (int j = 0; j < nextInvEqChange.InventoryIndices.Count; j++)
                                 {
-                                    ItemInList it = new ItemInList(nextInvEqChange.InventoryItems[j]);
+                                    ItemInInventoryList it = new ItemInInventoryList(nextInvEqChange.Items[j]);
                                     if (nextInvEqChange.InventoryIndices[j] == -1)
                                     {
                                         lstInventory.Items.Add(it);
@@ -5450,6 +5489,28 @@ BeforeHazy:
                                     {
                                         lstInventory.Items.Insert(nextInvEqChange.InventoryIndices[j], it);
                                     }
+                                }
+                            }
+                            if (iect == InventoryEquipmentChangeType.EquipItem)
+                            {
+                                for (int j = 0; j < nextInvEqChange.EquipmentIndices.Count; j++)
+                                {
+                                    ItemInEquipmentList it = new ItemInEquipmentList(nextInvEqChange.Items[j]);
+                                    if (nextInvEqChange.EquipmentIndices[j] == -1)
+                                    {
+                                        lstEquipment.Items.Add(it);
+                                    }
+                                    else
+                                    {
+                                        lstEquipment.Items.Insert(nextInvEqChange.EquipmentIndices[j], it);
+                                    }
+                                }
+                            }
+                            else if (iect == InventoryEquipmentChangeType.UnequipItem)
+                            {
+                                for (int j = 0; j < nextInvEqChange.EquipmentIndices.Count; j++)
+                                {
+                                    lstEquipment.Items.RemoveAt(nextInvEqChange.EquipmentIndices[j]);
                                 }
                             }
                             iNewCounter = nextInvEqChange.GlobalCounter;

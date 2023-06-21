@@ -174,9 +174,9 @@ namespace IsengardClient
             }
             if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
             {
-                if (ItemEntity.SingularItemMapping.TryGetValue(input, out ItemTypeEnum it))
+                if (ItemEntity.ItemMappingByDisplayName.TryGetValue(input, out StaticItemData it) && it.SingularName == input)
                 {
-                    return new ItemEntity(it, 1, 1);
+                    return new ItemEntity(it.ItemType, 1, 1);
                 }
             }
             if ((possibleEntityTypes & EntityTypeFlags.Player) != EntityTypeFlags.None)
@@ -326,10 +326,10 @@ namespace IsengardClient
                 }
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
                 {
-                    if (ItemEntity.SingularItemMapping.TryGetValue(name, out ItemTypeEnum it))
+                    if (ItemEntity.ItemMappingByDisplayName.TryGetValue(name, out StaticItemData it) && name == it.SingularName)
                     {
                         foundEntityType = EntityType.Item;
-                        ret = new ItemEntity(it, count, setCount);
+                        ret = new ItemEntity(it.ItemType, count, setCount);
                     }
                 }
             }
@@ -345,10 +345,10 @@ namespace IsengardClient
                 }
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
                 {
-                    if (ItemEntity.PluralItemMapping.TryGetValue(name, out ItemTypeEnum it))
+                    if (ItemEntity.ItemMappingByDisplayName.TryGetValue(name, out StaticItemData it) && name == it.PluralName)
                     {
                         foundEntityType = EntityType.Item;
-                        ret = new ItemEntity(it, count, setCount);
+                        ret = new ItemEntity(it.ItemType, count, setCount);
                     }
                 }
             }
@@ -541,32 +541,67 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
     }
 
+    public class StaticItemData
+    {
+        public StaticItemData()
+        {
+        }
+
+        public ItemTypeEnum ItemType { get; set; }
+        public EquipmentType? EquipmentType { get; set; }
+        public WeaponType? WeaponType { get; set; }
+        public string SingularName { get; set; }
+        public string PluralName { get; set; }
+    }
+
     public class ItemEntity : Entity
     {
-        public static Dictionary<string, ItemTypeEnum> SingularItemMapping = new Dictionary<string, ItemTypeEnum>();
-        public static Dictionary<string, ItemTypeEnum> PluralItemMapping = new Dictionary<string, ItemTypeEnum>();
-        public static Dictionary<ItemTypeEnum, string> ItemToSingularString = new Dictionary<ItemTypeEnum, string>();
+        public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
+        public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
 
         static ItemEntity()
         {
             Type t = typeof(ItemTypeEnum);
             foreach (ItemTypeEnum nextEnum in Enum.GetValues(t))
             {
+                StaticItemData sid = new StaticItemData();
+                sid.ItemType = nextEnum;
                 var memberInfos = t.GetMember(nextEnum.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
+
                 object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularNameAttribute), false);
                 string sSingular;
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
                 else
                     throw new InvalidOperationException();
+                sid.SingularName = sSingular;
+
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sPlural = ((PluralNameAttribute)valueAttributes[0]).Name;
                 else
                     sPlural = null;
-                AddItem(nextEnum, sSingular, sPlural);
+                sid.PluralName = sPlural;
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EquipmentTypeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sid.EquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeaponTypeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
+                if (sid.WeaponType.HasValue)
+                {
+                    if (sid.EquipmentType.HasValue && sid.EquipmentType.Value != EquipmentType.Weapon)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    sid.EquipmentType = EquipmentType.Weapon;
+                }
+
+                AddItem(sid);
             }
         }
 
@@ -579,40 +614,23 @@ namespace IsengardClient
 
         public ItemTypeEnum? ItemType { get; set; }
 
-        private static void AddItem(ItemTypeEnum type, string singular, string plural)
+        private static void AddItem(StaticItemData itemData)
         {
-            bool hasSingular = !string.IsNullOrEmpty(singular);
-            bool hasPlural = !string.IsNullOrEmpty(plural);
-            if (!hasSingular)
+            bool hasSingular = !string.IsNullOrEmpty(itemData.SingularName);
+            bool hasPlural = !string.IsNullOrEmpty(itemData.PluralName);
+            if (hasSingular)
             {
-                throw new InvalidOperationException();
-            }
-            else if (hasPlural)
-            {
-                if (SingularItemMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralItemMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                SingularItemMapping[singular] = type;
-                PluralItemMapping[plural] = type;
+                ItemMappingByDisplayName[itemData.SingularName] = itemData;
             }
             else
             {
-                if (SingularItemMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralItemMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                SingularItemMapping[singular] = type;
+                throw new InvalidOperationException();
             }
-            ItemToSingularString[type] = singular;
+            if (hasPlural)
+            {
+                ItemMappingByDisplayName[itemData.PluralName] = itemData;
+            }
+            StaticItemData[itemData.ItemType] = itemData;
         }
     }
 
@@ -753,5 +771,23 @@ namespace IsengardClient
             this.Alignment = Alignment;
         }
         public AlignmentType Alignment { get; set; }
+    }
+
+    internal class EquipmentTypeAttribute : Attribute
+    {
+        public EquipmentType EquipmentType { get; set; }
+        public EquipmentTypeAttribute(EquipmentType EquipmentType)
+        {
+            this.EquipmentType = EquipmentType;
+        }
+    }
+
+    internal class WeaponTypeAttribute : Attribute
+    {
+        public WeaponType WeaponType { get; set; }
+        public WeaponTypeAttribute(WeaponType WeaponType)
+        {
+            this.WeaponType = WeaponType;
+        }
     }
 }
