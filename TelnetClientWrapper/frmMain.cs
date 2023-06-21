@@ -1394,6 +1394,7 @@ namespace IsengardClient
             bool ret = false;
             foreach (string sNextExit in displayedObviousExits)
             {
+                //use the first word for the mapping since subsequent words aren't used anyway
                 string sCheck = sNextExit.Trim();
                 int iFirstSpace = sCheck.IndexOf(' ');
                 if (iFirstSpace > 0)
@@ -5629,12 +5630,15 @@ BeforeHazy:
         {
             string sNodeText = s;
             Exit foundExit;
+
+            //use the first word for the mapping, since subsequent words aren't used anyway
             string sMappedWord = s.Trim();
             int iSpaceIndex = sMappedWord.IndexOf(' ');
             if (iSpaceIndex > 0)
             {
                 sMappedWord = sMappedWord.Substring(0, iSpaceIndex);
             }
+
             if (nextRoomChange.MappedExits.TryGetValue(sMappedWord, out foundExit))
             {
                 if (foundExit == null)
