@@ -167,9 +167,9 @@ namespace IsengardClient
             }
             if ((possibleEntityTypes & EntityTypeFlags.Mob) != EntityTypeFlags.None)
             {
-                if (MobEntity.SingularMobMapping.TryGetValue(input, out MobTypeEnum mt))
+                if (MobEntity.MobMappingByDisplayName.TryGetValue(input, out StaticMobData smd) && smd.SingularName == input)
                 {
-                    return new MobEntity(mt, 1, 1);
+                    return new MobEntity(smd.MobType, 1, 1);
                 }
             }
             if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
@@ -318,10 +318,10 @@ namespace IsengardClient
             {
                 if ((possibleEntityTypes & EntityTypeFlags.Mob) != EntityTypeFlags.None)
                 {
-                    if (MobEntity.SingularMobMapping.TryGetValue(name, out MobTypeEnum mt))
+                    if (MobEntity.MobMappingByDisplayName.TryGetValue(name, out StaticMobData smd) && smd.SingularName == name)
                     {
                         foundEntityType = EntityType.Mob;
-                        ret = new MobEntity(mt, count, setCount);
+                        ret = new MobEntity(smd.MobType, count, setCount);
                     }
                 }
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
@@ -337,10 +337,10 @@ namespace IsengardClient
             {
                 if ((possibleEntityTypes & EntityTypeFlags.Mob) != EntityTypeFlags.None)
                 {
-                    if (MobEntity.PluralMobMapping.TryGetValue(name, out MobTypeEnum mt))
+                    if (MobEntity.MobMappingByDisplayName.TryGetValue(name, out StaticMobData smd) && smd.PluralName == name)
                     {
                         foundEntityType = EntityType.Mob;
-                        ret = new MobEntity(mt, count, setCount);
+                        ret = new MobEntity(smd.MobType, count, setCount);
                     }
                 }
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
@@ -398,16 +398,26 @@ namespace IsengardClient
 
     public class MobEntity : Entity
     {
-        public static Dictionary<MobTypeEnum, string> MobToSingularMappingForSelection = new Dictionary<MobTypeEnum, string>();
-        public static Dictionary<MobTypeEnum, string> MobToSingularMapping = new Dictionary<MobTypeEnum, string>();
-        public static Dictionary<string, MobTypeEnum> SingularMobMapping = new Dictionary<string, MobTypeEnum>();
-        public static Dictionary<string, MobTypeEnum> PluralMobMapping = new Dictionary<string, MobTypeEnum>();
+        public static Dictionary<string, StaticMobData> MobMappingByDisplayName = new Dictionary<string, StaticMobData>();
+        public static Dictionary<MobTypeEnum, StaticMobData> StaticMobData = new Dictionary<MobTypeEnum, StaticMobData>();
+
+        public MobTypeEnum? MobType { get; set; }
+
+        public MobEntity(MobTypeEnum? mt, int count, int setCount)
+        {
+            this.MobType = mt;
+            this.Count = count;
+            this.SetCount = setCount;
+        }
 
         static MobEntity()
         {
             Type t = typeof(MobTypeEnum);
             foreach (MobTypeEnum nextEnum in Enum.GetValues(t))
             {
+                StaticMobData smd = new StaticMobData();
+                smd.MobType = nextEnum;
+
                 var memberInfos = t.GetMember(nextEnum.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
                 object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularNameAttribute), false);
@@ -416,13 +426,13 @@ namespace IsengardClient
                     sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
                 else
                     throw new InvalidOperationException();
-                MobToSingularMapping[nextEnum] = sSingular;
+                smd.SingularName = sSingular;
 
                 string sSingularSelection = null;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularSelectionAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sSingularSelection = ((SingularSelectionAttribute)valueAttributes[0]).Name;
-                if (!string.IsNullOrEmpty(sSingularSelection)) MobToSingularMappingForSelection[nextEnum] = sSingularSelection;
+                if (!string.IsNullOrEmpty(sSingularSelection)) smd.SingularSelection = sSingularSelection;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
@@ -430,15 +440,24 @@ namespace IsengardClient
                     sPlural = ((PluralNameAttribute)valueAttributes[0]).Name;
                 else
                     sPlural = null;
-                AddMob(nextEnum, sSingular, sPlural);
-            }
-        }
+                if (!string.IsNullOrEmpty(sPlural)) smd.PluralName = sPlural;
 
-        public MobEntity(MobTypeEnum? mt, int count, int setCount)
-        {
-            this.MobType = mt;
-            this.Count = count;
-            this.SetCount = setCount;
+                bool hasSingular = !string.IsNullOrEmpty(smd.SingularName);
+                bool hasPlural = !string.IsNullOrEmpty(smd.PluralName);
+                if (hasSingular)
+                {
+                    MobMappingByDisplayName[smd.SingularName] = smd;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+                if (hasPlural)
+                {
+                    MobMappingByDisplayName[smd.PluralName] = smd;
+                }
+                StaticMobData[smd.MobType] = smd;
+            }
         }
 
         /// <summary>
@@ -450,9 +469,11 @@ namespace IsengardClient
         public static string PickWordForMob(MobTypeEnum nextMob)
         {
             string sBestWord;
-            if (!MobToSingularMappingForSelection.TryGetValue(nextMob, out sBestWord))
+            StaticMobData smd = StaticMobData[nextMob];
+            sBestWord = smd.SingularSelection;
+            if (string.IsNullOrEmpty(sBestWord))
             {
-                sBestWord = PickWord(MobToSingularMapping[nextMob]);
+                sBestWord = PickWord(smd.SingularName);
             }
             return sBestWord;
         }
@@ -477,7 +498,7 @@ namespace IsengardClient
             int iCounter = 0;
             foreach (MobTypeEnum nextMobInList in mobList)
             {
-                string sSingular = MobToSingularMapping[nextMobInList];
+                string sSingular = StaticMobData[nextMobInList].SingularName;
                 foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                 {
                     if (nextWord.StartsWith(sWord, StringComparison.OrdinalIgnoreCase))
@@ -501,52 +522,10 @@ namespace IsengardClient
                 yield return mobs[i];
             }
         }
-
-        private static void AddMob(MobTypeEnum type, string singular, string plural)
-        {
-            bool hasSingular = !string.IsNullOrEmpty(singular);
-            bool hasPlural = !string.IsNullOrEmpty(plural);
-            if (hasSingular && hasPlural)
-            {
-                if (SingularMobMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralMobMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                SingularMobMapping[singular] = type;
-                PluralMobMapping[plural] = type;
-            }
-            else if (hasSingular)
-            {
-                //CSRTODO: is this even valid?
-                if (SingularMobMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                if (PluralMobMapping.ContainsKey(singular))
-                {
-                    throw new InvalidOperationException();
-                }
-                SingularMobMapping[singular] = type;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public MobTypeEnum? MobType { get; set; }
     }
 
     public class StaticItemData
     {
-        public StaticItemData()
-        {
-        }
-
         public ItemTypeEnum ItemType { get; set; }
         public EquipmentType? EquipmentType { get; set; }
         public WeaponType? WeaponType { get; set; }
@@ -554,10 +533,28 @@ namespace IsengardClient
         public string PluralName { get; set; }
     }
 
+    public class StaticMobData
+    {
+        public MobTypeEnum MobType { get; set; }
+        public string SingularName { get; set; }
+        public string SingularSelection { get; set; }
+        public string PluralName { get; set; }
+        public bool Aggressive { get; set; }
+    }
+
     public class ItemEntity : Entity
     {
         public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
         public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
+
+        public ItemTypeEnum? ItemType { get; set; }
+
+        public ItemEntity(ItemTypeEnum? itemType, int count, int setCount)
+        {
+            this.ItemType = itemType;
+            this.Count = count;
+            this.SetCount = setCount;
+        }
 
         static ItemEntity()
         {
@@ -601,36 +598,22 @@ namespace IsengardClient
                     sid.EquipmentType = EquipmentType.Weapon;
                 }
 
-                AddItem(sid);
+                bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
+                bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
+                if (hasSingular)
+                {
+                    ItemMappingByDisplayName[sid.SingularName] = sid;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+                if (hasPlural)
+                {
+                    ItemMappingByDisplayName[sid.PluralName] = sid;
+                }
+                StaticItemData[sid.ItemType] = sid;
             }
-        }
-
-        public ItemEntity(ItemTypeEnum? itemType, int count, int setCount)
-        {
-            this.ItemType = itemType;
-            this.Count = count;
-            this.SetCount = setCount;
-        }
-
-        public ItemTypeEnum? ItemType { get; set; }
-
-        private static void AddItem(StaticItemData itemData)
-        {
-            bool hasSingular = !string.IsNullOrEmpty(itemData.SingularName);
-            bool hasPlural = !string.IsNullOrEmpty(itemData.PluralName);
-            if (hasSingular)
-            {
-                ItemMappingByDisplayName[itemData.SingularName] = itemData;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-            if (hasPlural)
-            {
-                ItemMappingByDisplayName[itemData.PluralName] = itemData;
-            }
-            StaticItemData[itemData.ItemType] = itemData;
         }
     }
 

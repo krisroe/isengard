@@ -7,33 +7,6 @@ namespace IsengardClient.Tests
     public class EntityTests
     {
         [TestMethod]
-        public void TestEntityInitialization()
-        {
-            HashSet<MobTypeEnum> validateMobTypes = new HashSet<MobTypeEnum>();
-            foreach (var next in MobEntity.SingularMobMapping)
-            {
-                if (!validateMobTypes.Contains(next.Value))
-                {
-                    validateMobTypes.Add(next.Value);
-                }
-            }
-            foreach (var next in MobEntity.PluralMobMapping)
-            {
-                if (!validateMobTypes.Contains(next.Value))
-                {
-                    validateMobTypes.Add(next.Value);
-                }
-            }
-            foreach (MobTypeEnum next in Enum.GetValues(typeof(MobTypeEnum)))
-            {
-                if (!validateMobTypes.Contains(next))
-                {
-                    throw new InvalidOperationException();
-                }
-            }
-        }
-
-        [TestMethod]
         public void TestEntityCreation()
         {
             List<string> errorMessages = new List<string>();

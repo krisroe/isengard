@@ -5621,7 +5621,7 @@ BeforeHazy:
 
         private TreeNode GetMobsNode(MobTypeEnum mob)
         {
-            TreeNode ret = new TreeNode(MobEntity.MobToSingularMapping[mob]);
+            TreeNode ret = new TreeNode(MobEntity.StaticMobData[mob].SingularName);
             ret.Tag = mob;
             return ret;
         }
@@ -6551,7 +6551,7 @@ BeforeHazy:
             int currentIndex = 0;
             foreach (MobTypeEnum eNextMT in mobList)
             {
-                string sSingular = MobEntity.MobToSingularMapping[eNextMT];
+                string sSingular = MobEntity.StaticMobData[eNextMT].SingularName;
                 foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                 {
                     if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))

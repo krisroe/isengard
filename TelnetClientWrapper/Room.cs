@@ -192,13 +192,13 @@ namespace IsengardClient
 
         public int FindNewMobInsertionPoint(MobTypeEnum newMob)
         {
-            string sSingular = MobEntity.MobToSingularMapping[newMob];
+            string sSingular = MobEntity.StaticMobData[newMob].SingularName;
             bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
             foreach (MobTypeEnum nextMob in CurrentRoomMobs)
             {
-                string sNextSingular = MobEntity.MobToSingularMapping[nextMob];
+                string sNextSingular = MobEntity.StaticMobData[nextMob].SingularName;
                 bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
                 bool isBefore = false;
                 if (isCapitalized != nextIsCapitalized)
