@@ -5629,7 +5629,13 @@ BeforeHazy:
         {
             string sNodeText = s;
             Exit foundExit;
-            if (nextRoomChange.MappedExits.TryGetValue(s, out foundExit))
+            string sMappedWord = s.Trim();
+            int iSpaceIndex = sMappedWord.IndexOf(' ');
+            if (iSpaceIndex > 0)
+            {
+                sMappedWord = sMappedWord.Substring(0, iSpaceIndex);
+            }
+            if (nextRoomChange.MappedExits.TryGetValue(sMappedWord, out foundExit))
             {
                 if (foundExit == null)
                 {
