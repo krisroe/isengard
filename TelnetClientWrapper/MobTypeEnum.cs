@@ -975,11 +975,13 @@
 
         [SingularName("sewer orc")]
         [PluralName("sewer orcs")]
+        [Aggressive]
         SewerOrc,
 
         [SingularName("sewer orc guard")]
         [PluralName("sewer orc guards")]
         [Experience(70)]
+        [Aggressive]
         SewerOrcGuard,
 
         [SingularName("sewer rat")]

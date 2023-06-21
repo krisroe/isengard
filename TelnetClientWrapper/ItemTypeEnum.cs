@@ -116,7 +116,6 @@
 
         [SingularName("bucket")]
         [PluralName("buckets")]
-        [EquipmentType(EquipmentType.Held)]
         Bucket,
 
         [SingularName("bundle of wheat")]
@@ -461,7 +460,6 @@
 
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
-        [EquipmentType(EquipmentType.Held)]
         MarbleChessSet,
 
         [SingularName("mask of darkness")]
@@ -644,7 +642,6 @@
 
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]
-        [EquipmentType(EquipmentType.Held)]
         RingOfInvisibility,
 
         [SingularName("rusty key")]

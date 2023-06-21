@@ -2676,6 +2676,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oUnderhallsIronDoor] = new System.Windows.Point(9, 0);
 
             Room oBlackEyeOrcDwelling = AddRoom("Sewer Orcs", "Black Eye Orc Dwelling");
+            oBlackEyeOrcDwelling.AddPermanentMobs(MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc);
             e = AddExit(oUnderhallsIronDoor, oBlackEyeOrcDwelling, "iron");
             e.MustOpen = true;
             e.KeyType = KeyType.UnknownKnockable;

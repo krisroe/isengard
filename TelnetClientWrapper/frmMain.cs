@@ -3282,11 +3282,30 @@ namespace IsengardClient
                                     return;
                                 }
                             }
-                            if (!targetIsDamageRoom && (needHeal || needCurepoison))
+                            
+                            if (needHeal || needCurepoison)
                             {
-                                if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return;
-                                needHeal = false;
-                                needCurepoison = false;
+                                bool doHealingLogic = !targetIsDamageRoom;
+                                if (doHealingLogic)
+                                {
+                                    lock (_currentRoomInfo.CurrentRoomInfoLock)
+                                    {
+                                        foreach (var nextMob in _currentRoomInfo.CurrentRoomMobs)
+                                        {
+                                            if (MobEntity.StaticMobData[nextMob].Aggressive)
+                                            {
+                                                doHealingLogic = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (doHealingLogic)
+                                {
+                                    if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return;
+                                    needHeal = false;
+                                    needCurepoison = false;
+                                }
                             }
                         }
                         finally

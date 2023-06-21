@@ -582,21 +582,16 @@ namespace IsengardClient
                     sPlural = null;
                 sid.PluralName = sPlural;
 
+                EquipmentType eEquipmentType = EquipmentType.Held;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EquipmentTypeAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
-                    sid.EquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
+                    eEquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
+                sid.EquipmentType = eEquipmentType;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeaponTypeAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
-                if (sid.WeaponType.HasValue)
-                {
-                    if (sid.EquipmentType.HasValue && sid.EquipmentType.Value != EquipmentType.Weapon)
-                    {
-                        throw new InvalidOperationException();
-                    }
-                    sid.EquipmentType = EquipmentType.Weapon;
-                }
+                if (sid.WeaponType.HasValue) sid.EquipmentType = EquipmentType.Weapon;
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
@@ -709,11 +704,17 @@ namespace IsengardClient
         }
     }
 
+    /// <summary>
+    /// base attribute for names
+    /// </summary>
     public class NameAttribute : Attribute
     {
         public string Name { get; set; }
     }
 
+    /// <summary>
+    /// singular name for items/mobs
+    /// </summary>
     public class SingularNameAttribute : NameAttribute
     {
         public SingularNameAttribute(string Name)
@@ -722,6 +723,9 @@ namespace IsengardClient
         }
     }
 
+    /// <summary>
+    /// singular selection name where the singular name has components that aren't used for selection
+    /// </summary>
     public class SingularSelectionAttribute : NameAttribute
     {
         public SingularSelectionAttribute(string Name)
@@ -730,6 +734,9 @@ namespace IsengardClient
         }
     }
 
+    /// <summary>
+    /// plural name for items/mobs
+    /// </summary>
     public class PluralNameAttribute : NameAttribute
     {
         public PluralNameAttribute(string Name)
@@ -738,6 +745,9 @@ namespace IsengardClient
         }
     }
 
+    /// <summary>
+    /// experience gained when killing a mob
+    /// </summary>
     public class ExperienceAttribute : Attribute
     {
         public ExperienceAttribute(int Experience)
@@ -747,6 +757,9 @@ namespace IsengardClient
         public int Experience { get; set; }
     }
 
+    /// <summary>
+    /// alignment of a mob
+    /// </summary>
     internal class AlignmentAttribute : Attribute
     {
         public AlignmentAttribute(AlignmentType Alignment)
@@ -756,6 +769,21 @@ namespace IsengardClient
         public AlignmentType Alignment { get; set; }
     }
 
+    /// <summary>
+    /// whether a mob is aggressive. This is binary and so doesn't capture cases where mobs may be aggressive (e.g. warrior bards)
+    /// </summary>
+    internal class AggressiveAttribute : Attribute
+    {
+        public bool Aggressive { get; set; }
+        public AggressiveAttribute()
+        {
+            this.Aggressive = true;
+        }
+    }
+
+    /// <summary>
+    /// equipment type for an item
+    /// </summary>
     internal class EquipmentTypeAttribute : Attribute
     {
         public EquipmentType EquipmentType { get; set; }
@@ -765,6 +793,9 @@ namespace IsengardClient
         }
     }
 
+    /// <summary>
+    /// weapon type for an item
+    /// </summary>
     internal class WeaponTypeAttribute : Attribute
     {
         public WeaponType WeaponType { get; set; }
