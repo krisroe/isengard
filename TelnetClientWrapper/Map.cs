@@ -2793,15 +2793,31 @@ namespace IsengardClient
 
             Room oImladrisCircle2 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle2, oImladrisCircle1, BidirectionalExitType.SouthwestNortheast);
-            imladrisGraph.Rooms[oImladrisCircle2] = new System.Windows.Point(10D / 3, 5 - (8D / 3));
+            System.Windows.Point p = new System.Windows.Point(10D / 3, 5 - (8D / 3));
+            imladrisGraph.Rooms[oImladrisCircle2] = p;
+
+            Room oAsylumCourtyard = AddRoom("Asylum Courtyard", "Asylum Courtyard");
+            AddExit(oImladrisCircle2, oAsylumCourtyard, "east");
+            AddExit(oAsylumCourtyard, oImladrisCircle2, "road");
+            imladrisGraph.Rooms[oAsylumCourtyard] = new System.Windows.Point(p.X + 1, p.Y);
 
             Room oImladrisCircle3 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle2, BidirectionalExitType.SouthwestNortheast);
             imladrisGraph.Rooms[oImladrisCircle3] = new System.Windows.Point(5, 1);
 
+            Room oLoreElesStronghold = AddRoom("Lore Ele's Stronghold", "Lore Ele's Stronghold");
+            oLoreElesStronghold.AddPermanentMobs(MobTypeEnum.EleHonorGuard, MobTypeEnum.EleHonorGuard);
+            AddBidirectionalSameNameExit(oImladrisCircle3, oLoreElesStronghold, "gate");
+            imladrisGraph.Rooms[oLoreElesStronghold] = new System.Windows.Point(5, 0);
+
             Room oImladrisCircle4 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle4, BidirectionalExitType.SoutheastNorthwest);
-            imladrisGraph.Rooms[oImladrisCircle4] = new System.Windows.Point(5 + (4D / 3), 1 + (4D / 3));
+            p = new System.Windows.Point(5 + (4D / 3), 1 + (4D / 3));
+            imladrisGraph.Rooms[oImladrisCircle4] = p;
+
+            Room oSmithy = AddRoom("Smithy", "Axel's Repair Shoppe");
+            AddBidirectionalExits(oSmithy, oImladrisCircle4, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oSmithy] = new System.Windows.Point(p.X - 1, p.Y);
 
             Room oImladrisCircle5 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle4, oImladrisCircle5, BidirectionalExitType.SoutheastNorthwest);

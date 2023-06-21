@@ -261,6 +261,10 @@
         [PluralName("eccentric artists")]
         EccentricArtist,
 
+        [SingularName("Ele Honor Guard")]
+        [PluralName("Ele Honor Guards")]
+        EleHonorGuard,
+
         [SingularName("elven guard")]
         [PluralName("elven guards")]
         ElvenGuard,
