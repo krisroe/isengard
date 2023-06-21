@@ -140,6 +140,10 @@
         [EquipmentType(EquipmentType.Hands)]
         ChainMailGloves,
 
+        [SingularName("chain mail hood")]
+        [EquipmentType(EquipmentType.Unknown)]
+        ChainMailHood,
+
         [SingularName("chain mail sleeves")]
         [EquipmentType(EquipmentType.Arms)]
         ChainMailSleeves,
@@ -818,7 +822,7 @@
 
         [SingularName("throwing axe")]
         [PluralName("throwing axes")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         ThrowingAxe,
 
         [SingularName("tiger shark leather armor")]
