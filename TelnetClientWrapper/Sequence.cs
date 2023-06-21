@@ -3018,5 +3018,24 @@ StartProcessRoom:
             string sFullContent = GetListAsString(inputs, lineIndex, startsWith, requireExactStartsWith, out nextLineIndex, stopAtPrefix);
             return ParseList(sFullContent);
         }
+
+        /// <summary>
+        /// picks words contained in a list of words
+        /// </summary>
+        /// <param name="input">input words</param>
+        /// <returns>words, starting with the longest</returns>
+        public static IEnumerable<string> PickWords(string input)
+        {
+            string sBestWord = string.Empty;
+            List<string> sWords = new List<string>(input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            sWords.Sort((a, b) =>
+            {
+                return b.Length.CompareTo(a.Length);
+            });
+            foreach (string sNextWord in sWords)
+            {
+                yield return sNextWord;
+            }
+        }
     }
 }

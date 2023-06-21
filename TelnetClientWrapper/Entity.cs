@@ -470,35 +470,25 @@ namespace IsengardClient
         /// </summary>
         /// <param name="nextMob">mob to pick</param>
         /// <returns>word for the mob</returns>
-        public static string PickWordForMob(MobTypeEnum nextMob)
+        public static IEnumerable<string> GetMobWords(MobTypeEnum nextMob)
         {
-            string sBestWord;
             StaticMobData smd = StaticMobData[nextMob];
-            sBestWord = smd.SingularSelection;
-            if (string.IsNullOrEmpty(sBestWord))
+            string sSingular = smd.SingularSelection;
+            if (string.IsNullOrEmpty(sSingular))
             {
-                sBestWord = PickWord(smd.SingularName);
+                sSingular = smd.SingularName;
             }
-            return sBestWord;
-        }
-
-        public static string PickWord(string input)
-        {
-            string sBestWord = string.Empty;
-            string[] sWords = input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string sNextWord in sWords)
+            foreach (string s in StringProcessing.PickWords(sSingular))
             {
-                if (string.IsNullOrEmpty(sBestWord) || sNextWord.Length > sBestWord.Length)
-                {
-                    sBestWord = sNextWord;
-                }
+                yield return s;
             }
-            return sBestWord;
         }
 
         public static string PickMobTextWithinList(MobTypeEnum nextMob, IEnumerable<MobTypeEnum> mobList)
         {
-            string sWord = PickWordForMob(nextMob);
+            var wordEnumerator = GetMobWords(nextMob).GetEnumerator();
+            wordEnumerator.MoveNext();
+            string sWord = wordEnumerator.Current;
             int iCounter = 0;
             foreach (MobTypeEnum nextMobInList in mobList)
             {

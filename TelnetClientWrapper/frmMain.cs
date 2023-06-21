@@ -117,6 +117,7 @@ namespace IsengardClient
 
         private IsengardMap _gameMap;
 
+        private object _entityLock = new object();
         private CurrentRoomInfo _currentRoomInfo = new CurrentRoomInfo();
         private List<string> _foundSearchedExits;
         private InventoryEquipment _inventoryEquipment = new InventoryEquipment();
@@ -1031,7 +1032,7 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Inventory) == InitializationStep.None;
 
-            lock (_inventoryEquipment.InventoryEquipmentLock)
+            lock (_entityLock)
             {
                 InventoryEquipmentChange changes = new InventoryEquipmentChange();
                 changes.ChangeType = InventoryEquipmentChangeType.Refresh;
@@ -1302,7 +1303,7 @@ namespace IsengardClient
                 newRoom = previousRoom;
             }
 
-            lock (_currentRoomInfo.CurrentRoomInfoLock) //update the room change list with the next room
+            lock (_entityLock) //update the room change list with the next room
             {
                 _currentRoomInfo.CurrentObviousExits.Clear();
                 _currentRoomInfo.CurrentObviousExits.AddRange(obviousExits);
@@ -1657,7 +1658,7 @@ namespace IsengardClient
             _tnl = Math.Max(0, _tnl - experience);
             if (fumbled)
             {
-                lock (_inventoryEquipment.InventoryEquipmentLock)
+                lock (_entityLock)
                 {
                     if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1].HasValue)
                     {
@@ -1861,7 +1862,7 @@ namespace IsengardClient
                         finishedProcessing = true;
                         break;
                     case InformationalMessageType.BullroarerInMithlond:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1879,7 +1880,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerInNindamos:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1897,7 +1898,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerReadyForBoarding:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1915,7 +1916,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             bool removeMessage = true;
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
@@ -1947,7 +1948,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftBree:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1965,7 +1966,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftMithlond:
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             Room currentRoom = _currentRoomInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -1995,7 +1996,7 @@ namespace IsengardClient
                         rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
                         MobTypeEnum nextMob = next.Mob;
                         List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             int index = currentRoomMobs.LastIndexOf(nextMob);
                             int iInsertionPoint;
@@ -2090,7 +2091,7 @@ namespace IsengardClient
             rc.ChangeType = RoomChangeType.RemoveMob;
             rc.Mobs = new List<MobTypeEnum>();
             List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-            lock (_currentRoomInfo.CurrentRoomInfoLock)
+            lock (_entityLock)
             {
                 int index = currentRoomMobs.LastIndexOf(mobType);
                 if (index >= 0)
@@ -2125,7 +2126,7 @@ namespace IsengardClient
 
         private void HandleHarbringerStatusChange(bool inPort)
         {
-            lock (_currentRoomInfo.CurrentRoomInfoLock)
+            lock (_entityLock)
             {
                 Room currentRoom = _currentRoomInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
@@ -2254,7 +2255,7 @@ namespace IsengardClient
             iec.Items = new List<ItemTypeEnum>(items);
             iec.EquipmentIndices = new List<int>();
             iec.InventoryIndices = new List<int>();
-            lock (_inventoryEquipment.InventoryEquipmentLock)
+            lock (_entityLock)
             {
                 bool madeChange = false;
                 foreach (ItemTypeEnum nextItem in items)
@@ -3013,12 +3014,12 @@ namespace IsengardClient
                             //choose first monster of the same type
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
                             List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                            lock (_currentRoomInfo.CurrentRoomInfoLock)
+                            lock (_entityLock)
                             {
                                 int iIndexOfMonster = currentRoomMobs.IndexOf(eMobValue);
                                 if (iIndexOfMonster >= 0)
                                 {
-                                    txtMob.Text = GetTextForMob(currentRoomMobs, iIndexOfMonster);
+                                    txtMob.Text = PickMobText(iIndexOfMonster);
                                     setMobToFirstAvailable = false;
                                 }
                             }
@@ -3034,11 +3035,11 @@ namespace IsengardClient
                 {
                     string sText = null;
                     List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
-                    lock (_currentRoomInfo.CurrentRoomInfoLock)
+                    lock (_entityLock)
                     {
                         if (currentRoomMobs.Count > 0)
                         {
-                            sText = MobEntity.PickMobTextWithinList(currentRoomMobs[0], MobEntity.IterateThroughMobs(currentRoomMobs, 1));
+                            sText = PickMobText(0);
                         }
                     }
                     if (!string.IsNullOrEmpty(sText))
@@ -3055,6 +3056,77 @@ namespace IsengardClient
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
             }
+        }
+
+        /// <summary>
+        /// pick selection text for an entity
+        /// </summary>
+        /// <param name="index">current index of the entity in the room mobs or inventory items list</param>
+        /// <param name="isMob">true for a mob, false for an inventory item</param>
+        /// <returns>selection text for the entity</returns>
+        private string PickMobText(int mobIndex)
+        {
+            MobTypeEnum eMobType = _currentRoomInfo.CurrentRoomMobs[mobIndex];
+            foreach (string word in MobEntity.GetMobWords(eMobType))
+            {
+                string sSingular;
+                bool foundInventory = false;
+                foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
+                {
+                    sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                    foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                    {
+                        if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                        {
+                            foundInventory = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundInventory)
+                {
+                    int iCounter = 0;
+                    for (int i = 0; i < mobIndex; i++)
+                    {
+                        MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
+                        bool matches = false;
+                        if (eMob == eMobType)
+                        {
+                            matches = true;
+                        }
+                        else
+                        {
+                            sSingular = MobEntity.StaticMobData[eMob].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matches)
+                        {
+                            iCounter++;
+                        }
+                    }
+                    iCounter++;
+                    string ret;
+                    if (iCounter == 1)
+                    {
+                        ret = word;
+                    }
+                    else
+                    {
+                        ret = word + " " + iCounter;
+                    }
+                    return ret;
+                }
+            }
+
+            //unable to find selection text
+            return null;
         }
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
@@ -3309,7 +3381,7 @@ namespace IsengardClient
                                 bool doHealingLogic = !targetIsDamageRoom;
                                 if (doHealingLogic)
                                 {
-                                    lock (_currentRoomInfo.CurrentRoomInfoLock)
+                                    lock (_entityLock)
                                     {
                                         foreach (var nextMob in _currentRoomInfo.CurrentRoomMobs)
                                         {
@@ -3498,7 +3570,7 @@ namespace IsengardClient
 
                                     if (!string.IsNullOrEmpty(_weapon))
                                     {
-                                        lock (_inventoryEquipment.InventoryEquipmentLock)
+                                        lock (_entityLock)
                                         {
                                             if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == null)
                                             {
@@ -4001,7 +4073,9 @@ BeforeHazy:
                     ret = "down";
                     break;
             }
-            string sWord = MobEntity.PickWord(target);
+            var enumerator = StringProcessing.PickWords(target).GetEnumerator();
+            enumerator.MoveNext();
+            string sWord = enumerator.Current;
             if (ret == null)
             {
                 Room oSource = exit.Source;
@@ -5284,7 +5358,7 @@ BeforeHazy:
 
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
 
-            lock (_currentRoomInfo.CurrentRoomInfoLock)
+            lock (_entityLock)
             {
                 List<RoomChange> changes = null;
                 int iNewCounter = -1;
@@ -5480,11 +5554,11 @@ BeforeHazy:
                                 if (bwp == null)
                                 {
                                     string sNewMobText = string.Empty;
-                                    lock (_currentRoomInfo.CurrentRoomInfoLock)
+                                    lock (_entityLock)
                                     {
                                         if (_currentRoomInfo.CurrentRoomMobs.Count > 0)
                                         {
-                                            sNewMobText = GetTextForMob(_currentRoomInfo.CurrentRoomMobs, 0);
+                                            sNewMobText = PickMobText(0);
                                         }
                                     }
                                     txtMob.Text = sNewMobText;
@@ -5510,7 +5584,7 @@ BeforeHazy:
                 }
             }
 
-            lock (_inventoryEquipment.InventoryEquipmentLock)
+            lock (_entityLock)
             {
                 List<InventoryEquipmentChange> changes = null;
                 int iNewCounter = -1;
@@ -6213,7 +6287,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             _currentRoomInfo.CurrentRoom = selectedRoom;
                             _currentRoomInfo.RoomChangeCounterUI = -1;
@@ -6241,7 +6315,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_currentRoomInfo.CurrentRoomInfoLock)
+                        lock (_entityLock)
                         {
                             _currentRoomInfo.CurrentRoom = selectedRoom;
                             _currentRoomInfo.RoomChangeCounterUI = -1;
@@ -6535,7 +6609,7 @@ BeforeHazy:
             if (isObviousMobs || isPermanentMobs)
             {
                 MobTypeEnum selectedMob = (MobTypeEnum)selectedNode.Tag;
-                lock (_currentRoomInfo.CurrentRoomInfoLock)
+                lock (_entityLock)
                 {
                     Room currentRoom = _currentRoomInfo.CurrentRoom;
 
@@ -6576,50 +6650,11 @@ BeforeHazy:
                         }
                         if (iCurrentMobIndex >= 0)
                         {
-                            txtMob.Text = GetTextForMob(mobList, iCurrentMobIndex);
+                            txtMob.Text = PickMobText(iCurrentMobIndex);
                         }
                     }
                 }
             }
-        }
-
-        private string GetTextForMob(List<MobTypeEnum> mobList, int index)
-        {
-            MobTypeEnum eMT = mobList[index];
-            string word = MobEntity.PickWordForMob(eMT);
-            int iCounter = 0;
-            int currentIndex = 0;
-            foreach (MobTypeEnum eNextMT in mobList)
-            {
-                string sSingular = MobEntity.StaticMobData[eNextMT].SingularName;
-                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                {
-                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                    {
-                        iCounter++;
-                        break;
-                    }
-                }
-                if (currentIndex == index)
-                {
-                    break;
-                }
-                currentIndex++;
-            }
-            string ret;
-            if (iCounter == 0)
-            {
-                ret = string.Empty;
-            }
-            else if (iCounter > 1)
-            {
-                ret = word + " " + iCounter;
-            }
-            else
-            {
-                ret = word;
-            }
-            return ret;
         }
 
         private void tsmiGoToRoom_Click(object sender, EventArgs e)

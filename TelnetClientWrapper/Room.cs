@@ -106,7 +106,6 @@ namespace IsengardClient
         public Room CurrentRoomUI { get; set; }
         public List<RoomChange> CurrentRoomChanges { get; set; }
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
-        public object CurrentRoomInfoLock { get; set; }
         public int RoomChangeCounter { get; set; }
         public int RoomChangeCounterUI { get; set; }
         public List<string> CurrentObviousExits { get; set; }
@@ -123,7 +122,6 @@ namespace IsengardClient
         {
             CurrentRoomChanges = new List<RoomChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
-            CurrentRoomInfoLock = new object();
             RoomChangeCounter = -1;
             RoomChangeCounterUI = -1;
             CurrentObviousExits = new List<string>();

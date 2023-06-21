@@ -5,7 +5,6 @@ namespace IsengardClient
     {
         public List<ItemTypeEnum> InventoryItems { get; set; }
         public List<InventoryEquipmentChange> InventoryEquipmentChanges { get; set; }
-        public object InventoryEquipmentLock { get; set; }
         public int InventoryEquipmentCounter { get; set; }
         public int InventoryEquipmentCounterUI { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
@@ -14,7 +13,6 @@ namespace IsengardClient
         {
             this.InventoryItems = new List<ItemTypeEnum>();
             this.InventoryEquipmentChanges = new List<InventoryEquipmentChange>();
-            this.InventoryEquipmentLock = new object();
             this.Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
         }
 
