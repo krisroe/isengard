@@ -2223,6 +2223,10 @@ StartProcessRoom:
                 {
                     result = MovementResult.ClosedDoorFailure;
                 }
+                else if (firstLine == "It's locked.")
+                {
+                    result = MovementResult.LockedDoorFailure;
+                }
                 else if (firstLine.EndsWith(" blocks your exit."))
                 {
                     result = MovementResult.TotalFailure;

@@ -179,12 +179,17 @@
 
         [SingularName("crossbow")]
         [PluralName("crossbows")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         Crossbow,
 
         [SingularName("crystal amulet")]
         [PluralName("crystal amulets")]
         CrystalAmulet,
+
+        [SingularName("cutlass")]
+        [PluralName("cutlasses")]
+        [WeaponType(WeaponType.Stab)]
+        Cutlass,
 
         [SingularName("dagger")]
         [PluralName("daggers")]
@@ -217,6 +222,11 @@
         [PluralName("dirks")]
         [WeaponType(WeaponType.Unknown)]
         Dirk,
+
+        [SingularName("double bladed axe")]
+        [PluralName("double bladed axes")]
+        [WeaponType(WeaponType.Slash)]
+        DoubleBladedAxe,
 
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
@@ -451,6 +461,11 @@
         [WeaponType(WeaponType.Unknown)]
         LongBow,
 
+        [SingularName("long sword")]
+        [PluralName("long swords")]
+        [WeaponType(WeaponType.Stab)]
+        LongSword,
+
         [SingularName("lunch money")]
         //CSRTODO: plural?
         LunchMoney,
@@ -649,6 +664,10 @@
         [PluralName("rings of invisibility")]
         RingOfInvisibility,
 
+        [SingularName("ruby")]
+        [PluralName("rubies")]
+        Ruby,
+
         [SingularName("rusty key")]
         [PluralName("rusty key")]
         RustyKey,
@@ -726,7 +745,7 @@
         SmallBag,
 
         [SingularName("small knife")]
-        [PluralName("small knives")] //CSRTODO: correct plural?
+        [PluralName("small knifes")] //verified 6/21/23
         [WeaponType(WeaponType.Unknown)]
         SmallKnife,
 

@@ -416,6 +416,7 @@ namespace IsengardClient
         MapFailure,
         StandFailure,
         ClosedDoorFailure,
+        LockedDoorFailure,
         FallFailure,
     }
 

@@ -1503,14 +1503,23 @@ namespace IsengardClient
         private void FailMovement(FeedLineParameters flParams, MovementResult movementResult, int damage)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Movement)
+            if (bct.HasValue)
             {
-                _lastCommandDamage = damage;
-                _lastCommandMovementResult = movementResult;
+                BackgroundCommandType bctValue = bct.Value;
 
-                //even though some of these results are fixable (e.g. trap rooms), return full failure to allow the caller
-                //to decide to heal.
-                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                if (bctValue == BackgroundCommandType.Movement)
+                {
+                    _lastCommandDamage = damage;
+                    _lastCommandMovementResult = movementResult;
+
+                    //even though some of these results are fixable (e.g. trap rooms), return full failure to allow the caller
+                    //to decide to heal.
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
+                else if (bctValue == BackgroundCommandType.OpenDoor && movementResult == MovementResult.LockedDoorFailure)
+                {
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
             }
         }
 
@@ -1532,7 +1541,7 @@ namespace IsengardClient
             }
         }
 
-        private static void OpenDoorFailure(FeedLineParameters flParams)
+        private static void CantSeeExit(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OpenDoor)
@@ -2534,10 +2543,9 @@ namespace IsengardClient
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
-                new ConstantOutputSequence("I don't see that exit.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
+                new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
-                new ConstantOutputSequence("It's locked.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
             };
             return seqs;
