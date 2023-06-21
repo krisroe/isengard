@@ -1188,6 +1188,10 @@
         [PluralName("water turtles")]
         WaterTurtle,
 
+        [SingularName("werewolf")]
+        [PluralName("werewolves")]
+        Werewolf,
+
         [SingularName("wheat harvester")]
         [PluralName("wheat harvesters")]
         WheatHarvester,
