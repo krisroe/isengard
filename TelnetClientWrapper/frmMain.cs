@@ -142,7 +142,6 @@ namespace IsengardClient
         private bool _showingWithTarget = false;
         private bool _showingWithoutTarget = false;
         private int _waitSeconds = 0;
-        private bool _fumbled;
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
@@ -1614,13 +1613,20 @@ namespace IsengardClient
                 ChangeSkillActive(SkillWithCooldownType.PowerAttack, false);
             }
             _tnl = Math.Max(0, _tnl - experience);
+            if (fumbled)
+            {
+                lock (_inventoryEquipment.InventoryEquipmentLock)
+                {
+                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1].HasValue)
+                    {
+                        var weapon = new List<ItemTypeEnum>() { _inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1].Value };
+                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, weapon, false, true);
+                    }
+                }
+            }
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
-                if (fumbled)
-                {
-                    _fumbled = true;
-                }
-                else if (killedMonster)
+                if (!fumbled && killedMonster)
                 {
                     _monsterKilled = true;
                     _monsterKilledType = eMobType;
@@ -3429,10 +3435,15 @@ namespace IsengardClient
                                 {
                                     stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
 
-                                    if (_fumbled && !string.IsNullOrEmpty(_weapon))
+                                    if (!string.IsNullOrEmpty(_weapon))
                                     {
-                                        SendCommand("wield " + _weapon, InputEchoType.On);
-                                        _fumbled = false;
+                                        lock (_inventoryEquipment.InventoryEquipmentLock)
+                                        {
+                                            if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == null)
+                                            {
+                                                SendCommand("wield " + _weapon, InputEchoType.On);
+                                            }
+                                        }
                                     }
 
                                     if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))

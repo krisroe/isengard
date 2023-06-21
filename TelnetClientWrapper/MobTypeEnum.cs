@@ -618,6 +618,10 @@
         [PluralName("leprechauns")]
         Leprechaun,
 
+        [SingularName("little boy")]
+        [PluralName("little boys")]
+        LittleBoy,
+
         [SingularName("little mouse")]
         [PluralName("little mice")]
         LittleMouse,
@@ -654,6 +658,7 @@
 
         [SingularName("Malika")]
         //CSRTODO: no plural
+        [Experience(380)]
         Malika,
 
         [SingularName("Manager Mulloy")]
@@ -1178,6 +1183,10 @@
         [SingularName("worker")]
         [PluralName("workers")]
         Worker,
+
+        [SingularName("Zain")]
+        //CSRTODO: no plural
+        Zain,
 
         [SingularName("Zathriel the Minstrel")]
         [SingularSelection("Minstrel")]

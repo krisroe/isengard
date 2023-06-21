@@ -4682,7 +4682,8 @@ namespace IsengardClient
             AddBidirectionalExits(oGoldberryFolca, oGoldberry5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry5] = new System.Windows.Point(7, 12);
 
-            Room oZain = AddRoom("Zain");
+            Room oZain = AddRoom("Zain", "Tourist Information");
+            oZain.AddPermanentMobs(MobTypeEnum.Zain);
             AddBidirectionalExitsWithOut(oGoldberry5, oZain, "north");
             armenelosGraph.Rooms[oZain] = new System.Windows.Point(7, 11);
 
