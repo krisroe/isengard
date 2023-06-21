@@ -104,6 +104,10 @@
         //CSRTODO: no plural?
         BrentDiehard,
 
+        [SingularName("bugbear")]
+        [PluralName("bugbears")]
+        Bugbear,
+
         [SingularName("bull")]
         [PluralName("bulls")]
         Bull,
@@ -192,6 +196,10 @@
         [SingularName("Denethore the Wise")]
         //CSRTODO: no plural?
         DenethoreTheWise,
+
+        [SingularName("dervish")]
+        [PluralName("dervishes")] //CSRTODO: plural?
+        Dervish,
 
         [SingularName("Dori")]
         //CSRTODO: no plural?
@@ -1171,6 +1179,10 @@
         [SingularName("water turtle")]
         [PluralName("water turtles")]
         WaterTurtle,
+
+        [SingularName("wheat harvester")]
+        [PluralName("wheat harvesters")]
+        WheatHarvester,
 
         [SingularName("white knight")]
         [PluralName("white knights")]
