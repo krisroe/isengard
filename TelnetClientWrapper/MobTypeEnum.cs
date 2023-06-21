@@ -10,6 +10,10 @@
         [PluralName("alley cats")]
         AlleyCat,
 
+        [SingularName("Amme")]
+        //CSRTODO: no plural
+        Amme,
+
         [SingularName("archer")]
         [PluralName("archers")]
         Archer,
@@ -21,6 +25,10 @@
         [SingularName("art student")]
         [PluralName("art students")]
         ArtStudent,
+
+        [SingularName("Azgara")]
+        //CSRTODO: no plural
+        Azgara,
 
         [SingularName("barbarian guard")]
         [PluralName("barbarian guards")]
@@ -131,6 +139,18 @@
         [Alignment(AlignmentType.Blue)]
         ChancellorOfProtection,
 
+        [SingularName("child")]
+        //CSRTODO: plural
+        Child,
+
+        [SingularName("cook")]
+        [PluralName("cooks")]
+        Cook,
+
+        [SingularName("coughing man")]
+        [PluralName("coughing men")]
+        CoughingMan,
+
         [SingularName("court jester")]
         [PluralName("court jesters")]
         CourtJester,
@@ -172,6 +192,14 @@
         [SingularName("Denethore the Wise")]
         //CSRTODO: no plural?
         DenethoreTheWise,
+
+        [SingularName("Dori")]
+        //CSRTODO: no plural?
+        Dori,
+
+        [SingularName("Dr. Faramir")]
+        //CSRTODO: no plural
+        DrFaramir,
 
         [SingularName("Droolie the troll")]
         //CSRTODO: no plural?
@@ -260,6 +288,10 @@
         [Experience(260)]
         [Alignment(AlignmentType.Blue)]
         FrodoBaggins,
+
+        [SingularName("garbage collector")]
+        [PluralName("garbage collectors")]
+        GarbageCollector,
 
         [SingularName("gargoyle")]
         [PluralName("gargoyles")]
@@ -416,9 +448,17 @@
         [PluralName("harbor masters")]
         HarborMaster,
 
+        [SingularName("hawker")]
+        [PluralName("hawkers")]
+        Hawker,
+
         [SingularName("herald")]
         [PluralName("heralds")]
         Herald,
+
+        [SingularName("herb vendor")]
+        [PluralName("herb vendors")]
+        HerbVendor,
 
         [SingularName("hermit fisher")]
         [PluralName("hermit fishers")]
@@ -482,6 +522,10 @@
         [Alignment(AlignmentType.Blue)]
         HoundDog,
 
+        [SingularName("Hummley")]
+        //CSRTODO: no plural
+        Hummley,
+
         [SingularName("hunchback servant")]
         [PluralName("hunchback servants")]
         HunchbackServant,
@@ -495,6 +539,10 @@
         [Experience(130)]
         [Alignment(AlignmentType.Grey)]
         IgorTheBouncer,
+
+        [SingularName("Imrahil")]
+        //CSRTODO: no plural
+        Imrahil,
 
         [SingularName("Iorlas the hermit")]
         //CSRTODO: no plural?
@@ -733,6 +781,14 @@
         [PluralName("noblemen")]
         Nobleman,
 
+        [SingularName("Numenorean Captain")]
+        [PluralName("Numenorean Captains")]
+        NumenoreanCaptain,
+
+        [SingularName("Numenorean Sentry")]
+        [PluralName("Numenorean Sentries")]
+        NumenoreanSentry,
+
         [SingularName("Numenorean Warder")]
         [PluralName("Numenorean Warders")]
         [Experience(450)]
@@ -799,6 +855,10 @@
         [SingularName("pixie")]
         [PluralName("pixies")]
         Pixie,
+
+        [SingularName("policeman")]
+        [PluralName("policemen")]
+        Policeman,
 
         [SingularName("poor fisherman")]
         [PluralName("poor fishermen")]
@@ -879,6 +939,10 @@
         [Experience(350)]
         [Alignment(AlignmentType.Blue)]
         SergeantGrimgall,
+
+        [SingularName("servant")]
+        [PluralName("servants")]
+        Servant,
 
         [SingularName("sewer demon")]
         [PluralName("sewer demons")]
@@ -988,6 +1052,10 @@
         [PluralName("swarm of flies")]
         SwarmOfFlies,
 
+        [SingularName("Tamar")]
+        //CSRTODO: no plural
+        Tamar,
+
         [SingularName("Tellia the Witch")]
         //CSRTODO: no plural
         TelliaTheWitch,
@@ -1059,6 +1127,10 @@
         [SingularName("vampire bat")]
         [PluralName("vampire bats")]
         VampireBat,
+
+        [SingularName("vendor")]
+        [PluralName("vendors")]
+        Vendor,
 
         [SingularName("village woman")]
         [PluralName("village women")]

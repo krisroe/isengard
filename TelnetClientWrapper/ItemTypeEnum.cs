@@ -445,6 +445,10 @@
         [PluralName("magical tabulators")]
         MagicalTabulator,
 
+        [SingularName("magical temper")]
+        //CSRTODO: plural?
+        MagicalTemper,
+
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
         [EquipmentType(EquipmentType.Held)]

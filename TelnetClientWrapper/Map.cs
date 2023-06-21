@@ -4254,15 +4254,15 @@ namespace IsengardClient
             AddBidirectionalExits(oSouthernJunction, oGranitePath7, BidirectionalExitType.SoutheastNorthwest);
             nindamosGraph.Rooms[oSouthernJunction] = new System.Windows.Point(0, 1);
 
-            Room oPathToArmenelos1 = AddRoom("Valley Path");
+            Room oPathToArmenelos1 = AddRoom("Valley Path", "Path Through the Valley");
             AddBidirectionalExits(oPathToArmenelos1, oSouthernJunction, BidirectionalExitType.SouthwestNortheast);
             nindamosGraph.Rooms[oPathToArmenelos1] = new System.Windows.Point(1, 0);
 
-            oPathThroughTheValleyHiddenPath = AddRoom("Valley Path");
+            oPathThroughTheValleyHiddenPath = AddRoom("Valley Path", "Path Through the Valley");
             AddBidirectionalExits(oPathThroughTheValleyHiddenPath, oPathToArmenelos1, BidirectionalExitType.SouthwestNortheast);
             nindamosGraph.Rooms[oPathThroughTheValleyHiddenPath] = new System.Windows.Point(2, -1);
 
-            oArmenelosGatesOutside = AddRoom("Gate Outside");
+            oArmenelosGatesOutside = AddRoom("Gate Outside", "Gates of Armenelos");
             AddBidirectionalExits(oArmenelosGatesOutside, oPathThroughTheValleyHiddenPath, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(2, -2);
         }
@@ -4273,405 +4273,412 @@ namespace IsengardClient
             armenelosGraph.ScalingFactor = 100;
             _graphs[MapType.Armenelos] = armenelosGraph;
 
-            Room oAdrahilHirgon = AddRoom("Adrahil/Hirgon");
+            Room oAdrahilHirgon = AddRoom("Adrahil/Hirgon", "Hirgon Way/ Adrahil Road");
             armenelosGraph.Rooms[oAdrahilHirgon] = new System.Windows.Point(0, 0);
 
-            Room oAdrahil1 = AddRoom("Adrahil");
+            Room oAdrahil1 = AddRoom("Adrahil", "Adrahil Road");
             AddBidirectionalExits(oAdrahilHirgon, oAdrahil1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahil1] = new System.Windows.Point(1, 0);
 
-            Room oAdrahilRivel = AddRoom("Adrahil/Rivel");
+            Room oAdrahilRivel = AddRoom("Adrahil/Rivel", "Adrahil Road/Rivel Way");
             AddBidirectionalExits(oAdrahil1, oAdrahilHirgon, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahilRivel] = new System.Windows.Point(2, 0);
 
-            Room oAdrahil2 = AddRoom("Adrahil");
+            Room oAdrahil2 = AddRoom("Adrahil", "Adrahil Road");
             AddBidirectionalExits(oAdrahilRivel, oAdrahil2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahil2] = new System.Windows.Point(3, 0);
 
-            Room oAdrahil3 = AddRoom("Adrahil");
+            Room oAdrahil3 = AddRoom("Adrahil", "Adrahil Road");
             AddBidirectionalExits(oAdrahil2, oAdrahil3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahil3] = new System.Windows.Point(4, 0);
 
-            Room oAdrahil4 = AddRoom("Adrahil");
+            Room oAdrahil4 = AddRoom("Adrahil", "Adrahil Road");
             AddBidirectionalExits(oAdrahil3, oAdrahil4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahil4] = new System.Windows.Point(5, 0);
 
-            Room oCityDump = AddRoom("City Dump");
+            Room oCityDump = AddRoom("City Dump", "Armenelos City Dump");
             AddBidirectionalExitsWithOut(oAdrahil4, oCityDump, "gate");
             armenelosGraph.Rooms[oCityDump] = new System.Windows.Point(5, 1);
 
-            Room oDori = AddRoom("Dori");
+            Room oDori = AddRoom("Dori", "Dori's Dump Shack");
+            oDori.AddPermanentMobs(MobTypeEnum.Dori);
             AddBidirectionalExitsWithOut(oCityDump, oDori, "dump");
             armenelosGraph.Rooms[oDori] = new System.Windows.Point(4, 1);
 
-            Room oAdrahilFolca = AddRoom("Adrahil/Folca");
+            Room oAdrahilFolca = AddRoom("Adrahil/Folca", "Adrahil Road/Folca Street");
             AddBidirectionalExits(oAdrahil4, oAdrahilFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahilFolca] = new System.Windows.Point(6, 0);
 
-            Room oAdrahil5 = AddRoom("Adrahil");
+            Room oAdrahil5 = AddRoom("Adrahil", "Adrahil Road");
             AddBidirectionalExits(oAdrahilFolca, oAdrahil5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahil5] = new System.Windows.Point(7, 0);
 
-            Room oAdrahilWindfola = AddRoom("Adrahil/Windfola");
+            Room oAdrahilWindfola = AddRoom("Adrahil/Windfola", "Adrahil Road/Windfola Avenue");
             AddBidirectionalExits(oAdrahil5, oAdrahilWindfola, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAdrahilWindfola] = new System.Windows.Point(8, 0);
 
-            Room oHirgon1 = AddRoom("Hirgon");
+            Room oHirgon1 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oAdrahilHirgon, oHirgon1, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon1] = new System.Windows.Point(0, 1);
 
-            Room oDoctorFaramir = AddRoom("Dr Faramir");
+            Room oDoctorFaramir = AddRoom("Dr Faramir", "Dr. Faramir's Medical Supplies");
+            oDoctorFaramir.AddPermanentMobs(MobTypeEnum.DrFaramir);
             AddBidirectionalExitsWithOut(oHirgon1, oDoctorFaramir, "door");
             armenelosGraph.Rooms[oDoctorFaramir] = new System.Windows.Point(1, 1);
 
-            Room oRivel1 = AddRoom("Rivel");
+            Room oRivel1 = AddRoom("Rivel", "Rivel Way");
             AddBidirectionalExits(oAdrahilRivel, oRivel1, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oRivel1] = new System.Windows.Point(2, 1);
 
-            Room oFolca1 = AddRoom("Folca");
+            Room oFolca1 = AddRoom("Folca", "Folca Avenue");
             AddBidirectionalExits(oAdrahilFolca, oFolca1, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oFolca1] = new System.Windows.Point(6, 1);
 
-            Room oWindfola1 = AddRoom("Windfola");
+            Room oWindfola1 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oAdrahilWindfola, oWindfola1, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola1] = new System.Windows.Point(8, 1);
 
-            Room oDorlasHirgon = AddRoom("Dorlas/Hirgon");
+            Room oDorlasHirgon = AddRoom("Dorlas/Hirgon", "Hirgon Way/Dorlas Street");
             AddBidirectionalExits(oHirgon1, oDorlasHirgon, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oDorlasHirgon] = new System.Windows.Point(0, 2);
 
-            Room oDorlas1 = AddRoom("Dorlas");
+            Room oDorlas1 = AddRoom("Dorlas", "Dorlas Street");
             AddBidirectionalExits(oDorlasHirgon, oDorlas1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlas1] = new System.Windows.Point(1, 2);
 
-            Room oDorlasRivel = AddRoom("Dorlas/Rivel");
+            Room oDorlasRivel = AddRoom("Dorlas/Rivel", "Dorlas Street/Rivel Way");
             AddBidirectionalExits(oRivel1, oDorlasRivel, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oDorlas1, oDorlasRivel, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlasRivel] = new System.Windows.Point(2, 2);
 
-            Room oDorlas2 = AddRoom("Dorlas");
+            Room oDorlas2 = AddRoom("Dorlas", "Dorlas Street");
             AddBidirectionalExits(oDorlasRivel, oDorlas2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlas2] = new System.Windows.Point(3, 2);
 
-            Room oDorlas3 = AddRoom("Dorlas");
+            Room oDorlas3 = AddRoom("Dorlas", "Dorlas Street");
             AddBidirectionalExits(oDorlas2, oDorlas3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlas3] = new System.Windows.Point(4, 2);
 
-            Room oDorlas4 = AddRoom("Dorlas");
+            Room oDorlas4 = AddRoom("Dorlas", "Dorlas Street");
             AddBidirectionalExits(oDorlas3, oDorlas4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlas4] = new System.Windows.Point(5, 2);
 
-            Room oDorlasFolca = AddRoom("Dorlas/Folca");
+            Room oDorlasFolca = AddRoom("Dorlas/Folca", "Dorlas Street/Folca Avenue");
             AddBidirectionalExits(oFolca1, oDorlasFolca, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oDorlas4, oDorlasFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlasFolca] = new System.Windows.Point(6, 2);
 
-            Room oDorlas5 = AddRoom("Dorlas");
+            Room oDorlas5 = AddRoom("Dorlas", "Dorlas Street");
             AddBidirectionalExits(oDorlasFolca, oDorlas5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlas5] = new System.Windows.Point(7, 2);
 
-            Room oTamar = AddRoom("Tamar");
+            Room oTamar = AddRoom("Tamar", "Tamar of Armenelos");
+            oTamar.AddPermanentMobs(MobTypeEnum.Tamar);
             AddBidirectionalExits(oDorlas5, oTamar, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oTamar] = new System.Windows.Point(7, 2.5);
 
-            Room oDorlasWindfola = AddRoom("Dorlas/Windfola");
+            Room oDorlasWindfola = AddRoom("Dorlas/Windfola", "Windfola Avenue/Dorlas Street");
             AddBidirectionalExits(oWindfola1, oDorlasWindfola, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oDorlas5, oDorlasWindfola, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oDorlasWindfola] = new System.Windows.Point(8, 2);
 
-            Room oHirgon2 = AddRoom("Hirgon");
+            Room oHirgon2 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oDorlasHirgon, oHirgon2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon2] = new System.Windows.Point(0, 3);
 
-            Room oRivel2 = AddRoom("Rivel");
+            Room oRivel2 = AddRoom("Rivel", "Rivel Way");
             AddBidirectionalExits(oDorlasRivel, oRivel2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oRivel2] = new System.Windows.Point(2, 3);
 
-            Room oFolca2 = AddRoom("Folca");
+            Room oFolca2 = AddRoom("Folca", "Folca Avenue");
             AddBidirectionalExits(oDorlasFolca, oFolca2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oFolca2] = new System.Windows.Point(6, 3);
 
-            Room oWindfola2 = AddRoom("Windfola");
+            Room oWindfola2 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oDorlasWindfola, oWindfola2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola2] = new System.Windows.Point(8, 3);
 
-            Room oAzgara = AddRoom("Azgara");
+            Room oAzgara = AddRoom("Azgara", "Azgara's Metalworking");
+            oAzgara.AddPermanentMobs(MobTypeEnum.Azgara);
             AddBidirectionalExits(oAzgara, oWindfola2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oAzgara] = new System.Windows.Point(7, 3);
 
-            Room oOnlyArmor = AddRoom("Kali");
+            Room oOnlyArmor = AddRoom("Kali", "Only Armor");
             AddBidirectionalExitsWithOut(oAzgara, oOnlyArmor, "door");
             armenelosGraph.Rooms[oOnlyArmor] = new System.Windows.Point(6.5, 3.5);
 
-            Room oSpecialtyShoppe = AddRoom("Specialty");
+            Room oSpecialtyShoppe = AddRoom("Specialty", "Azgara's Specialty Shoppe");
             AddBidirectionalExitsWithOut(oAzgara, oSpecialtyShoppe, "curtain");
             armenelosGraph.Rooms[oSpecialtyShoppe] = new System.Windows.Point(7.5, 3.5);
 
-            Room oThalosHirgon = AddRoom("Hirgon/Thalos");
+            Room oThalosHirgon = AddRoom("Hirgon/Thalos", "Hirgon Way/West Thalos Road");
             AddBidirectionalExits(oHirgon2, oThalosHirgon, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oThalosHirgon] = new System.Windows.Point(0, 4);
 
-            Room oThalos1 = AddRoom("Thalos");
+            Room oThalos1 = AddRoom("Thalos", "West Thalos Road");
             AddBidirectionalExits(oThalosHirgon, oThalos1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalos1] = new System.Windows.Point(1, 4);
 
-            Room oThalosRivel = AddRoom("Thalos/Rivel");
+            Room oThalosRivel = AddRoom("Thalos/Rivel", "West Thalos Road/Rivel Way");
             AddBidirectionalExits(oRivel2, oThalosRivel, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oThalos1, oThalosRivel, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalosRivel] = new System.Windows.Point(2, 4);
 
-            Room oThalos2 = AddRoom("Thalos");
+            Room oThalos2 = AddRoom("Thalos", "West Thalos Road");
             AddBidirectionalExits(oThalosRivel, oThalos2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalos2] = new System.Windows.Point(3, 4);
 
-            Room oThalos3 = AddRoom("Thalos");
+            Room oThalos3 = AddRoom("Thalos", "Thalos Road");
             AddBidirectionalExits(oThalos2, oThalos3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalos3] = new System.Windows.Point(4, 4);
 
-            Room oThalos4 = AddRoom("Thalos");
+            Room oThalos4 = AddRoom("Thalos", "East Thalos Road");
             AddBidirectionalExits(oThalos3, oThalos4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalos4] = new System.Windows.Point(5, 4);
 
-            Room oThalosFolca = AddRoom("Thalos/Folca");
+            Room oThalosFolca = AddRoom("Thalos/Folca", "East Thalos Road/Folca Avenue");
             AddBidirectionalExits(oFolca2, oThalosFolca, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oThalos4, oThalosFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalosFolca] = new System.Windows.Point(6, 4);
 
-            Room oThalos5 = AddRoom("Thalos");
+            Room oThalos5 = AddRoom("Thalos", "East Thalos Road");
             AddBidirectionalExits(oThalosFolca, oThalos5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalos5] = new System.Windows.Point(7, 4);
 
-            Room oThalosWindfola = AddRoom("Thalos/Windfola");
+            Room oThalosWindfola = AddRoom("Thalos/Windfola", "Windfola Avenue/ East Thalos Road");
             AddBidirectionalExits(oWindfola2, oThalosWindfola, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oThalos5, oThalosWindfola, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oThalosWindfola] = new System.Windows.Point(8, 4);
 
-            Room oHirgon3 = AddRoom("Hirgon");
+            Room oHirgon3 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oThalosHirgon, oHirgon3, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon3] = new System.Windows.Point(0, 5);
 
-            Room oRivel3 = AddRoom("Rivel");
+            Room oRivel3 = AddRoom("Rivel", "Rivel Way");
             AddBidirectionalExits(oThalosRivel, oRivel3, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oRivel3] = new System.Windows.Point(2, 5);
             //CSRTODO: south (blocked)
 
-            Room oFolca3 = AddRoom("Folca");
+            Room oFolca3 = AddRoom("Folca", "Folca Avenue");
             AddBidirectionalExits(oThalosFolca, oFolca3, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oFolca3] = new System.Windows.Point(6, 5);
             //CSRTODO: south (blocked)
 
-            Room oWindfola3 = AddRoom("Windfola");
+            Room oWindfola3 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oThalosWindfola, oWindfola3, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola3] = new System.Windows.Point(8, 5);
 
-            Room oEllessarHirgon = AddRoom("Ellessar/Hirgon");
+            Room oEllessarHirgon = AddRoom("Ellessar/Hirgon", "Hirgon Way/Ellessar Street");
             AddBidirectionalExits(oHirgon3, oEllessarHirgon, BidirectionalExitType.NorthSouth);
             //CSRTODO: east (blocked)
             armenelosGraph.Rooms[oEllessarHirgon] = new System.Windows.Point(0, 6);
 
-            Room oEllessarWindfola = AddRoom("Ellessar/Windfola");
+            Room oEllessarWindfola = AddRoom("Ellessar/Windfola", "Windfola Avenue/Ellessar Street");
             AddBidirectionalExits(oWindfola3, oEllessarWindfola, BidirectionalExitType.NorthSouth);
             //CSRTODO: west (blocked)
             armenelosGraph.Rooms[oEllessarWindfola] = new System.Windows.Point(8, 6);
 
-            Room oHirgon4 = AddRoom("Hirgon");
+            Room oHirgon4 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oEllessarHirgon, oHirgon4, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon4] = new System.Windows.Point(0, 7);
 
-            Room oOutdoorMarket = AddRoom("OutdoorMarket");
+            Room oOutdoorMarket = AddRoom("OutdoorMarket", "Outdoor Market");
             AddBidirectionalExits(oHirgon4, oOutdoorMarket, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOutdoorMarket] = new System.Windows.Point(1, 7);
 
-            Room oRivel4 = AddRoom("Rivel");
+            Room oRivel4 = AddRoom("Rivel", "Rivel Way");
             armenelosGraph.Rooms[oRivel4] = new System.Windows.Point(2, 7);
             //CSRTODO: north (blocked)
 
-            Room oFolca4 = AddRoom("Folca");
+            Room oFolca4 = AddRoom("Folca", "Folca Avenue");
             armenelosGraph.Rooms[oFolca4] = new System.Windows.Point(6, 7);
             //CSRTODO: north (blocked)
 
-            Room oWindfola4 = AddRoom("Windfola");
+            Room oWindfola4 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oEllessarWindfola, oWindfola4, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola4] = new System.Windows.Point(8, 7);
 
-            Room oOrithilHirgon = AddRoom("Orithil/Hirgon");
+            Room oOrithilHirgon = AddRoom("Orithil/Hirgon", "Hirgon Way/Orithil Drive");
             AddBidirectionalExits(oHirgon4, oOrithilHirgon, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oOrithilHirgon] = new System.Windows.Point(0, 8);
 
-            Room oOrithil1 = AddRoom("Orithil");
+            Room oOrithil1 = AddRoom("Orithil", "Orithil Drive");
             AddBidirectionalExits(oOutdoorMarket, oOrithil1, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oOrithilHirgon, oOrithil1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil1] = new System.Windows.Point(1, 8);
 
-            Room oOrithilRivel = AddRoom("Orithil/Rivel");
+            Room oOrithilRivel = AddRoom("Orithil/Rivel", "Orithil Drive/Rivel Way");
             AddBidirectionalExits(oRivel4, oOrithilRivel, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oOrithil1, oOrithilRivel, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithilRivel] = new System.Windows.Point(2, 8);
 
-            Room oOrithil2 = AddRoom("Orithil");
+            Room oOrithil2 = AddRoom("Orithil", "Orithil Drive");
             AddBidirectionalExits(oOrithil1, oOrithil2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil2] = new System.Windows.Point(3, 8);
 
-            Room oOrithil3 = AddRoom("Orithil");
+            Room oOrithil3 = AddRoom("Orithil", "Orithil Drive");
             AddBidirectionalExits(oOrithil2, oOrithil3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil3] = new System.Windows.Point(4, 8);
 
-            Room oOrithil4 = AddRoom("Orithil");
+            Room oOrithil4 = AddRoom("Orithil", "Orithil Drive");
             AddBidirectionalExits(oOrithil3, oOrithil4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil4] = new System.Windows.Point(5, 8);
 
-            Room oYurahtamJewelers = AddRoom("Yurahtam Jewlers");
+            Room oYurahtamJewelers = AddRoom("Yurahtam Jewlers", "Yurahtam Jewlers");
             AddBidirectionalExitsWithOut(oOrithil4, oYurahtamJewelers, "south");
             armenelosGraph.Rooms[oYurahtamJewelers] = new System.Windows.Point(5, 8.5);
 
-            Room oOrithilFolca = AddRoom("Orithil/Folca");
+            Room oOrithilFolca = AddRoom("Orithil/Folca", "Orithil Drive/Folca Street");
             AddBidirectionalExits(oFolca4, oOrithilFolca, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oOrithil4, oOrithilFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithilFolca] = new System.Windows.Point(6, 8);
 
-            Room oOrithil5 = AddRoom("Orithil");
+            Room oOrithil5 = AddRoom("Orithil", "Orithil Drive");
             AddBidirectionalExits(oOrithilFolca, oOrithil5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil5] = new System.Windows.Point(7, 8);
             //CSRTODO: archway (blocked)
 
-            Room oOrithilWindfola = AddRoom("Orithil/Windfola");
+            Room oOrithilWindfola = AddRoom("Orithil/Windfola", "Windfola Avenue/Orithil Drive");
             AddBidirectionalExits(oWindfola4, oOrithilWindfola, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oOrithil5, oOrithilWindfola, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithilWindfola] = new System.Windows.Point(8, 8);
 
-            Room oHirgon5 = AddRoom("Hirgon");
+            Room oHirgon5 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oOrithilHirgon, oHirgon5, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon5] = new System.Windows.Point(0, 9);
 
-            Room oStairwayLanding = AddRoom("Stairway Landing");
+            Room oStairwayLanding = AddRoom("Stairway Landing", "Stairway Landing");
             AddExit(oHirgon5, oStairwayLanding, "stairway");
             AddExit(oStairwayLanding, oHirgon5, "down");
             armenelosGraph.Rooms[oStairwayLanding] = new System.Windows.Point(1, 9);
 
-            Room oAmme = AddRoom("Amme");
+            Room oAmme = AddRoom("Amme", "Commoner's Home");
+            oAmme.AddPermanentMobs(MobTypeEnum.Amme);
             AddBidirectionalExitsWithOut(oStairwayLanding, oAmme, "doorway");
             armenelosGraph.Rooms[oAmme] = new System.Windows.Point(1, 8.5);
 
-            Room oRivel5 = AddRoom("Rivel");
+            Room oRivel5 = AddRoom("Rivel", "Rivel Way");
             AddBidirectionalExits(oOrithilRivel, oRivel5, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oRivel5] = new System.Windows.Point(2, 9);
 
-            Room oFolca5 = AddRoom("Folca");
+            Room oFolca5 = AddRoom("Folca", "Folca Avenue");
             AddBidirectionalExits(oOrithilFolca, oFolca5, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oFolca5] = new System.Windows.Point(6, 9);
 
-            Room oWindfola5 = AddRoom("Windfola");
+            Room oWindfola5 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oOrithilWindfola, oWindfola5, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola5] = new System.Windows.Point(8, 9);
 
-            Room oBalanHirgon = AddRoom("Balan/Hirgon");
+            Room oBalanHirgon = AddRoom("Balan/Hirgon", "Hirgon Way/Balan Avenue");
             AddBidirectionalExits(oHirgon5, oBalanHirgon, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oBalanHirgon] = new System.Windows.Point(0, 10);
 
-            Room oBalan1 = AddRoom("Balan");
+            Room oBalan1 = AddRoom("Balan", "Balan Avenue");
             AddBidirectionalExits(oBalanHirgon, oBalan1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalan1] = new System.Windows.Point(1, 10);
 
-            Room oBalanRivel = AddRoom("Balan/Rivel");
+            Room oBalanRivel = AddRoom("Balan/Rivel", "Balan Avenue/Rivel Way");
             AddBidirectionalExits(oRivel5, oBalanRivel, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBalan1, oBalanRivel, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalanRivel] = new System.Windows.Point(2, 10);
 
-            Room oBalan2 = AddRoom("Balan");
+            Room oBalan2 = AddRoom("Balan", "Balan Avenue");
             AddBidirectionalExits(oBalanRivel, oBalan2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalan2] = new System.Windows.Point(3, 10);
 
-            Room oBalan3 = AddRoom("Balan");
+            Room oBalan3 = AddRoom("Balan", "Balan Avenue");
             AddBidirectionalExits(oBalan2, oBalan3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalan3] = new System.Windows.Point(4, 10);
 
-            Room oBalan4 = AddRoom("Balan");
+            Room oBalan4 = AddRoom("Balan", "Balan Avenue");
             AddBidirectionalExits(oBalan3, oBalan4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalan4] = new System.Windows.Point(5, 10);
 
-            Room oMerchantsMarket1 = AddRoom("Merchant Market");
+            Room oMerchantsMarket1 = AddRoom("Merchant Market", "Merchant's Market");
             AddBidirectionalExits(oMerchantsMarket1, oBalan2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oMerchantsMarket1] = new System.Windows.Point(3, 9.5);
 
-            Room oMerchantsMarket2 = AddRoom("Merchant Market");
+            Room oMerchantsMarket2 = AddRoom("Merchant Market", "Merchant's Market");
             AddBidirectionalExits(oMerchantsMarket1, oMerchantsMarket2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oMerchantsMarket2, oBalan3, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oMerchantsMarket2] = new System.Windows.Point(4, 9.5);
 
-            Room oMerchantsMarket3 = AddRoom("Merchant Market");
+            Room oMerchantsMarket3 = AddRoom("Merchant Market", "Merchant's Market");
             AddBidirectionalExits(oMerchantsMarket2, oMerchantsMarket3, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oMerchantsMarket3, oBalan4, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oMerchantsMarket3] = new System.Windows.Point(5, 9.5);
 
-            Room oBalanFolca = AddRoom("Balan/Folca");
+            Room oBalanFolca = AddRoom("Balan/Folca", "Folca Street/Balan Avenue");
             AddBidirectionalExits(oFolca5, oBalanFolca, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBalan4, oBalanFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalanFolca] = new System.Windows.Point(6, 10);
 
-            Room oBalan5 = AddRoom("Balan");
+            Room oBalan5 = AddRoom("Balan", "Balan Avenue");
             AddBidirectionalExits(oBalanFolca, oBalan5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalan5] = new System.Windows.Point(7, 10);
 
-            Room oBalanWindfola = AddRoom("Balan/Windfola");
+            Room oBalanWindfola = AddRoom("Balan/Windfola", "Windfola Avenue/Balan Avenue");
             AddBidirectionalExits(oWindfola5, oBalanWindfola, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBalan5, oBalanWindfola, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oBalanWindfola] = new System.Windows.Point(8, 10);
 
-            Room oHirgon6 = AddRoom("Hirgon");
+            Room oHirgon6 = AddRoom("Hirgon", "Hirgon Way");
             AddBidirectionalExits(oBalanHirgon, oHirgon6, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oHirgon6] = new System.Windows.Point(0, 11);
 
-            Room oRivel6 = AddRoom("Rivel");
+            Room oRivel6 = AddRoom("Rivel", "Rivel Way");
             AddBidirectionalExits(oBalanRivel, oRivel6, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oRivel6] = new System.Windows.Point(2, 11);
 
-            Room oFolca6 = AddRoom("Folca");
+            Room oFolca6 = AddRoom("Folca", "Folca Street");
             AddBidirectionalExits(oBalanFolca, oFolca6, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oFolca6] = new System.Windows.Point(6, 11);
 
-            Room oWindfola6 = AddRoom("Windfola");
+            Room oWindfola6 = AddRoom("Windfola", "Windfola Avenue");
             AddBidirectionalExits(oBalanWindfola, oWindfola6, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oWindfola6] = new System.Windows.Point(8, 11);
 
-            Room oGoldberryHirgon = AddRoom("Goldberry/Hirgon");
+            Room oGoldberryHirgon = AddRoom("Goldberry/Hirgon", "Goldberry Road/Hirgon Way");
             AddBidirectionalExits(oHirgon6, oGoldberryHirgon, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oGoldberryHirgon] = new System.Windows.Point(0, 12);
 
-            Room oGoldberry1 = AddRoom("Goldberry");
+            Room oGoldberry1 = AddRoom("Goldberry", "Goldberry Road");
             AddBidirectionalExits(oGoldberryHirgon, oGoldberry1, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry1] = new System.Windows.Point(1, 12);
 
-            Room oImrahil = AddRoom("Imrahil");
+            Room oImrahil = AddRoom("Imrahil", "Imrahil's Pub");
+            oImrahil.AddPermanentMobs(MobTypeEnum.Imrahil);
             AddBidirectionalSameNameExit(oGoldberry1, oImrahil, "swinging");
             armenelosGraph.Rooms[oImrahil] = new System.Windows.Point(1, 11);
 
-            Room oGoldberryRivel = AddRoom("Goldberry/Rivel");
+            Room oGoldberryRivel = AddRoom("Goldberry/Rivel", "Goldberry Road/Rivil Way");
             AddBidirectionalExits(oRivel6, oGoldberryRivel, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oGoldberry1, oGoldberryRivel, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberryRivel] = new System.Windows.Point(2, 12);
 
-            Room oGoldberry2 = AddRoom("Goldberry");
+            Room oGoldberry2 = AddRoom("Goldberry", "Goldberry Road");
             AddBidirectionalExits(oGoldberryRivel, oGoldberry2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry2] = new System.Windows.Point(3, 12);
 
-            Room oGoldberry3 = AddRoom("Goldberry");
+            Room oGoldberry3 = AddRoom("Goldberry", "Goldberry Road");
             AddBidirectionalExits(oGoldberry2, oGoldberry3, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry3] = new System.Windows.Point(4, 12);
 
-            Room oHummley = AddRoom("Hummley");
+            Room oHummley = AddRoom("Hummley", "Hummley's Shop o' Fun");
+            oHummley.AddPermanentMobs(MobTypeEnum.Hummley);
             AddBidirectionalExitsWithOut(oGoldberry3, oHummley, "doorway");
             armenelosGraph.Rooms[oHummley] = new System.Windows.Point(4, 11);
 
-            Room oGoldberry4 = AddRoom("Goldberry");
+            Room oGoldberry4 = AddRoom("Goldberry", "Goldberry Road");
             AddBidirectionalExits(oGoldberry3, oGoldberry4, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry4] = new System.Windows.Point(5, 12);
 
-            Room oGoldberryFolca = AddRoom("Goldberry/Folca");
+            Room oGoldberryFolca = AddRoom("Goldberry/Folca", "Goldberry Road/Folca Street");
             AddBidirectionalExits(oFolca6, oGoldberryFolca, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oGoldberry4, oGoldberryFolca, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberryFolca] = new System.Windows.Point(6, 12);
 
-            Room oGoldberry5 = AddRoom("Goldberry");
+            Room oGoldberry5 = AddRoom("Goldberry", "Goldberry Road");
             AddBidirectionalExits(oGoldberryFolca, oGoldberry5, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGoldberry5] = new System.Windows.Point(7, 12);
 
@@ -4679,7 +4686,7 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oGoldberry5, oZain, "north");
             armenelosGraph.Rooms[oZain] = new System.Windows.Point(7, 11);
 
-            Room oGateInside = AddRoom("Gate Inside");
+            Room oGateInside = AddRoom("Gate Inside", "Gates of Armenelos");
             AddBidirectionalExits(oWindfola6, oGateInside, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oGoldberry5, oGateInside, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGateInside] = new System.Windows.Point(8, 12);
