@@ -855,6 +855,10 @@
         [PluralName("orc miners")]
         OrcMiner,
 
+        [SingularName("otyugh")]
+        [PluralName("otyugh")]
+        Otyugh,
+
         [SingularName("paladin")]
         [PluralName("paladins")]
         Paladin,

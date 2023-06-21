@@ -2611,6 +2611,7 @@ namespace IsengardClient
             Room oBarrow = AddRoom("Barrow", "Barrow");
             e = AddExit(oTopOfHill, oBarrow, "niche");
             e.Hidden = true;
+            e.IsTrapExit = true;
             //This always fails is this always the case or am I just using a too low dexterity/level character?
             //e = AddExit(oBarrow, oTopOfHill, "up");
             //e.IsTrapExit = true;
@@ -2749,6 +2750,16 @@ namespace IsengardClient
             Room oUnderhallsCorridorsOtherDoor = AddRoom("To Door", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsOtherDoor, oUnderhallsCorridorsToOtherDoor4, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsOtherDoor] = new System.Windows.Point(-1, -2);
+
+            Room oDisposalPit = AddRoom("Disposal Pit", "Disposal Pit");
+            AddBidirectionalSameNameExit(oUnderhallsCorridorsOtherDoor, oDisposalPit, "door");
+            breeToImladrisGraph.Rooms[oDisposalPit] = new System.Windows.Point(0, -2);
+
+            Room oInsideThePit = AddRoom("Inside Pit", "Inside the Pit");
+            oInsideThePit.AddPermanentMobs(MobTypeEnum.Otyugh, MobTypeEnum.Otyugh);
+            AddExit(oDisposalPit, oInsideThePit, "trapdoor");
+            AddExit(oInsideThePit, oDisposalPit, "up");
+            breeToImladrisGraph.Rooms[oInsideThePit] = new System.Windows.Point(1, -2);
 
             Room oUnderhallsToAntechamber = AddRoom("To Antechamber", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsFromGreenSlime, oUnderhallsToAntechamber, BidirectionalExitType.NorthSouth);
