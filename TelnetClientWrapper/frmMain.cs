@@ -1588,6 +1588,18 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// happens when looking at a hidden mob
+        /// </summary>
+        private static void OnSeeNothingSpecial(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.LookAtMob)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
         private void OnEntityAttacksYou(FeedLineParameters flParams)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
@@ -2526,6 +2538,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("It's locked.", OpenDoorFailure, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
+                new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
             };
             return seqs;
         }
