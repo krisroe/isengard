@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsciiMapping.cs" />
+    <Compile Include="Attributes.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exit.cs" />

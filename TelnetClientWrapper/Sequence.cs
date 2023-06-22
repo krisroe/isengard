@@ -863,6 +863,7 @@ namespace IsengardClient
         private const string YOU_GET_A_PREFIX = "You get ";
         private const string YOU_DROP_A_PREFIX = "You drop ";
         private const string YOU_WEAR_PREFIX = "You wear ";
+        private const string YOU_HOLD_PREFIX = "You hold ";
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
@@ -908,6 +909,33 @@ namespace IsengardClient
                             else if (ie.Count != 1)
                             {
                                 flp.ErrorMessages.Add("Unexpected item count for worn equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
+                            }
+                            else
+                            {
+                                itemsManaged.Add(ie.ItemType.Value);
+                            }
+                        }
+                    }
+                }
+                else if (firstLine.StartsWith(YOU_HOLD_PREFIX))
+                {
+                    List<string> heldObjects = StringProcessing.GetList(Lines, 0, YOU_HOLD_PREFIX, true, out _, null);
+                    List<ItemEntity> items = new List<ItemEntity>();
+                    RoomTransitionSequence.LoadItems(items, heldObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    isEquipment = true;
+                    isAdd = true;
+                    if (items.Count > 0)
+                    {
+                        itemsManaged = new List<ItemTypeEnum>();
+                        foreach (ItemEntity ie in items)
+                        {
+                            if (ie is UnknownItemEntity)
+                            {
+                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                            }
+                            else if (ie.Count != 1)
+                            {
+                                flp.ErrorMessages.Add("Unexpected item count for held equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
                             }
                             else
                             {

@@ -30,6 +30,7 @@
 
         [SingularName("amber scroll")]
         [PluralName("amber scrolls")]
+        [Scroll(SpellsEnum.burn)]
         AmberScroll,
 
         [SingularName("ancient bag")]
@@ -42,6 +43,7 @@
 
         [SingularName("aquamarine potion")]
         [PluralName("aquamarine potions")]
+        [Potion(SpellsEnum.levitate)]
         AquamarinePotion,
 
         [SingularName("banded mail armor")]
@@ -60,10 +62,12 @@
 
         [SingularName("blackened scroll")]
         [PluralName("blackened scrolls")]
+        [Scroll(SpellsEnum.light)]
         BlackenedScroll,
 
         [SingularName("black scroll")]
         [PluralName("black scrolls")]
+        [Scroll(SpellsEnum.hurt)]
         BlackScroll,
 
         [SingularName("black iron key")]
@@ -77,6 +81,7 @@
 
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
+        [Potion(SpellsEnum.detectinvis)]
         BlueBubblyPotion,
 
         [SingularName("boiler key")]
@@ -208,6 +213,7 @@
 
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
+        [Potion(SpellsEnum.detectmagic)]
         DarkGreenPotion,
 
         [SingularName("dead rat carcass")]
@@ -333,6 +339,7 @@
 
         [SingularName("glowing potion")]
         [PluralName("glowing potions")]
+        [Potion(SpellsEnum.bless)]
         GlowingPotion,
 
         [SingularName("godentag")]
@@ -356,10 +363,12 @@
 
         [SingularName("green potion")]
         [PluralName("green potions")]
+        [Potion(SpellsEnum.curepoison)]
         GreenPotion,
 
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
+        [Scroll(SpellsEnum.vigor)]
         GreyScroll,
 
         [SingularName("gypsy cape")]
@@ -389,6 +398,7 @@
 
         [SingularName("hazy potion")]
         [PluralName("hazy potions")]
+        [Potion(SpellsEnum.wordofrecall)]
         HazyPotion,
 
         [SingularName("head of lettuce")]
@@ -410,6 +420,7 @@
 
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
+        [Potion(SpellsEnum.fly)]
         IceBluePotion,
 
         [SingularName("iron ring")]
@@ -599,6 +610,7 @@
 
         [SingularName("parched scroll")]
         [PluralName("parched scrolls")]
+        [Scroll(SpellsEnum.curepoison)]
         ParchedScroll,
 
         [SingularName("pearl encrusted diadem")]
@@ -665,14 +677,17 @@
 
         [SingularName("red bubbly potion")]
         [PluralName("red bubbly potions")]
+        [Potion(SpellsEnum.invisibility)]
         RedBubblyPotion,
 
         [SingularName("reddish-orange potion")]
         [PluralName("reddish-orange potions")]
+        [Potion(SpellsEnum.mend)]
         ReddishOrangePotion,
 
         [SingularName("red potion")]
         [PluralName("red potions")]
+        [Potion(SpellsEnum.endurefire)]
         RedPotion,
 
         [SingularName("repair kit")]
@@ -810,6 +825,7 @@
 
         [SingularName("speckled potion")]
         [PluralName("speckled potions")]
+        [Potion(SpellsEnum.stun)]
         SpeckledPotion,
 
         [SingularName("sprite boots")]
@@ -870,6 +886,7 @@
 
         [SingularName("swirly potion")]
         [PluralName("swirly potions")]
+        [Potion(SpellsEnum.protection)]
         SwirlyPotion,
 
         [SingularName("tattoo of a snake")]
@@ -884,6 +901,7 @@
 
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
+        [Scroll(SpellsEnum.shatterstone)]
         TaupeScroll,
 
         [SingularName("T-bone")]
@@ -929,6 +947,7 @@
 
         [SingularName("viscous potion")]
         [PluralName("viscous potions")]
+        //CSRTODO: what is this?
         ViscousPotion,
 
         [SingularName("volcanic boots")]
@@ -979,6 +998,7 @@
 
         [SingularName("yellow potion")]
         [PluralName("yellow potions")]
+        [Potion(SpellsEnum.vigor)]
         YellowPotion,
     }
 }

@@ -7084,26 +7084,41 @@ BeforeHazy:
             sioei.IsInventory = isInventory;
             ctxInventoryOrEquipmentItem.Tag = sioei;
 
-            string sWearOrRemove = null;
-            switch (sid.ItemClass)
-            {
-                case ItemClass.Equipment:
-                    sWearOrRemove = isInventory ? "wear" : "remove";
-                    break;
-                case ItemClass.Weapon:
-                    sWearOrRemove = isInventory ? "wield" : "remove";
-                    break;
-            }
-            if (sWearOrRemove != null)
-            {
-                ToolStripMenuItem tsmi = new ToolStripMenuItem();
-                tsmi.Text = sWearOrRemove;
-                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
-            }
+            string sActionTransferBetweenInventoryAndEquipment;
+            ItemClass iclass = sid.ItemClass;
+            ToolStripMenuItem tsmi;
             if (isInventory)
             {
-                ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                if (iclass == ItemClass.Potion)
+                {
+                    tsmi = new ToolStripMenuItem();
+                    tsmi.Text = "drink";
+                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                }
+                switch (iclass)
+                {
+                    case ItemClass.Equipment:
+                        sActionTransferBetweenInventoryAndEquipment = "wear";
+                        break;
+                    case ItemClass.Weapon:
+                        sActionTransferBetweenInventoryAndEquipment = "wield";
+                        break;
+                    default:
+                        sActionTransferBetweenInventoryAndEquipment = "hold";
+                        break;
+                }
+                tsmi = new ToolStripMenuItem();
                 tsmi.Text = "drop";
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
+            else
+            {
+                sActionTransferBetweenInventoryAndEquipment = "remove";
+            }
+            if (sActionTransferBetweenInventoryAndEquipment != null)
+            {
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = sActionTransferBetweenInventoryAndEquipment;
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
         }
