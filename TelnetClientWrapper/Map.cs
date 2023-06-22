@@ -1171,7 +1171,7 @@ namespace IsengardClient
             breeStreets[10, 8] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x9
             breeStreets[14, 8] = AddRoom("Brownhaven", "Brownhaven Road"); //15x9
             _orderOfLove = breeStreets[15, 8] = AddHealingRoom("Order of Love", "Order of Love", HealingRoom.BreeNortheast); //16x9
-            _orderOfLove.AddNonPermanentMobs(MobTypeEnum.Drunk, MobTypeEnum.HobbitishDoctor);
+            _orderOfLove.AddNonPermanentMobs(MobTypeEnum.Drunk, MobTypeEnum.HobbitishDoctor, MobTypeEnum.Hobbit, MobTypeEnum.LittleMouse);
             breeStreets[0, 9] = AddRoom("Wain", "Wain Road North"); //1x10
             breeSewers[0, 9] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x10
             breeStreets[3, 9] = AddRoom("High", "North High Street"); //4x10
@@ -2784,6 +2784,8 @@ namespace IsengardClient
             oUnderhallsAntechamber.AddPermanentMobs(MobTypeEnum.Dervish);
             AddBidirectionalExits(oUnderhallsToAntechamber, oUnderhallsAntechamber, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oUnderhallsAntechamber] = new System.Windows.Point(4, 2);
+
+            AddLocation(_aBreePerms, oUnderHallsCorridorsGreenSlime);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)

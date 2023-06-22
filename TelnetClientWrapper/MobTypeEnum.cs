@@ -743,6 +743,10 @@
         [PluralName("merchant marines")]
         MerchantMarine,
 
+        [SingularName("migrant worker")]
+        [PluralName("migrant workers")]
+        MigrantWorker,
+
         [SingularName("militiaman")]
         [PluralName("militiamen")]
         Militiaman,

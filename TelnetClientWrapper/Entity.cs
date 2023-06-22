@@ -99,6 +99,9 @@ namespace IsengardClient
             }
             else
             {
+                //since it is not a named entity, it cannot be a player at this point
+                possibleEntityTypes = possibleEntityTypes & ~EntityTypeFlags.Player;
+
                 string firstWord = remainder.Substring(0, iSpaceIndex);
                 int? parsedCount = ParseNumberWord(firstWord, expectCapitalized);
                 if (!parsedCount.HasValue)
