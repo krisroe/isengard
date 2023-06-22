@@ -6611,51 +6611,60 @@ BeforeHazy:
             if (isObviousMobs || isPermanentMobs)
             {
                 MobTypeEnum selectedMob = (MobTypeEnum)selectedNode.Tag;
-                lock (_entityLock)
+                //find the counter for the mob type of the selected mob
+                int iMobCount = 0;
+                foreach (TreeNode nextTreeNode in parentNode.Nodes)
                 {
-                    Room currentRoom = _currentRoomInfo.CurrentRoom;
-
-                    //find the counter for the mob type of the selected mob
-                    int iMobIndex = 0;
-                    foreach (TreeNode nextTreeNode in parentNode.Nodes)
+                    MobTypeEnum nextMobType = (MobTypeEnum)nextTreeNode.Tag;
+                    if (nextMobType == selectedMob)
                     {
-                        MobTypeEnum nextMobType = (MobTypeEnum)nextTreeNode.Tag;
-                        if (nextMobType == selectedMob)
-                        {
-                            iMobIndex++;
-                        }
-                        if (nextTreeNode == selectedNode)
-                        {
-                            break;
-                        }
+                        iMobCount++;
                     }
-
-                    //find the equivalent numbered mob in the current room list
-                    List<MobTypeEnum> mobList = isObviousMobs ? _currentRoomInfo.CurrentRoomMobs : currentRoom.PermanentMobs;
-                    if (mobList != null)
+                    if (nextTreeNode == selectedNode)
                     {
-                        int iFoundMobIndex = 0;
-                        int iCurrentMobIndex = -1;
-                        int iIteratorMobIndex = 0;
-                        foreach (MobTypeEnum nextMobType in mobList)
-                        {
-                            if (nextMobType == selectedMob)
-                            {
-                                iCurrentMobIndex = iIteratorMobIndex;
-                                iFoundMobIndex++;
-                                if (iFoundMobIndex == iMobIndex)
-                                {
-                                    break;
-                                }
-                            }
-                            iIteratorMobIndex++;
-                        }
-                        if (iCurrentMobIndex >= 0)
-                        {
-                            txtMob.Text = PickMobText(iCurrentMobIndex);
-                        }
+                        break;
                     }
                 }
+                int iFoundMobCount = 0;
+                string mobText = null;
+                lock (_entityLock)
+                {
+                    //find the equivalently numbered mob in the current room list
+                    int iCurrentMobIndex = -1;
+                    int iIteratorMobIndex = 0;
+                    foreach (MobTypeEnum nextMobType in _currentRoomInfo.CurrentRoomMobs)
+                    {
+                        if (nextMobType == selectedMob)
+                        {
+                            iCurrentMobIndex = iIteratorMobIndex;
+                            iFoundMobCount++;
+                            if (iFoundMobCount == iMobCount)
+                            {
+                                break;
+                            }
+                        }
+                        iIteratorMobIndex++;
+                    }
+                    if (iCurrentMobIndex >= 0)
+                    {
+                        mobText = PickMobText(iCurrentMobIndex);
+                    }
+                }
+
+                //Fall back on using the index in the permanent mobs list. This
+                //is particularly useful for hidden permanent mobs.
+                if (isPermanentMobs && iFoundMobCount == 0 && string.IsNullOrEmpty(mobText))
+                {
+                    var enumerator = MobEntity.GetMobWords(selectedMob).GetEnumerator();
+                    enumerator.MoveNext();
+                    mobText = enumerator.Current;
+                    if (iMobCount > 1)
+                    {
+                        mobText += " " + iMobCount;
+                    }
+                }
+
+                txtMob.Text = mobText;
             }
         }
 
