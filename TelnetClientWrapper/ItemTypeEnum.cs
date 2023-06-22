@@ -312,7 +312,7 @@
 
         [SingularName("gaudy scepter")]
         [PluralName("gaudy scepters")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Polearm)]
         GaudyScepter,
 
         [SingularName("gawdy ear hoop")]
