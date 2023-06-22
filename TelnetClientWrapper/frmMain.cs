@@ -3604,18 +3604,44 @@ namespace IsengardClient
                             _currentMana = pms.ManaPool;
                         }
 
-                        string sWeapon = _weapon;
+                        //validate weapon
+                        ItemTypeEnum? weaponItem = null;
+                        bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
+                        if (useMelee && !string.IsNullOrEmpty(_weapon))
+                        {
+                            string errorMessage = null;
+                            if (Enum.TryParse(_weapon, out ItemTypeEnum weaponItemValue))
+                            {
+                                StaticItemData weaponData = ItemEntity.StaticItemData[weaponItemValue];
+                                if (weaponData.WeaponType.HasValue)
+                                {
+                                    weaponItem = weaponItemValue;
+                                }
+                                else
+                                {
+                                    errorMessage = "Weapon is not actually a weapon: " + _weapon;
+                                }
+                            }
+                            else
+                            {
+                                errorMessage = "Invalid weapon: " + _weapon;
+                            }
+                            if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                lock (_broadcastMessagesLock)
+                                {
+                                    _broadcastMessages.Add(errorMessage);
+                                }
+                            }
+                        }
 
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
-                            if (haveMeleeStrategySteps || hasInitialQueuedMeleeStep)
+                            if (useMelee)
                             {
-                                if (!string.IsNullOrEmpty(sWeapon))
-                                {
-                                    SendCommand("wield " + sWeapon, InputEchoType.On);
-                                }
+                                WieldWeapon(weaponItem);
                                 doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
@@ -3713,18 +3739,7 @@ namespace IsengardClient
                                     (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                                 {
                                     stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
-
-                                    if (!string.IsNullOrEmpty(_weapon))
-                                    {
-                                        lock (_entityLock)
-                                        {
-                                            if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == null)
-                                            {
-                                                SendCommand("wield " + _weapon, InputEchoType.On);
-                                            }
-                                        }
-                                    }
-
+                                    WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
                                     if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
                                 }
@@ -3860,9 +3875,8 @@ namespace IsengardClient
                         if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled) && !_hazying)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Flee;
-                            if (!string.IsNullOrEmpty(sWeapon))
+                            if (RemoveWeapon(weaponItem))
                             {
-                                SendCommand("remove " + sWeapon, InputEchoType.On);
                                 if (!_fleeing) goto BeforeHazy;
                                 if (_hazying) goto BeforeHazy;
                                 if (_bw.CancellationPending) return;
@@ -3982,6 +3996,57 @@ BeforeHazy:
                 lock (_consoleTextLock)
                 {
                     _newConsoleText.Add(ex.ToString());
+                }
+            }
+        }
+
+        private bool RemoveWeapon(ItemTypeEnum? weaponItem)
+        {
+            bool ret = false;
+            if (weaponItem.HasValue)
+            {
+                ItemTypeEnum weaponItemValue = weaponItem.Value;
+                string sWieldCommand = null;
+                lock (_entityLock)
+                {
+                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
+                    {
+                        string sWeaponText = _inventoryEquipment.PickItemTextFromItemCounter(false, weaponItemValue, 1);
+                        if (!string.IsNullOrEmpty(sWeaponText))
+                        {
+                            sWieldCommand = "remove " + sWeaponText;
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(sWieldCommand))
+                {
+                    ret = true;
+                    SendCommand(sWieldCommand, InputEchoType.On);
+                }
+            }
+            return ret;
+        }
+
+        private void WieldWeapon(ItemTypeEnum? weaponItem)
+        {
+            if (weaponItem.HasValue)
+            {
+                ItemTypeEnum weaponItemValue = weaponItem.Value;
+                string sWieldCommand = null;
+                lock (_entityLock)
+                {
+                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == null && _inventoryEquipment.InventoryItems.Contains(weaponItemValue))
+                    {
+                        string sWeaponText = _inventoryEquipment.PickItemTextFromItemCounter(true, weaponItemValue, 1);
+                        if (!string.IsNullOrEmpty(sWeaponText))
+                        {
+                            sWieldCommand = "wield " + sWeaponText;
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(sWieldCommand))
+                {
+                    SendCommand(sWieldCommand, InputEchoType.On);
                 }
             }
         }

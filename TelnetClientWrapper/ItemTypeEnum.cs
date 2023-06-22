@@ -208,7 +208,7 @@
 
         [SingularName("dark blade")]
         [PluralName("dark blades")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
         DarkBlade,
 
         [SingularName("dark green potion")]
