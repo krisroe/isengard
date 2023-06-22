@@ -346,7 +346,7 @@
 
         [SingularName("golden dagger")]
         [PluralName("golden daggers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         GoldenDagger,
 
         [SingularName("golden mask of the gods")]
