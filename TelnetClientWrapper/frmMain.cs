@@ -833,11 +833,11 @@ namespace IsengardClient
             IsengardSettings sets = IsengardSettings.Default;
             if (sets.RemoveAllOnStartup)
             {
-                _initializationSteps = InitializationStep.RemoveAll;
+                _initializationSteps = InitializationStep.None;
             }
             else
             {
-                _initializationSteps = InitializationStep.None;
+                _initializationSteps = InitializationStep.RemoveAll;
             }
             _loginInfo = null;
             _players = null;
@@ -1157,7 +1157,7 @@ namespace IsengardClient
             SendCommand("equipment", InputEchoType.Off);
             SendCommand("time", InputEchoType.Off);
             SendCommand("spells", InputEchoType.Off);
-            if ((_initializationSteps & InitializationStep.RemoveAll) != InitializationStep.None)
+            if ((_initializationSteps & InitializationStep.RemoveAll) == InitializationStep.None)
             {
                 SendCommand("remove all", InputEchoType.Off);
             }
@@ -6699,11 +6699,9 @@ BeforeHazy:
             else
             {
                 _autoEscapeActiveSaved = _autoEscapeActive;
-                IsengardSettings sets = IsengardSettings.Default;
                 bool hasThreshold = _autoEscapeThreshold > 0;
                 tsmiAutoEscapeIsActive.Enabled = hasThreshold;
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
-                bool differentFromDefault = _autoEscapeActive != sets.AutoEscapeActive || _autoEscapeThreshold != sets.AutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.AutoEscapeType;
             }
         }
 
