@@ -980,7 +980,7 @@
 
         [SingularName("war harness")]
         [PluralName("war harnesses")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Waist)]
         WarHarness,
 
         [SingularName("War's flaming axe")]

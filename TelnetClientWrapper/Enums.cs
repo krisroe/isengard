@@ -507,6 +507,7 @@ namespace IsengardClient
         Legs,
         Feet,
         Neck,
+        Waist,
         Head,
         Hands,
         Finger,
@@ -534,16 +535,17 @@ namespace IsengardClient
         Legs = 2,
         Feet = 3, //CSRTODO: not sure of ordering of feet vs neck
         Neck = 4,
-        Head = 5,
-        Hands = 6,
-        Finger1 = 7,
-        Finger2 = 8,
-        Ears = 9,
-        Held = 10,
-        Shield = 11,
-        Weapon1 = 12,
-        Weapon2 = 13,
-        Count = 14,
+        Waist = 5, //CSRTODO: waist is after neck but not sure of ordering of feet vs waist
+        Head = 6,
+        Hands = 7,
+        Finger1 = 8,
+        Finger2 = 9,
+        Ears = 10,
+        Held = 11,
+        Shield = 12,
+        Weapon1 = 13,
+        Weapon2 = 14,
+        Count = 15,
     }
 
     public enum ItemClass

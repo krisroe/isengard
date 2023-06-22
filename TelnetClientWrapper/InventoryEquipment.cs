@@ -108,6 +108,9 @@ namespace IsengardClient
                 case EquipmentType.Neck:
                     yield return EquipmentSlot.Neck;
                     break;
+                case EquipmentType.Waist:
+                    yield return EquipmentSlot.Waist;
+                    break;
                 case EquipmentType.Feet:
                     yield return EquipmentSlot.Feet;
                     break;
