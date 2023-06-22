@@ -709,6 +709,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         SailorsLocket,
 
+        [SingularName("sapphire")]
+        [PluralName("sapphires")]
+        Sapphire,
+
         [SingularName("scythe")]
         [PluralName("scythes")]
         Scythe,

@@ -2929,40 +2929,44 @@ StartProcessRoom:
                 }
                 foundStartsWith = true;
                 sb = new StringBuilder();
-                int startsWithLength = startsWith.Length;
-                int lineLen = sNextLine.Length;
-                if (lineLen > startsWithLength + 1)
-                {
-                    int iPeriodIndex = sNextLine.LastIndexOf('.');
-                    if (iPeriodIndex == lineLen - 1)
-                    {
-                        sb.Append(sNextLine.Substring(startsWithLength, lineLen - startsWithLength - 1));
-                        finished = true;
-                        nextLineIndex = lineIndex + 1;
-                    }
-                    else
-                    {
-                        sb.AppendLine(sNextLine.Substring(startsWithLength));
-                    }
-                }
             }
             if (!finished)
             {
-                bool stopProcessing;
+                bool isFirstLine = true;
+                bool stopProcessing = false;
                 string previousLine = null;
                 while (true)
                 {
-                    lineIndex++;
-                    if (lineIndex >= inputs.Count)
+                    if (isFirstLine)
                     {
-                        stopProcessing = true;
+                        sNextLine = inputs[lineIndex];
+                        if (sNextLine == startsWith)
+                        {
+                            return null;
+                        }
+                        sNextLine = sNextLine.Substring(startsWith.Length);
+                        isFirstLine = false;
                     }
                     else
                     {
-                        sNextLine = inputs[lineIndex];
-                        stopProcessing = string.IsNullOrEmpty(sNextLine) || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
+                        lineIndex++;
+                        if (lineIndex >= inputs.Count)
+                        {
+                            stopProcessing = true;
+                        }
+                        else
+                        {
+                            sNextLine = inputs[lineIndex];
+                        }
+                        if (!stopProcessing)
+                        {
+                            stopProcessing = !sNextLine.StartsWith("  ") || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
+                        }
                     }
-                    
+                    if (!stopProcessing)
+                    {
+                        stopProcessing = string.IsNullOrEmpty(sNextLine);
+                    }
                     if (stopProcessing)
                     {
                         nextLineIndex = lineIndex;
