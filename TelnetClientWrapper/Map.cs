@@ -1323,14 +1323,22 @@ namespace IsengardClient
             AddBidirectionalExits(oPoorAlley1, oBreePawnShopEast, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBreePawnShopEast] = new System.Windows.Point(13, 4);
 
-            Room oLeonardosFoundry = AddRoom("Leonardo's Foundry", "Leonardo's Foundry");
+            Room oLeonardosFoundry = AddRoom("Leo Foundry", "Leonardo's Foundry");
             AddExit(oToLeonardosFoundry, oLeonardosFoundry, "foundry");
             AddExit(oLeonardosFoundry, oToLeonardosFoundry, "east");
             _breeStreetsGraph.Rooms[oLeonardosFoundry] = new System.Windows.Point(9, 1);
 
-            Room oLeonardosSwords = AddRoom("Leonardo's Swords", "Custom Swords");
+            Room oLeonardosSwords = AddRoom("Leo Swords", "Custom Swords");
             AddBidirectionalExits(oLeonardosSwords, oLeonardosFoundry, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oLeonardosSwords] = new System.Windows.Point(9, 0.5);
+
+            Room oLeonardosArmor = AddRoom("Leo Armor", "Unblemished Armor");
+            AddBidirectionalExits(oLeonardosArmor, oLeonardosFoundry, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oLeonardosArmor] = new System.Windows.Point(8, 1);
+
+            Room oLeonardosShields = AddRoom("Leo Shields", "Cast Iron Shields");
+            AddBidirectionalExits(oLeonardosFoundry, oLeonardosShields, BidirectionalExitType.NorthSouth);
+            _breeStreetsGraph.Rooms[oLeonardosShields] = new System.Windows.Point(9, 1.5);
 
             Room oZooEntrance = AddRoom("Zoo Entrance", "Scranlin's Zoological Wonders");
             AddExit(oToZoo, oZooEntrance, "zoo");

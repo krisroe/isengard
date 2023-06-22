@@ -1514,6 +1514,19 @@ StartProcessRoom:
                     }
                     else
                     {
+                        ItemEntity ient = (ItemEntity)e;
+                        if (ient.ItemType.HasValue)
+                        {
+                            StaticItemData sid = ItemEntity.StaticItemData[ient.ItemType.Value];
+                            if (sid.WeaponType.HasValue && sid.WeaponType.Value == WeaponType.Unknown)
+                            {
+                                errorMessages.Add("found unknown weapon type: " + ient.ItemType.Value.ToString());
+                            }
+                            if (sid.EquipmentType == EquipmentType.Unknown)
+                            {
+                                errorMessages.Add("found unknown equipment type: " + ient.ItemType.Value.ToString());
+                            }
+                        }
                         ret = true;
                     }
                 }
