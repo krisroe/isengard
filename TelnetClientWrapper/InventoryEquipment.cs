@@ -104,6 +104,9 @@ namespace IsengardClient
                 case EquipmentType.Legs:
                     yield return EquipmentSlot.Legs;
                     break;
+                case EquipmentType.Neck:
+                    yield return EquipmentSlot.Neck;
+                    break;
                 case EquipmentType.Feet:
                     yield return EquipmentSlot.Feet;
                     break;
@@ -150,24 +153,35 @@ namespace IsengardClient
         }
     }
 
+    internal class InventoryEquipmentEntry
+    {
+        public ItemTypeEnum ItemType { get; set; }
+        public int InventoryIndex { get; set; }
+        /// <summary>
+        /// true to add to inventory, false to remove from inventory, null for no action
+        /// </summary>
+        public bool? InventoryAction { get; set; }
+        public int EquipmentIndex { get; set; }
+        /// <summary>
+        /// true to add to equipment, false to remove from equipment, null for no action
+        /// </summary>
+        public bool? EquipmentAction { get; set; }
+    }
+
     internal class InventoryEquipmentChange
     {
         public InventoryEquipmentChangeType ChangeType { get; set; }
         /// <summary>
         /// items being changed
         /// </summary>
-        public List<ItemTypeEnum> Items { get; set; }
-        /// <summary>
-        /// index where the inventory object should be inserted/removed. This is -1 when inserted at the end of the list.
-        /// </summary>
-        public List<int> InventoryIndices { get; set; }
-        /// <summary>
-        /// index where the equipment object should be inserted/removed. This is -1 when inserted at the end of the list.
-        /// </summary>
-        public List<int> EquipmentIndices { get; set; }
+        public List<InventoryEquipmentEntry> Changes { get; set; }
         public int GlobalCounter { get; set; }
+        public InventoryEquipmentChange()
+        {
+            this.Changes = new List<InventoryEquipmentEntry>();
+        }
 
-        public bool AddOrRemoveInventoryItem(InventoryEquipment inventoryEquipment, ItemTypeEnum nextItem, bool isAdd)
+        public bool AddOrRemoveInventoryItem(InventoryEquipment inventoryEquipment, ItemTypeEnum nextItem, bool isAdd, InventoryEquipmentEntry changeInfo)
         {
             int foundIndex = inventoryEquipment.InventoryItems.LastIndexOf(nextItem);
             int changeIndex;
@@ -196,7 +210,8 @@ namespace IsengardClient
             }
             if (effectChange)
             {
-                this.InventoryIndices.Add(changeIndex);
+                changeInfo.InventoryIndex = changeIndex;
+                changeInfo.InventoryAction = isAdd;
             }
             return effectChange;
         }

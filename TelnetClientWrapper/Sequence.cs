@@ -647,6 +647,70 @@ namespace IsengardClient
         }
     }
 
+    public class EquipmentSequence : AOutputProcessingSequence
+    {
+        private Action<FeedLineParameters, List<KeyValuePair<string, string>>> _onSatisfied;
+        public EquipmentSequence(Action<FeedLineParameters, List<KeyValuePair<string, string>>> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public override void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0)
+            {
+                string sFirstLine = Lines[0];
+                if (sFirstLine == "You aren't wearing anything.")
+                {
+                    _onSatisfied(flParams, new List<KeyValuePair<string, string>>());
+                    flParams.FinishedProcessing = true;
+                    return;
+                }
+                if (!sFirstLine.EndsWith(". of equipment.") || Lines.Count < 3 || !string.IsNullOrEmpty(Lines[1]))
+                {
+                    return;
+                }
+                List<KeyValuePair<string, string>> eq = new List<KeyValuePair<string, string>>();
+                bool foundBlankLine = false;
+                for (int i = 2; i < Lines.Count; i++)
+                {
+                    string sNextLine = Lines[i];
+                    if (string.IsNullOrEmpty(sNextLine))
+                    {
+                        foundBlankLine = true;
+                    }
+                    else
+                    {
+                        if (foundBlankLine)
+                        {
+                            return;
+                        }
+                        if (!sNextLine.EndsWith(")"))
+                        {
+                            return;
+                        }
+                        int iIndex = sNextLine.IndexOf(" - ");
+                        if (iIndex <= 0)
+                        {
+                            return;
+                        }
+                        string sItemName = sNextLine.Substring(0, iIndex);
+                        iIndex = sNextLine.LastIndexOf("(");
+                        if (iIndex <= 0)
+                        {
+                            return;
+                        }
+                        int lineLen = sNextLine.Length;
+                        string sSlot = sNextLine.Substring(iIndex + 1, lineLen - iIndex - 2);
+                        eq.Add(new KeyValuePair<string, string>(sItemName, sSlot));
+                    }
+                }
+                _onSatisfied(flParams, eq);
+                flParams.FinishedProcessing = true;
+            }
+        }
+    }
+
     public class InventorySequence : AOutputProcessingSequence
     {
         private const string YOU_HAVE_PREFIX = "You have: ";
@@ -680,29 +744,6 @@ namespace IsengardClient
                             flParams.FinishedProcessing = true;
                         }
                     }
-                }
-            }
-        }
-    }
-
-    public class RemoveEquipmentSequence : AOutputProcessingSequence
-    {
-        private Action<FeedLineParameters> _onSatisfied;
-        public RemoveEquipmentSequence(Action<FeedLineParameters> onSatisfied)
-        {
-            _onSatisfied = onSatisfied;
-        }
-
-        public override void FeedLine(FeedLineParameters flParams)
-        {
-            List<string> Lines = flParams.Lines;
-            if (Lines.Count > 0)
-            {
-                string sFirstLine = Lines[0];
-                if (sFirstLine.StartsWith ("You remove ") || sFirstLine == "You aren't wearing anything that can be removed.")
-                {
-                    _onSatisfied(flParams);
-                    flParams.FinishedProcessing = true;
                 }
             }
         }
@@ -841,6 +882,12 @@ namespace IsengardClient
             if (Lines.Count > 0)
             {
                 string firstLine = Lines[0];
+                if (firstLine == "You aren't wearing anything that can be removed.")
+                {
+                    _onSatisfied(flp, new List<ItemTypeEnum>(), false, true, null, 0, null);
+                    flp.FinishedProcessing = true;
+                    return;
+                }
                 List<ItemTypeEnum> itemsManaged = null;
                 if (firstLine.StartsWith(YOU_WEAR_PREFIX))
                 {

@@ -154,15 +154,16 @@ namespace IsengardClient
     {
         None = 0,
         Initialization = 1,
-        RemoveAll = 2,
+        Equipment = 2,
         Score = 4,
         Time = 8,
         Who = 16,
         Spells = 32,
         Inventory = 64,
-        BeforeFinalization = 127,
-        Finalization = 128,
-        All = 255,
+        RemoveAll = 128,
+        BeforeFinalization = 255,
+        Finalization = 256,
+        All = 511,
     }
 
     public enum EntityType
@@ -483,7 +484,8 @@ namespace IsengardClient
 
     internal enum InventoryEquipmentChangeType
     {
-        Refresh,
+        RefreshInventory,
+        RefreshEquipment,
         AddItemToInventory,
         RemoveItemFromInventory,
         EquipItem,
