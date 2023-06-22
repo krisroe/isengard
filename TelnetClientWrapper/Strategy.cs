@@ -399,8 +399,9 @@ namespace IsengardClient
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.MendWounds;
+            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
             s.PotionsMendOnlyWhenDownXHP = 12;
+            s.PotionsVigorOnlyWhenDownXHP = 6;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             allStrategies.Add(s);
@@ -497,8 +498,9 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.MendWounds;
+            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
             s.PotionsMendOnlyWhenDownXHP = 12;
+            s.PotionsVigorOnlyWhenDownXHP = 6;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
             allStrategies.Add(s);
