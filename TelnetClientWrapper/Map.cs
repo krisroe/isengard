@@ -2746,11 +2746,11 @@ namespace IsengardClient
             e = AddExit(oAmbushedParty, oUndeadFeastingGrounds, "east");
             e.Hidden = true;
             AddExit(oUndeadFeastingGrounds, oAmbushedParty, "west");
-            breeToImladrisGraph.Rooms[oUndeadFeastingGrounds] = new System.Windows.Point(5, -1.5);
+            breeToImladrisGraph.Rooms[oUndeadFeastingGrounds] = new System.Windows.Point(5, -1);
 
             Room oHallOfTheDead = AddRoom("Hall of the Dead", "Hall of the Dead");
             AddBidirectionalExits(oUndeadFeastingGrounds, oHallOfTheDead, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1.5);
+            breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1);
 
             Room oUnderhallsCorridorsStoneDoor = AddRoom("To Stone Door", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsStoneDoor, oUnderhallsCorridorsToStoneDoor2, BidirectionalExitType.NorthSouth);
