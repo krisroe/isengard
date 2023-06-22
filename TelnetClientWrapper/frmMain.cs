@@ -225,7 +225,7 @@ namespace IsengardClient
 
             SetAutoEscapeThresholdFromDefaults();
 
-            txtWeapon.Text = sets.DefaultWeapon ?? string.Empty;
+            txtWeapon.Text = sets.Weapon ?? string.Empty;
 
             //prettify user name to be Pascal case
             StringBuilder sb = new StringBuilder();
@@ -265,23 +265,23 @@ namespace IsengardClient
         private void SetAutoEscapeThresholdFromDefaults()
         {
             IsengardSettings sets = IsengardSettings.Default;
-            _autoEscapeThreshold = sets.DefaultAutoEscapeThreshold;
-            _autoEscapeType = (AutoEscapeType)sets.DefaultAutoEscapeType;
-            _autoEscapeActive = sets.DefaultAutoEscapeOnByDefault;
+            _autoEscapeThreshold = sets.AutoEscapeThreshold;
+            _autoEscapeType = (AutoEscapeType)sets.AutoEscapeType;
+            _autoEscapeActive = sets.AutoEscapeActive;
             if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy)
             {
                 _autoEscapeType = AutoEscapeType.Flee;
-                sets.DefaultAutoEscapeType = Convert.ToInt32(_autoEscapeType);
+                sets.AutoEscapeType = Convert.ToInt32(_autoEscapeType);
             }
             if (_autoEscapeThreshold < 0)
             {
                 _autoEscapeThreshold = 0;
-                sets.DefaultAutoEscapeThreshold = _autoEscapeThreshold;
+                sets.AutoEscapeThreshold = _autoEscapeThreshold;
             }
             if (_autoEscapeThreshold == 0)
             {
                 _autoEscapeActive = false;
-                sets.DefaultAutoEscapeOnByDefault = _autoEscapeActive;
+                sets.AutoEscapeActive = _autoEscapeActive;
             }
             RefreshAutoEscapeUI(true);
         }
@@ -831,7 +831,15 @@ namespace IsengardClient
 
         private void DoConnect()
         {
-            _initializationSteps = InitializationStep.None;
+            IsengardSettings sets = IsengardSettings.Default;
+            if (sets.RemoveAllOnStartup)
+            {
+                _initializationSteps = InitializationStep.RemoveAll;
+            }
+            else
+            {
+                _initializationSteps = InitializationStep.None;
+            }
             _loginInfo = null;
             _players = null;
             lock (_timeLock)
@@ -1150,7 +1158,10 @@ namespace IsengardClient
             SendCommand("equipment", InputEchoType.Off);
             SendCommand("time", InputEchoType.Off);
             SendCommand("spells", InputEchoType.Off);
-            SendCommand("remove all", InputEchoType.Off);
+            if ((_initializationSteps & InitializationStep.RemoveAll) != InitializationStep.None)
+            {
+                SendCommand("remove all", InputEchoType.Off);
+            }
             _initializationSteps |= InitializationStep.Initialization;
             _loginInfo = initialLoginInfo;
         }
@@ -6442,28 +6453,28 @@ BeforeHazy:
         private void InitializeRealm()
         {
             IsengardSettings sets = IsengardSettings.Default;
-            _currentRealm = (RealmType)sets.DefaultRealm;
+            _currentRealm = (RealmType)sets.Realm;
             if (_currentRealm != RealmType.Earth &&
                 _currentRealm != RealmType.Fire &&
                 _currentRealm != RealmType.Water &&
                 _currentRealm != RealmType.Wind)
             {
                 _currentRealm = RealmType.Earth;
-                sets.DefaultRealm = Convert.ToInt32(_currentRealm);
+                sets.Realm = Convert.ToInt32(_currentRealm);
             }
         }
 
         private void InitializeAutoSpellLevels()
         {
             IsengardSettings sets = IsengardSettings.Default;
-            _autoSpellLevelMin = sets.DefaultAutoSpellLevelMin;
-            _autoSpellLevelMax = sets.DefaultAutoSpellLevelMax;
+            _autoSpellLevelMin = sets.AutoSpellLevelMin;
+            _autoSpellLevelMax = sets.AutoSpellLevelMax;
             if (_autoSpellLevelMin > _autoSpellLevelMax || _autoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _autoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
             {
                 _autoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
                 _autoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
-                sets.DefaultAutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                sets.DefaultAutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                sets.AutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+                sets.AutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
             }
         }
 
@@ -6569,9 +6580,9 @@ BeforeHazy:
         private void tsmiSetDefaultAutoEscape_Click(object sender, EventArgs e)
         {
             IsengardSettings sets = IsengardSettings.Default;
-            sets.DefaultAutoEscapeOnByDefault = _autoEscapeActive;
-            sets.DefaultAutoEscapeThreshold = _autoEscapeThreshold;
-            sets.DefaultAutoEscapeType = Convert.ToInt32(_autoEscapeType);
+            sets.AutoEscapeActive = _autoEscapeActive;
+            sets.AutoEscapeThreshold = _autoEscapeThreshold;
+            sets.AutoEscapeType = Convert.ToInt32(_autoEscapeType);
             sets.Save();
         }
 
@@ -6675,7 +6686,7 @@ BeforeHazy:
                 bool hasThreshold = _autoEscapeThreshold > 0;
                 tsmiAutoEscapeIsActive.Enabled = hasThreshold;
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
-                bool differentFromDefault = _autoEscapeActive != sets.DefaultAutoEscapeOnByDefault || _autoEscapeThreshold != sets.DefaultAutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.DefaultAutoEscapeType;
+                bool differentFromDefault = _autoEscapeActive != sets.AutoEscapeActive || _autoEscapeThreshold != sets.AutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.AutoEscapeType;
                 tsmiSetDefaultAutoEscape.Enabled = tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
             }
         }

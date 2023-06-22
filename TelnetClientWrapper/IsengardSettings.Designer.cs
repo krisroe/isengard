@@ -26,24 +26,24 @@ namespace IsengardClient {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DefaultWeapon {
+        public string Weapon {
             get {
-                return ((string)(this["DefaultWeapon"]));
+                return ((string)(this["Weapon"]));
             }
             set {
-                this["DefaultWeapon"] = value;
+                this["Weapon"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int DefaultRealm {
+        public int Realm {
             get {
-                return ((int)(this["DefaultRealm"]));
+                return ((int)(this["Realm"]));
             }
             set {
-                this["DefaultRealm"] = value;
+                this["Realm"] = value;
             }
         }
         
@@ -122,60 +122,72 @@ namespace IsengardClient {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int DefaultAutoSpellLevelMin {
+        public int AutoSpellLevelMin {
             get {
-                return ((int)(this["DefaultAutoSpellLevelMin"]));
+                return ((int)(this["AutoSpellLevelMin"]));
             }
             set {
-                this["DefaultAutoSpellLevelMin"] = value;
+                this["AutoSpellLevelMin"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int DefaultAutoSpellLevelMax {
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int AutoSpellLevelMax {
             get {
-                return ((int)(this["DefaultAutoSpellLevelMax"]));
+                return ((int)(this["AutoSpellLevelMax"]));
             }
             set {
-                this["DefaultAutoSpellLevelMax"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int DefaultAutoEscapeThreshold {
-            get {
-                return ((int)(this["DefaultAutoEscapeThreshold"]));
-            }
-            set {
-                this["DefaultAutoEscapeThreshold"] = value;
+                this["AutoSpellLevelMax"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int DefaultAutoEscapeType {
+        public int AutoEscapeThreshold {
             get {
-                return ((int)(this["DefaultAutoEscapeType"]));
+                return ((int)(this["AutoEscapeThreshold"]));
             }
             set {
-                this["DefaultAutoEscapeType"] = value;
+                this["AutoEscapeThreshold"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int AutoEscapeType {
+            get {
+                return ((int)(this["AutoEscapeType"]));
+            }
+            set {
+                this["AutoEscapeType"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DefaultAutoEscapeOnByDefault {
+        public bool AutoEscapeActive {
             get {
-                return ((bool)(this["DefaultAutoEscapeOnByDefault"]));
+                return ((bool)(this["AutoEscapeActive"]));
             }
             set {
-                this["DefaultAutoEscapeOnByDefault"] = value;
+                this["AutoEscapeActive"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RemoveAllOnStartup {
+            get {
+                return ((bool)(this["RemoveAllOnStartup"]));
+            }
+            set {
+                this["RemoveAllOnStartup"] = value;
             }
         }
     }

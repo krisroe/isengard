@@ -11,12 +11,6 @@ namespace IsengardClient
     {
         private List<Strategy> _strategies;
 
-        private int _defaultAutoEscapeThreshold;
-        private AutoEscapeType _defaultAutoEscapeType;
-        private bool _defaultAutoEscapeActive;
-        private int _defaultAutoEscapeThresholdOriginal;
-        private AutoEscapeType _defaultAutoEscapeTypeOriginal;
-        private bool _defaultAutoEscapeActiveOriginal;
         private int _currentAutoEscapeThreshold;
         private AutoEscapeType _currentAutoEscapeType;
         private bool _currentAutoEscapeActive;
@@ -28,15 +22,9 @@ namespace IsengardClient
         private Color _fullColor;
         private Color _emptyColor;
 
-        private RealmType _defaultRealm;
-        private RealmType _defaultRealmOriginal;
         private RealmType _currentRealm;
         private RealmType _currentRealmOriginal;
 
-        private int _defaultAutoSpellLevelMinimum;
-        private int _defaultAutoSpellLevelMaximum;
-        private int _defaultAutoSpellLevelMinimumOriginal;
-        private int _defaultAutoSpellLevelMaximumOriginal;
         private int _currentAutoSpellLevelMinimum;
         private int _currentAutoSpellLevelMaximum;
         private int _currentAutoSpellLevelMinimumOriginal;
@@ -44,7 +32,6 @@ namespace IsengardClient
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
         internal const int AUTO_SPELL_LEVEL_MAXIMUM = 4;
 
-        private string _defaultWeaponOriginal;
         private string _currentWeaponOriginal;
 
         public frmConfiguration(RealmType currentRealm, int currentAutoSpellLevelMin, int currentAutoSpellLevelMax, string weapon, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
@@ -55,41 +42,21 @@ namespace IsengardClient
             tsmiCurrentRealmFire.Tag = RealmType.Fire;
             tsmiCurrentRealmWater.Tag = RealmType.Water;
             tsmiCurrentRealmWind.Tag = RealmType.Wind;
-            tsmiDefaultRealmEarth.Tag = RealmType.Earth;
-            tsmiDefaultRealmFire.Tag = RealmType.Fire;
-            tsmiDefaultRealmWater.Tag = RealmType.Water;
-            tsmiDefaultRealmWind.Tag = RealmType.Wind;
 
             IsengardSettings sets = IsengardSettings.Default;
 
             _currentRealmOriginal = _currentRealm = currentRealm;
-            _defaultRealm = (RealmType)IsengardSettings.Default.DefaultRealm;
-            _defaultRealmOriginal = _defaultRealm;
             RefreshRealmUI();
 
             _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMaximumOriginal = currentAutoSpellLevelMax;
             _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMinimumOriginal = currentAutoSpellLevelMin;
-            _defaultAutoSpellLevelMinimum = sets.DefaultAutoSpellLevelMin;
-            _defaultAutoSpellLevelMaximum = sets.DefaultAutoSpellLevelMax;
-            _defaultAutoSpellLevelMaximumOriginal = _defaultAutoSpellLevelMaximum;
-            _defaultAutoSpellLevelMinimumOriginal = _defaultAutoSpellLevelMinimum;
             RefreshAutoSpellLevelUI();
 
             txtCurrentWeaponValue.Text = _currentWeaponOriginal = weapon;
-            txtDefaultWeaponValue.Text = _defaultWeaponOriginal = sets.DefaultWeapon;
 
             _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
             RefreshAlignmentTypeUI();
 
-            _defaultAutoEscapeType = (AutoEscapeType)sets.DefaultAutoEscapeType;
-            _defaultAutoEscapeThreshold = sets.DefaultAutoEscapeThreshold;
-            _defaultAutoEscapeActive = sets.DefaultAutoEscapeOnByDefault;
-            if (_defaultAutoEscapeType != AutoEscapeType.Flee && _defaultAutoEscapeType != AutoEscapeType.Hazy) _defaultAutoEscapeType = AutoEscapeType.Flee;
-            if (_defaultAutoEscapeThreshold < 0) _defaultAutoEscapeThreshold = 0;
-            if (_defaultAutoEscapeThreshold == 0) _defaultAutoEscapeActive = false;
-            _defaultAutoEscapeActiveOriginal = _defaultAutoEscapeActive;
-            _defaultAutoEscapeThresholdOriginal = _defaultAutoEscapeThreshold;
-            _defaultAutoEscapeTypeOriginal = _defaultAutoEscapeType;
             _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal = autoEscapeActive;
             _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal = autoEscapeThreshold;
             _currentAutoEscapeType = _currentAutoEscapeTypeOriginal = autoEscapeType;
@@ -97,6 +64,7 @@ namespace IsengardClient
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
             chkVerboseOutput.Checked = sets.VerboseMode;
+            chkRemoveAllOnStartup.Checked = sets.RemoveAllOnStartup;
 
             _fullColor = sets.FullColor;
             SetColorUI(lblFullColorValue, _fullColor);
@@ -150,18 +118,19 @@ namespace IsengardClient
         private void btnOK_Click(object sender, EventArgs e)
         {
             IsengardSettings sets = IsengardSettings.Default;
-            sets.DefaultWeapon = txtDefaultWeaponValue.Text;
-            sets.DefaultRealm = Convert.ToInt32(_defaultRealm);
+            sets.Weapon = txtCurrentWeaponValue.Text;
+            sets.Realm = Convert.ToInt32(_currentRealm);
             sets.PreferredAlignment = _preferredAlignment.ToString();
-            sets.DefaultAutoEscapeOnByDefault = _defaultAutoEscapeActive;
-            sets.DefaultAutoEscapeThreshold = _defaultAutoEscapeThreshold;
-            sets.DefaultAutoEscapeType = Convert.ToInt32(_defaultAutoEscapeType);
+            sets.AutoEscapeActive = _currentAutoEscapeActive;
+            sets.AutoEscapeThreshold = _currentAutoEscapeThreshold;
+            sets.AutoEscapeType = Convert.ToInt32(_currentAutoEscapeType);
             sets.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
             sets.VerboseMode = chkVerboseOutput.Checked;
+            sets.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
             sets.FullColor = _fullColor;
             sets.EmptyColor = _emptyColor;
-            sets.DefaultAutoSpellLevelMin = _defaultAutoSpellLevelMinimum;
-            sets.DefaultAutoSpellLevelMax = _defaultAutoSpellLevelMaximum;
+            sets.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
+            sets.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
             IsengardSettings.Default.Save();
 
             //CSRTODO: save changes to strategies
@@ -226,7 +195,7 @@ namespace IsengardClient
 
         #endregion
 
-        #region current/default realm
+        #region current realm
 
         public RealmType CurrentRealm
         {
@@ -238,17 +207,8 @@ namespace IsengardClient
 
         private void RefreshRealmUI()
         {
-            lblDefaultRealmValue.Text = _defaultRealm.ToString();
-            lblDefaultRealmValue.BackColor = UIShared.GetColorForRealm(_defaultRealm);
             lblCurrentRealmValue.Text = _currentRealm.ToString();
             lblCurrentRealmValue.BackColor = UIShared.GetColorForRealm(_currentRealm);
-        }
-
-        private void tsmiDefaultRealm_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
-            _defaultRealm = (RealmType)tsmi.Tag;
-            RefreshRealmUI();
         }
 
         private void tsmiCurrentRealm_Click(object sender, EventArgs e)
@@ -267,34 +227,7 @@ namespace IsengardClient
                 tsmi.Checked = isSelected;
                 tsmi.Text = isSelected ? eTag + " (Current)" : eTag.ToString();
             }
-            foreach (ToolStripMenuItem tsmi in new List<ToolStripMenuItem>() { tsmiDefaultRealmEarth, tsmiDefaultRealmFire, tsmiDefaultRealmWater, tsmiDefaultRealmWind })
-            {
-                RealmType eTag = (RealmType)tsmi.Tag;
-                bool isSelected = eTag == _defaultRealm;
-                tsmi.Checked = isSelected;
-                tsmi.Text = isSelected ? eTag + " (Default)" : eTag.ToString();
-            }
-            tsmiSetCurrentRealmAsDefault.Enabled = tsmiSetDefaultRealmAsCurrent.Enabled = _defaultRealm != _currentRealm;
             tsmiRestoreCurrentRealm.Enabled = _currentRealm != _currentRealmOriginal;
-            tsmiRestoreDefaultRealm.Enabled = _defaultRealm != _defaultRealmOriginal;
-        }
-
-        private void tsmiSetCurrentRealmAsDefault_Click(object sender, EventArgs e)
-        {
-            _defaultRealm = _currentRealm;
-            RefreshRealmUI();
-        }
-
-        private void tsmiSetDefaultRealmAsCurrent_Click(object sender, EventArgs e)
-        {
-            _currentRealm = _defaultRealm;
-            RefreshRealmUI();
-        }
-
-        private void tsmiRestoreDefaultRealm_Click(object sender, EventArgs e)
-        {
-            _defaultRealm = _defaultRealmOriginal;
-            RefreshRealmUI();
         }
 
         private void tsmiRestoreCurrentRealm_Click(object sender, EventArgs e)
@@ -325,7 +258,6 @@ namespace IsengardClient
 
         private void RefreshAutoSpellLevelUI()
         {
-            lblDefaultAutoSpellLevelsValue.Text = _defaultAutoSpellLevelMinimum + ":" + _defaultAutoSpellLevelMaximum;
             lblCurrentAutoSpellLevelsValue.Text = _currentAutoSpellLevelMinimum + ":" + _currentAutoSpellLevelMaximum;
         }
 
@@ -357,66 +289,15 @@ namespace IsengardClient
             }
         }
 
-        private void tsmiSetDefaultMinimumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _defaultAutoSpellLevelMinimum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _defaultAutoSpellLevelMinimum = iLevel;
-                if (_defaultAutoSpellLevelMaximum < _defaultAutoSpellLevelMinimum)
-                {
-                    _defaultAutoSpellLevelMaximum = _defaultAutoSpellLevelMinimum;
-                }
-                RefreshAutoSpellLevelUI();
-            }
-        }
-
-        private void tsmiSetDefaultMaximumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _defaultAutoSpellLevelMaximum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _defaultAutoSpellLevelMaximum = iLevel;
-                if (_defaultAutoSpellLevelMaximum < _defaultAutoSpellLevelMinimum)
-                {
-                    _defaultAutoSpellLevelMinimum = _defaultAutoSpellLevelMaximum;
-                }
-                RefreshAutoSpellLevelUI();
-            }
-        }
-
         private void ctxAutoSpellLevels_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            tsmiSetCurrentAutoSpellLevelsAsDefault.Enabled = tsmiSetDefaultAutoSpellLevelsAsCurrent.Enabled = _defaultAutoSpellLevelMaximum != _currentAutoSpellLevelMaximum || _defaultAutoSpellLevelMinimum != _currentAutoSpellLevelMinimum;
-            tsmiRestoreDefaultAutoSpellLevels.Enabled = _defaultAutoSpellLevelMaximum != _defaultAutoSpellLevelMaximumOriginal || _defaultAutoSpellLevelMinimum != _defaultAutoSpellLevelMinimumOriginal;
             tsmiRestoreCurrentAutoSpellLevels.Enabled = _currentAutoSpellLevelMaximum != _currentAutoSpellLevelMaximumOriginal || _currentAutoSpellLevelMinimum != _currentAutoSpellLevelMinimumOriginal;
-        }
-
-        private void tsmiSetCurrentAutoSpellLevelsAsDefault_Click(object sender, EventArgs e)
-        {
-            _defaultAutoSpellLevelMaximum = _currentAutoSpellLevelMaximum;
-            _defaultAutoSpellLevelMinimum = _currentAutoSpellLevelMinimum;
-            RefreshAutoSpellLevelUI();
-        }
-
-        private void tsmiSetDefaultAutoSpellLevelsAsCurrent_Click(object sender, EventArgs e)
-        {
-            _currentAutoSpellLevelMaximum = _defaultAutoSpellLevelMaximum;
-            _currentAutoSpellLevelMinimum = _defaultAutoSpellLevelMinimum;
-            RefreshAutoSpellLevelUI();
         }
 
         private void tsmiRestoreCurrentAutoSpellLevels_Click(object sender, EventArgs e)
         {
             _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMaximumOriginal;
             _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMinimumOriginal;
-            RefreshAutoSpellLevelUI();
-        }
-
-        private void tsmiRestoreDefaultAutoSpellLevels_Click(object sender, EventArgs e)
-        {
-            _defaultAutoSpellLevelMaximum = _defaultAutoSpellLevelMaximumOriginal;
-            _defaultAutoSpellLevelMinimum = _defaultAutoSpellLevelMinimumOriginal;
             RefreshAutoSpellLevelUI();
         }
 
@@ -448,27 +329,8 @@ namespace IsengardClient
             }
         }
 
-        private void tsmiClearDefaultAutoEscapeThreshold_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeThreshold = 0;
-            _defaultAutoEscapeActive = false;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiSetDefaultAutoEscapeThreshold_Click(object sender, EventArgs e)
-        {
-            string sInitialValue = _defaultAutoEscapeThreshold > 0 ? _defaultAutoEscapeThreshold.ToString() : string.Empty;
-            string threshold = Interaction.InputBox("Threshold:", "Enter Threshold", sInitialValue);
-            if (int.TryParse(threshold, out int iThreshold) && iThreshold > 0)
-            {
-                _defaultAutoEscapeThreshold = iThreshold;
-                RefreshAutoEscapeUI();
-            }
-        }
-
         private void RefreshAutoEscapeUI()
         {
-            SetAutoEscapeLabel(lblDefaultAutoEscapeValue, _defaultAutoEscapeType, _defaultAutoEscapeThreshold, _defaultAutoEscapeActive);
             SetAutoEscapeLabel(lblCurrentAutoEscapeValue, _currentAutoEscapeType, _currentAutoEscapeThreshold, _currentAutoEscapeActive);
         }
 
@@ -521,54 +383,17 @@ namespace IsengardClient
 
         private void ctxAutoEscape_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            tsmiDefaultAutoEscapeFlee.Checked = _defaultAutoEscapeType == AutoEscapeType.Flee;
-            tsmiDefaultAutoEscapeHazy.Checked = _defaultAutoEscapeType == AutoEscapeType.Hazy;
-            tsmiDefaultAutoEscapeActive.Checked = _defaultAutoEscapeActive;
-            tsmiDefaultAutoEscapeInactive.Checked = !_defaultAutoEscapeActive;
-
             tsmiCurrentAutoEscapeFlee.Checked = _currentAutoEscapeType == AutoEscapeType.Flee;
             tsmiCurrentAutoEscapeHazy.Checked = _currentAutoEscapeType == AutoEscapeType.Hazy;
             tsmiCurrentAutoEscapeActive.Checked = _currentAutoEscapeActive;
             tsmiCurrentAutoEscapeInactive.Checked = !_currentAutoEscapeActive;
-
-            bool haveDefaultThreshold = _defaultAutoEscapeThreshold > 0;
-            tsmiClearDefaultAutoEscapeThreshold.Enabled = haveDefaultThreshold;
-            tsmiDefaultAutoEscapeActive.Enabled = haveDefaultThreshold;
-            tsmiDefaultAutoEscapeInactive.Enabled = haveDefaultThreshold;
 
             bool haveCurrentThreshold = _currentAutoEscapeThreshold > 0;
             tsmiClearCurrentAutoEscapeThreshold.Enabled = haveCurrentThreshold;
             tsmiCurrentAutoEscapeActive.Enabled = haveCurrentThreshold;
             tsmiCurrentAutoEscapeInactive.Enabled = haveCurrentThreshold;
 
-            bool currentAndDefaultDiffer = _defaultAutoEscapeActive != _currentAutoEscapeActive || _defaultAutoEscapeThreshold != _currentAutoEscapeThreshold || _defaultAutoEscapeType != _currentAutoEscapeType;
-            tsmiSetCurrentAutoEscapeAsDefault.Enabled = tsmiSetDefaultAutoEscapeAsCurrent.Enabled = currentAndDefaultDiffer;
-            tsmiRestoreDefaultAutoEscape.Enabled = _defaultAutoEscapeActive != _defaultAutoEscapeActiveOriginal || _defaultAutoEscapeThreshold != _defaultAutoEscapeThresholdOriginal || _defaultAutoEscapeType != _defaultAutoEscapeTypeOriginal;
             tsmiRestoreCurrentAutoEscape.Enabled = _currentAutoEscapeActive != _currentAutoEscapeActiveOriginal || _currentAutoEscapeThreshold != _currentAutoEscapeThresholdOriginal || _currentAutoEscapeType != _currentAutoEscapeTypeOriginal;
-        }
-
-        private void tsmiDefaultAutoEscapeFlee_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeType = AutoEscapeType.Flee;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiDefaultAutoEscapeHazy_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeType = AutoEscapeType.Hazy;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiDefaultAutoEscapeActive_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeActive = true;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiDefaultAutoEscapeInactive_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeActive = false;
-            RefreshAutoEscapeUI();
         }
 
         private void tsmiSetCurrentAutoEscapeThreshold_Click(object sender, EventArgs e)
@@ -613,35 +438,11 @@ namespace IsengardClient
             RefreshAutoEscapeUI();
         }
 
-        private void tsmiSetCurrentAutoEscapeAsDefault_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeActive = _currentAutoEscapeActive;
-            _defaultAutoEscapeThreshold = _currentAutoEscapeThreshold;
-            _defaultAutoEscapeType = _currentAutoEscapeType;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiSetDefaultAutoEscapeAsCurrent_Click(object sender, EventArgs e)
-        {
-            _currentAutoEscapeActive = _defaultAutoEscapeActive;
-            _currentAutoEscapeThreshold = _defaultAutoEscapeThreshold;
-            _currentAutoEscapeType = _defaultAutoEscapeType;
-            RefreshAutoEscapeUI();
-        }
-
         private void tsmiRestoreCurrentAutoEscape_Click(object sender, EventArgs e)
         {
             _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal;
             _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal;
             _currentAutoEscapeType = _currentAutoEscapeTypeOriginal;
-            RefreshAutoEscapeUI();
-        }
-
-        private void tsmiRestoreDefaultAutoEscape_Click(object sender, EventArgs e)
-        {
-            _defaultAutoEscapeActive = _defaultAutoEscapeActiveOriginal;
-            _defaultAutoEscapeThreshold = _defaultAutoEscapeThresholdOriginal;
-            _defaultAutoEscapeType = _defaultAutoEscapeTypeOriginal;
             RefreshAutoEscapeUI();
         }
 
@@ -659,29 +460,12 @@ namespace IsengardClient
 
         private void ctxWeapon_Opening(object sender, CancelEventArgs e)
         {
-            tsmiSetCurrentWeaponAsDefault.Enabled = tsmiSetDefaultWeaponAsCurrent.Enabled = !string.Equals(txtCurrentWeaponValue.Text, txtDefaultWeaponValue.Text);
-            tsmiRestoreDefaultWeapon.Enabled = !string.Equals(txtDefaultWeaponValue.Text, _defaultWeaponOriginal);
             tsmiRestoreCurrentWeapon.Enabled = !string.Equals(txtCurrentWeaponValue.Text, _currentWeaponOriginal);
-        }
-
-        private void tsmiSetCurrentWeaponAsDefault_Click(object sender, EventArgs e)
-        {
-            txtDefaultWeaponValue.Text = txtCurrentWeaponValue.Text;
-        }
-
-        private void tsmiSetDefaultWeaponAsCurrent_Click(object sender, EventArgs e)
-        {
-            txtCurrentWeaponValue.Text = txtDefaultWeaponValue.Text;
         }
 
         private void tsmiRestoreCurrentWeapon_Click(object sender, EventArgs e)
         {
             txtCurrentWeaponValue.Text = _currentWeaponOriginal;
-        }
-
-        private void tsmiRestoreDefaultWeapon_Click(object sender, EventArgs e)
-        {
-            txtDefaultWeaponValue.Text = _defaultWeaponOriginal;
         }
 
         #endregion

@@ -2,10 +2,10 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="IsengardClient" GeneratedClassName="IsengardSettings">
   <Profiles />
   <Settings>
-    <Setting Name="DefaultWeapon" Type="System.String" Scope="User">
+    <Setting Name="Weapon" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DefaultRealm" Type="System.Int32" Scope="User">
+    <Setting Name="Realm" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="PreferredAlignment" Type="System.String" Scope="User">
@@ -26,20 +26,23 @@
     <Setting Name="EmptyColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Red</Value>
     </Setting>
-    <Setting Name="DefaultAutoSpellLevelMin" Type="System.Int32" Scope="User">
+    <Setting Name="AutoSpellLevelMin" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="DefaultAutoSpellLevelMax" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3</Value>
+    <Setting Name="AutoSpellLevelMax" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
     </Setting>
-    <Setting Name="DefaultAutoEscapeThreshold" Type="System.Int32" Scope="User">
+    <Setting Name="AutoEscapeThreshold" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="DefaultAutoEscapeType" Type="System.Int32" Scope="User">
+    <Setting Name="AutoEscapeType" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="DefaultAutoEscapeOnByDefault" Type="System.Boolean" Scope="User">
+    <Setting Name="AutoEscapeActive" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RemoveAllOnStartup" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
