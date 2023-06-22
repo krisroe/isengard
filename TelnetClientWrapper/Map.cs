@@ -63,6 +63,16 @@ namespace IsengardClient
             AddMithlond(boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
 
+            foreach (Area a in _areas)
+            {
+                a.Locations.Sort((roomA, roomB) =>
+                {
+                    int ret = -(roomA.GetTotalExperience().CompareTo(roomB.GetTotalExperience()));
+                    if (ret == 0) ret = roomA.ToString().CompareTo(roomB.ToString());
+                    return ret;
+                });
+            }
+
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
             {
                 RoomGraph g = nextGraph.Value;

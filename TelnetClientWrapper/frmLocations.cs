@@ -47,10 +47,9 @@ namespace IsengardClient
                 tArea.Tag = a;
                 treeLocations.Nodes.Add(tArea);
                 tArea.Expand();
-                //CSRTODO: comparison?
                 foreach (Room r in a.Locations)
                 {
-                    TreeNode tRoom = new TreeNode(r.ToString());
+                    TreeNode tRoom = new TreeNode(r.GetRoomNameWithExperience());
                     tRoom.Tag = r;
                     tArea.Nodes.Add(tRoom);
                 }

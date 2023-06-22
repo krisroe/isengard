@@ -367,6 +367,11 @@
         [EquipmentType(EquipmentType.Unknown)]
         GypsyCape,
 
+        [SingularName("gypsy crown")]
+        [PluralName("gypsy crowns")]
+        [EquipmentType(EquipmentType.Unknown)]
+        GypsyCrown,
+
         [SingularName("halberd")]
         [PluralName("halberds")]
         [WeaponType(WeaponType.Unknown)]

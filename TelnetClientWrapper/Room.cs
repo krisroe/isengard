@@ -78,6 +78,64 @@ namespace IsengardClient
             }
             return ret;
         }
+
+        public int GetTotalExperience()
+        {
+            int total = 0;
+            foreach (int next in GetExperiences())
+            {
+                total += next;
+            }
+            return total;
+        }
+
+        public IEnumerable<int> GetExperiences()
+        {
+            if (PermanentMobs != null && PermanentMobs.Count > 0)
+            {
+                foreach (MobTypeEnum nextMobType in PermanentMobs)
+                {
+                    StaticMobData smd = MobEntity.StaticMobData[nextMobType];
+                    if (smd.Experience > 0)
+                    {
+                        yield return smd.Experience;
+                    }
+                }
+            }
+        }
+
+        public string GetRoomNameWithExperience()
+        {
+            string ret = ToString();
+            if (PermanentMobs != null && PermanentMobs.Count > 0)
+            {
+                List<int> exps = new List<int>();
+                foreach (int nextExperience in GetExperiences())
+                {
+                    exps.Add(nextExperience);
+                }
+                if (exps.Count > 0)
+                {
+                    ret += " ";
+                    exps.Sort();
+                    exps.Reverse();
+                    bool isFirst = true;
+                    foreach (int nextExp in exps)
+                    {
+                        if (isFirst)
+                        {
+                            isFirst = false;
+                        }
+                        else
+                        {
+                            ret += ",";
+                        }
+                        ret += nextExp.ToString();
+                    }
+                }
+            }
+            return ret;
+        }
     }
 
     internal class RoomChange

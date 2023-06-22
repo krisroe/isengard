@@ -449,6 +449,10 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.Aggressive = ((AggressiveAttribute)valueAttributes[0]).Aggressive;
 
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ExperienceAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.Experience = ((ExperienceAttribute)valueAttributes[0]).Experience;
+
                 bool hasSingular = !string.IsNullOrEmpty(smd.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(smd.PluralName);
                 if (hasSingular)
@@ -537,6 +541,7 @@ namespace IsengardClient
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
         public bool Aggressive { get; set; }
+        public int Experience { get; set; }
     }
 
     public class ItemEntity : Entity
