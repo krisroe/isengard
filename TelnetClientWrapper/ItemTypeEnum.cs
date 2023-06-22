@@ -728,7 +728,7 @@
 
         [SingularName("silima blade")]
         [PluralName("silima blades")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
         SilimaBlade,
 
         [SingularName("silver arm-bands")]

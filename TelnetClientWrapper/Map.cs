@@ -2752,6 +2752,14 @@ namespace IsengardClient
             AddBidirectionalExits(oUndeadFeastingGrounds, oHallOfTheDead, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1);
 
+            Room oLichsLair = AddRoom("Lich's Lair", "Lich's Lair");
+            e = AddExit(oHallOfTheDead, oLichsLair, "hidden");
+            e.Hidden = true;
+            e.FloatRequirement = FloatRequirement.FlyOrLevitation;
+            e.IsTrapExit = true;
+            AddExit(oLichsLair, oHallOfTheDead, "walkway");
+            breeToImladrisGraph.Rooms[oLichsLair] = new System.Windows.Point(6, -1.5);
+
             Room oUnderhallsCorridorsStoneDoor = AddRoom("To Stone Door", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsStoneDoor, oUnderhallsCorridorsToStoneDoor2, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsStoneDoor] = new System.Windows.Point(3, -2);
@@ -2818,6 +2826,8 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oUnderhallsAntechamber] = new System.Windows.Point(4, 2);
 
             AddLocation(_aBreePerms, oUnderHallsCorridorsGreenSlime);
+            AddLocation(_aBreePerms, oGhostOfMuzgash);
+            AddLocation(_aBreePerms, oLichsLair);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)
@@ -4686,7 +4696,7 @@ namespace IsengardClient
             armenelosGraph.Rooms[oOrithilRivel] = new System.Windows.Point(2, 8);
 
             Room oOrithil2 = AddRoom("Orithil", "Orithil Drive");
-            AddBidirectionalExits(oOrithil1, oOrithil2, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oOrithilRivel, oOrithil2, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oOrithil2] = new System.Windows.Point(3, 8);
 
             Room oOrithil3 = AddRoom("Orithil", "Orithil Drive");
@@ -4860,7 +4870,7 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oGoldberry5, oZain, "north");
             armenelosGraph.Rooms[oZain] = new System.Windows.Point(7, 11);
 
-            Room oGateInside = AddRoom("Gate Inside", "Gates of Armenelos");
+            Room oGateInside = AddRoom("Gate Inside", "Entrance to Armenelos");
             AddBidirectionalExits(oWindfola6, oGateInside, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oGoldberry5, oGateInside, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGateInside] = new System.Windows.Point(8, 12);

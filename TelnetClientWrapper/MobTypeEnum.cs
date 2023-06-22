@@ -1096,6 +1096,10 @@
         //CSRTODO: plural?
         Stegosaurus,
 
+        [SingularName("strumpet")]
+        [PluralName("strumpets")]
+        Strumpet,
+
         [SingularName("student")]
         [PluralName("students")]
         Student,
