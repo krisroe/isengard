@@ -99,9 +99,6 @@
             this.tsmiAutoEscapeSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiAutoEscapeFlee = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAutoEscapeHazy = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiAutoEscapeSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiSetDefaultAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRestoreDefaultAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
             this.lblTime = new System.Windows.Forms.Label();
             this.grpCurrentPlayer = new System.Windows.Forms.GroupBox();
             this.lblManaValue = new System.Windows.Forms.Label();
@@ -929,75 +926,55 @@
             this.tsmiClearAutoEscapeThreshold,
             this.tsmiAutoEscapeSeparator2,
             this.tsmiAutoEscapeFlee,
-            this.tsmiAutoEscapeHazy,
-            this.tsmiAutoEscapeSeparator3,
-            this.tsmiSetDefaultAutoEscape,
-            this.tsmiRestoreDefaultAutoEscape});
+            this.tsmiAutoEscapeHazy});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(223, 190);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(211, 164);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
             // 
             this.tsmiAutoEscapeIsActive.Name = "tsmiAutoEscapeIsActive";
-            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(210, 24);
             this.tsmiAutoEscapeIsActive.Text = "Is Active?";
             this.tsmiAutoEscapeIsActive.Click += new System.EventHandler(this.tsmiToggleAutoEscapeActive_Click);
             // 
             // tsmiAutoEscapeSeparator1
             // 
             this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
-            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(219, 6);
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(207, 6);
             // 
             // tsmiSetAutoEscapeThreshold
             // 
             this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
-            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(210, 24);
             this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
             this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
             // tsmiClearAutoEscapeThreshold
             // 
             this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
-            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(222, 24);
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(210, 24);
             this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
             this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
             // 
             // tsmiAutoEscapeSeparator2
             // 
             this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
-            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(219, 6);
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(207, 6);
             // 
             // tsmiAutoEscapeFlee
             // 
             this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
-            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(210, 24);
             this.tsmiAutoEscapeFlee.Text = "Flee";
+            this.tsmiAutoEscapeFlee.Click += new System.EventHandler(this.tsmiAutoEscapeFlee_Click);
             // 
             // tsmiAutoEscapeHazy
             // 
             this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
-            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(222, 24);
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(210, 24);
             this.tsmiAutoEscapeHazy.Text = "Hazy";
-            // 
-            // tsmiAutoEscapeSeparator3
-            // 
-            this.tsmiAutoEscapeSeparator3.Name = "tsmiAutoEscapeSeparator3";
-            this.tsmiAutoEscapeSeparator3.Size = new System.Drawing.Size(219, 6);
-            // 
-            // tsmiSetDefaultAutoEscape
-            // 
-            this.tsmiSetDefaultAutoEscape.Name = "tsmiSetDefaultAutoEscape";
-            this.tsmiSetDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
-            this.tsmiSetDefaultAutoEscape.Text = "Set Current as Default";
-            this.tsmiSetDefaultAutoEscape.Click += new System.EventHandler(this.tsmiSetDefaultAutoEscape_Click);
-            // 
-            // tsmiRestoreDefaultAutoEscape
-            // 
-            this.tsmiRestoreDefaultAutoEscape.Name = "tsmiRestoreDefaultAutoEscape";
-            this.tsmiRestoreDefaultAutoEscape.Size = new System.Drawing.Size(222, 24);
-            this.tsmiRestoreDefaultAutoEscape.Text = "Restore Default";
-            this.tsmiRestoreDefaultAutoEscape.Click += new System.EventHandler(this.tsmiRestoreDefaultAutoEscape_Click);
+            this.tsmiAutoEscapeHazy.Click += new System.EventHandler(this.tsmiAutoEscapeHazy_Click);
             // 
             // lblTime
             // 
@@ -1885,10 +1862,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeIsActive;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetDefaultAutoEscape;
         private System.Windows.Forms.Button btnSkills;
         private System.Windows.Forms.Button btnHeal;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultAutoEscape;
         private System.Windows.Forms.Label lblToNextLevelValue;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;
         private System.Windows.Forms.Button btnIncrementWand;
@@ -1896,7 +1871,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeFlee;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeHazy;
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
-        private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator3;
         private System.Windows.Forms.Button btnLocations;
         private System.Windows.Forms.GroupBox grpCurrentRoom;
         private System.Windows.Forms.ComboBox cboTickRoom;

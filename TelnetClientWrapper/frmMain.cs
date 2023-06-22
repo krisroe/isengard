@@ -216,14 +216,13 @@ namespace IsengardClient
 
             InitializeRealm();
             InitializeAutoSpellLevels();
+            InitializeAutoEscapeThreshold();
 
             AlignmentType ePreferredAlignment;
             if (!Enum.TryParse(sets.PreferredAlignment, out ePreferredAlignment))
             {
                 ePreferredAlignment = AlignmentType.Blue;
             }
-
-            SetAutoEscapeThresholdFromDefaults();
 
             txtWeapon.Text = sets.Weapon ?? string.Empty;
 
@@ -262,7 +261,7 @@ namespace IsengardClient
             DoConnect();
         }
 
-        private void SetAutoEscapeThresholdFromDefaults()
+        private void InitializeAutoEscapeThreshold()
         {
             IsengardSettings sets = IsengardSettings.Default;
             _autoEscapeThreshold = sets.AutoEscapeThreshold;
@@ -6556,6 +6555,9 @@ BeforeHazy:
             if (int.TryParse(sNewAutoEscapeThreshold, out int iNewAutoEscapeThreshold) && iNewAutoEscapeThreshold > 0 && iNewAutoEscapeThreshold < _totalhp)
             {
                 _autoEscapeThreshold = iNewAutoEscapeThreshold;
+                IsengardSettings sets = IsengardSettings.Default;
+                sets.AutoEscapeThreshold = _autoEscapeThreshold;
+                sets.Save();
                 RefreshAutoEscapeUI(true);
             }
             else
@@ -6568,22 +6570,42 @@ BeforeHazy:
         {
             _autoEscapeActive = false;
             _autoEscapeThreshold = 0;
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.AutoEscapeActive = false;
+            sets.AutoEscapeThreshold = 0;
+            sets.Save();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiToggleAutoEscapeActive_Click(object sender, EventArgs e)
         {
             _autoEscapeActive = !_autoEscapeActiveSaved;
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.AutoEscapeActive = _autoEscapeActive;
+            sets.Save();
             RefreshAutoEscapeUI(true);
         }
 
-        private void tsmiSetDefaultAutoEscape_Click(object sender, EventArgs e)
+        private void tsmiAutoEscapeFlee_Click(object sender, EventArgs e)
         {
+            _autoEscapeType = AutoEscapeType.Flee;
             IsengardSettings sets = IsengardSettings.Default;
-            sets.AutoEscapeActive = _autoEscapeActive;
-            sets.AutoEscapeThreshold = _autoEscapeThreshold;
-            sets.AutoEscapeType = Convert.ToInt32(_autoEscapeType);
+            sets.AutoEscapeType = (int)_autoEscapeType;
             sets.Save();
+            tsmiAutoEscapeFlee.Checked = true;
+            tsmiAutoEscapeHazy.Checked = false;
+            RefreshAutoEscapeUI(true);
+        }
+
+        private void tsmiAutoEscapeHazy_Click(object sender, EventArgs e)
+        {
+            _autoEscapeType = AutoEscapeType.Hazy;
+            IsengardSettings sets = IsengardSettings.Default;
+            sets.AutoEscapeType = (int)_autoEscapeType;
+            sets.Save();
+            tsmiAutoEscapeFlee.Checked = false;
+            tsmiAutoEscapeHazy.Checked = true;
+            RefreshAutoEscapeUI(true);
         }
 
         /// <summary>
@@ -6667,11 +6689,6 @@ BeforeHazy:
             }
         }
 
-        private void tsmiRestoreDefaultAutoEscape_Click(object sender, EventArgs e)
-        {
-            SetAutoEscapeThresholdFromDefaults();
-        }
-
         private void ctxAutoEscape_Opening(object sender, CancelEventArgs e)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
@@ -6687,7 +6704,6 @@ BeforeHazy:
                 tsmiAutoEscapeIsActive.Enabled = hasThreshold;
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
                 bool differentFromDefault = _autoEscapeActive != sets.AutoEscapeActive || _autoEscapeThreshold != sets.AutoEscapeThreshold || Convert.ToInt32(_autoEscapeType) != sets.AutoEscapeType;
-                tsmiSetDefaultAutoEscape.Enabled = tsmiRestoreDefaultAutoEscape.Enabled = differentFromDefault;
             }
         }
 
