@@ -325,9 +325,21 @@
         [PluralName("gargoyles")]
         Gargoyle,
 
+        [SingularName("ghast")]
+        [PluralName("ghasts")]
+        Ghast,
+
         [SingularName("ghost")]
         [PluralName("ghosts")]
         Ghost,
+
+        [SingularName("ghost of Muzgash")]
+        //CSRTODO: no plural
+        GhostOfMuzgash,
+
+        [SingularName("ghoul")]
+        [PluralName("ghouls")]
+        Ghoul,
 
         [SingularName("giant catfish")]
         //CSRTODO: plural?

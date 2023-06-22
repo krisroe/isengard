@@ -2702,7 +2702,7 @@ namespace IsengardClient
 
             Room oUnderhallsCorridorsN = AddRoom("Corridor", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsN, oUnderhallsCorridorsNE, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oUnderhallsCorridorsN] = new System.Windows.Point(6, -1);
+            breeToImladrisGraph.Rooms[oUnderhallsCorridorsN] = new System.Windows.Point(6, -0.5);
 
             Room oOrcsQuarry = AddRoom("Orcs' Quarry", "Orcs' Quarry");
             AddBidirectionalExits(oUnderhallsCorridorsNE, oOrcsQuarry, BidirectionalExitType.WestEast);
@@ -2727,6 +2727,30 @@ namespace IsengardClient
             Room oUnderhallsCorridorsToStoneDoor2 = AddRoom("Corridor", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsToStoneDoor2, oUnderhallsCorridorsToStoneDoor1, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsToStoneDoor2] = new System.Windows.Point(3, -1);
+
+            Room oAmbushedParty = AddRoom("Ambushed Party", "Ambushed Party");
+            oAmbushedParty.AddPermanentMobs(MobTypeEnum.Ghoul, MobTypeEnum.Ghoul, MobTypeEnum.Ghoul);
+            e = AddExit(oUnderhallsCorridorsToStoneDoor2, oAmbushedParty, "east");
+            e.Hidden = true;
+            AddExit(oAmbushedParty, oUnderhallsCorridorsToStoneDoor2, "west");
+            breeToImladrisGraph.Rooms[oAmbushedParty] = new System.Windows.Point(4, -1);
+
+            Room oGhostOfMuzgash = AddRoom("Muzgash ghost", "Damp Cell");
+            oGhostOfMuzgash.AddPermanentMobs(MobTypeEnum.GhostOfMuzgash);
+            e = AddExit(oAmbushedParty, oGhostOfMuzgash, "door");
+            e.Hidden = true;
+            AddExit(oGhostOfMuzgash, oAmbushedParty, "door");
+            breeToImladrisGraph.Rooms[oGhostOfMuzgash] = new System.Windows.Point(4, -1.5);
+
+            Room oUndeadFeastingGrounds = AddRoom("Feasting Grounds", "Undead Feasting Grounds");
+            e = AddExit(oAmbushedParty, oUndeadFeastingGrounds, "east");
+            e.Hidden = true;
+            AddExit(oUndeadFeastingGrounds, oAmbushedParty, "west");
+            breeToImladrisGraph.Rooms[oUndeadFeastingGrounds] = new System.Windows.Point(5, -1.5);
+
+            Room oHallOfTheDead = AddRoom("Hall of the Dead", "Hall of the Dead");
+            AddBidirectionalExits(oUndeadFeastingGrounds, oHallOfTheDead, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1.5);
 
             Room oUnderhallsCorridorsStoneDoor = AddRoom("To Stone Door", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsStoneDoor, oUnderhallsCorridorsToStoneDoor2, BidirectionalExitType.NorthSouth);

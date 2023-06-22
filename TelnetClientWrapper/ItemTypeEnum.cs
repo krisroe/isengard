@@ -395,6 +395,10 @@
         [PluralName("human brains")]
         HumanBrain,
 
+        [SingularName("human carcass")]
+        [PluralName("human carcasses")]
+        HumanCarcass,
+
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
         IceBluePotion,
@@ -430,6 +434,11 @@
         [SingularName("knapsack")]
         [PluralName("knapsacks")]
         Knapsack,
+
+        [SingularName("lancette")]
+        [PluralName("lancettes")]
+        [WeaponType(WeaponType.Stab)]
+        Lancette,
 
         [SingularName("large egg")]
         [PluralName("large eggs")]
@@ -846,6 +855,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         SundorianTassle,
 
+        [SingularName("swirly potion")]
+        [PluralName("swirly potions")]
+        SwirlyPotion,
+
         [SingularName("tattoo of a snake")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Unknown)]
@@ -878,7 +891,7 @@
         ToiletPaper,
 
         [SingularName("torch")]
-        [PluralName("torches")]
+        [PluralName("torchs")] //verified 6/21/23
         Torch,
 
         [SingularName("training key")]
