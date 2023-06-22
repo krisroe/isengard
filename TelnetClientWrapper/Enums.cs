@@ -537,4 +537,11 @@ namespace IsengardClient
         Weapon2 = 13,
         Count = 14,
     }
+
+    public enum ItemClass
+    {
+        Equipment,
+        Weapon,
+        Other,
+    }
 }

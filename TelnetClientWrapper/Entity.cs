@@ -472,11 +472,10 @@ namespace IsengardClient
         }
 
         /// <summary>
-        /// pick a word for the mob, choosing the longest word in the singular name.
-        /// This isn't necessarily the best since there could be ambiguity with multiple mobs
+        /// iterate through words for the mob
         /// </summary>
-        /// <param name="nextMob">mob to pick</param>
-        /// <returns>word for the mob</returns>
+        /// <param name="nextMob">mob to use</param>
+        /// <returns>words for the mob</returns>
         public static IEnumerable<string> GetMobWords(MobTypeEnum nextMob)
         {
             StaticMobData smd = StaticMobData[nextMob];
@@ -527,6 +526,7 @@ namespace IsengardClient
 
     public class StaticItemData
     {
+        public ItemClass ItemClass { get; set; }
         public ItemTypeEnum ItemType { get; set; }
         public EquipmentType EquipmentType { get; set; }
         public WeaponType? WeaponType { get; set; }
@@ -564,6 +564,7 @@ namespace IsengardClient
             foreach (ItemTypeEnum nextEnum in Enum.GetValues(t))
             {
                 StaticItemData sid = new StaticItemData();
+                ItemClass eItemClass = ItemClass.Other;
                 sid.ItemType = nextEnum;
                 var memberInfos = t.GetMember(nextEnum.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
@@ -589,11 +590,19 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     eEquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
                 sid.EquipmentType = eEquipmentType;
+                if (eEquipmentType != EquipmentType.Held)
+                {
+                    eItemClass = ItemClass.Equipment;
+                }
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeaponTypeAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
-                if (sid.WeaponType.HasValue) sid.EquipmentType = EquipmentType.Weapon;
+                if (sid.WeaponType.HasValue)
+                {
+                    sid.EquipmentType = EquipmentType.Weapon;
+                    eItemClass = ItemClass.Weapon;
+                }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
@@ -609,7 +618,22 @@ namespace IsengardClient
                 {
                     ItemMappingByDisplayName[sid.PluralName] = sid;
                 }
+                sid.ItemClass = eItemClass;
                 StaticItemData[sid.ItemType] = sid;
+            }
+        }
+
+        /// <summary>
+        /// iterate through words for the item
+        /// </summary>
+        /// <param name="nextItem">item to use</param>
+        /// <returns>words for the item</returns>
+        public static IEnumerable<string> GetItemWords(ItemTypeEnum nextItem)
+        {
+            StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+            foreach (string s in StringProcessing.PickWords(sid.SingularName))
+            {
+                yield return s;
             }
         }
     }

@@ -3057,17 +3057,16 @@ namespace IsengardClient
             btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
             btnDrinkVigor.Tag = new CommandButtonTag(btnDrinkVigor, "drink yellow", CommandType.Potions, DependentObjectType.None);
             btnDrinkCurepoison.Tag = new CommandButtonTag(btnDrinkCurepoison, "drink green", CommandType.Potions, DependentObjectType.None);
-            btnWieldWeapon.Tag = new CommandButtonTag(btnWieldWeapon, "wield {weapon}", CommandType.None, DependentObjectType.Weapon);
             btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, "zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
             btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
-            btnRemoveWeapon.Tag = new CommandButtonTag(btnRemoveWeapon, "remove {weapon}", CommandType.None, DependentObjectType.Weapon);
-            btnRemoveAll.Tag = new CommandButtonTag(btnRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
             btnCastMend.Tag = new CommandButtonTag(btnCastMend, null, CommandType.Magic, DependentObjectType.None);
             btnDrinkMend.Tag = new CommandButtonTag(btnDrinkMend, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
             tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
             tsbInformation.Tag = new CommandButtonTag(tsbInformation, "information", CommandType.None, DependentObjectType.None);
             tsbInventoryAndEquipment.Tag = new CommandButtonTag(tsbInventoryAndEquipment, null, CommandType.None, DependentObjectType.None);
+            tsbRemoveAll.Tag = new CommandButtonTag(tsbRemoveAll, "remove all", CommandType.None, DependentObjectType.None);
+            tsbWearAll.Tag = new CommandButtonTag(tsbWearAll, "wear all", CommandType.None, DependentObjectType.None);
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
@@ -3148,9 +3147,137 @@ namespace IsengardClient
         }
 
         /// <summary>
+        /// pick selection text for an inventory/equipment item, assumes the entity lock is present
+        /// </summary>
+        /// <param name="isInventory">true for inventory, false for equipment</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="itemCounter">item counter of that type</param>
+        /// <returns></returns>
+        private string PickItemText(bool isInventory, ItemTypeEnum itemType, int itemCounter)
+        {
+            int iActualIndex = -1;
+            int iCounter = 0;
+            if (isInventory)
+            {
+                for (int i = 0; i < _inventoryEquipment.InventoryItems.Count; i++)
+                {
+                    if (_inventoryEquipment.InventoryItems[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _inventoryEquipment.Equipment.Length; i++)
+                {
+                    if (_inventoryEquipment.Equipment[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            string ret = null;
+            if (iActualIndex >= 0)
+            {
+                foreach (string word in ItemEntity.GetItemWords(itemType))
+                {
+                    string sSingular;
+
+                    //find word index within the list of items
+                    iCounter = 0;
+                    for (int i = 0; i <= iActualIndex; i++)
+                    {
+                        ItemTypeEnum? eItem;
+                        if (isInventory)
+                        {
+                            eItem = _inventoryEquipment.InventoryItems[i];
+                        }
+                        else
+                        {
+                            eItem = _inventoryEquipment.Equipment[i];
+                        }
+                        if (eItem.HasValue)
+                        {
+                            ItemTypeEnum eItemValue = eItem.Value;
+                            bool matches = false;
+                            if (eItemValue == itemType)
+                            {
+                                matches = true;
+                            }
+                            else
+                            {
+                                sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        matches = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (matches)
+                            {
+                                iCounter++;
+                            }
+                        }
+                    }
+
+                    //for equipment, check for a duplicate in inventory
+                    bool isDuplicate = false;
+                    if (!isInventory)
+                    {
+                        int iInventoryCounter = 0;
+                        foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
+                        {
+                            sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    iInventoryCounter++;
+                                    if (iInventoryCounter == iCounter)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        isDuplicate = iInventoryCounter == iCounter;
+                    }
+
+                    if (!isDuplicate)
+                    {
+                        if (iCounter == 1)
+                        {
+                            ret = word;
+                        }
+                        else
+                        {
+                            ret = word + " " + iCounter;
+                        }
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// pick selection text for an entity, assumes the entity lock is present
         /// </summary>
-        /// <param name="index">current index of the entity in the room mobs or inventory items list</param>
+        /// <param name="index">index of the mob in the room mob list</param>
         /// <param name="isMob">true for a mob, false for an inventory item</param>
         /// <returns>selection text for the entity</returns>
         private string PickMobText(int mobIndex)
@@ -3193,6 +3320,8 @@ namespace IsengardClient
                     }
                     iCounter++;
 
+                    bool isDuplicate = false;
+
                     int iInventoryCounter = 0;
                     foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
                     {
@@ -3209,10 +3338,34 @@ namespace IsengardClient
                             }
                         }
                     }
+                    isDuplicate = iInventoryCounter == iCounter;
 
-                    //CSRTODO: verify that word index does not exist in equipment?
+                    if (!isDuplicate)
+                    {
+                        int iEquipmentCounter = 0;
+                        foreach (ItemTypeEnum? nextItem in _inventoryEquipment.Equipment)
+                        {
+                            if (nextItem.HasValue)
+                            {
+                                ItemTypeEnum eItemValue = nextItem.Value;
+                                sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        iEquipmentCounter++;
+                                        if (iEquipmentCounter == iCounter)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        isDuplicate = iEquipmentCounter == iCounter;
+                    }
 
-                    if (iInventoryCounter != iCounter)
+                    if (!isDuplicate)
                     {
                         if (iCounter == 1)
                         {
@@ -4665,17 +4818,16 @@ BeforeHazy:
             yield return (CommandButtonTag)btnAttackMob.Tag;
             yield return (CommandButtonTag)btnDrinkVigor.Tag;
             yield return (CommandButtonTag)btnDrinkCurepoison.Tag;
-            yield return (CommandButtonTag)btnWieldWeapon.Tag;
             yield return (CommandButtonTag)btnUseWandOnMob.Tag;
             yield return (CommandButtonTag)btnPowerAttackMob.Tag;
-            yield return (CommandButtonTag)btnRemoveWeapon.Tag;
-            yield return (CommandButtonTag)btnRemoveAll.Tag;
             yield return (CommandButtonTag)btnCastMend.Tag;
             yield return (CommandButtonTag)btnDrinkMend.Tag;
             yield return (CommandButtonTag)btnStunMob.Tag;
             yield return (CommandButtonTag)tsbTime.Tag;
             yield return (CommandButtonTag)tsbInformation.Tag;
             yield return (CommandButtonTag)tsbInventoryAndEquipment.Tag;
+            yield return (CommandButtonTag)tsbRemoveAll.Tag;
+            yield return (CommandButtonTag)tsbWearAll.Tag;
             yield return (CommandButtonTag)tsbWho.Tag;
             yield return (CommandButtonTag)tsbUptime.Tag;
         }
@@ -6864,6 +7016,116 @@ BeforeHazy:
             {
                 RunSingleBackgroundCommand(BackgroundCommandType.Search);
             }
+        }
+
+        private void ctxInventoryOrEquipmentItem_Opening(object sender, CancelEventArgs e)
+        {
+            ctxInventoryOrEquipmentItem.Items.Clear();
+            ListBox lst = (ListBox)ctxInventoryOrEquipmentItem.SourceControl;
+            bool isInventory = lst == lstInventory;
+            StaticItemData sid;
+            int iCounter = 0;
+            ItemTypeEnum itemType;
+            lock (_entityLock)
+            {
+                object oObj = lst.SelectedItem;
+                if (oObj == null)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                if (isInventory)
+                {
+                    itemType = ((ItemInInventoryList)oObj).ItemType;
+                }
+                else
+                {
+                    itemType = ((ItemInEquipmentList)oObj).ItemType;
+                }
+                sid = ItemEntity.StaticItemData[itemType];
+                if (isInventory)
+                {
+                    foreach (ItemInInventoryList nextEntry in lstInventory.Items)
+                    {
+                        if (nextEntry.ItemType == itemType)
+                        {
+                            iCounter++;
+                        }
+                        if (nextEntry == oObj)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (ItemInEquipmentList nextEntry in lstEquipment.Items)
+                    {
+                        if (nextEntry.ItemType == itemType)
+                        {
+                            iCounter++;
+                        }
+                        if (nextEntry == oObj)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (iCounter == 0)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            SelectedInventoryOrEquipmentItem sioei = new SelectedInventoryOrEquipmentItem();
+            sioei.ItemType = itemType;
+            sioei.Counter = iCounter;
+            sioei.IsInventory = isInventory;
+            ctxInventoryOrEquipmentItem.Tag = sioei;
+
+            string sWearOrRemove = null;
+            switch (sid.ItemClass)
+            {
+                case ItemClass.Equipment:
+                    sWearOrRemove = isInventory ? "wear" : "remove";
+                    break;
+                case ItemClass.Weapon:
+                    sWearOrRemove = isInventory ? "wield" : "remove";
+                    break;
+            }
+            if (sWearOrRemove != null)
+            {
+                ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                tsmi.Text = sWearOrRemove;
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
+            if (isInventory)
+            {
+                ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                tsmi.Text = "drop";
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
+        }
+
+        private void ctxInventoryOrEquipmentItem_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)ctxInventoryOrEquipmentItem.Tag;
+            lock (_entityLock)
+            {
+                string sText = PickItemText(sioei.IsInventory, sioei.ItemType, sioei.Counter);
+                if (!string.IsNullOrEmpty(sText))
+                {
+                    SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);
+                }
+            }
+        }
+
+        private class SelectedInventoryOrEquipmentItem
+        {
+            public ItemTypeEnum ItemType;
+            public int Counter;
+            public bool IsInventory;
         }
     }
 }

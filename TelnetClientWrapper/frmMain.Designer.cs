@@ -47,7 +47,6 @@
             this.btnDrinkCurepoison = new System.Windows.Forms.Button();
             this.txtWeapon = new System.Windows.Forms.TextBox();
             this.lblWeapon = new System.Windows.Forms.Label();
-            this.btnWieldWeapon = new System.Windows.Forms.Button();
             this.btnSet = new System.Windows.Forms.Button();
             this.cboSetOption = new System.Windows.Forms.ComboBox();
             this.chkSetOn = new System.Windows.Forms.CheckBox();
@@ -60,7 +59,6 @@
             this.flpOneClickStrategies = new System.Windows.Forms.FlowLayoutPanel();
             this.txtPotion = new System.Windows.Forms.TextBox();
             this.lblPotion = new System.Windows.Forms.Label();
-            this.btnRemoveWeapon = new System.Windows.Forms.Button();
             this.btnNortheast = new System.Windows.Forms.Button();
             this.btnNorth = new System.Windows.Forms.Button();
             this.btnNorthwest = new System.Windows.Forms.Button();
@@ -76,6 +74,7 @@
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
             this.grpInventory = new System.Windows.Forms.GroupBox();
             this.lstInventory = new System.Windows.Forms.ListBox();
+            this.ctxInventoryOrEquipmentItem = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.grpEquipment = new System.Windows.Forms.GroupBox();
             this.lstEquipment = new System.Windows.Forms.ListBox();
             this.btnGoToHealingRoom = new System.Windows.Forms.Button();
@@ -120,7 +119,6 @@
             this.btnUp = new System.Windows.Forms.Button();
             this.grpSpells = new System.Windows.Forms.GroupBox();
             this.flpSpells = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnRemoveAll = new System.Windows.Forms.Button();
             this.btnLevel3OffensiveSpell = new System.Windows.Forms.Button();
             this.btnStunMob = new System.Windows.Forms.Button();
             this.btnCastMend = new System.Windows.Forms.Button();
@@ -148,6 +146,8 @@
             this.tsTopMenu = new System.Windows.Forms.ToolStrip();
             this.tsbInformation = new System.Windows.Forms.ToolStripButton();
             this.tsbInventoryAndEquipment = new System.Windows.Forms.ToolStripButton();
+            this.tsbRemoveAll = new System.Windows.Forms.ToolStripButton();
+            this.tsbWearAll = new System.Windows.Forms.ToolStripButton();
             this.tsbWho = new System.Windows.Forms.ToolStripButton();
             this.tsbUptime = new System.Windows.Forms.ToolStripButton();
             this.tsbSpells = new System.Windows.Forms.ToolStripButton();
@@ -375,17 +375,6 @@
             this.lblWeapon.Text = "Weapon:";
             this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // btnWieldWeapon
-            // 
-            this.btnWieldWeapon.Location = new System.Drawing.Point(1035, 832);
-            this.btnWieldWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnWieldWeapon.Name = "btnWieldWeapon";
-            this.btnWieldWeapon.Size = new System.Drawing.Size(133, 34);
-            this.btnWieldWeapon.TabIndex = 43;
-            this.btnWieldWeapon.Text = "Wield Weapon";
-            this.btnWieldWeapon.UseVisualStyleBackColor = true;
-            this.btnWieldWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
             // btnSet
             // 
             this.btnSet.Location = new System.Drawing.Point(13, 16);
@@ -514,17 +503,6 @@
             this.lblPotion.TabIndex = 67;
             this.lblPotion.Text = "Potion:";
             this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // btnRemoveWeapon
-            // 
-            this.btnRemoveWeapon.Location = new System.Drawing.Point(1035, 871);
-            this.btnRemoveWeapon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnRemoveWeapon.Name = "btnRemoveWeapon";
-            this.btnRemoveWeapon.Size = new System.Drawing.Size(133, 34);
-            this.btnRemoveWeapon.TabIndex = 69;
-            this.btnRemoveWeapon.Text = "Remove Weapon";
-            this.btnRemoveWeapon.UseVisualStyleBackColor = true;
-            this.btnRemoveWeapon.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnNortheast
             // 
@@ -672,7 +650,6 @@
             this.pnlMain.Controls.Add(this.btnGraph);
             this.pnlMain.Controls.Add(this.grpSingleMove);
             this.pnlMain.Controls.Add(this.grpSpells);
-            this.pnlMain.Controls.Add(this.btnRemoveAll);
             this.pnlMain.Controls.Add(this.btnLevel3OffensiveSpell);
             this.pnlMain.Controls.Add(this.btnStunMob);
             this.pnlMain.Controls.Add(this.btnCastMend);
@@ -687,7 +664,6 @@
             this.pnlMain.Controls.Add(this.btnDrinkHazy);
             this.pnlMain.Controls.Add(this.btnLookAtMob);
             this.pnlMain.Controls.Add(this.btnLook);
-            this.pnlMain.Controls.Add(this.btnRemoveWeapon);
             this.pnlMain.Controls.Add(this.btnCastVigor);
             this.pnlMain.Controls.Add(this.txtPotion);
             this.pnlMain.Controls.Add(this.lblPotion);
@@ -699,7 +675,6 @@
             this.pnlMain.Controls.Add(this.txtWand);
             this.pnlMain.Controls.Add(this.btnAttackMob);
             this.pnlMain.Controls.Add(this.lblWand);
-            this.pnlMain.Controls.Add(this.btnWieldWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkVigor);
             this.pnlMain.Controls.Add(this.txtWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkCurepoison);
@@ -744,6 +719,7 @@
             // 
             // lstInventory
             // 
+            this.lstInventory.ContextMenuStrip = this.ctxInventoryOrEquipmentItem;
             this.lstInventory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstInventory.FormattingEnabled = true;
             this.lstInventory.ItemHeight = 16;
@@ -751,6 +727,14 @@
             this.lstInventory.Name = "lstInventory";
             this.lstInventory.Size = new System.Drawing.Size(236, 359);
             this.lstInventory.TabIndex = 0;
+            // 
+            // ctxInventoryOrEquipmentItem
+            // 
+            this.ctxInventoryOrEquipmentItem.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxInventoryOrEquipmentItem.Name = "ctxInventoryOrEquipmentItem";
+            this.ctxInventoryOrEquipmentItem.Size = new System.Drawing.Size(61, 4);
+            this.ctxInventoryOrEquipmentItem.Opening += new System.ComponentModel.CancelEventHandler(this.ctxInventoryOrEquipmentItem_Opening);
+            this.ctxInventoryOrEquipmentItem.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxInventoryOrEquipmentItem_ItemClicked);
             // 
             // grpEquipment
             // 
@@ -764,6 +748,7 @@
             // 
             // lstEquipment
             // 
+            this.lstEquipment.ContextMenuStrip = this.ctxInventoryOrEquipmentItem;
             this.lstEquipment.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstEquipment.FormattingEnabled = true;
             this.lstEquipment.ItemHeight = 16;
@@ -928,51 +913,51 @@
             this.tsmiAutoEscapeFlee,
             this.tsmiAutoEscapeHazy});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(211, 164);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(182, 136);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
             // 
             this.tsmiAutoEscapeIsActive.Name = "tsmiAutoEscapeIsActive";
-            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(210, 24);
+            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeIsActive.Text = "Is Active?";
             this.tsmiAutoEscapeIsActive.Click += new System.EventHandler(this.tsmiToggleAutoEscapeActive_Click);
             // 
             // tsmiAutoEscapeSeparator1
             // 
             this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
-            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(207, 6);
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(178, 6);
             // 
             // tsmiSetAutoEscapeThreshold
             // 
             this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
-            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(210, 24);
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(181, 24);
             this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
             this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
             // tsmiClearAutoEscapeThreshold
             // 
             this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
-            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(210, 24);
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(181, 24);
             this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
             this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
             // 
             // tsmiAutoEscapeSeparator2
             // 
             this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
-            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(207, 6);
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(178, 6);
             // 
             // tsmiAutoEscapeFlee
             // 
             this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
-            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(210, 24);
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeFlee.Text = "Flee";
             this.tsmiAutoEscapeFlee.Click += new System.EventHandler(this.tsmiAutoEscapeFlee_Click);
             // 
             // tsmiAutoEscapeHazy
             // 
             this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
-            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(210, 24);
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeHazy.Text = "Hazy";
             this.tsmiAutoEscapeHazy.Click += new System.EventHandler(this.tsmiAutoEscapeHazy_Click);
             // 
@@ -1222,17 +1207,6 @@
             this.flpSpells.Name = "flpSpells";
             this.flpSpells.Size = new System.Drawing.Size(215, 169);
             this.flpSpells.TabIndex = 0;
-            // 
-            // btnRemoveAll
-            // 
-            this.btnRemoveAll.Location = new System.Drawing.Point(1033, 910);
-            this.btnRemoveAll.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnRemoveAll.Name = "btnRemoveAll";
-            this.btnRemoveAll.Size = new System.Drawing.Size(133, 34);
-            this.btnRemoveAll.TabIndex = 87;
-            this.btnRemoveAll.Text = "Remove All";
-            this.btnRemoveAll.UseVisualStyleBackColor = true;
-            this.btnRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // btnLevel3OffensiveSpell
             // 
@@ -1509,6 +1483,8 @@
             this.tsTopMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbInformation,
             this.tsbInventoryAndEquipment,
+            this.tsbRemoveAll,
+            this.tsbWearAll,
             this.tsbWho,
             this.tsbUptime,
             this.tsbSpells,
@@ -1542,6 +1518,27 @@
             this.tsbInventoryAndEquipment.Size = new System.Drawing.Size(156, 24);
             this.tsbInventoryAndEquipment.Text = "Inventory+Equipment";
             this.tsbInventoryAndEquipment.Click += new System.EventHandler(this.tsbInventoryAndEquipment_Click);
+            // 
+            // tsbRemoveAll
+            // 
+            this.tsbRemoveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbRemoveAll.Image = ((System.Drawing.Image)(resources.GetObject("tsbRemoveAll.Image")));
+            this.tsbRemoveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRemoveAll.Name = "tsbRemoveAll";
+            this.tsbRemoveAll.Size = new System.Drawing.Size(89, 24);
+            this.tsbRemoveAll.Tag = "remove all";
+            this.tsbRemoveAll.Text = "Remove All";
+            this.tsbRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsbWearAll
+            // 
+            this.tsbWearAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbWearAll.Image = ((System.Drawing.Image)(resources.GetObject("tsbWearAll.Image")));
+            this.tsbWearAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWearAll.Name = "tsbWearAll";
+            this.tsbWearAll.Size = new System.Drawing.Size(69, 24);
+            this.tsbWearAll.Tag = "wear all";
+            this.tsbWearAll.Text = "Wear All";
             // 
             // tsbWho
             // 
@@ -1770,7 +1767,6 @@
         private System.Windows.Forms.Button btnDrinkCurepoison;
         private System.Windows.Forms.TextBox txtWeapon;
         private System.Windows.Forms.Label lblWeapon;
-        private System.Windows.Forms.Button btnWieldWeapon;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.ComboBox cboSetOption;
         private System.Windows.Forms.CheckBox chkSetOn;
@@ -1783,7 +1779,6 @@
         private System.Windows.Forms.FlowLayoutPanel flpOneClickStrategies;
         private System.Windows.Forms.TextBox txtPotion;
         private System.Windows.Forms.Label lblPotion;
-        private System.Windows.Forms.Button btnRemoveWeapon;
         private System.Windows.Forms.Button btnNortheast;
         private System.Windows.Forms.Button btnNorth;
         private System.Windows.Forms.Button btnNorthwest;
@@ -1804,7 +1799,6 @@
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;
         private System.Windows.Forms.Button btnLevel3OffensiveSpell;
-        private System.Windows.Forms.Button btnRemoveAll;
         private System.Windows.Forms.Label lblMana;
         private System.Windows.Forms.Timer tmr;
         private System.Windows.Forms.Label lblHitpoints;
@@ -1886,6 +1880,9 @@
         private System.Windows.Forms.GroupBox grpInventory;
         private System.Windows.Forms.ListBox lstInventory;
         private System.Windows.Forms.Label lblGold;
+        private System.Windows.Forms.ToolStripButton tsbRemoveAll;
+        private System.Windows.Forms.ToolStripButton tsbWearAll;
+        private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
     }
 }
 
