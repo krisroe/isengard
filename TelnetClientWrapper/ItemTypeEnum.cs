@@ -97,6 +97,11 @@
         [PluralName("books of knowledge")]
         BookOfKnowledge,
 
+        [SingularName("boomerang")]
+        [PluralName("boomerangs")]
+        [WeaponType(WeaponType.Missile)]
+        Boomerang,
+
         [SingularName("box of strawberries")]
         //CSRTODO: plural?
         BoxOfStrawberries,
@@ -627,6 +632,11 @@
         [PluralName("quartz stones")]
         QuartzStone,
 
+        [SingularName("rake")]
+        [PluralName("rakes")]
+        [WeaponType(WeaponType.Polearm)]
+        Rake,
+
         [SingularName("rakshasan eviscerator")]
         [PluralName("rakshasan eviscerators")]
         RakshasanEviscerator,
@@ -737,7 +747,7 @@
 
         [SingularName("sling")]
         [PluralName("slings")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         Sling,
 
         [SingularName("small ash bow")]
@@ -751,7 +761,7 @@
 
         [SingularName("small knife")]
         [PluralName("small knifes")] //verified 6/21/23
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         SmallKnife,
 
         [SingularName("small metal shield")]
