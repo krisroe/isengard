@@ -100,6 +100,7 @@ namespace IsengardClient
         Attack,
         Flee,
         DrinkHazy,
+        DrinkNonHazyPotion,
         Score,
         Quit,
     }
@@ -266,6 +267,13 @@ namespace IsengardClient
         MendWounds,
         GenericHeal,
         CurePoison,
+    }
+
+    public enum PotionsCommandChoiceResult
+    {
+        Drink,
+        Skip,
+        Fail,
     }
 
     public enum MagicCommandChoiceResult
@@ -482,7 +490,7 @@ namespace IsengardClient
         RemoveMob,
     }
 
-    internal enum InventoryEquipmentChangeType
+    public enum InventoryEquipmentChangeType
     {
         RefreshInventory,
         RefreshEquipment,
@@ -519,7 +527,7 @@ namespace IsengardClient
         Unknown,
     }
 
-    internal enum EquipmentSlot
+    public enum EquipmentSlot
     {
         Torso = 0,
         Arms = 1,

@@ -1662,13 +1662,20 @@ namespace IsengardClient
             }
         }
 
-        private void FailDrinkHazy(FeedLineParameters flParams)
+        private void FailDrinkPotion(FeedLineParameters flParams)
         {
-            _hazying = false;
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.DrinkHazy)
+            if (bct.HasValue)
             {
-                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion)
+                {
+                    if (bctValue == BackgroundCommandType.DrinkHazy)
+                    {
+                        _hazying = false;
+                    }
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
             }
         }
 
@@ -2630,8 +2637,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You don't have that.", FailDrinkHazy, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.DrinkHazy),
-                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkHazy, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.DrinkHazy),
+                new ConstantOutputSequence("You don't have that.", FailDrinkPotion, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
+                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkPotion, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
@@ -3048,20 +3055,20 @@ namespace IsengardClient
 
         private void SetButtonTags()
         {
-            btnLevel1OffensiveSpell.Tag = new CommandButtonTag(btnLevel1OffensiveSpell, "cast {realm1spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, "cast {realm2spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
-            btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, "cast {realm3spell} {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnLevel1OffensiveSpell.Tag = new CommandButtonTag(btnLevel1OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
+            btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
+            btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
             btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
             btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, null, CommandType.Magic, DependentObjectType.None);
             btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, null, CommandType.Magic, DependentObjectType.None);
-            btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, "kill {mob}", CommandType.Melee, DependentObjectType.Mob);
-            btnDrinkVigor.Tag = new CommandButtonTag(btnDrinkVigor, "drink yellow", CommandType.Potions, DependentObjectType.None);
-            btnDrinkCurepoison.Tag = new CommandButtonTag(btnDrinkCurepoison, "drink green", CommandType.Potions, DependentObjectType.None);
+            btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, null, CommandType.Melee, DependentObjectType.Mob);
+            btnDrinkVigor.Tag = new CommandButtonTag(btnDrinkVigor, null, CommandType.Potions, DependentObjectType.None);
+            btnDrinkCurepoison.Tag = new CommandButtonTag(btnDrinkCurepoison, null, CommandType.Potions, DependentObjectType.None);
+            btnDrinkMend.Tag = new CommandButtonTag(btnDrinkMend, null, CommandType.Potions, DependentObjectType.None);
             btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, "zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
-            btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, "power {mob}", CommandType.Melee, DependentObjectType.Mob);
+            btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, null, CommandType.Melee, DependentObjectType.Mob);
             btnCastMend.Tag = new CommandButtonTag(btnCastMend, null, CommandType.Magic, DependentObjectType.None);
-            btnDrinkMend.Tag = new CommandButtonTag(btnDrinkMend, "drink reddish-orange", CommandType.Potions, DependentObjectType.None);
-            btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
+            btnStunMob.Tag = new CommandButtonTag(btnStunMob, null, CommandType.Magic, DependentObjectType.Mob);
             tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
             tsbInformation.Tag = new CommandButtonTag(tsbInformation, "information", CommandType.None, DependentObjectType.None);
             tsbInventoryAndEquipment.Tag = new CommandButtonTag(tsbInventoryAndEquipment, null, CommandType.None, DependentObjectType.None);
@@ -3144,134 +3151,6 @@ namespace IsengardClient
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
             }
-        }
-
-        /// <summary>
-        /// pick selection text for an inventory/equipment item, assumes the entity lock is present
-        /// </summary>
-        /// <param name="isInventory">true for inventory, false for equipment</param>
-        /// <param name="itemType">item type</param>
-        /// <param name="itemCounter">item counter of that type</param>
-        /// <returns></returns>
-        private string PickItemText(bool isInventory, ItemTypeEnum itemType, int itemCounter)
-        {
-            int iActualIndex = -1;
-            int iCounter = 0;
-            if (isInventory)
-            {
-                for (int i = 0; i < _inventoryEquipment.InventoryItems.Count; i++)
-                {
-                    if (_inventoryEquipment.InventoryItems[i] == itemType)
-                    {
-                        iCounter++;
-                        if (itemCounter == iCounter)
-                        {
-                            iActualIndex = i;
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < _inventoryEquipment.Equipment.Length; i++)
-                {
-                    if (_inventoryEquipment.Equipment[i] == itemType)
-                    {
-                        iCounter++;
-                        if (itemCounter == iCounter)
-                        {
-                            iActualIndex = i;
-                            break;
-                        }
-                    }
-                }
-            }
-            string ret = null;
-            if (iActualIndex >= 0)
-            {
-                foreach (string word in ItemEntity.GetItemWords(itemType))
-                {
-                    string sSingular;
-
-                    //find word index within the list of items
-                    iCounter = 0;
-                    for (int i = 0; i <= iActualIndex; i++)
-                    {
-                        ItemTypeEnum? eItem;
-                        if (isInventory)
-                        {
-                            eItem = _inventoryEquipment.InventoryItems[i];
-                        }
-                        else
-                        {
-                            eItem = _inventoryEquipment.Equipment[i];
-                        }
-                        if (eItem.HasValue)
-                        {
-                            ItemTypeEnum eItemValue = eItem.Value;
-                            bool matches = false;
-                            if (eItemValue == itemType)
-                            {
-                                matches = true;
-                            }
-                            else
-                            {
-                                sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
-                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                                {
-                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        matches = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (matches)
-                            {
-                                iCounter++;
-                            }
-                        }
-                    }
-
-                    //for equipment, check for a duplicate in inventory
-                    bool isDuplicate = false;
-                    if (!isInventory)
-                    {
-                        int iInventoryCounter = 0;
-                        foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
-                        {
-                            sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                            {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    iInventoryCounter++;
-                                    if (iInventoryCounter == iCounter)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        isDuplicate = iInventoryCounter == iCounter;
-                    }
-
-                    if (!isDuplicate)
-                    {
-                        if (iCounter == 1)
-                        {
-                            ret = word;
-                        }
-                        else
-                        {
-                            ret = word + " " + iCounter;
-                        }
-                        break;
-                    }
-                }
-            }
-            return ret;
         }
 
         /// <summary>
@@ -3676,10 +3555,12 @@ namespace IsengardClient
                 bool stopIfMonsterKilled = false;
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
+                bool hasInitialQueuedPotionsStep;
                 lock (_queuedCommandLock)
                 {
                     hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
                     hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
+                    hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
                 }
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
@@ -3690,10 +3571,12 @@ namespace IsengardClient
                         StrategyInstance stratCurrent = null;
                         bool haveMeleeStrategySteps = false;
                         bool haveMagicStrategySteps = false;
+                        bool havePotionsStrategySteps = false;
                         if (strategy != null)
                         {
                             haveMagicStrategySteps = strategy.HasAnyMagicSteps();
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
+                            havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
                             stopIfMonsterKilled = strategy.StopWhenKillMonster;
                         }
                         List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
@@ -3719,7 +3602,7 @@ namespace IsengardClient
 
                         string sWeapon = _weapon;
 
-                        if (haveMagicStrategySteps || haveMeleeStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
+                        if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
@@ -3733,16 +3616,22 @@ namespace IsengardClient
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
                             IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                            IEnumerator<PotionsStrategyStep> potionsSteps = strategy?.GetPotionsSteps().GetEnumerator();
                             MagicStrategyStep? nextMagicStep = null;
                             MeleeStrategyStep? nextMeleeStep = null;
+                            PotionsStrategyStep? nextPotionsStep = null;
                             bool magicStepsFinished = magicSteps == null || !magicSteps.MoveNext();
                             bool meleeStepsFinished = meleeSteps == null || !meleeSteps.MoveNext();
+                            bool potionsStepsFinished = potionsSteps == null || !potionsSteps.MoveNext();
                             bool magicOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None);
                             bool meleeOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None);
+                            bool potionsOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Potions) != CommandType.None);
                             if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                             if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
+                            if (!potionsStepsFinished) nextPotionsStep = potionsSteps.Current;
                             DateTime? dtNextMagicCommand = null;
                             DateTime? dtNextMeleeCommand = null;
+                            DateTime? dtNextPotionsCommand = null;
                             while (true) //combat cycle
                             {
                                 if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
@@ -3862,6 +3751,67 @@ namespace IsengardClient
                                 }
 
                                 if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
+
+                                if (nextPotionsStep.HasValue &&
+                                    (_monsterStunned || !potionsOnlyWhenStunned) &&
+                                    (!dtNextPotionsCommand.HasValue || DateTime.UtcNow > dtNextPotionsCommand.Value))
+                                {
+                                    PotionsCommandChoiceResult potionChoice = stratCurrent.GetPotionsCommand(nextPotionsStep.Value, out command, _inventoryEquipment, _entityLock, _autohp, _totalhp);
+                                    if (potionChoice == PotionsCommandChoiceResult.Fail)
+                                    {
+                                        nextPotionsStep = null;
+                                        potionsStepsFinished = true;
+                                    }
+                                    else if (potionChoice == PotionsCommandChoiceResult.Skip)
+                                    {
+                                        if (!potionsStepsFinished)
+                                        {
+                                            if (potionsSteps.MoveNext())
+                                            {
+                                                nextPotionsStep = potionsSteps.Current;
+                                                dtNextPotionsCommand = null;
+                                            }
+                                            else //no more steps
+                                            {
+                                                nextPotionsStep = null;
+                                                potionsStepsFinished = true;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!RunBackgroundPotionsStep(BackgroundCommandType.DrinkNonHazyPotion, command, pms, potionsSteps, ref potionsStepsFinished, ref nextPotionsStep, ref dtNextPotionsCommand))
+                                            return;
+                                    }
+                                }
+
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
+
+                                //flee or stop combat once steps complete
+                                if (!nextPotionsStep.HasValue && strategy != null)
+                                {
+                                    FinalStepAction finalAction = strategy.FinalPotionsAction;
+                                    if (finalAction != FinalStepAction.None)
+                                    {
+                                        if (finalAction == FinalStepAction.Flee)
+                                        {
+                                            _fleeing = true;
+                                        }
+                                        else if (finalAction == FinalStepAction.Hazy)
+                                        {
+                                            _hazying = true;
+                                        }
+                                        else if (finalAction == FinalStepAction.FinishCombat)
+                                        {
+                                            //will quit out of combat
+                                        }
+                                        break;
+                                    }
+                                }
+
+                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
 
                                 if (didDamage && _queryMonsterStatus)
                                 {
@@ -3876,8 +3826,10 @@ namespace IsengardClient
                                         meleeStepsFinished = true;
                                         nextMagicStep = null;
                                         nextMeleeStep = null;
+                                        nextPotionsStep = null;
                                         _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                                         _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                                        _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
                                     }
                                     else if (backgroundCommandResult != CommandResult.CommandSuccessful)
                                     {
@@ -3887,9 +3839,10 @@ namespace IsengardClient
 
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
+                                if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
 
                                 //stop combat if all combat types are finished
-                                if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue) break;
+                                if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue && !nextPotionsStep.HasValue) break;
 
                                 if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
                                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
@@ -3966,6 +3919,7 @@ BeforeHazy:
                         pms.MonsterKilledType = _monsterKilledType;
                         _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                         _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
+                        _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
                         _currentlyFightingMob = null;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunned = false;
@@ -4179,6 +4133,56 @@ BeforeHazy:
             return true;
         }
 
+        private bool RunBackgroundPotionsStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<PotionsStrategyStep> potionsSteps, ref bool potionsStepsFinished, ref PotionsStrategyStep? nextPotionsStep, ref DateTime? dtNextPotionsCommand)
+        {
+            CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+            {
+                return false;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+            {
+                potionsStepsFinished = true;
+                _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
+                nextPotionsStep = null;
+            }
+            else if (backgroundCommandResult == CommandResult.CommandMustWait)
+            {
+                int waitMS = GetWaitMilliseconds(_waitSeconds);
+                if (waitMS > 0)
+                {
+                    dtNextPotionsCommand = DateTime.UtcNow.AddMilliseconds(waitMS);
+                }
+                else
+                {
+                    dtNextPotionsCommand = null;
+                }
+            }
+            else if (backgroundCommandResult == CommandResult.CommandSuccessful)
+            {
+                _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
+                if (potionsStepsFinished)
+                {
+                    nextPotionsStep = null;
+                }
+                else if (potionsSteps != null && potionsSteps.MoveNext())
+                {
+                    nextPotionsStep = potionsSteps.Current;
+                    dtNextPotionsCommand = null;
+                }
+                else //no more steps
+                {
+                    nextPotionsStep = null;
+                    potionsStepsFinished = true;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            return true;
+        }
+
         private bool RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying);
@@ -4270,6 +4274,23 @@ BeforeHazy:
                     {
                         nextMeleeStep = queuedMeleeStep;
                         pms.QueuedMeleeStep = null;
+                    }
+                }
+            }
+        }
+
+        private void CheckForQueuedPotionsStep(BackgroundWorkerParameters pms, ref PotionsStrategyStep? nextPotionsStep)
+        {
+            PotionsStrategyStep? queuedPotionsStep;
+            if (!nextPotionsStep.HasValue)
+            {
+                lock (_queuedCommandLock)
+                {
+                    queuedPotionsStep = pms.QueuedPotionsStep;
+                    if (queuedPotionsStep.HasValue)
+                    {
+                        nextPotionsStep = queuedPotionsStep;
+                        pms.QueuedPotionsStep = null;
                     }
                 }
             }
@@ -5013,6 +5034,21 @@ BeforeHazy:
             }
         }
 
+        private void btnVigorPotion_Click(object sender, EventArgs e)
+        {
+            RunOrQueuePotionsStep(sender, PotionsStrategyStep.Vigor);
+        }
+
+        private void btnMendPotion_Click(object sender, EventArgs e)
+        {
+            RunOrQueuePotionsStep(sender, PotionsStrategyStep.MendWounds);
+        }
+
+        private void btnCurePoisonPotion_Click(object sender, EventArgs e)
+        {
+            RunOrQueuePotionsStep(sender, PotionsStrategyStep.CurePoison);
+        }
+
         private void btnAttackMob_Click(object sender, EventArgs e)
         {
             RunOrQueueMeleeStep(sender, MeleeStrategyStep.RegularAttack);
@@ -5021,6 +5057,26 @@ BeforeHazy:
         public void btnPowerAttackMob_Click(object sender, EventArgs e)
         {
             RunOrQueueMeleeStep(sender, MeleeStrategyStep.PowerAttack);
+        }
+
+        private void RunOrQueuePotionsStep(object sender, PotionsStrategyStep step)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp == null)
+            {
+                bwp = new BackgroundWorkerParameters();
+                Strategy s = new Strategy();
+                s.LastPotionsStep = step;
+                bwp.Strategy = s;
+                RunBackgroundProcess(bwp);
+            }
+            else
+            {
+                lock (_queuedCommandLock)
+                {
+                    bwp.QueuedPotionsStep = step;
+                }
+            }
         }
 
         private void RunOrQueueMagicStep(object sender, MagicStrategyStep step)
@@ -5094,16 +5150,7 @@ BeforeHazy:
             {
                 sMob = _mob;
             }
-            if (command.Contains("{realm1spell}") || command.Contains("{realm2spell}") || command.Contains("{realm3spell}") || command.Contains("{realm4spell}"))
-            {
-                List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
-                command = command.Replace("{realm1spell}", offensiveSpells[0])
-                                 .Replace("{realm2spell}", offensiveSpells[1])
-                                 .Replace("{realm3spell}", offensiveSpells[2])
-                                 .Replace("{realm4spell}", offensiveSpells[3]);
-            }
             return command.Replace("{mob}", sMob)
-                          .Replace("{weapon}", _weapon)
                           .Replace("{wand}", _wand);
         }
 
@@ -5138,6 +5185,7 @@ BeforeHazy:
             public string QueuedCommand { get; set; }
             public MagicStrategyStep? QueuedMagicStep { get; set; }
             public MeleeStrategyStep? QueuedMeleeStep { get; set; }
+            public PotionsStrategyStep? QueuedPotionsStep { get; set; }
             public int ManaPool { get; set; }
             public PromptedSkills UsedSkills { get; set; }
             public bool Hazy { get; set; }
@@ -5207,8 +5255,10 @@ BeforeHazy:
             bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
             if (isMeleeStrategy && !hasWeapon)
             {
-                MessageBox.Show("No weapon specified.");
-                return;
+                if (MessageBox.Show("No weapon specified. Continue?", "Strategy", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                {
+                    return;
+                }
             }
 
             PromptedSkills activatedSkills;
@@ -7133,7 +7183,7 @@ BeforeHazy:
             SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)ctxInventoryOrEquipmentItem.Tag;
             lock (_entityLock)
             {
-                string sText = PickItemText(sioei.IsInventory, sioei.ItemType, sioei.Counter);
+                string sText = _inventoryEquipment.PickItemTextFromItemCounter(sioei.IsInventory, sioei.ItemType, sioei.Counter);
                 if (!string.IsNullOrEmpty(sText))
                 {
                     SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);

@@ -1074,7 +1074,10 @@ namespace IsengardClient
                                  nextLine == "You feel better." || //vigor/mend
                                  nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
                                  nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
-                                 nextLine == "Substance consumed.")
+                                 nextLine == "Substance consumed." ||
+                                 nextLine == "Yuck! That's terrible!" || //viscous potion
+                                 nextLine == "Yuck!" || //viscous potion
+                                 nextLine.EndsWith(" hit points removed."))
                         {
                             continue; //skipped
                         }
@@ -2112,6 +2115,7 @@ StartProcessRoom:
         private Action<int, FeedLineParameters> _onSatisfied;
         private int? _lastMeleeWaitSeconds;
         private int? _lastMagicWaitSeconds;
+        private int? _lastPotionsWaitSeconds;
 
         public void ClearLastMeleeWaitSeconds()
         {
@@ -2121,6 +2125,11 @@ StartProcessRoom:
         public void ClearLastMagicWaitSeconds()
         {
             _lastMagicWaitSeconds = null;
+        }
+
+        public void ClearLastPotionsWaitSeconds()
+        {
+            _lastPotionsWaitSeconds = null;
         }
 
         public PleaseWaitSequence(Action<int, FeedLineParameters> onSatisfied)
@@ -2149,6 +2158,10 @@ StartProcessRoom:
                         {
                             lastWaitSeconds = _lastMeleeWaitSeconds;
                         }
+                        else if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion)
+                        {
+                            lastWaitSeconds = _lastPotionsWaitSeconds;
+                        }
                         if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds && flParams.InfoMessages.Count == 1)
                         {
                             flParams.SuppressEcho = true;
@@ -2160,6 +2173,10 @@ StartProcessRoom:
                         else if (bctValue == BackgroundCommandType.Attack)
                         {
                             _lastMeleeWaitSeconds = newWaitSeconds;
+                        }
+                        else if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion)
+                        {
+                            _lastPotionsWaitSeconds = newWaitSeconds;
                         }
                         flParams.FinishedProcessing = true;
                         _onSatisfied(newWaitSeconds, flParams);

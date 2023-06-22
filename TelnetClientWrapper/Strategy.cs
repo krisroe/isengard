@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Documents;
 
 namespace IsengardClient
 {
@@ -396,6 +397,17 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.LastPotionsStep = PotionsStrategyStep.MendWounds;
+            s.PotionsMendOnlyWhenDownXHP = 12;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<AMagicStrategyStep>()
             {
                 SingleMagicStrategyStep.MagicStepStun,
@@ -480,6 +492,15 @@ namespace IsengardClient
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.StopWhenKillMonster = true;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.LastPotionsStep = PotionsStrategyStep.MendWounds;
+            s.PotionsMendOnlyWhenDownXHP = 12;
+            s.StopWhenKillMonster = true;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
             allStrategies.Add(s);
 
             return allStrategies;
@@ -923,6 +944,131 @@ namespace IsengardClient
             currentMob = currentlyFightingMob;
             _realmSpells = realmSpells;
             _knownSpells = knownSpells;
+        }
+
+        public PotionsCommandChoiceResult GetPotionsCommand(PotionsStrategyStep nextPotionsStep, out string command, InventoryEquipment inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
+        {
+            command = null;
+            lock (entityLockObject)
+            {
+                bool supportsMend = Strategy.PotionsMendOnlyWhenDownXHP > 0;
+                bool supportsVigor = Strategy.PotionsVigorOnlyWhenDownXHP > 0;
+                if (nextPotionsStep == PotionsStrategyStep.Vigor && !supportsVigor) return PotionsCommandChoiceResult.Fail;
+                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !supportsMend) return PotionsCommandChoiceResult.Fail;
+                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !supportsVigor && !supportsMend) return PotionsCommandChoiceResult.Fail;
+                bool canMend = supportsMend && currentHP + Strategy.PotionsMendOnlyWhenDownXHP <= totalHP;
+                bool canVigor = supportsVigor && currentHP + Strategy.PotionsVigorOnlyWhenDownXHP <= totalHP;
+                if (nextPotionsStep == PotionsStrategyStep.Vigor && !canVigor) return PotionsCommandChoiceResult.Skip;
+                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !canMend) return PotionsCommandChoiceResult.Skip;
+                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !canVigor && !canMend) return PotionsCommandChoiceResult.Skip;
+
+                //check inventory for potions
+                foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
+                {
+                    ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
+                    string sText = inventoryEquipment.PickItemTextFromActualIndex(true, itemType, inventoryIndex);
+                    if (!string.IsNullOrEmpty(sText))
+                    {
+                        command = "drink " + sText;
+                        break;
+                    }
+                }
+
+                //check held equipment slot for a potion
+                if (!string.IsNullOrEmpty(command))
+                {
+                    int iHeldSlot = (int)EquipmentSlot.Held;
+                    ItemTypeEnum? heldItem = inventoryEquipment.Equipment[iHeldSlot];
+                    if (heldItem.HasValue)
+                    {
+                        ItemTypeEnum eHeldItem = heldItem.Value;
+                        StaticItemData sid = ItemEntity.StaticItemData[eHeldItem];
+                        ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
+                        if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
+                        {
+                            string sText = inventoryEquipment.PickItemTextFromActualIndex(false, eHeldItem, iHeldSlot);
+                            if (!string.IsNullOrEmpty(sText))
+                            {
+                                command = "drink " + sText;
+                            }
+                        }
+                    }
+                }
+            }
+            return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
+        }
+
+        private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, InventoryEquipment inventoryEquipment, bool canVigor, bool canMend)
+        {
+            int iIndex = 0;
+            List<int> savedIndexes = new List<int>();
+            foreach (ItemTypeEnum nextItem in inventoryEquipment.InventoryItems)
+            {
+                StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+                ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
+                if (potionValidity == ValidPotionType.Primary)
+                {
+                    yield return iIndex;
+                }
+                else if (potionValidity == ValidPotionType.Secondary)
+                {
+                    savedIndexes.Add(iIndex);
+                }
+                iIndex++;
+            }
+            foreach (int nextIndex in savedIndexes)
+            {
+                yield return nextIndex;
+            }
+        }
+
+        private ValidPotionType GetPotionValidity(StaticItemData sid, PotionsStrategyStep nextPotionsStep, bool canMend, bool canVigor)
+        {
+            ValidPotionType ret = ValidPotionType.Invalid;
+            if (sid.ItemClass == ItemClass.Potion)
+            {
+                SpellsEnum itemSpell = sid.Spell.Value;
+                if (nextPotionsStep == PotionsStrategyStep.CurePoison)
+                {
+                    if (itemSpell == SpellsEnum.curepoison)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.Vigor)
+                {
+                    if (itemSpell == SpellsEnum.vigor)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.MendWounds)
+                {
+                    if (itemSpell == SpellsEnum.mend)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.GenericHeal)
+                {
+                    if (canMend && itemSpell == SpellsEnum.mend)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                    if (canVigor && itemSpell == SpellsEnum.vigor)
+                    {
+                        ret = ValidPotionType.Secondary;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private enum ValidPotionType
+        {
+            Invalid,
+            Primary,
+            Secondary,
         }
 
         public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)

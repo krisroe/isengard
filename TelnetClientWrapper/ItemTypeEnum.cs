@@ -783,7 +783,7 @@
 
         [SingularName("slaying sword")]
         [PluralName("slaying swords")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         SlayingSword,
 
         [SingularName("sling")]

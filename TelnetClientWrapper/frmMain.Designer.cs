@@ -343,7 +343,7 @@
             this.btnDrinkVigor.TabIndex = 39;
             this.btnDrinkVigor.Text = "potion";
             this.btnDrinkVigor.UseVisualStyleBackColor = true;
-            this.btnDrinkVigor.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnDrinkVigor.Click += new System.EventHandler(this.btnVigorPotion_Click);
             // 
             // btnDrinkCurepoison
             // 
@@ -354,7 +354,7 @@
             this.btnDrinkCurepoison.TabIndex = 40;
             this.btnDrinkCurepoison.Text = "potion";
             this.btnDrinkCurepoison.UseVisualStyleBackColor = true;
-            this.btnDrinkCurepoison.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnDrinkCurepoison.Click += new System.EventHandler(this.btnCurePoisonPotion_Click);
             // 
             // txtWeapon
             // 
@@ -1250,7 +1250,7 @@
             this.btnDrinkMend.TabIndex = 81;
             this.btnDrinkMend.Text = "potion";
             this.btnDrinkMend.UseVisualStyleBackColor = true;
-            this.btnDrinkMend.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnDrinkMend.Click += new System.EventHandler(this.btnMendPotion_Click);
             // 
             // btnHide
             // 

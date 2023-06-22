@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 namespace IsengardClient
 {
-    internal class InventoryEquipment
+    public class InventoryEquipment
     {
         public List<ItemTypeEnum> InventoryItems { get; set; }
         public List<InventoryEquipmentChange> InventoryEquipmentChanges { get; set; }
@@ -151,9 +152,139 @@ namespace IsengardClient
                     break;
             }
         }
+
+        /// <summary>
+        /// pick selection text for an inventory/equipment item, assumes the entity lock is present
+        /// </summary>
+        /// <param name="isInventory">true for inventory, false for equipment</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="itemCounter">item counter of that type</param>
+        /// <returns></returns>
+        public string PickItemTextFromItemCounter(bool isInventory, ItemTypeEnum itemType, int itemCounter)
+        {
+            int iActualIndex = -1;
+            int iCounter = 0;
+            if (isInventory)
+            {
+                for (int i = 0; i < InventoryItems.Count; i++)
+                {
+                    if (InventoryItems[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Equipment.Length; i++)
+                {
+                    if (Equipment[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(isInventory, itemType, iActualIndex);
+        }
+
+        public string PickItemTextFromActualIndex(bool isInventory, ItemTypeEnum itemType, int iActualIndex)
+        {
+            string ret = null;
+            foreach (string word in ItemEntity.GetItemWords(itemType))
+            {
+                string sSingular;
+
+                //find word index within the list of items
+                int iCounter = 0;
+                for (int i = 0; i <= iActualIndex; i++)
+                {
+                    ItemTypeEnum? eItem;
+                    if (isInventory)
+                    {
+                        eItem = InventoryItems[i];
+                    }
+                    else
+                    {
+                        eItem = Equipment[i];
+                    }
+                    if (eItem.HasValue)
+                    {
+                        ItemTypeEnum eItemValue = eItem.Value;
+                        bool matches = false;
+                        if (eItemValue == itemType)
+                        {
+                            matches = true;
+                        }
+                        else
+                        {
+                            sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matches)
+                        {
+                            iCounter++;
+                        }
+                    }
+                }
+
+                //for equipment, check for a duplicate in inventory
+                bool isDuplicate = false;
+                if (!isInventory)
+                {
+                    int iInventoryCounter = 0;
+                    foreach (ItemTypeEnum nextItem in InventoryItems)
+                    {
+                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        {
+                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                            {
+                                iInventoryCounter++;
+                                if (iInventoryCounter == iCounter)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    isDuplicate = iInventoryCounter == iCounter;
+                }
+
+                if (!isDuplicate)
+                {
+                    if (iCounter == 1)
+                    {
+                        ret = word;
+                    }
+                    else
+                    {
+                        ret = word + " " + iCounter;
+                    }
+                    break;
+                }
+            }
+            return ret;
+        }
     }
 
-    internal class InventoryEquipmentEntry
+    public class InventoryEquipmentEntry
     {
         public ItemTypeEnum ItemType { get; set; }
         public int InventoryIndex { get; set; }
@@ -168,7 +299,7 @@ namespace IsengardClient
         public bool? EquipmentAction { get; set; }
     }
 
-    internal class InventoryEquipmentChange
+    public class InventoryEquipmentChange
     {
         public InventoryEquipmentChangeType ChangeType { get; set; }
         /// <summary>

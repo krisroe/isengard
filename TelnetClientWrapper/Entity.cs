@@ -566,6 +566,7 @@ namespace IsengardClient
             {
                 StaticItemData sid = new StaticItemData();
                 ItemClass eItemClass = ItemClass.Other;
+                SpellsEnum? eSpell = null;
                 sid.ItemType = nextEnum;
                 var memberInfos = t.GetMember(nextEnum.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
@@ -608,15 +609,15 @@ namespace IsengardClient
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PotionAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
-                    sid.Spell = ((PotionAttribute)valueAttributes[0]).Spell;
-                    sid.ItemClass = ItemClass.Potion;
+                    eSpell = ((PotionAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Potion;
                 }
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ScrollAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
-                    sid.Spell = ((ScrollAttribute)valueAttributes[0]).Spell;
-                    sid.ItemClass = ItemClass.Scroll;
+                    eSpell = ((ScrollAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Scroll;
                 }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
@@ -634,6 +635,7 @@ namespace IsengardClient
                     ItemMappingByDisplayName[sid.PluralName] = sid;
                 }
                 sid.ItemClass = eItemClass;
+                sid.Spell = eSpell;
                 StaticItemData[sid.ItemType] = sid;
             }
         }
