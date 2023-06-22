@@ -767,6 +767,10 @@
         [PluralName("militiamen")]
         Militiaman,
 
+        [SingularName("minor lich")]
+        //CSRTODO: no plural
+        MinorLich,
+
         [SingularName("minstrel of Esgaroth")]
         [PluralName("minstrels of Esgaroth")]
         MinstrelOfEsgaroth,

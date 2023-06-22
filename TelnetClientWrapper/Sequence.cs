@@ -2481,6 +2481,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.WordOfRecall;
                 }
+                else if (sLine == "You receive a vampyric touch!")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.ReceiveVampyricTouch;
+                }
                 else if (sLine.StartsWith(_deathPrefixMessage))
                 {
                     haveDataToDisplay = true;

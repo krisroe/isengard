@@ -331,6 +331,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         GlowingPendant,
 
+        [SingularName("glowing potion")]
+        [PluralName("glowing potions")]
+        GlowingPotion,
+
         [SingularName("godentag")]
         [PluralName("godentags")]
         [WeaponType(WeaponType.Unknown)]

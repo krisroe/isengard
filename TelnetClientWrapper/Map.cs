@@ -2753,6 +2753,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1);
 
             Room oLichsLair = AddRoom("Lich's Lair", "Lich's Lair");
+            oLichsLair.AddPermanentMobs(MobTypeEnum.MinorLich);
             e = AddExit(oHallOfTheDead, oLichsLair, "hidden");
             e.Hidden = true;
             e.FloatRequirement = FloatRequirement.FlyOrLevitation;

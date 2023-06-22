@@ -400,6 +400,7 @@ namespace IsengardClient
         FallDamage,
         MobArrived,
         MobWanderedAway,
+        ReceiveVampyricTouch,
     }
 
     public enum SkillWithCooldownType
