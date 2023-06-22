@@ -3059,74 +3059,76 @@ namespace IsengardClient
         }
 
         /// <summary>
-        /// pick selection text for an entity
+        /// pick selection text for an entity, assumes the entity lock is present
         /// </summary>
         /// <param name="index">current index of the entity in the room mobs or inventory items list</param>
         /// <param name="isMob">true for a mob, false for an inventory item</param>
         /// <returns>selection text for the entity</returns>
         private string PickMobText(int mobIndex)
         {
-            MobTypeEnum eMobType = _currentRoomInfo.CurrentRoomMobs[mobIndex];
-            foreach (string word in MobEntity.GetMobWords(eMobType))
+            string ret = null;
+            List<MobTypeEnum> mobs = _currentRoomInfo.CurrentRoomMobs;
+            if (mobs.Count > mobIndex)
             {
-                string sSingular;
-                bool foundInventory = false;
-                foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
+                MobTypeEnum eMobType = mobs[mobIndex];
+                foreach (string word in MobEntity.GetMobWords(eMobType))
                 {
-                    sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                    foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                    string sSingular;
+                    bool foundInventory = false;
+                    foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
                     {
-                        if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                         {
-                            foundInventory = true;
-                            break;
+                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                            {
+                                foundInventory = true;
+                                break;
+                            }
                         }
                     }
-                }
-                if (!foundInventory)
-                {
-                    int iCounter = 0;
-                    for (int i = 0; i < mobIndex; i++)
+                    if (!foundInventory)
                     {
-                        MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
-                        bool matches = false;
-                        if (eMob == eMobType)
+                        int iCounter = 0;
+                        for (int i = 0; i < mobIndex; i++)
                         {
-                            matches = true;
+                            MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
+                            bool matches = false;
+                            if (eMob == eMobType)
+                            {
+                                matches = true;
+                            }
+                            else
+                            {
+                                sSingular = MobEntity.StaticMobData[eMob].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        matches = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (matches)
+                            {
+                                iCounter++;
+                            }
+                        }
+                        iCounter++;
+                        if (iCounter == 1)
+                        {
+                            ret = word;
                         }
                         else
                         {
-                            sSingular = MobEntity.StaticMobData[eMob].SingularName;
-                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                            {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    matches = true;
-                                    break;
-                                }
-                            }
+                            ret = word + " " + iCounter;
                         }
-                        if (matches)
-                        {
-                            iCounter++;
-                        }
+                        break;
                     }
-                    iCounter++;
-                    string ret;
-                    if (iCounter == 1)
-                    {
-                        ret = word;
-                    }
-                    else
-                    {
-                        ret = word + " " + iCounter;
-                    }
-                    return ret;
                 }
             }
-
-            //unable to find selection text
-            return null;
+            return ret;
         }
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
