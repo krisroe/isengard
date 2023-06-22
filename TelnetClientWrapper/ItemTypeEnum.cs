@@ -391,6 +391,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         HoodOfTheHighPriest,
 
+        [SingularName("human brain")]
+        [PluralName("human brains")]
+        HumanBrain,
+
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
         IceBluePotion,

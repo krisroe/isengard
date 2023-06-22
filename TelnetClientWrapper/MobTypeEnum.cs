@@ -125,6 +125,10 @@
         //CSRTODO: no plural
         CaptainRenton,
 
+        [SingularName("carrion crawler")]
+        [PluralName("carrion crawlers")]
+        CarrionCrawler,
+
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
@@ -873,6 +877,7 @@
 
         [SingularName("otyugh")]
         [PluralName("otyughs")]
+        [Experience(75)]
         Otyugh,
 
         [SingularName("paladin")]
