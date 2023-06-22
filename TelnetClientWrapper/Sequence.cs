@@ -867,8 +867,8 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>> onSatisfied)
+        private Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -880,12 +880,13 @@ namespace IsengardClient
             bool? isAdd = null;
             List<string> activeSpells = null;
             bool isEquipment = false;
+            bool potionConsumed = false;
             if (Lines.Count > 0)
             {
                 string firstLine = Lines[0];
                 if (firstLine == "You aren't wearing anything that can be removed.")
                 {
-                    _onSatisfied(flp, new List<ItemTypeEnum>(), false, true, null, 0, null);
+                    _onSatisfied(flp, new List<ItemTypeEnum>(), false, true, null, 0, null, false);
                     flp.FinishedProcessing = true;
                     return;
                 }
@@ -1070,11 +1071,14 @@ namespace IsengardClient
                             }
                             expectCapitalized = true;
                         }
+                        else if (nextLine == "Substance consumed.")
+                        {
+                            potionConsumed = true;
+                        }
                         else if (nextLine == "Thanks for recycling." ||
                                  nextLine == "You feel better." || //vigor/mend
                                  nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
                                  nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
-                                 nextLine == "Substance consumed." ||
                                  nextLine == "Yuck! That's terrible!" || //viscous potion
                                  nextLine == "Yuck!" || //viscous potion
                                  nextLine.EndsWith(" hit points removed."))
@@ -1134,9 +1138,9 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (itemsManaged != null)
+                if (itemsManaged != null || potionConsumed)
                 {
-                    _onSatisfied(flp, itemsManaged, isAdd.Value, isEquipment, iTotalGold, iSellGold, activeSpells);
+                    _onSatisfied(flp, itemsManaged, isAdd.Value, isEquipment, iTotalGold, iSellGold, activeSpells, potionConsumed);
                     flp.FinishedProcessing = true;
                 }
             }

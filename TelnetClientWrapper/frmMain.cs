@@ -2285,7 +2285,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, bool isAdd, bool isEquipment, int? gold, int sellGold, List<string> activeSpells)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, bool isAdd, bool isEquipment, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
@@ -2308,6 +2308,10 @@ namespace IsengardClient
             if (hasSpells)
             {
                 AddActiveSpells(activeSpells);
+            }
+            if (potionConsumed && flParams.BackgroundCommandType.HasValue && flParams.BackgroundCommandType.Value == BackgroundCommandType.DrinkNonHazyPotion)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
             if (forInit && couldBeRemoveAll)
             {
