@@ -1447,10 +1447,10 @@ namespace IsengardClient
             AddExit(oPearlAlley, oBreeTownSquare, "north");
             _breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 3.5);
 
-            Room oBartenderWaitress = AddRoom("Prancing Pony", "Prancing Pony Tavern");
-            oBartenderWaitress.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
-            AddBidirectionalExits(oPearlAlley, oBartenderWaitress, BidirectionalExitType.WestEast);
-            _breeStreetsGraph.Rooms[oBartenderWaitress] = new System.Windows.Point(6, 3.5);
+            Room oPrancingPony = AddRoom("Prancing Pony", "Prancing Pony Tavern");
+            oPrancingPony.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
+            AddBidirectionalExits(oPearlAlley, oPrancingPony, BidirectionalExitType.WestEast);
+            _breeStreetsGraph.Rooms[oPrancingPony] = new System.Windows.Point(6, 3.5);
 
             Room oHobbitsHideawayEntrance = AddRoom("Hideaway Entrance", "Entrance to the Hobbit's Hideaway");
             e = AddExit(_orderOfLove, oHobbitsHideawayEntrance, "cubbyhole");
@@ -1515,6 +1515,9 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oSergeantGrimgall);
             AddLocation(_aBreePerms, oBigPapa);
             AddLocation(_aBreePerms, oScranlin);
+            AddLocation(_aBreePerms, oPrancingPony);
+            AddLocation(_aBreePerms, oIxell);
+            AddLocation(_aBreePerms, oIgor);
 
             AddHauntedMansion(oHauntedMansionEntrance, _breeStreetsGraph);
         }

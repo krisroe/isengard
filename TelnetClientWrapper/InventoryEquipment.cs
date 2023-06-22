@@ -138,7 +138,7 @@ namespace IsengardClient
                 case EquipmentType.Shield:
                     yield return EquipmentSlot.Shield;
                     break;
-                case EquipmentType.Weapon:
+                case EquipmentType.Wielded:
                     if (reverse)
                     {
                         yield return EquipmentSlot.Weapon2;

@@ -1539,6 +1539,7 @@
             this.tsbWearAll.Size = new System.Drawing.Size(69, 24);
             this.tsbWearAll.Tag = "wear all";
             this.tsbWearAll.Text = "Wear All";
+            this.tsbWearAll.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
             // tsbWho
             // 

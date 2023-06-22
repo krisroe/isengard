@@ -513,7 +513,7 @@ namespace IsengardClient
         Ears,
         Held,
         Shield,
-        Weapon,
+        Wielded,
         Unknown,
     }
 

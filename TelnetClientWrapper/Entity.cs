@@ -602,7 +602,7 @@ namespace IsengardClient
                     sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
                 if (sid.WeaponType.HasValue)
                 {
-                    sid.EquipmentType = EquipmentType.Weapon;
+                    sid.EquipmentType = EquipmentType.Wielded;
                     eItemClass = ItemClass.Weapon;
                 }
 
