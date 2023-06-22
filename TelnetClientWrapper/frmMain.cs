@@ -3074,7 +3074,37 @@ namespace IsengardClient
                 foreach (string word in MobEntity.GetMobWords(eMobType))
                 {
                     string sSingular;
-                    bool foundInventory = false;
+
+                    //find word index within the list of mobs
+                    int iCounter = 0;
+                    for (int i = 0; i < mobIndex; i++)
+                    {
+                        MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
+                        bool matches = false;
+                        if (eMob == eMobType)
+                        {
+                            matches = true;
+                        }
+                        else
+                        {
+                            sSingular = MobEntity.StaticMobData[eMob].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matches)
+                        {
+                            iCounter++;
+                        }
+                    }
+                    iCounter++;
+
+                    int iInventoryCounter = 0;
                     foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
                     {
                         sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
@@ -3082,40 +3112,19 @@ namespace IsengardClient
                         {
                             if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
                             {
-                                foundInventory = true;
-                                break;
+                                iInventoryCounter++;
+                                if (iInventoryCounter == iCounter)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
-                    if (!foundInventory)
+
+                    //CSRTODO: verify that word index does not exist in equipment?
+
+                    if (iInventoryCounter != iCounter)
                     {
-                        int iCounter = 0;
-                        for (int i = 0; i < mobIndex; i++)
-                        {
-                            MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
-                            bool matches = false;
-                            if (eMob == eMobType)
-                            {
-                                matches = true;
-                            }
-                            else
-                            {
-                                sSingular = MobEntity.StaticMobData[eMob].SingularName;
-                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                                {
-                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        matches = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (matches)
-                            {
-                                iCounter++;
-                            }
-                        }
-                        iCounter++;
                         if (iCounter == 1)
                         {
                             ret = word;
