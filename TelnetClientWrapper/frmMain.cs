@@ -1036,6 +1036,7 @@ namespace IsengardClient
             {
                 InventoryEquipmentChange changes = new InventoryEquipmentChange();
                 changes.ChangeType = InventoryEquipmentChangeType.RefreshEquipment;
+                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
                 for (int i = 0; i < _inventoryEquipment.Equipment.Length; i++)
                 {
                     _inventoryEquipment.Equipment[i] = null;
@@ -1073,6 +1074,7 @@ namespace IsengardClient
                                 entry.ItemType = itemType;
                                 entry.EquipmentAction = true;
                                 entry.EquipmentIndex = -1;
+                                changes.Changes.Add(entry);
                             }
                             else
                             {
@@ -1084,6 +1086,10 @@ namespace IsengardClient
                             flParams.ErrorMessages.Add("Invalid equipment slot: " + nextEntry.Value);
                         }
                     }
+                }
+                if (changes.Changes.Count > 0)
+                {
+                    _inventoryEquipment.InventoryEquipmentChanges.Add(changes);
                 }
             }
             if (forInit)
@@ -1101,6 +1107,7 @@ namespace IsengardClient
             {
                 InventoryEquipmentChange changes = new InventoryEquipmentChange();
                 changes.ChangeType = InventoryEquipmentChangeType.RefreshInventory;
+                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
                 _inventoryEquipment.InventoryItems.Clear();
                 foreach (ItemEntity nextItemEntity in items)
                 {
@@ -1117,10 +1124,8 @@ namespace IsengardClient
                         }
                     }
                 }
-                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
                 _inventoryEquipment.InventoryEquipmentChanges.Add(changes);
             }
-
             if (forInit)
             {
                 AfterProcessInitializationStep(currentStep, InitializationStep.Inventory, flParams);
@@ -2323,9 +2328,9 @@ namespace IsengardClient
             iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
             lock (_entityLock)
             {
-                bool madeChange = false;
                 foreach (ItemTypeEnum nextItem in items)
                 {
+                    bool addChange = false;
                     InventoryEquipmentEntry changeEntry = new InventoryEquipmentEntry();
                     changeEntry.ItemType = nextItem;
                     if (isEquipment)
@@ -2344,7 +2349,7 @@ namespace IsengardClient
                                         changeEntry.EquipmentAction = true;
                                         _inventoryEquipment.Equipment[iSlotIndex] = sid.ItemType;
                                         iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, false, changeEntry);
-                                        madeChange = true;
+                                        addChange = true;
                                         break;
                                     }
                                 }
@@ -2356,7 +2361,7 @@ namespace IsengardClient
                                         changeEntry.EquipmentAction = false;
                                         _inventoryEquipment.Equipment[iSlotIndex] = null;
                                         iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, true, changeEntry);
-                                        madeChange = true;
+                                        addChange = true;
                                         break;
                                     }
                                 }
@@ -2369,10 +2374,14 @@ namespace IsengardClient
                     }
                     else
                     {
-                        madeChange |= iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, isAdd, changeEntry);
+                        addChange = iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, isAdd, changeEntry);
+                    }
+                    if (addChange)
+                    {
+                        iec.Changes.Add(changeEntry);
                     }
                 }
-                if (madeChange)
+                if (iec.Changes.Count > 0)
                 {
                     _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
                 }
@@ -3048,10 +3057,9 @@ namespace IsengardClient
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, "cast stun {mob}", CommandType.Magic, DependentObjectType.Mob);
             tsbTime.Tag = new CommandButtonTag(tsbTime, "time", CommandType.None, DependentObjectType.None);
             tsbInformation.Tag = new CommandButtonTag(tsbInformation, "information", CommandType.None, DependentObjectType.None);
-            tsbInventory.Tag = new CommandButtonTag(tsbInventory, "inventory", CommandType.None, DependentObjectType.None);
+            tsbInventoryAndEquipment.Tag = new CommandButtonTag(tsbInventoryAndEquipment, null, CommandType.None, DependentObjectType.None);
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
-            tsbEquipment.Tag = new CommandButtonTag(tsbEquipment, "equipment", CommandType.None, DependentObjectType.None);
             tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
         }
 
@@ -4657,10 +4665,9 @@ BeforeHazy:
             yield return (CommandButtonTag)btnStunMob.Tag;
             yield return (CommandButtonTag)tsbTime.Tag;
             yield return (CommandButtonTag)tsbInformation.Tag;
-            yield return (CommandButtonTag)tsbInventory.Tag;
+            yield return (CommandButtonTag)tsbInventoryAndEquipment.Tag;
             yield return (CommandButtonTag)tsbWho.Tag;
             yield return (CommandButtonTag)tsbUptime.Tag;
-            yield return (CommandButtonTag)tsbEquipment.Tag;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -4910,6 +4917,12 @@ BeforeHazy:
             else
                 command = oButtonTag.ToString();
             RunCommand(TranslateCommand(command));
+        }
+
+        private void tsbInventoryAndEquipment_Click(object sender, EventArgs e)
+        {
+            RunCommand("equipment");
+            RunCommand("inventory");
         }
 
         private string TranslateCommand(string command)
@@ -5708,7 +5721,7 @@ BeforeHazy:
                             {
                                 foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
                                 {
-                                    if (nextEntry.InventoryAction.GetValueOrDefault(false))
+                                    if (nextEntry.InventoryAction.HasValue && !nextEntry.InventoryAction.Value)
                                     {
                                         lstInventory.Items.RemoveAt(nextEntry.InventoryIndex);
                                     }
@@ -5754,7 +5767,7 @@ BeforeHazy:
                             {
                                 foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
                                 {
-                                    if (nextEntry.EquipmentAction.GetValueOrDefault(false))
+                                    if (nextEntry.EquipmentAction.HasValue && !nextEntry.EquipmentAction.Value)
                                     {
                                         lstEquipment.Items.RemoveAt(nextEntry.EquipmentIndex);
                                     }

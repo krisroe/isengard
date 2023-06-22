@@ -150,8 +150,7 @@
             this.pnlTabControl = new System.Windows.Forms.Panel();
             this.tsTopMenu = new System.Windows.Forms.ToolStrip();
             this.tsbInformation = new System.Windows.Forms.ToolStripButton();
-            this.tsbInventory = new System.Windows.Forms.ToolStripButton();
-            this.tsbEquipment = new System.Windows.Forms.ToolStripButton();
+            this.tsbInventoryAndEquipment = new System.Windows.Forms.ToolStripButton();
             this.tsbWho = new System.Windows.Forms.ToolStripButton();
             this.tsbUptime = new System.Windows.Forms.ToolStripButton();
             this.tsbSpells = new System.Windows.Forms.ToolStripButton();
@@ -1532,8 +1531,7 @@
             this.tsTopMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.tsTopMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbInformation,
-            this.tsbInventory,
-            this.tsbEquipment,
+            this.tsbInventoryAndEquipment,
             this.tsbWho,
             this.tsbUptime,
             this.tsbSpells,
@@ -1558,26 +1556,15 @@
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // tsbInventory
+            // tsbInventoryAndEquipment
             // 
-            this.tsbInventory.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbInventory.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventory.Image")));
-            this.tsbInventory.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbInventory.Name = "tsbInventory";
-            this.tsbInventory.Size = new System.Drawing.Size(74, 24);
-            this.tsbInventory.Text = "Inventory";
-            this.tsbInventory.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // tsbEquipment
-            // 
-            this.tsbEquipment.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbEquipment.Image")));
-            this.tsbEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbEquipment.Name = "tsbEquipment";
-            this.tsbEquipment.Size = new System.Drawing.Size(85, 24);
-            this.tsbEquipment.Tag = "equipment";
-            this.tsbEquipment.Text = "Equipment";
-            this.tsbEquipment.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.tsbInventoryAndEquipment.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbInventoryAndEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventoryAndEquipment.Image")));
+            this.tsbInventoryAndEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbInventoryAndEquipment.Name = "tsbInventoryAndEquipment";
+            this.tsbInventoryAndEquipment.Size = new System.Drawing.Size(156, 24);
+            this.tsbInventoryAndEquipment.Text = "Inventory+Equipment";
+            this.tsbInventoryAndEquipment.Click += new System.EventHandler(this.tsbInventoryAndEquipment_Click);
             // 
             // tsbWho
             // 
@@ -1881,8 +1868,7 @@
         private System.Windows.Forms.ListBox lstMessages;
         private System.Windows.Forms.ToolStrip tsTopMenu;
         private System.Windows.Forms.ToolStripButton tsbInformation;
-        private System.Windows.Forms.ToolStripButton tsbInventory;
-        private System.Windows.Forms.ToolStripButton tsbEquipment;
+        private System.Windows.Forms.ToolStripButton tsbInventoryAndEquipment;
         private System.Windows.Forms.ToolStripButton tsbWho;
         private System.Windows.Forms.ToolStripButton tsbUptime;
         private System.Windows.Forms.ToolStripButton tsbScore;
