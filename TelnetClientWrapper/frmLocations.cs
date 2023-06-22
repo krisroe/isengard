@@ -13,7 +13,7 @@ namespace IsengardClient
         private bool _isDay;
         private int _level;
 
-        public frmLocations(IsengardMap fullMap, Room currentRoom, bool flying, bool levitating, bool isDay, int level)
+        public frmLocations(IsengardMap fullMap, Room currentRoom, bool forRoomSelection, bool flying, bool levitating, bool isDay, int level)
         {
             InitializeComponent();
 
@@ -23,6 +23,12 @@ namespace IsengardClient
             _levitating = levitating;
             _isDay = isDay;
             _level = level;
+
+            if (forRoomSelection)
+            {
+                btnSet.Visible = false;
+                btnGo.Text = "Select";
+            }
 
             PopulateTree();
         }

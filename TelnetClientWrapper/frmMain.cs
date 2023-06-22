@@ -6363,25 +6363,20 @@ BeforeHazy:
             }
             else
             {
-                bool foundExit = false;
+                ToolStripMenuItem tsmi;
                 foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(r))
                 {
-                    foundExit = true;
-                    ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                    tsmi = new ToolStripMenuItem();
                     tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
                     tsmi.Tag = nextEdge;
                     ctxRoomExits.Items.Add(tsmi);
                 }
-                if (foundExit)
-                {
-                    ToolStripMenuItem tsmiGraph = new ToolStripMenuItem();
-                    tsmiGraph.Text = "Graph";
-                    ctxRoomExits.Items.Add(tsmiGraph);
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = "Graph";
+                ctxRoomExits.Items.Add(tsmi);
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = "Location";
+                ctxRoomExits.Items.Add(tsmi);
             }
         }
 
@@ -6392,12 +6387,22 @@ BeforeHazy:
             Exit exit = (Exit)clickedItem.Tag;
             Button sourceButton = (Button)ctx.SourceControl;
             List<Exit> exits;
-            if (clickedItem.Text == "Graph")
+            string sItemText = clickedItem.Text;
+            Room currentRoom = _currentRoomInfo.CurrentRoom;
+            if (sItemText == "Graph")
             {
                 GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-                frmGraph graphForm = new frmGraph(_gameMap, _currentRoomInfo.CurrentRoom, true, flying, levitating, isDay, level);
+                frmGraph graphForm = new frmGraph(_gameMap, currentRoom, true, flying, levitating, isDay, level);
                 graphForm.ShowDialog();
                 exits = graphForm.SelectedPath;
+                if (exits == null) return;
+            }
+            else if (sItemText == "Location")
+            {
+                GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
+                frmLocations locationsForm = new frmLocations(_gameMap, currentRoom, true, flying, levitating, isDay, level);
+                locationsForm.ShowDialog();
+                exits = locationsForm.SelectedPath;
                 if (exits == null) return;
             }
             else
@@ -6577,7 +6582,7 @@ BeforeHazy:
         {
             Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
             GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, flying, levitating, isDay, level);
+            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, false, flying, levitating, isDay, level);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
