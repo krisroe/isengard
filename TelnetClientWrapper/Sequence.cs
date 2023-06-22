@@ -2960,6 +2960,8 @@ StartProcessRoom:
                         }
                         if (!stopProcessing)
                         {
+                            //line continuations start with two spaces. There is also a check for the next prefix to stop at,
+                            //which shouldn't be needed anymore with the line continuation logic, but is left in anyway.
                             stopProcessing = !sNextLine.StartsWith("  ") || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
                         }
                     }

@@ -256,7 +256,7 @@
 
         [SingularName("elven bow")]
         [PluralName("elven bows")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         ElvenBow,
 
         [SingularName("elven cured leather gloves")]
