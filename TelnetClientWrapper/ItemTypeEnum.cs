@@ -269,7 +269,7 @@
 
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Neck)]
         EmeraldCollar,
 
         [SingularName("engagement ring")]
@@ -554,6 +554,7 @@
 
         [SingularName("onyx amulet")]
         [PluralName("onyx amulets")]
+        [EquipmentType(EquipmentType.Neck)]
         OnyxAmulet,
 
         [SingularName("orc's sword")]

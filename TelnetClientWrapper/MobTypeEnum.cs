@@ -622,7 +622,7 @@
         Laborer,
 
         [SingularName("lag")]
-        //CSRTODO: plural?
+        [PluralName("lags")] //verified 6/21/23
         Lag,
 
         [SingularName("large goblin")]
@@ -872,7 +872,7 @@
         OrcMiner,
 
         [SingularName("otyugh")]
-        [PluralName("otyugh")]
+        [PluralName("otyughs")]
         Otyugh,
 
         [SingularName("paladin")]
