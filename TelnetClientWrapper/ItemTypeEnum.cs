@@ -794,6 +794,10 @@
         [EquipmentType(EquipmentType.Torso)]
         SpriteLeatherArmor,
 
+        [SingularName("sprite leather boots")]
+        [EquipmentType(EquipmentType.Feet)]
+        SpriteLeatherBoots,
+
         [SingularName("sprite leather leggings")]
         [EquipmentType(EquipmentType.Legs)]
         SpriteLeatherLeggings,

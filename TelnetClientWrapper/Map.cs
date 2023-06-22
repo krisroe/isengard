@@ -2960,6 +2960,10 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet5, oTyriesPriestSupplies, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oTyriesPriestSupplies] = new System.Windows.Point(5, 5.5);
 
+            Room oImladrisArmory = AddRoom("Armory", "Imladris Armory");
+            AddBidirectionalExits(oImladrisArmory, oImladrisMainStreet4, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisArmory] = new System.Windows.Point(4, 4.5);
+
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
