@@ -14,25 +14,17 @@ namespace IsengardClient
         private int _currentAutoEscapeThreshold;
         private AutoEscapeType _currentAutoEscapeType;
         private bool _currentAutoEscapeActive;
-        private int _currentAutoEscapeThresholdOriginal;
-        private AutoEscapeType _currentAutoEscapeTypeOriginal;
-        private bool _currentAutoEscapeActiveOriginal;
 
         private AlignmentType _preferredAlignment;
         private Color _fullColor;
         private Color _emptyColor;
 
         private RealmType _currentRealm;
-        private RealmType _currentRealmOriginal;
 
         private int _currentAutoSpellLevelMinimum;
         private int _currentAutoSpellLevelMaximum;
-        private int _currentAutoSpellLevelMinimumOriginal;
-        private int _currentAutoSpellLevelMaximumOriginal;
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
         internal const int AUTO_SPELL_LEVEL_MAXIMUM = 4;
-
-        private string _currentWeaponOriginal;
 
         public frmConfiguration(RealmType currentRealm, int currentAutoSpellLevelMin, int currentAutoSpellLevelMax, string weapon, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
         {
@@ -45,21 +37,21 @@ namespace IsengardClient
 
             IsengardSettings sets = IsengardSettings.Default;
 
-            _currentRealmOriginal = _currentRealm = currentRealm;
+            _currentRealm = currentRealm;
             RefreshRealmUI();
 
-            _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMaximumOriginal = currentAutoSpellLevelMax;
-            _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMinimumOriginal = currentAutoSpellLevelMin;
+            _currentAutoSpellLevelMaximum = currentAutoSpellLevelMax;
+            _currentAutoSpellLevelMinimum = currentAutoSpellLevelMin;
             RefreshAutoSpellLevelUI();
 
-            txtCurrentWeaponValue.Text = _currentWeaponOriginal = weapon;
+            txtCurrentWeaponValue.Text = weapon;
 
             _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
             RefreshAlignmentTypeUI();
 
-            _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal = autoEscapeActive;
-            _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal = autoEscapeThreshold;
-            _currentAutoEscapeType = _currentAutoEscapeTypeOriginal = autoEscapeType;
+            _currentAutoEscapeActive = autoEscapeActive;
+            _currentAutoEscapeThreshold = autoEscapeThreshold;
+            _currentAutoEscapeType = autoEscapeType;
             RefreshAutoEscapeUI();
 
             chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
@@ -71,12 +63,22 @@ namespace IsengardClient
             _emptyColor = sets.EmptyColor;
             SetColorUI(lblEmptyColorValue, _emptyColor);
 
+            //clone the strategies passed in
             _strategies = new List<Strategy>();
             foreach (Strategy s in strategies)
             {
-                Strategy sClone = new Strategy(s);
-                _strategies.Add(sClone);
-                lstStrategies.Items.Add(sClone);
+                _strategies.Add(new Strategy(s));
+            }
+
+            RefreshStrategyList();
+        }
+
+        private void RefreshStrategyList()
+        {
+            lstStrategies.Items.Clear();
+            foreach (Strategy s in _strategies)
+            {
+                lstStrategies.Items.Add(s);
             }
         }
 
@@ -157,19 +159,6 @@ namespace IsengardClient
             }
             lblPreferredAlignmentValue.BackColor = cLabelBack;
             lblPreferredAlignmentValue.Text = sLabelText;
-            tsmiPreferredAlignmentGood.Checked = _preferredAlignment == AlignmentType.Blue;
-            tsmiPreferredAlignmentEvil.Checked = _preferredAlignment == AlignmentType.Red;
-        }
-
-        private void ctxPreferredAlignment_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            tsmiPreferredAlignmentRestoreOriginalValue.Enabled = _preferredAlignment != (AlignmentType)Enum.Parse(typeof(AlignmentType), IsengardSettings.Default.PreferredAlignment);
-        }
-
-        private void tsmiPreferredAlignmentRestoreOriginalValue_Click(object sender, EventArgs e)
-        {
-            _preferredAlignment = (AlignmentType)Enum.Parse(typeof(AlignmentType), IsengardSettings.Default.PreferredAlignment);
-            RefreshAlignmentTypeUI();
         }
 
         private static AlignmentType ParseAlignment(string alignment)
@@ -227,13 +216,6 @@ namespace IsengardClient
                 tsmi.Checked = isSelected;
                 tsmi.Text = isSelected ? eTag + " (Current)" : eTag.ToString();
             }
-            tsmiRestoreCurrentRealm.Enabled = _currentRealm != _currentRealmOriginal;
-        }
-
-        private void tsmiRestoreCurrentRealm_Click(object sender, EventArgs e)
-        {
-            _currentRealm = _currentRealmOriginal;
-            RefreshRealmUI();
         }
 
         #endregion
@@ -287,18 +269,6 @@ namespace IsengardClient
                 }
                 RefreshAutoSpellLevelUI();
             }
-        }
-
-        private void ctxAutoSpellLevels_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            tsmiRestoreCurrentAutoSpellLevels.Enabled = _currentAutoSpellLevelMaximum != _currentAutoSpellLevelMaximumOriginal || _currentAutoSpellLevelMinimum != _currentAutoSpellLevelMinimumOriginal;
-        }
-
-        private void tsmiRestoreCurrentAutoSpellLevels_Click(object sender, EventArgs e)
-        {
-            _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMaximumOriginal;
-            _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMinimumOriginal;
-            RefreshAutoSpellLevelUI();
         }
 
         #endregion
@@ -387,8 +357,6 @@ namespace IsengardClient
             tsmiClearCurrentAutoEscapeThreshold.Enabled = haveCurrentThreshold;
             tsmiCurrentAutoEscapeActive.Enabled = haveCurrentThreshold;
             tsmiCurrentAutoEscapeInactive.Enabled = haveCurrentThreshold;
-
-            tsmiRestoreCurrentAutoEscape.Enabled = _currentAutoEscapeActive != _currentAutoEscapeActiveOriginal || _currentAutoEscapeThreshold != _currentAutoEscapeThresholdOriginal || _currentAutoEscapeType != _currentAutoEscapeTypeOriginal;
         }
 
         private void tsmiSetCurrentAutoEscapeThreshold_Click(object sender, EventArgs e)
@@ -433,14 +401,6 @@ namespace IsengardClient
             RefreshAutoEscapeUI();
         }
 
-        private void tsmiRestoreCurrentAutoEscape_Click(object sender, EventArgs e)
-        {
-            _currentAutoEscapeActive = _currentAutoEscapeActiveOriginal;
-            _currentAutoEscapeThreshold = _currentAutoEscapeThresholdOriginal;
-            _currentAutoEscapeType = _currentAutoEscapeTypeOriginal;
-            RefreshAutoEscapeUI();
-        }
-
         #endregion
 
         #region weapon
@@ -451,16 +411,6 @@ namespace IsengardClient
             {
                 return txtCurrentWeaponValue.Text ?? string.Empty;
             }
-        }
-
-        private void ctxWeapon_Opening(object sender, CancelEventArgs e)
-        {
-            tsmiRestoreCurrentWeapon.Enabled = !string.Equals(txtCurrentWeaponValue.Text, _currentWeaponOriginal);
-        }
-
-        private void tsmiRestoreCurrentWeapon_Click(object sender, EventArgs e)
-        {
-            txtCurrentWeaponValue.Text = _currentWeaponOriginal;
         }
 
         #endregion
@@ -563,6 +513,23 @@ namespace IsengardClient
         private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
         {
             MoveStrategyUp(lstStrategies.SelectedIndex + 1);
+        }
+
+        private void ctxPreferredAlignment_Opening(object sender, CancelEventArgs e)
+        {
+            tsmiPreferredAlignmentGood.Checked = _preferredAlignment == AlignmentType.Blue;
+            tsmiPreferredAlignmentEvil.Checked = _preferredAlignment == AlignmentType.Red;
+        }
+
+        private void tsmiRestoreDefaultStrategies_Click(object sender, EventArgs e)
+        {
+            _strategies = new List<Strategy>();
+            foreach (Strategy s in Strategy.GetDefaultStrategies())
+            {
+                _strategies.Add(new Strategy(s));
+            }
+            RefreshStrategyList();
+            ChangedStrategies = true;
         }
     }
 }

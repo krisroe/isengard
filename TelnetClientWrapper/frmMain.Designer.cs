@@ -155,7 +155,7 @@
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
             this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
-            this.ctxRoomExits = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ctxStrategy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
@@ -1616,13 +1616,13 @@
             this.tsbQuit.Text = "Quit";
             this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
-            // ctxRoomExits
+            // ctxStrategy
             // 
-            this.ctxRoomExits.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxRoomExits.Name = "ctxRoomExits";
-            this.ctxRoomExits.Size = new System.Drawing.Size(61, 4);
-            this.ctxRoomExits.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
-            this.ctxRoomExits.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxRoomExits_ItemClicked);
+            this.ctxStrategy.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxStrategy.Name = "ctxStrategy";
+            this.ctxStrategy.Size = new System.Drawing.Size(61, 4);
+            this.ctxStrategy.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxStrategy.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxStrategy_ItemClicked);
             // 
             // tmr
             // 
@@ -1822,7 +1822,7 @@
         private System.Windows.Forms.CheckBox chkShowEmotesWithoutTarget;
         private System.Windows.Forms.ContextMenuStrip ctxConsole;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearConsole;
-        private System.Windows.Forms.ContextMenuStrip ctxRoomExits;
+        private System.Windows.Forms.ContextMenuStrip ctxStrategy;
         private System.Windows.Forms.Button btnSay;
         private System.Windows.Forms.GroupBox grpSingleMove;
         private System.Windows.Forms.TabPage tabHelp;

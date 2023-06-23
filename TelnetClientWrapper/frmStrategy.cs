@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -313,6 +314,64 @@ namespace IsengardClient
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void ctxAutoSpellLevels_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            tsmiInheritAutoSpellLevels.Checked = _currentAutoSpellLevelMaximum == -1 && _currentAutoSpellLevelMinimum == -1;
+        }
+
+        private void tsmiSetCurrentMinimumAutoSpellLevel_Click(object sender, EventArgs e)
+        {
+            string sStart = _currentAutoSpellLevelMinimum == -1 ? string.Empty : _currentAutoSpellLevelMinimum.ToString();
+            string level = Interaction.InputBox("Level:", "Enter Level", sStart);
+            if (int.TryParse(level, out int iLevel) && iLevel >= frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _currentAutoSpellLevelMinimum = iLevel;
+                if (_currentAutoSpellLevelMaximum == -1)
+                {
+                    _currentAutoSpellLevelMaximum = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                }
+                else if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)
+                {
+                    _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMinimum;
+                }
+                RefreshAutoSpellLevelUI();
+            }
+        }
+
+        private void tsmiSetCurrentMaximumAutoSpellLevel_Click(object sender, EventArgs e)
+        {
+            string sStart = _currentAutoSpellLevelMaximum == -1 ? string.Empty : _currentAutoSpellLevelMaximum.ToString();
+            string level = Interaction.InputBox("Level:", "Enter Level", sStart);
+            if (int.TryParse(level, out int iLevel) && iLevel >= frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
+            {
+                _currentAutoSpellLevelMaximum = iLevel;
+                if (_currentAutoSpellLevelMinimum == -1)
+                {
+                    _currentAutoSpellLevelMinimum = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+                }
+                else if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)
+                {
+                    _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMaximum;
+                }
+                RefreshAutoSpellLevelUI();
+            }
+        }
+
+        private void tsmiInheritAutoSpellLevels_Click(object sender, EventArgs e)
+        {
+            if (_currentAutoSpellLevelMinimum == -1 && _currentAutoSpellLevelMaximum == -1)
+            {
+                _currentAutoSpellLevelMaximum = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                _currentAutoSpellLevelMinimum = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+            }
+            else
+            {
+                _currentAutoSpellLevelMinimum = -1;
+                _currentAutoSpellLevelMaximum = -1;
+            }
+            RefreshAutoSpellLevelUI();
         }
     }
 }

@@ -34,21 +34,17 @@
             this.tsmiCurrentRealmFire = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentRealmWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentRealmWind = new System.Windows.Forms.ToolStripMenuItem();
-            this.sepRealm1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiRestoreCurrentRealm = new System.Windows.Forms.ToolStripMenuItem();
             this.lblWeapon = new System.Windows.Forms.Label();
-            this.ctxWeapon = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiRestoreCurrentWeapon = new System.Windows.Forms.ToolStripMenuItem();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
             this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiSetCurrentAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiClearCurrentAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepAutoEscape1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiCurrentAutoEscapeFlee = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentAutoEscapeHazy = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepAutoEscape2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiCurrentAutoEscapeActive = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentAutoEscapeInactive = new System.Windows.Forms.ToolStripMenuItem();
-            this.sepAutoEscape1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiRestoreCurrentAutoEscape = new System.Windows.Forms.ToolStripMenuItem();
             this.chkQueryMonsterStatus = new System.Windows.Forms.CheckBox();
             this.chkVerboseOutput = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
@@ -57,14 +53,10 @@
             this.ctxPreferredAlignment = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiPreferredAlignmentGood = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPreferredAlignmentEvil = new System.Windows.Forms.ToolStripMenuItem();
-            this.sepPreferredAlignment1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiPreferredAlignmentRestoreOriginalValue = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
             this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiSetCurrentMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSetCurrentMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiRestoreCurrentAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentRealmValue = new System.Windows.Forms.Label();
             this.txtCurrentWeaponValue = new System.Windows.Forms.TextBox();
             this.lblCurrentAutoEscapeValue = new System.Windows.Forms.Label();
@@ -83,8 +75,8 @@
             this.tsmiMoveStrategyUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveStrategyDown = new System.Windows.Forms.ToolStripMenuItem();
             this.chkRemoveAllOnStartup = new System.Windows.Forms.CheckBox();
+            this.tsmiRestoreDefaultStrategies = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxRealm.SuspendLayout();
-            this.ctxWeapon.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxAutoSpellLevels.SuspendLayout();
@@ -99,79 +91,48 @@
             this.tsmiCurrentRealmEarth,
             this.tsmiCurrentRealmFire,
             this.tsmiCurrentRealmWater,
-            this.tsmiCurrentRealmWind,
-            this.sepRealm1,
-            this.tsmiRestoreCurrentRealm});
+            this.tsmiCurrentRealmWind});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(181, 130);
+            this.ctxRealm.Size = new System.Drawing.Size(116, 100);
             this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiCurrentRealmEarth
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(222, 24);
+            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmFire
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(222, 24);
+            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWater
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(222, 24);
+            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWind
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(222, 24);
+            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
-            // 
-            // sepRealm1
-            // 
-            this.sepRealm1.Name = "sepRealm1";
-            this.sepRealm1.Size = new System.Drawing.Size(219, 6);
-            // 
-            // tsmiRestoreCurrentRealm
-            // 
-            this.tsmiRestoreCurrentRealm.Name = "tsmiRestoreCurrentRealm";
-            this.tsmiRestoreCurrentRealm.Size = new System.Drawing.Size(222, 24);
-            this.tsmiRestoreCurrentRealm.Text = "Restore Current";
-            this.tsmiRestoreCurrentRealm.Click += new System.EventHandler(this.tsmiRestoreCurrentRealm_Click);
             // 
             // lblWeapon
             // 
             this.lblWeapon.AutoSize = true;
-            this.lblWeapon.ContextMenuStrip = this.ctxWeapon;
             this.lblWeapon.Location = new System.Drawing.Point(14, 58);
             this.lblWeapon.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblWeapon.Name = "lblWeapon";
             this.lblWeapon.Size = new System.Drawing.Size(62, 16);
             this.lblWeapon.TabIndex = 126;
             this.lblWeapon.Text = "Weapon:";
-            // 
-            // ctxWeapon
-            // 
-            this.ctxWeapon.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxWeapon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiRestoreCurrentWeapon});
-            this.ctxWeapon.Name = "ctxWeapon";
-            this.ctxWeapon.Size = new System.Drawing.Size(211, 56);
-            this.ctxWeapon.Opening += new System.ComponentModel.CancelEventHandler(this.ctxWeapon_Opening);
-            // 
-            // tsmiRestoreCurrentWeapon
-            // 
-            this.tsmiRestoreCurrentWeapon.Name = "tsmiRestoreCurrentWeapon";
-            this.tsmiRestoreCurrentWeapon.Size = new System.Drawing.Size(222, 24);
-            this.tsmiRestoreCurrentWeapon.Text = "Restore Current";
-            this.tsmiRestoreCurrentWeapon.Click += new System.EventHandler(this.tsmiRestoreCurrentWeapon_Click);
             // 
             // lblPreferredAlignment
             // 
@@ -189,14 +150,14 @@
             this.ctxAutoEscape.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSetCurrentAutoEscapeThreshold,
             this.tsmiClearCurrentAutoEscapeThreshold,
+            this.sepAutoEscape1,
             this.tsmiCurrentAutoEscapeFlee,
             this.tsmiCurrentAutoEscapeHazy,
+            this.sepAutoEscape2,
             this.tsmiCurrentAutoEscapeActive,
-            this.tsmiCurrentAutoEscapeInactive,
-            this.sepAutoEscape1,
-            this.tsmiRestoreCurrentAutoEscape});
+            this.tsmiCurrentAutoEscapeInactive});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(234, 178);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(234, 160);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiSetCurrentAutoEscapeThreshold
@@ -213,6 +174,11 @@
             this.tsmiClearCurrentAutoEscapeThreshold.Text = "Clear Current Threshold";
             this.tsmiClearCurrentAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearCurrentAutoEscapeThreshold_Click);
             // 
+            // sepAutoEscape1
+            // 
+            this.sepAutoEscape1.Name = "sepAutoEscape1";
+            this.sepAutoEscape1.Size = new System.Drawing.Size(230, 6);
+            // 
             // tsmiCurrentAutoEscapeFlee
             // 
             this.tsmiCurrentAutoEscapeFlee.Name = "tsmiCurrentAutoEscapeFlee";
@@ -227,6 +193,11 @@
             this.tsmiCurrentAutoEscapeHazy.Text = "Hazy";
             this.tsmiCurrentAutoEscapeHazy.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeHazy_Click);
             // 
+            // sepAutoEscape2
+            // 
+            this.sepAutoEscape2.Name = "sepAutoEscape2";
+            this.sepAutoEscape2.Size = new System.Drawing.Size(230, 6);
+            // 
             // tsmiCurrentAutoEscapeActive
             // 
             this.tsmiCurrentAutoEscapeActive.Name = "tsmiCurrentAutoEscapeActive";
@@ -240,18 +211,6 @@
             this.tsmiCurrentAutoEscapeInactive.Size = new System.Drawing.Size(233, 24);
             this.tsmiCurrentAutoEscapeInactive.Text = "Inactive";
             this.tsmiCurrentAutoEscapeInactive.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeInactive_Click);
-            // 
-            // sepAutoEscape1
-            // 
-            this.sepAutoEscape1.Name = "sepAutoEscape1";
-            this.sepAutoEscape1.Size = new System.Drawing.Size(230, 6);
-            // 
-            // tsmiRestoreCurrentAutoEscape
-            // 
-            this.tsmiRestoreCurrentAutoEscape.Name = "tsmiRestoreCurrentAutoEscape";
-            this.tsmiRestoreCurrentAutoEscape.Size = new System.Drawing.Size(233, 24);
-            this.tsmiRestoreCurrentAutoEscape.Text = "Restore Current";
-            this.tsmiRestoreCurrentAutoEscape.Click += new System.EventHandler(this.tsmiRestoreCurrentAutoEscape_Click);
             // 
             // chkQueryMonsterStatus
             // 
@@ -315,38 +274,24 @@
             this.ctxPreferredAlignment.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxPreferredAlignment.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiPreferredAlignmentGood,
-            this.tsmiPreferredAlignmentEvil,
-            this.sepPreferredAlignment1,
-            this.tsmiPreferredAlignmentRestoreOriginalValue});
+            this.tsmiPreferredAlignmentEvil});
             this.ctxPreferredAlignment.Name = "ctxPreferredAlignment";
-            this.ctxPreferredAlignment.Size = new System.Drawing.Size(226, 82);
+            this.ctxPreferredAlignment.Size = new System.Drawing.Size(116, 52);
             this.ctxPreferredAlignment.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPreferredAlignment_Opening);
             // 
             // tsmiPreferredAlignmentGood
             // 
             this.tsmiPreferredAlignmentGood.Name = "tsmiPreferredAlignmentGood";
-            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(225, 24);
+            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(115, 24);
             this.tsmiPreferredAlignmentGood.Text = "Good";
             this.tsmiPreferredAlignmentGood.Click += new System.EventHandler(this.tsmiPreferredAlignmentGood_Click);
             // 
             // tsmiPreferredAlignmentEvil
             // 
             this.tsmiPreferredAlignmentEvil.Name = "tsmiPreferredAlignmentEvil";
-            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(225, 24);
+            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(115, 24);
             this.tsmiPreferredAlignmentEvil.Text = "Evil";
             this.tsmiPreferredAlignmentEvil.Click += new System.EventHandler(this.tsmiPreferredAlignmentEvil_Click);
-            // 
-            // sepPreferredAlignment1
-            // 
-            this.sepPreferredAlignment1.Name = "sepPreferredAlignment1";
-            this.sepPreferredAlignment1.Size = new System.Drawing.Size(222, 6);
-            // 
-            // tsmiPreferredAlignmentRestoreOriginalValue
-            // 
-            this.tsmiPreferredAlignmentRestoreOriginalValue.Name = "tsmiPreferredAlignmentRestoreOriginalValue";
-            this.tsmiPreferredAlignmentRestoreOriginalValue.Size = new System.Drawing.Size(225, 24);
-            this.tsmiPreferredAlignmentRestoreOriginalValue.Text = "Restore Original Value";
-            this.tsmiPreferredAlignmentRestoreOriginalValue.Click += new System.EventHandler(this.tsmiPreferredAlignmentRestoreOriginalValue_Click);
             // 
             // lblCurrentAutoSpellLevelsValue
             // 
@@ -366,37 +311,23 @@
             this.ctxAutoSpellLevels.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSetCurrentMinimumAutoSpellLevel,
-            this.tsmiSetCurrentMaximumAutoSpellLevel,
-            this.sepAutoSpellLevels1,
-            this.tsmiRestoreCurrentAutoSpellLevels});
+            this.tsmiSetCurrentMaximumAutoSpellLevel});
             this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 82);
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 52);
             // 
             // tsmiSetCurrentMinimumAutoSpellLevel
             // 
             this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(222, 24);
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
             this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
             this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
             // 
             // tsmiSetCurrentMaximumAutoSpellLevel
             // 
             this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(222, 24);
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
             this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
             this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
-            // 
-            // sepAutoSpellLevels1
-            // 
-            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
-            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(219, 6);
-            // 
-            // tsmiRestoreCurrentAutoSpellLevels
-            // 
-            this.tsmiRestoreCurrentAutoSpellLevels.Name = "tsmiRestoreCurrentAutoSpellLevels";
-            this.tsmiRestoreCurrentAutoSpellLevels.Size = new System.Drawing.Size(222, 24);
-            this.tsmiRestoreCurrentAutoSpellLevels.Text = "Restore Current";
-            this.tsmiRestoreCurrentAutoSpellLevels.Click += new System.EventHandler(this.tsmiRestoreCurrentAutoSpellLevels_Click);
             // 
             // lblCurrentRealmValue
             // 
@@ -412,7 +343,6 @@
             // 
             // txtCurrentWeaponValue
             // 
-            this.txtCurrentWeaponValue.ContextMenuStrip = this.ctxWeapon;
             this.txtCurrentWeaponValue.Location = new System.Drawing.Point(145, 55);
             this.txtCurrentWeaponValue.Margin = new System.Windows.Forms.Padding(4);
             this.txtCurrentWeaponValue.Name = "txtCurrentWeaponValue";
@@ -529,43 +459,44 @@
             this.tsmiEditStrategy,
             this.tsmiRemoveStrategy,
             this.tsmiMoveStrategyUp,
-            this.tsmiMoveStrategyDown});
+            this.tsmiMoveStrategyDown,
+            this.tsmiRestoreDefaultStrategies});
             this.ctxStrategies.Name = "ctxStrategies";
-            this.ctxStrategies.Size = new System.Drawing.Size(159, 124);
+            this.ctxStrategies.Size = new System.Drawing.Size(211, 176);
             this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
             // 
             // tsmiAddStrategy
             // 
             this.tsmiAddStrategy.Name = "tsmiAddStrategy";
-            this.tsmiAddStrategy.Size = new System.Drawing.Size(158, 24);
+            this.tsmiAddStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiAddStrategy.Text = "Add";
             this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
             // 
             // tsmiEditStrategy
             // 
             this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(158, 24);
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiEditStrategy.Text = "Edit";
             this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
             // 
             // tsmiRemoveStrategy
             // 
             this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
-            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(158, 24);
+            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiRemoveStrategy.Text = "Remove";
             this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
             // 
             // tsmiMoveStrategyUp
             // 
             this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
-            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveStrategyUp.Text = "Move Up";
             this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
             // 
             // tsmiMoveStrategyDown
             // 
             this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
-            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveStrategyDown.Text = "Move Down";
             this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
             // 
@@ -579,6 +510,13 @@
             this.chkRemoveAllOnStartup.TabIndex = 146;
             this.chkRemoveAllOnStartup.Text = "Remove all on startup?";
             this.chkRemoveAllOnStartup.UseVisualStyleBackColor = true;
+            // 
+            // tsmiRestoreDefaultStrategies
+            // 
+            this.tsmiRestoreDefaultStrategies.Name = "tsmiRestoreDefaultStrategies";
+            this.tsmiRestoreDefaultStrategies.Size = new System.Drawing.Size(210, 24);
+            this.tsmiRestoreDefaultStrategies.Text = "Restore Defaults";
+            this.tsmiRestoreDefaultStrategies.Click += new System.EventHandler(this.tsmiRestoreDefaultStrategies_Click);
             // 
             // frmConfiguration
             // 
@@ -612,7 +550,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Configuration";
             this.ctxRealm.ResumeLayout(false);
-            this.ctxWeapon.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
             this.ctxAutoSpellLevels.ResumeLayout(false);
@@ -649,8 +586,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveStrategyDown;
         private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentGood;
         private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentEvil;
-        private System.Windows.Forms.ToolStripSeparator sepPreferredAlignment1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentRestoreOriginalValue;
         private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
         private System.Windows.Forms.Label lblCurrentRealmValue;
         private System.Windows.Forms.TextBox txtCurrentWeaponValue;
@@ -658,25 +593,20 @@
         private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
         private System.Windows.Forms.ContextMenuStrip ctxRealm;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmEarth;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmFire;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmWater;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmWind;
-        private System.Windows.Forms.ToolStripSeparator sepRealm1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreCurrentRealm;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreCurrentAutoSpellLevels;
-        private System.Windows.Forms.ContextMenuStrip ctxWeapon;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreCurrentWeapon;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearCurrentAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentAutoEscapeFlee;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentAutoEscapeHazy;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentAutoEscapeActive;
-        private System.Windows.Forms.ToolStripSeparator sepAutoEscape1;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentAutoEscapeInactive;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreCurrentAutoEscape;
         private System.Windows.Forms.CheckBox chkRemoveAllOnStartup;
+        private System.Windows.Forms.ToolStripSeparator sepAutoEscape1;
+        private System.Windows.Forms.ToolStripSeparator sepAutoEscape2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultStrategies;
     }
 }

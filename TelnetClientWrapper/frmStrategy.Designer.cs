@@ -80,9 +80,15 @@
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.lblAutoEscapeValue = new System.Windows.Forms.Label();
             this.lblAutoEscape = new System.Windows.Forms.Label();
+            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiSetCurrentMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSetCurrentMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiInheritAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.grpMagic.SuspendLayout();
             this.grpMelee.SuspendLayout();
             this.grpPotions.SuspendLayout();
+            this.ctxAutoSpellLevels.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpMagic
@@ -186,6 +192,7 @@
             // lblAutoSpellLevels
             // 
             this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
+            this.lblAutoSpellLevels.ContextMenuStrip = this.ctxAutoSpellLevels;
             this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
             this.lblAutoSpellLevels.Location = new System.Drawing.Point(8, 337);
             this.lblAutoSpellLevels.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -662,6 +669,44 @@
             this.lblAutoEscape.TabIndex = 148;
             this.lblAutoEscape.Text = "Auto escape:";
             // 
+            // ctxAutoSpellLevels
+            // 
+            this.ctxAutoSpellLevels.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetCurrentMinimumAutoSpellLevel,
+            this.tsmiSetCurrentMaximumAutoSpellLevel,
+            this.sepAutoSpellLevels1,
+            this.tsmiInheritAutoSpellLevels});
+            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 110);
+            this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
+            // 
+            // tsmiSetCurrentMinimumAutoSpellLevel
+            // 
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
+            // 
+            // tsmiSetCurrentMaximumAutoSpellLevel
+            // 
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
+            // 
+            // sepAutoSpellLevels1
+            // 
+            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
+            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(218, 6);
+            // 
+            // tsmiInheritAutoSpellLevels
+            // 
+            this.tsmiInheritAutoSpellLevels.Name = "tsmiInheritAutoSpellLevels";
+            this.tsmiInheritAutoSpellLevels.Size = new System.Drawing.Size(221, 24);
+            this.tsmiInheritAutoSpellLevels.Text = "Inherit?";
+            this.tsmiInheritAutoSpellLevels.Click += new System.EventHandler(this.tsmiInheritAutoSpellLevels_Click);
+            // 
             // frmStrategy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -692,6 +737,7 @@
             this.grpMelee.PerformLayout();
             this.grpPotions.ResumeLayout(false);
             this.grpPotions.PerformLayout();
+            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -750,5 +796,10 @@
         private System.Windows.Forms.ComboBox cboOnKillMonster;
         private System.Windows.Forms.Label lblAutoEscapeValue;
         private System.Windows.Forms.Label lblAutoEscape;
+        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
+        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiInheritAutoSpellLevels;
     }
 }

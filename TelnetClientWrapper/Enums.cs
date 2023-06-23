@@ -299,6 +299,13 @@ namespace IsengardClient
         Wand = 4,
     }
 
+    public enum ValidPotionType
+    {
+        Invalid,
+        Primary,
+        Secondary,
+    }
+
     public enum OutputItemSequenceType
     {
         UserNamePrompt,

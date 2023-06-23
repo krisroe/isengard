@@ -298,7 +298,7 @@ namespace IsengardClient
                 btnOneClick.Text = oStrategy.ToString();
                 btnOneClick.UseVisualStyleBackColor = true;
                 btnOneClick.Click += btnOneClick_Click;
-                btnOneClick.ContextMenuStrip = ctxRoomExits;
+                btnOneClick.ContextMenuStrip = ctxStrategy;
                 flpOneClickStrategies.Controls.Add(btnOneClick);
             }
         }
@@ -3568,11 +3568,12 @@ namespace IsengardClient
                 }
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
+                    int savedAutoSpellMin = _autoSpellLevelMin;
+                    int savedAutoSpellMax = _autoSpellLevelMax;
                     try
                     {
                         _currentlyFightingMob = pms.TargetRoomMob;
 
-                        StrategyInstance stratCurrent = null;
                         bool haveMeleeStrategySteps = false;
                         bool haveMagicStrategySteps = false;
                         bool havePotionsStrategySteps = false;
@@ -3582,6 +3583,11 @@ namespace IsengardClient
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
                             onMonsterKilledAction = strategy.AfterKillMonsterAction;
+                            if (strategy.AutoSpellLevelMin != -1 && strategy.AutoSpellLevelMax != -1)
+                            {
+                                _autoSpellLevelMin = strategy.AutoSpellLevelMin;
+                                _autoSpellLevelMax = strategy.AutoSpellLevelMax;
+                            }
                         }
                         List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
                         List<string> knownSpells;
@@ -3591,8 +3597,6 @@ namespace IsengardClient
                         }
                         int? calculatedMinLevel, calculatedMaxLevel;
                         Strategy.GetMinMaxOffensiveSpellLevels(strategy, _autoSpellLevelMin, _autoSpellLevelMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
-
-                        stratCurrent = new StrategyInstance(strategy, calculatedMinLevel, calculatedMaxLevel, _currentlyFightingMob, offensiveSpells, knownSpells);
 
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
@@ -3678,7 +3682,7 @@ namespace IsengardClient
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = stratCurrent.GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command);
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -3741,7 +3745,7 @@ namespace IsengardClient
                                     (_monsterStunned || !meleeOnlyWhenStunned) && 
                                     (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
                                 {
-                                    stratCurrent.GetMeleeCommand(nextMeleeStep.Value, out command);
+                                    GetMeleeCommand(nextMeleeStep.Value, out command);
                                     WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
                                     if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
@@ -3781,7 +3785,7 @@ namespace IsengardClient
                                     (_monsterStunned || !potionsOnlyWhenStunned) &&
                                     (!dtNextPotionsCommand.HasValue || DateTime.UtcNow > dtNextPotionsCommand.Value))
                                 {
-                                    PotionsCommandChoiceResult potionChoice = stratCurrent.GetPotionsCommand(nextPotionsStep.Value, out command, _inventoryEquipment, _entityLock, _autohp, _totalhp);
+                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _inventoryEquipment, _entityLock, _autohp, _totalhp);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
                                     {
                                         nextPotionsStep = null;
@@ -3950,6 +3954,8 @@ BeforeHazy:
                         _monsterKilled = false;
                         _monsterKilledType = null;
                         _currentMana = HP_OR_MP_UNKNOWN;
+                        _autoSpellLevelMin = savedAutoSpellMin;
+                        _autoSpellLevelMax = savedAutoSpellMax;
                     }
                 }
 
@@ -4004,6 +4010,275 @@ BeforeHazy:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, InventoryEquipment inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
+        {
+            command = null;
+            lock (entityLockObject)
+            {
+                bool supportsMend = Strategy != null && Strategy.PotionsMendOnlyWhenDownXHP > 0;
+                bool supportsVigor = Strategy != null && Strategy.PotionsVigorOnlyWhenDownXHP > 0;
+                if (nextPotionsStep == PotionsStrategyStep.Vigor && !supportsVigor) return PotionsCommandChoiceResult.Fail;
+                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !supportsMend) return PotionsCommandChoiceResult.Fail;
+                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !supportsVigor && !supportsMend) return PotionsCommandChoiceResult.Fail;
+                bool canMend = supportsMend && currentHP + Strategy.PotionsMendOnlyWhenDownXHP <= totalHP;
+                bool canVigor = supportsVigor && currentHP + Strategy.PotionsVigorOnlyWhenDownXHP <= totalHP;
+                if (nextPotionsStep == PotionsStrategyStep.Vigor && !canVigor) return PotionsCommandChoiceResult.Skip;
+                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !canMend) return PotionsCommandChoiceResult.Skip;
+                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !canVigor && !canMend) return PotionsCommandChoiceResult.Skip;
+
+                //check inventory for potions
+                foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
+                {
+                    ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
+                    string sText = inventoryEquipment.PickItemTextFromActualIndex(true, itemType, inventoryIndex);
+                    if (!string.IsNullOrEmpty(sText))
+                    {
+                        command = "drink " + sText;
+                        break;
+                    }
+                }
+
+                //check held equipment slot for a potion
+                if (!string.IsNullOrEmpty(command))
+                {
+                    int iHeldSlot = (int)EquipmentSlot.Held;
+                    ItemTypeEnum? heldItem = inventoryEquipment.Equipment[iHeldSlot];
+                    if (heldItem.HasValue)
+                    {
+                        ItemTypeEnum eHeldItem = heldItem.Value;
+                        StaticItemData sid = ItemEntity.StaticItemData[eHeldItem];
+                        ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
+                        if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
+                        {
+                            string sText = inventoryEquipment.PickItemTextFromActualIndex(false, eHeldItem, iHeldSlot);
+                            if (!string.IsNullOrEmpty(sText))
+                            {
+                                command = "drink " + sText;
+                            }
+                        }
+                    }
+                }
+            }
+            return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
+        }
+
+        private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, InventoryEquipment inventoryEquipment, bool canVigor, bool canMend)
+        {
+            int iIndex = 0;
+            List<int> savedIndexes = new List<int>();
+            foreach (ItemTypeEnum nextItem in inventoryEquipment.InventoryItems)
+            {
+                StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+                ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
+                if (potionValidity == ValidPotionType.Primary)
+                {
+                    yield return iIndex;
+                }
+                else if (potionValidity == ValidPotionType.Secondary)
+                {
+                    savedIndexes.Add(iIndex);
+                }
+                iIndex++;
+            }
+            foreach (int nextIndex in savedIndexes)
+            {
+                yield return nextIndex;
+            }
+        }
+
+        private ValidPotionType GetPotionValidity(StaticItemData sid, PotionsStrategyStep nextPotionsStep, bool canMend, bool canVigor)
+        {
+            ValidPotionType ret = ValidPotionType.Invalid;
+            if (sid.ItemClass == ItemClass.Potion)
+            {
+                SpellsEnum itemSpell = sid.Spell.Value;
+                if (nextPotionsStep == PotionsStrategyStep.CurePoison)
+                {
+                    if (itemSpell == SpellsEnum.curepoison)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.Vigor)
+                {
+                    if (itemSpell == SpellsEnum.vigor)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.MendWounds)
+                {
+                    if (itemSpell == SpellsEnum.mend)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                }
+                else if (nextPotionsStep == PotionsStrategyStep.GenericHeal)
+                {
+                    if (canMend && itemSpell == SpellsEnum.mend)
+                    {
+                        ret = ValidPotionType.Primary;
+                    }
+                    if (canVigor && itemSpell == SpellsEnum.vigor)
+                    {
+                        ret = ValidPotionType.Secondary;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)
+        {
+            string sAttackType;
+            if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
+            {
+                sAttackType = "power";
+            }
+            else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
+            {
+                sAttackType = "attack";
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            command = sAttackType + " " + _currentlyFightingMob;
+        }
+
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells)
+        {
+            MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
+            bool doCast;
+            command = null;
+            manaDrain = 0;
+            bct = null;
+            if (nextMagicStep == MagicStrategyStep.Stun)
+            {
+                command = "cast stun " + _currentlyFightingMob;
+                manaDrain = 10;
+                bct = BackgroundCommandType.Stun;
+            }
+            else if (nextMagicStep == MagicStrategyStep.CurePoison)
+            {
+                command = Strategy.CAST_CUREPOISON_SPELL;
+                manaDrain = 4;
+                bct = BackgroundCommandType.CurePoison;
+            }
+            else if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.Vigor || nextMagicStep == MagicStrategyStep.MendWounds)
+            {
+                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    if (Strategy != null && Strategy.MagicMendOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.MagicMendOnlyWhenDownXHP <= totalHP;
+                    else
+                        doCast = currentHP < totalHP;
+                    if (doCast)
+                    {
+                        nextMagicStep = MagicStrategyStep.MendWounds;
+                    }
+                }
+                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    if (Strategy != null && Strategy.MagicVigorOnlyWhenDownXHP > 0)
+                        doCast = currentHP + Strategy.MagicVigorOnlyWhenDownXHP <= totalHP;
+                    else
+                        doCast = currentHP < totalHP;
+                    if (doCast)
+                    {
+                        nextMagicStep = MagicStrategyStep.Vigor;
+                    }
+                }
+                if (nextMagicStep == MagicStrategyStep.MendWounds)
+                {
+                    command = Strategy.CAST_MENDWOUNDS_SPELL;
+                    manaDrain = 6;
+                    bct = BackgroundCommandType.MendWounds;
+                }
+                else if (nextMagicStep == MagicStrategyStep.Vigor)
+                {
+                    command = Strategy.CAST_VIGOR_SPELL;
+                    manaDrain = 2;
+                    bct = BackgroundCommandType.Vigor;
+                }
+                else
+                {
+                    ret = MagicCommandChoiceResult.Skip;
+                }
+            }
+            else
+            {
+                if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
+                {
+                    if (currentMP >= 15 && _autoSpellLevelMin <= 4 && _autoSpellLevelMax >= 4)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
+                    }
+                    else if (currentMP >= 10 && _autoSpellLevelMin <= 3 && _autoSpellLevelMax >= 3)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
+                    }
+                    else if (currentMP >= 7 && _autoSpellLevelMin <= 2 && _autoSpellLevelMax >= 2)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
+                    }
+                    else if (currentMP >= 3 && _autoSpellLevelMin <= 1 && _autoSpellLevelMax >= 1)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
+                    }
+                    else //out of mana
+                    {
+                        ret = MagicCommandChoiceResult.OutOfMana;
+                    }
+                }
+                if (ret == MagicCommandChoiceResult.Cast)
+                {
+                    string spell;
+                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
+                    {
+                        spell = offensiveSpells[3];
+                        manaDrain = 15;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
+                    {
+                        spell = offensiveSpells[2];
+                        manaDrain = 10;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
+                    {
+                        spell = offensiveSpells[1];
+                        manaDrain = 7;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
+                    {
+                        spell = offensiveSpells[0];
+                        manaDrain = 3;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    if (knownSpells.Contains(spell))
+                    {
+                        command = "cast " + spell + " " + _currentlyFightingMob;
+                        bct = BackgroundCommandType.OffensiveSpell;
+                    }
+                    else
+                    {
+                        manaDrain = 0;
+                        ret = MagicCommandChoiceResult.OutOfMana;
+                    }
+                }
+            }
+            if (manaDrain > 0 && manaDrain > currentMP)
+            {
+                manaDrain = 0;
+                bct = null;
+                ret = MagicCommandChoiceResult.OutOfMana;
+            }
+            return ret;
         }
 
         private bool SelectMobAfterKillMonster(AfterKillMonsterAction onMonsterKilledAction, BackgroundWorkerParameters bwp)
@@ -6511,31 +6786,30 @@ BeforeHazy:
         private void ctxRoomExits_Opening(object sender, CancelEventArgs e)
         {
             Room r = _currentRoomInfo.CurrentRoom;
-            ctxRoomExits.Items.Clear();
-            if (r == null)
+            ctxStrategy.Items.Clear();
+            ToolStripMenuItem tsmi;
+            if (r != null)
             {
-                e.Cancel = true;
-            }
-            else
-            {
-                ToolStripMenuItem tsmi;
                 foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(r))
                 {
                     tsmi = new ToolStripMenuItem();
                     tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
                     tsmi.Tag = nextEdge;
-                    ctxRoomExits.Items.Add(tsmi);
+                    ctxStrategy.Items.Add(tsmi);
                 }
                 tsmi = new ToolStripMenuItem();
                 tsmi.Text = "Graph";
-                ctxRoomExits.Items.Add(tsmi);
+                ctxStrategy.Items.Add(tsmi);
                 tsmi = new ToolStripMenuItem();
                 tsmi.Text = "Location";
-                ctxRoomExits.Items.Add(tsmi);
+                ctxStrategy.Items.Add(tsmi);
             }
+            tsmi = new ToolStripMenuItem();
+            tsmi.Text = "Edit";
+            ctxStrategy.Items.Add(tsmi);
         }
 
-        private void ctxRoomExits_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void ctxStrategy_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ContextMenuStrip ctx = (ContextMenuStrip)sender;
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
@@ -6559,6 +6833,18 @@ BeforeHazy:
                 locationsForm.ShowDialog();
                 exits = locationsForm.SelectedPath;
                 if (exits == null) return;
+            }
+            else if (sItemText == "Edit")
+            {
+                Strategy s = (Strategy)sourceButton.Tag;
+                frmStrategy frm = new frmStrategy(new Strategy(s));
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    s = frm.NewStrategy;
+                    sourceButton.Tag = s;
+                    sourceButton.Text = s.ToString();
+                }
+                return;
             }
             else
             {

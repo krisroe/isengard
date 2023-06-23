@@ -361,6 +361,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         GoldenMaskOfTheGods,
 
+        [SingularName("grate key")]
+        [PluralName("grate keys")]
+        GrateKey,
+
         [SingularName("green potion")]
         [PluralName("green potions")]
         [Potion(SpellsEnum.curepoison)]
@@ -758,6 +762,11 @@
         [PluralName("silima blades")]
         [WeaponType(WeaponType.Slash)]
         SilimaBlade,
+
+        [SingularName("silk vest")]
+        [PluralName("silk vests")]
+        [EquipmentType(EquipmentType.Torso)]
+        SilkVest,
 
         [SingularName("silver arm-bands")]
         [EquipmentType(EquipmentType.Unknown)]

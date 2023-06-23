@@ -120,9 +120,10 @@ namespace IsengardClient
             {
                 StringBuilder sb;
                 List<string> parts = new List<string>();
+                bool supportsSteps = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
                 bool hasSteps = MagicSteps != null;
                 bool hasLastStep = LastMagicStep.HasValue;
-                if (hasSteps || hasLastStep)
+                if (supportsSteps && (hasSteps || hasLastStep))
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
@@ -154,9 +155,10 @@ namespace IsengardClient
                     }
                     parts.Add(sb.ToString());
                 }
+                supportsSteps = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
                 hasLastStep = LastMeleeStep.HasValue;
                 hasSteps = MeleeSteps != null;
-                if (hasSteps || hasLastStep)
+                if (supportsSteps && (hasSteps || hasLastStep))
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
@@ -188,9 +190,10 @@ namespace IsengardClient
                     }
                     parts.Add(sb.ToString());
                 }
+                supportsSteps = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
                 hasLastStep = LastPotionsStep.HasValue;
                 hasSteps = PotionsSteps != null;
-                if (hasSteps || hasLastStep)
+                if (supportsSteps && (hasSteps || hasLastStep))
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
@@ -416,34 +419,12 @@ namespace IsengardClient
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
             s.PotionsMendOnlyWhenDownXHP = 12;
             s.PotionsVigorOnlyWhenDownXHP = 6;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.MagicSteps = new List<AMagicStrategyStep>()
-            {
-                SingleMagicStrategyStep.MagicStepStun,
-            };
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
+            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             allStrategies.Add(s);
 
             s = new Strategy();
@@ -461,6 +442,7 @@ namespace IsengardClient
             s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             allStrategies.Add(s);
 
             s = new Strategy();
@@ -475,9 +457,13 @@ namespace IsengardClient
             };
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.PotionsMendOnlyWhenDownXHP = 12;
+            s.PotionsVigorOnlyWhenDownXHP = 6;
             s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             allStrategies.Add(s);
 
             s = new Strategy();
@@ -494,48 +480,13 @@ namespace IsengardClient
             };
             s.FinalMagicAction = FinalStepAction.Flee;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.PotionsMendOnlyWhenDownXHP = 12;
+            s.PotionsVigorOnlyWhenDownXHP = 6;
             s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.MagicSteps = new List<AMagicStrategyStep>()
-            {
-                        SingleMagicStrategyStep.MagicStepStun,
-            };
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.MagicSteps = new List<AMagicStrategyStep>()
-            {
-                        SingleMagicStrategyStep.MagicStepStun,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepStun,
-            };
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Magic;
-            allStrategies.Add(s);
-
-            s = new Strategy();
-            s.AutogenerateName = true;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
+            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             allStrategies.Add(s);
 
             return allStrategies;
@@ -958,305 +909,6 @@ namespace IsengardClient
             foreach (var next in this.SubSteps)
             {
                 ret.SubSteps.Add(next.Clone());
-            }
-            return ret;
-        }
-    }
-
-    public class StrategyInstance
-    {
-        private Strategy Strategy;
-        private int? _minAutoSpellLevel;
-        private int? _maxAutoSpellLevel;
-        private string currentMob;
-        private List<string> _realmSpells;
-        private List<string> _knownSpells;
-        public StrategyInstance(Strategy strategy, int? minAutoSpellLevel, int? maxAutoSpellLevel, string currentlyFightingMob, List<string> realmSpells, List<string> knownSpells)
-        {
-            _minAutoSpellLevel = minAutoSpellLevel;
-            _maxAutoSpellLevel = maxAutoSpellLevel;
-            Strategy = strategy;
-            currentMob = currentlyFightingMob;
-            _realmSpells = realmSpells;
-            _knownSpells = knownSpells;
-        }
-
-        public PotionsCommandChoiceResult GetPotionsCommand(PotionsStrategyStep nextPotionsStep, out string command, InventoryEquipment inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
-        {
-            command = null;
-            lock (entityLockObject)
-            {
-                bool supportsMend = Strategy.PotionsMendOnlyWhenDownXHP > 0;
-                bool supportsVigor = Strategy.PotionsVigorOnlyWhenDownXHP > 0;
-                if (nextPotionsStep == PotionsStrategyStep.Vigor && !supportsVigor) return PotionsCommandChoiceResult.Fail;
-                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !supportsMend) return PotionsCommandChoiceResult.Fail;
-                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !supportsVigor && !supportsMend) return PotionsCommandChoiceResult.Fail;
-                bool canMend = supportsMend && currentHP + Strategy.PotionsMendOnlyWhenDownXHP <= totalHP;
-                bool canVigor = supportsVigor && currentHP + Strategy.PotionsVigorOnlyWhenDownXHP <= totalHP;
-                if (nextPotionsStep == PotionsStrategyStep.Vigor && !canVigor) return PotionsCommandChoiceResult.Skip;
-                if (nextPotionsStep == PotionsStrategyStep.MendWounds && !canMend) return PotionsCommandChoiceResult.Skip;
-                if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !canVigor && !canMend) return PotionsCommandChoiceResult.Skip;
-
-                //check inventory for potions
-                foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
-                {
-                    ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
-                    string sText = inventoryEquipment.PickItemTextFromActualIndex(true, itemType, inventoryIndex);
-                    if (!string.IsNullOrEmpty(sText))
-                    {
-                        command = "drink " + sText;
-                        break;
-                    }
-                }
-
-                //check held equipment slot for a potion
-                if (!string.IsNullOrEmpty(command))
-                {
-                    int iHeldSlot = (int)EquipmentSlot.Held;
-                    ItemTypeEnum? heldItem = inventoryEquipment.Equipment[iHeldSlot];
-                    if (heldItem.HasValue)
-                    {
-                        ItemTypeEnum eHeldItem = heldItem.Value;
-                        StaticItemData sid = ItemEntity.StaticItemData[eHeldItem];
-                        ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
-                        if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
-                        {
-                            string sText = inventoryEquipment.PickItemTextFromActualIndex(false, eHeldItem, iHeldSlot);
-                            if (!string.IsNullOrEmpty(sText))
-                            {
-                                command = "drink " + sText;
-                            }
-                        }
-                    }
-                }
-            }
-            return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
-        }
-
-        private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, InventoryEquipment inventoryEquipment, bool canVigor, bool canMend)
-        {
-            int iIndex = 0;
-            List<int> savedIndexes = new List<int>();
-            foreach (ItemTypeEnum nextItem in inventoryEquipment.InventoryItems)
-            {
-                StaticItemData sid = ItemEntity.StaticItemData[nextItem];
-                ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
-                if (potionValidity == ValidPotionType.Primary)
-                {
-                    yield return iIndex;
-                }
-                else if (potionValidity == ValidPotionType.Secondary)
-                {
-                    savedIndexes.Add(iIndex);
-                }
-                iIndex++;
-            }
-            foreach (int nextIndex in savedIndexes)
-            {
-                yield return nextIndex;
-            }
-        }
-
-        private ValidPotionType GetPotionValidity(StaticItemData sid, PotionsStrategyStep nextPotionsStep, bool canMend, bool canVigor)
-        {
-            ValidPotionType ret = ValidPotionType.Invalid;
-            if (sid.ItemClass == ItemClass.Potion)
-            {
-                SpellsEnum itemSpell = sid.Spell.Value;
-                if (nextPotionsStep == PotionsStrategyStep.CurePoison)
-                {
-                    if (itemSpell == SpellsEnum.curepoison)
-                    {
-                        ret = ValidPotionType.Primary;
-                    }
-                }
-                else if (nextPotionsStep == PotionsStrategyStep.Vigor)
-                {
-                    if (itemSpell == SpellsEnum.vigor)
-                    {
-                        ret = ValidPotionType.Primary;
-                    }
-                }
-                else if (nextPotionsStep == PotionsStrategyStep.MendWounds)
-                {
-                    if (itemSpell == SpellsEnum.mend)
-                    {
-                        ret = ValidPotionType.Primary;
-                    }
-                }
-                else if (nextPotionsStep == PotionsStrategyStep.GenericHeal)
-                {
-                    if (canMend && itemSpell == SpellsEnum.mend)
-                    {
-                        ret = ValidPotionType.Primary;
-                    }
-                    if (canVigor && itemSpell == SpellsEnum.vigor)
-                    {
-                        ret = ValidPotionType.Secondary;
-                    }
-                }
-            }
-            return ret;
-        }
-
-        private enum ValidPotionType
-        {
-            Invalid,
-            Primary,
-            Secondary,
-        }
-
-        public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)
-        {
-            string sAttackType;
-            if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
-            {
-                sAttackType = "power";
-            }
-            else if (nextMeleeStep == MeleeStrategyStep.RegularAttack)
-            {
-                sAttackType = "attack";
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-            command = sAttackType + " " + currentMob;
-        }
-
-        public MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP,  out int manaDrain, out BackgroundCommandType? bct, out string command)
-        {
-            MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
-            bool doCast;
-            command = null;
-            manaDrain = 0;
-            bct = null;
-            if (nextMagicStep == MagicStrategyStep.Stun)
-            {
-                command = "cast stun " + currentMob;
-                manaDrain = 10;
-                bct = BackgroundCommandType.Stun;
-            }
-            else if (nextMagicStep == MagicStrategyStep.CurePoison)
-            {
-                command = Strategy.CAST_CUREPOISON_SPELL;
-                manaDrain = 4;
-                bct = BackgroundCommandType.CurePoison;
-            }
-            else if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.Vigor || nextMagicStep == MagicStrategyStep.MendWounds)
-            {
-                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
-                {
-                    if (Strategy != null && Strategy.MagicMendOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.MagicMendOnlyWhenDownXHP <= totalHP;
-                    else
-                        doCast = currentHP < totalHP;
-                    if (doCast)
-                    {
-                        nextMagicStep = MagicStrategyStep.MendWounds;
-                    }
-                }
-                if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
-                {
-                    if (Strategy != null && Strategy.MagicVigorOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.MagicVigorOnlyWhenDownXHP <= totalHP;
-                    else
-                        doCast = currentHP < totalHP;
-                    if (doCast)
-                    {
-                        nextMagicStep = MagicStrategyStep.Vigor;
-                    }
-                }
-                if (nextMagicStep == MagicStrategyStep.MendWounds)
-                {
-                    command = Strategy.CAST_MENDWOUNDS_SPELL;
-                    manaDrain = 6;
-                    bct = BackgroundCommandType.MendWounds;
-                }
-                else if (nextMagicStep == MagicStrategyStep.Vigor)
-                {
-                    command = Strategy.CAST_VIGOR_SPELL;
-                    manaDrain = 2;
-                    bct = BackgroundCommandType.Vigor;
-                }
-                else
-                {
-                    ret = MagicCommandChoiceResult.Skip;
-                }
-            }
-            else
-            {
-                if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
-                {
-                    if (!_minAutoSpellLevel.HasValue || !_maxAutoSpellLevel.HasValue)
-                    {
-                        ret = MagicCommandChoiceResult.OutOfMana;
-                    }
-                    else if (currentMP >= 15 && _minAutoSpellLevel.Value <= 4 && _maxAutoSpellLevel.Value >= 4)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
-                    }
-                    else if (currentMP >= 10 && _minAutoSpellLevel.Value <= 3 && _maxAutoSpellLevel.Value >= 3)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
-                    }
-                    else if (currentMP >= 7 && _minAutoSpellLevel.Value <= 2 && _maxAutoSpellLevel.Value >= 2)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
-                    }
-                    else if (currentMP >= 3 && _minAutoSpellLevel.Value <= 1 && _maxAutoSpellLevel.Value >= 1)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
-                    }
-                    else //out of mana
-                    {
-                        ret = MagicCommandChoiceResult.OutOfMana;
-                    }
-                }
-                if (ret == MagicCommandChoiceResult.Cast)
-                {
-                    string spell;
-                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
-                    {
-                        spell = _realmSpells[3];
-                        manaDrain = 15;
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
-                    {
-                        spell = _realmSpells[2];
-                        manaDrain = 10;
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
-                    {
-                        spell = _realmSpells[1];
-                        manaDrain = 7;
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
-                    {
-                        spell = _realmSpells[0];
-                        manaDrain = 3;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
-                    if (_knownSpells.Contains(spell))
-                    {
-                        command = "cast " + spell + " " + currentMob;
-                        bct = BackgroundCommandType.OffensiveSpell;
-                    }
-                    else
-                    {
-                        manaDrain = 0;
-                        ret = MagicCommandChoiceResult.OutOfMana;
-                    }
-                }
-            }
-            if (manaDrain > 0 && manaDrain > currentMP)
-            {
-                manaDrain = 0;
-                bct = null;
-                ret = MagicCommandChoiceResult.OutOfMana;
             }
             return ret;
         }
