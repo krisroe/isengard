@@ -779,7 +779,7 @@
         SilkVest,
 
         [SingularName("silver arm-bands")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Arms)]
         SilverArmBands,
 
         [SingularName("Silver-blue scale")]

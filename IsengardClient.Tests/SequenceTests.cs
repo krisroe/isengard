@@ -711,6 +711,39 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestInventoryManagementSequence()
+        {
+            List<ItemTypeEnum> items = null;
+            bool? isAdd = null;
+            bool? isEquipment = null;
+            int? totalGold = null;
+            int? soldGold = null;
+            List<string> spells = null;
+            bool? potionConsumed = null;
+            Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> a = (flParams, i, isadd, e, gt, gs, sp, pot) =>
+            {
+                items = i;
+                isAdd = isadd;
+                isEquipment = e;
+                totalGold = gt;
+                soldGold = gs;
+                spells = sp;
+                potionConsumed = pot;
+            };
+
+            FeedLineParameters flp = new FeedLineParameters(null);
+            InventoryEquipmentManagementSequence seq = new InventoryEquipmentManagementSequence(a);
+
+            flp.Lines = new List<string>() { "You can fly!", string.Empty, "Substance consumed.", "The ice blue potion disintegrates." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(spells != null && spells.Contains("fly"));
+            Assert.IsTrue(potionConsumed.Value);
+            Assert.IsTrue(items.Count == 1);
+            Assert.IsTrue(items[0] == ItemTypeEnum.IceBluePotion);
+            Assert.IsTrue(!isAdd.Value);
+        }
+
+        [TestMethod]
         public void TestConstantSequences()
         {
             bool satisfied;
