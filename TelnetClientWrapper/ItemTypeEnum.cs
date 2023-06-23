@@ -595,6 +595,11 @@
         [WeaponType(WeaponType.Unknown)]
         MorningStar,
 
+        [SingularName("nunchukus")]
+        [WeaponType(WeaponType.Polearm)]
+        //CSRTODO: plural
+        Nunchukus,
+
         [SingularName("old wooden sign")]
         [PluralName("old wooden signs")]
         OldWoodenSign,
@@ -807,7 +812,7 @@
 
         [SingularName("small ash bow")]
         [PluralName("small ash bows")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         SmallAshBow,
 
         [SingularName("small bag")]
