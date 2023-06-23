@@ -4463,6 +4463,7 @@ namespace IsengardClient
             nindamosGraph.Rooms[oPathThroughTheValleyHiddenPath] = new System.Windows.Point(2, -1);
 
             oArmenelosGatesOutside = AddRoom("Gate Outside", "Gates of Armenelos");
+            oArmenelosGatesOutside.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oArmenelosGatesOutside, oPathThroughTheValleyHiddenPath, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(2, -2);
         }
