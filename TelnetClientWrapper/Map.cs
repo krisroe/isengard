@@ -1812,6 +1812,8 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSlopingSewerPassage2] = new System.Windows.Point(11, 5);
 
             AddLocation(_aBreePerms, oSalamander);
+            AddLocation(_aBreePerms, oSewerOrcChamber);
+            AddLocation(_aBreePerms, oSewerOrcLair);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage, RoomGraph breeStreetsGraph)
@@ -2842,6 +2844,7 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oUnderHallsCorridorsGreenSlime);
             AddLocation(_aBreePerms, oGhostOfMuzgash);
             AddLocation(_aBreePerms, oLichsLair);
+            AddLocation(_aBreePerms, oAmbushedParty);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)
@@ -5664,7 +5667,7 @@ namespace IsengardClient
 
     internal static class MapComputation
     {
-        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, bool flying, bool levitating, bool isDay, int level)
+        public static List<Exit> ComputeLowestCostPath(Room currentRoom, Room targetRoom, GraphInputs graphInputs)
         {
             if (currentRoom == null)
             {
@@ -5679,7 +5682,7 @@ namespace IsengardClient
 
             Func<Exit, bool> discriminator = (exit) =>
             {
-                return !pathMapping.ContainsKey(exit.Target) && exit.ExitIsUsable(flying, levitating, isDay, level);
+                return !pathMapping.ContainsKey(exit.Target) && exit.ExitIsUsable(graphInputs);
             };
             foreach (Exit e in IsengardMap.GetRoomExits(currentRoom, discriminator))
             {
@@ -5719,5 +5722,13 @@ namespace IsengardClient
             }
             return ret;
         }
+    }
+
+    public class GraphInputs
+    {
+        public bool Flying { get; set; }
+        public bool Levitating { get; set; }
+        public bool IsDay { get; set; }
+        public int Level { get; set; }
     }
 }

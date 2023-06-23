@@ -8,21 +8,15 @@ namespace IsengardClient
     internal partial class frmLocations : Form
     {
         private IsengardMap _fullMap;
-        private bool _flying;
-        private bool _levitating;
-        private bool _isDay;
-        private int _level;
+        private GraphInputs _graphInputs;
 
-        public frmLocations(IsengardMap fullMap, Room currentRoom, bool forRoomSelection, bool flying, bool levitating, bool isDay, int level)
+        public frmLocations(IsengardMap fullMap, Room currentRoom, bool forRoomSelection, GraphInputs gi)
         {
             InitializeComponent();
 
             _fullMap = fullMap;
             CurrentRoom = currentRoom;
-            _flying = flying;
-            _levitating = levitating;
-            _isDay = isDay;
-            _level = level;
+            _graphInputs = gi;
 
             if (forRoomSelection)
             {
@@ -40,6 +34,12 @@ namespace IsengardClient
         }
 
         public List<Exit> SelectedPath
+        {
+            get;
+            set;
+        }
+
+        public Room SelectedRoom
         {
             get;
             set;
@@ -79,12 +79,13 @@ namespace IsengardClient
         private void btnGo_Click(object sender, EventArgs e)
         {
             Room selectedRoom = (Room)treeLocations.SelectedNode.Tag;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _flying, _levitating, _isDay, _level);
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
             if (SelectedPath == null)
             {
                 MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
                 return;
             }
+            SelectedRoom = selectedRoom;
             this.DialogResult = DialogResult.OK;
             Close();
         }

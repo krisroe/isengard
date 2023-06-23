@@ -3085,7 +3085,7 @@ namespace IsengardClient
 
         private void btnOneClick_Click(object sender, EventArgs e)
         {
-            RunStrategy((Strategy)((Button)sender).Tag, null);
+            RunStrategy((Strategy)((Button)sender).Tag);
         }
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -5626,7 +5626,7 @@ BeforeHazy:
             cboSetOption_SelectedIndexChanged(null, null);
         }
 
-        private void RunStrategy(Strategy strategy, List<Exit> preExits)
+        private void RunStrategy(Strategy strategy)
         {
             CommandType eStrategyCombatCommandType = strategy.CombatCommandTypes;
             bool isMagicStrategy = (eStrategyCombatCommandType & CommandType.Magic) == CommandType.Magic;
@@ -5643,7 +5643,8 @@ BeforeHazy:
 
             PromptedSkills activatedSkills;
             string targetRoomMob;
-            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, preExits, out activatedSkills, out targetRoomMob))
+            List<Exit> preExits;
+            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy))
             {
                 return;
             }
@@ -5657,10 +5658,11 @@ BeforeHazy:
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, List<Exit> preExits, out PromptedSkills activatedSkills, out string mob)
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
+            preExits = null;
 
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
@@ -5695,24 +5697,16 @@ BeforeHazy:
                 return false;
             }
 
-            Room targetRoom;
-            if (preExits == null)
-            {
-                targetRoom = _currentRoomInfo.CurrentRoom;
-            }
-            else
-            {
-                targetRoom = preExits[preExits.Count - 1].Target;
-            }
-
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(skills, targetRoom, txtMob.Text, isCombatStrategy))
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentRoomInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
                     return false;
                 }
+                preExits = frmSkills.SelectedPath;
                 activatedSkills = frmSkills.SelectedSkills;
                 mob = frmSkills.Mob;
+                strategy = frmSkills.Strategy;
             }
             return true;
         }
@@ -6783,58 +6777,12 @@ BeforeHazy:
             }
         }
 
-        private void ctxRoomExits_Opening(object sender, CancelEventArgs e)
-        {
-            Room r = _currentRoomInfo.CurrentRoom;
-            ctxStrategy.Items.Clear();
-            ToolStripMenuItem tsmi;
-            if (r != null)
-            {
-                foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(r))
-                {
-                    tsmi = new ToolStripMenuItem();
-                    tsmi.Text = nextEdge.ExitText + ": " + nextEdge.Target.ToString();
-                    tsmi.Tag = nextEdge;
-                    ctxStrategy.Items.Add(tsmi);
-                }
-                tsmi = new ToolStripMenuItem();
-                tsmi.Text = "Graph";
-                ctxStrategy.Items.Add(tsmi);
-                tsmi = new ToolStripMenuItem();
-                tsmi.Text = "Location";
-                ctxStrategy.Items.Add(tsmi);
-            }
-            tsmi = new ToolStripMenuItem();
-            tsmi.Text = "Edit";
-            ctxStrategy.Items.Add(tsmi);
-        }
-
         private void ctxStrategy_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ContextMenuStrip ctx = (ContextMenuStrip)sender;
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
-            Exit exit = (Exit)clickedItem.Tag;
             Button sourceButton = (Button)ctx.SourceControl;
-            List<Exit> exits;
-            string sItemText = clickedItem.Text;
-            Room currentRoom = _currentRoomInfo.CurrentRoom;
-            if (sItemText == "Graph")
-            {
-                GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-                frmGraph graphForm = new frmGraph(_gameMap, currentRoom, true, flying, levitating, isDay, level);
-                graphForm.ShowDialog();
-                exits = graphForm.SelectedPath;
-                if (exits == null) return;
-            }
-            else if (sItemText == "Location")
-            {
-                GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-                frmLocations locationsForm = new frmLocations(_gameMap, currentRoom, true, flying, levitating, isDay, level);
-                locationsForm.ShowDialog();
-                exits = locationsForm.SelectedPath;
-                if (exits == null) return;
-            }
-            else if (sItemText == "Edit")
+            if (clickedItem.Text == "Edit")
             {
                 Strategy s = (Strategy)sourceButton.Tag;
                 frmStrategy frm = new frmStrategy(new Strategy(s));
@@ -6844,13 +6792,7 @@ BeforeHazy:
                     sourceButton.Tag = s;
                     sourceButton.Text = s.ToString();
                 }
-                return;
             }
-            else
-            {
-                exits = new List<Exit>() { exit };
-            }
-            RunStrategy((Strategy)sourceButton.Tag, exits);
         }
 
         private void RefreshEnabledForSingleMoveButtons()
@@ -6940,8 +6882,10 @@ BeforeHazy:
             }
         }
 
-        private void GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level)
+        private GraphInputs GetGraphInputs()
         {
+            GraphInputs ret = new GraphInputs();
+            bool flying, levitating;
             lock (_spellsCastLock)
             {
                 if (_spellsCast == null)
@@ -6955,14 +6899,17 @@ BeforeHazy:
                     levitating = _spellsCast.Contains("levitation");
                 }
             }
-            isDay = TimeOutputSequence.IsDay(_time);
-            level = _level;
+            ret.Flying = flying;
+            ret.Levitating = levitating;
+            ret.IsDay = TimeOutputSequence.IsDay(_time);
+            ret.Level = _level;
+            return ret;
         }
 
         private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
-            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, flying, levitating, isDay, level);
+            GraphInputs gi = GetGraphInputs();
+            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, gi);
             if (pathExits == null)
             {
                 MessageBox.Show("No path to target room found.");
@@ -6993,9 +6940,8 @@ BeforeHazy:
         private void btnGraph_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
-            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, flying, levitating, isDay, level);
-
+            GraphInputs gi = GetGraphInputs();
+            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, gi);
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
                 Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
@@ -7022,8 +6968,8 @@ BeforeHazy:
         private void btnLocations_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
-            GetGraphInputs(out bool flying, out bool levitating, out bool isDay, out int level);
-            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, false, flying, levitating, isDay, level);
+            GraphInputs gi = GetGraphInputs();
+            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, false, gi);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
@@ -7124,7 +7070,8 @@ BeforeHazy:
         private void btnSkills_Click(object sender, EventArgs e)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp == null && PromptForSkills(true, false, false, null, out PromptedSkills activatedSkills, out _))
+            Strategy temp = null;
+            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp))
             {
                 bwp = new BackgroundWorkerParameters();
                 bwp.UsedSkills = activatedSkills;

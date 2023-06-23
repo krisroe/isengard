@@ -15,19 +15,13 @@ namespace IsengardClient
         private VertexControl _currentVertexControl;
         private Dictionary<MapType, RoomGraph> _graphs;
         private bool _forVertexSelection;
-        private bool _flying;
-        private bool _levitating;
-        private bool _isDay;
-        private int _level;
+        private GraphInputs _graphInputs;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, bool flying, bool levitating, bool isDay, int level)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, GraphInputs graphInputs)
         {
             InitializeComponent();
 
-            _flying = flying;
-            _levitating = levitating;
-            _isDay = isDay;
-            _level = level;
+            _graphInputs = graphInputs;
             _graphs = fullMap.Graphs;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
@@ -90,7 +84,7 @@ namespace IsengardClient
                             rbg.AddVertex(targetRoom);
                             addedRooms.Add(targetRoom);
                         }
-                        nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_flying, _levitating, _isDay, _level);
+                        nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_graphInputs);
                         rbg.AddEdge(nextExit);
                     }
                 }
@@ -105,6 +99,12 @@ namespace IsengardClient
         }
 
         public List<Exit> SelectedPath
+        {
+            get;
+            set;
+        }
+
+        public Room SelectedRoom
         {
             get;
             set;
@@ -181,12 +181,13 @@ namespace IsengardClient
         private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
             Room selectedRoom = (Room)_currentVertexControl.Vertex;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _flying, _levitating, _isDay, _level);
+            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
             if (SelectedPath == null)
             {
                 MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
                 return;
             }
+            SelectedRoom = selectedRoom;
             this.DialogResult = true;
             Close();
         }

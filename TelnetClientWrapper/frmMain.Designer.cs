@@ -156,6 +156,7 @@
             this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.ctxStrategy = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
@@ -187,6 +188,7 @@
             this.pnlOverallLeft.SuspendLayout();
             this.pnlTabControl.SuspendLayout();
             this.tsTopMenu.SuspendLayout();
+            this.ctxStrategy.SuspendLayout();
             this.grpConsole.SuspendLayout();
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
@@ -1619,10 +1621,17 @@
             // ctxStrategy
             // 
             this.ctxStrategy.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxStrategy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiEditStrategy});
             this.ctxStrategy.Name = "ctxStrategy";
-            this.ctxStrategy.Size = new System.Drawing.Size(61, 4);
-            this.ctxStrategy.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRoomExits_Opening);
+            this.ctxStrategy.Size = new System.Drawing.Size(105, 28);
             this.ctxStrategy.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxStrategy_ItemClicked);
+            // 
+            // tsmiEditStrategy
+            // 
+            this.tsmiEditStrategy.Name = "tsmiEditStrategy";
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(104, 24);
+            this.tsmiEditStrategy.Text = "Edit";
             // 
             // tmr
             // 
@@ -1740,6 +1749,7 @@
             this.pnlTabControl.ResumeLayout(false);
             this.tsTopMenu.ResumeLayout(false);
             this.tsTopMenu.PerformLayout();
+            this.ctxStrategy.ResumeLayout(false);
             this.grpConsole.ResumeLayout(false);
             this.pnlConsoleHolder.ResumeLayout(false);
             this.ctxConsole.ResumeLayout(false);
@@ -1884,6 +1894,7 @@
         private System.Windows.Forms.ToolStripButton tsbRemoveAll;
         private System.Windows.Forms.ToolStripButton tsbWearAll;
         private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
     }
 }
 

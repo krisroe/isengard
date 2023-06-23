@@ -387,7 +387,7 @@
 
         [SingularName("halberd")]
         [PluralName("halberds")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Polearm)]
         Halberd,
 
         [SingularName("hand axe")]

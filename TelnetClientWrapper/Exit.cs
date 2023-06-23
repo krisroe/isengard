@@ -61,10 +61,12 @@ namespace IsengardClient
         /// </summary>
         public bool IsTrapExit { get; set; }
 
-        public bool ExitIsUsable(bool flying, bool levitating, bool isDay, int level)
+        public bool ExitIsUsable(GraphInputs graphInputs)
         {
+            bool flying = graphInputs.Flying;
+            int level = graphInputs.Level;
             bool ret;
-            if (RequiresDay && !isDay)
+            if (RequiresDay && !graphInputs.IsDay)
                 ret = false;
             else if (MaximumLevel.HasValue && level > MaximumLevel.Value)
                 ret = false;
@@ -72,7 +74,7 @@ namespace IsengardClient
                 ret = false;
             else if (FloatRequirement == FloatRequirement.Fly && !flying)
                 ret = false;
-            else if (FloatRequirement == FloatRequirement.FlyOrLevitation && !flying && !levitating)
+            else if (FloatRequirement == FloatRequirement.FlyOrLevitation && !flying && !graphInputs.Levitating)
                 ret = false;
             else
                 ret = true;
