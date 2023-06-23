@@ -3556,7 +3556,7 @@ namespace IsengardClient
                 }
 
                 bool useManaPool = pms.ManaPool > 0;
-                bool stopIfMonsterKilled = false;
+                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
                 bool hasInitialQueuedPotionsStep;
@@ -3581,7 +3581,7 @@ namespace IsengardClient
                             haveMagicStrategySteps = strategy.HasAnyMagicSteps();
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
-                            stopIfMonsterKilled = strategy.StopWhenKillMonster;
+                            onMonsterKilledAction = strategy.AfterKillMonsterAction;
                         }
                         List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
                         List<string> knownSpells;
@@ -3664,8 +3664,9 @@ namespace IsengardClient
                             DateTime? dtNextPotionsCommand = null;
                             while (true) //combat cycle
                             {
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
                                 bool didDamage = false;
                                 string command;
@@ -3706,7 +3707,8 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 //flee or stop combat once steps complete
@@ -3731,8 +3733,9 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
                                 if (nextMeleeStep.HasValue &&
                                     (_monsterStunned || !meleeOnlyWhenStunned) && 
@@ -3744,7 +3747,8 @@ namespace IsengardClient
                                         return;
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 //flee or stop combat once steps complete
@@ -3769,8 +3773,9 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
                                 if (nextPotionsStep.HasValue &&
                                     (_monsterStunned || !potionsOnlyWhenStunned) &&
@@ -3805,7 +3810,8 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
 
                                 //flee or stop combat once steps complete
@@ -3830,7 +3836,7 @@ namespace IsengardClient
                                     }
                                 }
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
 
                                 if (didDamage && _queryMonsterStatus)
                                 {
@@ -3863,16 +3869,16 @@ namespace IsengardClient
                                 //stop combat if all combat types are finished
                                 if (!nextMagicStep.HasValue && !nextMeleeStep.HasValue && !nextPotionsStep.HasValue) break;
 
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
-                                if (BreakOutOfBackgroundCombat(stopIfMonsterKilled)) break;
+                                if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
 
                                 Thread.Sleep(50);
                             }
                         }
 
                         //perform flee logic
-                        if (_fleeing && (!stopIfMonsterKilled || !_monsterKilled) && !_hazying)
+                        if (_fleeing && (onMonsterKilledAction != AfterKillMonsterAction.StopCombat || !_monsterKilled) && !_hazying)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Flee;
                             if (RemoveWeapon(weaponItem))
@@ -3916,7 +3922,7 @@ namespace IsengardClient
 BeforeHazy:
 
                         //perform hazy logic
-                        if (_hazying && (!stopIfMonsterKilled || !_monsterKilled))
+                        if (_hazying && (onMonsterKilledAction != AfterKillMonsterAction.StopCombat || !_monsterKilled))
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Hazy;
 
@@ -4000,6 +4006,36 @@ BeforeHazy:
             }
         }
 
+        private bool SelectMobAfterKillMonster(AfterKillMonsterAction onMonsterKilledAction, BackgroundWorkerParameters bwp)
+        {
+            if (_monsterKilled && (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom || onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType))
+            {
+                lock (_entityLock)
+                {
+                    int index;
+                    if (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom)
+                    {
+                        if (_currentRoomInfo.CurrentRoomMobs.Count == 0) return false;
+                        index = 0;
+                    }
+                    else
+                    {
+                        if (!_monsterKilledType.HasValue) return false;
+                        index = _currentRoomInfo.CurrentRoomMobs.IndexOf(_monsterKilledType.Value);
+                        if (index < 0) return false;
+                    }
+                    string sMobText = PickMobText(index);
+                    if (string.IsNullOrEmpty(sMobText)) return false;
+                    _currentlyFightingMob = sMobText;
+                    _mob = sMobText;
+                    bwp.TargetRoomMob = sMobText;
+                    _monsterKilled = false;
+                    _monsterKilledType = null;
+                }
+            }
+            return true;
+        }
+
         private bool RemoveWeapon(ItemTypeEnum? weaponItem)
         {
             bool ret = false;
@@ -4056,10 +4092,10 @@ BeforeHazy:
             return !exit.Hidden && !exit.NoFlee;
         }
 
-        private bool BreakOutOfBackgroundCombat(bool stopIfMonsterKilled)
+        private bool BreakOutOfBackgroundCombat(AfterKillMonsterAction afterKillMonsterAction)
         {
             bool ret;
-            if (stopIfMonsterKilled && _monsterKilled)
+            if (afterKillMonsterAction == AfterKillMonsterAction.StopCombat && _monsterKilled)
                 ret = true;
             else if (_fleeing)
                 ret = true;

@@ -190,6 +190,13 @@ namespace IsengardClient
         Hazy = 1,
     }
 
+    public enum AutoEscapeActivity
+    {
+        Active,
+        Inactive,
+        Inherit,
+    }
+
     internal enum BidirectionalExitType
     {
         WestEast,
@@ -236,9 +243,9 @@ namespace IsengardClient
     public enum FinalStepAction
     {
         None = 0,
-        Flee = 2,
-        Hazy = 3,
-        FinishCombat = 4,
+        Flee = 1,
+        Hazy = 2,
+        FinishCombat = 3,
     }
 
     public enum MagicStrategyStep
@@ -555,6 +562,14 @@ namespace IsengardClient
         Potion,
         Scroll,
         Other,
+    }
+
+    public enum AfterKillMonsterAction
+    {
+        ContinueCombat = 0,
+        StopCombat = 1,
+        SelectFirstMonsterInRoom = 2,
+        SelectFirstMonsterInRoomOfSameType = 3,
     }
 
     public enum SpellProficiency

@@ -331,25 +331,20 @@ namespace IsengardClient
 
         private void RefreshAutoEscapeUI()
         {
-            SetAutoEscapeLabel(lblCurrentAutoEscapeValue, _currentAutoEscapeType, _currentAutoEscapeThreshold, _currentAutoEscapeActive);
-        }
-
-        private static void SetAutoEscapeLabel(Label lbl, AutoEscapeType autoEscapeType, int autoEscapeThreshold, bool autoEscapeActive)
-        {
             Color autoEscapeBackColor;
             string autoEscapeText;
-            string sAutoEscapeType = autoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
-            if (autoEscapeThreshold > 0)
+            string sAutoEscapeType = _currentAutoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
+            if (_currentAutoEscapeThreshold > 0)
             {
-                autoEscapeText = sAutoEscapeType + " @ " + autoEscapeThreshold.ToString();
+                autoEscapeText = sAutoEscapeType + " @ " + _currentAutoEscapeThreshold.ToString();
             }
             else
             {
                 autoEscapeText = sAutoEscapeType;
             }
-            if (autoEscapeActive)
+            if (_currentAutoEscapeActive)
             {
-                if (autoEscapeType == AutoEscapeType.Hazy)
+                if (_currentAutoEscapeType == AutoEscapeType.Hazy)
                 {
                     autoEscapeBackColor = Color.DarkBlue;
                 }
@@ -358,7 +353,7 @@ namespace IsengardClient
                     autoEscapeBackColor = Color.DarkRed;
                 }
             }
-            else if (autoEscapeThreshold > 0)
+            else if (_currentAutoEscapeThreshold > 0)
             {
                 autoEscapeBackColor = Color.LightGray;
             }
@@ -366,7 +361,7 @@ namespace IsengardClient
             {
                 autoEscapeBackColor = Color.Black;
             }
-            if (autoEscapeActive)
+            if (_currentAutoEscapeActive)
             {
                 autoEscapeText += " (On)";
             }
@@ -376,9 +371,9 @@ namespace IsengardClient
             }
 
             UIShared.GetForegroundColor(autoEscapeBackColor.R, autoEscapeBackColor.G, autoEscapeBackColor.G, out byte forer, out byte foreg, out byte foreb);
-            lbl.BackColor = autoEscapeBackColor;
-            lbl.ForeColor = Color.FromArgb(forer, foreg, foreb);
-            lbl.Text = autoEscapeText;
+            lblCurrentAutoEscapeValue.BackColor = autoEscapeBackColor;
+            lblCurrentAutoEscapeValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
+            lblCurrentAutoEscapeValue.Text = autoEscapeText;
         }
 
         private void ctxAutoEscape_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -524,11 +519,21 @@ namespace IsengardClient
         private void tsmiAddStrategy_Click(object sender, EventArgs e)
         {
             //CSRTODO: implement me!
+            MessageBox.Show("Not currently implemented");
         }
 
         private void tsmiEditStrategy_Click(object sender, EventArgs e)
         {
-            //CSRTODO: implement me!
+            int index = lstStrategies.SelectedIndex;
+            Strategy s = (Strategy)lstStrategies.Items[index];
+            frmStrategy frm = new frmStrategy(s);
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                s = frm.NewStrategy;
+                _strategies[index] = s;
+                lstStrategies.Items[index] = s;
+                ChangedStrategies = true;
+            }
         }
 
         private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
