@@ -549,9 +549,9 @@ namespace IsengardClient
         Torso = 0,
         Arms = 1,
         Legs = 2,
-        Feet = 3, //CSRTODO: not sure of ordering of feet vs neck
+        Feet = 3,
         Neck = 4,
-        Waist = 5, //CSRTODO: waist is after neck but not sure of ordering of feet vs waist
+        Waist = 5,
         Head = 6,
         Hands = 7,
         Finger1 = 8,
