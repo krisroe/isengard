@@ -1109,7 +1109,7 @@ namespace IsengardClient
                             }
                             continue;
                         }
-                        else if (!string.IsNullOrEmpty(nextLine))
+                        else if (!string.IsNullOrWhiteSpace(nextLine))
                         {
                             return;
                         }
