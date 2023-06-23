@@ -55,6 +55,11 @@
         [WeaponType(WeaponType.Unknown)]
         BeastmastersWhip,
 
+        [SingularName("bec de corbin")]
+        //CSRTODO: plural?
+        [WeaponType(WeaponType.Polearm)]
+        BecDeCorbin,
+
         [SingularName("black cape")]
         [PluralName("black capes")]
         [EquipmentType(EquipmentType.Unknown)]
