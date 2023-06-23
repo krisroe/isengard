@@ -1077,6 +1077,7 @@ namespace IsengardClient
                         }
                         else if (nextLine == "Thanks for recycling." ||
                                  nextLine == "You feel better." || //vigor/mend
+                                 nextLine == "You feel dizzy." || //speckled potion
                                  nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
                                  nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
                                  nextLine == "Yuck! That's terrible!" || //viscous potion
