@@ -345,6 +345,10 @@
         //CSRTODO: plural?
         GiantCatfish,
 
+        [SingularName("giant centipede")]
+        [PluralName("giant centipedes")]
+        GiantCentipede,
+
         //CSRTODO: giant crayfish?
 
         [SingularName("giant rat")]

@@ -4212,19 +4212,19 @@ BeforeHazy:
             {
                 if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
                 {
-                    if (currentMP >= 15 && _autoSpellLevelMin <= 4 && _autoSpellLevelMax >= 4)
+                    if (currentMP >= 15 && _autoSpellLevelMin <= 4 && _autoSpellLevelMax >= 4 && knownSpells.Contains(offensiveSpells[3]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
                     }
-                    else if (currentMP >= 10 && _autoSpellLevelMin <= 3 && _autoSpellLevelMax >= 3)
+                    else if (currentMP >= 10 && _autoSpellLevelMin <= 3 && _autoSpellLevelMax >= 3 && knownSpells.Contains(offensiveSpells[2]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                     }
-                    else if (currentMP >= 7 && _autoSpellLevelMin <= 2 && _autoSpellLevelMax >= 2)
+                    else if (currentMP >= 7 && _autoSpellLevelMin <= 2 && _autoSpellLevelMax >= 2 && knownSpells.Contains(offensiveSpells[1]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
                     }
-                    else if (currentMP >= 3 && _autoSpellLevelMin <= 1 && _autoSpellLevelMax >= 1)
+                    else if (currentMP >= 3 && _autoSpellLevelMin <= 1 && _autoSpellLevelMax >= 1 && knownSpells.Contains(offensiveSpells[0]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
                     }
