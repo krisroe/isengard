@@ -734,6 +734,13 @@ namespace IsengardClient.Tests
             FeedLineParameters flp = new FeedLineParameters(null);
             InventoryEquipmentManagementSequence seq = new InventoryEquipmentManagementSequence(a);
 
+            items = null;
+            isAdd = null;
+            isEquipment = null;
+            totalGold = null;
+            soldGold = null;
+            spells = null;
+            potionConsumed = null;
             flp.Lines = new List<string>() { "You can fly!", string.Empty, "Substance consumed.", "The ice blue potion disintegrates." };
             seq.FeedLine(flp);
             Assert.IsTrue(spells != null && spells.Contains("fly"));
@@ -741,6 +748,20 @@ namespace IsengardClient.Tests
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0] == ItemTypeEnum.IceBluePotion);
             Assert.IsTrue(!isAdd.Value);
+
+            items = null;
+            isAdd = null;
+            isEquipment = null;
+            totalGold = null;
+            soldGold = null;
+            spells = null;
+            potionConsumed = null;
+            flp.Lines = new List<string>() { "You get pot of gold.", "You now have 557420 gold pieces." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(items.Count == 1);
+            Assert.IsTrue(items[0] == ItemTypeEnum.PotOfGold);
+            Assert.IsTrue(isAdd.Value);
+            Assert.IsTrue(totalGold.Value == 557420);
         }
 
         [TestMethod]

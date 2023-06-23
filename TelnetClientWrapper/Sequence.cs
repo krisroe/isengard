@@ -1109,6 +1109,23 @@ namespace IsengardClient
                             }
                             continue;
                         }
+                        else if (nextLine.StartsWith("You now have ") && nextLine.EndsWith(" gold pieces."))
+                        {
+                            if (nextLine.Length == "You now have ".Length + " gold pieces.".Length)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                string sGold = nextLine.Substring("You now have ".Length, nextLine.Length - "You now have ".Length - " gold pieces.".Length);
+                                if (!int.TryParse(sGold, out int iFoundGold))
+                                {
+                                    return;
+                                }
+                                iTotalGold = iFoundGold;
+                            }
+                            continue;
+                        }
                         else if (!string.IsNullOrWhiteSpace(nextLine))
                         {
                             return;
