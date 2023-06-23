@@ -312,6 +312,10 @@ namespace IsengardClient
             if (chkPotionsEnabled.Checked) ct |= CommandType.Potions;
             NewStrategy.TypesWithStepsEnabled = ct;
 
+            NewStrategy.FinalMagicAction = (FinalStepAction)cboMagicFinalAction.SelectedIndex;
+            NewStrategy.FinalMeleeAction = (FinalStepAction)cboMeleeFinalAction.SelectedIndex;
+            NewStrategy.FinalPotionsAction = (FinalStepAction)cboPotionsFinalAction.SelectedIndex;
+
             DialogResult = DialogResult.OK;
             Close();
         }

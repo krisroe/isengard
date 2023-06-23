@@ -6,7 +6,7 @@ namespace IsengardClient
     {
         None = 0,
         Fly = 1,
-        FlyOrLevitation = 2,
+        Levitation = 2,
     }
 
     internal enum ExitPresenceType

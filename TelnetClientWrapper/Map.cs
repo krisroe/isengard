@@ -1673,7 +1673,7 @@ namespace IsengardClient
             oSewagePit.DamageType = RoomDamageType.Poison;
             oSewagePit.AddPermanentMobs(MobTypeEnum.Monster);
             Exit e = AddExit(oSewagePit, oBoardedSewerTunnel, "up");
-            e.FloatRequirement = FloatRequirement.FlyOrLevitation;
+            e.FloatRequirement = FloatRequirement.Levitation;
             underBreeGraph.Rooms[oSewagePit] = new System.Windows.Point(10, 4.5);
 
             Room oStagnantCesspool = AddRoom("Stagnant Cesspool", "Stagnant Cesspool");
@@ -2771,7 +2771,7 @@ namespace IsengardClient
             oLichsLair.AddPermanentMobs(MobTypeEnum.MinorLich);
             e = AddExit(oHallOfTheDead, oLichsLair, "hidden");
             e.Hidden = true;
-            e.FloatRequirement = FloatRequirement.FlyOrLevitation;
+            e.FloatRequirement = FloatRequirement.Levitation;
             e.IsTrapExit = true;
             AddExit(oLichsLair, oHallOfTheDead, "walkway");
             breeToImladrisGraph.Rooms[oLichsLair] = new System.Windows.Point(6, -1.5);
