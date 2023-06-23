@@ -28,7 +28,7 @@ namespace IsengardClient.Tests
 
             list.Clear();
             list.Add("Stuff: a,");
-            list.Add("b.");
+            list.Add("  b.");
             output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
@@ -36,7 +36,16 @@ namespace IsengardClient.Tests
 
             list.Clear();
             list.Add("Stuff: a,");
-            list.Add("Mr. Wartnose.");
+            list.Add("  Mr. Wartnose.");
+            output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
+            Assert.IsTrue(output.Count == 2);
+            Assert.IsTrue(output[0] == "a");
+            Assert.IsTrue(output[1] == "Mr. Wartnose");
+
+            list.Clear();
+            list.Add("Stuff: a,");
+            list.Add("  Mr. Wartnose");
+            list.Add("  .");
             output = StringProcessing.GetList(list, 0, "Stuff: ", false, out nextLineIndex, null);
             Assert.IsTrue(output.Count == 2);
             Assert.IsTrue(output[0] == "a");
@@ -177,6 +186,13 @@ namespace IsengardClient.Tests
             flp.Lines = new List<string>() { "Please wait 1:05 minutes." };
             seq.FeedLine(flp);
             Assert.IsTrue(flp.InfoMessages[0].WaitSeconds == 65);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "The green slime destroys your silver scimitar." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentDestroyed);
+            Assert.IsTrue(flp.InfoMessages[0].Item == ItemTypeEnum.SilverScimitar);
         }
 
         [TestMethod]
@@ -215,11 +231,10 @@ namespace IsengardClient.Tests
             input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 0");
             input.Add("    Gold:  376933  To Next Level:    24115 Exp         0 GP");
             input.Add("Skills: (power) attack [2:15], ");
-            input.Add("manashield [0:00]");
-            input.Add(".");
-            input.Add("Spells cast: ");
-            input.Add("None");
-            input.Add(".");
+            input.Add("  manashield [0:00]");
+            input.Add("  .");
+            input.Add("Spells cast: None");
+            input.Add("  .");
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
@@ -250,11 +265,10 @@ namespace IsengardClient.Tests
             input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 0");
             input.Add("    Gold:  376933  To Next Level:        0 Exp         0 GP");
             input.Add("Skills: (power) attack [0:00], ");
-            input.Add("manashield [0:45]");
-            input.Add(".");
-            input.Add("Spells cast: ");
-            input.Add("bless");
-            input.Add(",protection.");
+            input.Add("  manashield [0:45]");
+            input.Add("  .");
+            input.Add("Spells cast: bless");
+            input.Add("  ,protection.");
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
@@ -284,11 +298,10 @@ namespace IsengardClient.Tests
             input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 0");
             input.Add("    Gold:  376933  To Next Level:       14 Exp         0 GP");
             input.Add("Skills: (power) attack [12:13], manashield [ACTIVE].");
-            input.Add("Spells cast: ");
-            input.Add("bless");
-            input.Add(",");
-            input.Add("protection");
-            input.Add(".");
+            input.Add("Spells cast: bless");
+            input.Add("  ,");
+            input.Add("  protection");
+            input.Add("  .");
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);

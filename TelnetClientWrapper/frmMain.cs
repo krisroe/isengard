@@ -2100,7 +2100,7 @@ namespace IsengardClient
                             }
                             bool insertAtEnd = iInsertionPoint == -1;
                             rc.Index = insertAtEnd ? -1 : iInsertionPoint;
-                            for (int i = 0; i < next.MobCount; i++)
+                            for (int i = 0; i < next.EntityCount; i++)
                             {
                                 rc.Mobs.Add(nextMob);
                                 if (insertAtEnd)
@@ -2113,7 +2113,10 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
-                        RemoveMobs(next.Mob, next.MobCount);
+                        RemoveMobs(next.Mob, next.EntityCount);
+                        break;
+                    case InformationalMessageType.EquipmentDestroyed:
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemTypeEnum>() { next.Item }, false, true);
                         break;
                 }
             }

@@ -2734,7 +2734,27 @@ StartProcessRoom:
                             {
                                 nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
                                 nextMsg.Mob = ment.MobType.Value;
-                                nextMsg.MobCount = ment.Count;
+                                nextMsg.EntityCount = ment.Count;
+                            }
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        int index = sLine.IndexOf(" destroys your ");
+                        if (index > 0 && sLine.EndsWith("."))
+                        {
+                            sWhat = sLine.Substring(index + " destroys your ".Length, lineLength - index - " destroys your ".Length - 1);
+                            Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, Parameters.ErrorMessages, null, false);
+                            if (RoomTransitionSequence.CheckForValidItem(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Item))
+                            {
+                                ItemEntity ient = (ItemEntity)e;
+                                if (ient.ItemType.HasValue)
+                                {
+                                    nextMsg = new InformationalMessages(InformationalMessageType.EquipmentDestroyed);
+                                    nextMsg.Item = ient.ItemType.Value;
+                                    nextMsg.EntityCount = ient.Count;
+                                }
                             }
                         }
                     }
@@ -3023,7 +3043,6 @@ StartProcessRoom:
         {
             nextLineIndex = lineIndex;
             bool foundStartsWith = false;
-            bool finished = false;
             StringBuilder sb = null;
             string sNextLine = null;
             while (!foundStartsWith)
@@ -3048,65 +3067,62 @@ StartProcessRoom:
                 foundStartsWith = true;
                 sb = new StringBuilder();
             }
-            if (!finished)
+            bool isFirstLine = true;
+            bool stopProcessing = false;
+            string previousLine = null;
+            while (true)
             {
-                bool isFirstLine = true;
-                bool stopProcessing = false;
-                string previousLine = null;
-                while (true)
+                if (isFirstLine)
                 {
-                    if (isFirstLine)
+                    sNextLine = inputs[lineIndex];
+                    if (sNextLine == startsWith)
                     {
-                        sNextLine = inputs[lineIndex];
-                        if (sNextLine == startsWith)
-                        {
-                            return null;
-                        }
-                        sNextLine = sNextLine.Substring(startsWith.Length);
-                        isFirstLine = false;
+                        return null;
+                    }
+                    sNextLine = sNextLine.Substring(startsWith.Length);
+                    isFirstLine = false;
+                }
+                else
+                {
+                    lineIndex++;
+                    if (lineIndex >= inputs.Count)
+                    {
+                        stopProcessing = true;
                     }
                     else
                     {
-                        lineIndex++;
-                        if (lineIndex >= inputs.Count)
-                        {
-                            stopProcessing = true;
-                        }
-                        else
-                        {
-                            sNextLine = inputs[lineIndex];
-                        }
-                        if (!stopProcessing)
-                        {
-                            //line continuations start with two spaces. There is also a check for the next prefix to stop at,
-                            //which shouldn't be needed anymore with the line continuation logic, but is left in anyway.
-                            stopProcessing = !sNextLine.StartsWith("  ") || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
-                        }
+                        sNextLine = inputs[lineIndex];
                     }
                     if (!stopProcessing)
                     {
-                        stopProcessing = string.IsNullOrEmpty(sNextLine);
+                        //line continuations start with two spaces. There is also a check for the next prefix to stop at,
+                        //which shouldn't be needed anymore with the line continuation logic, but is left in anyway.
+                        stopProcessing = !sNextLine.StartsWith("  ") || (!string.IsNullOrEmpty(stopAtPrefix) && sNextLine.StartsWith(stopAtPrefix));
                     }
-                    if (stopProcessing)
-                    {
-                        nextLineIndex = lineIndex;
-                        previousLine = previousLine.Trim();
-                        if (!previousLine.EndsWith("."))
-                        {
-                            return null;
-                        }
-                        else if (previousLine != ".")
-                        {
-                            sb.AppendLine(previousLine.Substring(0, previousLine.Length - 1));
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        sb.AppendLine(previousLine);
-                    }
-                    previousLine = sNextLine;
                 }
+                if (!stopProcessing)
+                {
+                    stopProcessing = string.IsNullOrEmpty(sNextLine);
+                }
+                if (stopProcessing)
+                {
+                    nextLineIndex = lineIndex;
+                    previousLine = previousLine.Trim();
+                    if (!previousLine.EndsWith("."))
+                    {
+                        return null;
+                    }
+                    else if (previousLine != ".")
+                    {
+                        sb.AppendLine(previousLine.Substring(0, previousLine.Length - 1));
+                    }
+                    break;
+                }
+                else
+                {
+                    sb.AppendLine(previousLine);
+                }
+                previousLine = sNextLine;
             }
             string ret = sb.ToString().Replace(Environment.NewLine, " ");
             while (ret.Contains("  "))
