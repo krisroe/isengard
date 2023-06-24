@@ -125,6 +125,11 @@
         [WeaponType(WeaponType.Slash)]
         BroadSword,
 
+        [SingularName("bronze gauntlets")]
+        //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Hads)]
+        BronzeGauntlets,
+
         [SingularName("brown bag")]
         [PluralName("brown bags")]
         BrownBag,
