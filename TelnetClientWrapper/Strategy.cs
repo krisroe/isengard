@@ -552,6 +552,7 @@ namespace IsengardClient
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel2 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel2, '2');
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel3 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel3, '3');
         public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel4 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel4, '4');
+        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel5 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel5, '5');
         public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor, 'V');
         public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds, 'M');
         public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal, 'H');
@@ -598,6 +599,9 @@ namespace IsengardClient
                     break;
                 case MagicStrategyStep.OffensiveSpellLevel4:
                     ret = MagicStepOffensiveSpellLevel4;
+                    break;
+                case MagicStrategyStep.OffensiveSpellLevel5:
+                    ret = MagicStepOffensiveSpellLevel5;
                     break;
                 case MagicStrategyStep.Vigor:
                     ret = MagicStepVigor;

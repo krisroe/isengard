@@ -170,6 +170,7 @@
 
         [SingularName("claw gauntlet")]
         [PluralName("claw gauntlets")]
+        [WeaponType(WeaponType.Slash)]
         ClawGauntlet,
 
         [SingularName("cloth armor")]

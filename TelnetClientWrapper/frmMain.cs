@@ -164,6 +164,15 @@ namespace IsengardClient
         private bool _monsterKilled;
         private MobTypeEnum? _monsterKilledType;
 
+        private int _earthProficiency;
+        private int _windProficiency;
+        private int _fireProficiency;
+        private int _waterProficiency;
+        private int _divinationProficiency;
+        private int _arcanaProficiency;
+        private int _lifeProficiency;
+        private int _sorceryProficiency;
+
         /// <summary>
         /// number of times to try to attempt a background command before giving up
         /// </summary>
@@ -846,6 +855,26 @@ namespace IsengardClient
                     SaveSettings();
                     this.Close();
                 }
+            }
+        }
+
+        private void OnInformation(FeedLineParameters flParams, int earth, int wind, int fire, int water, int divination, int arcana, int life, int sorcery)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Information) == InitializationStep.None;
+
+            _earthProficiency = earth;
+            _windProficiency = wind;
+            _fireProficiency = fire;
+            _waterProficiency = water;
+            _divinationProficiency = divination;
+            _arcanaProficiency = arcana;
+            _lifeProficiency = life;
+            _sorceryProficiency = sorcery;
+
+            if (forInit)
+            {
+                AfterProcessInitializationStep(currentStep, InitializationStep.Information, flParams);
             }
         }
 
@@ -2793,6 +2822,7 @@ namespace IsengardClient
                 new InformationalMessagesSequence(_username, OnInformationalMessages),
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
+                new InformationOutputSequence(OnInformation),
                 new WhoOutputSequence(OnWho),
                 new SpellsSequence(OnSpells),
                 new InventorySequence(OnInventory),
@@ -3779,6 +3809,22 @@ namespace IsengardClient
                             }
                         }
                         List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm);
+                        int realmProficiency = 0;
+                        switch (_settingsData.Realm)
+                        {
+                            case RealmType.Earth:
+                                realmProficiency = _earthProficiency;
+                                break;
+                            case RealmType.Wind:
+                                realmProficiency = _windProficiency;
+                                break;
+                            case RealmType.Fire:
+                                realmProficiency = _fireProficiency;
+                                break;
+                            case RealmType.Water:
+                                realmProficiency = _waterProficiency;
+                                break;
+                        }
                         List<string> knownSpells;
                         lock (_spellsKnownLock)
                         {
@@ -3844,7 +3890,7 @@ namespace IsengardClient
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax);
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -4308,7 +4354,7 @@ BeforeHazy:
             command = sAttackType + " " + _currentlyFightingMob;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax)
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -4372,19 +4418,23 @@ BeforeHazy:
             {
                 if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
                 {
-                    if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4 && knownSpells.Contains(offensiveSpells[3]))
+                    if (currentMP >= 20 && usedAutoSpellMin <= 5 && usedAutoSpellMax >= 5 && knownSpells.Contains(offensiveSpells[4]) && realmProficiency >= 70)
+                    {
+                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel5;
+                    }
+                    if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4 && knownSpells.Contains(offensiveSpells[3]) && realmProficiency >= 50)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
                     }
-                    else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3 && knownSpells.Contains(offensiveSpells[2]))
+                    else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3 && knownSpells.Contains(offensiveSpells[2]) && realmProficiency >= 35)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                     }
-                    else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2 && knownSpells.Contains(offensiveSpells[1]))
+                    else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2 && knownSpells.Contains(offensiveSpells[1]) && realmProficiency >= 15)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
                     }
-                    else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1 && knownSpells.Contains(offensiveSpells[0]))
+                    else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1 && knownSpells.Contains(offensiveSpells[0]) && realmProficiency >= 5)
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
                     }
@@ -4396,7 +4446,12 @@ BeforeHazy:
                 if (ret == MagicCommandChoiceResult.Cast)
                 {
                     string spell;
-                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
+                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel5)
+                    {
+                        spell = offensiveSpells[4];
+                        manaDrain = 20;
+                    }
+                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
                     {
                         spell = offensiveSpells[3];
                         manaDrain = 15;
@@ -4755,7 +4810,8 @@ BeforeHazy:
                     nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel1 ||
                     nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel2 ||
                     nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel3 ||
-                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel4)
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel4 ||
+                    nextMagicStep.Value == MagicStrategyStep.OffensiveSpellLevel5)
                 {
                     didDamage = true;
                 }

@@ -30,6 +30,10 @@
         //CSRTODO: no plural
         Azgara,
 
+        [SingularName("barbarian")]
+        [PluralName("barbarians")]
+        Barbarian,
+
         [SingularName("barbarian guard")]
         [PluralName("barbarian guards")]
         BarbarianGuard,

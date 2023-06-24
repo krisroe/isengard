@@ -437,6 +437,104 @@ namespace IsengardClient
         }
     }
 
+    public class InformationOutputSequence : AOutputProcessingSequence
+    {
+        public Action<FeedLineParameters, int, int, int, int, int, int, int, int> _onSatisfied;
+        public InformationOutputSequence(Action<FeedLineParameters, int, int, int, int, int, int, int, int> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+        public override void FeedLine(FeedLineParameters Parameters)
+        {
+            int iEarth = 0;
+            int iWind = 0;
+            int iFire = 0;
+            int iWater = 0;
+            int iDivination = 0;
+            int iArcana = 0;
+            int iLife = 0;
+            int iSorcery = 0;
+            bool foundFirstLine = false;
+            bool foundSecondLine = false;
+            bool foundHeader = false;
+            List<string> Lines = Parameters.Lines;
+            if (Lines.Count > 0)
+            {
+                foreach (string s in Lines)
+                {
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        if (foundHeader)
+                        {
+                            string[] sSplit = s.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                            if (sSplit.Length == 8)
+                            {
+                                if (sSplit[1].EndsWith("%") && sSplit[3].EndsWith("%") && sSplit[5].EndsWith("%") && sSplit[7].EndsWith("%") &&
+                                    sSplit[1].Length > 1 && sSplit[3].Length > 1 && sSplit[5].Length > 1 && sSplit[7].Length > 1)
+                                {
+                                    string s1 = sSplit[1].Substring(0, sSplit[1].Length - 1);
+                                    string s2 = sSplit[3].Substring(0, sSplit[3].Length - 1);
+                                    string s3 = sSplit[5].Substring(0, sSplit[5].Length - 1);
+                                    string s4 = sSplit[7].Substring(0, sSplit[7].Length - 1);
+                                    if (sSplit[0] == "Earth:" && sSplit[2] == "Wind:" && sSplit[4] == "Fire:" && sSplit[6] == "Water:")
+                                    {
+                                        if (!int.TryParse(s1, out iEarth) ||
+                                            !int.TryParse(s2, out iWind) ||
+                                            !int.TryParse(s3, out iFire) ||
+                                            !int.TryParse(s4, out iWater) ||
+                                            iEarth < 0 || iWind < 0 || iFire < 0 || iWater < 0)
+                                        {
+                                            return;
+                                        }
+                                        else if (foundFirstLine)
+                                        {
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            foundFirstLine = true;
+                                        }
+                                    }
+                                    else if (sSplit[0] == "Divination:" && sSplit[2] == "Arcana:" && sSplit[4] == "Life:" && sSplit[6] == "Sorcery:")
+                                    {
+                                        if (!int.TryParse(s1, out iDivination) ||
+                                            !int.TryParse(s2, out iArcana) ||
+                                            !int.TryParse(s3, out iLife) ||
+                                            !int.TryParse(s4, out iSorcery) ||
+                                            iDivination < 0 || iArcana < 0 || iLife < 0 || iSorcery < 0)
+                                        {
+                                            return;
+                                        }
+                                        else if (foundSecondLine)
+                                        {
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            foundSecondLine = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (s != "------------------------------- Character ------------------------------")
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            foundHeader = true;
+                        }
+                    }
+                }
+                if (foundFirstLine && foundSecondLine)
+                {
+                    _onSatisfied(Parameters, iEarth, iWind, iFire, iWater, iDivination, iArcana, iLife, iSorcery);
+                }
+            }
+        }
+    }
+
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
         public Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
@@ -1701,10 +1799,10 @@ StartProcessRoom:
 
     public class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
-        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone", "engulf" };
-        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame", "immolate" };
-        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast", "bloodboil" };
-        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt", "lightning" };
+        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone", "engulf", "tremor" };
+        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame", "immolate", "flamefill" };
+        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast", "bloodboil", "iceblade" };
+        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt", "lightning", "thunderbolt" };
         internal static HashSet<string> ALL_OFFENSIVE_SPELLS;
 
         public static List<string> GetOffensiveSpellsForRealm(RealmType realm)
