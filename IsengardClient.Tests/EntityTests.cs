@@ -86,6 +86,14 @@ namespace IsengardClient.Tests
             Assert.IsTrue(item.ItemType == ItemTypeEnum.PotOfGold);
 
             errorMessages.Clear();
+            item = Entity.GetEntity("two sets of nunchukus", EntityTypeFlags.Item, errorMessages, null, false) as ItemEntity;
+            Assert.IsTrue(item != null);
+            Assert.IsTrue(errorMessages.Count == 0);
+            Assert.IsTrue(item.SetCount == 1);
+            Assert.IsTrue(item.Count == 2);
+            Assert.IsTrue(item.ItemType == ItemTypeEnum.Nunchukus);
+
+            errorMessages.Clear();
             mob = Entity.GetEntity("a vagrant", EntityTypeFlags.Mob, errorMessages, null, false) as MobEntity;
             Assert.IsTrue(mob != null);
             Assert.IsTrue(errorMessages.Count == 0);

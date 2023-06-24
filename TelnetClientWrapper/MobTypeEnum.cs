@@ -700,6 +700,10 @@
         [PluralName("madmen")]
         Madman,
 
+        [SingularName("Magor the Instructor")]
+        //CSRTODO: no plural
+        MagorTheInstructor,
+
         [SingularName("Malika")]
         //CSRTODO: no plural
         [Experience(380)]

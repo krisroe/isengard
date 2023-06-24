@@ -364,6 +364,10 @@
         [Potion(SpellsEnum.bless)]
         GlowingPotion,
 
+        [SingularName("glowing talisman")]
+        //CSRTODO: plural
+        GlowingTalisman,
+
         [SingularName("godentag")]
         [PluralName("godentags")]
         [WeaponType(WeaponType.Unknown)]
@@ -450,6 +454,11 @@
         [Potion(SpellsEnum.fly)]
         IceBluePotion,
 
+        //mage training level 13
+        [SingularName("invisible key")]
+        [PluralName("invisible keys")]
+        InvisibleKey,
+
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         [EquipmentType(EquipmentType.Finger)]
@@ -520,6 +529,9 @@
         [SingularName("leather pouch")]
         [PluralName("leather pouches")]
         LeatherPouch,
+
+        [SingularName("light leather armor")]
+        LightLeatherArmor,
 
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]

@@ -128,30 +128,29 @@ namespace IsengardClient
                     }
                     remainder = remainder.Substring("sets of ".Length);
                     iSpaceIndex = remainder.IndexOf(' ');
-                    if (iSpaceIndex < 0 || iSpaceIndex == 0)
+                    if (iSpaceIndex == 0)
                     {
                         errorMessages.Add("Invalid entity: " + fullName);
-                        return null;
                     }
-                    else
+                    else if (iSpaceIndex > 0)
                     {
                         firstWord = remainder.Substring(0, iSpaceIndex);
                         parsedCount = ParseNumberWord(firstWord, false);
-                        if (!parsedCount.HasValue) //sets of [1] singular thing
+                        if (parsedCount.HasValue) //sets of [1] singular thing
                         {
-                            Entity e = GetEntity(1, 1, remainder, possibleEntityTypes, errorMessages);
-                            e.Count = setCount;
-                            return e;
+                            count = parsedCount.Value;
+                            remainder = remainder.Substring(iSpaceIndex + 1).Trim();
                         }
-                        count = parsedCount.Value;
-                        remainderLength = remainder.Length;
-                        remainderPoint = iSpaceIndex + 1;
-                        if (remainderLength == remainderPoint)
+                        else
                         {
-                            errorMessages.Add("Invalid entity: " + fullName);
-                            return null;
+                            count = setCount;
+                            setCount = 1;
                         }
-                        remainder = remainder.Substring(remainderPoint).Trim();
+                    }
+                    else
+                    {
+                        count = setCount;
+                        setCount = 1;
                     }
                 }
                 else
@@ -348,7 +347,7 @@ namespace IsengardClient
                 }
                 if ((possibleEntityTypes & EntityTypeFlags.Item) != EntityTypeFlags.None)
                 {
-                    if (ItemEntity.ItemMappingByDisplayName.TryGetValue(name, out StaticItemData it) && name == it.PluralName)
+                    if (ItemEntity.ItemMappingByDisplayName.TryGetValue(name, out StaticItemData it) && (name == it.PluralName || (it.PluralName == null && name == it.SingularName)))
                     {
                         foundEntityType = EntityType.Item;
                         ret = new ItemEntity(it.ItemType, count, setCount);
