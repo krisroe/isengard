@@ -168,6 +168,10 @@
         [EquipmentType(EquipmentType.Arms)]
         ChainMailSleeves,
 
+        [SingularName("claw gauntlet")]
+        [PluralName("claw gauntlets")]
+        ClawGauntlet,
+
         [SingularName("cloth armor")]
         [EquipmentType(EquipmentType.Torso)]
         ClothArmor,
