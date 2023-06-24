@@ -1517,6 +1517,8 @@ namespace IsengardClient
             AddLocation(_aBreePerms, oPrancingPony);
             AddLocation(_aBreePerms, oIxell);
             AddLocation(_aBreePerms, oIgor);
+            AddLocation(_aBreePerms, oDroolie);
+            AddLocation(_aBreePerms, oSnarlingMutt);
 
             AddHauntedMansion(oHauntedMansionEntrance, _breeStreetsGraph);
         }
@@ -2225,6 +2227,12 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oDungeonGuardSouth] = new System.Windows.Point(8, 14);
 
             AddMillwoodMansionUpstairs(oWarriorBardMansionNorth, oWarriorBardMansionSouth, oWarriorBardMansionEast);
+
+            AddLocation(_aBreePerms, oWarriorBardMansionNorth);
+            AddLocation(_aBreePerms, oWarriorBardMansionSouth);
+            AddLocation(_aBreePerms, oWarriorBardMansionEast);
+            AddLocation(_aBreePerms, oPathToMansion4WarriorBardsx2);
+            AddLocation(_aBreePerms, oGrandPorch);
         }
 
         private void AddMillwoodMansionUpstairs(Room northStairwell, Room southStairwell, Room eastStairwell)
@@ -2771,7 +2779,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oHallOfTheDead] = new System.Windows.Point(6, -1);
 
             Room oLichsLair = AddRoom("Lich's Lair", "Lich's Lair");
-            oLichsLair.AddPermanentMobs(MobTypeEnum.MinorLich);
+            oLichsLair.AddPermanentMobs(MobTypeEnum.MinorLich, MobTypeEnum.MinorLich);
             e = AddExit(oHallOfTheDead, oLichsLair, "hidden");
             e.Hidden = true;
             e.FloatRequirement = FloatRequirement.Levitation;

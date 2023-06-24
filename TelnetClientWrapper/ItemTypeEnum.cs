@@ -534,6 +534,9 @@
         [PluralName("leather pouches")]
         LeatherPouch,
 
+        [SingularName("leather sleeves")]
+        LeatherSleeves,
+
         [SingularName("light leather armor")]
         LightLeatherArmor,
 
