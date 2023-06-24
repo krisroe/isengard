@@ -624,6 +624,11 @@ namespace IsengardClient
                 {
                     eItemClass = ItemClass.Money;
                 }
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CoinsAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eItemClass = ItemClass.Coins;
+                }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);

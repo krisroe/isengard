@@ -197,7 +197,7 @@
 
         [SingularName("copper pieces")]
         [PluralName("copper pieces")]
-        [Money]
+        [Coins]
         CopperPieces,
 
         [SingularName("copper ring")]
@@ -380,7 +380,7 @@
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
-        [Money]
+        [Coins]
         GoldCoins,
 
         [SingularName("golden dagger")]
@@ -694,7 +694,7 @@
 
         [SingularName("platinum pieces")]
         [PluralName("platinum pieces")]
-        [Money]
+        [Coins]
         PlatinumPieces,
 
         [SingularName("port manifest")]

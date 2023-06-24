@@ -1234,18 +1234,21 @@ namespace IsengardClient
                                 {
                                     flp.ErrorMessages.Add("Unknown item: " + objectText);
                                 }
-                                else if (ie.Count != 1)
-                                {
-                                    flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
-                                }
                                 else
                                 {
                                     ItemTypeEnum eItemType = ie.ItemType.Value;
                                     StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-                                    if (sid.ItemClass != ItemClass.Money)
+                                    if (ie.Count != 1 && sid.ItemClass != ItemClass.Coins)
                                     {
-                                        if (itemsManaged == null) itemsManaged = new List<ItemTypeEnum>();
-                                        itemsManaged.Add(ie.ItemType.Value);
+                                        flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
+                                    }
+                                    else
+                                    {
+                                        if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
+                                        {
+                                            if (itemsManaged == null) itemsManaged = new List<ItemTypeEnum>();
+                                            itemsManaged.Add(ie.ItemType.Value);
+                                        }
                                     }
                                 }
                             }
