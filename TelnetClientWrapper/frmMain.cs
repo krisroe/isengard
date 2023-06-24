@@ -7618,17 +7618,34 @@ BeforeHazy:
                 tsmi.Text = sActionTransferBetweenInventoryAndEquipment;
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
+            if (iclass == ItemClass.Weapon && _settingsData.Weapon != itemType)
+            {
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = "Set Weapon";
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
         }
 
         private void ctxInventoryOrEquipmentItem_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)ctxInventoryOrEquipmentItem.Tag;
-            lock (_entityLock)
+            ItemTypeEnum eItemType = sioei.ItemType;
+            ToolStripMenuItem tsmi = (ToolStripMenuItem)e.ClickedItem;
+            if (tsmi.Text == "Set Weapon")
             {
-                string sText = _inventoryEquipment.PickItemTextFromItemCounter(sioei.IsInventory, sioei.ItemType, sioei.Counter);
-                if (!string.IsNullOrEmpty(sText))
+                _settingsData.Weapon = eItemType;
+                txtWeapon.Text = eItemType.ToString();
+                SaveSettings();
+            }
+            else
+            {
+                lock (_entityLock)
                 {
-                    SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);
+                    string sText = _inventoryEquipment.PickItemTextFromItemCounter(sioei.IsInventory, eItemType, sioei.Counter);
+                    if (!string.IsNullOrEmpty(sText))
+                    {
+                        SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);
+                    }
                 }
             }
         }

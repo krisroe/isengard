@@ -734,7 +734,7 @@
             // 
             this.ctxInventoryOrEquipmentItem.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxInventoryOrEquipmentItem.Name = "ctxInventoryOrEquipmentItem";
-            this.ctxInventoryOrEquipmentItem.Size = new System.Drawing.Size(61, 4);
+            this.ctxInventoryOrEquipmentItem.Size = new System.Drawing.Size(181, 26);
             this.ctxInventoryOrEquipmentItem.Opening += new System.ComponentModel.CancelEventHandler(this.ctxInventoryOrEquipmentItem_Opening);
             this.ctxInventoryOrEquipmentItem.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxInventoryOrEquipmentItem_ItemClicked);
             // 
