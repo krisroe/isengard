@@ -671,7 +671,7 @@
 
         [SingularName("ork blade")]
         [PluralName("ork blades")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
         OrkBlade,
 
         [SingularName("out of order sign")]
