@@ -127,7 +127,7 @@
 
         [SingularName("bronze gauntlets")]
         //CSRTODO: plural?
-        [EquipmentType(EquipmentType.Hads)]
+        [EquipmentType(EquipmentType.Hands)]
         BronzeGauntlets,
 
         [SingularName("brown bag")]
