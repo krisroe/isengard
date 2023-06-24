@@ -135,7 +135,7 @@ namespace IsengardClient
                 case EquipmentType.Ears:
                     yield return EquipmentSlot.Ears;
                     break;
-                case EquipmentType.Held:
+                case EquipmentType.Holding:
                     yield return EquipmentSlot.Held;
                     break;
                 case EquipmentType.Shield:

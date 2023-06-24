@@ -547,7 +547,7 @@ namespace IsengardClient
         Hands,
         Finger,
         Ears,
-        Held,
+        Holding,
         Shield,
         Wielded,
         Unknown,

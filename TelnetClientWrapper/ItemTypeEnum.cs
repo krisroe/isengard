@@ -319,6 +319,11 @@
         [EquipmentType(EquipmentType.Finger)]
         EngagementRing,
 
+        [SingularName("epee sword")]
+        [PluralName("epee swords")]
+        [WeaponType(WeaponType.Unknown)]
+        EpeeSword,
+
         [SingularName("eye of newt")]
         //CSRTODO: plural?
         EyeOfNewt,
@@ -1064,6 +1069,10 @@
         [SingularName("welcome sign")]
         [PluralName("welcome signs")]
         WelcomeSign,
+
+        [SingularName("white armor")]
+        [EquipmentType(EquipmentType.Torso)]
+        WhiteArmor,
 
         [SingularName("yellow beholder's eye")]
         [PluralName("yellow beholder's eyes")]

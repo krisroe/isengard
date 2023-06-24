@@ -586,12 +586,12 @@ namespace IsengardClient
                     sPlural = null;
                 sid.PluralName = sPlural;
 
-                EquipmentType eEquipmentType = EquipmentType.Held;
+                EquipmentType eEquipmentType = EquipmentType.Holding;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EquipmentTypeAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     eEquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
                 sid.EquipmentType = eEquipmentType;
-                if (eEquipmentType != EquipmentType.Held)
+                if (eEquipmentType != EquipmentType.Holding)
                 {
                     eItemClass = ItemClass.Equipment;
                 }
