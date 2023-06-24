@@ -515,6 +515,17 @@ namespace IsengardClient
         RemoveItemFromInventory,
         EquipItem,
         UnequipItem,
+        RemoveItemFromEquipment,
+    }
+
+    public enum InventoryEquipmentAction
+    {
+        None,
+        NewInventory,
+        Equip,
+        Unequip,
+        RemoveInventory,
+        RemoveEquipment,
     }
 
     public enum EquipmentType

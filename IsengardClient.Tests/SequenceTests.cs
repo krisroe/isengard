@@ -727,17 +727,15 @@ namespace IsengardClient.Tests
         public void TestInventoryManagementSequence()
         {
             List<ItemTypeEnum> items = null;
-            bool? isAdd = null;
-            bool? isEquipment = null;
+            InventoryEquipmentAction? action = null;
             int? totalGold = null;
             int? soldGold = null;
             List<string> spells = null;
             bool? potionConsumed = null;
-            Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> a = (flParams, i, isadd, e, gt, gs, sp, pot) =>
+            Action<FeedLineParameters, List<ItemTypeEnum>, InventoryEquipmentAction, int?, int, List<string>, bool> a = (flParams, i, act, gt, gs, sp, pot) =>
             {
                 items = i;
-                isAdd = isadd;
-                isEquipment = e;
+                action = act;
                 totalGold = gt;
                 soldGold = gs;
                 spells = sp;
@@ -748,8 +746,7 @@ namespace IsengardClient.Tests
             InventoryEquipmentManagementSequence seq = new InventoryEquipmentManagementSequence(a);
 
             items = null;
-            isAdd = null;
-            isEquipment = null;
+            action = null;
             totalGold = null;
             soldGold = null;
             spells = null;
@@ -760,11 +757,10 @@ namespace IsengardClient.Tests
             Assert.IsTrue(potionConsumed.Value);
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0] == ItemTypeEnum.IceBluePotion);
-            Assert.IsTrue(!isAdd.Value);
+            Assert.IsTrue(action == InventoryEquipmentAction.RemoveInventory);
 
             items = null;
-            isAdd = null;
-            isEquipment = null;
+            action = null;
             totalGold = null;
             soldGold = null;
             spells = null;
@@ -773,7 +769,7 @@ namespace IsengardClient.Tests
             seq.FeedLine(flp);
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0] == ItemTypeEnum.PotOfGold);
-            Assert.IsTrue(isAdd.Value);
+            Assert.IsTrue(action == InventoryEquipmentAction.NewInventory);
             Assert.IsTrue(totalGold.Value == 557420);
         }
 

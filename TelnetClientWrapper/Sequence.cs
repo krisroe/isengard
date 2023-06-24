@@ -867,8 +867,8 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<FeedLineParameters, List<ItemTypeEnum>, bool?, bool, int?, int, List<string>, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, bool?, bool, int?, int, List<string>, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemTypeEnum>, InventoryEquipmentAction, int?, int, List<string>, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, InventoryEquipmentAction, int?, int, List<string>, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -877,16 +877,15 @@ namespace IsengardClient
             List<string> Lines = flp.Lines;
             int iSellGold = 0;
             int? iTotalGold = null;
-            bool? isAdd = null;
+            InventoryEquipmentAction eAction = InventoryEquipmentAction.None;
             List<string> activeSpells = null;
-            bool isEquipment = false;
             bool potionConsumed = false;
             if (Lines.Count > 0)
             {
                 string firstLine = Lines[0];
                 if (firstLine == "You aren't wearing anything that can be removed.")
                 {
-                    _onSatisfied(flp, new List<ItemTypeEnum>(), false, true, null, 0, null, false);
+                    _onSatisfied(flp, new List<ItemTypeEnum>(), InventoryEquipmentAction.Unequip, null, 0, null, false);
                     flp.FinishedProcessing = true;
                     return;
                 }
@@ -896,8 +895,7 @@ namespace IsengardClient
                     List<string> wornObjects = StringProcessing.GetList(Lines, 0, YOU_WEAR_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wornObjects, flp.ErrorMessages, EntityTypeFlags.Item);
-                    isEquipment = true;
-                    isAdd = true;
+                    eAction = InventoryEquipmentAction.Equip;
                     if (items.Count > 0)
                     {
                         itemsManaged = new List<ItemTypeEnum>();
@@ -923,8 +921,7 @@ namespace IsengardClient
                     List<string> heldObjects = StringProcessing.GetList(Lines, 0, YOU_HOLD_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, heldObjects, flp.ErrorMessages, EntityTypeFlags.Item);
-                    isEquipment = true;
-                    isAdd = true;
+                    eAction = InventoryEquipmentAction.Equip;
                     if (items.Count > 0)
                     {
                         itemsManaged = new List<ItemTypeEnum>();
@@ -959,8 +956,7 @@ namespace IsengardClient
                     List<string> removedObjects = StringProcessing.GetList(Lines, 0, sExpectedPrefix, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, removedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
-                    isEquipment = true;
-                    isAdd = false;
+                    eAction = InventoryEquipmentAction.Unequip;
                     if (items.Count > 0)
                     {
                         itemsManaged = new List<ItemTypeEnum>();
@@ -986,8 +982,7 @@ namespace IsengardClient
                     List<string> wieldedObjects = StringProcessing.GetList(Lines, 0, YOU_WIELD_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wieldedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
-                    isEquipment = true;
-                    isAdd = true;
+                    eAction = InventoryEquipmentAction.Equip;
                     if (items.Count > 0)
                     {
                         itemsManaged = new List<ItemTypeEnum>();
@@ -1008,7 +1003,7 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (!isEquipment)
+                if (eAction != InventoryEquipmentAction.Equip && eAction != InventoryEquipmentAction.Unequip)
                 {
                     bool expectCapitalized = false;
                     foreach (string nextLine in Lines)
@@ -1017,29 +1012,29 @@ namespace IsengardClient
                         string objectText = string.Empty;
                         if (nextLine.StartsWith(YOU_GET_A_PREFIX) && nextLine != YOU_GET_A_PREFIX)
                         {
-                            if (isAdd.HasValue && !isAdd.Value)
+                            if (eAction != InventoryEquipmentAction.None && eAction != InventoryEquipmentAction.NewInventory)
                             {
                                 return;
                             }
-                            isAdd = true;
+                            eAction = InventoryEquipmentAction.NewInventory;
                             objectText = nextLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
                         }
                         else if (nextLine.StartsWith(YOU_DROP_A_PREFIX) && nextLine != YOU_DROP_A_PREFIX)
                         {
-                            if (isAdd.HasValue && isAdd.Value)
+                            if (eAction != InventoryEquipmentAction.None && eAction != InventoryEquipmentAction.RemoveInventory)
                             {
                                 return;
                             }
-                            isAdd = false;
+                            eAction = InventoryEquipmentAction.RemoveInventory;
                             objectText = nextLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
                         }
                         else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
                         {
-                            if (isAdd.HasValue && isAdd.Value)
+                            if (eAction != InventoryEquipmentAction.None && eAction != InventoryEquipmentAction.RemoveInventory)
                             {
                                 return;
                             }
-                            isAdd = false;
+                            eAction = InventoryEquipmentAction.RemoveInventory;
                             if (!nextLine.EndsWith("."))
                             {
                                 return;
@@ -1059,11 +1054,11 @@ namespace IsengardClient
                         }
                         else if (nextLine.EndsWith(" disintegrates."))
                         {
-                            if (isAdd.HasValue && isAdd.Value)
+                            if (eAction != InventoryEquipmentAction.None && eAction != InventoryEquipmentAction.RemoveInventory)
                             {
                                 return;
                             }
-                            isAdd = false;
+                            eAction = InventoryEquipmentAction.RemoveInventory;
                             int suffixIndex = nextLine.IndexOf(" disintegrates.");
                             if (suffixIndex > 0)
                             {
@@ -1158,7 +1153,7 @@ namespace IsengardClient
                 }
                 if (itemsManaged != null || potionConsumed)
                 {
-                    _onSatisfied(flp, itemsManaged, isAdd, isEquipment, iTotalGold, iSellGold, activeSpells, potionConsumed);
+                    _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed);
                     flp.FinishedProcessing = true;
                 }
             }
