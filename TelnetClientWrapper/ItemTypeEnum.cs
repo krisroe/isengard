@@ -590,6 +590,11 @@
         [EquipmentType(EquipmentType.Unknown)]
         MetalMask,
 
+        [SingularName("mithril breastplate")]
+        [PluralName("mithril breastplates")]
+        [EquipmentType(EquipmentType.Unknown)]
+        MithrilBreastplate,
+
         [SingularName("mithril chain armor")]
         [EquipmentType(EquipmentType.Torso)]
         MithrilChainArmor,
