@@ -2790,7 +2790,7 @@ namespace IsengardClient
         {
             lock (_escapeLock)
             {
-                if (_settingsData != null && _settingsData.AutoEscapeActive && _settingsData.AutoEscapeThreshold > 0 && newHP < _settingsData.AutoEscapeThreshold)
+                if (_settingsData != null && _settingsData.AutoEscapeActive && _settingsData.AutoEscapeThreshold > 0 && newHP <= _settingsData.AutoEscapeThreshold)
                 {
                     if (_settingsData.AutoEscapeType == AutoEscapeType.Flee)
                         _fleeing = true;
