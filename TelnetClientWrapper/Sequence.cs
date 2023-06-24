@@ -595,6 +595,7 @@ namespace IsengardClient
                     string skill = sNextSkill.Substring(0, iLastBracket).Trim();
                     if (skill == "(power) attack") skillType = SkillWithCooldownType.PowerAttack;
                     else if (skill == "manashield") skillType = SkillWithCooldownType.Manashield;
+                    else if (skill == "fireshield") skillType = SkillWithCooldownType.Fireshield;
 
                     int totalLength = sNextSkill.Length;
                     int timeLength = totalLength - iLastBracket - 3;
@@ -2506,6 +2507,11 @@ StartProcessRoom:
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.ManashieldOff;
+                }
+                else if (sLine == "Your fireshield dissipates.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.FireshieldOff;
                 }
                 else if (sLine == CELDUIN_EXPRESS_IN_BREE_MESSAGE)
                 {

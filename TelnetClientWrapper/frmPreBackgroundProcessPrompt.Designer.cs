@@ -31,8 +31,6 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.flp = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkPowerAttack = new System.Windows.Forms.CheckBox();
-            this.chkManashield = new System.Windows.Forms.CheckBox();
             this.grpSkills = new System.Windows.Forms.GroupBox();
             this.lblMob = new System.Windows.Forms.Label();
             this.cboMob = new System.Windows.Forms.ComboBox();
@@ -41,7 +39,6 @@
             this.btnEditStrategy = new System.Windows.Forms.Button();
             this.btnGraph = new System.Windows.Forms.Button();
             this.btnLocations = new System.Windows.Forms.Button();
-            this.flp.SuspendLayout();
             this.grpSkills.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,8 +66,6 @@
             // 
             // flp
             // 
-            this.flp.Controls.Add(this.chkPowerAttack);
-            this.flp.Controls.Add(this.chkManashield);
             this.flp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flp.Location = new System.Drawing.Point(4, 19);
@@ -78,30 +73,6 @@
             this.flp.Name = "flp";
             this.flp.Size = new System.Drawing.Size(429, 155);
             this.flp.TabIndex = 0;
-            // 
-            // chkPowerAttack
-            // 
-            this.chkPowerAttack.AutoSize = true;
-            this.chkPowerAttack.Location = new System.Drawing.Point(4, 4);
-            this.chkPowerAttack.Margin = new System.Windows.Forms.Padding(4);
-            this.chkPowerAttack.Name = "chkPowerAttack";
-            this.chkPowerAttack.Padding = new System.Windows.Forms.Padding(7, 6, 0, 0);
-            this.chkPowerAttack.Size = new System.Drawing.Size(114, 26);
-            this.chkPowerAttack.TabIndex = 1;
-            this.chkPowerAttack.Text = "Power Attack";
-            this.chkPowerAttack.UseVisualStyleBackColor = true;
-            // 
-            // chkManashield
-            // 
-            this.chkManashield.AutoSize = true;
-            this.chkManashield.Location = new System.Drawing.Point(4, 38);
-            this.chkManashield.Margin = new System.Windows.Forms.Padding(4);
-            this.chkManashield.Name = "chkManashield";
-            this.chkManashield.Padding = new System.Windows.Forms.Padding(7, 6, 0, 0);
-            this.chkManashield.Size = new System.Drawing.Size(106, 26);
-            this.chkManashield.TabIndex = 0;
-            this.chkManashield.Text = "Manashield";
-            this.chkManashield.UseVisualStyleBackColor = true;
             // 
             // grpSkills
             // 
@@ -206,8 +177,6 @@
             this.Name = "frmPreBackgroundProcessPrompt";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Skills";
-            this.flp.ResumeLayout(false);
-            this.flp.PerformLayout();
             this.grpSkills.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -218,8 +187,6 @@
         private System.Windows.Forms.FlowLayoutPanel flp;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.CheckBox chkManashield;
-        private System.Windows.Forms.CheckBox chkPowerAttack;
         private System.Windows.Forms.GroupBox grpSkills;
         private System.Windows.Forms.Label lblMob;
         private System.Windows.Forms.ComboBox cboMob;

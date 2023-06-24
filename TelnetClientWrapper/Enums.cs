@@ -42,7 +42,8 @@ namespace IsengardClient
     {
         None = 0,
         PowerAttack = 1,
-        Manashield = 2
+        Manashield = 2,
+        Fireshield = 4,
     }
 
     /// <summary>
@@ -96,6 +97,7 @@ namespace IsengardClient
         Bless,
         Protection,
         Manashield,
+        Fireshield,
         Stun,
         OffensiveSpell,
         Attack,
@@ -404,6 +406,7 @@ namespace IsengardClient
         EndureEarthOver,
         DetectMagicOver,
         ManashieldOff,
+        FireshieldOff,
         FireDamage,
         WaterDamage,
         EarthDamage,
@@ -434,6 +437,7 @@ namespace IsengardClient
         Unknown,
         PowerAttack,
         Manashield,
+        Fireshield,
     }
 
     public enum MovementResult

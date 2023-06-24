@@ -1664,6 +1664,16 @@ namespace IsengardClient
             }
         }
 
+        private void OnFireshieldOn(FeedLineParameters flParams)
+        {
+            ChangeSkillActive(SkillWithCooldownType.Fireshield, true);
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Fireshield)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
         private void ChangeSkillActive(SkillWithCooldownType skill, bool active)
         {
             lock (_skillsLock)
@@ -2098,6 +2108,9 @@ namespace IsengardClient
                         break;
                     case InformationalMessageType.ManashieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+                        break;
+                    case InformationalMessageType.FireshieldOff:
+                        ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
                         break;
                     case InformationalMessageType.FleeFailed:
                         finishedProcessing = true;
@@ -2786,6 +2799,7 @@ namespace IsengardClient
                 new InventoryEquipmentManagementSequence(OnInventoryManagement),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("You create a protective fireshield.", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new SelfSpellCastSequence(OnSelfSpellCast),
                 new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
@@ -3486,6 +3500,12 @@ namespace IsengardClient
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                     backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying);
+                    if (!backgroundCommandSuccess) return;
+                }
+                if ((pms.UsedSkills & PromptedSkills.Fireshield) == PromptedSkills.Fireshield)
+                {
+                    _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
+                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying);
                     if (!backgroundCommandSuccess) return;
                 }
 
@@ -5816,6 +5836,10 @@ BeforeHazy:
                         else if (sct == SkillWithCooldownType.Manashield)
                         {
                             skills |= PromptedSkills.Manashield;
+                        }
+                        else if (sct == SkillWithCooldownType.Fireshield)
+                        {
+                            skills |= PromptedSkills.Fireshield;
                         }
                     }
                 }

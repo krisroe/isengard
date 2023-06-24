@@ -43,13 +43,22 @@ namespace IsengardClient
             }
             cboMob.Text = currentMob;
 
-            bool showPowerAttack = (skills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
-            chkPowerAttack.Visible = showPowerAttack;
-            chkPowerAttack.Enabled = showPowerAttack;
-            chkPowerAttack.Checked = showPowerAttack;
-            bool showManashield = (skills & PromptedSkills.Manashield) == PromptedSkills.Manashield;
-            chkManashield.Visible = showManashield;
-            chkManashield.Enabled = showManashield;
+            foreach (PromptedSkills nextSkill in Enum.GetValues(typeof(PromptedSkills)))
+            {
+                if (nextSkill != PromptedSkills.None)
+                {
+                    if ((skills & nextSkill) == nextSkill)
+                    {
+                        CheckBox chk = new CheckBox();
+                        chk.AutoSize = true;
+                        chk.Margin = new Padding(4);
+                        chk.Tag = nextSkill;
+                        chk.Text = nextSkill.ToString();
+                        chk.UseVisualStyleBackColor = true;
+                        flp.Controls.Add(chk);
+                    }
+                }
+            }
 
             btnEditStrategy.Visible = Strategy != null;
         }
@@ -76,13 +85,12 @@ namespace IsengardClient
             get
             {
                 PromptedSkills ret = PromptedSkills.None;
-                if (chkPowerAttack.Enabled && chkPowerAttack.Checked)
+                foreach (CheckBox nextSkillCheckbox in flp.Controls)
                 {
-                    ret |= PromptedSkills.PowerAttack;
-                }
-                if (chkManashield.Enabled && chkManashield.Checked)
-                {
-                    ret |= PromptedSkills.Manashield;
+                    if (nextSkillCheckbox.Checked)
+                    {
+                        ret |= (PromptedSkills)nextSkillCheckbox.Tag;
+                    }
                 }
                 return ret;
             }
