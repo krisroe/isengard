@@ -1562,7 +1562,7 @@ StartProcessRoom:
                         }
                         else
                         {
-                            int trapDamage = Room.ProcessTrapDamage("You lost ", " hit points.", sNextLine);
+                            int trapDamage = StringProcessing.PullDamageFromString("You lost ", " hit points.", sNextLine);
                             if (trapDamage > 0) damage += trapDamage;
                         }
                     }
@@ -2387,7 +2387,7 @@ StartProcessRoom:
 
         public static int ProcessFallDamage(string nextLine)
         {
-            return Room.ProcessTrapDamage(YOU_FELL_AND_HURT_YOURSELF_PREFIX, YOU_FELL_AND_HURT_YOURSELF_SUFFIX, nextLine);
+            return StringProcessing.PullDamageFromString(YOU_FELL_AND_HURT_YOURSELF_PREFIX, YOU_FELL_AND_HURT_YOURSELF_SUFFIX, nextLine);
         }
     }
 
@@ -2763,9 +2763,10 @@ StartProcessRoom:
                         }
                     }
 
+                    int iDamage;
                     if (nextMsg == null)
                     {
-                        int iDamage = FailMovementSequence.ProcessFallDamage(sLine);
+                        iDamage = FailMovementSequence.ProcessFallDamage(sLine);
                         if (iDamage > 0)
                         {
                             nextMsg = new InformationalMessages(InformationalMessageType.FallDamage);
@@ -2790,6 +2791,16 @@ StartProcessRoom:
                         {
                             nextMsg = new InformationalMessages(InformationalMessageType.PleaseWait);
                             nextMsg.WaitSeconds = pleaseWaitSeconds.Value;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        iDamage = StringProcessing.PullDamageFromString("Your fireshield inflicts ", " damage to your attacker and dissipates!", sLine);
+                        if (iDamage > 0)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.FireshieldInflictsDamageAndDissipates);
+                            nextMsg.Damage = iDamage;
                         }
                     }
 
@@ -3193,6 +3204,27 @@ StartProcessRoom:
             {
                 yield return sNextWord;
             }
+        }
+
+        public static int PullDamageFromString(string prefix, string suffix, string nextLine)
+        {
+            int ret = 0;
+            if (nextLine.StartsWith(prefix) && nextLine.EndsWith(suffix))
+            {
+                int iPrefixLen = prefix.Length;
+                int iSuffixLen = suffix.Length;
+                int iTotalLen = nextLine.Length;
+                int iDamageLen = iTotalLen - iPrefixLen - iSuffixLen;
+                if (iDamageLen > 0)
+                {
+                    string sDamage = nextLine.Substring(iPrefixLen, iDamageLen);
+                    if (int.TryParse(sDamage, out int iThisDamage) && iThisDamage > 0)
+                    {
+                        ret = iThisDamage;
+                    }
+                }
+            }
+            return ret;
         }
     }
 }

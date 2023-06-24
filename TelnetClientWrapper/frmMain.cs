@@ -2112,6 +2112,13 @@ namespace IsengardClient
                     case InformationalMessageType.FireshieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
                         break;
+                    case InformationalMessageType.FireshieldInflictsDamageAndDissipates:
+                        if (!string.IsNullOrEmpty(flp.CurrentlyFightingMob))
+                        {
+                            _monsterDamage += next.Damage;
+                        }
+                        ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
+                        break;
                     case InformationalMessageType.FleeFailed:
                         finishedProcessing = true;
                         break;

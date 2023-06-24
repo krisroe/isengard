@@ -51,6 +51,10 @@ namespace IsengardClient
                     {
                         CheckBox chk = new CheckBox();
                         chk.AutoSize = true;
+                        if (nextSkill == PromptedSkills.PowerAttack)
+                        {
+                            chk.Checked = true;
+                        }
                         chk.Margin = new Padding(4);
                         chk.Tag = nextSkill;
                         chk.Text = nextSkill.ToString();

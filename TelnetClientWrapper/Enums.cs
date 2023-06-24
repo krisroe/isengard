@@ -430,6 +430,7 @@ namespace IsengardClient
         MobWanderedAway,
         ReceiveVampyricTouch,
         EquipmentDestroyed,
+        FireshieldInflictsDamageAndDissipates,
     }
 
     public enum SkillWithCooldownType
