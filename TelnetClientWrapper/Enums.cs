@@ -582,6 +582,7 @@ namespace IsengardClient
         Weapon,
         Potion,
         Scroll,
+        Money,
         Other,
     }
 

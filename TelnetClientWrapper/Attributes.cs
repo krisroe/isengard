@@ -90,6 +90,10 @@ namespace IsengardClient
         }
     }
 
+    internal class MoneyAttribute : Attribute
+    {
+    }
+
     /// <summary>
     /// weapon type for an item
     /// </summary>

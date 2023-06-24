@@ -192,6 +192,7 @@
 
         [SingularName("copper pieces")]
         [PluralName("copper pieces")]
+        [Money]
         CopperPieces,
 
         [SingularName("copper ring")]
@@ -370,6 +371,7 @@
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
+        [Money]
         GoldCoins,
 
         [SingularName("golden dagger")]
@@ -667,6 +669,7 @@
 
         [SingularName("platinum pieces")]
         [PluralName("platinum pieces")]
+        [Money]
         PlatinumPieces,
 
         [SingularName("port manifest")]
@@ -680,6 +683,7 @@
 
         [SingularName("pot of gold")]
         [PluralName("pots of gold")]
+        [Money]
         PotOfGold,
 
         [SingularName("pure white cape")]
@@ -855,6 +859,7 @@
 
         [SingularName("small silver chest")]
         [PluralName("small silver chests")]
+        [Money]
         SmallSilverChest,
 
         [SingularName("small wooden shield")]
@@ -1009,7 +1014,7 @@
 
         [SingularName("wagonmaster's whip")]
         [PluralName("wagonmaster's whips")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         WagonmastersWhip,
 
         [SingularName("warhammer")]

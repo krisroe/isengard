@@ -1141,17 +1141,19 @@ namespace IsengardClient
                                 }
                                 else
                                 {
-                                    if (itemsManaged == null)
+                                    ItemTypeEnum eItemType = ie.ItemType.Value;
+                                    StaticItemData sid = ItemEntity.StaticItemData[eItemType];
+                                    if (sid.ItemClass != ItemClass.Money)
                                     {
-                                        itemsManaged = new List<ItemTypeEnum>();
+                                        if (itemsManaged == null) itemsManaged = new List<ItemTypeEnum>();
+                                        itemsManaged.Add(ie.ItemType.Value);
                                     }
-                                    itemsManaged.Add(ie.ItemType.Value);
                                 }
                             }
                         }
                     }
                 }
-                if (itemsManaged != null || potionConsumed)
+                if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)
                 {
                     _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed);
                     flp.FinishedProcessing = true;
