@@ -3806,6 +3806,9 @@ namespace IsengardClient
                             MagicStrategyStep? nextMagicStep = null;
                             MeleeStrategyStep? nextMeleeStep = null;
                             PotionsStrategyStep? nextPotionsStep = null;
+                            bool magicStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
+                            bool meleeStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
+                            bool potionsStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
                             bool magicStepsFinished = magicSteps == null || !magicSteps.MoveNext();
                             bool meleeStepsFinished = meleeSteps == null || !meleeSteps.MoveNext();
                             bool potionsStepsFinished = potionsSteps == null || !potionsSteps.MoveNext();
@@ -3858,7 +3861,7 @@ namespace IsengardClient
                                     }
                                     else if (result == MagicCommandChoiceResult.Cast)
                                     {
-                                        if (!RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage)) 
+                                        if (!RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage))
                                             return;
                                     }
                                 }
@@ -3868,7 +3871,7 @@ namespace IsengardClient
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 //flee or stop combat once steps complete
-                                if (!nextMagicStep.HasValue && strategy != null)
+                                if (!nextMagicStep.HasValue && magicStepsFinished && magicStepsEnabled)
                                 {
                                     FinalStepAction finalAction = strategy.FinalMagicAction;
                                     if (finalAction != FinalStepAction.None)
@@ -3908,7 +3911,7 @@ namespace IsengardClient
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 //flee or stop combat once steps complete
-                                if (!nextMeleeStep.HasValue && strategy != null)
+                                if (!nextMeleeStep.HasValue && meleeStepsFinished && meleeStepsEnabled)
                                 {
                                     FinalStepAction finalAction = strategy.FinalMeleeAction;
                                     if (finalAction != FinalStepAction.None)
@@ -3971,7 +3974,7 @@ namespace IsengardClient
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
 
                                 //flee or stop combat once steps complete
-                                if (!nextPotionsStep.HasValue && strategy != null)
+                                if (!nextPotionsStep.HasValue && potionsStepsFinished && potionsStepsEnabled)
                                 {
                                     FinalStepAction finalAction = strategy.FinalPotionsAction;
                                     if (finalAction != FinalStepAction.None)
