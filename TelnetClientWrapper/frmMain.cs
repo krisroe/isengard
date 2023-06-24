@@ -2,9 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using System.Data.SQLite;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -15,13 +19,14 @@ namespace IsengardClient
         private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
 
-        private RealmType _currentRealm;
-        private int _autoSpellLevelMin = -1;
-        private int _autoSpellLevelMax = -1;
+        private IsengardSettingData _settingsData;
+        private bool _processedUIWithSettings;
 
         private string _mob;
-        private string _weapon;
         private string _wand;
+
+        private string _weapon;
+        private string _weaponUI;
 
         private const int SECONDS_PER_GAME_HOUR = 150;
         private const int SUNRISE_GAME_HOUR = 6;
@@ -52,8 +57,6 @@ namespace IsengardClient
 
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
-        private bool _verboseMode;
-        private bool _queryMonsterStatus;
         private bool _finishedQuit;
 
         private object _spellsCastLock = new object();
@@ -72,6 +75,7 @@ namespace IsengardClient
         private List<SkillCooldown> _cooldowns = new List<SkillCooldown>();
 
         private string _username;
+        private int _userid;
         private string _password;
         private bool _promptedUserName;
         private bool _promptedPassword;
@@ -91,7 +95,7 @@ namespace IsengardClient
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
         private int _autohp = HP_OR_MP_UNKNOWN;
-        
+
         /// <summary>
         /// hitpoints from the output. if unknown the value is -1.
         /// </summary>
@@ -102,11 +106,8 @@ namespace IsengardClient
         /// </summary>
         private int _currentMana = HP_OR_MP_UNKNOWN;
 
-        private int _autoEscapeThreshold;
         private int _autoEscapeThresholdUI;
-        private AutoEscapeType _autoEscapeType;
         private AutoEscapeType _autoEscapeTypeUI;
-        private bool _autoEscapeActive;
         private bool _autoEscapeActiveUI;
         private bool _autoEscapeActiveSaved;
         private bool _fleeing;
@@ -128,8 +129,6 @@ namespace IsengardClient
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
         private PleaseWaitSequence _pleaseWaitSequence;
-        private Color _fullColor;
-        private Color _emptyColor;
 
         private object _queuedCommandLock = new object();
         private object _consoleTextLock = new object();
@@ -154,7 +153,7 @@ namespace IsengardClient
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
-        
+
         private string _currentlyFightingMob;
         private string _currentlyFightingMobUI;
         private MonsterStatus _currentMonsterStatus;
@@ -208,24 +207,6 @@ namespace IsengardClient
 
             _asciiMapping = AsciiMapping.GetAsciiMapping();
 
-            IsengardSettings sets = IsengardSettings.Default;
-            _verboseMode = sets.VerboseMode;
-            _queryMonsterStatus = sets.QueryMonsterStatus;
-            _fullColor = sets.FullColor;
-            _emptyColor = sets.EmptyColor;
-
-            InitializeRealm();
-            InitializeAutoSpellLevels();
-            InitializeAutoEscapeThreshold();
-
-            AlignmentType ePreferredAlignment;
-            if (!Enum.TryParse(sets.PreferredAlignment, out ePreferredAlignment))
-            {
-                ePreferredAlignment = AlignmentType.Blue;
-            }
-
-            txtWeapon.Text = sets.Weapon ?? string.Empty;
-
             //prettify user name to be Pascal case
             StringBuilder sb = new StringBuilder();
             bool isFirst = true;
@@ -254,35 +235,11 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            _gameMap = new IsengardMap(ePreferredAlignment);
+            _gameMap = new IsengardMap();
 
             cboSetOption.SelectedIndex = 0;
 
             DoConnect();
-        }
-
-        private void InitializeAutoEscapeThreshold()
-        {
-            IsengardSettings sets = IsengardSettings.Default;
-            _autoEscapeThreshold = sets.AutoEscapeThreshold;
-            _autoEscapeType = (AutoEscapeType)sets.AutoEscapeType;
-            _autoEscapeActive = sets.AutoEscapeActive;
-            if (_autoEscapeType != AutoEscapeType.Flee && _autoEscapeType != AutoEscapeType.Hazy)
-            {
-                _autoEscapeType = AutoEscapeType.Flee;
-                sets.AutoEscapeType = Convert.ToInt32(_autoEscapeType);
-            }
-            if (_autoEscapeThreshold < 0)
-            {
-                _autoEscapeThreshold = 0;
-                sets.AutoEscapeThreshold = _autoEscapeThreshold;
-            }
-            if (_autoEscapeThreshold == 0)
-            {
-                _autoEscapeActive = false;
-                sets.AutoEscapeActive = _autoEscapeActive;
-            }
-            RefreshAutoEscapeUI(true);
         }
 
         private void RefreshStrategyButtons()
@@ -639,7 +596,7 @@ namespace IsengardClient
                 "look", //also examine
                 "lose",
                 "mage",
-                "magic", 
+                "magic",
                 "manashield",
                 "meditate",
                 "mend",
@@ -830,15 +787,7 @@ namespace IsengardClient
 
         private void DoConnect()
         {
-            IsengardSettings sets = IsengardSettings.Default;
-            if (sets.RemoveAllOnStartup)
-            {
-                _initializationSteps = InitializationStep.None;
-            }
-            else
-            {
-                _initializationSteps = InitializationStep.RemoveAll;
-            }
+            _initializationSteps = InitializationStep.None;
             _loginInfo = null;
             _players = null;
             lock (_timeLock)
@@ -894,6 +843,7 @@ namespace IsengardClient
                 else
                 {
                     _finishedQuit = true;
+                    SaveSettings();
                     this.Close();
                 }
             }
@@ -1149,8 +1099,136 @@ namespace IsengardClient
             }
         }
 
+        private string GetDatabasePath()
+        {
+            return Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Isengard.sqlite");
+        }
+
+        private SQLiteConnection GetSqliteConnection()
+        {
+            SQLiteConnectionStringBuilder connsb = new SQLiteConnectionStringBuilder()
+            {
+                DataSource = GetDatabasePath(),
+                Version = 3
+            };
+            return new SQLiteConnection(connsb.ToString());
+        }
+
         private void OnInitialLogin(InitialLoginInfo initialLoginInfo)
         {
+            string localDatabase = GetDatabasePath();
+            bool newDatabase = !File.Exists(localDatabase);
+            if (newDatabase) SQLiteConnection.CreateFile(localDatabase);
+            using (SQLiteConnection conn = GetSqliteConnection())
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                if (newDatabase) //generate database schema
+                {
+                    cmd.CommandText = "CREATE TABLE Users (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT UNIQUE NOT NULL)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                    cmd.ExecuteNonQuery();
+                }
+                cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
+                cmd.Parameters.AddWithValue("@UserName", _username);
+                object oResult = cmd.ExecuteScalar();
+                int iUserID;
+                if (oResult == DBNull.Value)
+                {
+                    cmd.CommandText = "INSERT Users (UserName) VALUES (@UserName)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "SELECT last_insert_rowid()";
+                    iUserID = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                else
+                {
+                    iUserID = Convert.ToInt32(oResult);
+                }
+                _userid = iUserID;
+
+                _settingsData = new IsengardSettingData();
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@UserID", iUserID);
+                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        bool bTemp;
+                        int iTemp;
+                        string sValue = reader["SettingValue"].ToString();
+                        switch (reader["SettingName"])
+                        {
+                            case "Weapon":
+                                if (Enum.TryParse(sValue, out ItemTypeEnum weapon)) _settingsData.Weapon = weapon;
+                                break;
+                            case "Realm":
+                                if (Enum.TryParse(sValue, out RealmType realm)) _settingsData.Realm = realm;
+                                break;
+                            case "PreferredAlignment":
+                                if (Enum.TryParse(sValue, out AlignmentType alignment)) _settingsData.PreferredAlignment = alignment;
+                                break;
+                            case "VerboseMode":
+                                if (bool.TryParse(sValue, out bTemp)) _settingsData.VerboseMode = bTemp;
+                                break;
+                            case "QueryMonsterStatus":
+                                if (bool.TryParse(sValue, out bTemp)) _settingsData.QueryMonsterStatus = bTemp;
+                                break;
+                            case "FullColor":
+                                if (int.TryParse(sValue, out iTemp)) _settingsData.FullColor = Color.FromArgb(iTemp);
+                                break;
+                            case "EmptyColor":
+                                if (int.TryParse(sValue, out iTemp)) _settingsData.EmptyColor = Color.FromArgb(iTemp);
+                                break;
+                            case "AutoSpellLevelMin":
+                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoSpellLevelMin = iTemp;
+                                break;
+                            case "AutoSpellLevelMax":
+                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoSpellLevelMax = iTemp;
+                                break;
+                            case "AutoEscapeThreshold":
+                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoEscapeThreshold = iTemp;
+                                break;
+                            case "AutoEscapeType":
+                                if (Enum.TryParse(sValue, out AutoEscapeType autoEscapeType)) _settingsData.AutoEscapeType = autoEscapeType;
+                                break;
+                            case "AutoEscapeActive":
+                                if (bool.TryParse(sValue, out bTemp)) _settingsData.AutoEscapeActive = bTemp;
+                                break;
+                            case "RemoveAllOnStartup":
+                                if (bool.TryParse(sValue, out bTemp)) _settingsData.RemoveAllOnStartup = bTemp;
+                                break;
+                        }
+                    }
+                }
+
+                //settings validation
+                if (_settingsData.AutoEscapeType != AutoEscapeType.Flee && _settingsData.AutoEscapeType != AutoEscapeType.Hazy)
+                {
+                    _settingsData.AutoEscapeType = AutoEscapeType.Flee;
+                }
+                if (_settingsData.AutoEscapeThreshold < 0)
+                {
+                    _settingsData.AutoEscapeThreshold = 0;
+                }
+                if (_settingsData.AutoEscapeThreshold == 0)
+                {
+                    _settingsData.AutoEscapeActive = false;
+                }
+                if (_settingsData.AutoSpellLevelMin > _settingsData.AutoSpellLevelMax || _settingsData.AutoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _settingsData.AutoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _settingsData.AutoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _settingsData.AutoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
+                {
+                    _settingsData.AutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
+                    _settingsData.AutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                }
+            }
+
+            _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
+
+            if (_settingsData.RemoveAllOnStartup)
+                _initializationSteps = InitializationStep.None;
+            else
+                _initializationSteps = InitializationStep.RemoveAll;
             SendCommand("score", InputEchoType.Off);
             SendCommand("who", InputEchoType.Off);
             SendCommand("inventory", InputEchoType.Off);
@@ -1163,6 +1241,79 @@ namespace IsengardClient
             }
             _initializationSteps |= InitializationStep.Initialization;
             _loginInfo = initialLoginInfo;
+        }
+
+        private void SaveSettings()
+        {
+            Dictionary<string, string> existingSettings = new Dictionary<string, string>();
+            Dictionary<string, string> newSettings = new Dictionary<string, string>();
+            newSettings["Weapon"] = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
+            newSettings["Realm"] = _settingsData.Realm.ToString();
+            newSettings["PreferredAlignment"] = _settingsData.PreferredAlignment.ToString();
+            newSettings["VerboseMode"] = _settingsData.VerboseMode.ToString();
+            newSettings["QueryMonsterStatus"] = _settingsData.QueryMonsterStatus.ToString();
+            newSettings["RemoveAllOnStartup"] = _settingsData.RemoveAllOnStartup.ToString();
+            newSettings["FullColor"] = _settingsData.FullColor.ToArgb().ToString();
+            newSettings["EmptyColor"] = _settingsData.EmptyColor.ToArgb().ToString();
+            newSettings["AutoSpellLevelMin"] = _settingsData.AutoSpellLevelMin.ToString();
+            newSettings["AutoSpellLevelMax"] = _settingsData.AutoSpellLevelMax.ToString();
+            newSettings["AutoEscapeThreshold"] = _settingsData.AutoEscapeThreshold.ToString();
+            newSettings["AutoEscapeType"] = _settingsData.AutoEscapeType.ToString();
+            newSettings["AutoEscapeActive"] = _settingsData.AutoEscapeActive.ToString();
+            using (SQLiteConnection conn = GetSqliteConnection())
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
+                cmd.Parameters.AddWithValue("@UserID", _userid);
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        existingSettings[reader["SettingName"].ToString()] = reader["SettingValue"].ToString();
+                    }
+                }
+                List<string> keysToRemove = new List<string>();
+                foreach (var next in newSettings)
+                {
+                    string sKey = next.Key;
+                    if (existingSettings.TryGetValue(sKey, out string sValue))
+                    {
+                        if (sValue == next.Value)
+                        {
+                            keysToRemove.Add(sKey);
+                        }
+                    }
+                }
+                foreach (string nextKey in keysToRemove)
+                {
+                    newSettings.Remove(nextKey);
+                    existingSettings.Remove(nextKey);
+                }
+                cmd.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND SettingName = @SettingName";
+                SQLiteParameter settingName = cmd.Parameters.Add("@SettingName", DbType.String);
+                foreach (var next in existingSettings)
+                {
+                    string sKey = next.Key;
+                    if (!newSettings.ContainsKey(sKey))
+                    {
+                        settingName.Value = sKey;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                SQLiteParameter settingValue = cmd.Parameters.Add("@SettingValue", DbType.String);
+                foreach (var next in newSettings)
+                {
+                    string sKey = next.Key;
+                    settingName.Value = sKey;
+                    settingValue.Value = next.Value;
+                    if (existingSettings.ContainsKey(sKey))
+                        cmd.CommandText = "UPDATE Settings SET SettingValue = @SettingValue WHERE SettingName = @SettingName AND UserID = @UserID";
+                    else
+                        cmd.CommandText = "INSERT INTO Settings (UserID, SettingName, SettingValue) VALUES (@UserID, @SettingName, @SettingValue)";
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         private void ProcessInitialLogin(FeedLineParameters flp)
@@ -2522,7 +2673,7 @@ namespace IsengardClient
                                         _newConsoleText.Add(ex.ToString());
                                     }
                                 }
-                                if (flParams.SuppressEcho && !_verboseMode)
+                                if (flParams.SuppressEcho && !GetVerboseMode())
                                 {
                                     echoType = InputEchoType.Off;
                                 }
@@ -2553,7 +2704,7 @@ namespace IsengardClient
                             if (haveContent)
                             {
                                 int newCommandResultCounter = _commandResultCounter;
-                                if (!_verboseMode && previousCommandResultCounter == newCommandResultCounter && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
+                                if (!GetVerboseMode() && previousCommandResultCounter == newCommandResultCounter && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
                                 {
                                     sNewLine = _lastCommand + Environment.NewLine + sNewLine;
                                 }
@@ -2589,13 +2740,13 @@ namespace IsengardClient
         {
             lock (_escapeLock)
             {
-                if (_autoEscapeActive && _autoEscapeThreshold > 0 && newHP < _autoEscapeThreshold)
+                if (_settingsData != null && _settingsData.AutoEscapeActive && _settingsData.AutoEscapeThreshold > 0 && newHP < _settingsData.AutoEscapeThreshold)
                 {
-                    if (_autoEscapeType == AutoEscapeType.Flee)
+                    if (_settingsData.AutoEscapeType == AutoEscapeType.Flee)
                         _fleeing = true;
-                    else if (_autoEscapeType == AutoEscapeType.Hazy)
+                    else if (_settingsData.AutoEscapeType == AutoEscapeType.Hazy)
                         _hazying = true;
-                    _autoEscapeActive = false;
+                    _settingsData.AutoEscapeActive = false;
                 }
             }
             if (_currentBackgroundParameters == null)
@@ -3102,6 +3253,7 @@ namespace IsengardClient
         {
             if (_finishedQuit)
             {
+                SaveSettings();
                 this.Close();
             }
             else
@@ -3578,8 +3730,8 @@ namespace IsengardClient
                 }
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
-                    int savedAutoSpellMin = _autoSpellLevelMin;
-                    int savedAutoSpellMax = _autoSpellLevelMax;
+                    int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
+                    int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
                     try
                     {
                         _currentlyFightingMob = pms.TargetRoomMob;
@@ -3595,18 +3747,18 @@ namespace IsengardClient
                             onMonsterKilledAction = strategy.AfterKillMonsterAction;
                             if (strategy.AutoSpellLevelMin != -1 && strategy.AutoSpellLevelMax != -1)
                             {
-                                _autoSpellLevelMin = strategy.AutoSpellLevelMin;
-                                _autoSpellLevelMax = strategy.AutoSpellLevelMax;
+                                usedAutoSpellMin = strategy.AutoSpellLevelMin;
+                                usedAutoSpellMax = strategy.AutoSpellLevelMax;
                             }
                         }
-                        List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
+                        List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm);
                         List<string> knownSpells;
                         lock (_spellsKnownLock)
                         {
                             knownSpells = _spellsKnown;
                         }
                         int? calculatedMinLevel, calculatedMaxLevel;
-                        Strategy.GetMinMaxOffensiveSpellLevels(strategy, _autoSpellLevelMin, _autoSpellLevelMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
+                        Strategy.GetMinMaxOffensiveSpellLevels(strategy, usedAutoSpellMin, usedAutoSpellMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
 
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
@@ -3617,38 +3769,8 @@ namespace IsengardClient
                         {
                             _currentMana = pms.ManaPool;
                         }
-
-                        //validate weapon
-                        ItemTypeEnum? weaponItem = null;
+                        ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
-                        if (useMelee && !string.IsNullOrEmpty(_weapon))
-                        {
-                            string errorMessage = null;
-                            if (Enum.TryParse(_weapon, out ItemTypeEnum weaponItemValue))
-                            {
-                                StaticItemData weaponData = ItemEntity.StaticItemData[weaponItemValue];
-                                if (weaponData.WeaponType.HasValue)
-                                {
-                                    weaponItem = weaponItemValue;
-                                }
-                                else
-                                {
-                                    errorMessage = "Weapon is not actually a weapon: " + _weapon;
-                                }
-                            }
-                            else
-                            {
-                                errorMessage = "Invalid weapon: " + _weapon;
-                            }
-                            if (!string.IsNullOrEmpty(errorMessage))
-                            {
-                                lock (_broadcastMessagesLock)
-                                {
-                                    _broadcastMessages.Add(errorMessage);
-                                }
-                            }
-                        }
-
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
@@ -3692,7 +3814,7 @@ namespace IsengardClient
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells);
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -3852,7 +3974,7 @@ namespace IsengardClient
 
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
 
-                                if (didDamage && _queryMonsterStatus)
+                                if (didDamage && _settingsData.QueryMonsterStatus)
                                 {
                                     backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _currentlyFightingMob, pms, AbortIfFleeingOrHazying);
                                     if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
@@ -3964,8 +4086,6 @@ BeforeHazy:
                         _monsterKilled = false;
                         _monsterKilledType = null;
                         _currentMana = HP_OR_MP_UNKNOWN;
-                        _autoSpellLevelMin = savedAutoSpellMin;
-                        _autoSpellLevelMax = savedAutoSpellMax;
                     }
                 }
 
@@ -4158,7 +4278,7 @@ BeforeHazy:
             command = sAttackType + " " + _currentlyFightingMob;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells)
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -4222,19 +4342,19 @@ BeforeHazy:
             {
                 if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
                 {
-                    if (currentMP >= 15 && _autoSpellLevelMin <= 4 && _autoSpellLevelMax >= 4 && knownSpells.Contains(offensiveSpells[3]))
+                    if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4 && knownSpells.Contains(offensiveSpells[3]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
                     }
-                    else if (currentMP >= 10 && _autoSpellLevelMin <= 3 && _autoSpellLevelMax >= 3 && knownSpells.Contains(offensiveSpells[2]))
+                    else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3 && knownSpells.Contains(offensiveSpells[2]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
                     }
-                    else if (currentMP >= 7 && _autoSpellLevelMin <= 2 && _autoSpellLevelMax >= 2 && knownSpells.Contains(offensiveSpells[1]))
+                    else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2 && knownSpells.Contains(offensiveSpells[1]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
                     }
-                    else if (currentMP >= 3 && _autoSpellLevelMin <= 1 && _autoSpellLevelMax >= 1 && knownSpells.Contains(offensiveSpells[0]))
+                    else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1 && knownSpells.Contains(offensiveSpells[0]))
                     {
                         nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
                     }
@@ -4927,7 +5047,7 @@ BeforeHazy:
 
         private InputEchoType GetHiddenMessageEchoType()
         {
-            return _verboseMode ? InputEchoType.On : InputEchoType.Off;
+            return GetVerboseMode() ? InputEchoType.On : InputEchoType.Off;
         }
 
         private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic)
@@ -5062,7 +5182,6 @@ BeforeHazy:
         private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()
         {
             yield return txtMob;
-            yield return txtWeapon;
             yield return txtWand;
             yield return txtPotion;
             yield return cboTickRoom;
@@ -5111,8 +5230,9 @@ BeforeHazy:
             {
                 sMob = _mob;
             }
+            bool haveSettings = _settingsData != null;
             List<string> knownSpells;
-            List<string> realmSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_currentRealm);
+            List<string> realmSpells = haveSettings ? CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm) : null;
             lock (_spellsKnownLock)
             {
                 knownSpells = _spellsKnown;
@@ -5122,7 +5242,7 @@ BeforeHazy:
                 object oControl = oTag.Control;
                 if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(sMob))
                     enabled = false;
-                else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && string.IsNullOrEmpty(_weapon))
+                else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && (!haveSettings || !_settingsData.Weapon.HasValue))
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Wand) != DependentObjectType.None && string.IsNullOrEmpty(_wand))
                     enabled = false;
@@ -5141,11 +5261,11 @@ BeforeHazy:
                 {
                     string sSpell = null;
                     if (oControl == btnLevel1OffensiveSpell)
-                        sSpell = realmSpells[0];
+                        sSpell = realmSpells == null ? "unknown" : realmSpells[0];
                     else if (oControl == btnLevel2OffensiveSpell)
-                        sSpell = realmSpells[1];
+                        sSpell = realmSpells == null ? "unknown" : realmSpells[1];
                     else if (oControl == btnLevel3OffensiveSpell)
-                        sSpell = realmSpells[2];
+                        sSpell = realmSpells == null ? "unknown" : realmSpells[2];
                     else if (oControl == btnStunMob)
                         sSpell = "stun";
                     else if (oControl == btnCastVigor)
@@ -5642,7 +5762,7 @@ BeforeHazy:
             bool isMagicStrategy = (eStrategyCombatCommandType & CommandType.Magic) == CommandType.Magic;
             bool isMeleeStrategy = (eStrategyCombatCommandType & CommandType.Melee) == CommandType.Melee;
             bool isCombatStrategy = isMagicStrategy || isMeleeStrategy;
-            bool hasWeapon = !string.IsNullOrEmpty(txtWeapon.Text);
+            bool hasWeapon = _settingsData.Weapon.HasValue;
             if (isMeleeStrategy && !hasWeapon)
             {
                 if (MessageBox.Show("No weapon specified. Continue?", "Strategy", MessageBoxButtons.OKCancel) != DialogResult.OK)
@@ -5760,6 +5880,7 @@ BeforeHazy:
             int autompforthistick = _automp;
             if (_finishedQuit)
             {
+                SaveSettings();
                 this.Close();
                 return;
             }
@@ -5792,8 +5913,11 @@ BeforeHazy:
                 _enteredPassword = true;
             }
 
-            if ((initStep & InitializationStep.Score) != InitializationStep.None)
+            bool haveSettings = _settingsData != null;
+            if (haveSettings && ((initStep & InitializationStep.Score) != InitializationStep.None))
             {
+                Color fullColor = _settingsData.FullColor;
+                Color emptyColor = _settingsData.EmptyColor;
                 Color backColor;
                 int iCurrentMana = _currentMana;
                 if (autompforthistick != HP_OR_MP_UNKNOWN)
@@ -5809,7 +5933,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        ComputeColor(iCurrentMana, iTotalMP, out byte r, out byte g, out byte b);
+                        ComputeColor(iCurrentMana, iTotalMP, out byte r, out byte g, out byte b, fullColor, emptyColor);
                         _mpColorR = r;
                         _mpColorG = g;
                         _mpColorB = b;
@@ -5819,7 +5943,7 @@ BeforeHazy:
                 if (autohpforthistick != HP_OR_MP_UNKNOWN)
                 {
                     lblHitpointsValue.Text = autohpforthistick.ToString() + "/" + _totalhp;
-                    ComputeColor(autohpforthistick, _totalhp, out byte r, out byte g, out byte b);
+                    ComputeColor(autohpforthistick, _totalhp, out byte r, out byte g, out byte b, fullColor, emptyColor);
                     _hpColorR = r;
                     _hpColorG = g;
                     _hpColorB = b;
@@ -5892,17 +6016,17 @@ BeforeHazy:
                     if (status == SkillCooldownStatus.Active)
                     {
                         sText = "ACTIVE";
-                        backColor = _fullColor;
+                        backColor = fullColor;
                     }
                     else if (status == SkillCooldownStatus.Available)
                     {
                         sText = "0:00";
-                        backColor = _fullColor;
+                        backColor = fullColor;
                     }
                     else if (status == SkillCooldownStatus.Inactive)
                     {
                         sText = "?";
-                        backColor = _emptyColor;
+                        backColor = emptyColor;
                     }
                     else if (status == SkillCooldownStatus.Waiting)
                     {
@@ -5916,7 +6040,7 @@ BeforeHazy:
                             TimeSpan ts = dtDateValue - dtUTCNow;
                             sText = ts.Minutes + ":" + ts.Seconds.ToString().PadLeft(2, '0');
                         }
-                        backColor = sText == "0:00" ? _fullColor : _emptyColor;
+                        backColor = sText == "0:00" ? fullColor : emptyColor;
                     }
                     else
                     {
@@ -6031,7 +6155,17 @@ BeforeHazy:
                 _tnlUI = iTNL;
             }
 
-            RefreshAutoEscapeUI(false);
+            if (haveSettings)
+            {
+                RefreshAutoEscapeUI(!_processedUIWithSettings);
+                string sWeapon = _weapon;
+                if (_weaponUI != sWeapon)
+                {
+                    txtWeapon.Text = sWeapon;
+                    _weaponUI = sWeapon;
+                }
+                _processedUIWithSettings = true;
+            }
 
             lock (_broadcastMessagesLock)
             {
@@ -6489,14 +6623,14 @@ BeforeHazy:
             return nextTreeNode;
         }
 
-        private void ComputeColor(int current, int max, out byte r, out byte g, out byte b)
+        private static void ComputeColor(int current, int max, out byte r, out byte g, out byte b, Color fullColor, Color emptyColor)
         {
-            byte iFullR = _fullColor.R;
-            byte iFullG = _fullColor.G;
-            byte iFullB = _fullColor.B;
-            byte iEmptyR = _emptyColor.R;
-            byte iEmptyG = _emptyColor.G;
-            byte iEmptyB = _emptyColor.B;
+            byte iFullR = fullColor.R;
+            byte iFullG = fullColor.G;
+            byte iFullB = fullColor.B;
+            byte iEmptyR = emptyColor.R;
+            byte iEmptyG = emptyColor.G;
+            byte iEmptyB = emptyColor.B;
             double multiplier = ((double)current) / max;
 
             r = (byte)(iEmptyR + Math.Round(multiplier * (iFullR - iEmptyR), 0));
@@ -6544,12 +6678,6 @@ BeforeHazy:
                 }
             }
             return ret;
-        }
-
-        private void txtWeapon_TextChanged(object sender, EventArgs e)
-        {
-            _weapon = txtWeapon.Text;
-            EnableDisableActionButtons(_currentBackgroundParameters);
         }
 
         private void txtMob_TextChanged(object sender, EventArgs e)
@@ -7006,32 +7134,9 @@ BeforeHazy:
             }
         }
 
-        private void InitializeRealm()
+        private bool GetVerboseMode()
         {
-            IsengardSettings sets = IsengardSettings.Default;
-            _currentRealm = (RealmType)sets.Realm;
-            if (_currentRealm != RealmType.Earth &&
-                _currentRealm != RealmType.Fire &&
-                _currentRealm != RealmType.Water &&
-                _currentRealm != RealmType.Wind)
-            {
-                _currentRealm = RealmType.Earth;
-                sets.Realm = Convert.ToInt32(_currentRealm);
-            }
-        }
-
-        private void InitializeAutoSpellLevels()
-        {
-            IsengardSettings sets = IsengardSettings.Default;
-            _autoSpellLevelMin = sets.AutoSpellLevelMin;
-            _autoSpellLevelMax = sets.AutoSpellLevelMax;
-            if (_autoSpellLevelMin > _autoSpellLevelMax || _autoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _autoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _autoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _autoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                _autoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
-                sets.AutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                sets.AutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
-            }
+            return _settingsData == null ? true : _settingsData.VerboseMode;
         }
 
         private void tsbConfiguration_Click(object sender, EventArgs e)
@@ -7041,23 +7146,24 @@ BeforeHazy:
             AutoEscapeType autoEscapeType;
             lock (_escapeLock)
             {
-                autoEscapeActive = _autoEscapeActive;
-                autoEscapeThreshold = _autoEscapeThreshold;
-                autoEscapeType = _autoEscapeType;
+                autoEscapeActive = _settingsData.AutoEscapeActive;
+                autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
+                autoEscapeType = _settingsData.AutoEscapeType;
             }
-            frmConfiguration frm = new frmConfiguration(_currentRealm, _autoSpellLevelMin, _autoSpellLevelMax, txtWeapon.Text ?? string.Empty, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
+            frmConfiguration frm = new frmConfiguration(_settingsData, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                IsengardSettings sets = IsengardSettings.Default;
-                _queryMonsterStatus = sets.QueryMonsterStatus;
-                _verboseMode = sets.VerboseMode;
-                _fullColor = sets.FullColor;
-                _emptyColor = sets.EmptyColor;
-
-                _currentRealm = frm.CurrentRealm;
-                _autoSpellLevelMin = frm.CurrentAutoSpellLevelMin;
-                _autoSpellLevelMax = frm.CurrentAutoSpellLevelMax;
-                txtWeapon.Text = frm.CurrentWeapon;
+                _settingsData.QueryMonsterStatus = frm.QueryMonsterStatus;
+                _settingsData.VerboseMode = frm.VerboseOutput;
+                _settingsData.RemoveAllOnStartup = frm.RemoveAllOnStartup;
+                _settingsData.FullColor = frm.FullColor;
+                _settingsData.EmptyColor = frm.EmptyColor;
+                _settingsData.Realm = frm.Realm;
+                _settingsData.PreferredAlignment = frm.PreferredAlignment;
+                _settingsData.AutoSpellLevelMin = frm.AutoSpellLevelMinimum;
+                _settingsData.AutoSpellLevelMax = frm.AutoSpellLevelMaximum;
+                _settingsData.Weapon = frm.Weapon;
+                _weapon = frm.CurrentWeapon;
 
                 bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
                 int newAutoEscapeThreshold = frm.CurrentAutoEscapeThreshold;
@@ -7066,11 +7172,13 @@ BeforeHazy:
                 {
                     if (autoEscapeActive != newAutoEscapeActive)
                     {
-                        _autoEscapeActive = newAutoEscapeActive;
+                        _settingsData.AutoEscapeActive = newAutoEscapeActive;
                     }
-                    _autoEscapeThreshold = newAutoEscapeThreshold;
-                    _autoEscapeType = newAutoEscapeType;
+                    _settingsData.AutoEscapeThreshold = newAutoEscapeThreshold;
+                    _settingsData.AutoEscapeType = newAutoEscapeType;
                 }
+
+                SaveSettings();
 
                 if (frm.ChangedStrategies)
                 {
@@ -7108,14 +7216,12 @@ BeforeHazy:
 
         private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)
         {
-            string sDefault = _autoEscapeThreshold > 0 ? _autoEscapeThreshold.ToString() : string.Empty;
+            int autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
+            string sDefault = autoEscapeThreshold > 0 ? autoEscapeThreshold.ToString() : string.Empty;
             string sNewAutoEscapeThreshold = Interaction.InputBox("New auto escape threshold:", "Auto Escape Threshold", sDefault);
             if (int.TryParse(sNewAutoEscapeThreshold, out int iNewAutoEscapeThreshold) && iNewAutoEscapeThreshold > 0 && iNewAutoEscapeThreshold < _totalhp)
             {
-                _autoEscapeThreshold = iNewAutoEscapeThreshold;
-                IsengardSettings sets = IsengardSettings.Default;
-                sets.AutoEscapeThreshold = _autoEscapeThreshold;
-                sets.Save();
+                _settingsData.AutoEscapeThreshold = iNewAutoEscapeThreshold;
                 RefreshAutoEscapeUI(true);
             }
             else
@@ -7126,43 +7232,30 @@ BeforeHazy:
 
         private void tsmiClearAutoEscapeThreshold_Click(object sender, EventArgs e)
         {
-            _autoEscapeActive = false;
-            _autoEscapeThreshold = 0;
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.AutoEscapeActive = false;
-            sets.AutoEscapeThreshold = 0;
-            sets.Save();
+            _settingsData.AutoEscapeActive = false;
+            _settingsData.AutoEscapeThreshold = 0;
+            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiToggleAutoEscapeActive_Click(object sender, EventArgs e)
         {
-            _autoEscapeActive = !_autoEscapeActiveSaved;
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.AutoEscapeActive = _autoEscapeActive;
-            sets.Save();
+            _settingsData.AutoEscapeActive = !_autoEscapeActiveSaved;
+            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiAutoEscapeFlee_Click(object sender, EventArgs e)
         {
-            _autoEscapeType = AutoEscapeType.Flee;
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.AutoEscapeType = (int)_autoEscapeType;
-            sets.Save();
-            tsmiAutoEscapeFlee.Checked = true;
-            tsmiAutoEscapeHazy.Checked = false;
+            _settingsData.AutoEscapeType = AutoEscapeType.Flee;
+            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiAutoEscapeHazy_Click(object sender, EventArgs e)
         {
-            _autoEscapeType = AutoEscapeType.Hazy;
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.AutoEscapeType = (int)_autoEscapeType;
-            sets.Save();
-            tsmiAutoEscapeFlee.Checked = false;
-            tsmiAutoEscapeHazy.Checked = true;
+            _settingsData.AutoEscapeType = AutoEscapeType.Hazy;
+            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
@@ -7171,9 +7264,9 @@ BeforeHazy:
         /// </summary>
         private void RefreshAutoEscapeUI(bool forceSet)
         {
-            bool autoEscapeActive = _autoEscapeActive;
-            int autoEscapeThreshold = _autoEscapeThreshold;
-            AutoEscapeType autoEscapeType = _autoEscapeTypeUI;
+            bool autoEscapeActive = _settingsData.AutoEscapeActive;
+            int autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
+            AutoEscapeType autoEscapeType = _settingsData.AutoEscapeType;
             bool fleeing = _fleeing;
             bool hazying = _hazying;
             if (forceSet || 
@@ -7197,18 +7290,18 @@ BeforeHazy:
                 }
                 else
                 {
-                    string sAutoEscapeType = _autoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
-                    if (_autoEscapeThreshold > 0)
+                    string sAutoEscapeType = autoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
+                    if (autoEscapeThreshold > 0)
                     {
-                        autoEscapeText = sAutoEscapeType + " @ " + _autoEscapeThreshold.ToString();
+                        autoEscapeText = sAutoEscapeType + " @ " + autoEscapeThreshold.ToString();
                     }
                     else
                     {
                         autoEscapeText = sAutoEscapeType;
                     }
-                    if (_autoEscapeActive)
+                    if (autoEscapeActive)
                     {
-                        if (_autoEscapeType == AutoEscapeType.Hazy)
+                        if (autoEscapeType == AutoEscapeType.Hazy)
                         {
                             autoEscapeBackColor = Color.DarkBlue;
                         }
@@ -7217,7 +7310,7 @@ BeforeHazy:
                             autoEscapeBackColor = Color.DarkRed;
                         }
                     }
-                    else if (_autoEscapeThreshold > 0)
+                    else if (autoEscapeThreshold > 0)
                     {
                         autoEscapeText += " (Off)";
                         autoEscapeBackColor = Color.LightGray;
@@ -7233,11 +7326,6 @@ BeforeHazy:
                 lblAutoEscapeValue.BackColor = autoEscapeBackColor;
                 lblAutoEscapeValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
                 lblAutoEscapeValue.Text = autoEscapeText;
-
-                tsmiAutoEscapeFlee.Checked = _autoEscapeType == AutoEscapeType.Flee;
-                tsmiAutoEscapeHazy.Checked = _autoEscapeType == AutoEscapeType.Hazy;
-
-                tsmiAutoEscapeIsActive.Checked = _autoEscapeActive;
 
                 _autoEscapeActiveUI = autoEscapeActive;
                 _autoEscapeThresholdUI = autoEscapeThreshold;
@@ -7256,8 +7344,11 @@ BeforeHazy:
             }
             else
             {
-                _autoEscapeActiveSaved = _autoEscapeActive;
-                bool hasThreshold = _autoEscapeThreshold > 0;
+                _autoEscapeActiveSaved = _settingsData.AutoEscapeActive;
+                tsmiAutoEscapeFlee.Checked = _settingsData.AutoEscapeType == AutoEscapeType.Flee;
+                tsmiAutoEscapeHazy.Checked = _settingsData.AutoEscapeType == AutoEscapeType.Hazy;
+                tsmiAutoEscapeIsActive.Checked = _settingsData.AutoEscapeActive;
+                bool hasThreshold = _settingsData.AutoEscapeThreshold > 0;
                 tsmiAutoEscapeIsActive.Enabled = hasThreshold;
                 tsmiClearAutoEscapeThreshold.Enabled = hasThreshold;
             }

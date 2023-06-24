@@ -160,7 +160,8 @@
         ChainMailGloves,
 
         [SingularName("chain mail hood")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [PluralName("chain mail hoods")]
+        [EquipmentType(EquipmentType.Head)]
         ChainMailHood,
 
         [SingularName("chain mail sleeves")]
@@ -283,6 +284,11 @@
         [SingularName("elven cured leather gloves")]
         [EquipmentType(EquipmentType.Hands)]
         ElvenCuredLeatherGloves,
+
+        [SingularName("elven cured leather hood")]
+        [PluralName("elven cured leather hoods")]
+        [EquipmentType(EquipmentType.Head)]
+        ElvenCuredLeatherHood,
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
@@ -426,7 +432,7 @@
 
         [SingularName("hood of the high priest")]
         //CSRTODO: plural
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Head)]
         HoodOfTheHighPriest,
 
         [SingularName("human brain")]
@@ -587,7 +593,7 @@
 
         [SingularName("mithron hood")]
         [PluralName("mithron hoods")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Head)]
         MithronHood,
 
         [SingularName("mithron shield")]
@@ -728,7 +734,7 @@
 
         [SingularName("ribbed plate hood")]
         [PluralName("ribbed plate hoods")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Head)]
         RibbedPlateHood,
 
         [SingularName("ribbed plate shield")]

@@ -27,8 +27,7 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
 
-        //CSRTODO: what to do with preferred alignment (drunk/doctor at order of love)
-        public IsengardMap(AlignmentType preferredAlignment)
+        public IsengardMap()
         {
             _graphs = new Dictionary<MapType, RoomGraph>();
             _map = new AdjacencyGraph<Room, Exit>();

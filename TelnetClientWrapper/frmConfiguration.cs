@@ -26,7 +26,7 @@ namespace IsengardClient
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
         internal const int AUTO_SPELL_LEVEL_MAXIMUM = 4;
 
-        public frmConfiguration(RealmType currentRealm, int currentAutoSpellLevelMin, int currentAutoSpellLevelMax, string weapon, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
+        public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
         {
             InitializeComponent();
 
@@ -35,18 +35,16 @@ namespace IsengardClient
             tsmiCurrentRealmWater.Tag = RealmType.Water;
             tsmiCurrentRealmWind.Tag = RealmType.Wind;
 
-            IsengardSettings sets = IsengardSettings.Default;
-
-            _currentRealm = currentRealm;
+            _currentRealm = settingsData.Realm;
             RefreshRealmUI();
 
-            _currentAutoSpellLevelMaximum = currentAutoSpellLevelMax;
-            _currentAutoSpellLevelMinimum = currentAutoSpellLevelMin;
+            _currentAutoSpellLevelMaximum = settingsData.AutoSpellLevelMax;
+            _currentAutoSpellLevelMinimum = settingsData.AutoSpellLevelMin;
             RefreshAutoSpellLevelUI();
 
-            txtCurrentWeaponValue.Text = weapon;
+            txtCurrentWeaponValue.Text = settingsData.Weapon.HasValue ? settingsData.Weapon.Value.ToString() : string.Empty;
 
-            _preferredAlignment = ParseAlignment(sets.PreferredAlignment);
+            _preferredAlignment = settingsData.PreferredAlignment;
             RefreshAlignmentTypeUI();
 
             _currentAutoEscapeActive = autoEscapeActive;
@@ -54,13 +52,13 @@ namespace IsengardClient
             _currentAutoEscapeType = autoEscapeType;
             RefreshAutoEscapeUI();
 
-            chkQueryMonsterStatus.Checked = sets.QueryMonsterStatus;
-            chkVerboseOutput.Checked = sets.VerboseMode;
-            chkRemoveAllOnStartup.Checked = sets.RemoveAllOnStartup;
+            chkQueryMonsterStatus.Checked = settingsData.QueryMonsterStatus;
+            chkVerboseOutput.Checked = settingsData.VerboseMode;
+            chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
 
-            _fullColor = sets.FullColor;
+            _fullColor = settingsData.FullColor;
             SetColorUI(lblFullColorValue, _fullColor);
-            _emptyColor = sets.EmptyColor;
+            _emptyColor = settingsData.EmptyColor;
             SetColorUI(lblEmptyColorValue, _emptyColor);
 
             //clone the strategies passed in
@@ -117,23 +115,95 @@ namespace IsengardClient
             }
         }
 
+        internal ItemTypeEnum? Weapon
+        {
+            get;
+            set;
+        }
+
+        internal bool QueryMonsterStatus
+        {
+            get
+            {
+                return chkQueryMonsterStatus.Checked;
+            }
+        }
+
+        public bool VerboseOutput
+        {
+            get
+            {
+                return chkVerboseOutput.Checked;
+            }
+        }
+
+        public bool RemoveAllOnStartup
+        {
+            get
+            {
+                return chkRemoveAllOnStartup.Checked;
+            }
+        }
+
+        public Color FullColor
+        {
+            get
+            {
+                return _fullColor;
+            }
+        }
+
+        public Color EmptyColor
+        {
+            get
+            {
+                return _emptyColor;
+            }
+        }
+
+        public RealmType Realm
+        {
+            get
+            {
+                return _currentRealm;
+            }
+        }
+
+        public int AutoSpellLevelMinimum
+        {
+            get
+            {
+                return _currentAutoSpellLevelMinimum;
+            }
+        }
+
+        public int AutoSpellLevelMaximum
+        {
+            get
+            {
+                return _currentAutoSpellLevelMaximum;
+            }
+        }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             IsengardSettings sets = IsengardSettings.Default;
-            sets.Weapon = txtCurrentWeaponValue.Text;
-            sets.Realm = Convert.ToInt32(_currentRealm);
-            sets.PreferredAlignment = _preferredAlignment.ToString();
-            sets.AutoEscapeActive = _currentAutoEscapeActive;
-            sets.AutoEscapeThreshold = _currentAutoEscapeThreshold;
-            sets.AutoEscapeType = Convert.ToInt32(_currentAutoEscapeType);
-            sets.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
-            sets.VerboseMode = chkVerboseOutput.Checked;
-            sets.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
-            sets.FullColor = _fullColor;
-            sets.EmptyColor = _emptyColor;
-            sets.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
-            sets.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
-            IsengardSettings.Default.Save();
+
+            string sWeapon = txtCurrentWeaponValue.Text;
+            if (string.IsNullOrEmpty(sWeapon))
+            {
+                Weapon = null;
+            }
+            else
+            {
+                if (!Enum.TryParse(sWeapon, out ItemTypeEnum weapon))
+                {
+                    MessageBox.Show("Invalid weapon");
+                    txtCurrentWeaponValue.Focus();
+                    return;
+                }
+                Weapon = weapon;
+            }
 
             //CSRTODO: save changes to strategies
 
@@ -159,15 +229,6 @@ namespace IsengardClient
             }
             lblPreferredAlignmentValue.BackColor = cLabelBack;
             lblPreferredAlignmentValue.Text = sLabelText;
-        }
-
-        private static AlignmentType ParseAlignment(string alignment)
-        {
-            if (!Enum.TryParse(alignment, out AlignmentType at))
-            {
-                at = AlignmentType.Blue;
-            }
-            return at;
         }
 
         private void tsmiPreferredAlignmentGood_Click(object sender, EventArgs e)
@@ -403,8 +464,6 @@ namespace IsengardClient
 
         #endregion
 
-        #region weapon
-
         public string CurrentWeapon
         {
             get
@@ -412,8 +471,6 @@ namespace IsengardClient
                 return txtCurrentWeaponValue.Text ?? string.Empty;
             }
         }
-
-        #endregion
 
         private void btnSelectFullColor_Click(object sender, EventArgs e)
         {
