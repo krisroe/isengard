@@ -1665,15 +1665,19 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSewerTunnel1] = new System.Windows.Point(8, 5);
 
             Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
-            oBoardedSewerTunnel.IsTrapRoom = true; //trap only triggers if the user lacks fly/levitation
-            AddBidirectionalExits(oSewerTunnel1, oBoardedSewerTunnel, BidirectionalExitType.WestEast);
+            Exit e = AddExit(oSewerTunnel1, oBoardedSewerTunnel, "east");
+            e.FloatRequirement = FloatRequirement.Levitation;
+            AddExit(oBoardedSewerTunnel, oSewerTunnel1, "west");
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 5);
 
             Room oSewagePit = AddRoom("Sewage Pit", "Sewage Pit");
             oSewagePit.DamageType = RoomDamageType.Poison;
             oSewagePit.AddPermanentMobs(MobTypeEnum.Monster);
-            Exit e = AddExit(oSewagePit, oBoardedSewerTunnel, "up");
+            e = AddExit(oSewagePit, oBoardedSewerTunnel, "up");
             e.FloatRequirement = FloatRequirement.Levitation;
+            e = AddExit(oSewerTunnel1, oSewagePit, "east");
+            e.FloatRequirement = FloatRequirement.NoLevitation;
+            e.IsTrapExit = true;
             underBreeGraph.Rooms[oSewagePit] = new System.Windows.Point(10, 4.5);
 
             Room oStagnantCesspool = AddRoom("Stagnant Cesspool", "Stagnant Cesspool");

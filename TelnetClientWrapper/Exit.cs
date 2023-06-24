@@ -64,6 +64,7 @@ namespace IsengardClient
         public bool ExitIsUsable(GraphInputs graphInputs)
         {
             int level = graphInputs.Level;
+            bool levitating = graphInputs.Levitating;
             bool ret;
             if (RequiresDay && !graphInputs.IsDay)
                 ret = false;
@@ -73,7 +74,9 @@ namespace IsengardClient
                 ret = false;
             else if (FloatRequirement == FloatRequirement.Fly && !graphInputs.Flying)
                 ret = false;
-            else if (FloatRequirement == FloatRequirement.Levitation && !graphInputs.Levitating)
+            else if (FloatRequirement == FloatRequirement.Levitation && !levitating)
+                ret = false;
+            else if (FloatRequirement == FloatRequirement.NoLevitation && levitating)
                 ret = false;
             else
                 ret = true;
