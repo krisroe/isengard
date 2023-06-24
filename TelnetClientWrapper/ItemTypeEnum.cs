@@ -501,6 +501,10 @@
         [EquipmentType(EquipmentType.Feet)]
         LeatherBoots,
 
+        [SingularName("leather cap")]
+        [EquipmentType(EquipmentType.Unknown)]
+        LeatherCap,
+
         [SingularName("leather gloves")]
         [EquipmentType(EquipmentType.Hands)]
         LeatherGloves,

@@ -750,6 +750,10 @@
         [PluralName("meistersingers")]
         Meistersinger,
 
+        [SingularName("mercenary")]
+        //CSRTODO: plural?
+        Mercenary,
+
         [SingularName("mercenary captain")]
         [PluralName("mercenary captains")]
         [Experience(150)]

@@ -517,6 +517,7 @@ namespace IsengardClient
                     {
                         calculatedMaxLevel = null;
                         calculatedMinLevel = null;
+                        break;
                     }
                 }
             }
