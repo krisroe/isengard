@@ -278,6 +278,10 @@
         [EquipmentType(EquipmentType.Unknown)]
         EarLobePlug,
 
+        [SingularName("earth pipe")]
+        [PluralName("earth pipes")]
+        EarthPipe,
+
         [SingularName("Eat At Denethore's decorative mug")]
         [PluralName("Eat At Denethore's decorative mugs")]
         EatAtDenethoresDecorativeMug,
@@ -931,7 +935,7 @@
         StatuetteOfBalthazar,
 
         [SingularName("steel-chain armor")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Torso)]
         SteelChainArmor,
 
         [SingularName("stilleto")]
