@@ -24,7 +24,7 @@ namespace IsengardClient
         private int _currentAutoSpellLevelMinimum;
         private int _currentAutoSpellLevelMaximum;
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
-        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 4;
+        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 5;
 
         public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
         {
