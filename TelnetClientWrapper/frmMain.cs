@@ -1259,6 +1259,7 @@ namespace IsengardClient
             else
                 _initializationSteps = InitializationStep.RemoveAll;
             SendCommand("score", InputEchoType.Off);
+            SendCommand("information", InputEchoType.Off);
             SendCommand("who", InputEchoType.Off);
             SendCommand("inventory", InputEchoType.Off);
             SendCommand("equipment", InputEchoType.Off);
