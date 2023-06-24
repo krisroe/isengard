@@ -867,8 +867,8 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, bool, bool, int?, int, List<string>, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemTypeEnum>, bool?, bool, int?, int, List<string>, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, bool?, bool, int?, int, List<string>, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1158,7 +1158,7 @@ namespace IsengardClient
                 }
                 if (itemsManaged != null || potionConsumed)
                 {
-                    _onSatisfied(flp, itemsManaged, isAdd.Value, isEquipment, iTotalGold, iSellGold, activeSpells, potionConsumed);
+                    _onSatisfied(flp, itemsManaged, isAdd, isEquipment, iTotalGold, iSellGold, activeSpells, potionConsumed);
                     flp.FinishedProcessing = true;
                 }
             }

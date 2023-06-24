@@ -2288,17 +2288,17 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, bool isAdd, bool isEquipment, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, bool? isAdd, bool isEquipment, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
             bool hasItems = items != null && items.Count > 0;
             bool hasSpells = activeSpells != null && activeSpells.Count > 0;
             bool hasGold = gold.HasValue || sellGold > 0;
-            bool couldBeRemoveAll = !hasSpells && !hasGold && !isAdd;
+            bool couldBeRemoveAll = !hasSpells && !hasGold && !isAdd.GetValueOrDefault(false);
             if (hasItems)
             {
-                AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, isAdd, isEquipment);
+                AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, isAdd.Value, isEquipment);
             }
             if (gold.HasValue)
             {

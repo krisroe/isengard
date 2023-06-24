@@ -226,6 +226,11 @@
         [Potion(SpellsEnum.detectmagic)]
         DarkGreenPotion,
 
+        [SingularName("dark flask")]
+        [PluralName("dark flasks")]
+        [Potion(SpellsEnum.mend)]
+        DarkFlask,
+
         [SingularName("dead rat carcass")]
         //CSRTODO: plural?
         DeadRatCarcass,
