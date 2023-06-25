@@ -60,6 +60,10 @@
         [WeaponType(WeaponType.Polearm)]
         BecDeCorbin,
 
+        [SingularName("black bag")]
+        [PluralName("black bags")]
+        BlackBag,
+
         [SingularName("black cape")]
         [PluralName("black capes")]
         [EquipmentType(EquipmentType.Unknown)]
@@ -509,6 +513,10 @@
         [PluralName("lancettes")]
         [WeaponType(WeaponType.Stab)]
         Lancette,
+
+        [SingularName("lantern")]
+        [PluralName("lanterns")]
+        Lantern,
 
         [SingularName("large egg")]
         [PluralName("large eggs")]

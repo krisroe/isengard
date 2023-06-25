@@ -369,9 +369,9 @@ namespace IsengardClient
 
         public InformationalMessageType MessageType { get; set; }
         public int Damage { get; set; }
-        public int EntityCount { get; set; }
+        public int MobCount { get; set; }
         public MobTypeEnum Mob { get; set; }
-        public ItemTypeEnum Item { get; set; }
+        public ItemEntity Item { get; set; }
         public int WaitSeconds { get; set; }
 
         public static bool ContainsType(List<InformationalMessages> messages, InformationalMessageType type)
@@ -433,6 +433,7 @@ namespace IsengardClient
         ReceiveVampyricTouch,
         EquipmentDestroyed,
         FireshieldInflictsDamageAndDissipates,
+        MobPickedUpItem,
     }
 
     public enum SkillWithCooldownType
@@ -522,6 +523,7 @@ namespace IsengardClient
         UnequipItem,
         DestroyEquipment,
         CreateRoomItems,
+        RemoveRoomItems,
     }
 
     public enum ItemManagementAction

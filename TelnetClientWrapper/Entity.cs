@@ -780,9 +780,9 @@ namespace IsengardClient
         public Dictionary<string, Exit> MappedExits { get; set; }
         public List<Exit> OtherExits = new List<Exit>();
 
-        public bool AddOrRemoveEntityItemFromRoomItems(CurrentEntityInfo inventoryEquipment, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
+        public bool AddOrRemoveEntityItemFromRoomItems(CurrentEntityInfo entityInfo, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
         {
-            List<ItemEntity> itemList = inventoryEquipment.CurrentRoomItems;
+            List<ItemEntity> itemList = entityInfo.CurrentRoomItems;
             int foundIndex = -1;
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
@@ -797,7 +797,7 @@ namespace IsengardClient
             bool effectChange = false;
             if (isAdd)
             {
-                changeIndex = inventoryEquipment.FindNewRoomItemInsertionPoint(nextItemEntity);
+                changeIndex = entityInfo.FindNewRoomItemInsertionPoint(nextItemEntity);
                 effectChange = true;
                 if (changeIndex == -1)
                 {

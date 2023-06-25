@@ -2329,7 +2329,7 @@ namespace IsengardClient
                                 iInsertionPoint = _currentEntityInfo.FindNewMobInsertionPoint(nextMob);
                             }
                             bool insertAtEnd = iInsertionPoint == -1;
-                            for (int i = 0; i < next.EntityCount; i++)
+                            for (int i = 0; i < next.MobCount; i++)
                             {
                                 if (insertAtEnd)
                                     currentRoomMobs.Add(nextMob);
@@ -2345,10 +2345,24 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
-                        RemoveMobs(next.Mob, next.EntityCount);
+                        RemoveMobs(next.Mob, next.MobCount);
                         break;
                     case InformationalMessageType.EquipmentDestroyed:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { new ItemEntity(next.Item, 1, 1) }, ItemManagementAction.DestroyEquipment);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.DestroyEquipment);
+                        break;
+                    case InformationalMessageType.MobPickedUpItem:
+                        lock (_entityLock)
+                        {
+                            EntityChange ec = new EntityChange();
+                            ec.ChangeType = EntityChangeType.RemoveRoomItems;
+                            EntityChangeEntry entry = new EntityChangeEntry();
+                            entry.Item = next.Item;
+                            if (ec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, next.Item, false, entry))
+                            {
+                                ec.Changes.Add(entry);
+                                _currentEntityInfo.CurrentEntityChanges.Add(ec);
+                            }
+                        }
                         break;
                 }
             }
@@ -6591,7 +6605,7 @@ BeforeHazy:
                                 InsertTopLevelTreeNode(tnObviousItems);
                             }
                         }
-                        else if (rcType == EntityChangeType.PickUpItem)
+                        else if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.RemoveRoomItems)
                         {
                             foreach (var nextChange in nextEntityChange.Changes)
                             {

@@ -2840,28 +2840,29 @@ StartProcessRoom:
                             {
                                 nextMsg = new InformationalMessages(isArrived ? InformationalMessageType.MobArrived : InformationalMessageType.MobWanderedAway);
                                 nextMsg.Mob = ment.MobType.Value;
-                                nextMsg.EntityCount = ment.Count;
+                                nextMsg.MobCount = ment.Count;
                             }
+                        }
+                    }
+
+                    ItemEntity ient;
+                    if (nextMsg == null)
+                    {
+                        ient = ProcessMessageEndingInItem(sLine, " destroys your ", Parameters);
+                        if (ient != null && ient.ItemType.HasValue)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.EquipmentDestroyed);
+                            nextMsg.Item = ient;
                         }
                     }
 
                     if (nextMsg == null)
                     {
-                        int index = sLine.IndexOf(" destroys your ");
-                        if (index > 0 && sLine.EndsWith("."))
+                        ient = ProcessMessageEndingInItem(sLine, " picked up ", Parameters);
+                        if (ient != null && ient.ItemType.HasValue)
                         {
-                            sWhat = sLine.Substring(index + " destroys your ".Length, lineLength - index - " destroys your ".Length - 1);
-                            Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, Parameters.ErrorMessages, null, false);
-                            if (RoomTransitionSequence.CheckForValidItem(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Item))
-                            {
-                                ItemEntity ient = (ItemEntity)e;
-                                if (ient.ItemType.HasValue)
-                                {
-                                    nextMsg = new InformationalMessages(InformationalMessageType.EquipmentDestroyed);
-                                    nextMsg.Item = ient.ItemType.Value;
-                                    nextMsg.EntityCount = ient.Count;
-                                }
-                            }
+                            nextMsg = new InformationalMessages(InformationalMessageType.MobPickedUpItem);
+                            nextMsg.Item = ient;
                         }
                     }
 
@@ -2984,6 +2985,27 @@ StartProcessRoom:
             {
                 _onSatisfied(Parameters, broadcastMessages, addedPlayers, removedPlayers);
             }
+        }
+
+        private ItemEntity ProcessMessageEndingInItem(string sLine, string midText, FeedLineParameters Parameters)
+        {
+            ItemEntity ret = null;
+            int lineLength = sLine.Length;
+            int index = sLine.IndexOf(midText);
+            if (index > 0 && sLine.EndsWith("."))
+            {
+                string sWhat = sLine.Substring(index + midText.Length, lineLength - index - midText.Length - 1);
+                Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, Parameters.ErrorMessages, null, false);
+                if (RoomTransitionSequence.CheckForValidItem(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Item))
+                {
+                    ItemEntity ient = (ItemEntity)e;
+                    if (ient.ItemType.HasValue)
+                    {
+                        ret = ient;
+                    }
+                }
+            }
+            return ret;
         }
 
         private const string DAMAGE_END_STRING = " damage!";
