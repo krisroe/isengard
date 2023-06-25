@@ -52,7 +52,7 @@
 
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
