@@ -343,6 +343,7 @@
 
         [SingularName("ghoul")]
         [PluralName("ghouls")]
+        [Experience(47)]
         Ghoul,
 
         [SingularName("giant catfish")]
