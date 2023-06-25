@@ -1568,7 +1568,6 @@ namespace IsengardClient
             {
                 _currentEntityInfo.CurrentObviousExits.Clear();
                 _currentEntityInfo.CurrentObviousExits.AddRange(obviousExits);
-                //CSRTODO: cleanup old change entries?
                 EntityChange rc = new EntityChange();
                 rc.Room = newRoom;
                 rc.ChangeType = EntityChangeType.RefreshRoom;
@@ -1954,7 +1953,7 @@ namespace IsengardClient
             }
         }
         
-        private void OnAttack(bool fumbled, int damage, bool killedMonster, MobTypeEnum? eMobType, int experience, bool powerAttacked, FeedLineParameters flParams)
+        private void OnAttack(bool fumbled, int damage, bool killedMonster, MobTypeEnum? eMobType, int experience, bool powerAttacked, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
             if (powerAttacked)
             {
@@ -1968,7 +1967,6 @@ namespace IsengardClient
                     ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
                     if (weaponIT.HasValue)
                     {
-                        var weapon = new List<ItemTypeEnum>() { _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1].Value };
                         AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip);
                     }
                 }
@@ -1986,6 +1984,10 @@ namespace IsengardClient
             {
                 RemoveMobs(eMobType.Value, 1);
             }
+            if (monsterItems.Count > 0)
+            {
+                AddRoomItems(monsterItems);
+            }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
             {
@@ -1994,7 +1996,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, FeedLineParameters flParams)
+        private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
             _tnl = Math.Max(0, _tnl - experience);
             if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
@@ -2009,6 +2011,10 @@ namespace IsengardClient
             if (mobType.HasValue)
             {
                 RemoveMobs(mobType.Value, 1);
+            }
+            if (monsterItems.Count > 0)
+            {
+                AddRoomItems(monsterItems);
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
@@ -2401,6 +2407,30 @@ namespace IsengardClient
             if (finishedProcessing)
             {
                 flp.FinishedProcessing = true;
+            }
+        }
+
+        private void AddRoomItems(List<ItemEntity> items)
+        {
+            EntityChange rc = new EntityChange();
+            rc.ChangeType = EntityChangeType.CreateRoomItems;
+            lock (_entityLock)
+            {
+                foreach (ItemEntity nextItem in items)
+                {
+                    if (!(nextItem is UnknownItemEntity))
+                    {
+                        EntityChangeEntry entry = new EntityChangeEntry();
+                        entry.Item = nextItem;
+                        entry.RoomItemAction = true;
+                        entry.RoomItemIndex = _currentEntityInfo.FindNewRoomItemInsertionPoint(nextItem);
+                        rc.Changes.Add(entry);
+                    }
+                }
+                if (rc.Changes.Count > 0)
+                {
+                    _currentEntityInfo.CurrentEntityChanges.Add(rc);
+                }
             }
         }
 
@@ -6537,7 +6567,7 @@ BeforeHazy:
                                 treeCurrentRoom.Nodes.Remove(tnObviousMobs);
                             }
                         }
-                        else if (rcType == EntityChangeType.DropItem)
+                        else if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.CreateRoomItems)
                         {
                             bool hasNodes = tnObviousItems.Nodes.Count > 0;
                             foreach (var nextChange in nextEntityChange.Changes)

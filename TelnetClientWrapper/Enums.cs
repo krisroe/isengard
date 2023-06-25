@@ -521,6 +521,7 @@ namespace IsengardClient
         EquipItem,
         UnequipItem,
         DestroyEquipment,
+        CreateRoomItems,
     }
 
     public enum ItemManagementAction

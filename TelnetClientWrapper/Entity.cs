@@ -1068,15 +1068,21 @@ namespace IsengardClient
 
         public int FindNewRoomItemInsertionPoint(ItemEntity newItemEntity)
         {
-            string sSingular = ItemEntity.StaticItemData[newItemEntity.ItemType.Value].SingularName;
+            StaticItemData newSID = ItemEntity.StaticItemData[newItemEntity.ItemType.Value];
+            string sSingular = newSID.SingularName;
             bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
             List<ItemEntity> itemList = CurrentRoomItems;
             foreach (ItemEntity nextItemEntity in itemList)
             {
+                StaticItemData nextSID = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value];
                 bool isBefore = false;
-                if (nextItemEntity.ItemType.Value == newItemEntity.ItemType.Value)
+                if ((nextSID.ItemClass == ItemClass.Coins) != (newSID.ItemClass == ItemClass.Coins))
+                {
+                    isBefore = newSID.ItemClass == ItemClass.Coins;
+                }
+                else if (nextItemEntity.ItemType.Value == newItemEntity.ItemType.Value)
                 {
                     isBefore = newItemEntity.Count < nextItemEntity.Count;
                 }
