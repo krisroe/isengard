@@ -1,30 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-namespace IsengardClient
+﻿namespace IsengardClient
 {
     internal class ItemInInventoryList
     {
-        public ItemTypeEnum ItemType { get; set; }
-        public ItemInInventoryList(ItemTypeEnum itemType)
+        public ItemEntity Item { get; set; }
+        public ItemInInventoryList(ItemEntity item)
         {
-            this.ItemType = itemType;
+            this.Item = item;
         }
         public override string ToString()
         {
-            return ItemEntity.StaticItemData[ItemType].SingularName;
+            return ItemEntity.StaticItemData[Item.ItemType.Value].SingularName;
         }
     }
 
     internal class ItemInEquipmentList
     {
-        public ItemTypeEnum ItemType { get; set; }
-        public ItemInEquipmentList(ItemTypeEnum itemType)
+        public ItemEntity Item { get; set; }
+        public ItemInEquipmentList(ItemEntity item)
         {
-            this.ItemType = itemType;
+            this.Item = item;
         }
         public override string ToString()
         {
-            StaticItemData sid = ItemEntity.StaticItemData[ItemType];
+            StaticItemData sid = ItemEntity.StaticItemData[Item.ItemType.Value];
             return sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
         }
     }

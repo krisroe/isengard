@@ -780,15 +780,60 @@ namespace IsengardClient
         public Dictionary<string, Exit> MappedExits { get; set; }
         public List<Exit> OtherExits = new List<Exit>();
 
-        public bool AddOrRemoveEntityItem(CurrentEntityInfo inventoryEquipment, ItemTypeEnum nextItem, bool isAdd, EntityChangeEntry changeInfo, bool isInventory)
+        public bool AddOrRemoveEntityItemFromRoomItems(CurrentEntityInfo inventoryEquipment, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
         {
-            List<ItemTypeEnum> itemList = isInventory ? inventoryEquipment.InventoryItems : inventoryEquipment.CurrentRoomItems;
+            List<ItemEntity> itemList = inventoryEquipment.CurrentRoomItems;
+            int foundIndex = -1;
+            for (int i = itemList.Count - 1; i >= 0; i--)
+            {
+                ItemEntity nextIt = itemList[i];
+                if (nextIt.Count == nextItemEntity.Count && nextIt.ItemType.Value == nextItemEntity.ItemType.Value)
+                {
+                    foundIndex = i;
+                    break;
+                }
+            }
+            int changeIndex;
+            bool effectChange = false;
+            if (isAdd)
+            {
+                changeIndex = inventoryEquipment.FindNewRoomItemInsertionPoint(nextItemEntity);
+                effectChange = true;
+                if (changeIndex == -1)
+                {
+                    itemList.Add(nextItemEntity);
+                }
+                else
+                {
+                    itemList.Insert(changeIndex, nextItemEntity);
+                }
+            }
+            else
+            {
+                changeIndex = foundIndex;
+                if (foundIndex >= 0)
+                {
+                    itemList.RemoveAt(foundIndex);
+                    effectChange = true;
+                }
+            }
+            if (effectChange)
+            {
+                changeInfo.RoomItemIndex = changeIndex;
+                changeInfo.RoomItemAction = isAdd;
+            }
+            return effectChange;
+        }
+
+        public bool AddOrRemoveEntityItemFromInventory(CurrentEntityInfo inventoryEquipment, ItemTypeEnum nextItem, bool isAdd, EntityChangeEntry changeInfo)
+        {
+            List<ItemTypeEnum> itemList = inventoryEquipment.InventoryItems;
             int foundIndex = itemList.LastIndexOf(nextItem);
             int changeIndex;
             bool effectChange = false;
             if (isAdd)
             {
-                changeIndex = inventoryEquipment.FindNewItemInsertionPoint(nextItem, true);
+                changeIndex = inventoryEquipment.FindNewInventoryItemInsertionPoint(nextItem);
                 effectChange = true;
                 if (changeIndex == -1)
                 {
@@ -810,16 +855,8 @@ namespace IsengardClient
             }
             if (effectChange)
             {
-                if (isInventory)
-                {
-                    changeInfo.InventoryIndex = changeIndex;
-                    changeInfo.InventoryAction = isAdd;
-                }
-                else
-                {
-                    changeInfo.RoomItemIndex = changeIndex;
-                    changeInfo.RoomItemAction = isAdd;
-                }
+                changeInfo.InventoryIndex = changeIndex;
+                changeInfo.InventoryAction = isAdd;
             }
             return effectChange;
         }
@@ -832,7 +869,7 @@ namespace IsengardClient
         public Room CurrentRoomUI { get; set; }
         public List<EntityChange> CurrentEntityChanges { get; set; }
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
-        public List<ItemTypeEnum> CurrentRoomItems { get; set; }
+        public List<ItemEntity> CurrentRoomItems { get; set; }
         public List<ItemTypeEnum> InventoryItems { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
         public List<string> CurrentObviousExits { get; set; }
@@ -851,7 +888,7 @@ namespace IsengardClient
         {
             CurrentEntityChanges = new List<EntityChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
-            CurrentRoomItems = new List<ItemTypeEnum>();
+            CurrentRoomItems = new List<ItemEntity>();
             InventoryItems = new List<ItemTypeEnum>();
             Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
             CurrentObviousExits = new List<string>();
@@ -1029,13 +1066,50 @@ namespace IsengardClient
             return iRet;
         }
 
-        public int FindNewItemInsertionPoint(ItemTypeEnum newItem, bool isInventory)
+        public int FindNewRoomItemInsertionPoint(ItemEntity newItemEntity)
+        {
+            string sSingular = ItemEntity.StaticItemData[newItemEntity.ItemType.Value].SingularName;
+            bool isCapitalized = char.IsUpper(sSingular[0]);
+            int i = 0;
+            int iFoundIndex = -1;
+            List<ItemEntity> itemList = CurrentRoomItems;
+            foreach (ItemEntity nextItemEntity in itemList)
+            {
+                bool isBefore = false;
+                if (nextItemEntity.ItemType.Value == newItemEntity.ItemType.Value)
+                {
+                    isBefore = newItemEntity.Count < nextItemEntity.Count;
+                }
+                else
+                {
+                    string sNextSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
+                    bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                    if (isCapitalized != nextIsCapitalized)
+                    {
+                        isBefore = isCapitalized;
+                    }
+                    else
+                    {
+                        isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                    }
+                }
+                if (isBefore)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        public int FindNewInventoryItemInsertionPoint(ItemTypeEnum newItem)
         {
             string sSingular = ItemEntity.StaticItemData[newItem].SingularName;
             bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
-            List<ItemTypeEnum> itemList = isInventory ? InventoryItems : CurrentRoomItems;
+            List<ItemTypeEnum> itemList = InventoryItems;
             foreach (ItemTypeEnum nextItem in itemList)
             {
                 string sNextSingular = ItemEntity.StaticItemData[nextItem].SingularName;
@@ -1258,7 +1332,7 @@ namespace IsengardClient
         /// <summary>
         /// type of item being updated
         /// </summary>
-        public ItemTypeEnum? ItemType { get; set; }
+        public ItemEntity Item { get; set; }
         /// <summary>
         /// type of mob being updated
         /// </summary>

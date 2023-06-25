@@ -966,8 +966,8 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<FeedLineParameters, List<ItemTypeEnum>, ItemManagementAction, int?, int, List<string>, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemTypeEnum>, ItemManagementAction, int?, int, List<string>, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -984,11 +984,11 @@ namespace IsengardClient
                 string firstLine = Lines[0];
                 if (firstLine == "You aren't wearing anything that can be removed.")
                 {
-                    _onSatisfied(flp, new List<ItemTypeEnum>(), ItemManagementAction.Unequip, null, 0, null, false);
+                    _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false);
                     flp.FinishedProcessing = true;
                     return;
                 }
-                List<ItemTypeEnum> itemsManaged = null;
+                List<ItemEntity> itemsManaged = null;
                 if (firstLine.StartsWith(YOU_WEAR_PREFIX))
                 {
                     List<string> wornObjects = StringProcessing.GetList(Lines, 0, YOU_WEAR_PREFIX, true, out _, null);
@@ -997,7 +997,7 @@ namespace IsengardClient
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
-                        itemsManaged = new List<ItemTypeEnum>();
+                        itemsManaged = new List<ItemEntity>();
                         foreach (ItemEntity ie in items)
                         {
                             if (ie is UnknownItemEntity)
@@ -1010,7 +1010,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                itemsManaged.Add(ie.ItemType.Value);
+                                itemsManaged.Add(ie);
                             }
                         }
                     }
@@ -1023,7 +1023,7 @@ namespace IsengardClient
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
-                        itemsManaged = new List<ItemTypeEnum>();
+                        itemsManaged = new List<ItemEntity>();
                         foreach (ItemEntity ie in items)
                         {
                             if (ie is UnknownItemEntity)
@@ -1036,7 +1036,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                itemsManaged.Add(ie.ItemType.Value);
+                                itemsManaged.Add(ie);
                             }
                         }
                     }
@@ -1058,7 +1058,7 @@ namespace IsengardClient
                     eAction = ItemManagementAction.Unequip;
                     if (items.Count > 0)
                     {
-                        itemsManaged = new List<ItemTypeEnum>();
+                        itemsManaged = new List<ItemEntity>();
                         foreach (ItemEntity ie in items)
                         {
                             if (ie is UnknownItemEntity)
@@ -1071,7 +1071,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                itemsManaged.Add(ie.ItemType.Value);
+                                itemsManaged.Add(ie);
                             }
                         }
                     }
@@ -1084,7 +1084,7 @@ namespace IsengardClient
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
-                        itemsManaged = new List<ItemTypeEnum>();
+                        itemsManaged = new List<ItemEntity>();
                         foreach (ItemEntity ie in items)
                         {
                             if (ie is UnknownItemEntity)
@@ -1097,7 +1097,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                itemsManaged.Add(ie.ItemType.Value);
+                                itemsManaged.Add(ie);
                             }
                         }
                     }
@@ -1244,10 +1244,10 @@ namespace IsengardClient
                                     }
                                     else
                                     {
-                                        if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
+                                        if (sid.ItemClass != ItemClass.Money)
                                         {
-                                            if (itemsManaged == null) itemsManaged = new List<ItemTypeEnum>();
-                                            itemsManaged.Add(ie.ItemType.Value);
+                                            if (itemsManaged == null) itemsManaged = new List<ItemEntity>();
+                                            itemsManaged.Add(ie);
                                         }
                                     }
                                 }

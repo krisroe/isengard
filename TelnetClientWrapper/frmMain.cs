@@ -1055,7 +1055,7 @@ namespace IsengardClient
                             if (foundSlot)
                             {
                                 EntityChangeEntry entry = new EntityChangeEntry();
-                                entry.ItemType = itemType;
+                                entry.Item = new ItemEntity(itemType, 1, 1);
                                 entry.EquipmentAction = true;
                                 entry.EquipmentIndex = -1;
                                 changes.Changes.Add(entry);
@@ -1101,7 +1101,7 @@ namespace IsengardClient
                         {
                             _currentEntityInfo.InventoryItems.Add(nextItemValue);
                             EntityChangeEntry entry = new EntityChangeEntry();
-                            entry.ItemType = nextItemValue;
+                            entry.Item = nextItemEntity;
                             entry.InventoryAction = true;
                             changes.Changes.Add(entry);
                         }
@@ -1446,7 +1446,7 @@ namespace IsengardClient
                 _fleeing = false;
                 if (roomTransitionInfo.DrankHazy)
                 {
-                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, ItemManagementAction.ConsumeItem);
+                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(ItemTypeEnum.HazyPotion, 1, 1) }, ItemManagementAction.ConsumeItem);
                 }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
@@ -1649,7 +1649,7 @@ namespace IsengardClient
                         }
                     }
 
-                    List<ItemTypeEnum> currentRoomItems = _currentEntityInfo.CurrentRoomItems;
+                    List<ItemEntity> currentRoomItems = _currentEntityInfo.CurrentRoomItems;
                     currentRoomItems.Clear();
                     List<ItemEntity> items = roomTransitionInfo.Items;
                     if (items != null)
@@ -1660,11 +1660,11 @@ namespace IsengardClient
                             if (itemType.HasValue)
                             {
                                 ItemTypeEnum itemTypeValue = itemType.Value;
-                                for (int i = 0; i < nextItem.Count; i++)
+                                for (int i = 0; i < nextItem.SetCount; i++)
                                 {
-                                    currentRoomItems.Add(itemTypeValue);
+                                    currentRoomItems.Add(nextItem);
                                     EntityChangeEntry changeEntry = new EntityChangeEntry();
-                                    changeEntry.ItemType = itemTypeValue;
+                                    changeEntry.Item = nextItem;
                                     changeEntry.RoomItemAction = true;
                                     changeEntry.RoomItemIndex = -1;
                                     rc.Changes.Add(changeEntry);
@@ -1965,10 +1965,11 @@ namespace IsengardClient
             {
                 lock (_entityLock)
                 {
-                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1].HasValue)
+                    ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
+                    if (weaponIT.HasValue)
                     {
                         var weapon = new List<ItemTypeEnum>() { _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1].Value };
-                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, weapon, ItemManagementAction.Unequip);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip);
                     }
                 }
             }
@@ -2341,7 +2342,7 @@ namespace IsengardClient
                         RemoveMobs(next.Mob, next.EntityCount);
                         break;
                     case InformationalMessageType.EquipmentDestroyed:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemTypeEnum>() { next.Item }, ItemManagementAction.DestroyEquipment);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { new ItemEntity(next.Item, 1, 1) }, ItemManagementAction.DestroyEquipment);
                         break;
                 }
             }
@@ -2514,7 +2515,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
@@ -2548,7 +2549,7 @@ namespace IsengardClient
             }
         }
 
-        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemTypeEnum> items, ItemManagementAction action)
+        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action)
         {
             EntityChangeType changeType;
             if (action == ItemManagementAction.Equip)
@@ -2583,11 +2584,12 @@ namespace IsengardClient
             iec.ChangeType = changeType;
             lock (_entityLock)
             {
-                foreach (ItemTypeEnum nextItem in items)
+                foreach (ItemEntity nextItemEntity in items)
                 {
                     bool addChange = false;
                     EntityChangeEntry changeEntry = new EntityChangeEntry();
-                    changeEntry.ItemType = nextItem;
+                    ItemTypeEnum nextItem = nextItemEntity.ItemType.Value;
+                    changeEntry.Item = nextItemEntity;
                     bool removeEquipment = changeType == EntityChangeType.UnequipItem || changeType == EntityChangeType.DestroyEquipment;
                     if (changeType == EntityChangeType.EquipItem || removeEquipment)
                     {
@@ -2604,7 +2606,7 @@ namespace IsengardClient
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
                                         changeEntry.EquipmentAction = true;
                                         _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
-                                        iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, false, changeEntry, true);
+                                        iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, false, changeEntry);
                                         addChange = true;
                                         break;
                                     }
@@ -2618,7 +2620,7 @@ namespace IsengardClient
                                         _currentEntityInfo.Equipment[iSlotIndex] = null;
                                         if (changeType == EntityChangeType.UnequipItem)
                                         {
-                                            iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, true, changeEntry, true);
+                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, true, changeEntry);
                                         }
                                         addChange = true;
                                         break;
@@ -2634,14 +2636,14 @@ namespace IsengardClient
                     else //equipment not involved
                     {
                         bool isAdd = changeType == EntityChangeType.PickUpItem;
-                        addChange = iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, isAdd, changeEntry, true);
+                        addChange = iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAdd, changeEntry);
                         if (changeType == EntityChangeType.PickUpItem)
                         {
-                            addChange |= iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, false, changeEntry, false);
+                            addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
                         }
                         else if (changeType == EntityChangeType.DropItem)
                         {
-                            addChange |= iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, true, changeEntry, false);
+                            addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, true, changeEntry);
                         }
                     }
                     if (addChange)
@@ -6369,9 +6371,9 @@ BeforeHazy:
                                 {
                                     tnObviousMobs.Nodes.Add(GetMobsNode(nextEntry.MobType.Value));
                                 }
-                                else if (nextEntry.ItemType.HasValue)
+                                else if (nextEntry.Item != null)
                                 {
-                                    tnObviousItems.Nodes.Add(GetItemsNode(nextEntry.ItemType.Value));
+                                    tnObviousItems.Nodes.Add(GetItemsNode(nextEntry.Item));
                                 }
                             }
                             if (tnObviousMobs.Nodes.Count > 0)
@@ -6538,28 +6540,19 @@ BeforeHazy:
                         else if (rcType == EntityChangeType.DropItem)
                         {
                             bool hasNodes = tnObviousItems.Nodes.Count > 0;
-                            bool isFirst = true;
-                            ItemTypeEnum? firstItem = null;
-                            TreeNode firstInserted = null;
                             foreach (var nextChange in nextEntityChange.Changes)
                             {
-                                if (nextChange.ItemType.HasValue)
+                                if (nextChange.Item != null)
                                 {
-                                    ItemTypeEnum nextItemType = nextChange.ItemType.Value;
-                                    TreeNode inserted = GetItemsNode(nextItemType);
+                                    ItemTypeEnum nextItemType = nextChange.Item.ItemType.Value;
+                                    TreeNode inserted = GetItemsNode(nextChange.Item);
                                     if (nextChange.RoomItemIndex == -1)
                                     {
                                         tnObviousItems.Nodes.Add(inserted);
                                     }
                                     else
                                     {
-                                        tnObviousItems.Nodes.Insert(nextChange.RoomMobIndex, inserted);
-                                    }
-                                    if (isFirst)
-                                    {
-                                        firstItem = nextItemType;
-                                        isFirst = false;
-                                        firstInserted = inserted;
+                                        tnObviousItems.Nodes.Insert(nextChange.RoomItemIndex, inserted);
                                     }
                                 }
                             }
@@ -6572,7 +6565,7 @@ BeforeHazy:
                         {
                             foreach (var nextChange in nextEntityChange.Changes)
                             {
-                                if (nextChange.ItemType.HasValue)
+                                if (nextChange.Item != null)
                                 {
                                     tnObviousItems.Nodes.RemoveAt(nextChange.RoomItemIndex);
                                 }
@@ -6588,7 +6581,7 @@ BeforeHazy:
                             lstInventory.Items.Clear();
                             foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                             {
-                                lstInventory.Items.Add(new ItemInInventoryList(nextEntry.ItemType.Value));
+                                lstInventory.Items.Add(new ItemInInventoryList(nextEntry.Item));
                             }
                         }
                         else if (rcType == EntityChangeType.RefreshEquipment)
@@ -6596,7 +6589,7 @@ BeforeHazy:
                             lstEquipment.Items.Clear();
                             foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                             {
-                                lstEquipment.Items.Add(new ItemInEquipmentList(nextEntry.ItemType.Value));
+                                lstEquipment.Items.Add(new ItemInEquipmentList(nextEntry.Item));
                             }
                         }
                         else
@@ -6617,7 +6610,7 @@ BeforeHazy:
                                 {
                                     if (nextEntry.InventoryAction.GetValueOrDefault(true))
                                     {
-                                        ItemInInventoryList it = new ItemInInventoryList(nextEntry.ItemType.Value);
+                                        ItemInInventoryList it = new ItemInInventoryList(nextEntry.Item);
                                         if (nextEntry.InventoryIndex == -1)
                                         {
                                             lstInventory.Items.Add(it);
@@ -6635,7 +6628,7 @@ BeforeHazy:
                                 {
                                     if (nextEntry.EquipmentAction.GetValueOrDefault(true))
                                     {
-                                        ItemInEquipmentList it = new ItemInEquipmentList(nextEntry.ItemType.Value);
+                                        ItemInEquipmentList it = new ItemInEquipmentList(nextEntry.Item);
                                         if (nextEntry.EquipmentIndex == -1)
                                         {
                                             lstEquipment.Items.Add(it);
@@ -6736,9 +6729,15 @@ BeforeHazy:
             return ret;
         }
 
-        private TreeNode GetItemsNode(ItemTypeEnum item)
+        private TreeNode GetItemsNode(ItemEntity item)
         {
-            TreeNode ret = new TreeNode(ItemEntity.StaticItemData[item].SingularName);
+            StaticItemData sid = ItemEntity.StaticItemData[item.ItemType.Value];
+            string sText = sid.SingularName;
+            if (sid.ItemClass == ItemClass.Coins)
+            {
+                sText = item.Count + " " + sText;
+            }
+            TreeNode ret = new TreeNode(sText);
             ret.Tag = item;
             return ret;
         }
@@ -7687,18 +7686,18 @@ BeforeHazy:
                 }
                 if (isInventory)
                 {
-                    itemType = ((ItemInInventoryList)oObj).ItemType;
+                    itemType = ((ItemInInventoryList)oObj).Item.ItemType.Value;
                 }
                 else
                 {
-                    itemType = ((ItemInEquipmentList)oObj).ItemType;
+                    itemType = ((ItemInEquipmentList)oObj).Item.ItemType.Value;
                 }
                 sid = ItemEntity.StaticItemData[itemType];
                 if (isInventory)
                 {
                     foreach (ItemInInventoryList nextEntry in lstInventory.Items)
                     {
-                        if (nextEntry.ItemType == itemType)
+                        if (nextEntry.Item.ItemType.Value == itemType)
                         {
                             iCounter++;
                         }
@@ -7712,7 +7711,7 @@ BeforeHazy:
                 {
                     foreach (ItemInEquipmentList nextEntry in lstEquipment.Items)
                     {
-                        if (nextEntry.ItemType == itemType)
+                        if (nextEntry.Item.ItemType.Value == itemType)
                         {
                             iCounter++;
                         }
