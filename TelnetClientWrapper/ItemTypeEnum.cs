@@ -18,10 +18,12 @@
 
         [SingularName("adamantine scale mail leggings")]
         [EquipmentType(EquipmentType.Legs)]
+        [Weight(7)]
         AdamantineScaleMailLeggings,
 
         [SingularName("adamantine scale mail sleeves")]
         [EquipmentType(EquipmentType.Arms)]
+        [Weight(8)]
         AdamantineScaleMailSleeves,
 
         [SingularName("Ahrot's magic string")]
@@ -91,6 +93,7 @@
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
         [Potion(SpellsEnum.detectinvis)]
+        [Weight(2)]
         BlueBubblyPotion,
 
         [SingularName("boiler key")]
@@ -115,6 +118,11 @@
         [PluralName("boomerangs")]
         [WeaponType(WeaponType.Missile)]
         Boomerang,
+
+        [SingularName("boots of levitation")]
+        [EquipmentType(EquipmentType.Feet)]
+        [Weight(2)]
+        BootsOfLevitation,
 
         [SingularName("box of strawberries")]
         //CSRTODO: plural?
@@ -175,6 +183,7 @@
         [SingularName("claw gauntlet")]
         [PluralName("claw gauntlets")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(3)]
         ClawGauntlet,
 
         [SingularName("cloth armor")]
@@ -302,6 +311,7 @@
         [SingularName("elven cured leather hood")]
         [PluralName("elven cured leather hoods")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(1)]
         ElvenCuredLeatherHood,
 
         [SingularName("elven leather whip")]
@@ -358,6 +368,7 @@
         [SingularName("gawdy ear hoop")]
         [PluralName("gawdy ear hoops")]
         [EquipmentType(EquipmentType.Ears)]
+        [Weight(2)]
         GawdyEarHoop,
 
         [SingularName("giant stylus")]
@@ -448,6 +459,7 @@
         [SingularName("hazy potion")]
         [PluralName("hazy potions")]
         [Potion(SpellsEnum.wordofrecall)]
+        [Weight(5)]
         HazyPotion,
 
         [SingularName("head of lettuce")]
@@ -470,6 +482,7 @@
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
         [Potion(SpellsEnum.fly)]
+        [Weight(2)]
         IceBluePotion,
 
         //mage training level 13
@@ -564,6 +577,7 @@
 
         [SingularName("lollipop")]
         [PluralName("lollipops")]
+        [Weight(1)]
         Lollipop,
 
         [SingularName("long bow")]
@@ -633,6 +647,7 @@
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(4)]
         MithronHelmet,
 
         [SingularName("mithron hood")]
@@ -671,6 +686,7 @@
         [SingularName("onyx amulet")]
         [PluralName("onyx amulets")]
         [EquipmentType(EquipmentType.Neck)]
+        [Weight(4)]
         OnyxAmulet,
 
         [SingularName("orc's sword")]
@@ -744,6 +760,7 @@
 
         [SingularName("quartz stone")]
         [PluralName("quartz stones")]
+        [Weight(5)]
         QuartzStone,
 
         [SingularName("rake")]
@@ -758,11 +775,13 @@
         [SingularName("red bubbly potion")]
         [PluralName("red bubbly potions")]
         [Potion(SpellsEnum.invisibility)]
+        [Weight(1)]
         RedBubblyPotion,
 
         [SingularName("reddish-orange potion")]
         [PluralName("reddish-orange potions")]
         [Potion(SpellsEnum.mend)]
+        [Weight(1)]
         ReddishOrangePotion,
 
         [SingularName("red potion")]
@@ -794,6 +813,7 @@
 
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]
+        [Weight(1)]
         RingOfInvisibility,
 
         [SingularName("ruby")]
@@ -832,6 +852,7 @@
         [SingularName("signet ring")]
         [PluralName("signet rings")]
         [EquipmentType(EquipmentType.Finger)]
+        [Weight(1)]
         SignetRing,
 
         [SingularName("silima blade")]
@@ -860,6 +881,7 @@
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(5)]
         SilverScimitar,
 
         [SingularName("silver wand")]
@@ -1067,6 +1089,7 @@
         [SingularName("war harness")]
         [PluralName("war harnesses")]
         [EquipmentType(EquipmentType.Waist)]
+        [Weight(3)]
         WarHarness,
 
         [SingularName("War's flaming axe")]
@@ -1089,6 +1112,7 @@
         [SingularName("yellow potion")]
         [PluralName("yellow potions")]
         [Potion(SpellsEnum.vigor)]
+        [Weight(3)]
         YellowPotion,
     }
 }

@@ -144,4 +144,13 @@ namespace IsengardClient
             this.SpellName = SpellName;
         }
     }
+
+    internal class WeightAttribute : Attribute
+    {
+        public int Pounds { get; set; }
+        public WeightAttribute(int Pounds)
+        {
+            this.Pounds = Pounds;
+        }
+    }
 }

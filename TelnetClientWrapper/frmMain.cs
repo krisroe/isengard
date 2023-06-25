@@ -7789,6 +7789,12 @@ BeforeHazy:
                     tsmi.Text = "drink";
                     ctxInventoryOrEquipmentItem.Items.Add(tsmi);
                 }
+                else if (iclass == ItemClass.Scroll)
+                {
+                    tsmi = new ToolStripMenuItem();
+                    tsmi.Text = "read";
+                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                }
                 switch (iclass)
                 {
                     case ItemClass.Equipment:

@@ -534,6 +534,7 @@ namespace IsengardClient
         public SpellsEnum? Spell { get; set; }
         public string SingularName { get; set; }
         public string PluralName { get; set; }
+        public int Weight { get; set; }
     }
 
     public class StaticMobData
@@ -630,6 +631,12 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
                     eItemClass = ItemClass.Coins;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
                 }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
