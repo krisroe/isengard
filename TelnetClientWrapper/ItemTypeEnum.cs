@@ -547,7 +547,7 @@
 
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Blunt)]
         LeadHammer,
 
         [SingularName("leather armor")]
