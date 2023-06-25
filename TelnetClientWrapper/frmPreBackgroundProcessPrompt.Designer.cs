@@ -39,12 +39,19 @@
             this.btnEditStrategy = new System.Windows.Forms.Button();
             this.btnGraph = new System.Windows.Forms.Button();
             this.btnLocations = new System.Windows.Forms.Button();
+            this.grpStrategy = new System.Windows.Forms.GroupBox();
+            this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
+            this.lblOnKillMonster = new System.Windows.Forms.Label();
+            this.chkPotions = new System.Windows.Forms.CheckBox();
+            this.chkMelee = new System.Windows.Forms.CheckBox();
+            this.chkMagic = new System.Windows.Forms.CheckBox();
             this.grpSkills.SuspendLayout();
+            this.grpStrategy.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(265, 275);
+            this.btnOK.Location = new System.Drawing.Point(586, 235);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(100, 28);
@@ -56,7 +63,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(373, 275);
+            this.btnCancel.Location = new System.Drawing.Point(694, 235);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(100, 28);
@@ -128,12 +135,12 @@
             // 
             // btnEditStrategy
             // 
-            this.btnEditStrategy.Location = new System.Drawing.Point(51, 275);
+            this.btnEditStrategy.Location = new System.Drawing.Point(122, 81);
             this.btnEditStrategy.Margin = new System.Windows.Forms.Padding(4);
             this.btnEditStrategy.Name = "btnEditStrategy";
             this.btnEditStrategy.Size = new System.Drawing.Size(100, 28);
             this.btnEditStrategy.TabIndex = 8;
-            this.btnEditStrategy.Text = "Edit Strategy";
+            this.btnEditStrategy.Text = "Edit";
             this.btnEditStrategy.UseVisualStyleBackColor = true;
             this.btnEditStrategy.Click += new System.EventHandler(this.btnEditStrategy_Click);
             // 
@@ -157,15 +164,87 @@
             this.btnLocations.UseVisualStyleBackColor = true;
             this.btnLocations.Click += new System.EventHandler(this.btnLocations_Click);
             // 
+            // grpStrategy
+            // 
+            this.grpStrategy.Controls.Add(this.cboOnKillMonster);
+            this.grpStrategy.Controls.Add(this.lblOnKillMonster);
+            this.grpStrategy.Controls.Add(this.chkPotions);
+            this.grpStrategy.Controls.Add(this.chkMelee);
+            this.grpStrategy.Controls.Add(this.chkMagic);
+            this.grpStrategy.Controls.Add(this.btnEditStrategy);
+            this.grpStrategy.Location = new System.Drawing.Point(505, 89);
+            this.grpStrategy.Name = "grpStrategy";
+            this.grpStrategy.Size = new System.Drawing.Size(295, 121);
+            this.grpStrategy.TabIndex = 11;
+            this.grpStrategy.TabStop = false;
+            this.grpStrategy.Text = "Strategy";
+            // 
+            // cboOnKillMonster
+            // 
+            this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboOnKillMonster.FormattingEnabled = true;
+            this.cboOnKillMonster.Items.AddRange(new object[] {
+            "Continue Combat",
+            "Stop Combat",
+            "Fight First Monster",
+            "Fight First Same Monster"});
+            this.cboOnKillMonster.Location = new System.Drawing.Point(122, 50);
+            this.cboOnKillMonster.Name = "cboOnKillMonster";
+            this.cboOnKillMonster.Size = new System.Drawing.Size(167, 24);
+            this.cboOnKillMonster.TabIndex = 148;
+            this.cboOnKillMonster.SelectedIndexChanged += new System.EventHandler(this.cboOnKillMonster_SelectedIndexChanged);
+            // 
+            // lblOnKillMonster
+            // 
+            this.lblOnKillMonster.AutoSize = true;
+            this.lblOnKillMonster.Location = new System.Drawing.Point(10, 54);
+            this.lblOnKillMonster.Name = "lblOnKillMonster";
+            this.lblOnKillMonster.Size = new System.Drawing.Size(97, 16);
+            this.lblOnKillMonster.TabIndex = 147;
+            this.lblOnKillMonster.Text = "On kill monster:";
+            // 
+            // chkPotions
+            // 
+            this.chkPotions.AutoSize = true;
+            this.chkPotions.Location = new System.Drawing.Point(153, 21);
+            this.chkPotions.Name = "chkPotions";
+            this.chkPotions.Size = new System.Drawing.Size(71, 20);
+            this.chkPotions.TabIndex = 11;
+            this.chkPotions.Text = "Potions";
+            this.chkPotions.UseVisualStyleBackColor = true;
+            this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
+            // 
+            // chkMelee
+            // 
+            this.chkMelee.AutoSize = true;
+            this.chkMelee.Location = new System.Drawing.Point(83, 21);
+            this.chkMelee.Name = "chkMelee";
+            this.chkMelee.Size = new System.Drawing.Size(64, 20);
+            this.chkMelee.TabIndex = 10;
+            this.chkMelee.Text = "Melee";
+            this.chkMelee.UseVisualStyleBackColor = true;
+            this.chkMelee.CheckedChanged += new System.EventHandler(this.chkMelee_CheckedChanged);
+            // 
+            // chkMagic
+            // 
+            this.chkMagic.AutoSize = true;
+            this.chkMagic.Location = new System.Drawing.Point(7, 21);
+            this.chkMagic.Name = "chkMagic";
+            this.chkMagic.Size = new System.Drawing.Size(63, 20);
+            this.chkMagic.TabIndex = 9;
+            this.chkMagic.Text = "Magic";
+            this.chkMagic.UseVisualStyleBackColor = true;
+            this.chkMagic.CheckedChanged += new System.EventHandler(this.chkMagic_CheckedChanged);
+            // 
             // frmPreBackgroundProcessPrompt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(733, 319);
+            this.ClientSize = new System.Drawing.Size(821, 282);
             this.ControlBox = false;
+            this.Controls.Add(this.grpStrategy);
             this.Controls.Add(this.btnLocations);
             this.Controls.Add(this.btnGraph);
-            this.Controls.Add(this.btnEditStrategy);
             this.Controls.Add(this.cboRoom);
             this.Controls.Add(this.lblRoom);
             this.Controls.Add(this.cboMob);
@@ -178,6 +257,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Skills";
             this.grpSkills.ResumeLayout(false);
+            this.grpStrategy.ResumeLayout(false);
+            this.grpStrategy.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -195,5 +276,11 @@
         private System.Windows.Forms.Button btnEditStrategy;
         private System.Windows.Forms.Button btnGraph;
         private System.Windows.Forms.Button btnLocations;
+        private System.Windows.Forms.GroupBox grpStrategy;
+        private System.Windows.Forms.CheckBox chkPotions;
+        private System.Windows.Forms.CheckBox chkMelee;
+        private System.Windows.Forms.CheckBox chkMagic;
+        private System.Windows.Forms.ComboBox cboOnKillMonster;
+        private System.Windows.Forms.Label lblOnKillMonster;
     }
 }

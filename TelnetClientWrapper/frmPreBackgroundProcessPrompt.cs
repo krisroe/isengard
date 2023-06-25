@@ -22,7 +22,16 @@ namespace IsengardClient
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
             _currentRoom = currentRoom;
-            Strategy = strategy;
+            if (strategy != null)
+            {
+                Strategy = new Strategy(strategy);
+                RefreshUIFromStrategy();
+                grpStrategy.Text = "Strategy (" + Strategy.ToString() + ")";
+            }
+            else
+            {
+                grpStrategy.Visible = false;
+            }
 
             if (currentRoom == null)
             {
@@ -65,6 +74,14 @@ namespace IsengardClient
             }
 
             btnEditStrategy.Visible = Strategy != null;
+        }
+
+        private void RefreshUIFromStrategy()
+        {
+            chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+            chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+            chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
         }
 
         public string Mob
@@ -156,11 +173,11 @@ namespace IsengardClient
 
         private void btnEditStrategy_Click(object sender, EventArgs e)
         {
-            Strategy copy = new Strategy(Strategy);
-            frmStrategy frm = new frmStrategy(copy);
+            frmStrategy frm = new frmStrategy(Strategy);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 Strategy = frm.NewStrategy;
+                RefreshUIFromStrategy();
             }
         }
 
@@ -181,6 +198,47 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private void chkMagic_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkMagic.Checked)
+            {
+                Strategy.TypesWithStepsEnabled |= CommandType.Magic;
+            }
+            else
+            {
+                Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
+            }
+        }
+
+        private void chkMelee_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkMelee.Checked)
+            {
+                Strategy.TypesWithStepsEnabled |= CommandType.Melee;
+            }
+            else
+            {
+                Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
+            }
+        }
+
+        private void chkPotions_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkPotions.Checked)
+            {
+                Strategy.TypesWithStepsEnabled |= CommandType.Potions;
+            }
+            else
+            {
+                Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;
+            }
+        }
+
+        private void cboOnKillMonster_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
         }
     }
 }
