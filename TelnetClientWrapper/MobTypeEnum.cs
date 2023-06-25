@@ -417,7 +417,8 @@
         GrayElf,
 
         [SingularName("green slime")]
-        //CSRTODO: plurals?
+        //CSRTODO: plurals are hard to get since hidden
+        [Experience(35)]
         GreenSlime,
 
         [SingularName("Gregory Hiester")]

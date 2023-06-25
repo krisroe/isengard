@@ -988,6 +988,19 @@ namespace IsengardClient
                     flp.FinishedProcessing = true;
                     return;
                 }
+                int iIndex = 0;
+                while (true)
+                {
+                    firstLine = Lines[iIndex];
+                    if (firstLine == "You feel extraordinarily light as you wear these boots.")
+                    {
+                        iIndex++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
                 List<ItemEntity> itemsManaged = null;
                 if (firstLine.StartsWith(YOU_WEAR_PREFIX))
                 {
