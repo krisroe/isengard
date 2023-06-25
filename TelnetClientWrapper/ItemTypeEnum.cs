@@ -124,6 +124,11 @@
         [Weight(2)]
         BootsOfLevitation,
 
+        [SingularName("bo stick")]
+        [PluralName("bo sticks")]
+        [WeaponType(WeaponType.Polearm)]
+        BoStick,
+
         [SingularName("box of strawberries")]
         //CSRTODO: plural?
         BoxOfStrawberries,
@@ -964,6 +969,10 @@
         [SingularName("spyglass")]
         [PluralName("spyglasses")]
         Spyglass,
+
+        [SingularName("staff of force")]
+        //CSRTODO: plural?
+        StaffOfForce,
 
         [SingularName("statuette of Balthazar")]
         [PluralName("statuettes of Balthazar")]
