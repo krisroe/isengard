@@ -972,6 +972,7 @@
 
         [SingularName("staff of force")]
         //CSRTODO: plural?
+        [WeaponType(WeaponType.Polearm)]
         StaffOfForce,
 
         [SingularName("statuette of Balthazar")]
