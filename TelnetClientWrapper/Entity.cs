@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
+
 namespace IsengardClient
 {
     public class Entity
@@ -755,5 +757,543 @@ namespace IsengardClient
             this.Count = count;
             this.PossibleTypes = possibleTypes;
         }
+    }
+
+    internal class EntityChange
+    {
+        public EntityChange()
+        {
+            this.Changes = new List<EntityChangeEntry>();
+            this.Exits = new List<string>();
+            this.MappedExits = new Dictionary<string, Exit>();
+        }
+        public EntityChangeType ChangeType { get; set; }
+        public Room Room { get; set; }
+        public List<string> Exits { get; set; }
+        /// <summary>
+        /// items being changed
+        /// </summary>
+        public List<EntityChangeEntry> Changes { get; set; }
+        /// <summary>
+        /// index where the object should be inserted/removed. This is -1 when inserted at the end of the list.
+        /// </summary>
+        public Dictionary<string, Exit> MappedExits { get; set; }
+        public List<Exit> OtherExits = new List<Exit>();
+
+        public bool AddOrRemoveEntityItem(CurrentEntityInfo inventoryEquipment, ItemTypeEnum nextItem, bool isAdd, EntityChangeEntry changeInfo, bool isInventory)
+        {
+            List<ItemTypeEnum> itemList = isInventory ? inventoryEquipment.InventoryItems : inventoryEquipment.CurrentRoomItems;
+            int foundIndex = itemList.LastIndexOf(nextItem);
+            int changeIndex;
+            bool effectChange = false;
+            if (isAdd)
+            {
+                changeIndex = inventoryEquipment.FindNewItemInsertionPoint(nextItem, true);
+                effectChange = true;
+                if (changeIndex == -1)
+                {
+                    itemList.Add(nextItem);
+                }
+                else
+                {
+                    itemList.Insert(changeIndex, nextItem);
+                }
+            }
+            else
+            {
+                changeIndex = foundIndex;
+                if (foundIndex >= 0)
+                {
+                    itemList.RemoveAt(foundIndex);
+                    effectChange = true;
+                }
+            }
+            if (effectChange)
+            {
+                if (isInventory)
+                {
+                    changeInfo.InventoryIndex = changeIndex;
+                    changeInfo.InventoryAction = isAdd;
+                }
+                else
+                {
+                    changeInfo.RoomItemIndex = changeIndex;
+                    changeInfo.RoomItemAction = isAdd;
+                }
+            }
+            return effectChange;
+        }
+    }
+
+    internal class CurrentEntityInfo
+    {
+        public bool UIProcessed { get; set; }
+        public Room CurrentRoom { get; set; }
+        public Room CurrentRoomUI { get; set; }
+        public List<EntityChange> CurrentEntityChanges { get; set; }
+        public List<MobTypeEnum> CurrentRoomMobs { get; set; }
+        public List<ItemTypeEnum> CurrentRoomItems { get; set; }
+        public List<ItemTypeEnum> InventoryItems { get; set; }
+        public ItemTypeEnum?[] Equipment { get; set; }
+        public List<string> CurrentObviousExits { get; set; }
+        public TreeNode tnObviousMobs { get; set; }
+        public bool ObviousMobsTNExpanded { get; set; }
+        public TreeNode tnObviousItems { get; set; }
+        public bool ObviousItemsTNExpanded { get; set; }
+        public TreeNode tnObviousExits { get; set; }
+        public bool ObviousExitsTNExpanded { get; set; }
+        public TreeNode tnOtherExits { get; set; }
+        public bool OtherExitsTNExpanded { get; set; }
+        public TreeNode tnPermanentMobs { get; set; }
+        public bool PermMobsTNExpanded { get; set; }
+
+        public CurrentEntityInfo()
+        {
+            CurrentEntityChanges = new List<EntityChange>();
+            CurrentRoomMobs = new List<MobTypeEnum>();
+            CurrentRoomItems = new List<ItemTypeEnum>();
+            InventoryItems = new List<ItemTypeEnum>();
+            Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
+            CurrentObviousExits = new List<string>();
+            ObviousExitsTNExpanded = true;
+            ObviousMobsTNExpanded = true;
+            ObviousItemsTNExpanded = true;
+            OtherExitsTNExpanded = true;
+            PermMobsTNExpanded = true;
+
+            tnObviousMobs = new TreeNode("Obvious Mobs");
+            tnObviousMobs.Name = "tnObviousMobs";
+            tnObviousMobs.Text = "Obvious Mobs";
+            tnObviousItems = new TreeNode("Obvious Items");
+            tnObviousItems.Name = "tnObviousItems";
+            tnObviousItems.Text = "Obvious Items";
+            tnObviousExits = new TreeNode("Obvious Exits");
+            tnObviousExits.Name = "tnObviousExits";
+            tnObviousExits.Text = "Obvious Exits";
+            tnOtherExits = new TreeNode("Other Exits");
+            tnOtherExits.Name = "tnOtherExits";
+            tnOtherExits.Text = "Other Exits";
+            tnPermanentMobs = new TreeNode("Permanent Mobs");
+            tnPermanentMobs.Name = "tnPermanentMobs";
+            tnPermanentMobs.Text = "Permanent Mobs";
+        }
+
+        public bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)
+        {
+            bool ret = false;
+            if (topLevelTreeNode == tnObviousMobs)
+            {
+                ret = ObviousMobsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnObviousItems)
+            {
+                ret = ObviousItemsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnObviousExits)
+            {
+                ret = ObviousExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnOtherExits)
+            {
+                ret = OtherExitsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnPermanentMobs)
+            {
+                ret = PermMobsTNExpanded;
+            }
+            return ret;
+        }
+
+        public int GetTopLevelTreeNodeLogicalIndex(TreeNode topLevelTreeNode)
+        {
+            int i = 0;
+            if (topLevelTreeNode == tnObviousMobs)
+            {
+                i = 1;
+            }
+            else if (topLevelTreeNode == tnObviousItems)
+            {
+                i = 2;
+            }
+            else if (topLevelTreeNode == tnObviousExits)
+            {
+                i = 3;
+            }
+            else if (topLevelTreeNode == tnOtherExits)
+            {
+                i = 4;
+            }
+            else if (topLevelTreeNode == tnPermanentMobs)
+            {
+                i = 5;
+            }
+            return i;
+        }
+
+        public int FindNewMobInsertionPoint(MobTypeEnum newMob)
+        {
+            string sSingular = MobEntity.StaticMobData[newMob].SingularName;
+            bool isCapitalized = char.IsUpper(sSingular[0]);
+            int i = 0;
+            int iFoundIndex = -1;
+            foreach (MobTypeEnum nextMob in CurrentRoomMobs)
+            {
+                string sNextSingular = MobEntity.StaticMobData[nextMob].SingularName;
+                bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                bool isBefore = false;
+                if (isCapitalized != nextIsCapitalized)
+                {
+                    isBefore = isCapitalized;
+                }
+                else
+                {
+                    isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                }
+                if (isBefore)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        public void SetExpandFlag(TreeNode node, bool expanded)
+        {
+            if (node == tnObviousMobs)
+            {
+                ObviousMobsTNExpanded = expanded;
+            }
+            else if (node == tnObviousItems)
+            {
+                ObviousItemsTNExpanded = expanded;
+            }
+            else if (node == tnObviousExits)
+            {
+                ObviousExitsTNExpanded = expanded;
+            }
+            else if (node == tnOtherExits)
+            {
+                OtherExitsTNExpanded = expanded;
+            }
+            else if (node == tnPermanentMobs)
+            {
+                PermMobsTNExpanded = expanded;
+            }
+        }
+
+        public int FindEquipmentRemovalPoint(EquipmentSlot slot)
+        {
+            int iSlot = (int)slot;
+            int previousEntries = 0;
+            for (int i = 0; i < iSlot; i++)
+            {
+                if (Equipment[i] != null)
+                {
+                    previousEntries++;
+                }
+            }
+            return previousEntries;
+        }
+
+        public int FindNewEquipmentInsertionPoint(EquipmentSlot slot)
+        {
+            int iSlot = (int)slot;
+            int previousEntries = 0;
+            bool haveAfter = false;
+            for (int i = 0; i < Equipment.Length; i++)
+            {
+                if (Equipment[i] != null)
+                {
+                    if (i < iSlot)
+                    {
+                        previousEntries++;
+                    }
+                    else if (i > iSlot)
+                    {
+                        haveAfter = true;
+                        break;
+                    }
+                }
+            }
+            int iRet;
+            if (haveAfter)
+            {
+                iRet = previousEntries;
+            }
+            else
+            {
+                iRet = -1;
+            }
+            return iRet;
+        }
+
+        public int FindNewItemInsertionPoint(ItemTypeEnum newItem, bool isInventory)
+        {
+            string sSingular = ItemEntity.StaticItemData[newItem].SingularName;
+            bool isCapitalized = char.IsUpper(sSingular[0]);
+            int i = 0;
+            int iFoundIndex = -1;
+            List<ItemTypeEnum> itemList = isInventory ? InventoryItems : CurrentRoomItems;
+            foreach (ItemTypeEnum nextItem in itemList)
+            {
+                string sNextSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                bool isBefore = false;
+                if (isCapitalized != nextIsCapitalized)
+                {
+                    isBefore = isCapitalized;
+                }
+                else
+                {
+                    isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                }
+                if (isBefore)
+                {
+                    iFoundIndex = i;
+                    break;
+                }
+                i++;
+            }
+            return iFoundIndex;
+        }
+
+        public static IEnumerable<EquipmentSlot> GetSlotsForEquipmentType(EquipmentType type, bool reverse)
+        {
+            switch (type)
+            {
+                case EquipmentType.Torso:
+                    yield return EquipmentSlot.Torso;
+                    break;
+                case EquipmentType.Arms:
+                    yield return EquipmentSlot.Arms;
+                    break;
+                case EquipmentType.Legs:
+                    yield return EquipmentSlot.Legs;
+                    break;
+                case EquipmentType.Neck:
+                    yield return EquipmentSlot.Neck;
+                    break;
+                case EquipmentType.Waist:
+                    yield return EquipmentSlot.Waist;
+                    break;
+                case EquipmentType.Feet:
+                    yield return EquipmentSlot.Feet;
+                    break;
+                case EquipmentType.Head:
+                    yield return EquipmentSlot.Head;
+                    break;
+                case EquipmentType.Hands:
+                    yield return EquipmentSlot.Hands;
+                    break;
+                case EquipmentType.Finger:
+                    if (reverse)
+                    {
+                        yield return EquipmentSlot.Finger2;
+                        yield return EquipmentSlot.Finger1;
+                    }
+                    else
+                    {
+                        yield return EquipmentSlot.Finger1;
+                        yield return EquipmentSlot.Finger2;
+                    }
+                    break;
+                case EquipmentType.Ears:
+                    yield return EquipmentSlot.Ears;
+                    break;
+                case EquipmentType.Holding:
+                    yield return EquipmentSlot.Held;
+                    break;
+                case EquipmentType.Shield:
+                    yield return EquipmentSlot.Shield;
+                    break;
+                case EquipmentType.Wielded:
+                    if (reverse)
+                    {
+                        yield return EquipmentSlot.Weapon2;
+                        yield return EquipmentSlot.Weapon1;
+                    }
+                    else
+                    {
+                        yield return EquipmentSlot.Weapon1;
+                        yield return EquipmentSlot.Weapon2;
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// pick selection text for an inventory/equipment item, assumes the entity lock is present
+        /// </summary>
+        /// <param name="isInventory">true for inventory, false for equipment</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="itemCounter">item counter of that type</param>
+        /// <returns></returns>
+        public string PickItemTextFromItemCounter(bool isInventory, ItemTypeEnum itemType, int itemCounter)
+        {
+            int iActualIndex = -1;
+            int iCounter = 0;
+            if (isInventory)
+            {
+                for (int i = 0; i < InventoryItems.Count; i++)
+                {
+                    if (InventoryItems[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Equipment.Length; i++)
+                {
+                    if (Equipment[i] == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(isInventory, itemType, iActualIndex);
+        }
+
+        public string PickItemTextFromActualIndex(bool isInventory, ItemTypeEnum itemType, int iActualIndex)
+        {
+            string ret = null;
+            foreach (string word in ItemEntity.GetItemWords(itemType))
+            {
+                string sSingular;
+
+                //find word index within the list of items
+                int iCounter = 0;
+                for (int i = 0; i <= iActualIndex; i++)
+                {
+                    ItemTypeEnum? eItem;
+                    if (isInventory)
+                    {
+                        eItem = InventoryItems[i];
+                    }
+                    else
+                    {
+                        eItem = Equipment[i];
+                    }
+                    if (eItem.HasValue)
+                    {
+                        ItemTypeEnum eItemValue = eItem.Value;
+                        bool matches = false;
+                        if (eItemValue == itemType)
+                        {
+                            matches = true;
+                        }
+                        else
+                        {
+                            sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matches)
+                        {
+                            iCounter++;
+                        }
+                    }
+                }
+
+                //for equipment, check for a duplicate in inventory
+                bool isDuplicate = false;
+                if (!isInventory)
+                {
+                    int iInventoryCounter = 0;
+                    foreach (ItemTypeEnum nextItem in InventoryItems)
+                    {
+                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        {
+                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                            {
+                                iInventoryCounter++;
+                                if (iInventoryCounter == iCounter)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    isDuplicate = iInventoryCounter == iCounter;
+                }
+
+                if (!isDuplicate)
+                {
+                    if (iCounter == 1)
+                    {
+                        ret = word;
+                    }
+                    else
+                    {
+                        ret = word + " " + iCounter;
+                    }
+                    break;
+                }
+            }
+            return ret;
+        }
+    }
+    public class EntityChangeEntry
+    {
+        /// <summary>
+        /// type of item being updated
+        /// </summary>
+        public ItemTypeEnum? ItemType { get; set; }
+        /// <summary>
+        /// type of mob being updated
+        /// </summary>
+        public MobTypeEnum? MobType { get; set; }
+        /// <summary>
+        /// inventory index to add/remove at
+        /// </summary>
+        public int InventoryIndex { get; set; }
+        /// <summary>
+        /// true to add to inventory, false to remove from inventory, null for no action
+        /// </summary>
+        public bool? InventoryAction { get; set; }
+        /// <summary>
+        /// equipment index to add/remove at
+        /// </summary>
+        public int EquipmentIndex { get; set; }
+        /// <summary>
+        /// true to add to equipment, false to remove from equipment, null for no action
+        /// </summary>
+        public bool? EquipmentAction { get; set; }
+        /// <summary>
+        /// room item index to add/remove at
+        /// </summary>
+        public int RoomItemIndex { get; set; }
+        /// <summary>
+        /// true to add to the room items, false to remove from room items, null for no action
+        /// </summary>
+        public bool? RoomItemAction { get; set; }
+        /// <summary>
+        /// room mob index to add/remove at
+        /// </summary>
+        public int RoomMobIndex { get; set; }
+        /// <summary>
+        /// true to add to the room mobs, false to remove from room mobs, null for no action
+        /// </summary>
+        public bool? RoomMobAction { get; set; }
     }
 }

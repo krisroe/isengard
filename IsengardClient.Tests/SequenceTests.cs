@@ -727,12 +727,12 @@ namespace IsengardClient.Tests
         public void TestInventoryManagementSequence()
         {
             List<ItemTypeEnum> items = null;
-            InventoryEquipmentAction? action = null;
+            ItemManagementAction? action = null;
             int? totalGold = null;
             int? soldGold = null;
             List<string> spells = null;
             bool? potionConsumed = null;
-            Action<FeedLineParameters, List<ItemTypeEnum>, InventoryEquipmentAction, int?, int, List<string>, bool> a = (flParams, i, act, gt, gs, sp, pot) =>
+            Action<FeedLineParameters, List<ItemTypeEnum>, ItemManagementAction, int?, int, List<string>, bool> a = (flParams, i, act, gt, gs, sp, pot) =>
             {
                 items = i;
                 action = act;
@@ -757,7 +757,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(potionConsumed.Value);
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0] == ItemTypeEnum.IceBluePotion);
-            Assert.IsTrue(action == InventoryEquipmentAction.RemoveInventory);
+            Assert.IsTrue(action == ItemManagementAction.ConsumeItem);
 
             items = null;
             action = null;
@@ -769,7 +769,7 @@ namespace IsengardClient.Tests
             seq.FeedLine(flp);
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0] == ItemTypeEnum.PotOfGold);
-            Assert.IsTrue(action == InventoryEquipmentAction.NewInventory);
+            Assert.IsTrue(action == ItemManagementAction.PickUpItem);
             Assert.IsTrue(totalGold.Value == 557420);
         }
 

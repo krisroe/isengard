@@ -119,9 +119,8 @@ namespace IsengardClient
         private IsengardMap _gameMap;
 
         private object _entityLock = new object();
-        private CurrentRoomInfo _currentRoomInfo = new CurrentRoomInfo();
+        private CurrentEntityInfo _currentEntityInfo = new CurrentEntityInfo();
         private List<string> _foundSearchedExits;
-        private InventoryEquipment _inventoryEquipment = new InventoryEquipment();
         private bool _programmaticUI = false;
 
         private bool _setTickRoom = false;
@@ -1020,12 +1019,11 @@ namespace IsengardClient
 
             lock (_entityLock)
             {
-                InventoryEquipmentChange changes = new InventoryEquipmentChange();
-                changes.ChangeType = InventoryEquipmentChangeType.RefreshEquipment;
-                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
-                for (int i = 0; i < _inventoryEquipment.Equipment.Length; i++)
+                EntityChange changes = new EntityChange();
+                changes.ChangeType = EntityChangeType.RefreshEquipment;
+                for (int i = 0; i < _currentEntityInfo.Equipment.Length; i++)
                 {
-                    _inventoryEquipment.Equipment[i] = null;
+                    _currentEntityInfo.Equipment[i] = null;
                 }
                 foreach (var nextEntry in equipment)
                 {
@@ -1044,19 +1042,19 @@ namespace IsengardClient
                         if (Enum.TryParse(nextEntry.Value, out EquipmentType eqType))
                         {
                             bool foundSlot = false;
-                            foreach (EquipmentSlot nextSlot in InventoryEquipment.GetSlotsForEquipmentType(eqType, false))
+                            foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(eqType, false))
                             {
                                 int iNextSlot = (int)nextSlot;
-                                if (_inventoryEquipment.Equipment[iNextSlot] == null)
+                                if (_currentEntityInfo.Equipment[iNextSlot] == null)
                                 {
-                                    _inventoryEquipment.Equipment[iNextSlot] = itemType;
+                                    _currentEntityInfo.Equipment[iNextSlot] = itemType;
                                     foundSlot = true;
                                     break;
                                 }
                             }
                             if (foundSlot)
                             {
-                                InventoryEquipmentEntry entry = new InventoryEquipmentEntry();
+                                EntityChangeEntry entry = new EntityChangeEntry();
                                 entry.ItemType = itemType;
                                 entry.EquipmentAction = true;
                                 entry.EquipmentIndex = -1;
@@ -1075,7 +1073,7 @@ namespace IsengardClient
                 }
                 if (changes.Changes.Count > 0)
                 {
-                    _inventoryEquipment.InventoryEquipmentChanges.Add(changes);
+                    _currentEntityInfo.CurrentEntityChanges.Add(changes);
                 }
             }
             if (forInit)
@@ -1091,10 +1089,9 @@ namespace IsengardClient
 
             lock (_entityLock)
             {
-                InventoryEquipmentChange changes = new InventoryEquipmentChange();
-                changes.ChangeType = InventoryEquipmentChangeType.RefreshInventory;
-                changes.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
-                _inventoryEquipment.InventoryItems.Clear();
+                EntityChange changes = new EntityChange();
+                changes.ChangeType = EntityChangeType.RefreshInventory;
+                _currentEntityInfo.InventoryItems.Clear();
                 foreach (ItemEntity nextItemEntity in items)
                 {
                     if (nextItemEntity.ItemType.HasValue)
@@ -1102,15 +1099,15 @@ namespace IsengardClient
                         ItemTypeEnum nextItemValue = nextItemEntity.ItemType.Value;
                         for (int i = 0; i < nextItemEntity.Count; i++)
                         {
-                            _inventoryEquipment.InventoryItems.Add(nextItemValue);
-                            InventoryEquipmentEntry entry = new InventoryEquipmentEntry();
+                            _currentEntityInfo.InventoryItems.Add(nextItemValue);
+                            EntityChangeEntry entry = new EntityChangeEntry();
                             entry.ItemType = nextItemValue;
                             entry.InventoryAction = true;
                             changes.Changes.Add(entry);
                         }
                     }
                 }
-                _inventoryEquipment.InventoryEquipmentChanges.Add(changes);
+                _currentEntityInfo.CurrentEntityChanges.Add(changes);
             }
             if (forInit)
             {
@@ -1357,7 +1354,7 @@ namespace IsengardClient
             if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false))
             {
                 _initializationSteps |= InitializationStep.Finalization;
-                Room r = _currentRoomInfo.CurrentRoom;
+                Room r = _currentEntityInfo.CurrentRoom;
                 _setTickRoom = r != null && r.HealingRoom.HasValue;
             }
             else
@@ -1398,7 +1395,7 @@ namespace IsengardClient
                 fromBackgroundHazy = bctValue == BackgroundCommandType.DrinkHazy;
             }
             
-            Room previousRoom = _currentRoomInfo.CurrentRoom;
+            Room previousRoom = _currentEntityInfo.CurrentRoom;
 
             //first try is always to look for an unambiguous name across the whole map
             Room newRoom = GetCurrentRoomIfUnambiguous(sRoomName);
@@ -1449,7 +1446,7 @@ namespace IsengardClient
                 _fleeing = false;
                 if (roomTransitionInfo.DrankHazy)
                 {
-                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, InventoryEquipmentAction.RemoveInventory);
+                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemTypeEnum>() { ItemTypeEnum.HazyPotion }, ItemManagementAction.ConsumeItem);
                 }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
@@ -1569,15 +1566,13 @@ namespace IsengardClient
 
             lock (_entityLock) //update the room change list with the next room
             {
-                _currentRoomInfo.CurrentObviousExits.Clear();
-                _currentRoomInfo.CurrentObviousExits.AddRange(obviousExits);
-
-                _currentRoomInfo.CurrentRoomChanges.Clear();
-                RoomChange rc = new RoomChange();
+                _currentEntityInfo.CurrentObviousExits.Clear();
+                _currentEntityInfo.CurrentObviousExits.AddRange(obviousExits);
+                //CSRTODO: cleanup old change entries?
+                EntityChange rc = new EntityChange();
                 rc.Room = newRoom;
-                rc.ChangeType = RoomChangeType.NewRoom;
+                rc.ChangeType = EntityChangeType.RefreshRoom;
                 rc.Exits = new List<string>(obviousExits);
-                rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
                 if (newRoom != null)
                 {
                     rc.MappedExits = new Dictionary<string, Exit>();
@@ -1629,7 +1624,8 @@ namespace IsengardClient
                             }
                         }
                     }
-                    List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+
+                    List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                     currentRoomMobs.Clear();
                     List<MobEntity> mobs = roomTransitionInfo.Mobs;
                     if (mobs != null)
@@ -1643,13 +1639,41 @@ namespace IsengardClient
                                 for (int i = 0; i < nextMob.Count; i++)
                                 {
                                     currentRoomMobs.Add(mobTypeValue);
+                                    EntityChangeEntry changeEntry = new EntityChangeEntry();
+                                    changeEntry.MobType = mobTypeValue;
+                                    changeEntry.RoomMobAction = true;
+                                    changeEntry.RoomMobIndex = -1;
+                                    rc.Changes.Add(changeEntry);
                                 }
                             }
                         }
                     }
-                    rc.Mobs = new List<MobTypeEnum>(currentRoomMobs);
-                    _currentRoomInfo.CurrentRoomChanges.Add(rc);
-                    _currentRoomInfo.CurrentRoom = newRoom;
+
+                    List<ItemTypeEnum> currentRoomItems = _currentEntityInfo.CurrentRoomItems;
+                    currentRoomItems.Clear();
+                    List<ItemEntity> items = roomTransitionInfo.Items;
+                    if (items != null)
+                    {
+                        foreach (var nextItem in items)
+                        {
+                            ItemTypeEnum? itemType = nextItem.ItemType;
+                            if (itemType.HasValue)
+                            {
+                                ItemTypeEnum itemTypeValue = itemType.Value;
+                                for (int i = 0; i < nextItem.Count; i++)
+                                {
+                                    currentRoomItems.Add(itemTypeValue);
+                                    EntityChangeEntry changeEntry = new EntityChangeEntry();
+                                    changeEntry.ItemType = itemTypeValue;
+                                    changeEntry.RoomItemAction = true;
+                                    changeEntry.RoomItemIndex = -1;
+                                    rc.Changes.Add(changeEntry);
+                                }
+                            }
+                        }
+                    }
+                    _currentEntityInfo.CurrentEntityChanges.Add(rc);
+                    _currentEntityInfo.CurrentRoom = newRoom;
                 }
             }
         }
@@ -1941,10 +1965,10 @@ namespace IsengardClient
             {
                 lock (_entityLock)
                 {
-                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1].HasValue)
+                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1].HasValue)
                     {
-                        var weapon = new List<ItemTypeEnum>() { _inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1].Value };
-                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, weapon, InventoryEquipmentAction.Unequip);
+                        var weapon = new List<ItemTypeEnum>() { _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1].Value };
+                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, weapon, ItemManagementAction.Unequip);
                     }
                 }
             }
@@ -2072,7 +2096,7 @@ namespace IsengardClient
             List<string> spellsOff = null;
             bool finishedProcessing = false;
             Exit currentBackgroundExit = _currentBackgroundExit;
-            RoomChange rc;
+            EntityChange rc;
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
@@ -2155,16 +2179,16 @@ namespace IsengardClient
                     case InformationalMessageType.BullroarerInMithlond:
                         lock (_entityLock)
                         {
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
@@ -2173,16 +2197,16 @@ namespace IsengardClient
                     case InformationalMessageType.BullroarerInNindamos:
                         lock (_entityLock)
                         {
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
@@ -2191,16 +2215,16 @@ namespace IsengardClient
                     case InformationalMessageType.BullroarerReadyForBoarding:
                         lock (_entityLock)
                         {
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
                             }
@@ -2210,17 +2234,17 @@ namespace IsengardClient
                         lock (_entityLock)
                         {
                             bool removeMessage = true;
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
                                         removeMessage = false;
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
                                         removeMessage = false;
                                         break;
                                 }
@@ -2241,16 +2265,16 @@ namespace IsengardClient
                     case InformationalMessageType.CelduinExpressLeftBree:
                         lock (_entityLock)
                         {
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
                                         break;
                                 }
                             }
@@ -2259,16 +2283,16 @@ namespace IsengardClient
                     case InformationalMessageType.CelduinExpressLeftMithlond:
                         lock (_entityLock)
                         {
-                            Room currentRoom = _currentRoomInfo.CurrentRoom;
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
                             {
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressMithlond:
-                                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
                                         break;
                                 }
                             }
@@ -2281,12 +2305,10 @@ namespace IsengardClient
                         HandleHarbringerStatusChange(false);
                         break;
                     case InformationalMessageType.MobArrived:
-                        rc = new RoomChange();
-                        rc.ChangeType = RoomChangeType.AddMob;
-                        rc.Mobs = new List<MobTypeEnum>();
-                        rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
+                        rc = new EntityChange();
+                        rc.ChangeType = EntityChangeType.AddMob;
                         MobTypeEnum nextMob = next.Mob;
-                        List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                        List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                         lock (_entityLock)
                         {
                             int index = currentRoomMobs.LastIndexOf(nextMob);
@@ -2297,27 +2319,29 @@ namespace IsengardClient
                             }
                             else
                             {
-                                iInsertionPoint = _currentRoomInfo.FindNewMobInsertionPoint(nextMob);
+                                iInsertionPoint = _currentEntityInfo.FindNewMobInsertionPoint(nextMob);
                             }
                             bool insertAtEnd = iInsertionPoint == -1;
-                            rc.Index = insertAtEnd ? -1 : iInsertionPoint;
                             for (int i = 0; i < next.EntityCount; i++)
                             {
-                                rc.Mobs.Add(nextMob);
                                 if (insertAtEnd)
                                     currentRoomMobs.Add(nextMob);
                                 else
                                     currentRoomMobs.Insert(iInsertionPoint, nextMob);
+                                EntityChangeEntry changeEntry = new EntityChangeEntry();
+                                changeEntry.MobType = nextMob;
+                                changeEntry.RoomMobAction = true;
+                                changeEntry.RoomItemIndex = -1;
+                                rc.Changes.Add(changeEntry);
                             }
-                            rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
-                            _currentRoomInfo.CurrentRoomChanges.Add(rc);
+                            _currentEntityInfo.CurrentEntityChanges.Add(rc);
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
                         RemoveMobs(next.Mob, next.EntityCount);
                         break;
                     case InformationalMessageType.EquipmentDestroyed:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemTypeEnum>() { next.Item }, InventoryEquipmentAction.RemoveEquipment);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemTypeEnum>() { next.Item }, ItemManagementAction.DestroyEquipment);
                         break;
                 }
             }
@@ -2381,10 +2405,9 @@ namespace IsengardClient
 
         private void RemoveMobs(MobTypeEnum mobType, int Count)
         {
-            RoomChange rc = new RoomChange();
-            rc.ChangeType = RoomChangeType.RemoveMob;
-            rc.Mobs = new List<MobTypeEnum>();
-            List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+            EntityChange rc = new EntityChange();
+            rc.ChangeType = EntityChangeType.RemoveMob;
+            List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
             lock (_entityLock)
             {
                 int index = currentRoomMobs.LastIndexOf(mobType);
@@ -2395,8 +2418,12 @@ namespace IsengardClient
                     {
                         if (currentRoomMobs[index] == mobType)
                         {
-                            rc.Mobs.Add(mobType);
                             currentRoomMobs.RemoveAt(index);
+                            EntityChangeEntry changeEntry = new EntityChangeEntry();
+                            changeEntry.MobType = mobType;
+                            changeEntry.RoomMobIndex = index;
+                            changeEntry.RoomMobAction = false;
+                            rc.Changes.Add(changeEntry);
                         }
                         else
                         {
@@ -2411,9 +2438,10 @@ namespace IsengardClient
                             index--;
                         }
                     }
-                    rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
-                    rc.Index = index;
-                    _currentRoomInfo.CurrentRoomChanges.Add(rc);
+                    if (rc.Changes.Count > 0)
+                    {
+                        _currentEntityInfo.CurrentEntityChanges.Add(rc);
+                    }
                 }
             }
         }
@@ -2422,7 +2450,7 @@ namespace IsengardClient
         {
             lock (_entityLock)
             {
-                Room currentRoom = _currentRoomInfo.CurrentRoom;
+                Room currentRoom = _currentEntityInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
                 {
                     string sExit = null;
@@ -2440,7 +2468,7 @@ namespace IsengardClient
                     }
                     if (sExit != null)
                     {
-                        _currentRoomInfo.CurrentRoomChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
+                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
                     }
                 }
             }
@@ -2453,12 +2481,10 @@ namespace IsengardClient
         /// <param name="add">true to add the exit, false to remove the exit</param>
         /// <param name="exitText">exit text</param>
         /// <returns>room change object</returns>
-        private RoomChange GetAddExitRoomChangeForPeriodicExit(Room currentRoom, bool add, string exitText)
+        private EntityChange GetAddExitRoomChangeForPeriodicExit(Room currentRoom, bool add, string exitText)
         {
-            RoomChange rc = new RoomChange();
-            rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
-            _currentRoomInfo.RoomChangeCounter++;
-            rc.GlobalCounter = _currentRoomInfo.RoomChangeCounter;
+            EntityChange rc = new EntityChange();
+            rc.ChangeType = add ? EntityChangeType.AddExit : EntityChangeType.RemoveExit;
             Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
@@ -2475,11 +2501,10 @@ namespace IsengardClient
         /// <param name="messageType">message type</param>
         /// <param name="add">true to add the exit, false to remove the exit</param>
         /// <returns>room change object</returns>
-        private RoomChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessageType messageType, bool add)
+        private EntityChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessageType messageType, bool add)
         {
-            RoomChange rc = new RoomChange();
-            rc.ChangeType = add ? RoomChangeType.AddExit : RoomChangeType.RemoveExit;
-            rc.GlobalCounter = ++_currentRoomInfo.RoomChangeCounter;
+            EntityChange rc = new EntityChange();
+            rc.ChangeType = add ? EntityChangeType.AddExit : EntityChangeType.RemoveExit;
             Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
@@ -2489,14 +2514,14 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, InventoryEquipmentAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemTypeEnum> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
             bool hasItems = items != null && items.Count > 0;
             bool hasSpells = activeSpells != null && activeSpells.Count > 0;
             bool hasGold = gold.HasValue || sellGold > 0;
-            bool couldBeRemoveAll = !hasSpells && !hasGold && action == InventoryEquipmentAction.Unequip;
+            bool couldBeRemoveAll = !hasSpells && !hasGold && action == ItemManagementAction.Unequip;
             if (hasItems)
             {
                 AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, action);
@@ -2523,74 +2548,77 @@ namespace IsengardClient
             }
         }
 
-        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemTypeEnum> items, InventoryEquipmentAction action)
+        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemTypeEnum> items, ItemManagementAction action)
         {
-            InventoryEquipmentChangeType changeType;
-            if (action == InventoryEquipmentAction.Equip)
+            EntityChangeType changeType;
+            if (action == ItemManagementAction.Equip)
             {
-                changeType = InventoryEquipmentChangeType.EquipItem;
+                changeType = EntityChangeType.EquipItem;
             }
-            else if (action == InventoryEquipmentAction.Unequip)
+            else if (action == ItemManagementAction.Unequip)
             {
-                changeType = InventoryEquipmentChangeType.UnequipItem;
+                changeType = EntityChangeType.UnequipItem;
             }
-            else if (action == InventoryEquipmentAction.NewInventory)
+            else if (action == ItemManagementAction.PickUpItem)
             {
-                changeType = InventoryEquipmentChangeType.AddItemToInventory;
+                changeType = EntityChangeType.PickUpItem;
             }
-            else if (action == InventoryEquipmentAction.RemoveInventory)
+            else if (action == ItemManagementAction.DropItem)
             {
-                changeType = InventoryEquipmentChangeType.RemoveItemFromInventory;
+                changeType = EntityChangeType.DropItem;
             }
-            else if (action == InventoryEquipmentAction.RemoveEquipment)
+            else if (action == ItemManagementAction.ConsumeItem)
             {
-                changeType = InventoryEquipmentChangeType.RemoveItemFromEquipment;
+                changeType = EntityChangeType.ConsumeItem;
+            }
+            else if (action == ItemManagementAction.DestroyEquipment)
+            {
+                changeType = EntityChangeType.DestroyEquipment;
             }
             else
             {
                 throw new InvalidOperationException();
             }
-            InventoryEquipmentChange iec = new InventoryEquipmentChange();
+            EntityChange iec = new EntityChange();
             iec.ChangeType = changeType;
-            iec.GlobalCounter = ++_inventoryEquipment.InventoryEquipmentCounter;
             lock (_entityLock)
             {
                 foreach (ItemTypeEnum nextItem in items)
                 {
                     bool addChange = false;
-                    InventoryEquipmentEntry changeEntry = new InventoryEquipmentEntry();
+                    EntityChangeEntry changeEntry = new EntityChangeEntry();
                     changeEntry.ItemType = nextItem;
-                    bool removeEquipment = changeType == InventoryEquipmentChangeType.UnequipItem || changeType == InventoryEquipmentChangeType.RemoveItemFromEquipment;
-                    if (changeType == InventoryEquipmentChangeType.EquipItem || removeEquipment)
+                    bool removeEquipment = changeType == EntityChangeType.UnequipItem || changeType == EntityChangeType.DestroyEquipment;
+                    if (changeType == EntityChangeType.EquipItem || removeEquipment)
                     {
                         StaticItemData sid = ItemEntity.StaticItemData[nextItem];
                         if (sid.EquipmentType != EquipmentType.Unknown)
                         {
-                            foreach (EquipmentSlot nextSlot in InventoryEquipment.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
+                            foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
                             {
                                 int iSlotIndex = (int)nextSlot;
-                                if (changeType == InventoryEquipmentChangeType.EquipItem)
+                                if (changeType == EntityChangeType.EquipItem)
                                 {
-                                    if (_inventoryEquipment.Equipment[iSlotIndex] == null)
+                                    if (_currentEntityInfo.Equipment[iSlotIndex] == null)
                                     {
-                                        changeEntry.EquipmentIndex = _inventoryEquipment.FindNewEquipmentInsertionPoint(nextSlot);
+                                        changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
                                         changeEntry.EquipmentAction = true;
-                                        _inventoryEquipment.Equipment[iSlotIndex] = sid.ItemType;
-                                        iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, false, changeEntry);
+                                        _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
+                                        iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, false, changeEntry, true);
                                         addChange = true;
                                         break;
                                     }
                                 }
                                 else //remove
                                 {
-                                    if (_inventoryEquipment.Equipment[iSlotIndex] == nextItem)
+                                    if (_currentEntityInfo.Equipment[iSlotIndex] == nextItem)
                                     {
-                                        changeEntry.EquipmentIndex = _inventoryEquipment.FindEquipmentRemovalPoint(nextSlot);
+                                        changeEntry.EquipmentIndex = _currentEntityInfo.FindEquipmentRemovalPoint(nextSlot);
                                         changeEntry.EquipmentAction = false;
-                                        _inventoryEquipment.Equipment[iSlotIndex] = null;
-                                        if (changeType == InventoryEquipmentChangeType.UnequipItem)
+                                        _currentEntityInfo.Equipment[iSlotIndex] = null;
+                                        if (changeType == EntityChangeType.UnequipItem)
                                         {
-                                            iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, true, changeEntry);
+                                            iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, true, changeEntry, true);
                                         }
                                         addChange = true;
                                         break;
@@ -2603,10 +2631,18 @@ namespace IsengardClient
                             flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
                         }
                     }
-                    else //inventory only change
+                    else //equipment not involved
                     {
-                        bool isAdd = changeType == InventoryEquipmentChangeType.AddItemToInventory;
-                        addChange = iec.AddOrRemoveInventoryItem(_inventoryEquipment, nextItem, isAdd, changeEntry);
+                        bool isAdd = changeType == EntityChangeType.PickUpItem;
+                        addChange = iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, isAdd, changeEntry, true);
+                        if (changeType == EntityChangeType.PickUpItem)
+                        {
+                            addChange |= iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, false, changeEntry, false);
+                        }
+                        else if (changeType == EntityChangeType.DropItem)
+                        {
+                            addChange |= iec.AddOrRemoveEntityItem(_currentEntityInfo, nextItem, true, changeEntry, false);
+                        }
                     }
                     if (addChange)
                     {
@@ -2615,7 +2651,7 @@ namespace IsengardClient
                 }
                 if (iec.Changes.Count > 0)
                 {
-                    _inventoryEquipment.InventoryEquipmentChanges.Add(iec);
+                    _currentEntityInfo.CurrentEntityChanges.Add(iec);
                 }
             }
         }
@@ -3326,7 +3362,7 @@ namespace IsengardClient
                         {
                             //choose first monster of the same type
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
-                            List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                            List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                             lock (_entityLock)
                             {
                                 int iIndexOfMonster = currentRoomMobs.IndexOf(eMobValue);
@@ -3347,7 +3383,7 @@ namespace IsengardClient
                 if (setMobToFirstAvailable)
                 {
                     string sText = null;
-                    List<MobTypeEnum> currentRoomMobs = _currentRoomInfo.CurrentRoomMobs;
+                    List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                     lock (_entityLock)
                     {
                         if (currentRoomMobs.Count > 0)
@@ -3361,9 +3397,9 @@ namespace IsengardClient
                     }
                 }
 
-                if (setMobToFirstAvailable && _currentRoomInfo.tnObviousMobs.Nodes.Count > 0)
+                if (setMobToFirstAvailable && _currentEntityInfo.tnObviousMobs.Nodes.Count > 0)
                 {
-                    treeCurrentRoom.SelectedNode = _currentRoomInfo.tnObviousMobs.Nodes[0];
+                    treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
@@ -3380,7 +3416,7 @@ namespace IsengardClient
         private string PickMobText(int mobIndex)
         {
             string ret = null;
-            List<MobTypeEnum> mobs = _currentRoomInfo.CurrentRoomMobs;
+            List<MobTypeEnum> mobs = _currentEntityInfo.CurrentRoomMobs;
             if (mobs.Count > mobIndex)
             {
                 MobTypeEnum eMobType = mobs[mobIndex];
@@ -3392,7 +3428,7 @@ namespace IsengardClient
                     int iCounter = 0;
                     for (int i = 0; i < mobIndex; i++)
                     {
-                        MobTypeEnum eMob = _currentRoomInfo.CurrentRoomMobs[i];
+                        MobTypeEnum eMob = _currentEntityInfo.CurrentRoomMobs[i];
                         bool matches = false;
                         if (eMob == eMobType)
                         {
@@ -3420,7 +3456,7 @@ namespace IsengardClient
                     bool isDuplicate = false;
 
                     int iInventoryCounter = 0;
-                    foreach (ItemTypeEnum nextItem in _inventoryEquipment.InventoryItems)
+                    foreach (ItemTypeEnum nextItem in _currentEntityInfo.InventoryItems)
                     {
                         sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
                         foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
@@ -3440,7 +3476,7 @@ namespace IsengardClient
                     if (!isDuplicate)
                     {
                         int iEquipmentCounter = 0;
-                        foreach (ItemTypeEnum? nextItem in _inventoryEquipment.Equipment)
+                        foreach (ItemTypeEnum? nextItem in _currentEntityInfo.Equipment)
                         {
                             if (nextItem.HasValue)
                             {
@@ -3581,7 +3617,7 @@ namespace IsengardClient
                                         backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying);
                                         if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                         {
-                                            if (_currentRoomInfo.CurrentObviousExits.Contains(exitText))
+                                            if (_currentEntityInfo.CurrentObviousExits.Contains(exitText))
                                             {
                                                 foundExit = true;
                                             }
@@ -3739,7 +3775,7 @@ namespace IsengardClient
                                 {
                                     lock (_entityLock)
                                     {
-                                        foreach (var nextMob in _currentRoomInfo.CurrentRoomMobs)
+                                        foreach (var nextMob in _currentEntityInfo.CurrentRoomMobs)
                                         {
                                             if (MobEntity.StaticMobData[nextMob].Aggressive)
                                             {
@@ -3994,7 +4030,7 @@ namespace IsengardClient
                                     (_monsterStunned || !potionsOnlyWhenStunned) &&
                                     (!dtNextPotionsCommand.HasValue || DateTime.UtcNow > dtNextPotionsCommand.Value))
                                 {
-                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _inventoryEquipment, _entityLock, _autohp, _totalhp);
+                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _currentEntityInfo, _entityLock, _autohp, _totalhp);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
                                     {
                                         nextPotionsStep = null;
@@ -4102,7 +4138,7 @@ namespace IsengardClient
                             }
 
                             //determine the flee exit if there is only one place to flee to
-                            Room r = _currentRoomInfo.CurrentRoom;
+                            Room r = _currentEntityInfo.CurrentRoom;
 
                             //run the preexit logic for all target exits, since it won't be known beforehand
                             //which exit will be used.
@@ -4219,7 +4255,7 @@ BeforeHazy:
             }
         }
 
-        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, InventoryEquipment inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
+        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
         {
             command = null;
             lock (entityLockObject)
@@ -4271,7 +4307,7 @@ BeforeHazy:
             return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
         }
 
-        private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, InventoryEquipment inventoryEquipment, bool canVigor, bool canMend)
+        private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, CurrentEntityInfo inventoryEquipment, bool canVigor, bool canMend)
         {
             int iIndex = 0;
             List<int> savedIndexes = new List<int>();
@@ -4506,13 +4542,13 @@ BeforeHazy:
                     int index;
                     if (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom)
                     {
-                        if (_currentRoomInfo.CurrentRoomMobs.Count == 0) return false;
+                        if (_currentEntityInfo.CurrentRoomMobs.Count == 0) return false;
                         index = 0;
                     }
                     else
                     {
                         if (!_monsterKilledType.HasValue) return false;
-                        index = _currentRoomInfo.CurrentRoomMobs.IndexOf(_monsterKilledType.Value);
+                        index = _currentEntityInfo.CurrentRoomMobs.IndexOf(_monsterKilledType.Value);
                         if (index < 0) return false;
                     }
                     string sMobText = PickMobText(index);
@@ -4536,9 +4572,9 @@ BeforeHazy:
                 string sWieldCommand = null;
                 lock (_entityLock)
                 {
-                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
+                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
                     {
-                        string sWeaponText = _inventoryEquipment.PickItemTextFromItemCounter(false, weaponItemValue, 1);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(false, weaponItemValue, 1);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "remove " + sWeaponText;
@@ -4562,9 +4598,9 @@ BeforeHazy:
                 string sWieldCommand = null;
                 lock (_entityLock)
                 {
-                    if (_inventoryEquipment.Equipment[(int)EquipmentSlot.Weapon1] == null && _inventoryEquipment.InventoryItems.Contains(weaponItemValue))
+                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryItems.Contains(weaponItemValue))
                     {
-                        string sWeaponText = _inventoryEquipment.PickItemTextFromItemCounter(true, weaponItemValue, 1);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(true, weaponItemValue, 1);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "wield " + sWeaponText;
@@ -4596,7 +4632,7 @@ BeforeHazy:
                 ret = true;
             else
             {
-                Room r = _currentRoomInfo.CurrentRoom;
+                Room r = _currentEntityInfo.CurrentRoom;
                 if (r != null && r.Intangible)
                     ret = true;
                 else
@@ -5539,7 +5575,7 @@ BeforeHazy:
                 direction = "down";
             Exit navigateExit = null;
             bool ambiguous = false;
-            Room currentRoom = _currentRoomInfo.CurrentRoom;
+            Room currentRoom = _currentEntityInfo.CurrentRoom;
             if (currentRoom != null)
             {
                 Func<Exit, bool> discriminator = (e) =>
@@ -5918,7 +5954,7 @@ BeforeHazy:
                 return false;
             }
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentRoomInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy))
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
@@ -6276,10 +6312,8 @@ BeforeHazy:
 
             lock (_entityLock)
             {
-                List<RoomChange> changes = null;
-                int iNewCounter = -1;
-                Room oCurrentRoom = _currentRoomInfo.CurrentRoom;
-                if (oCurrentRoom != _currentRoomInfo.CurrentRoomUI)
+                Room oCurrentRoom = _currentEntityInfo.CurrentRoom;
+                if (oCurrentRoom != _currentEntityInfo.CurrentRoomUI)
                 {
                     if (_setTickRoom)
                     {
@@ -6300,76 +6334,82 @@ BeforeHazy:
                         sCurrentRoom = "No Current Room";
                     }
                     grpCurrentRoom.Text = sCurrentRoom;
-                    _currentRoomInfo.CurrentRoomUI = oCurrentRoom;
+                    _currentEntityInfo.CurrentRoomUI = oCurrentRoom;
                     if (_currentBackgroundParameters == null)
                     {
                         btnGoToHealingRoom.Enabled = oCurrentRoom != null;
                         RefreshEnabledForSingleMoveButtons();
                     }
                 }
-                if (_currentRoomInfo.RoomChangeCounter != _currentRoomInfo.RoomChangeCounterUI)
+                if (_currentEntityInfo.CurrentEntityChanges.Count > 0)
                 {
-                    List<RoomChange> currentRoomChanges = _currentRoomInfo.CurrentRoomChanges;
-                    for (int i = 0; i < currentRoomChanges.Count; i++)
+                    List<EntityChange> changes = new List<EntityChange>(_currentEntityInfo.CurrentEntityChanges);
+                    _currentEntityInfo.CurrentEntityChanges.Clear();
+
+                    TreeNode tnObviousMobs = _currentEntityInfo.tnObviousMobs;
+                    TreeNode tnObviousItems = _currentEntityInfo.tnObviousItems;
+                    TreeNode tnObviousExits = _currentEntityInfo.tnObviousExits;
+                    TreeNode tnOtherExits = _currentEntityInfo.tnOtherExits;
+                    TreeNode tnPermanentMobs = _currentEntityInfo.tnPermanentMobs;
+                    foreach (EntityChange nextEntityChange in changes)
                     {
-                        RoomChange nextRoomChange = currentRoomChanges[i];
-                        int iCounter = nextRoomChange.GlobalCounter;
-                        if (iCounter > _currentRoomInfo.RoomChangeCounterUI)
+                        EntityChangeType rcType = nextEntityChange.ChangeType;
+                        if (rcType == EntityChangeType.RefreshRoom)
                         {
-                            if (changes == null) changes = new List<RoomChange>();
-                            changes.Add(nextRoomChange);
-                        }
-                    }
-                }
-                if (changes != null)
-                {
-                    TreeNode tnObviousMobs = _currentRoomInfo.tnObviousMobs;
-                    TreeNode tnObviousExits = _currentRoomInfo.tnObviousExits;
-                    TreeNode tnOtherExits = _currentRoomInfo.tnOtherExits;
-                    TreeNode tnPermanentMobs = _currentRoomInfo.tnPermanentMobs;
-                    foreach (RoomChange nextRoomChange in changes)
-                    {
-                        RoomChangeType rcType = nextRoomChange.ChangeType;
-                        if (rcType == RoomChangeType.NewRoom)
-                        {
-                            bool firstTimeThrough = _currentRoomInfo.RoomChangeCounterUI == -1;
+                            bool firstTimeThrough = !_currentEntityInfo.UIProcessed;
                             treeCurrentRoom.Nodes.Clear();
                             tnObviousMobs.Nodes.Clear();
+                            tnObviousItems.Nodes.Clear();
                             tnObviousExits.Nodes.Clear();
                             tnOtherExits.Nodes.Clear();
                             tnPermanentMobs.Nodes.Clear();
-                            foreach (MobTypeEnum nextMob in nextRoomChange.Mobs)
+                            foreach (var nextEntry in nextEntityChange.Changes)
                             {
-                                tnObviousMobs.Nodes.Add(GetMobsNode(nextMob));
+                                if (nextEntry.MobType.HasValue)
+                                {
+                                    tnObviousMobs.Nodes.Add(GetMobsNode(nextEntry.MobType.Value));
+                                }
+                                else if (nextEntry.ItemType.HasValue)
+                                {
+                                    tnObviousItems.Nodes.Add(GetItemsNode(nextEntry.ItemType.Value));
+                                }
                             }
                             if (tnObviousMobs.Nodes.Count > 0)
                             {
                                 treeCurrentRoom.Nodes.Add(tnObviousMobs);
-                                if (firstTimeThrough || _currentRoomInfo.ObviousMobsTNExpanded)
+                                if (firstTimeThrough || _currentEntityInfo.ObviousMobsTNExpanded)
                                 {
                                     tnObviousMobs.Expand();
                                 }
                             }
-                            foreach (string s in nextRoomChange.Exits)
+                            if (tnObviousItems.Nodes.Count > 0)
                             {
-                                tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, s));
+                                treeCurrentRoom.Nodes.Add(tnObviousItems);
+                                if (firstTimeThrough || _currentEntityInfo.ObviousItemsTNExpanded)
+                                {
+                                    tnObviousItems.Expand();
+                                }
+                            }
+                            foreach (string s in nextEntityChange.Exits)
+                            {
+                                tnObviousExits.Nodes.Add(GetObviousExitNode(nextEntityChange, s));
                             }
                             if (tnObviousExits.Nodes.Count > 0)
                             {
                                 treeCurrentRoom.Nodes.Add(tnObviousExits);
-                                if (firstTimeThrough || _currentRoomInfo.ObviousExitsTNExpanded)
+                                if (firstTimeThrough || _currentEntityInfo.ObviousExitsTNExpanded)
                                 {
                                     tnObviousExits.Expand();
                                 }
                             }
-                            foreach (Exit nextExit in nextRoomChange.OtherExits)
+                            foreach (Exit nextExit in nextEntityChange.OtherExits)
                             {
                                 tnOtherExits.Nodes.Add(GetOtherExitsNode(nextExit));
                             }
                             if (tnOtherExits.Nodes.Count > 0)
                             {
                                 treeCurrentRoom.Nodes.Add(tnOtherExits);
-                                if (firstTimeThrough || _currentRoomInfo.OtherExitsTNExpanded)
+                                if (firstTimeThrough || _currentEntityInfo.OtherExitsTNExpanded)
                                 {
                                     tnOtherExits.Expand();
                                 }
@@ -6383,22 +6423,23 @@ BeforeHazy:
                                 if (tnPermanentMobs.Nodes.Count > 0)
                                 {
                                     treeCurrentRoom.Nodes.Add(tnPermanentMobs);
-                                    if (firstTimeThrough || _currentRoomInfo.PermMobsTNExpanded)
+                                    if (firstTimeThrough || _currentEntityInfo.PermMobsTNExpanded)
                                     {
                                         tnPermanentMobs.Expand();
                                     }
                                 }
                             }
+                            _currentEntityInfo.UIProcessed = true;
                         }
-                        else if (rcType == RoomChangeType.AddExit)
+                        else if (rcType == EntityChangeType.AddExit)
                         {
-                            string exit = nextRoomChange.Exits[0];
+                            string exit = nextEntityChange.Exits[0];
                             bool hasNodes = tnObviousExits.Nodes.Count > 0;
-                            tnObviousExits.Nodes.Add(GetObviousExitNode(nextRoomChange, exit));
+                            tnObviousExits.Nodes.Add(GetObviousExitNode(nextEntityChange, exit));
                             TreeNode removeNode = null;
                             foreach (TreeNode tn in tnOtherExits.Nodes)
                             {
-                                if (tn.Tag == nextRoomChange.MappedExits[exit])
+                                if (tn.Tag == nextEntityChange.MappedExits[exit])
                                 {
                                     removeNode = tn;
                                     break;
@@ -6414,9 +6455,9 @@ BeforeHazy:
                                 treeCurrentRoom.Nodes.Remove(tnOtherExits);
                             }
                         }
-                        else if (rcType == RoomChangeType.RemoveExit)
+                        else if (rcType == EntityChangeType.RemoveExit)
                         {
-                            string exit = nextRoomChange.Exits[0];
+                            string exit = nextEntityChange.Exits[0];
                             TreeNode removeNode = null;
                             Exit foundExit = null;
                             foreach (TreeNode tn in tnObviousExits.Nodes)
@@ -6438,30 +6479,32 @@ BeforeHazy:
                                 tnOtherExits.Nodes.Add(GetOtherExitsNode(foundExit));
                             }
                         }
-                        else if (rcType == RoomChangeType.AddMob)
+                        else if (rcType == EntityChangeType.AddMob)
                         {
                             bool hasNodes = tnObviousMobs.Nodes.Count > 0;
                             bool isFirst = true;
                             MobTypeEnum? firstMob = null;
                             TreeNode firstInserted = null;
-                            int iAddIndex = nextRoomChange.Index;
-                            bool insertAtEnd = iAddIndex == -1;
-                            foreach (MobTypeEnum nextMobType in nextRoomChange.Mobs)
+                            foreach (var nextChange in nextEntityChange.Changes)
                             {
-                                TreeNode inserted = GetMobsNode(nextMobType);
-                                if (insertAtEnd)
+                                if (nextChange.MobType.HasValue)
                                 {
-                                    tnObviousMobs.Nodes.Add(inserted);
-                                }
-                                else
-                                {
-                                    tnObviousMobs.Nodes.Insert(iAddIndex, inserted);
-                                }
-                                if (isFirst)
-                                {
-                                    firstMob = nextMobType;
-                                    isFirst = false;
-                                    firstInserted = inserted;
+                                    MobTypeEnum nextMobType = nextChange.MobType.Value;
+                                    TreeNode inserted = GetMobsNode(nextMobType);
+                                    if (nextChange.RoomMobIndex == -1)
+                                    {
+                                        tnObviousMobs.Nodes.Add(inserted);
+                                    }
+                                    else
+                                    {
+                                        tnObviousMobs.Nodes.Insert(nextChange.RoomMobIndex, inserted);
+                                    }
+                                    if (isFirst)
+                                    {
+                                        firstMob = nextMobType;
+                                        isFirst = false;
+                                        firstInserted = inserted;
+                                    }
                                 }
                             }
                             if (!hasNodes)
@@ -6470,136 +6513,151 @@ BeforeHazy:
                                 if (bwp == null)
                                 {
                                     string sNewMobText = string.Empty;
-                                    lock (_entityLock)
+                                    if (_currentEntityInfo.CurrentRoomMobs.Count > 0)
                                     {
-                                        if (_currentRoomInfo.CurrentRoomMobs.Count > 0)
-                                        {
-                                            sNewMobText = PickMobText(0);
-                                        }
+                                        sNewMobText = PickMobText(0);
                                     }
                                     txtMob.Text = sNewMobText;
                                 }
                             }
                         }
-                        else if (rcType == RoomChangeType.RemoveMob)
+                        else if (rcType == EntityChangeType.RemoveMob)
                         {
-                            int iRemoveIndex = nextRoomChange.Index;
-                            for (int i = 0; i < nextRoomChange.Mobs.Count; i++)
+                            foreach (var nextChange in nextEntityChange.Changes)
                             {
-                                tnObviousMobs.Nodes.RemoveAt(iRemoveIndex);
+                                if (nextChange.MobType.HasValue)
+                                {
+                                    tnObviousMobs.Nodes.RemoveAt(nextChange.RoomMobIndex);
+                                }
                             }
                             if (tnObviousMobs.Nodes.Count == 0)
                             {
                                 treeCurrentRoom.Nodes.Remove(tnObviousMobs);
                             }
                         }
-                        
-                        iNewCounter = nextRoomChange.GlobalCounter;
-                    }
-                    _currentRoomInfo.RoomChangeCounterUI = iNewCounter;
-                }
-            }
+                        else if (rcType == EntityChangeType.DropItem)
+                        {
+                            bool hasNodes = tnObviousItems.Nodes.Count > 0;
+                            bool isFirst = true;
+                            ItemTypeEnum? firstItem = null;
+                            TreeNode firstInserted = null;
+                            foreach (var nextChange in nextEntityChange.Changes)
+                            {
+                                if (nextChange.ItemType.HasValue)
+                                {
+                                    ItemTypeEnum nextItemType = nextChange.ItemType.Value;
+                                    TreeNode inserted = GetItemsNode(nextItemType);
+                                    if (nextChange.RoomItemIndex == -1)
+                                    {
+                                        tnObviousItems.Nodes.Add(inserted);
+                                    }
+                                    else
+                                    {
+                                        tnObviousItems.Nodes.Insert(nextChange.RoomMobIndex, inserted);
+                                    }
+                                    if (isFirst)
+                                    {
+                                        firstItem = nextItemType;
+                                        isFirst = false;
+                                        firstInserted = inserted;
+                                    }
+                                }
+                            }
+                            if (!hasNodes)
+                            {
+                                InsertTopLevelTreeNode(tnObviousItems);
+                            }
+                        }
+                        else if (rcType == EntityChangeType.PickUpItem)
+                        {
+                            foreach (var nextChange in nextEntityChange.Changes)
+                            {
+                                if (nextChange.ItemType.HasValue)
+                                {
+                                    tnObviousItems.Nodes.RemoveAt(nextChange.RoomItemIndex);
+                                }
+                            }
+                            if (tnObviousItems.Nodes.Count == 0)
+                            {
+                                treeCurrentRoom.Nodes.Remove(tnObviousItems);
+                            }
+                        }
 
-            lock (_entityLock)
-            {
-                List<InventoryEquipmentChange> changes = null;
-                int iNewCounter = -1;
-                if (_inventoryEquipment.InventoryEquipmentCounter != _inventoryEquipment.InventoryEquipmentCounterUI)
-                {
-                    List<InventoryEquipmentChange> currentInvEqChanges = _inventoryEquipment.InventoryEquipmentChanges;
-                    for (int i = 0; i < currentInvEqChanges.Count; i++)
-                    {
-                        InventoryEquipmentChange nextInvEqChange = currentInvEqChanges[i];
-                        int iCounter = nextInvEqChange.GlobalCounter;
-                        if (iCounter > _inventoryEquipment.InventoryEquipmentCounterUI)
+                        if (rcType == EntityChangeType.RefreshInventory)
                         {
-                            if (changes == null) changes = new List<InventoryEquipmentChange>();
-                            changes.Add(nextInvEqChange);
+                            lstInventory.Items.Clear();
+                            foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                            {
+                                lstInventory.Items.Add(new ItemInInventoryList(nextEntry.ItemType.Value));
+                            }
                         }
-                    }
-                    if (changes != null)
-                    {
-                        foreach (InventoryEquipmentChange nextInvEqChange in changes)
+                        else if (rcType == EntityChangeType.RefreshEquipment)
                         {
-                            InventoryEquipmentChangeType iect = nextInvEqChange.ChangeType;
-                            if (iect == InventoryEquipmentChangeType.RefreshInventory)
+                            lstEquipment.Items.Clear();
+                            foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                             {
-                                lstInventory.Items.Clear();
-                                foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                {
-                                    lstInventory.Items.Add(new ItemInInventoryList(nextEntry.ItemType));
-                                }
+                                lstEquipment.Items.Add(new ItemInEquipmentList(nextEntry.ItemType.Value));
                             }
-                            else if (iect == InventoryEquipmentChangeType.RefreshEquipment)
-                            {
-                                lstEquipment.Items.Clear();
-                                foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                {
-                                    lstEquipment.Items.Add(new ItemInEquipmentList(nextEntry.ItemType));
-                                }
-                            }
-                            else //individual item changes
-                            {
-                                if (iect == InventoryEquipmentChangeType.RemoveItemFromInventory || iect == InventoryEquipmentChangeType.EquipItem)
-                                {
-                                    foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                    {
-                                        if (nextEntry.InventoryAction.HasValue && !nextEntry.InventoryAction.Value)
-                                        {
-                                            lstInventory.Items.RemoveAt(nextEntry.InventoryIndex);
-                                        }
-                                    }
-                                }
-                                if (iect == InventoryEquipmentChangeType.AddItemToInventory || iect == InventoryEquipmentChangeType.UnequipItem)
-                                {
-                                    foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                    {
-                                        if (nextEntry.InventoryAction.GetValueOrDefault(true))
-                                        {
-                                            ItemInInventoryList it = new ItemInInventoryList(nextEntry.ItemType);
-                                            if (nextEntry.InventoryIndex == -1)
-                                            {
-                                                lstInventory.Items.Add(it);
-                                            }
-                                            else
-                                            {
-                                                lstInventory.Items.Insert(nextEntry.InventoryIndex, it);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (iect == InventoryEquipmentChangeType.EquipItem)
-                                {
-                                    foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                    {
-                                        if (nextEntry.EquipmentAction.GetValueOrDefault(true))
-                                        {
-                                            ItemInEquipmentList it = new ItemInEquipmentList(nextEntry.ItemType);
-                                            if (nextEntry.EquipmentIndex == -1)
-                                            {
-                                                lstEquipment.Items.Add(it);
-                                            }
-                                            else
-                                            {
-                                                lstEquipment.Items.Insert(nextEntry.EquipmentIndex, it);
-                                            }
-                                        }
-                                    }
-                                }
-                                else if (iect == InventoryEquipmentChangeType.UnequipItem || iect == InventoryEquipmentChangeType.RemoveItemFromEquipment)
-                                {
-                                    foreach (InventoryEquipmentEntry nextEntry in nextInvEqChange.Changes)
-                                    {
-                                        if (nextEntry.EquipmentAction.HasValue && !nextEntry.EquipmentAction.Value)
-                                        {
-                                            lstEquipment.Items.RemoveAt(nextEntry.EquipmentIndex);
-                                        }
-                                    }
-                                }
-                            }
-                            iNewCounter = nextInvEqChange.GlobalCounter;
                         }
-                        _inventoryEquipment.InventoryEquipmentCounterUI = iNewCounter;
+                        else
+                        {
+                            if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.ConsumeItem || rcType == EntityChangeType.EquipItem)
+                            {
+                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                                {
+                                    if (nextEntry.InventoryAction.HasValue && !nextEntry.InventoryAction.Value)
+                                    {
+                                        lstInventory.Items.RemoveAt(nextEntry.InventoryIndex);
+                                    }
+                                }
+                            }
+                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem)
+                            {
+                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                                {
+                                    if (nextEntry.InventoryAction.GetValueOrDefault(true))
+                                    {
+                                        ItemInInventoryList it = new ItemInInventoryList(nextEntry.ItemType.Value);
+                                        if (nextEntry.InventoryIndex == -1)
+                                        {
+                                            lstInventory.Items.Add(it);
+                                        }
+                                        else
+                                        {
+                                            lstInventory.Items.Insert(nextEntry.InventoryIndex, it);
+                                        }
+                                    }
+                                }
+                            }
+                            if (rcType == EntityChangeType.EquipItem)
+                            {
+                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                                {
+                                    if (nextEntry.EquipmentAction.GetValueOrDefault(true))
+                                    {
+                                        ItemInEquipmentList it = new ItemInEquipmentList(nextEntry.ItemType.Value);
+                                        if (nextEntry.EquipmentIndex == -1)
+                                        {
+                                            lstEquipment.Items.Add(it);
+                                        }
+                                        else
+                                        {
+                                            lstEquipment.Items.Insert(nextEntry.EquipmentIndex, it);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.DestroyEquipment)
+                            {
+                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                                {
+                                    if (nextEntry.EquipmentAction.HasValue && !nextEntry.EquipmentAction.Value)
+                                    {
+                                        lstEquipment.Items.RemoveAt(nextEntry.EquipmentIndex);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -6639,12 +6697,12 @@ BeforeHazy:
         {
             if (!treeCurrentRoom.Nodes.Contains(topLevelTreeNode))
             {
-                int iIndex = _currentRoomInfo.GetTopLevelTreeNodeLogicalIndex(topLevelTreeNode);
+                int iIndex = _currentEntityInfo.GetTopLevelTreeNodeLogicalIndex(topLevelTreeNode);
                 bool found = false;
                 for (int i = 0; i < treeCurrentRoom.Nodes.Count; i++)
                 {
                     TreeNode next = treeCurrentRoom.Nodes[i];
-                    int nextIndex = _currentRoomInfo.GetTopLevelTreeNodeLogicalIndex(next);
+                    int nextIndex = _currentEntityInfo.GetTopLevelTreeNodeLogicalIndex(next);
                     if (iIndex < nextIndex)
                     {
                         treeCurrentRoom.Nodes.Insert(i, topLevelTreeNode);
@@ -6656,7 +6714,7 @@ BeforeHazy:
                 {
                     treeCurrentRoom.Nodes.Add(topLevelTreeNode);
                 }
-                if (_currentRoomInfo.GetTopLevelTreeNodeExpanded(topLevelTreeNode))
+                if (_currentEntityInfo.GetTopLevelTreeNodeExpanded(topLevelTreeNode))
                 {
                     topLevelTreeNode.Expand();
                 }
@@ -6678,7 +6736,14 @@ BeforeHazy:
             return ret;
         }
 
-        private TreeNode GetObviousExitNode(RoomChange nextRoomChange, string s)
+        private TreeNode GetItemsNode(ItemTypeEnum item)
+        {
+            TreeNode ret = new TreeNode(ItemEntity.StaticItemData[item].SingularName);
+            ret.Tag = item;
+            return ret;
+        }
+
+        private TreeNode GetObviousExitNode(EntityChange nextRoomChange, string s)
         {
             string sNodeText = s;
             Exit foundExit;
@@ -7029,7 +7094,7 @@ BeforeHazy:
 
         private void RefreshEnabledForSingleMoveButtons()
         {
-            Room r = _currentRoomInfo.CurrentRoom;
+            Room r = _currentEntityInfo.CurrentRoom;
             bool haveCurrentRoom = r != null;
 
             bool n, ne, nw, w, e, s, sw, se, u, d, o;
@@ -7151,7 +7216,7 @@ BeforeHazy:
 
         private void GoToRoom(Room targetRoom)
         {
-            Room currentRoom = _currentRoomInfo.CurrentRoom;
+            Room currentRoom = _currentEntityInfo.CurrentRoom;
             if (currentRoom != null)
             {
                 List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom);
@@ -7171,12 +7236,12 @@ BeforeHazy:
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
+            Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
             GraphInputs gi = GetGraphInputs();
             frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, gi);
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
-                Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
+                Room newCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (newCurrentRoom == originalCurrentRoom)
                 {
                     Room selectedRoom = frm.CurrentRoom;
@@ -7189,8 +7254,7 @@ BeforeHazy:
                     {
                         lock (_entityLock)
                         {
-                            _currentRoomInfo.CurrentRoom = selectedRoom;
-                            _currentRoomInfo.RoomChangeCounterUI = -1;
+                            _currentEntityInfo.CurrentRoom = selectedRoom;
                         }
                     }
                 }
@@ -7199,12 +7263,12 @@ BeforeHazy:
 
         private void btnLocations_Click(object sender, EventArgs e)
         {
-            Room originalCurrentRoom = _currentRoomInfo.CurrentRoom;
+            Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
             GraphInputs gi = GetGraphInputs();
             frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, false, gi);
             if (frm.ShowDialog() == DialogResult.OK)
             {
-                Room newCurrentRoom = _currentRoomInfo.CurrentRoom;
+                Room newCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (newCurrentRoom == originalCurrentRoom)
                 {
                     Room selectedRoom = frm.CurrentRoom;
@@ -7217,8 +7281,7 @@ BeforeHazy:
                     {
                         lock (_entityLock)
                         {
-                            _currentRoomInfo.CurrentRoom = selectedRoom;
-                            _currentRoomInfo.RoomChangeCounterUI = -1;
+                            _currentEntityInfo.CurrentRoom = selectedRoom;
                         }
                     }
                 }
@@ -7467,7 +7530,7 @@ BeforeHazy:
         {
             if (!_programmaticUI)
             {
-                _currentRoomInfo.SetExpandFlag(e.Node, true);
+                _currentEntityInfo.SetExpandFlag(e.Node, true);
             }
         }
 
@@ -7475,7 +7538,7 @@ BeforeHazy:
         {
             if (!_programmaticUI)
             {
-                _currentRoomInfo.SetExpandFlag(e.Node, false);
+                _currentEntityInfo.SetExpandFlag(e.Node, false);
             }
         }
 
@@ -7483,8 +7546,8 @@ BeforeHazy:
         {
             TreeNode selectedNode = e.Node;
             TreeNode parentNode = selectedNode.Parent;
-            bool isObviousMobs = parentNode == _currentRoomInfo.tnObviousMobs;
-            bool isPermanentMobs = parentNode == _currentRoomInfo.tnPermanentMobs;
+            bool isObviousMobs = parentNode == _currentEntityInfo.tnObviousMobs;
+            bool isPermanentMobs = parentNode == _currentEntityInfo.tnPermanentMobs;
             if (isObviousMobs || isPermanentMobs)
             {
                 MobTypeEnum selectedMob = (MobTypeEnum)selectedNode.Tag;
@@ -7509,7 +7572,7 @@ BeforeHazy:
                     //find the equivalently numbered mob in the current room list
                     int iCurrentMobIndex = -1;
                     int iIteratorMobIndex = 0;
-                    foreach (MobTypeEnum nextMobType in _currentRoomInfo.CurrentRoomMobs)
+                    foreach (MobTypeEnum nextMobType in _currentEntityInfo.CurrentRoomMobs)
                     {
                         if (nextMobType == selectedMob)
                         {
@@ -7569,11 +7632,11 @@ BeforeHazy:
             bool isObviousExit = false;
             bool isOtherExit = false;
             TreeNode parent = node?.Parent;
-            if (parent == _currentRoomInfo.tnObviousExits)
+            if (parent == _currentEntityInfo.tnObviousExits)
             {
                 isObviousExit = true;
             }
-            else if (parent == _currentRoomInfo.tnOtherExits)
+            else if (parent == _currentEntityInfo.tnOtherExits)
             {
                 isOtherExit = true;
             }
@@ -7732,7 +7795,7 @@ BeforeHazy:
             {
                 lock (_entityLock)
                 {
-                    string sText = _inventoryEquipment.PickItemTextFromItemCounter(sioei.IsInventory, eItemType, sioei.Counter);
+                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(sioei.IsInventory, eItemType, sioei.Counter);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);

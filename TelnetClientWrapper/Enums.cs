@@ -505,34 +505,33 @@ namespace IsengardClient
         HarbringerTharbad,
     }
 
-    internal enum RoomChangeType
+    internal enum EntityChangeType
     {
-        NewRoom,
+        RefreshRoom,
+        RefreshInventory,
+        RefreshEquipment,
+        RefreshRoomItems,
         AddExit,
         RemoveExit,
         AddMob,
         RemoveMob,
-    }
-
-    public enum InventoryEquipmentChangeType
-    {
-        RefreshInventory,
-        RefreshEquipment,
-        AddItemToInventory,
-        RemoveItemFromInventory,
+        PickUpItem,
+        DropItem,
+        ConsumeItem,
         EquipItem,
         UnequipItem,
-        RemoveItemFromEquipment,
+        DestroyEquipment,
     }
 
-    public enum InventoryEquipmentAction
+    public enum ItemManagementAction
     {
         None,
-        NewInventory,
+        PickUpItem,
+        DropItem,
+        ConsumeItem,
         Equip,
         Unequip,
-        RemoveInventory,
-        RemoveEquipment,
+        DestroyEquipment,
     }
 
     public enum EquipmentType
