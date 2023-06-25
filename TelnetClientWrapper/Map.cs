@@ -2787,6 +2787,13 @@ namespace IsengardClient
             AddExit(oLichsLair, oHallOfTheDead, "walkway");
             breeToImladrisGraph.Rooms[oLichsLair] = new System.Windows.Point(6, -1.5);
 
+            Room oBottomOfAbyss = AddRoom("Bottom of Abyss", "Bottom of Abyss");
+            e = AddExit(oHallOfTheDead, oBottomOfAbyss, "hidden");
+            e.Hidden = true;
+            e.FloatRequirement = FloatRequirement.NoLevitation;
+            e.IsTrapExit = true;
+            breeToImladrisGraph.Rooms[oBottomOfAbyss] = new System.Windows.Point(7, -1.5);
+
             Room oUnderhallsCorridorsStoneDoor = AddRoom("To Stone Door", "Underhalls Corridors");
             AddBidirectionalExits(oUnderhallsCorridorsStoneDoor, oUnderhallsCorridorsToStoneDoor2, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderhallsCorridorsStoneDoor] = new System.Windows.Point(3, -2);
