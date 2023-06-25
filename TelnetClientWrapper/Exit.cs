@@ -21,10 +21,6 @@ namespace IsengardClient
         /// </summary>
         public bool Hidden { get; set; }
         /// <summary>
-        /// whether flee is permitted
-        /// </summary>
-        public bool NoFlee { get; set; }
-        /// <summary>
         /// set to indicate exits that are not always present
         /// </summary>
         public ExitPresenceType PresenceType { get; set; }

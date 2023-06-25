@@ -192,7 +192,7 @@ namespace IsengardClient.Tests
             flp.Lines = new List<string>() { "The green slime destroys your silver scimitar." };
             seq.FeedLine(flp);
             Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentDestroyed);
-            Assert.IsTrue(flp.InfoMessages[0].Item == ItemTypeEnum.SilverScimitar);
+            Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.SilverScimitar);
         }
 
         [TestMethod]

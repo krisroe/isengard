@@ -31,7 +31,7 @@ namespace IsengardClient
             else
             {
                 cboRoom.Items.Add(currentRoom);
-                foreach (Exit nextEdge in IsengardMap.GetAllRoomExits(currentRoom))
+                foreach (Exit nextEdge in currentRoom.Exits)
                 {
                     Room targetRoom = nextEdge.Target;
                     if (currentRoom != targetRoom)

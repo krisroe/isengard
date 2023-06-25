@@ -84,14 +84,6 @@ namespace IsengardClient
             }
         }
 
-        public static IEnumerable<Exit> GetAllRoomExits(Room room)
-        {
-            foreach (Exit nextExit in room.Exits)
-            {
-                yield return nextExit;
-            }
-        }
-
         public static IEnumerable<Exit> GetRoomExits(Room room, Func<Exit, bool> exitDiscriminator)
         {
             foreach (Exit nextExit in room.Exits)
@@ -1364,6 +1356,7 @@ namespace IsengardClient
             _breeStreetsGraph.Rooms[oScranlinsPettingZoo] = new System.Windows.Point(2, -1.25);
 
             Room oScranlinsTrainingArea = AddRoom("Training Area", "Scranlin's Training Area");
+            oScranlinsTrainingArea.NoFlee = true;
             e = AddExit(oScranlinsPettingZoo, oScranlinsTrainingArea, "clearing");
             e.Hidden = true;
             AddExit(oScranlinsTrainingArea, oScranlinsPettingZoo, "gate");
@@ -2580,9 +2573,9 @@ namespace IsengardClient
 
             Room oFarmCat = AddRoom("Farm Cat", "The Woodshed");
             oFarmCat.AddPermanentMobs(MobTypeEnum.FarmCat);
+            oFarmCat.NoFlee = true;
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
             e = AddExit(oFarmCat, oFarmBackPorch, "out");
-            e.NoFlee = true;
             breeToImladrisGraph.Rooms[oFarmCat] = new System.Windows.Point(1, 7.5);
 
             Room oCrabbe = AddRoom("Crabbe", "Detention Room");

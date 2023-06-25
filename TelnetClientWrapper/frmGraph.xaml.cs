@@ -69,7 +69,7 @@ namespace IsengardClient
             foreach (KeyValuePair<Room, Point> next in rg.Rooms)
             {
                 Room nextRoom = next.Key;
-                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(nextRoom))
+                foreach (Exit nextExit in nextRoom.Exits)
                 {
                     Room targetRoom = nextExit.Target;
                     if (rg.Rooms.ContainsKey(targetRoom))

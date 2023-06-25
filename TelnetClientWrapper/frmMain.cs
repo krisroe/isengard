@@ -1576,7 +1576,7 @@ namespace IsengardClient
                 {
                     rc.MappedExits = new Dictionary<string, Exit>();
                     Dictionary<string, List<Exit>> periodicExits = new Dictionary<string, List<Exit>>();
-                    foreach (Exit nextExit in IsengardMap.GetAllRoomExits(newRoom))
+                    foreach (Exit nextExit in newRoom.Exits)
                     {
                         string nextExitText = nextExit.ExitText;
                         if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
@@ -3813,7 +3813,6 @@ namespace IsengardClient
                                     return;
                                 }
                             }
-                            
                             if (needHeal || needCurepoison)
                             {
                                 bool doHealingLogic = !targetIsDamageRoom;
@@ -4188,29 +4187,58 @@ namespace IsengardClient
 
                             //run the preexit logic for all target exits, since it won't be known beforehand
                             //which exit will be used.
-                            List<Exit> availableExits = new List<Exit>();
-                            foreach (Exit nextExit in IsengardMap.GetRoomExits(r, FleeExitDiscriminator))
+                            bool canFlee = true;
+                            List<Exit> exits = new List<Exit>(r.Exits);
+                            if (r != null)
                             {
-                                string sExitWord = GetExitWord(nextExit, out _);
-                                if (PreOpenDoorExit(nextExit, sExitWord, pms))
+                                foreach (Exit nextExit in exits)
                                 {
-                                    availableExits.Add(nextExit);
+                                    PreOpenDoorExit(nextExit, GetExitWord(nextExit, out _), pms);
                                 }
+                                canFlee = !r.NoFlee;
                             }
-                            Exit singleFleeableExit = null;
-                            if (availableExits.Count == 1) singleFleeableExit = availableExits[0];
 
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying);
-                            if (backgroundCommandSuccess)
+                            if (canFlee)
                             {
-                                pms.Fled = true;
-                            }
-                            else
-                            {
-                                if (!_hazying)
+                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying);
+                                if (backgroundCommandSuccess)
                                 {
-                                    return;
+                                    pms.Fled = true;
                                 }
+                            }
+
+                            //as a fallback try to simply walk out of the room via each exit
+                            if (!pms.Fled)
+                            {
+                                exits.Sort((e1, e2) => 
+                                {
+                                    return e1.Hidden.CompareTo(e2.Hidden); //process non-hidden exits before hidden exits
+                                });
+                                foreach (Exit nextExit in exits)
+                                {
+                                    string sExitWord = GetExitWord(nextExit, out bool useGo);
+                                    string nextCommand;
+                                    if (useGo)
+                                    {
+                                        nextCommand = "go " + sExitWord;
+                                    }
+                                    else
+                                    {
+                                        nextCommand = sExitWord;
+                                    }
+                                    if (RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfHazying))
+                                    {
+                                        _fleeing = false; //won't get a flee room transition in this case so clear the fleeing flag directly
+                                        pms.Fled = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            //if failed to flee, we are done
+                            if (!pms.Fled && !_hazying)
+                            {
+                                return;
                             }
                         }
 
@@ -4662,7 +4690,7 @@ BeforeHazy:
 
         private bool FleeExitDiscriminator(Exit exit)
         {
-            return !exit.Hidden && !exit.NoFlee;
+            return !exit.Hidden && (exit.Source == null || !exit.Source.NoFlee);
         }
 
         private bool BreakOutOfBackgroundCombat(AfterKillMonsterAction afterKillMonsterAction)
@@ -7144,7 +7172,7 @@ BeforeHazy:
             n = ne = nw = w = e = s = sw = se = u = d = o = false;
             if (haveCurrentRoom)
             {
-                foreach (Exit nextExit in IsengardMap.GetAllRoomExits(r))
+                foreach (Exit nextExit in r.Exits)
                 {
                     switch (nextExit.ExitText.ToLower())
                     {

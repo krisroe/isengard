@@ -34,6 +34,10 @@ namespace IsengardClient
         /// is a room that has a trap when the player enters it
         /// </summary>
         public bool IsTrapRoom { get; set; }
+        /// <summary>
+        /// whether flee is permitted
+        /// </summary>
+        public bool NoFlee { get; set; }
         public bool Intangible { get; set; }
 
         public BoatEmbarkOrDisembark? BoatLocationType { get; set; }
