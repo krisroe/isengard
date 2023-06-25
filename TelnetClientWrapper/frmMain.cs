@@ -4236,9 +4236,13 @@ namespace IsengardClient
                             }
 
                             //if failed to flee, we are done
-                            if (!pms.Fled && !_hazying)
+                            if (!pms.Fled)
                             {
-                                return;
+                                AddConsoleMessage("Flee attempt failed.");
+                                if (!_hazying)
+                                {
+                                    return;
+                                }
                             }
                         }
 
