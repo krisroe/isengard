@@ -21,6 +21,8 @@ namespace IsengardClient
         public AutoEscapeType AutoEscapeType { get; set; }
         public bool AutoEscapeActive { get; set; }
         public bool RemoveAllOnStartup { get; set; }
+        public List<DynamicItemData> DynamicItemDataList { get; set; }
+        public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         private IsengardSettingData()
         {
             Weapon = null;
@@ -36,6 +38,30 @@ namespace IsengardClient
             AutoEscapeThreshold = 0;
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
+            DynamicItemDataList = new List<DynamicItemData>();
+            DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
+        }
+        public IsengardSettingData(IsengardSettingData copied)
+        {
+            Weapon = copied.Weapon;
+            Realm = copied.Realm;
+            PreferredAlignment = copied.PreferredAlignment;
+            VerboseMode = copied.VerboseMode;
+            QueryMonsterStatus = copied.QueryMonsterStatus;
+            FullColor = copied.FullColor;
+            EmptyColor = copied.EmptyColor;
+            AutoSpellLevelMin = copied.AutoSpellLevelMin;
+            AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            AutoEscapeThreshold = copied.AutoEscapeThreshold;
+            AutoEscapeType = copied.AutoEscapeType;
+            AutoEscapeActive = copied.AutoEscapeActive;
+            RemoveAllOnStartup = copied.RemoveAllOnStartup;
+            DynamicItemDataList = new List<DynamicItemData>(copied.DynamicItemDataList);
+            DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
+            foreach (var next in DynamicItemDataList)
+            {
+                DynamicItemData[next.ItemType] = next;
+            }
         }
         public IsengardSettingData(SQLiteCommand cmd, int UserID, List<string> errorMessages) : this()
         {
@@ -50,6 +76,26 @@ namespace IsengardClient
                 }
             }
             ValidateSettings();
+
+            cmd.CommandText = "SELECT ItemName, Action FROM DynamicItemData WHERE UserID = @UserID";
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    string itemName = reader["ItemName"].ToString();
+                    if (!Enum.TryParse(itemName, out ItemTypeEnum itemType))
+                    {
+                        errorMessages.Add("Invalid item for dynamic data: " + itemName);
+                        continue;
+                    }
+                    ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
+                    DynamicItemData[itemType] = new DynamicItemData()
+                    {
+                        Action = action
+                    };
+                    HandleSetting(reader["SettingName"].ToString(), reader["SettingValue"].ToString(), errorMessages);
+                }
+            }
         }
 
         public IsengardSettingData(string FileName, List<string> errorMessages) : this()

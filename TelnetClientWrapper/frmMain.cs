@@ -164,6 +164,7 @@ namespace IsengardClient
         private bool _monsterStunned;
         private bool _monsterKilled;
         private MobTypeEnum? _monsterKilledType;
+        private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
 
         private int _earthProficiency;
         private int _windProficiency;
@@ -1157,6 +1158,8 @@ namespace IsengardClient
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, ItemName TEXT NOT NULL, Action INTEGER NOT NULL, PRIMARY KEY (UserID, ItemName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                    cmd.ExecuteNonQuery();
                 }
                 cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
                 cmd.Parameters.AddWithValue("@UserName", _username);
@@ -1215,73 +1218,123 @@ namespace IsengardClient
 
         private void SaveSettings()
         {
-            Dictionary<string, string> existingSettings = new Dictionary<string, string>();
-            Dictionary<string, string> newSettings = new Dictionary<string, string>();
-            newSettings["Weapon"] = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
-            newSettings["Realm"] = _settingsData.Realm.ToString();
-            newSettings["PreferredAlignment"] = _settingsData.PreferredAlignment.ToString();
-            newSettings["VerboseMode"] = _settingsData.VerboseMode.ToString();
-            newSettings["QueryMonsterStatus"] = _settingsData.QueryMonsterStatus.ToString();
-            newSettings["RemoveAllOnStartup"] = _settingsData.RemoveAllOnStartup.ToString();
-            newSettings["FullColor"] = _settingsData.FullColor.ToArgb().ToString();
-            newSettings["EmptyColor"] = _settingsData.EmptyColor.ToArgb().ToString();
-            newSettings["AutoSpellLevelMin"] = _settingsData.AutoSpellLevelMin.ToString();
-            newSettings["AutoSpellLevelMax"] = _settingsData.AutoSpellLevelMax.ToString();
-            newSettings["AutoEscapeThreshold"] = _settingsData.AutoEscapeThreshold.ToString();
-            newSettings["AutoEscapeType"] = _settingsData.AutoEscapeType.ToString();
-            newSettings["AutoEscapeActive"] = _settingsData.AutoEscapeActive.ToString();
-            using (SQLiteConnection conn = GetSqliteConnection())
-            using (SQLiteCommand cmd = conn.CreateCommand())
+            if (_settingsData != null)
             {
-                conn.Open();
-                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
-                cmd.Parameters.AddWithValue("@UserID", _userid);
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                List<string> errorMessages = new List<string>();
+                try
                 {
-                    while (reader.Read())
+                    Dictionary<string, string> existingSettings = new Dictionary<string, string>();
+                    Dictionary<string, string> newSettings = new Dictionary<string, string>();
+                    newSettings["Weapon"] = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
+                    newSettings["Realm"] = _settingsData.Realm.ToString();
+                    newSettings["PreferredAlignment"] = _settingsData.PreferredAlignment.ToString();
+                    newSettings["VerboseMode"] = _settingsData.VerboseMode.ToString();
+                    newSettings["QueryMonsterStatus"] = _settingsData.QueryMonsterStatus.ToString();
+                    newSettings["RemoveAllOnStartup"] = _settingsData.RemoveAllOnStartup.ToString();
+                    newSettings["FullColor"] = _settingsData.FullColor.ToArgb().ToString();
+                    newSettings["EmptyColor"] = _settingsData.EmptyColor.ToArgb().ToString();
+                    newSettings["AutoSpellLevelMin"] = _settingsData.AutoSpellLevelMin.ToString();
+                    newSettings["AutoSpellLevelMax"] = _settingsData.AutoSpellLevelMax.ToString();
+                    newSettings["AutoEscapeThreshold"] = _settingsData.AutoEscapeThreshold.ToString();
+                    newSettings["AutoEscapeType"] = _settingsData.AutoEscapeType.ToString();
+                    newSettings["AutoEscapeActive"] = _settingsData.AutoEscapeActive.ToString();
+                    using (SQLiteConnection conn = GetSqliteConnection())
+                    using (SQLiteCommand cmd = conn.CreateCommand())
                     {
-                        existingSettings[reader["SettingName"].ToString()] = reader["SettingValue"].ToString();
-                    }
-                }
-                List<string> keysToRemove = new List<string>();
-                foreach (var next in newSettings)
-                {
-                    string sKey = next.Key;
-                    if (existingSettings.TryGetValue(sKey, out string sValue))
-                    {
-                        if (sValue == next.Value)
+                        conn.Open();
+                        cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
+                        cmd.Parameters.AddWithValue("@UserID", _userid);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
-                            keysToRemove.Add(sKey);
+                            while (reader.Read())
+                            {
+                                existingSettings[reader["SettingName"].ToString()] = reader["SettingValue"].ToString();
+                            }
+                        }
+                        List<string> keysToRemove = new List<string>();
+                        foreach (var next in newSettings)
+                        {
+                            string sKey = next.Key;
+                            if (existingSettings.TryGetValue(sKey, out string sValue))
+                            {
+                                if (sValue == next.Value)
+                                {
+                                    keysToRemove.Add(sKey);
+                                }
+                            }
+                        }
+                        foreach (string nextKey in keysToRemove)
+                        {
+                            newSettings.Remove(nextKey);
+                            existingSettings.Remove(nextKey);
+                        }
+                        cmd.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND SettingName = @SettingName";
+                        SQLiteParameter settingName = cmd.Parameters.Add("@SettingName", DbType.String);
+                        foreach (var next in existingSettings)
+                        {
+                            string sKey = next.Key;
+                            if (!newSettings.ContainsKey(sKey))
+                            {
+                                settingName.Value = sKey;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        SQLiteParameter settingValue = cmd.Parameters.Add("@SettingValue", DbType.String);
+                        foreach (var next in newSettings)
+                        {
+                            string sKey = next.Key;
+                            settingName.Value = sKey;
+                            settingValue.Value = next.Value;
+                            if (existingSettings.ContainsKey(sKey))
+                                cmd.CommandText = "UPDATE Settings SET SettingValue = @SettingValue WHERE SettingName = @SettingName AND UserID = @UserID";
+                            else
+                                cmd.CommandText = "INSERT INTO Settings (UserID, SettingName, SettingValue) VALUES (@UserID, @SettingName, @SettingValue)";
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        HashSet<string> existingItems = new HashSet<string>();
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@UserID", _userid);
+                        cmd.CommandText = "SELECT ItemName FROM DynamicItemData WHERE UserID = @UserID";
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                existingItems.Add(reader["ItemName"].ToString());
+                            }
+                        }
+                        SQLiteParameter itemNameParameter = cmd.Parameters.Add("@ItemName", DbType.String);
+                        foreach (DynamicItemData did in _settingsData.DynamicItemDataList)
+                        {
+                            string sItemName = did.ItemType.ToString();
+                            itemNameParameter.Value = sItemName;
+                            string sql;
+                            if (existingItems.Contains(sItemName))
+                            {
+                                sql = $"UPDATE DynamicItemData SET Action = {Convert.ToInt32(did.Action)} WHERE UserID = @UserID AND ItemName = @ItemName";
+                            }
+                            else
+                            {
+                                sql = $"INSERT INTO DynamicItemData (UserID, ItemName, Action) VALUES (@UserID, @ItemName, {Convert.ToInt32(did.Action)})";
+                            }
+                            cmd.CommandText = sql;
+                            cmd.ExecuteNonQuery();
+                            existingItems.Remove(sItemName);
+                        }
+                        foreach (string nextItemName in existingItems)
+                        {
+                            itemNameParameter.Value = nextItemName;
+                            cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND ItemName = @ItemName";
+                            cmd.ExecuteNonQuery();
                         }
                     }
                 }
-                foreach (string nextKey in keysToRemove)
+                finally
                 {
-                    newSettings.Remove(nextKey);
-                    existingSettings.Remove(nextKey);
-                }
-                cmd.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND SettingName = @SettingName";
-                SQLiteParameter settingName = cmd.Parameters.Add("@SettingName", DbType.String);
-                foreach (var next in existingSettings)
-                {
-                    string sKey = next.Key;
-                    if (!newSettings.ContainsKey(sKey))
+                    if (errorMessages.Count > 0)
                     {
-                        settingName.Value = sKey;
-                        cmd.ExecuteNonQuery();
+                        MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()));
                     }
-                }
-                SQLiteParameter settingValue = cmd.Parameters.Add("@SettingValue", DbType.String);
-                foreach (var next in newSettings)
-                {
-                    string sKey = next.Key;
-                    settingName.Value = sKey;
-                    settingValue.Value = next.Value;
-                    if (existingSettings.ContainsKey(sKey))
-                        cmd.CommandText = "UPDATE Settings SET SettingValue = @SettingValue WHERE SettingName = @SettingName AND UserID = @UserID";
-                    else
-                        cmd.CommandText = "INSERT INTO Settings (UserID, SettingName, SettingValue) VALUES (@UserID, @SettingName, @SettingValue)";
-                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -1857,6 +1910,15 @@ namespace IsengardClient
             }
         }
 
+        private static void OnCannotPickUpItem(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.GetItem)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
         private void OnEntityAttacksYou(FeedLineParameters flParams)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
@@ -1914,22 +1976,27 @@ namespace IsengardClient
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            lock (_entityLock)
             {
-                if (!fumbled && killedMonster)
+                bool hasMonsterItems = monsterItems.Count > 0;
+                if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
                 {
-                    _monsterKilled = true;
-                    _monsterKilledType = eMobType;
+                    if (!fumbled && killedMonster)
+                    {
+                        _monsterKilled = true;
+                        _monsterKilledType = eMobType;
+                    }
+                    _monsterDamage += damage;
+                    _monsterKilledItems.AddRange(monsterItems);
                 }
-                _monsterDamage += damage;
-            }
-            if (eMobType.HasValue)
-            {
-                RemoveMobs(eMobType.Value, 1);
-            }
-            if (monsterItems.Count > 0)
-            {
-                AddRoomItems(monsterItems);
+                if (eMobType.HasValue)
+                {
+                    RemoveMobs(eMobType.Value, 1);
+                }
+                if (hasMonsterItems)
+                {
+                    AddRoomItems(monsterItems);
+                }
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
@@ -1942,22 +2009,30 @@ namespace IsengardClient
         private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
             _tnl = Math.Max(0, _tnl - experience);
-            if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            bool hasMonsterItems = monsterItems.Count > 0;
+            lock (_entityLock)
             {
-                _monsterDamage += damage;
-                if (killedMonster)
+                if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
                 {
-                    _monsterKilled = true;
-                    _monsterKilledType = mobType;
+                    _monsterDamage += damage;
+                    if (killedMonster)
+                    {
+                        _monsterKilled = true;
+                        _monsterKilledType = mobType;
+                    }
+                    if (hasMonsterItems)
+                    {
+                        _monsterKilledItems.AddRange(monsterItems);
+                    }
                 }
-            }
-            if (mobType.HasValue)
-            {
-                RemoveMobs(mobType.Value, 1);
-            }
-            if (monsterItems.Count > 0)
-            {
-                AddRoomItems(monsterItems);
+                if (mobType.HasValue)
+                {
+                    RemoveMobs(mobType.Value, 1);
+                }
+                if (hasMonsterItems)
+                {
+                    AddRoomItems(monsterItems);
+                }
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.OffensiveSpell)
@@ -2288,7 +2363,10 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
-                        RemoveMobs(next.Mob, next.MobCount);
+                        lock (_entityLock)
+                        {
+                            RemoveMobs(next.Mob, next.MobCount);
+                        }
                         break;
                     case InformationalMessageType.EquipmentDestroyed:
                         AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.DestroyEquipment);
@@ -2367,69 +2445,73 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// adds items to the room. assumes the entity lock
+        /// </summary>
+        /// <param name="items">items to add</param>
         private void AddRoomItems(List<ItemEntity> items)
         {
             EntityChange rc = new EntityChange();
             rc.ChangeType = EntityChangeType.CreateRoomItems;
-            lock (_entityLock)
+            foreach (ItemEntity nextItem in items)
             {
-                foreach (ItemEntity nextItem in items)
+                if (!(nextItem is UnknownItemEntity))
                 {
-                    if (!(nextItem is UnknownItemEntity))
-                    {
-                        EntityChangeEntry entry = new EntityChangeEntry();
-                        entry.Item = nextItem;
-                        entry.RoomItemAction = true;
-                        entry.RoomItemIndex = _currentEntityInfo.FindNewRoomItemInsertionPoint(nextItem);
-                        rc.Changes.Add(entry);
-                    }
+                    EntityChangeEntry entry = new EntityChangeEntry();
+                    entry.Item = nextItem;
+                    entry.RoomItemAction = true;
+                    entry.RoomItemIndex = _currentEntityInfo.FindNewRoomItemInsertionPoint(nextItem);
+                    rc.Changes.Add(entry);
+                    _currentEntityInfo.CurrentRoomItems.Add(nextItem);
                 }
-                if (rc.Changes.Count > 0)
-                {
-                    _currentEntityInfo.CurrentEntityChanges.Add(rc);
-                }
+            }
+            if (rc.Changes.Count > 0)
+            {
+                _currentEntityInfo.CurrentEntityChanges.Add(rc);
             }
         }
 
+        /// <summary>
+        /// removes mobs from the room. assumes the entity lock.
+        /// </summary>
+        /// <param name="mobType">mob type</param>
+        /// <param name="Count">number of mobs</param>
         private void RemoveMobs(MobTypeEnum mobType, int Count)
         {
             EntityChange rc = new EntityChange();
             rc.ChangeType = EntityChangeType.RemoveMob;
             List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
-            lock (_entityLock)
+            int index = currentRoomMobs.LastIndexOf(mobType);
+            if (index >= 0)
             {
-                int index = currentRoomMobs.LastIndexOf(mobType);
-                if (index >= 0)
+                int iLastIndexCount = Count - 1;
+                for (int i = 0; i < Count; i++)
                 {
-                    int iLastIndexCount = Count - 1;
-                    for (int i = 0; i < Count; i++)
+                    if (currentRoomMobs[index] == mobType)
                     {
-                        if (currentRoomMobs[index] == mobType)
-                        {
-                            currentRoomMobs.RemoveAt(index);
-                            EntityChangeEntry changeEntry = new EntityChangeEntry();
-                            changeEntry.MobType = mobType;
-                            changeEntry.RoomMobIndex = index;
-                            changeEntry.RoomMobAction = false;
-                            rc.Changes.Add(changeEntry);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                        if (index == 0)
-                        {
-                            break;
-                        }
-                        else if (i != iLastIndexCount)
-                        {
-                            index--;
-                        }
+                        currentRoomMobs.RemoveAt(index);
+                        EntityChangeEntry changeEntry = new EntityChangeEntry();
+                        changeEntry.MobType = mobType;
+                        changeEntry.RoomMobIndex = index;
+                        changeEntry.RoomMobAction = false;
+                        rc.Changes.Add(changeEntry);
                     }
-                    if (rc.Changes.Count > 0)
+                    else
                     {
-                        _currentEntityInfo.CurrentEntityChanges.Add(rc);
+                        break;
                     }
+                    if (index == 0)
+                    {
+                        break;
+                    }
+                    else if (i != iLastIndexCount)
+                    {
+                        index--;
+                    }
+                }
+                if (rc.Changes.Count > 0)
+                {
+                    _currentEntityInfo.CurrentEntityChanges.Add(rc);
                 }
             }
         }
@@ -2529,6 +2611,15 @@ namespace IsengardClient
             if (potionConsumed && flParams.BackgroundCommandType.HasValue && flParams.BackgroundCommandType.Value == BackgroundCommandType.DrinkNonHazyPotion)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue)
+            {
+                BackgroundCommandType bctValue = bct.Value;
+                if (action == ItemManagementAction.PickUpItem && bctValue == BackgroundCommandType.GetItem)
+                {
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
+                }
             }
             if (forInit && couldBeRemoveAll)
             {
@@ -2887,6 +2978,10 @@ namespace IsengardClient
                 new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
+                new ConstantOutputSequence("That isn't here.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence("You can't carry anymore.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence("You can't take that!", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItem, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
             };
             return seqs;
         }
@@ -3808,6 +3903,7 @@ namespace IsengardClient
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
                 bool hasInitialQueuedPotionsStep;
+                bool wasMonsterKilled = false;
                 lock (_queuedCommandLock)
                 {
                     hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
@@ -3867,6 +3963,7 @@ namespace IsengardClient
                         _monsterStunned = false;
                         _monsterKilled = false;
                         _monsterKilledType = null;
+                        _monsterKilledItems.Clear();
                         if (useManaPool)
                         {
                             _currentMana = pms.ManaPool;
@@ -4221,9 +4318,59 @@ BeforeHazy:
                         _currentlyFightingMob = null;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunned = false;
+                        if (_monsterKilled)
+                        {
+                            pms.MonsterKilled = true;
+                            pms.MonsterKilledType = _monsterKilledType;
+                        }
                         _monsterKilled = false;
                         _monsterKilledType = null;
                         _currentMana = HP_OR_MP_UNKNOWN;
+                    }
+                }
+
+                if (pms.MonsterKilled)
+                {
+                    List<ItemEntity> monsterItems = new List<ItemEntity>();
+                    lock (_entityLock)
+                    {
+                        monsterItems.AddRange(_monsterKilledItems);
+                    }
+                    bool anythingFailed = false;
+                    foreach (ItemEntity nextItem in monsterItems)
+                    {
+                        if (nextItem.ItemType.HasValue)
+                        {
+                            ItemTypeEnum eItemType = nextItem.ItemType.Value;
+                            if (!_settingsData.DynamicItemData.TryGetValue(eItemType, out DynamicItemData did))
+                            {
+                                break;
+                            }
+                            if (did.Action == ItemInventoryAction.Ignore)
+                            {
+                                continue;
+                            }
+                            else if (did.Action == ItemInventoryAction.Take)
+                            {
+                                string sItemText;
+                                lock (_entityLock)
+                                {
+                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true);
+                                }
+                                if (string.IsNullOrEmpty(sItemText))
+                                {
+                                    anythingFailed = true;
+                                }
+                                else
+                                {
+                                    RunSingleCommand(BackgroundCommandType.GetItem, "get " + sItemText, pms, null);
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException();
+                            }
+                        }
                     }
                 }
 
@@ -4294,7 +4441,7 @@ BeforeHazy:
                 foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
                 {
                     ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
-                    string sText = inventoryEquipment.PickItemTextFromActualIndex(true, itemType, inventoryIndex);
+                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         command = "drink " + sText;
@@ -4314,7 +4461,7 @@ BeforeHazy:
                         ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
                         if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
                         {
-                            string sText = inventoryEquipment.PickItemTextFromActualIndex(false, eHeldItem, iHeldSlot);
+                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot);
                             if (!string.IsNullOrEmpty(sText))
                             {
                                 command = "drink " + sText;
@@ -4556,6 +4703,8 @@ BeforeHazy:
         {
             if (_monsterKilled && (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom || onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType))
             {
+                bwp.MonsterKilled = true;
+                bwp.MonsterKilledType = _monsterKilledType;
                 lock (_entityLock)
                 {
                     int index;
@@ -4593,7 +4742,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(false, weaponItemValue, 1);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "remove " + sWeaponText;
@@ -4619,7 +4768,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryItems.Contains(weaponItemValue))
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(true, weaponItemValue, 1);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "wield " + sWeaponText;
@@ -5492,7 +5641,6 @@ BeforeHazy:
             yield return (CommandButtonTag)tsbWearAll.Tag;
             yield return (CommandButtonTag)tsbWho.Tag;
             yield return (CommandButtonTag)tsbUptime.Tag;
-            yield return (CommandButtonTag)tsbQuit.Tag;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -7305,19 +7453,20 @@ BeforeHazy:
                 autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
                 autoEscapeType = _settingsData.AutoEscapeType;
             }
-            frmConfiguration frm = new frmConfiguration(_settingsData, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
+            IsengardSettingData clone = new IsengardSettingData(_settingsData);
+            frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                _settingsData.QueryMonsterStatus = frm.QueryMonsterStatus;
-                _settingsData.VerboseMode = frm.VerboseOutput;
-                _settingsData.RemoveAllOnStartup = frm.RemoveAllOnStartup;
-                _settingsData.FullColor = frm.FullColor;
-                _settingsData.EmptyColor = frm.EmptyColor;
-                _settingsData.Realm = frm.Realm;
-                _settingsData.PreferredAlignment = frm.PreferredAlignment;
-                _settingsData.AutoSpellLevelMin = frm.AutoSpellLevelMinimum;
-                _settingsData.AutoSpellLevelMax = frm.AutoSpellLevelMaximum;
-                _settingsData.Weapon = frm.Weapon;
+                clone.QueryMonsterStatus = frm.QueryMonsterStatus;
+                clone.VerboseMode = frm.VerboseOutput;
+                clone.RemoveAllOnStartup = frm.RemoveAllOnStartup;
+                clone.FullColor = frm.FullColor;
+                clone.EmptyColor = frm.EmptyColor;
+                clone.Realm = frm.Realm;
+                clone.PreferredAlignment = frm.PreferredAlignment;
+                clone.AutoSpellLevelMin = frm.AutoSpellLevelMinimum;
+                clone.AutoSpellLevelMax = frm.AutoSpellLevelMaximum;
+                clone.Weapon = frm.Weapon;
                 _weapon = frm.CurrentWeapon;
 
                 bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
@@ -7327,13 +7476,12 @@ BeforeHazy:
                 {
                     if (autoEscapeActive != newAutoEscapeActive)
                     {
-                        _settingsData.AutoEscapeActive = newAutoEscapeActive;
+                        clone.AutoEscapeActive = newAutoEscapeActive;
                     }
-                    _settingsData.AutoEscapeThreshold = newAutoEscapeThreshold;
-                    _settingsData.AutoEscapeType = newAutoEscapeType;
+                    clone.AutoEscapeThreshold = newAutoEscapeThreshold;
+                    clone.AutoEscapeType = newAutoEscapeType;
+                    _settingsData = clone;
                 }
-
-                SaveSettings();
 
                 if (frm.ChangedStrategies)
                 {
@@ -7795,9 +7943,10 @@ BeforeHazy:
             }
             else
             {
+                ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 lock (_entityLock)
                 {
-                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(sioei.IsInventory, eItemType, sioei.Counter);
+                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);

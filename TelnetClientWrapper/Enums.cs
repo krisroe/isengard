@@ -104,6 +104,7 @@ namespace IsengardClient
         Flee,
         DrinkHazy,
         DrinkNonHazyPotion,
+        GetItem,
         Score,
         Quit,
     }
@@ -185,6 +186,13 @@ namespace IsengardClient
         Player = 1,
         Mob = 2,
         Item = 4,
+    }
+
+    public enum ItemLocationType
+    {
+        Inventory,
+        Equipment,
+        Room,
     }
 
     public enum AutoEscapeType
@@ -593,6 +601,12 @@ namespace IsengardClient
         Coins,
         Money,
         Other,
+    }
+
+    public enum ItemInventoryAction
+    {
+        Ignore,
+        Take,
     }
 
     public enum AfterKillMonsterAction

@@ -1257,6 +1257,10 @@
         [PluralName("white knights")]
         WhiteKnight,
 
+        [SingularName("wight")]
+        [PluralName("wights")]
+        Wight,
+
         [SingularName("wildman")]
         [PluralName("wildmen")]
         Wildman,

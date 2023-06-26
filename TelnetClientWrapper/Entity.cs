@@ -525,18 +525,6 @@ namespace IsengardClient
         }
     }
 
-    public class StaticItemData
-    {
-        public ItemClass ItemClass { get; set; }
-        public ItemTypeEnum ItemType { get; set; }
-        public EquipmentType EquipmentType { get; set; }
-        public WeaponType? WeaponType { get; set; }
-        public SpellsEnum? Spell { get; set; }
-        public string SingularName { get; set; }
-        public string PluralName { get; set; }
-        public int Weight { get; set; }
-    }
-
     public class StaticMobData
     {
         public MobTypeEnum MobType { get; set; }
@@ -545,133 +533,6 @@ namespace IsengardClient
         public string PluralName { get; set; }
         public bool Aggressive { get; set; }
         public int Experience { get; set; }
-    }
-
-    public class ItemEntity : Entity
-    {
-        public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
-        public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
-
-        public ItemTypeEnum? ItemType { get; set; }
-
-        public ItemEntity(ItemTypeEnum? itemType, int count, int setCount)
-        {
-            this.ItemType = itemType;
-            this.Count = count;
-            this.SetCount = setCount;
-        }
-
-        static ItemEntity()
-        {
-            Type t = typeof(ItemTypeEnum);
-            foreach (ItemTypeEnum nextEnum in Enum.GetValues(t))
-            {
-                StaticItemData sid = new StaticItemData();
-                ItemClass eItemClass = ItemClass.Other;
-                SpellsEnum? eSpell = null;
-                sid.ItemType = nextEnum;
-                var memberInfos = t.GetMember(nextEnum.ToString());
-                var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
-
-                object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularNameAttribute), false);
-                string sSingular;
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
-                else
-                    throw new InvalidOperationException();
-                sid.SingularName = sSingular;
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
-                string sPlural;
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    sPlural = ((PluralNameAttribute)valueAttributes[0]).Name;
-                else
-                    sPlural = null;
-                sid.PluralName = sPlural;
-
-                EquipmentType eEquipmentType = EquipmentType.Holding;
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EquipmentTypeAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    eEquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
-                sid.EquipmentType = eEquipmentType;
-                if (eEquipmentType != EquipmentType.Holding)
-                {
-                    eItemClass = ItemClass.Equipment;
-                }
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeaponTypeAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
-                if (sid.WeaponType.HasValue)
-                {
-                    sid.EquipmentType = EquipmentType.Wielded;
-                    eItemClass = ItemClass.Weapon;
-                }
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PotionAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eSpell = ((PotionAttribute)valueAttributes[0]).Spell;
-                    eItemClass = ItemClass.Potion;
-                }
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ScrollAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eSpell = ((ScrollAttribute)valueAttributes[0]).Spell;
-                    eItemClass = ItemClass.Scroll;
-                }
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eItemClass = ItemClass.Money;
-                }
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CoinsAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eItemClass = ItemClass.Coins;
-                }
-
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
-                }
-
-                bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
-                bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
-                if (hasSingular)
-                {
-                    ItemMappingByDisplayName[sid.SingularName] = sid;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
-                if (hasPlural)
-                {
-                    ItemMappingByDisplayName[sid.PluralName] = sid;
-                }
-                sid.ItemClass = eItemClass;
-                sid.Spell = eSpell;
-                StaticItemData[sid.ItemType] = sid;
-            }
-        }
-
-        /// <summary>
-        /// iterate through words for the item
-        /// </summary>
-        /// <param name="nextItem">item to use</param>
-        /// <returns>words for the item</returns>
-        public static IEnumerable<string> GetItemWords(ItemTypeEnum nextItem)
-        {
-            StaticItemData sid = ItemEntity.StaticItemData[nextItem];
-            foreach (string s in StringProcessing.PickWords(sid.SingularName))
-            {
-                yield return s;
-            }
-        }
     }
 
     public class NamedEntity : Entity
@@ -738,15 +599,6 @@ namespace IsengardClient
     {
         public string Name { get; set; }
         public UnknownMobEntity(string Name, int count, int setCount) : base(null, count, setCount)
-        {
-            this.Name = Name;
-        }
-    }
-
-    public class UnknownItemEntity : ItemEntity
-    {
-        public string Name { get; set; }
-        public UnknownItemEntity(string Name, int count, int setCount) : base(null, count, setCount)
         {
             this.Name = Name;
         }
@@ -1213,17 +1065,19 @@ namespace IsengardClient
         /// <summary>
         /// pick selection text for an inventory/equipment item, assumes the entity lock is present
         /// </summary>
-        /// <param name="isInventory">true for inventory, false for equipment</param>
+        /// <param name="locationType">whether to search for the items</param>
         /// <param name="itemType">item type</param>
         /// <param name="itemCounter">item counter of that type</param>
+        /// <param name="reverseOrder">whether to search in reverse order</param>
         /// <returns></returns>
-        public string PickItemTextFromItemCounter(bool isInventory, ItemTypeEnum itemType, int itemCounter)
+        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder)
         {
             int iActualIndex = -1;
             int iCounter = 0;
-            if (isInventory)
+            int iIncrement = reverseOrder ? -1 : 1;
+            if (locationType == ItemLocationType.Inventory)
             {
-                for (int i = 0; i < InventoryItems.Count; i++)
+                for (int i = reverseOrder ? InventoryItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < InventoryItems.Count; i += iIncrement)
                 {
                     if (InventoryItems[i] == itemType)
                     {
@@ -1236,9 +1090,9 @@ namespace IsengardClient
                     }
                 }
             }
-            else
+            else if (locationType == ItemLocationType.Equipment)
             {
-                for (int i = 0; i < Equipment.Length; i++)
+                for (int i = reverseOrder ? Equipment.Length - 1 : 0; reverseOrder ? i >= 0 : i < Equipment.Length; i += iIncrement)
                 {
                     if (Equipment[i] == itemType)
                     {
@@ -1251,10 +1105,25 @@ namespace IsengardClient
                     }
                 }
             }
-            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(isInventory, itemType, iActualIndex);
+            else if (locationType == ItemLocationType.Room)
+            {
+                for (int i = reverseOrder ? CurrentRoomItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < CurrentRoomItems.Count; i += iIncrement)
+                {
+                    if (CurrentRoomItems[i].ItemType.Value == itemType)
+                    {
+                        iCounter++;
+                        if (itemCounter == iCounter)
+                        {
+                            iActualIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex);
         }
 
-        public string PickItemTextFromActualIndex(bool isInventory, ItemTypeEnum itemType, int iActualIndex)
+        public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex)
         {
             string ret = null;
             foreach (string word in ItemEntity.GetItemWords(itemType))
@@ -1266,13 +1135,21 @@ namespace IsengardClient
                 for (int i = 0; i <= iActualIndex; i++)
                 {
                     ItemTypeEnum? eItem;
-                    if (isInventory)
+                    if (locationType == ItemLocationType.Inventory)
                     {
                         eItem = InventoryItems[i];
                     }
-                    else
+                    else if (locationType == ItemLocationType.Equipment)
                     {
                         eItem = Equipment[i];
+                    }
+                    else if (locationType == ItemLocationType.Room)
+                    {
+                        eItem = CurrentRoomItems[i].ItemType;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
                     }
                     if (eItem.HasValue)
                     {
@@ -1303,7 +1180,7 @@ namespace IsengardClient
 
                 //for equipment, check for a duplicate in inventory
                 bool isDuplicate = false;
-                if (!isInventory)
+                if (locationType != ItemLocationType.Inventory)
                 {
                     int iInventoryCounter = 0;
                     foreach (ItemTypeEnum nextItem in InventoryItems)
@@ -1323,7 +1200,28 @@ namespace IsengardClient
                     }
                     isDuplicate = iInventoryCounter == iCounter;
                 }
-
+                if (!isDuplicate && locationType != ItemLocationType.Inventory && locationType != ItemLocationType.Equipment)
+                {
+                    int iEquipmentCounter = 0;
+                    foreach (ItemTypeEnum? nextItem in Equipment)
+                    {
+                        if (nextItem.HasValue)
+                        {
+                            sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    iEquipmentCounter++;
+                                    if (iEquipmentCounter == iCounter)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if (!isDuplicate)
                 {
                     if (iCounter == 1)

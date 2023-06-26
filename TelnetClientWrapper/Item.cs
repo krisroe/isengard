@@ -1,5 +1,162 @@
-﻿namespace IsengardClient
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+namespace IsengardClient
 {
+    public class ItemEntity : Entity
+    {
+        public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
+        public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
+
+        public ItemTypeEnum? ItemType { get; set; }
+
+        public ItemEntity(ItemTypeEnum? itemType, int count, int setCount)
+        {
+            this.ItemType = itemType;
+            this.Count = count;
+            this.SetCount = setCount;
+        }
+
+        static ItemEntity()
+        {
+            Type t = typeof(ItemTypeEnum);
+            foreach (ItemTypeEnum nextEnum in Enum.GetValues(t))
+            {
+                StaticItemData sid = new StaticItemData();
+                ItemClass eItemClass = ItemClass.Other;
+                SpellsEnum? eSpell = null;
+                sid.ItemType = nextEnum;
+                var memberInfos = t.GetMember(nextEnum.ToString());
+                var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
+
+                object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularNameAttribute), false);
+                string sSingular;
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sSingular = ((SingularNameAttribute)valueAttributes[0]).Name;
+                else
+                    throw new InvalidOperationException();
+                sid.SingularName = sSingular;
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
+                string sPlural;
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sPlural = ((PluralNameAttribute)valueAttributes[0]).Name;
+                else
+                    sPlural = null;
+                sid.PluralName = sPlural;
+
+                EquipmentType eEquipmentType = EquipmentType.Holding;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(EquipmentTypeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    eEquipmentType = ((EquipmentTypeAttribute)valueAttributes[0]).EquipmentType;
+                sid.EquipmentType = eEquipmentType;
+                if (eEquipmentType != EquipmentType.Holding)
+                {
+                    eItemClass = ItemClass.Equipment;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeaponTypeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sid.WeaponType = ((WeaponTypeAttribute)valueAttributes[0]).WeaponType;
+                if (sid.WeaponType.HasValue)
+                {
+                    sid.EquipmentType = EquipmentType.Wielded;
+                    eItemClass = ItemClass.Weapon;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PotionAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eSpell = ((PotionAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Potion;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ScrollAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eSpell = ((ScrollAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Scroll;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eItemClass = ItemClass.Money;
+                }
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CoinsAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eItemClass = ItemClass.Coins;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
+                }
+
+                bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
+                bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
+                if (hasSingular)
+                {
+                    ItemMappingByDisplayName[sid.SingularName] = sid;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+                if (hasPlural)
+                {
+                    ItemMappingByDisplayName[sid.PluralName] = sid;
+                }
+                sid.ItemClass = eItemClass;
+                sid.Spell = eSpell;
+                StaticItemData[sid.ItemType] = sid;
+            }
+        }
+
+        /// <summary>
+        /// iterate through words for the item
+        /// </summary>
+        /// <param name="nextItem">item to use</param>
+        /// <returns>words for the item</returns>
+        public static IEnumerable<string> GetItemWords(ItemTypeEnum nextItem)
+        {
+            StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+            foreach (string s in StringProcessing.PickWords(sid.SingularName))
+            {
+                yield return s;
+            }
+        }
+    }
+
+    public class UnknownItemEntity : ItemEntity
+    {
+        public string Name { get; set; }
+        public UnknownItemEntity(string Name, int count, int setCount) : base(null, count, setCount)
+        {
+            this.Name = Name;
+        }
+    }
+
+    public class StaticItemData
+    {
+        public ItemClass ItemClass { get; set; }
+        public ItemTypeEnum ItemType { get; set; }
+        public EquipmentType EquipmentType { get; set; }
+        public WeaponType? WeaponType { get; set; }
+        public SpellsEnum? Spell { get; set; }
+        public string SingularName { get; set; }
+        public string PluralName { get; set; }
+        public int Weight { get; set; }
+    }
+
+    public class DynamicItemData
+    {
+        public ItemTypeEnum ItemType { get; set; }
+        public ItemInventoryAction Action { get; set; }
+    }
+
     /// <summary>
     /// item enums. There are three cases:
     /// 1. ordinary items have singular and plural names. These have both singular and plural attributes.

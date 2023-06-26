@@ -9,6 +9,7 @@ namespace IsengardClient
 {
     internal partial class frmConfiguration : Form
     {
+        private IsengardSettingData _settings;
         private List<Strategy> _strategies;
 
         private int _currentAutoEscapeThreshold;
@@ -30,6 +31,7 @@ namespace IsengardClient
         {
             InitializeComponent();
 
+            _settings = settingsData;
             tsmiCurrentRealmEarth.Tag = RealmType.Earth;
             tsmiCurrentRealmFire.Tag = RealmType.Fire;
             tsmiCurrentRealmWater.Tag = RealmType.Water;
@@ -69,6 +71,20 @@ namespace IsengardClient
             }
 
             RefreshStrategyList();
+
+            foreach (ItemTypeEnum nextItem in Enum.GetValues(typeof(ItemTypeEnum)))
+            {
+                ListViewItem lvi = new ListViewItem();
+                lvi.Text = nextItem.ToString();
+                lvi.Tag = nextItem;
+                ItemInventoryAction? action = null;
+                if (_settings.DynamicItemData.TryGetValue(nextItem, out DynamicItemData did))
+                {
+                    action = did.Action;
+                }
+                lvi.SubItems.Add(action.HasValue ? action.Value.ToString() : "None");
+                lvItems.Items.Add(lvi);
+            }
         }
 
         private void RefreshStrategyList()
@@ -587,6 +603,52 @@ namespace IsengardClient
             }
             RefreshStrategyList();
             ChangedStrategies = true;
+        }
+
+        private void lvItems_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnClear.Enabled = btnIgnore.Enabled = btnKeep.Enabled = lvItems.SelectedItems.Count > 0;
+        }
+
+        private void SetItemActions(ItemInventoryAction? action)
+        {
+            foreach (ListViewItem lvi in lvItems.SelectedItems)
+            {
+                ItemTypeEnum itemType = (ItemTypeEnum)lvi.Tag;
+                bool existed = _settings.DynamicItemData.TryGetValue(itemType, out DynamicItemData did);
+                if (action.HasValue)
+                {
+                    if (!existed)
+                    {
+                        did = new DynamicItemData();
+                        did.ItemType = itemType;
+                        _settings.DynamicItemDataList.Add(did);
+                        _settings.DynamicItemData[itemType] = did;
+                    }
+                    did.Action = action.Value;
+                }
+                else if (existed)
+                {
+                    _settings.DynamicItemData.Remove(itemType);
+                    _settings.DynamicItemDataList.Remove(did);
+                }
+                lvi.SubItems[1].Text = action.HasValue ? action.Value.ToString() : "None";
+            }
+        }
+
+        private void btnIgnore_Click(object sender, EventArgs e)
+        {
+            SetItemActions(ItemInventoryAction.Ignore);
+        }
+
+        private void btnKeep_Click(object sender, EventArgs e)
+        {
+            SetItemActions(ItemInventoryAction.Take);
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            SetItemActions(null);
         }
     }
 }
