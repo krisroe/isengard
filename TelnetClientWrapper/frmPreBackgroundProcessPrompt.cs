@@ -26,7 +26,6 @@ namespace IsengardClient
             {
                 Strategy = new Strategy(strategy);
                 RefreshUIFromStrategy();
-                grpStrategy.Text = "Strategy (" + Strategy.ToString() + ")";
             }
             else
             {
@@ -82,6 +81,7 @@ namespace IsengardClient
             chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
             cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
+            grpStrategy.Text = "Strategy (" + Strategy.ToString() + ")";
         }
 
         public string Mob
@@ -210,6 +210,7 @@ namespace IsengardClient
             {
                 Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
             }
+            RefreshUIFromStrategy();
         }
 
         private void chkMelee_CheckedChanged(object sender, EventArgs e)
@@ -222,6 +223,7 @@ namespace IsengardClient
             {
                 Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
             }
+            RefreshUIFromStrategy();
         }
 
         private void chkPotions_CheckedChanged(object sender, EventArgs e)
@@ -234,6 +236,7 @@ namespace IsengardClient
             {
                 Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;
             }
+            RefreshUIFromStrategy();
         }
 
         private void cboOnKillMonster_SelectedIndexChanged(object sender, EventArgs e)
