@@ -3043,25 +3043,27 @@ StartProcessRoom:
 
                 string remainder = firstLine.Substring(0, len - backlen);
                 bool matches;
+                //cannot do exact matching on damage counts because there are cases where damage counts
+                //don't match up with the text, e.g. when fireshield prevents some of the damage.
                 if (remainder.EndsWith(" barely nicks"))
                 {
-                    matches = iDamage >= 1 && iDamage <= 2;
+                    matches = true; //typically 1-2
                 }
                 else if (remainder.EndsWith(" scratches"))
                 {
-                    matches = iDamage >= 3 && iDamage <= 5;
+                    matches = true; //typically 3-5
                 }
                 else if (remainder.EndsWith(" bruises"))
                 {
-                    matches = iDamage >= 6 && iDamage <= 9;
+                    matches = true; //typically 6-9
                 }
                 else if (remainder.EndsWith(" hurts"))
                 {
-                    matches = iDamage >= 10 && iDamage <= 12;
+                    matches = true; //typically 10-12
                 }
                 else if (remainder.EndsWith(" wounds"))
                 {
-                    matches = iDamage >= 13 && iDamage <= 15;
+                    matches = true; //typically 13-15
                 }
                 else if (remainder.EndsWith(" smites"))
                 {
