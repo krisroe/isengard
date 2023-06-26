@@ -2666,6 +2666,7 @@ namespace IsengardClient
         private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action)
         {
             EntityChangeType changeType;
+            List<ItemEntity> pickupItemsMoney = null;
             if (action == ItemManagementAction.Equip)
             {
                 changeType = EntityChangeType.EquipItem;
@@ -2677,6 +2678,7 @@ namespace IsengardClient
             else if (action == ItemManagementAction.PickUpItem)
             {
                 changeType = EntityChangeType.PickUpItem;
+                pickupItemsMoney = new List<ItemEntity>();
             }
             else if (action == ItemManagementAction.DropItem)
             {
@@ -2754,16 +2756,22 @@ namespace IsengardClient
                     }
                     else if (sid != null) //equipment not involved
                     {
-                        bool isAdd = changeType == EntityChangeType.PickUpItem;
                         if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
                         {
-                            addChange = iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAdd, changeEntry);
+                            //add/remove from inventory
+                            bool isAddToInventory = changeType == EntityChangeType.PickUpItem;
+                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAddToInventory, changeEntry);
+
+                            if (changeType == EntityChangeType.PickUpItem) //remove from room items
+                            {
+                                addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
+                            }
                         }
-                        if (changeType == EntityChangeType.PickUpItem)
+                        else if (changeType == EntityChangeType.PickUpItem)
                         {
-                            addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
+                            pickupItemsMoney.Add(nextItemEntity); //picking up money handled below since it doesn't go into inventory
                         }
-                        else if (changeType == EntityChangeType.DropItem)
+                        if (changeType == EntityChangeType.DropItem)
                         {
                             addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, true, changeEntry);
                         }
@@ -2776,6 +2784,24 @@ namespace IsengardClient
                 if (iec.Changes.Count > 0)
                 {
                     _currentEntityInfo.CurrentEntityChanges.Add(iec);
+                }
+                if (pickupItemsMoney != null && pickupItemsMoney.Count > 0)
+                {
+                    iec = new EntityChange();
+                    iec.ChangeType = EntityChangeType.RemoveRoomItems;
+                    foreach (ItemEntity ie in pickupItemsMoney)
+                    {
+                        EntityChangeEntry changeEntry = new EntityChangeEntry();
+                        changeEntry.Item = ie;
+                        if (iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, ie, false, changeEntry))
+                        {
+                            iec.Changes.Add(changeEntry);
+                        }
+                    }
+                    if (iec.Changes.Count > 0)
+                    {
+                        _currentEntityInfo.CurrentEntityChanges.Add(iec);
+                    }
                 }
             }
         }
