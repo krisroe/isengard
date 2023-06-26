@@ -2095,7 +2095,11 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oGrandPorch] = new System.Windows.Point(3, 11);
 
             Room oMansionInside1 = AddRoom("Mansion Inside", "Main Hallway");
-            AddBidirectionalSameNameExit(oGrandPorch, oMansionInside1, "door", true);
+            Exit e = AddExit(oGrandPorch, oMansionInside1, "door");
+            e.MustOpen = true;
+            e.MaximumLevel = 12;
+            e = AddExit(oMansionInside1, oGrandPorch, "door");
+            e.MustOpen = true;
             graphMillwoodMansion.Rooms[oMansionInside1] = new System.Windows.Point(4, 11);
 
             Room oMansionInside2 = AddRoom("Main Hallway", "Main Hallway");
@@ -2222,9 +2226,6 @@ namespace IsengardClient
 
             AddMillwoodMansionUpstairs(oWarriorBardMansionNorth, oWarriorBardMansionSouth, oWarriorBardMansionEast);
 
-            AddLocation(_aBreePerms, oWarriorBardMansionNorth);
-            AddLocation(_aBreePerms, oWarriorBardMansionSouth);
-            AddLocation(_aBreePerms, oWarriorBardMansionEast);
             AddLocation(_aBreePerms, oPathToMansion4WarriorBardsx2);
             AddLocation(_aBreePerms, oGrandPorch);
         }
@@ -2333,9 +2334,6 @@ namespace IsengardClient
             oChancellorOfProtection.AddPermanentMobs(MobTypeEnum.ChancellorOfProtection);
             AddBidirectionalExitsWithOut(oRoyalHallwayToChancellor, oChancellorOfProtection, "chamber", true);
             millwoodMansionUpstairsGraph.Rooms[oChancellorOfProtection] = new System.Windows.Point(4, 4);
-
-            AddLocation(_aBreePerms, oChancellorOfProtection);
-            AddLocation(_aBreePerms, oMayorMillwood);
         }
 
         private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, Room breeEastGateOutside, out Room imladrisWestGateOutside, Room oCemetery)
@@ -2852,11 +2850,6 @@ namespace IsengardClient
             oUnderhallsAntechamber.AddPermanentMobs(MobTypeEnum.Dervish);
             AddBidirectionalExits(oUnderhallsToAntechamber, oUnderhallsAntechamber, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oUnderhallsAntechamber] = new System.Windows.Point(4, 2);
-
-            AddLocation(_aBreePerms, oUnderHallsCorridorsGreenSlime);
-            AddLocation(_aBreePerms, oGhostOfMuzgash);
-            AddLocation(_aBreePerms, oLichsLair);
-            AddLocation(_aBreePerms, oAmbushedParty);
         }
 
         private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)
@@ -3314,6 +3307,7 @@ namespace IsengardClient
 
             AddLocation(_aBreePerms, oBilboBaggins);
             AddLocation(_aBreePerms, oFrodoBaggins);
+            AddLocation(_aBreePerms, oShepherd);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)

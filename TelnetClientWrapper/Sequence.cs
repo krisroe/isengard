@@ -1252,27 +1252,54 @@ namespace IsengardClient
             }
         }
 
-        public static void GetItemEntityFromObjectText(string ObjectText, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectCapitalized)
+        public static void ProcessAndSplitItemEntity(ItemEntity ie, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectSingleItem)
         {
-            ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
             if (ie != null)
             {
+                if (itemList == null) itemList = new List<ItemEntity>();
                 if (ie is UnknownItemEntity)
                 {
-                    flp.ErrorMessages.Add("Unknown item: " + ObjectText);
+                    flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                    itemList.Add(ie);
                 }
                 else
                 {
                     ItemTypeEnum eItemType = ie.ItemType.Value;
                     StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-                    if (ie.Count != 1 && sid.ItemClass != ItemClass.Coins)
+                    int iEntityCount = ie.Count;
+                    int iSplitCount;
+                    if (sid.ItemClass == ItemClass.Coins)
                     {
-                        flp.ErrorMessages.Add("Unexpected item count for " + ObjectText + ": " + ie.Count);
+                        iEntityCount = ie.SetCount;
+                        iSplitCount = ie.Count;
+                    }
+                    else
+                    {
+                        iSplitCount = 1;
+                        if (iEntityCount != 1 && expectSingleItem)
+                        {
+                            flp.ErrorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + ie.Count);
+                        }
+                    }
+                    for (int i = 0; i < iEntityCount; i++)
+                    {
+                        itemList.Add(new ItemEntity(eItemType, iSplitCount, 1));
                     }
                 }
-                if (itemList == null) itemList = new List<ItemEntity>();
-                itemList.Add(ie);
             }
+        }
+
+        /// <summary>
+        /// retrieves an item entity from an object text. A single item is expected.
+        /// </summary>
+        /// <param name="ObjectText">object text</param>
+        /// <param name="itemList">list of items, created if null</param>
+        /// <param name="flp">feed line parameters</param>
+        /// <param name="expectCapitalized">whether to expect the first word to be capitalized</param>
+        public static void GetItemEntityFromObjectText(string ObjectText, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectCapitalized)
+        {
+            ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
+            ProcessAndSplitItemEntity(ie, ref itemList, flp, true);
         }
     }
 
@@ -2064,7 +2091,12 @@ StartProcessRoom:
                         string itemList = StringProcessing.GetListAsString(Lines, i, sPrefix, true, out i, null);
                         skipToNextLine = false;
                         List<string> itemsString = StringProcessing.ParseList(itemList);
-                        RoomTransitionSequence.LoadItems(items, itemsString, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        List<ItemEntity> itemsFirstPass = new List<ItemEntity>();
+                        RoomTransitionSequence.LoadItems(itemsFirstPass, itemsString, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        foreach (ItemEntity next in itemsFirstPass)
+                        {
+                            InventoryEquipmentManagementSequence.ProcessAndSplitItemEntity(next, ref items, flParams, false);
+                        }
                     }
                 }
                 if (skipToNextLine)

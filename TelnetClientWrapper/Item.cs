@@ -1190,6 +1190,7 @@ namespace IsengardClient
 
         [SingularName("T-bone")]
         [PluralName("T-bones")]
+        [Weight(4)]
         TBone,
 
         [SingularName("throwing axe")]
