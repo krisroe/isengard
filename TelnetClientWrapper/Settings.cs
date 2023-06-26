@@ -89,11 +89,13 @@ namespace IsengardClient
                         continue;
                     }
                     ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
-                    DynamicItemData[itemType] = new DynamicItemData()
+                    DynamicItemData did = new DynamicItemData()
                     {
+                        ItemType = itemType,
                         Action = action
                     };
-                    HandleSetting(reader["SettingName"].ToString(), reader["SettingValue"].ToString(), errorMessages);
+                    DynamicItemData[itemType] = did;
+                    DynamicItemDataList.Add(did);
                 }
             }
         }
