@@ -164,6 +164,8 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.tsbExport = new System.Windows.Forms.ToolStripButton();
+            this.tsbImport = new System.Windows.Forms.ToolStripButton();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -734,7 +736,7 @@
             // 
             this.ctxInventoryOrEquipmentItem.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxInventoryOrEquipmentItem.Name = "ctxInventoryOrEquipmentItem";
-            this.ctxInventoryOrEquipmentItem.Size = new System.Drawing.Size(181, 26);
+            this.ctxInventoryOrEquipmentItem.Size = new System.Drawing.Size(61, 4);
             this.ctxInventoryOrEquipmentItem.Opening += new System.ComponentModel.CancelEventHandler(this.ctxInventoryOrEquipmentItem_Opening);
             this.ctxInventoryOrEquipmentItem.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxInventoryOrEquipmentItem_ItemClicked);
             // 
@@ -1493,6 +1495,8 @@
             this.tsbScore,
             this.tsbTime,
             this.tsbConfiguration,
+            this.tsbExport,
+            this.tsbImport,
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
@@ -1704,6 +1708,26 @@
             this.pnlCommand.Size = new System.Drawing.Size(655, 62);
             this.pnlCommand.TabIndex = 30;
             // 
+            // tsbExport
+            // 
+            this.tsbExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbExport.Image = ((System.Drawing.Image)(resources.GetObject("tsbExport.Image")));
+            this.tsbExport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbExport.Name = "tsbExport";
+            this.tsbExport.Size = new System.Drawing.Size(45, 22);
+            this.tsbExport.Text = "Export";
+            this.tsbExport.Click += new System.EventHandler(this.tsbExport_Click);
+            // 
+            // tsbImport
+            // 
+            this.tsbImport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbImport.Image = ((System.Drawing.Image)(resources.GetObject("tsbImport.Image")));
+            this.tsbImport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImport.Name = "tsbImport";
+            this.tsbImport.Size = new System.Drawing.Size(47, 22);
+            this.tsbImport.Text = "Import";
+            this.tsbImport.Click += new System.EventHandler(this.tsbImport_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1895,6 +1919,8 @@
         private System.Windows.Forms.ToolStripButton tsbWearAll;
         private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
         private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
+        private System.Windows.Forms.ToolStripButton tsbExport;
+        private System.Windows.Forms.ToolStripButton tsbImport;
     }
 }
 

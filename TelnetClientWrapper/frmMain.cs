@@ -12,6 +12,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
+
 namespace IsengardClient
 {
     internal partial class frmMain : Form
@@ -1173,83 +1175,19 @@ namespace IsengardClient
                 }
                 _userid = iUserID;
 
-                _settingsData = new IsengardSettingData();
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@UserID", iUserID);
-                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        bool bTemp;
-                        int iTemp;
-                        string sValue = reader["SettingValue"].ToString();
-                        switch (reader["SettingName"])
-                        {
-                            case "Weapon":
-                                if (Enum.TryParse(sValue, out ItemTypeEnum weapon)) _settingsData.Weapon = weapon;
-                                break;
-                            case "Realm":
-                                if (Enum.TryParse(sValue, out RealmType realm)) _settingsData.Realm = realm;
-                                break;
-                            case "PreferredAlignment":
-                                if (Enum.TryParse(sValue, out AlignmentType alignment)) _settingsData.PreferredAlignment = alignment;
-                                break;
-                            case "VerboseMode":
-                                if (bool.TryParse(sValue, out bTemp)) _settingsData.VerboseMode = bTemp;
-                                break;
-                            case "QueryMonsterStatus":
-                                if (bool.TryParse(sValue, out bTemp)) _settingsData.QueryMonsterStatus = bTemp;
-                                break;
-                            case "FullColor":
-                                if (int.TryParse(sValue, out iTemp)) _settingsData.FullColor = Color.FromArgb(iTemp);
-                                break;
-                            case "EmptyColor":
-                                if (int.TryParse(sValue, out iTemp)) _settingsData.EmptyColor = Color.FromArgb(iTemp);
-                                break;
-                            case "AutoSpellLevelMin":
-                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoSpellLevelMin = iTemp;
-                                break;
-                            case "AutoSpellLevelMax":
-                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoSpellLevelMax = iTemp;
-                                break;
-                            case "AutoEscapeThreshold":
-                                if (int.TryParse(sValue, out iTemp)) _settingsData.AutoEscapeThreshold = iTemp;
-                                break;
-                            case "AutoEscapeType":
-                                if (Enum.TryParse(sValue, out AutoEscapeType autoEscapeType)) _settingsData.AutoEscapeType = autoEscapeType;
-                                break;
-                            case "AutoEscapeActive":
-                                if (bool.TryParse(sValue, out bTemp)) _settingsData.AutoEscapeActive = bTemp;
-                                break;
-                            case "RemoveAllOnStartup":
-                                if (bool.TryParse(sValue, out bTemp)) _settingsData.RemoveAllOnStartup = bTemp;
-                                break;
-                        }
-                    }
-                }
+                List<string> errorMessages = new List<string>();
+                _settingsData = new IsengardSettingData(cmd, iUserID, errorMessages);
 
-                //settings validation
-                if (_settingsData.AutoEscapeType != AutoEscapeType.Flee && _settingsData.AutoEscapeType != AutoEscapeType.Hazy)
+                if (errorMessages.Count > 0)
                 {
-                    _settingsData.AutoEscapeType = AutoEscapeType.Flee;
-                }
-                if (_settingsData.AutoEscapeThreshold < 0)
-                {
-                    _settingsData.AutoEscapeThreshold = 0;
-                }
-                if (_settingsData.AutoEscapeThreshold == 0)
-                {
-                    _settingsData.AutoEscapeActive = false;
-                }
-                if (_settingsData.AutoSpellLevelMin > _settingsData.AutoSpellLevelMax || _settingsData.AutoSpellLevelMax < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _settingsData.AutoSpellLevelMax > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM || _settingsData.AutoSpellLevelMin < frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM || _settingsData.AutoSpellLevelMin > frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM)
-                {
-                    _settingsData.AutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
-                    _settingsData.AutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
+                    lock (_broadcastMessagesLock)
+                    {
+                        _broadcastMessages.AddRange(errorMessages);
+                    }
                 }
             }
 
-            _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
+            AfterLoadSettings();
 
             if (_settingsData.RemoveAllOnStartup)
                 _initializationSteps = InitializationStep.None;
@@ -1268,6 +1206,11 @@ namespace IsengardClient
             }
             _initializationSteps |= InitializationStep.Initialization;
             _loginInfo = initialLoginInfo;
+        }
+
+        private void AfterLoadSettings()
+        {
+            _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
         }
 
         private void SaveSettings()
@@ -3376,6 +3319,7 @@ namespace IsengardClient
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
+            tsbQuit.Tag = new CommandButtonTag(tsbQuit, null, CommandType.None, DependentObjectType.None);
         }
 
         private void btnOneClick_Click(object sender, EventArgs e)
@@ -3576,6 +3520,10 @@ namespace IsengardClient
                     else if (cmdType == BackgroundCommandType.Search)
                     {
                         RunSingleCommand(BackgroundCommandType.Search, "search", pms, null);
+                    }
+                    else if (cmdType == BackgroundCommandType.Quit)
+                    {
+                        RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null);
                     }
                     return;
                 }
@@ -4307,12 +4255,6 @@ BeforeHazy:
                         }
                         pms.DoScore = false;
                     }
-                }
-
-                if (pms.Quit)
-                {
-                    _backgroundProcessPhase = BackgroundProcessPhase.Quit;
-                    RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null);
                 }
             }
             catch (Exception ex)
@@ -5138,7 +5080,6 @@ BeforeHazy:
 
         private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType commandType)
         {
-            bool quitting = commandType == BackgroundCommandType.Quit;
             bool hazying = commandType == BackgroundCommandType.DrinkHazy;
             bool fleeing = commandType == BackgroundCommandType.Flee;
             while (remainingMS > 0)
@@ -5146,40 +5087,34 @@ BeforeHazy:
                 int nextWaitMS = Math.Min(remainingMS, 100);
 
                 //check if the wait should be aborted
-                if (!quitting)
+                if (hazying)
                 {
-                    if (hazying)
-                    {
-                        if (!_hazying) break;
-                    }
-                    else if (fleeing)
-                    {
-                        if (!_fleeing || _hazying) break;
-                    }
-                    else
-                    {
-                        if (_fleeing || _hazying) break;
-                    }
+                    if (!_hazying) break;
+                }
+                else if (fleeing)
+                {
+                    if (!_fleeing || _hazying) break;
+                }
+                else
+                {
+                    if (_fleeing || _hazying) break;
                 }
                 if (_bw.CancellationPending) break;
 
                 Thread.Sleep(nextWaitMS);
 
                 //check if the wait should be aborted
-                if (!quitting)
+                if (hazying)
                 {
-                    if (hazying)
-                    {
-                        if (!_hazying) break;
-                    }
-                    else if (fleeing)
-                    {
-                        if (!_fleeing || _hazying) break;
-                    }
-                    else
-                    {
-                        if (_fleeing || _hazying) break;
-                    }
+                    if (!_hazying) break;
+                }
+                else if (fleeing)
+                {
+                    if (!_fleeing || _hazying) break;
+                }
+                else
+                {
+                    if (_fleeing || _hazying) break;
                 }
                 if (_bw.CancellationPending) break;
 
@@ -5187,20 +5122,17 @@ BeforeHazy:
                 RunQueuedCommandWhenBackgroundProcessRunning(_currentBackgroundParameters);
 
                 //check if the wait should be aborted
-                if (!quitting)
+                if (hazying)
                 {
-                    if (hazying)
-                    {
-                        if (!_hazying) break;
-                    }
-                    else if (fleeing)
-                    {
-                        if (!_fleeing || _hazying) break;
-                    }
-                    else
-                    {
-                        if (_fleeing || _hazying) break;
-                    }
+                    if (!_hazying) break;
+                }
+                else if (fleeing)
+                {
+                    if (!_fleeing || _hazying) break;
+                }
+                else
+                {
+                    if (_fleeing || _hazying) break;
                 }
                 if (_bw.CancellationPending) break;
             }
@@ -5366,9 +5298,8 @@ BeforeHazy:
 
         private void ToggleBackgroundProcessUI(BackgroundWorkerParameters bwp, bool running)
         {
-            bool quitting = bwp.Quit;
             bool enabled;
-            if (running && quitting)
+            if (running)
                 enabled = false;
             else
                 enabled = !running;
@@ -5376,8 +5307,18 @@ BeforeHazy:
             {
                 ctl.Enabled = enabled;
             }
+            foreach (ToolStripButton tsb in GetToolStripButtonsToDisableForBackgroundProcess())
+            {
+                tsb.Enabled = enabled;
+            }
             btnAbort.Enabled = running;
             EnableDisableActionButtons(bwp);
+        }
+
+        private IEnumerable<ToolStripButton> GetToolStripButtonsToDisableForBackgroundProcess()
+        {
+            yield return tsbExport;
+            yield return tsbImport;
         }
 
         private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()
@@ -5447,8 +5388,6 @@ BeforeHazy:
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Wand) != DependentObjectType.None && string.IsNullOrEmpty(_wand))
                     enabled = false;
-                else if (npp == BackgroundProcessPhase.Quit)
-                    enabled = false;
                 else if (inForeground)
                     enabled = true;
                 else if (oTag.CommandType == CommandType.None) //these buttons can be clicked even if a background process is running
@@ -5504,7 +5443,7 @@ BeforeHazy:
 
             if (inForeground)
                 enabled = true;
-            else if (npp == BackgroundProcessPhase.Flee || npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
+            else if (npp == BackgroundProcessPhase.Flee || npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score)
                 enabled = false;
             else
                 enabled = true;
@@ -5513,7 +5452,7 @@ BeforeHazy:
 
             if (inForeground)
                 enabled = true;
-            else if (npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
+            else if (npp == BackgroundProcessPhase.Hazy || npp == BackgroundProcessPhase.Score)
                 enabled = false;
             else
                 enabled = true;
@@ -5522,21 +5461,12 @@ BeforeHazy:
 
             if (inForeground)
                 enabled = true;
-            else if (npp == BackgroundProcessPhase.Score || npp == BackgroundProcessPhase.Quit)
+            else if (npp == BackgroundProcessPhase.Score)
                 enabled = false;
             else
                 enabled = true;
             if (enabled != tsbScore.Enabled)
                 tsbScore.Enabled = enabled;
-
-            if (inForeground)
-                enabled = true;
-            else if (npp == BackgroundProcessPhase.Quit)
-                enabled = false;
-            else
-                enabled = true;
-            if (enabled != tsbQuit.Enabled)
-                tsbQuit.Enabled = enabled;
         }
 
         private IEnumerable<CommandButtonTag> GetButtonsForEnablingDisabling()
@@ -5562,6 +5492,7 @@ BeforeHazy:
             yield return (CommandButtonTag)tsbWearAll.Tag;
             yield return (CommandButtonTag)tsbWho.Tag;
             yield return (CommandButtonTag)tsbUptime.Tag;
+            yield return (CommandButtonTag)tsbQuit.Tag;
         }
 
         private void SendCommand(string command, InputEchoType echoType)
@@ -5903,7 +5834,6 @@ BeforeHazy:
             public bool Hazied { get; set; }
             public bool Flee { get; set; }
             public bool Fled { get; set; }
-            public bool Quit { get; set; }
             public bool DoScore { get; set; }
             public string TargetRoomMob { get; set; }
             public bool Foreground { get; set; }
@@ -7140,12 +7070,8 @@ BeforeHazy:
             if (bwp == null)
             {
                 bwp = new BackgroundWorkerParameters();
-                bwp.Quit = true;
+                bwp.SingleCommandType = BackgroundCommandType.Quit;
                 RunBackgroundProcess(bwp);
-            }
-            else
-            {
-                bwp.Quit = true;
             }
         }
 
@@ -7463,28 +7389,24 @@ BeforeHazy:
         {
             _settingsData.AutoEscapeActive = false;
             _settingsData.AutoEscapeThreshold = 0;
-            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiToggleAutoEscapeActive_Click(object sender, EventArgs e)
         {
             _settingsData.AutoEscapeActive = !_autoEscapeActiveSaved;
-            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiAutoEscapeFlee_Click(object sender, EventArgs e)
         {
             _settingsData.AutoEscapeType = AutoEscapeType.Flee;
-            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
         private void tsmiAutoEscapeHazy_Click(object sender, EventArgs e)
         {
             _settingsData.AutoEscapeType = AutoEscapeType.Hazy;
-            SaveSettings();
             RefreshAutoEscapeUI(true);
         }
 
@@ -7870,7 +7792,6 @@ BeforeHazy:
             {
                 _settingsData.Weapon = eItemType;
                 txtWeapon.Text = eItemType.ToString();
-                SaveSettings();
             }
             else
             {
@@ -7890,6 +7811,59 @@ BeforeHazy:
             public ItemTypeEnum ItemType;
             public int Counter;
             public bool IsInventory;
+        }
+
+        private void tsbExport_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "XML File|*.xml";
+                if (sfd.ShowDialog(this) == DialogResult.OK)
+                {
+                    XmlWriterSettings settings = new XmlWriterSettings();
+                    settings.Indent = true;
+                    settings.IndentChars = " ";
+                    using (XmlWriter xmlWriter = XmlWriter.Create(sfd.FileName, settings))
+                    {
+                        _settingsData.SaveToXmlWriter(xmlWriter);
+                    }
+                    MessageBox.Show(this, "Saved!");
+                }
+            }
+        }
+
+        private void tsbImport_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "XML File|*.xml";
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    List<string> errorMessages = new List<string>();
+                    bool success = false;
+                    try
+                    {
+                        _settingsData = new IsengardSettingData(ofd.FileName, errorMessages);
+                        success = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        AddConsoleMessage("Import failed: " + ex.ToString());
+                    }
+                    if (errorMessages.Count > 0)
+                    {
+                        lock (_broadcastMessagesLock)
+                        {
+                            _broadcastMessages.AddRange(errorMessages);
+                        }
+                    }
+                    if (success)
+                    {
+                        AfterLoadSettings();
+                        MessageBox.Show("Imported!");
+                    }
+                }
+            }
         }
     }
 }

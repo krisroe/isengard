@@ -141,7 +141,6 @@ namespace IsengardClient
         Flee,
         Hazy,
         Score,
-        Quit,
     }
 
     [Flags]
