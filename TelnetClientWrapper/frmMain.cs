@@ -3319,7 +3319,6 @@ namespace IsengardClient
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
-            tsbQuit.Tag = new CommandButtonTag(tsbQuit, null, CommandType.None, DependentObjectType.None);
         }
 
         private void btnOneClick_Click(object sender, EventArgs e)
@@ -5319,6 +5318,7 @@ BeforeHazy:
         {
             yield return tsbExport;
             yield return tsbImport;
+            yield return tsbQuit;
         }
 
         private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()
