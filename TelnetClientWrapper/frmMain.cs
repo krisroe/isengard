@@ -3684,35 +3684,9 @@ namespace IsengardClient
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
 
-                bool healHP = pms.HealHitpoints;
-                bool ensureBlessed = pms.EnsureBlessed;
-                bool ensureProtected = pms.EnsureProtected;
-                bool cureIfPoisoned = pms.CureIfPoisoned;
-                bool healPoison = false;
-                if (cureIfPoisoned)
+                if (!PerformBackgroundHeal(pms.HealHitpoints, pms.EnsureBlessed, pms.EnsureProtected, pms.CureIfPoisoned, pms, false))
                 {
-                    _poisoned = false;
-                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
-                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
-                    {
-                        return;
-                    }
-                    if (_poisoned)
-                    {
-                        healPoison = true;
-                    }
-                    else if (!healHP && !ensureBlessed && !ensureProtected) //display a message if a standalone curepoison was attempted
-                    {
-                        AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
-                    }
-                }
-                if (healHP || healPoison || ensureBlessed || ensureProtected)
-                {
-                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                    if (!DoBackgroundHeal(healHP, ensureBlessed, ensureProtected, healPoison, pms))
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 //Activate skills
@@ -4352,6 +4326,10 @@ BeforeHazy:
                         if (nextRoute == null) return;
                         if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
                         currentLoc = BackgroundLocation.Tick;
+                        if (!PerformBackgroundHeal(true, true, true, true, pms, true))
+                        {
+                            return;
+                        }
                     }
                 }
 
@@ -4402,6 +4380,37 @@ BeforeHazy:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        private bool PerformBackgroundHeal(bool healHP, bool ensureBlessed, bool ensureProtected, bool cureIfPoisoned, BackgroundWorkerParameters pms, bool waitIfOutOfMana)
+        {
+            bool healPoison = false;
+            if (cureIfPoisoned)
+            {
+                _poisoned = false;
+                CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null);
+                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                {
+                    return false;
+                }
+                if (_poisoned)
+                {
+                    healPoison = true;
+                }
+                else if (!healHP && !ensureBlessed && !ensureProtected) //display a message if a standalone curepoison was attempted
+                {
+                    AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
+                }
+            }
+            if (healHP || healPoison || ensureBlessed || ensureProtected)
+            {
+                _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                if (!DoBackgroundHeal(healHP, ensureBlessed, ensureProtected, healPoison, pms, waitIfOutOfMana))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
@@ -4632,7 +4641,7 @@ BeforeHazy:
                         }
                         else if (_lastCommandMovementResult == MovementResult.FallFailure)
                         {
-                            if (!DoBackgroundHeal(true, false, false, needCurepoison, pms)) return false;
+                            if (!DoBackgroundHeal(true, false, false, needCurepoison, pms, false)) return false;
                             SendCommand("stand", InputEchoType.On);
                             keepTryingMovement = true;
                         }
@@ -4661,7 +4670,7 @@ BeforeHazy:
                         }
                         if (doHealingLogic)
                         {
-                            if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return false;
+                            if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms, false)) return false;
                             needHeal = false;
                             needCurepoison = false;
                         }
@@ -5012,8 +5021,9 @@ BeforeHazy:
             return ret;
         }
 
-        private bool DoBackgroundHeal(bool healHP, bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms)
+        private bool DoBackgroundHeal(bool healHP, bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms, bool waitIfOutOfMana)
         {
+            int waitInterval;
             int autohp;
             int automp = _automp;
             if (doCurePoison && (automp < 4 || !CastLifeSpell("cure-poison", pms)))
@@ -5030,7 +5040,22 @@ BeforeHazy:
                     if (automp < 2) break; //out of mana for vigor cast
                     if (!CastLifeSpell("vigor", pms))
                     {
-                        return false;
+                        if (waitIfOutOfMana)
+                        {
+                            waitInterval = 5000;
+                            while (waitInterval > 0)
+                            {
+                                Thread.Sleep(50);
+                                waitInterval -= 50;
+                                if (_fleeing) break;
+                                if (_hazying) break;
+                                if (_bw.CancellationPending) break;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                     if (_fleeing) break;
                     if (_hazying) break;
@@ -5056,7 +5081,22 @@ BeforeHazy:
                 {
                     if (!CastLifeSpell("bless", pms))
                     {
-                        return false;
+                        if (waitIfOutOfMana)
+                        {
+                            waitInterval = 5000;
+                            while (waitInterval > 0)
+                            {
+                                Thread.Sleep(50);
+                                waitInterval -= 50;
+                                if (_fleeing) break;
+                                if (_hazying) break;
+                                if (_bw.CancellationPending) break;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
             }
@@ -5074,7 +5114,22 @@ BeforeHazy:
                 {
                     if (!CastLifeSpell("protection", pms))
                     {
-                        return false;
+                        if (waitIfOutOfMana)
+                        {
+                            waitInterval = 5000;
+                            while (waitInterval > 0)
+                            {
+                                Thread.Sleep(50);
+                                waitInterval -= 50;
+                                if (_fleeing) break;
+                                if (_hazying) break;
+                                if (_bw.CancellationPending) break;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
             }

@@ -3174,6 +3174,11 @@ StartProcessRoom:
                         hasSpellCast = true;
                         matchingSpell = BackgroundCommandType.CurePoison;
                     }
+                    else if (nextLine == "Light spell cast.")
+                    {
+                        hasSpellCast = true;
+                        activeSpell = "light";
+                    }
                     else if (nextLine.EndsWith(" spell cast."))
                     {
                         hasSpellCast = true;
@@ -3199,7 +3204,8 @@ StartProcessRoom:
                             InventoryEquipmentManagementSequence.GetItemEntityFromObjectText(objectText, ref consumedItems, flParams, true);
                         }
                     }
-                    else if (nextLine != "You start to feel real strange, as if connected to another dimension.") //detect invis
+                    else if (!string.IsNullOrWhiteSpace(nextLine) &&
+                             nextLine != "You start to feel real strange, as if connected to another dimension.") //detect invis
                     {
                         return;
                     }
