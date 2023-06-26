@@ -83,11 +83,12 @@
             this.colItemName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colItemAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlItemsTop = new System.Windows.Forms.Panel();
+            this.btnSell = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.btnSell = new System.Windows.Forms.Button();
+            this.btnTick = new System.Windows.Forms.Button();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -612,6 +613,7 @@
             // 
             // pnlItemsTop
             // 
+            this.pnlItemsTop.Controls.Add(this.btnTick);
             this.pnlItemsTop.Controls.Add(this.btnSell);
             this.pnlItemsTop.Controls.Add(this.btnClear);
             this.pnlItemsTop.Controls.Add(this.btnKeep);
@@ -622,9 +624,19 @@
             this.pnlItemsTop.Size = new System.Drawing.Size(1090, 44);
             this.pnlItemsTop.TabIndex = 0;
             // 
+            // btnSell
+            // 
+            this.btnSell.Location = new System.Drawing.Point(170, 12);
+            this.btnSell.Name = "btnSell";
+            this.btnSell.Size = new System.Drawing.Size(75, 26);
+            this.btnSell.TabIndex = 3;
+            this.btnSell.Text = "Sell";
+            this.btnSell.UseVisualStyleBackColor = true;
+            this.btnSell.Click += new System.EventHandler(this.btnSell_Click);
+            // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(251, 12);
+            this.btnClear.Location = new System.Drawing.Point(332, 12);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 26);
             this.btnClear.TabIndex = 2;
@@ -662,15 +674,15 @@
             this.pnlBottom.Size = new System.Drawing.Size(1098, 54);
             this.pnlBottom.TabIndex = 148;
             // 
-            // btnSell
+            // btnTick
             // 
-            this.btnSell.Location = new System.Drawing.Point(170, 12);
-            this.btnSell.Name = "btnSell";
-            this.btnSell.Size = new System.Drawing.Size(75, 26);
-            this.btnSell.TabIndex = 3;
-            this.btnSell.Text = "Sell";
-            this.btnSell.UseVisualStyleBackColor = true;
-            this.btnSell.Click += new System.EventHandler(this.btnSell_Click);
+            this.btnTick.Location = new System.Drawing.Point(251, 12);
+            this.btnTick.Name = "btnTick";
+            this.btnTick.Size = new System.Drawing.Size(75, 26);
+            this.btnTick.TabIndex = 4;
+            this.btnTick.Text = "Tick";
+            this.btnTick.UseVisualStyleBackColor = true;
+            this.btnTick.Click += new System.EventHandler(this.btnTick_Click);
             // 
             // frmConfiguration
             // 
@@ -762,5 +774,6 @@
         private System.Windows.Forms.Button btnIgnore;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnSell;
+        private System.Windows.Forms.Button btnTick;
     }
 }

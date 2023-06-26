@@ -106,6 +106,7 @@ namespace IsengardClient
         DrinkNonHazyPotion,
         GetItem,
         SellItem,
+        DropItem,
         Score,
         Quit,
     }
@@ -614,9 +615,22 @@ namespace IsengardClient
 
     public enum ItemInventoryAction
     {
+        /// <summary>
+        /// skip the item
+        /// </summary>
         Ignore,
+        /// <summary>
+        /// pick up the item and do nothing with it
+        /// </summary>
         Take,
+        /// <summary>
+        /// sell the item
+        /// </summary>
         Sell,
+        /// <summary>
+        /// take the item to the tick room
+        /// </summary>
+        Tick,
     }
 
     public enum AfterKillMonsterAction
@@ -625,6 +639,13 @@ namespace IsengardClient
         StopCombat = 1,
         SelectFirstMonsterInRoom = 2,
         SelectFirstMonsterInRoomOfSameType = 3,
+    }
+
+    public enum BackgroundLocation
+    {
+        Monster,
+        PawnShop,
+        Tick,
     }
 
     public enum SpellProficiency
