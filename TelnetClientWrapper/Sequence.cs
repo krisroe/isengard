@@ -1240,31 +1240,7 @@ namespace IsengardClient
                         }
                         if (!string.IsNullOrEmpty(objectText))
                         {
-                            ItemEntity ie = Entity.GetEntity(objectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
-                            if (ie != null)
-                            {
-                                if (ie is UnknownItemEntity)
-                                {
-                                    flp.ErrorMessages.Add("Unknown item: " + objectText);
-                                }
-                                else
-                                {
-                                    ItemTypeEnum eItemType = ie.ItemType.Value;
-                                    StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-                                    if (ie.Count != 1 && sid.ItemClass != ItemClass.Coins)
-                                    {
-                                        flp.ErrorMessages.Add("Unexpected item count for " + objectText + ": " + ie.Count);
-                                    }
-                                    else
-                                    {
-                                        if (sid.ItemClass != ItemClass.Money)
-                                        {
-                                            if (itemsManaged == null) itemsManaged = new List<ItemEntity>();
-                                            itemsManaged.Add(ie);
-                                        }
-                                    }
-                                }
-                            }
+                            GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
                         }
                     }
                 }
@@ -1273,6 +1249,29 @@ namespace IsengardClient
                     _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed);
                     flp.FinishedProcessing = true;
                 }
+            }
+        }
+
+        public static void GetItemEntityFromObjectText(string ObjectText, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectCapitalized)
+        {
+            ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
+            if (ie != null)
+            {
+                if (ie is UnknownItemEntity)
+                {
+                    flp.ErrorMessages.Add("Unknown item: " + ObjectText);
+                }
+                else
+                {
+                    ItemTypeEnum eItemType = ie.ItemType.Value;
+                    StaticItemData sid = ItemEntity.StaticItemData[eItemType];
+                    if (ie.Count != 1 && sid.ItemClass != ItemClass.Coins)
+                    {
+                        flp.ErrorMessages.Add("Unexpected item count for " + ObjectText + ": " + ie.Count);
+                    }
+                }
+                if (itemList == null) itemList = new List<ItemEntity>();
+                itemList.Add(ie);
             }
         }
     }
@@ -2598,6 +2597,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.DetectInvisibleOver;
                 }
+                else if (sLine == "Your magical light fades.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.LightOver;
+                }
                 else if (sLine == "You no longer endure fire.")
                 {
                     haveDataToDisplay = true;
@@ -3133,11 +3137,11 @@ StartProcessRoom:
             { "You become shielded from the normal earth element.", "endure-earth" },
             { "You become shielded from the normal water element.", "endure-water" },
             { "You begin to float.", "levitation" },
-            { "Your eyes tingle.", "detect-invisible"}, //comes with "You start to feel real strange, as if connected to another dimension."
+            { "Your eyes tingle.", "detect-invisible"},
         };
 
-        public Action<FeedLineParameters, BackgroundCommandType?, string> _onSatisfied;
-        public SelfSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType?, string> onSatisfied)
+        public Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> _onSatisfied;
+        public SelfSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -3148,20 +3152,34 @@ StartProcessRoom:
             List<string> Lines = flParams.Lines;
             int lineCount = Lines.Count;
             string activeSpell = null;
-            if (lineCount > 0 && lineCount <= 3)
+            List<ItemEntity> consumedItems = null;
+            bool hasSpellCast = false;
+            if (Lines.Count > 0)
             {
-                string firstLine = Lines[0];
-                string secondLine = lineCount >= 2 ? Lines[1] : string.Empty;
-                string thirdLine = lineCount >= 3 ? Lines[2] : string.Empty;
-                if (firstLine == "Vigor spell cast." && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine))
-                    matchingSpell = BackgroundCommandType.Vigor;
-                else if (firstLine == "Mend-wounds spell cast." && string.IsNullOrEmpty(secondLine) && string.IsNullOrEmpty(thirdLine))
-                    matchingSpell = BackgroundCommandType.MendWounds;
-                else if (firstLine == "Curepoison spell cast on yourself." && secondLine == "You feel much better." && string.IsNullOrEmpty(thirdLine))
-                    matchingSpell = BackgroundCommandType.CurePoison;
-                else if (firstLine.EndsWith(" spell cast."))
+                foreach (string nextLine in Lines)
                 {
-                    if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(secondLine, out activeSpell))
+                    int lineLength = nextLine.Length;
+                    if (nextLine == "Vigor spell cast.")
+                    {
+                        hasSpellCast = true;
+                        matchingSpell = BackgroundCommandType.Vigor;
+                    }
+                    else if (nextLine == "Mend-wounds spell cast.")
+                    {
+                        hasSpellCast = true;
+                        matchingSpell = BackgroundCommandType.MendWounds;
+                    }
+                    else if (nextLine == "Curepoison spell cast on yourself.")
+                    {
+                        hasSpellCast = true;
+                        matchingSpell = BackgroundCommandType.CurePoison;
+                    }
+                    else if (nextLine.EndsWith(" spell cast."))
+                    {
+                        hasSpellCast = true;
+                        continue;
+                    }
+                    else if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out activeSpell))
                     {
                         if (activeSpell == "bless")
                         {
@@ -3172,11 +3190,24 @@ StartProcessRoom:
                             matchingSpell = BackgroundCommandType.Protection;
                         }
                     }
+                    else if (nextLine.EndsWith(" disintegrates."))
+                    {
+                        int suffixIndex = nextLine.IndexOf(" disintegrates.");
+                        if (suffixIndex > 0)
+                        {
+                            string objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
+                            InventoryEquipmentManagementSequence.GetItemEntityFromObjectText(objectText, ref consumedItems, flParams, true);
+                        }
+                    }
+                    else if (nextLine != "You start to feel real strange, as if connected to another dimension.") //detect invis
+                    {
+                        return;
+                    }
                 }
             }
-            if (matchingSpell.HasValue || !string.IsNullOrEmpty(activeSpell))
+            if (hasSpellCast)
             {
-                _onSatisfied(flParams, matchingSpell.Value, activeSpell);
+                _onSatisfied(flParams, matchingSpell.Value, activeSpell, consumedItems);
                 flParams.FinishedProcessing = true;
             }
         }

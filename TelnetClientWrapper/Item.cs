@@ -662,6 +662,11 @@ namespace IsengardClient
         [WeaponType(WeaponType.Polearm)]
         IronSpear,
 
+        [SingularName("juggling pin")]
+        [PluralName("juggling pins")]
+        [WeaponType(WeaponType.Blunt)]
+        JugglingPin,
+
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
         KasnarsRedKey,

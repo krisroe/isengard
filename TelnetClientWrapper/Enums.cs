@@ -411,6 +411,7 @@ namespace IsengardClient
         LevitationOver,
         InvisibilityOver,
         DetectInvisibleOver,
+        LightOver,
         EndureFireOver,
         EndureColdOver,
         EndureWaterOver,

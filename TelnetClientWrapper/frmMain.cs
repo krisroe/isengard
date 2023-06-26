@@ -1756,11 +1756,15 @@ namespace IsengardClient
             }
         }
 
-        private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, string activeSpell)
+        private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, string activeSpell, List<ItemEntity> consumedItems)
         {
             if (!string.IsNullOrEmpty(activeSpell))
             {
                 AddActiveSpell(activeSpell);
+            }
+            if (consumedItems != null && consumedItems.Count > 0)
+            {
+                AddOrRemoveItemsFromInventoryOrEquipment(flParams, consumedItems, ItemManagementAction.ConsumeItem);
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && commandType.HasValue && bct.Value == commandType.Value)
@@ -2210,6 +2214,10 @@ namespace IsengardClient
                     case InformationalMessageType.DetectMagicOver:
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("detect-magic");
+                        break;
+                    case InformationalMessageType.LightOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("light");
                         break;
                     case InformationalMessageType.ManashieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Manashield, false);
@@ -2694,12 +2702,17 @@ namespace IsengardClient
                 {
                     bool addChange = false;
                     EntityChangeEntry changeEntry = new EntityChangeEntry();
-                    ItemTypeEnum nextItem = nextItemEntity.ItemType.Value;
                     changeEntry.Item = nextItemEntity;
                     bool removeEquipment = changeType == EntityChangeType.UnequipItem || changeType == EntityChangeType.DestroyEquipment;
+                    StaticItemData sid = null;
+                    ItemTypeEnum nextItem = ItemTypeEnum.GoldCoins;
+                    if (nextItemEntity.ItemType.HasValue)
+                    {
+                        nextItem = nextItemEntity.ItemType.Value;
+                        sid = ItemEntity.StaticItemData[nextItem];
+                    }
                     if (changeType == EntityChangeType.EquipItem || removeEquipment)
                     {
-                        StaticItemData sid = ItemEntity.StaticItemData[nextItem];
                         if (sid.EquipmentType != EquipmentType.Unknown)
                         {
                             foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
@@ -2739,10 +2752,13 @@ namespace IsengardClient
                             flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
                         }
                     }
-                    else //equipment not involved
+                    else if (sid != null) //equipment not involved
                     {
                         bool isAdd = changeType == EntityChangeType.PickUpItem;
-                        addChange = iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAdd, changeEntry);
+                        if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
+                        {
+                            addChange = iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAdd, changeEntry);
+                        }
                         if (changeType == EntityChangeType.PickUpItem)
                         {
                             addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
@@ -4227,6 +4243,10 @@ BeforeHazy:
                             {
                                 throw new InvalidOperationException();
                             }
+                        }
+                        else
+                        {
+                            anythingFailed = true;
                         }
                     }
                     foreach (ItemEntity nextItem in monsterItemsToRemove)
