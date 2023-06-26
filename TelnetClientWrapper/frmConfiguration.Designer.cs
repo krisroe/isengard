@@ -87,6 +87,7 @@
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
             this.pnlBottom = new System.Windows.Forms.Panel();
+            this.btnSell = new System.Windows.Forms.Button();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -611,6 +612,7 @@
             // 
             // pnlItemsTop
             // 
+            this.pnlItemsTop.Controls.Add(this.btnSell);
             this.pnlItemsTop.Controls.Add(this.btnClear);
             this.pnlItemsTop.Controls.Add(this.btnKeep);
             this.pnlItemsTop.Controls.Add(this.btnIgnore);
@@ -622,7 +624,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(170, 12);
+            this.btnClear.Location = new System.Drawing.Point(251, 12);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 26);
             this.btnClear.TabIndex = 2;
@@ -659,6 +661,16 @@
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(1098, 54);
             this.pnlBottom.TabIndex = 148;
+            // 
+            // btnSell
+            // 
+            this.btnSell.Location = new System.Drawing.Point(170, 12);
+            this.btnSell.Name = "btnSell";
+            this.btnSell.Size = new System.Drawing.Size(75, 26);
+            this.btnSell.TabIndex = 3;
+            this.btnSell.Text = "Sell";
+            this.btnSell.UseVisualStyleBackColor = true;
+            this.btnSell.Click += new System.EventHandler(this.btnSell_Click);
             // 
             // frmConfiguration
             // 
@@ -749,5 +761,6 @@
         private System.Windows.Forms.Button btnKeep;
         private System.Windows.Forms.Button btnIgnore;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnSell;
     }
 }

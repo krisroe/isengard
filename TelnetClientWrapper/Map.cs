@@ -11,6 +11,7 @@ namespace IsengardClient
         private Dictionary<string, Area> _areasByName;
         private Dictionary<MapType, RoomGraph> _graphs;
         public Dictionary<HealingRoom, Room> HealingRooms = new Dictionary<HealingRoom, Room>();
+        public Dictionary<PawnShoppe, Room> PawnShoppes = new Dictionary<PawnShoppe, Room>();
 
         private string UNKNOWN_ROOM_NAME = "!@#UNKNOWN$%^";
         public Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
@@ -1316,11 +1317,11 @@ namespace IsengardClient
             AddBidirectionalExits(oSergeantGrimgall, oGuardsRecRoom, BidirectionalExitType.NorthSouth);
             _breeStreetsGraph.Rooms[oGuardsRecRoom] = new System.Windows.Point(6, 8.5);
 
-            Room oBreePawnShopWest = AddRoom("Ixell's Antique Shop", "Ixell's Antique Shop");
+            Room oBreePawnShopWest = AddPawnShoppeRoom("Ixell's Antique Shop", "Ixell's Antique Shop", PawnShoppe.BreeSouthwest);
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBreePawnShopWest] = new System.Windows.Point(2, 8);
 
-            Room oBreePawnShopEast = AddRoom("Pawn Shop", "Pawn Shop");
+            Room oBreePawnShopEast = AddPawnShoppeRoom("Pawn Shop", "Pawn Shop", PawnShoppe.BreeNortheast);
             AddBidirectionalExits(oPoorAlley1, oBreePawnShopEast, BidirectionalExitType.WestEast);
             _breeStreetsGraph.Rooms[oBreePawnShopEast] = new System.Windows.Point(13, 4);
 
@@ -2949,7 +2950,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisSmallAlley2, oImladrisSmallAlley1, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oImladrisSmallAlley2] = new System.Windows.Point(6, 3);
 
-            Room oImladrisPawnShop = AddRoom("Sharkey's Pawn Shop", "Sharkey's Pawn Shoppe");
+            Room oImladrisPawnShop = AddPawnShoppeRoom("Sharkey's Pawn Shop", "Sharkey's Pawn Shoppe", PawnShoppe.Imladris);
             AddBidirectionalSameNameExit(oImladrisPawnShop, oImladrisSmallAlley2, "door");
             imladrisGraph.Rooms[oImladrisPawnShop] = new System.Windows.Point(5, 3);
 
@@ -5537,6 +5538,14 @@ namespace IsengardClient
                     UnambiguousRooms[backendName] = r;
                 }
             }
+            return r;
+        }
+
+        private Room AddPawnShoppeRoom(string roomName, string backendName, PawnShoppe pawnShoppe)
+        {
+            Room r = AddRoom(roomName, backendName);
+            r.PawnShoppe = pawnShoppe;
+            PawnShoppes[pawnShoppe] = r;
             return r;
         }
 

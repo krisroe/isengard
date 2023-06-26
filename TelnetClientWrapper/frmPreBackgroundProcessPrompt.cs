@@ -13,11 +13,51 @@ namespace IsengardClient
         public List<Exit> SelectedPath { get; set; }
 
         public Strategy Strategy { get; set; }
+        public HealingRoom? HealingRoom
+        {
+            get
+            {
+                return cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
+            }
+        }
+        public PawnShoppe? PawnShop
+        {
+            get
+            {
+                return cboPawnShoppe.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShoppe.SelectedItem;
+            }
+        }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, bool isCombatMacro, Func<GraphInputs> GetGraphInputs, Strategy strategy)
+        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, bool isCombatMacro, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop)
         {
             InitializeComponent();
 
+            cboTickRoom.Items.Add(string.Empty);
+            foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
+            {
+                cboTickRoom.Items.Add(nextHealingRoom);
+            }
+            if (healingRoom.HasValue)
+            {
+                cboTickRoom.SelectedItem = healingRoom.Value;
+            }
+            else
+            {
+                cboTickRoom.SelectedIndex = 0;
+            }
+            cboPawnShoppe.Items.Add(string.Empty);
+            foreach (var nextPawnShop in Enum.GetValues(typeof(PawnShoppe)))
+            {
+                cboPawnShoppe.Items.Add(nextPawnShop);
+            }
+            if (pawnShop.HasValue)
+            {
+                cboPawnShoppe.SelectedItem = pawnShop;
+            }
+            else
+            {
+                cboPawnShoppe.SelectedIndex = 0;
+            }
             _isCombatBackgroundProcess = isCombatMacro;
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;

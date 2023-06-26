@@ -45,13 +45,17 @@
             this.chkPotions = new System.Windows.Forms.CheckBox();
             this.chkMelee = new System.Windows.Forms.CheckBox();
             this.chkMagic = new System.Windows.Forms.CheckBox();
+            this.cboPawnShoppe = new System.Windows.Forms.ComboBox();
+            this.lblPawnShoppe = new System.Windows.Forms.Label();
+            this.cboTickRoom = new System.Windows.Forms.ComboBox();
+            this.lblTickRoom = new System.Windows.Forms.Label();
             this.grpSkills.SuspendLayout();
             this.grpStrategy.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(586, 235);
+            this.btnOK.Location = new System.Drawing.Point(579, 293);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(100, 28);
@@ -63,7 +67,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(694, 235);
+            this.btnCancel.Location = new System.Drawing.Point(687, 293);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(100, 28);
@@ -84,7 +88,7 @@
             // grpSkills
             // 
             this.grpSkills.Controls.Add(this.flp);
-            this.grpSkills.Location = new System.Drawing.Point(51, 89);
+            this.grpSkills.Location = new System.Drawing.Point(44, 147);
             this.grpSkills.Margin = new System.Windows.Forms.Padding(4);
             this.grpSkills.Name = "grpSkills";
             this.grpSkills.Padding = new System.Windows.Forms.Padding(4);
@@ -172,7 +176,7 @@
             this.grpStrategy.Controls.Add(this.chkMelee);
             this.grpStrategy.Controls.Add(this.chkMagic);
             this.grpStrategy.Controls.Add(this.btnEditStrategy);
-            this.grpStrategy.Location = new System.Drawing.Point(505, 89);
+            this.grpStrategy.Location = new System.Drawing.Point(498, 147);
             this.grpStrategy.Name = "grpStrategy";
             this.grpStrategy.Size = new System.Drawing.Size(295, 121);
             this.grpStrategy.TabIndex = 11;
@@ -236,12 +240,56 @@
             this.chkMagic.UseVisualStyleBackColor = true;
             this.chkMagic.CheckedChanged += new System.EventHandler(this.chkMagic_CheckedChanged);
             // 
+            // cboPawnShoppe
+            // 
+            this.cboPawnShoppe.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPawnShoppe.FormattingEnabled = true;
+            this.cboPawnShoppe.Location = new System.Drawing.Point(104, 81);
+            this.cboPawnShoppe.Margin = new System.Windows.Forms.Padding(4);
+            this.cboPawnShoppe.Name = "cboPawnShoppe";
+            this.cboPawnShoppe.Size = new System.Drawing.Size(376, 24);
+            this.cboPawnShoppe.TabIndex = 13;
+            // 
+            // lblPawnShoppe
+            // 
+            this.lblPawnShoppe.AutoSize = true;
+            this.lblPawnShoppe.Location = new System.Drawing.Point(16, 84);
+            this.lblPawnShoppe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPawnShoppe.Name = "lblPawnShoppe";
+            this.lblPawnShoppe.Size = new System.Drawing.Size(76, 16);
+            this.lblPawnShoppe.TabIndex = 12;
+            this.lblPawnShoppe.Text = "Pawn shop:";
+            // 
+            // cboTickRoom
+            // 
+            this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTickRoom.FormattingEnabled = true;
+            this.cboTickRoom.Location = new System.Drawing.Point(105, 113);
+            this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboTickRoom.Name = "cboTickRoom";
+            this.cboTickRoom.Size = new System.Drawing.Size(376, 24);
+            this.cboTickRoom.TabIndex = 15;
+            // 
+            // lblTickRoom
+            // 
+            this.lblTickRoom.AutoSize = true;
+            this.lblTickRoom.Location = new System.Drawing.Point(17, 116);
+            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblTickRoom.Name = "lblTickRoom";
+            this.lblTickRoom.Size = new System.Drawing.Size(70, 16);
+            this.lblTickRoom.TabIndex = 14;
+            this.lblTickRoom.Text = "Tick room:";
+            // 
             // frmPreBackgroundProcessPrompt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(821, 282);
+            this.ClientSize = new System.Drawing.Size(821, 346);
             this.ControlBox = false;
+            this.Controls.Add(this.cboTickRoom);
+            this.Controls.Add(this.lblTickRoom);
+            this.Controls.Add(this.cboPawnShoppe);
+            this.Controls.Add(this.lblPawnShoppe);
             this.Controls.Add(this.grpStrategy);
             this.Controls.Add(this.btnLocations);
             this.Controls.Add(this.btnGraph);
@@ -282,5 +330,9 @@
         private System.Windows.Forms.CheckBox chkMagic;
         private System.Windows.Forms.ComboBox cboOnKillMonster;
         private System.Windows.Forms.Label lblOnKillMonster;
+        private System.Windows.Forms.ComboBox cboPawnShoppe;
+        private System.Windows.Forms.Label lblPawnShoppe;
+        private System.Windows.Forms.ComboBox cboTickRoom;
+        private System.Windows.Forms.Label lblTickRoom;
     }
 }

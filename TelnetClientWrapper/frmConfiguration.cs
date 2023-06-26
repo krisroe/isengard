@@ -650,5 +650,10 @@ namespace IsengardClient
         {
             SetItemActions(null);
         }
+
+        private void btnSell_Click(object sender, EventArgs e)
+        {
+            SetItemActions(ItemInventoryAction.Sell);
+        }
     }
 }

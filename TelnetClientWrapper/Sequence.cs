@@ -1142,11 +1142,11 @@ namespace IsengardClient
                         }
                         else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
                         {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem)
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem)
                             {
                                 return;
                             }
-                            eAction = ItemManagementAction.ConsumeItem;
+                            eAction = ItemManagementAction.SellItem;
                             if (!nextLine.EndsWith("."))
                             {
                                 return;

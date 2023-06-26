@@ -27,6 +27,10 @@ namespace IsengardClient
         /// </summary>
         public HealingRoom? HealingRoom { get; set; }
         /// <summary>
+        /// pawn shoppe
+        /// </summary>
+        public PawnShoppe? PawnShoppe { get; set; }
+        /// <summary>
         /// realm for the damage type for rooms that damage periodically
         /// </summary>
         public RoomDamageType? DamageType { get; set; }

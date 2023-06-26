@@ -105,6 +105,7 @@ namespace IsengardClient
         DrinkHazy,
         DrinkNonHazyPotion,
         GetItem,
+        SellItem,
         Score,
         Quit,
     }
@@ -479,6 +480,13 @@ namespace IsengardClient
         Poison = 4,
     }
 
+    public enum PawnShoppe
+    {
+        BreeNortheast,
+        BreeSouthwest,
+        Imladris,
+    }
+
     public enum HealingRoom
     {
         BreeNortheast,
@@ -539,6 +547,7 @@ namespace IsengardClient
         PickUpItem,
         DropItem,
         ConsumeItem,
+        SellItem,
         Equip,
         Unequip,
         DestroyEquipment,
@@ -607,6 +616,7 @@ namespace IsengardClient
     {
         Ignore,
         Take,
+        Sell,
     }
 
     public enum AfterKillMonsterAction

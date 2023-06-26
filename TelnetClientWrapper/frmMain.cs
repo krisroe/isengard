@@ -209,6 +209,13 @@ namespace IsengardClient
             {
                 cboTickRoom.Items.Add(nextHealingRoom);
             }
+            cboTickRoom.SelectedIndex = 0;
+            cboPawnShop.Items.Add(string.Empty);
+            foreach (var nextPawnShop in Enum.GetValues(typeof(PawnShoppe)))
+            {
+                cboPawnShop.Items.Add(nextPawnShop);
+            }
+            cboPawnShop.SelectedIndex = 0;
 
             _strategies = Strategy.GetDefaultStrategies();
 
@@ -1872,13 +1879,13 @@ namespace IsengardClient
             }
         }
 
-        private void FailDrinkPotion(FeedLineParameters flParams)
+        private void FailDrinkOrSellItemDoesntExist(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion)
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem)
                 {
                     if (bctValue == BackgroundCommandType.DrinkHazy)
                     {
@@ -1915,7 +1922,26 @@ namespace IsengardClient
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.GetItem)
             {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void OnCannotSellItem(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.SellItem)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void OnCannotCarryAnymore(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.GetItem)
+            {
+                //fixable if the user drops stuff
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
             }
         }
 
@@ -2620,6 +2646,10 @@ namespace IsengardClient
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
+                else if (action == ItemManagementAction.SellItem && bctValue == BackgroundCommandType.SellItem)
+                {
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
+                }
             }
             if (forInit && couldBeRemoveAll)
             {
@@ -2646,7 +2676,7 @@ namespace IsengardClient
             {
                 changeType = EntityChangeType.DropItem;
             }
-            else if (action == ItemManagementAction.ConsumeItem)
+            else if (action == ItemManagementAction.ConsumeItem || action == ItemManagementAction.SellItem)
             {
                 changeType = EntityChangeType.ConsumeItem;
             }
@@ -2970,8 +3000,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You don't have that.", FailDrinkPotion, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
-                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkPotion, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
+                new ConstantOutputSequence("You don't have that.", FailDrinkOrSellItemDoesntExist, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem }),
+                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailDrinkOrSellItemDoesntExist, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
@@ -2979,9 +3009,10 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
                 new ConstantOutputSequence("That isn't here.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence("You can't carry anymore.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence("You can't carry anymore.", OnCannotCarryAnymore, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence("You can't take that!", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItem, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence("The shopkeep says, \"I won't buy that crap from you.\"", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
             };
             return seqs;
         }
@@ -3485,6 +3516,19 @@ namespace IsengardClient
                 {
                     treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
+
+                if (bwp.Success)
+                {
+                    if (bwp.TickRoom.HasValue)
+                    {
+                        cboTickRoom.SelectedItem = bwp.TickRoom.Value;
+                    }
+                    if (bwp.PawnShop.HasValue && bwp.UsedPawnShoppe)
+                    {
+                        cboPawnShop.SelectedItem = bwp.PawnShop.Value;
+                    }
+                }
+
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
@@ -3671,230 +3715,15 @@ namespace IsengardClient
                     if (!backgroundCommandSuccess) return;
                 }
 
-                Exit previousExit = null;
-                if (pms.Exits != null && pms.Exits.Count > 0)
+                if (pms.Exits != null && pms.Exits.Count > 0 && !TraverseExitsAlreadyInBackground(pms.Exits, pms))
                 {
-                    _backgroundProcessPhase = BackgroundProcessPhase.Movement;
-                    List<Exit> exitList = new List<Exit>(pms.Exits);
-                    Room oTarget = exitList[exitList.Count - 1].Target;
-                    bool needHeal = false;
-                    bool needCurepoison = false;
-                    while (exitList.Count > 0)
-                    {
-                        Exit nextExit = exitList[0];
-                        if (previousExit != null && previousExit == nextExit)
-                        {
-                            AddConsoleMessage("Movement recalculation produced the same path.");
-                            return;
-                        }
-                        Room nextExitTarget = nextExit.Target;
-                        string exitText = nextExit.ExitText;
-                        _currentBackgroundExit = nextExit;
-                        _currentBackgroundExitMessageReceived = false;
-                        try
-                        {
-                            //for exits that aren't always present, ensure the exit exists
-                            ExitPresenceType presenceType = nextExit.PresenceType;
-                            if (presenceType != ExitPresenceType.Always)
-                            {
-                                bool foundExit = false;
-                                do
-                                {
-                                    if (presenceType == ExitPresenceType.Periodic)
-                                    {
-                                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying);
-                                        if (backgroundCommandResult == CommandResult.CommandSuccessful)
-                                        {
-                                            if (_currentEntityInfo.CurrentObviousExits.Contains(exitText))
-                                            {
-                                                foundExit = true;
-                                            }
-                                            else
-                                            {
-                                                WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
-                                            }
-                                        }
-                                        else //look is not supposed to fail (but could be aborted)
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else if (presenceType == ExitPresenceType.RequiresSearch)
-                                    {
-                                        _foundSearchedExits = null;
-                                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying);
-                                        if (backgroundCommandSuccess)
-                                        {
-                                            if (_foundSearchedExits.Contains(exitText))
-                                            {
-                                                foundExit = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new InvalidOperationException();
-                                    }
-                                }
-                                while (!foundExit);
-                            }
-
-                            //for wait for message exits, wait until the message is received
-                            if (nextExit.WaitForMessage.HasValue)
-                            {
-                                while (!_currentBackgroundExitMessageReceived)
-                                {
-                                    if (_fleeing) break;
-                                    if (_hazying) break;
-                                    if (_bw.CancellationPending) break;
-                                    Thread.Sleep(50);
-                                    RunQueuedCommandWhenBackgroundProcessRunning(pms);
-                                }
-                            }
-
-                            if (_fleeing) break;
-                            if (_hazying) break;
-                            if (_bw.CancellationPending) break;
-
-                            if (nextExit.KeyType != KeyType.None)
-                            {
-                                if (!nextExit.RequiresKey())
-                                {
-                                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying);
-                                    if (!backgroundCommandSuccess) return;
-                                }
-                            }
-
-                            if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
-                            {
-                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
-                                if (!backgroundCommandSuccess) return;
-                            }
-                            bool useGo;
-                            string sExitWord = GetExitWord(nextExit, out useGo);
-                            if (!PreOpenDoorExit(nextExit, sExitWord, pms))
-                            {
-                                return;
-                            }
-                            string nextCommand;
-                            if (useGo)
-                            {
-                                nextCommand = "go " + sExitWord;
-                            }
-                            else
-                            {
-                                nextCommand = sExitWord;
-                            }
-                            bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
-
-                            bool keepTryingMovement = true;
-                            while (keepTryingMovement)
-                            {
-                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying);
-                                if (backgroundCommandSuccess) //successfully traversed the exit to the new room
-                                {
-                                    exitList.RemoveAt(0);
-                                    keepTryingMovement = false;
-                                    if ((_lastCommandTrapType & TrapType.PoisonDart) != TrapType.None)
-                                    {
-                                        needCurepoison = true;
-                                    }
-                                    if (_lastCommandDamage != 0) //trap room
-                                    {
-                                        needHeal = true;
-                                    }
-                                    if ((_lastCommandTrapType & TrapType.Fall) != TrapType.None)
-                                    {
-                                        SendCommand("stand", InputEchoType.On);
-                                    }
-                                }
-                                else if (_lastCommandMovementResult == MovementResult.MapFailure)
-                                {
-                                    List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget);
-                                    if (newRoute != null && newRoute.Count > 0)
-                                    {
-                                        exitList.Clear();
-                                        exitList.AddRange(newRoute);
-                                    }
-                                    else //couldn't recalculate a new route
-                                    {
-                                        return;
-                                    }
-                                    keepTryingMovement = false;
-                                }
-                                else if (_lastCommandMovementResult == MovementResult.StandFailure)
-                                {
-                                    SendCommand("stand", InputEchoType.On);
-                                    keepTryingMovement = true;
-                                }
-                                else if (_lastCommandMovementResult == MovementResult.ClosedDoorFailure)
-                                {
-                                    bool openSuccess = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying);
-                                    if (openSuccess)
-                                    {
-                                        keepTryingMovement = true;
-                                    }
-                                    else //couldn't open the door
-                                    {
-                                        return;
-                                    }
-                                }
-                                else if (_lastCommandMovementResult == MovementResult.FallFailure)
-                                {
-                                    if (!DoBackgroundHeal(true, false, false, needCurepoison, pms)) return;
-                                    SendCommand("stand", InputEchoType.On);
-                                    keepTryingMovement = true;
-                                }
-                                else //total failure, abort the background process
-                                {
-                                    keepTryingMovement = false;
-                                    return;
-                                }
-                            }
-                            if (needHeal || needCurepoison)
-                            {
-                                bool doHealingLogic = !targetIsDamageRoom;
-                                if (doHealingLogic)
-                                {
-                                    lock (_entityLock)
-                                    {
-                                        foreach (var nextMob in _currentEntityInfo.CurrentRoomMobs)
-                                        {
-                                            if (MobEntity.StaticMobData[nextMob].Aggressive)
-                                            {
-                                                doHealingLogic = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (doHealingLogic)
-                                {
-                                    if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return;
-                                    needHeal = false;
-                                    needCurepoison = false;
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            _currentBackgroundExit = null;
-                            _foundSearchedExits = null;
-                        }
-                    }
-                    pms.AtDestination = true; //all exits traversed successfully
+                    return;
                 }
-                else
+                pms.AtDestination = true;
+
+                bool hasCombat = !string.IsNullOrEmpty(pms.TargetRoomMob);
+                if (hasCombat)
                 {
-                    pms.AtDestination = true;
-                }
-
-               if (!string.IsNullOrEmpty(pms.TargetRoomMob) && pms.AtDestination)
-               {
                     _mob = pms.TargetRoomMob;
                 }
 
@@ -3903,7 +3732,6 @@ namespace IsengardClient
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
                 bool hasInitialQueuedPotionsStep;
-                bool wasMonsterKilled = false;
                 lock (_queuedCommandLock)
                 {
                     hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
@@ -4329,14 +4157,20 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.MonsterKilled)
+                if (pms.MonsterKilled && !pms.Fled && !pms.Hazied)
                 {
+                    List<Exit> nextRoute;
+                    Room monsterRoom = _currentEntityInfo.CurrentRoom;
                     List<ItemEntity> monsterItems = new List<ItemEntity>();
+                    List<ItemEntity> itemsToSell = new List<ItemEntity>();
                     lock (_entityLock)
                     {
                         monsterItems.AddRange(_monsterKilledItems);
                     }
+NextItemCycle:
+                    bool anythingCouldNotBePickedUp = false;
                     bool anythingFailed = false;
+                    List<ItemEntity> monsterItemsToRemove = new List<ItemEntity>();
                     foreach (ItemEntity nextItem in monsterItems)
                     {
                         if (nextItem.ItemType.HasValue)
@@ -4344,13 +4178,16 @@ BeforeHazy:
                             ItemTypeEnum eItemType = nextItem.ItemType.Value;
                             if (!_settingsData.DynamicItemData.TryGetValue(eItemType, out DynamicItemData did))
                             {
-                                break;
-                            }
-                            if (did.Action == ItemInventoryAction.Ignore)
-                            {
+                                anythingFailed = true;
                                 continue;
                             }
-                            else if (did.Action == ItemInventoryAction.Take)
+                            ItemInventoryAction eAction = did.Action;
+                            if (eAction == ItemInventoryAction.Ignore)
+                            {
+                                monsterItemsToRemove.Add(nextItem);
+                                continue;
+                            }
+                            else if (eAction == ItemInventoryAction.Take || eAction == ItemInventoryAction.Sell)
                             {
                                 string sItemText;
                                 lock (_entityLock)
@@ -4363,7 +4200,23 @@ BeforeHazy:
                                 }
                                 else
                                 {
-                                    RunSingleCommand(BackgroundCommandType.GetItem, "get " + sItemText, pms, null);
+                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.GetItem, "get " + sItemText, pms, null);
+                                    if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                                    {
+                                        monsterItemsToRemove.Add(nextItem);
+                                        if (eAction == ItemInventoryAction.Sell)
+                                        {
+                                            itemsToSell.Add(nextItem);
+                                        }
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulThisTime)
+                                    {
+                                        anythingCouldNotBePickedUp = true;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
                                 }
                             }
                             else
@@ -4371,6 +4224,55 @@ BeforeHazy:
                                 throw new InvalidOperationException();
                             }
                         }
+                    }
+                    foreach (ItemEntity nextItem in monsterItemsToRemove)
+                    {
+                        monsterItems.Remove(nextItem);
+                    }
+                    if (anythingFailed)
+                    {
+                        return;
+                    }
+                    if (itemsToSell.Count > 0 && pms.PawnShop.HasValue)
+                    {
+                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, _gameMap.PawnShoppes[pms.PawnShop.Value]);
+                        if (nextRoute == null) return;
+                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                        anythingFailed = false;
+                        foreach (ItemEntity nextItem in itemsToSell)
+                        {
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true);
+                            if (string.IsNullOrEmpty(sItemText))
+                            {
+                                anythingFailed = true;
+                            }
+                            else
+                            {
+                                bool sellSucceeded = RunSingleCommand(BackgroundCommandType.SellItem, "sell " + sItemText, pms, null);
+                                anythingFailed |= sellSucceeded;
+                                if (sellSucceeded)
+                                {
+                                    pms.UsedPawnShoppe = true;
+                                }
+                            }
+                        }
+                        if (anythingFailed)
+                        {
+                            return;
+                        }
+                        if (anythingCouldNotBePickedUp)
+                        {
+                            nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, monsterRoom);
+                            if (nextRoute == null) return;
+                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                            goto NextItemCycle;
+                        }
+                    }
+                    if (pms.TickRoom.HasValue)
+                    {
+                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, _gameMap.HealingRooms[pms.TickRoom.Value]);
+                        if (nextRoute == null) return;
+                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
                     }
                 }
 
@@ -4402,6 +4304,8 @@ BeforeHazy:
                         pms.DoScore = false;
                     }
                 }
+
+                pms.Success = !pms.Fled && !pms.Hazied && (!hasCombat || pms.MonsterKilled);
             }
             catch (Exception ex)
             {
@@ -4471,6 +4375,226 @@ BeforeHazy:
                 }
             }
             return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
+        }
+
+        private bool TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms)
+        {
+            Exit previousExit = null;
+            _backgroundProcessPhase = BackgroundProcessPhase.Movement;
+            List<Exit> exitList = new List<Exit>(exits);
+            Room oTarget = exitList[exitList.Count - 1].Target;
+            bool needHeal = false;
+            bool needCurepoison = false;
+            CommandResult backgroundCommandResult;
+            bool backgroundCommandSuccess;
+            while (exitList.Count > 0)
+            {
+                Exit nextExit = exitList[0];
+                if (previousExit != null && previousExit == nextExit)
+                {
+                    AddConsoleMessage("Movement recalculation produced the same path.");
+                    return false;
+                }
+                Room nextExitTarget = nextExit.Target;
+                string exitText = nextExit.ExitText;
+                _currentBackgroundExit = nextExit;
+                _currentBackgroundExitMessageReceived = false;
+                try
+                {
+                    //for exits that aren't always present, ensure the exit exists
+                    ExitPresenceType presenceType = nextExit.PresenceType;
+                    if (presenceType != ExitPresenceType.Always)
+                    {
+                        bool foundExit = false;
+                        do
+                        {
+                            if (presenceType == ExitPresenceType.Periodic)
+                            {
+                                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying);
+                                if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                                {
+                                    if (_currentEntityInfo.CurrentObviousExits.Contains(exitText))
+                                    {
+                                        foundExit = true;
+                                    }
+                                    else
+                                    {
+                                        WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
+                                    }
+                                }
+                                else //look is not supposed to fail (but could be aborted)
+                                {
+                                    return false;
+                                }
+                            }
+                            else if (presenceType == ExitPresenceType.RequiresSearch)
+                            {
+                                _foundSearchedExits = null;
+                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying);
+                                if (backgroundCommandSuccess)
+                                {
+                                    if (_foundSearchedExits.Contains(exitText))
+                                    {
+                                        foundExit = true;
+                                    }
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException();
+                            }
+                        }
+                        while (!foundExit);
+                    }
+
+                    //for wait for message exits, wait until the message is received
+                    if (nextExit.WaitForMessage.HasValue)
+                    {
+                        while (!_currentBackgroundExitMessageReceived)
+                        {
+                            if (_fleeing) break;
+                            if (_hazying) break;
+                            if (_bw.CancellationPending) break;
+                            Thread.Sleep(50);
+                            RunQueuedCommandWhenBackgroundProcessRunning(pms);
+                        }
+                    }
+
+                    if (_fleeing) break;
+                    if (_hazying) break;
+                    if (_bw.CancellationPending) break;
+
+                    if (nextExit.KeyType != KeyType.None)
+                    {
+                        if (!nextExit.RequiresKey())
+                        {
+                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying);
+                            if (!backgroundCommandSuccess) return false;
+                        }
+                    }
+
+                    if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
+                    {
+                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying);
+                        if (!backgroundCommandSuccess) return false;
+                    }
+                    bool useGo;
+                    string sExitWord = GetExitWord(nextExit, out useGo);
+                    if (!PreOpenDoorExit(nextExit, sExitWord, pms))
+                    {
+                        return false;
+                    }
+                    string nextCommand;
+                    if (useGo)
+                    {
+                        nextCommand = "go " + sExitWord;
+                    }
+                    else
+                    {
+                        nextCommand = sExitWord;
+                    }
+                    bool targetIsDamageRoom = nextExitTarget != null && nextExitTarget.DamageType.HasValue;
+
+                    bool keepTryingMovement = true;
+                    while (keepTryingMovement)
+                    {
+                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying);
+                        if (backgroundCommandSuccess) //successfully traversed the exit to the new room
+                        {
+                            exitList.RemoveAt(0);
+                            keepTryingMovement = false;
+                            if ((_lastCommandTrapType & TrapType.PoisonDart) != TrapType.None)
+                            {
+                                needCurepoison = true;
+                            }
+                            if (_lastCommandDamage != 0) //trap room
+                            {
+                                needHeal = true;
+                            }
+                            if ((_lastCommandTrapType & TrapType.Fall) != TrapType.None)
+                            {
+                                SendCommand("stand", InputEchoType.On);
+                            }
+                        }
+                        else if (_lastCommandMovementResult == MovementResult.MapFailure)
+                        {
+                            List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget);
+                            if (newRoute != null && newRoute.Count > 0)
+                            {
+                                exitList.Clear();
+                                exitList.AddRange(newRoute);
+                            }
+                            else //couldn't recalculate a new route
+                            {
+                                return false;
+                            }
+                            keepTryingMovement = false;
+                        }
+                        else if (_lastCommandMovementResult == MovementResult.StandFailure)
+                        {
+                            SendCommand("stand", InputEchoType.On);
+                            keepTryingMovement = true;
+                        }
+                        else if (_lastCommandMovementResult == MovementResult.ClosedDoorFailure)
+                        {
+                            bool openSuccess = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying);
+                            if (openSuccess)
+                            {
+                                keepTryingMovement = true;
+                            }
+                            else //couldn't open the door
+                            {
+                                return false;
+                            }
+                        }
+                        else if (_lastCommandMovementResult == MovementResult.FallFailure)
+                        {
+                            if (!DoBackgroundHeal(true, false, false, needCurepoison, pms)) return false;
+                            SendCommand("stand", InputEchoType.On);
+                            keepTryingMovement = true;
+                        }
+                        else //total failure, abort the background process
+                        {
+                            keepTryingMovement = false;
+                            return false;
+                        }
+                    }
+                    if (needHeal || needCurepoison)
+                    {
+                        bool doHealingLogic = !targetIsDamageRoom;
+                        if (doHealingLogic)
+                        {
+                            lock (_entityLock)
+                            {
+                                foreach (var nextMob in _currentEntityInfo.CurrentRoomMobs)
+                                {
+                                    if (MobEntity.StaticMobData[nextMob].Aggressive)
+                                    {
+                                        doHealingLogic = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (doHealingLogic)
+                        {
+                            if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms)) return false;
+                            needHeal = false;
+                            needCurepoison = false;
+                        }
+                    }
+                }
+                finally
+                {
+                    _currentBackgroundExit = null;
+                    _foundSearchedExits = null;
+                }
+            }
+            return true;
         }
 
         private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, CurrentEntityInfo inventoryEquipment, bool canVigor, bool canMend)
@@ -5477,6 +5601,8 @@ BeforeHazy:
             yield return txtPotion;
             yield return cboTickRoom;
             yield return btnGoToHealingRoom;
+            yield return cboPawnShop;
+            yield return btnGoToPawnShop;
             foreach (Button btn in flpOneClickStrategies.Controls)
             {
                 yield return btn;
@@ -5993,6 +6119,10 @@ BeforeHazy:
             public bool MonsterKilled { get; set; }
             public MobTypeEnum? MonsterKilledType { get; set; }
             public bool AtDestination { get; set; }
+            public PawnShoppe? PawnShop { get; set; }
+            public bool UsedPawnShoppe { get; set; }
+            public HealingRoom? TickRoom { get; set; }
+            public bool Success { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -6053,7 +6183,9 @@ BeforeHazy:
             PromptedSkills activatedSkills;
             string targetRoomMob;
             List<Exit> preExits;
-            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy))
+            HealingRoom? healingRoom;
+            PawnShoppe? pawnShoppe;
+            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe))
             {
                 return;
             }
@@ -6064,14 +6196,18 @@ BeforeHazy:
             bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
             bwp.TargetRoomMob = targetRoomMob;
+            bwp.TickRoom = healingRoom;
+            bwp.PawnShop = pawnShoppe;
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy)
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
             preExits = null;
+            healingRoom = null;
+            pawnShoppe = null;
 
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
@@ -6110,7 +6246,10 @@ BeforeHazy:
                 return false;
             }
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy))
+            HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
+            PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
+
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
@@ -6120,6 +6259,8 @@ BeforeHazy:
                 activatedSkills = frmSkills.SelectedSkills;
                 mob = frmSkills.Mob;
                 strategy = frmSkills.Strategy;
+                healingRoom = frmSkills.HealingRoom;
+                pawnShoppe = frmSkills.PawnShop;
             }
             return true;
         }
@@ -6474,9 +6615,23 @@ BeforeHazy:
                     if (_setTickRoom)
                     {
                         HealingRoom? healFlag = oCurrentRoom.HealingRoom;
+                        bool setPawnShop = false;
                         if (healFlag.HasValue)
                         {
                             cboTickRoom.SelectedItem = healFlag.Value;
+                            if (Enum.TryParse(healFlag.Value.ToString(), out PawnShoppe ps))
+                            {
+                                cboPawnShop.SelectedItem = ps;
+                                setPawnShop = true;
+                            }
+                        }
+                        else
+                        {
+                            cboTickRoom.SelectedIndex = 0;
+                        }
+                        if (!setPawnShop)
+                        {
+                            cboPawnShop.SelectedIndex = 0;
                         }
                         _setTickRoom = false;
                     }
@@ -7495,7 +7650,7 @@ BeforeHazy:
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             Strategy temp = null;
-            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp))
+            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp, out _, out _))
             {
                 bwp = new BackgroundWorkerParameters();
                 bwp.UsedSkills = activatedSkills;
@@ -7661,6 +7816,11 @@ BeforeHazy:
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)
         {
             GoToRoom(_gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem]);
+        }
+
+        private void btnGoToPawnShop_Click(object sender, EventArgs e)
+        {
+            GoToRoom(_gameMap.PawnShoppes[(PawnShoppe)cboPawnShop.SelectedItem]);
         }
 
         private void treeCurrentRoom_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

@@ -70,6 +70,9 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnGoToPawnShop = new System.Windows.Forms.Button();
+            this.lblPawnShop = new System.Windows.Forms.Label();
+            this.cboPawnShop = new System.Windows.Forms.ComboBox();
             this.lblGold = new System.Windows.Forms.Label();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
             this.grpInventory = new System.Windows.Forms.GroupBox();
@@ -154,6 +157,8 @@
             this.tsbScore = new System.Windows.Forms.ToolStripButton();
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
             this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
+            this.tsbExport = new System.Windows.Forms.ToolStripButton();
+            this.tsbImport = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.ctxStrategy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
@@ -164,8 +169,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.tsbExport = new System.Windows.Forms.ToolStripButton();
-            this.tsbImport = new System.Windows.Forms.ToolStripButton();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -633,6 +636,9 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnGoToPawnShop);
+            this.pnlMain.Controls.Add(this.lblPawnShop);
+            this.pnlMain.Controls.Add(this.cboPawnShop);
             this.pnlMain.Controls.Add(this.lblGold);
             this.pnlMain.Controls.Add(this.lblToNextLevelValue);
             this.pnlMain.Controls.Add(this.grpInventory);
@@ -688,6 +694,39 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1356, 1108);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnGoToPawnShop
+            // 
+            this.btnGoToPawnShop.Enabled = false;
+            this.btnGoToPawnShop.Location = new System.Drawing.Point(312, 161);
+            this.btnGoToPawnShop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnGoToPawnShop.Name = "btnGoToPawnShop";
+            this.btnGoToPawnShop.Size = new System.Drawing.Size(45, 28);
+            this.btnGoToPawnShop.TabIndex = 151;
+            this.btnGoToPawnShop.Tag = "";
+            this.btnGoToPawnShop.Text = "Go";
+            this.btnGoToPawnShop.UseVisualStyleBackColor = true;
+            this.btnGoToPawnShop.Click += new System.EventHandler(this.btnGoToPawnShop_Click);
+            // 
+            // lblPawnShop
+            // 
+            this.lblPawnShop.AutoSize = true;
+            this.lblPawnShop.Location = new System.Drawing.Point(19, 167);
+            this.lblPawnShop.Name = "lblPawnShop";
+            this.lblPawnShop.Size = new System.Drawing.Size(76, 16);
+            this.lblPawnShop.TabIndex = 150;
+            this.lblPawnShop.Text = "Pawn at:";
+            this.lblPawnShop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // cboPawnShop
+            // 
+            this.cboPawnShop.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPawnShop.FormattingEnabled = true;
+            this.cboPawnShop.Location = new System.Drawing.Point(101, 164);
+            this.cboPawnShop.Margin = new System.Windows.Forms.Padding(4);
+            this.cboPawnShop.Name = "cboPawnShop";
+            this.cboPawnShop.Size = new System.Drawing.Size(205, 24);
+            this.cboPawnShop.TabIndex = 149;
             // 
             // lblGold
             // 
@@ -781,7 +820,7 @@
             this.lblTickRoom.Name = "lblTickRoom";
             this.lblTickRoom.Size = new System.Drawing.Size(70, 16);
             this.lblTickRoom.TabIndex = 144;
-            this.lblTickRoom.Text = "Tick room:";
+            this.lblTickRoom.Text = "Tick at:";
             this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cboTickRoom
@@ -1612,6 +1651,26 @@
             this.tsbConfiguration.Text = "Configuration";
             this.tsbConfiguration.Click += new System.EventHandler(this.tsbConfiguration_Click);
             // 
+            // tsbExport
+            // 
+            this.tsbExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbExport.Image = ((System.Drawing.Image)(resources.GetObject("tsbExport.Image")));
+            this.tsbExport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbExport.Name = "tsbExport";
+            this.tsbExport.Size = new System.Drawing.Size(45, 22);
+            this.tsbExport.Text = "Export";
+            this.tsbExport.Click += new System.EventHandler(this.tsbExport_Click);
+            // 
+            // tsbImport
+            // 
+            this.tsbImport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbImport.Image = ((System.Drawing.Image)(resources.GetObject("tsbImport.Image")));
+            this.tsbImport.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImport.Name = "tsbImport";
+            this.tsbImport.Size = new System.Drawing.Size(47, 22);
+            this.tsbImport.Text = "Import";
+            this.tsbImport.Click += new System.EventHandler(this.tsbImport_Click);
+            // 
             // tsbQuit
             // 
             this.tsbQuit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -1707,26 +1766,6 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(655, 62);
             this.pnlCommand.TabIndex = 30;
-            // 
-            // tsbExport
-            // 
-            this.tsbExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbExport.Image = ((System.Drawing.Image)(resources.GetObject("tsbExport.Image")));
-            this.tsbExport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbExport.Name = "tsbExport";
-            this.tsbExport.Size = new System.Drawing.Size(45, 22);
-            this.tsbExport.Text = "Export";
-            this.tsbExport.Click += new System.EventHandler(this.tsbExport_Click);
-            // 
-            // tsbImport
-            // 
-            this.tsbImport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbImport.Image = ((System.Drawing.Image)(resources.GetObject("tsbImport.Image")));
-            this.tsbImport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImport.Name = "tsbImport";
-            this.tsbImport.Size = new System.Drawing.Size(47, 22);
-            this.tsbImport.Text = "Import";
-            this.tsbImport.Click += new System.EventHandler(this.tsbImport_Click);
             // 
             // frmMain
             // 
@@ -1921,6 +1960,9 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
         private System.Windows.Forms.ToolStripButton tsbExport;
         private System.Windows.Forms.ToolStripButton tsbImport;
+        private System.Windows.Forms.Button btnGoToPawnShop;
+        private System.Windows.Forms.Label lblPawnShop;
+        private System.Windows.Forms.ComboBox cboPawnShop;
     }
 }
 
