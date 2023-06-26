@@ -1154,6 +1154,10 @@ namespace IsengardClient
         [PluralName("stone keys")]
         StoneKey,
 
+        [SingularName("storage sign")]
+        [PluralName("storage signs")]
+        StorageSign,
+
         [SingularName("sundorian tassle")]
         [PluralName("sundorian tassles")]
         [EquipmentType(EquipmentType.Unknown)]
