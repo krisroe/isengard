@@ -713,7 +713,7 @@
             this.lblPawnShop.AutoSize = true;
             this.lblPawnShop.Location = new System.Drawing.Point(19, 167);
             this.lblPawnShop.Name = "lblPawnShop";
-            this.lblPawnShop.Size = new System.Drawing.Size(76, 16);
+            this.lblPawnShop.Size = new System.Drawing.Size(57, 16);
             this.lblPawnShop.TabIndex = 150;
             this.lblPawnShop.Text = "Pawn at:";
             this.lblPawnShop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -818,7 +818,7 @@
             this.lblTickRoom.AutoSize = true;
             this.lblTickRoom.Location = new System.Drawing.Point(19, 135);
             this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(70, 16);
+            this.lblTickRoom.Size = new System.Drawing.Size(50, 16);
             this.lblTickRoom.TabIndex = 144;
             this.lblTickRoom.Text = "Tick at:";
             this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -858,6 +858,7 @@
             this.treeCurrentRoom.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterExpand);
             this.treeCurrentRoom.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterSelect);
             this.treeCurrentRoom.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeCurrentRoom_NodeMouseClick);
+            this.treeCurrentRoom.DoubleClick += new System.EventHandler(this.treeCurrentRoom_DoubleClick);
             // 
             // ctxCurrentRoom
             // 

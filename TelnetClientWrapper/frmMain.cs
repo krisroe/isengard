@@ -8173,6 +8173,42 @@ BeforeHazy:
             }
         }
 
+        private void treeCurrentRoom_DoubleClick(object sender, EventArgs e)
+        {
+            TreeNode selectedNode = treeCurrentRoom.SelectedNode;
+            TreeNode parentNode = selectedNode.Parent;
+            if (parentNode == _currentEntityInfo.tnObviousItems)
+            {
+                int counter = 0;
+                ItemEntity ie = (ItemEntity)selectedNode.Tag;
+                ItemTypeEnum ieType = ie.ItemType.Value;
+                foreach (TreeNode nextNode in _currentEntityInfo.tnObviousItems.Nodes)
+                {
+                    ItemEntity next = (ItemEntity)nextNode.Tag;
+                    if (ieType == next.ItemType.Value)
+                    {
+                        counter++;
+                        if (ie == next)
+                        {
+                            break;
+                        }
+                    }
+                }
+                lock (_entityLock)
+                {
+                    string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ieType, counter, false, ItemLocationTypeFlags.None);
+                    if (string.IsNullOrEmpty(sItemText))
+                    {
+                        MessageBox.Show("Unable to pick up item.");
+                    }
+                    else
+                    {
+                        SendCommand("get " + sItemText, InputEchoType.On);
+                    }
+                }
+            }
+        }
+
         private void tsmiGoToRoom_Click(object sender, EventArgs e)
         {
             TreeNode node = treeCurrentRoom.SelectedNode;

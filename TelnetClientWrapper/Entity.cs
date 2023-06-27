@@ -641,12 +641,20 @@ namespace IsengardClient
 
         public bool AddOrRemoveEntityItemFromRoomItems(CurrentEntityInfo entityInfo, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
         {
+            ItemTypeEnum itemTypeValue = nextItemEntity.ItemType.Value;
+            StaticItemData sid = ItemEntity.StaticItemData[itemTypeValue];
+            bool isCoins = sid.ItemClass == ItemClass.Coins;
             List<ItemEntity> itemList = entityInfo.CurrentRoomItems;
             int foundIndex = -1;
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
                 ItemEntity nextIt = itemList[i];
-                if (nextIt.ItemType.Value == nextItemEntity.ItemType.Value)
+                bool matches = itemTypeValue == nextIt.ItemType.Value;
+                if (matches && isCoins)
+                {
+                    matches = nextItemEntity.Count == nextIt.Count;
+                }
+                if (matches)
                 {
                     foundIndex = i;
                     break;
