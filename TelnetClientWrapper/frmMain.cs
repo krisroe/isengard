@@ -1967,10 +1967,10 @@ namespace IsengardClient
                 _monsterStunnedSince = null;
                 if (stunStart.HasValue)
                 {
-                    double ms = (DateTime.UtcNow - stunStart.Value).Milliseconds;
-                    if (ms > 0)
+                    double seconds = (DateTime.UtcNow - stunStart.Value).TotalSeconds;
+                    if (seconds > 0)
                     {
-                        AddConsoleMessage("Stunned for " + ms.ToString() + " ms.");
+                        flParams.Lines.Insert(0, "Stunned for " + seconds.ToString() + " seconds.");
                     }
                 }
             }
