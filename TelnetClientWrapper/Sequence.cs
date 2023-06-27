@@ -823,7 +823,13 @@ namespace IsengardClient
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0 && !string.IsNullOrEmpty(Lines[0]) && Lines[0].StartsWith(YOU_HAVE_PREFIX))
             {
-                string sFullContent = StringProcessing.GetListAsString(Lines, 0, YOU_HAVE_PREFIX, true, out _, null);
+                string sFullContent = StringProcessing.GetListAsString(Lines, 0, YOU_HAVE_PREFIX, true, out _, null).Trim();
+                if (sFullContent == "nothing")
+                {
+                    _onSatisfied(flParams, new List<ItemEntity>(), 0);
+                    flParams.FinishedProcessing = true;
+                    return;
+                }
                 int totalInventoryWeightIndex = sFullContent.IndexOf("Inventory weight is ");
                 if (totalInventoryWeightIndex > 0 && totalInventoryWeightIndex + "Inventory weight is ".Length != sFullContent.Length)
                 {
@@ -1012,7 +1018,7 @@ namespace IsengardClient
                 List<ItemEntity> itemsManaged = null;
                 if (firstLine.StartsWith(YOU_WEAR_PREFIX))
                 {
-                    List<string> wornObjects = StringProcessing.GetList(Lines, 0, YOU_WEAR_PREFIX, true, out _, null);
+                    List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wornObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1038,7 +1044,7 @@ namespace IsengardClient
                 }
                 else if (firstLine.StartsWith(YOU_HOLD_PREFIX))
                 {
-                    List<string> heldObjects = StringProcessing.GetList(Lines, 0, YOU_HOLD_PREFIX, true, out _, null);
+                    List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, heldObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1073,7 +1079,7 @@ namespace IsengardClient
                     {
                         sExpectedPrefix = YOU_REMOVED_PREFIX;
                     }
-                    List<string> removedObjects = StringProcessing.GetList(Lines, 0, sExpectedPrefix, true, out _, null);
+                    List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, removedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Unequip;
@@ -1099,7 +1105,7 @@ namespace IsengardClient
                 }
                 else if (firstLine.StartsWith(YOU_WIELD_PREFIX))
                 {
-                    List<string> wieldedObjects = StringProcessing.GetList(Lines, 0, YOU_WIELD_PREFIX, true, out _, null);
+                    List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out _, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wieldedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1123,32 +1129,66 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (eAction != ItemManagementAction.Equip && eAction != ItemManagementAction.Unequip)
+                else if (firstLine.StartsWith(YOU_GET_A_PREFIX))
+                {
+                    if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.PickUpItem)
+                    {
+                        return;
+                    }
+                    List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out _, null);
+                    List<ItemEntity> items = new List<ItemEntity>();
+                    RoomTransitionSequence.LoadItems(items, retrievedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    eAction = ItemManagementAction.PickUpItem;
+                    if (items.Count > 0)
+                    {
+                        itemsManaged = new List<ItemEntity>();
+                        foreach (ItemEntity ie in items)
+                        {
+                            if (ie is UnknownItemEntity)
+                            {
+                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                            }
+                            else
+                            {
+                                itemsManaged.Add(ie);
+                            }
+                        }
+                    }
+                }
+                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX))
+                {
+                    if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
+                    {
+                        return;
+                    }
+                    List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out _, null);
+                    List<ItemEntity> items = new List<ItemEntity>();
+                    RoomTransitionSequence.LoadItems(items, droppedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    eAction = ItemManagementAction.DropItem;
+                    if (items.Count > 0)
+                    {
+                        itemsManaged = new List<ItemEntity>();
+                        foreach (ItemEntity ie in items)
+                        {
+                            if (ie is UnknownItemEntity)
+                            {
+                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                            }
+                            else
+                            {
+                                itemsManaged.Add(ie);
+                            }
+                        }
+                    }
+                }
+                if (eAction != ItemManagementAction.Equip && eAction != ItemManagementAction.Unequip && eAction != ItemManagementAction.PickUpItem && eAction != ItemManagementAction.DropItem)
                 {
                     bool expectCapitalized = false;
                     foreach (string nextLine in Lines)
                     {
                         int lineLength = nextLine.Length;
                         string objectText = string.Empty;
-                        if (nextLine.StartsWith(YOU_GET_A_PREFIX) && nextLine != YOU_GET_A_PREFIX)
-                        {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.PickUpItem)
-                            {
-                                return;
-                            }
-                            eAction = ItemManagementAction.PickUpItem;
-                            objectText = nextLine.Substring(YOU_GET_A_PREFIX.Length).Trim().TrimEnd('.');
-                        }
-                        else if (nextLine.StartsWith(YOU_DROP_A_PREFIX) && nextLine != YOU_DROP_A_PREFIX)
-                        {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
-                            {
-                                return;
-                            }
-                            eAction = ItemManagementAction.DropItem;
-                            objectText = nextLine.Substring(YOU_DROP_A_PREFIX.Length).Trim().TrimEnd('.');
-                        }
-                        else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
+                        if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
                         {
                             if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem)
                             {
