@@ -207,6 +207,7 @@ namespace IsengardClient
 
         [SingularName("bag")]
         [PluralName("bags")]
+        [Weight(1)]
         Bag,
 
         [SingularName("banded mail armor")]
@@ -914,6 +915,7 @@ namespace IsengardClient
         [SingularName("pot helm")]
         [PluralName("pot helms")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(7)]
         PotHelm,
 
         [SingularName("pot of gold")]
@@ -928,6 +930,7 @@ namespace IsengardClient
 
         [SingularName("purple wand")]
         [PluralName("purple wands")]
+        [Weight(5)]
         PurpleWand,
 
         [SingularName("quarterstaff")]
@@ -1221,6 +1224,7 @@ namespace IsengardClient
 
         [SingularName("torch")]
         [PluralName("torchs")] //verified 6/21/23
+        [Weight(1)]
         Torch,
 
         [SingularName("training key")]

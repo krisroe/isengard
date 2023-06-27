@@ -174,14 +174,35 @@ namespace IsengardClient
                 return;
             }
 
+            GraphInputs graphInputs = _GraphInputs();
+
             //verify the selected room is still reachable
             if (cboRoom.SelectedItem != null && cboRoom.SelectedItem != _currentRoom)
             {
-                GraphInputs graphInputs = _GraphInputs();
                 SelectedPath = MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs);
                 if (SelectedPath == null)
                 {
-                    MessageBox.Show("Cannot find path to selected room");
+                    MessageBox.Show("Cannot find path to selected room.");
+                    return;
+                }
+            }
+            //verify healing room is reachable
+            if (cboTickRoom.SelectedIndex > 0)
+            {
+                Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
+                if (healingRoom != _currentRoom && MapComputation.ComputeLowestCostPath(_currentRoom, healingRoom, graphInputs) == null)
+                {
+                    MessageBox.Show("Cannot find path to tick room.");
+                    return;
+                }
+            }
+            //verify pawn shop is reachable
+            if (cboPawnShoppe.SelectedIndex > 0)
+            {
+                Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedIndex];
+                if (pawnShop != _currentRoom && MapComputation.ComputeLowestCostPath(_currentRoom, pawnShop, graphInputs) == null)
+                {
+                    MessageBox.Show("Cannot find path to pawn shop.");
                     return;
                 }
             }
@@ -291,6 +312,30 @@ namespace IsengardClient
         private void cboOnKillMonster_SelectedIndexChanged(object sender, EventArgs e)
         {
             Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+        }
+
+        private void cboPawnShoppe_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboPawnShoppe.SelectedIndex > 0)
+            {
+                PawnShoppe ePawnShoppe = (PawnShoppe)cboPawnShoppe.SelectedItem;
+                if (Enum.TryParse(ePawnShoppe.ToString(), out HealingRoom healingRoom))
+                {
+                    cboTickRoom.SelectedItem = healingRoom;
+                }
+            }
+        }
+
+        private void cboTickRoom_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboTickRoom.SelectedIndex > 0)
+            {
+                HealingRoom eHealingRoom = (HealingRoom)cboTickRoom.SelectedItem;
+                if (Enum.TryParse(eHealingRoom.ToString(), out PawnShoppe pawnShoppe))
+                {
+                    cboPawnShoppe.SelectedItem = pawnShoppe;
+                }
+            }
         }
     }
 }

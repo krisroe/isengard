@@ -250,6 +250,7 @@
             this.cboPawnShoppe.Name = "cboPawnShoppe";
             this.cboPawnShoppe.Size = new System.Drawing.Size(376, 24);
             this.cboPawnShoppe.TabIndex = 13;
+            this.cboPawnShoppe.SelectedIndexChanged += new System.EventHandler(this.cboPawnShoppe_SelectedIndexChanged);
             // 
             // lblPawnShoppe
             // 
@@ -270,6 +271,7 @@
             this.cboTickRoom.Name = "cboTickRoom";
             this.cboTickRoom.Size = new System.Drawing.Size(376, 24);
             this.cboTickRoom.TabIndex = 15;
+            this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
             // 
             // lblTickRoom
             // 
