@@ -3004,6 +3004,11 @@ StartProcessRoom:
                         }
                     }
 
+                    if (nextMsg == null && sLine.EndsWith(" circles you."))
+                    {
+                        nextMsg = new InformationalMessages(InformationalMessageType.EnemyCirclesYou);
+                    }
+
                     if (nextMsg == null)
                     {
                         int? pleaseWaitSeconds = PleaseWaitSequence.GetPleaseWaitSeconds(sLine);
@@ -3214,7 +3219,9 @@ StartProcessRoom:
         {
             foreach (InformationalMessages nextMessage in flParams.InfoMessages)
             {
-                if (nextMessage.MessageType == InformationalMessageType.EnemyAttacksYou)
+                InformationalMessageType msgType = nextMessage.MessageType;
+                if (msgType == InformationalMessageType.EnemyAttacksYou ||
+                    msgType == InformationalMessageType.EnemyCirclesYou)
                 {
                     _onSatisfied(flParams);
                     break;

@@ -867,6 +867,7 @@ namespace IsengardClient
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoos")]
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(1)]
         MOMTattoo,
 
         [SingularName("morning star")]

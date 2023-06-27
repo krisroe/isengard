@@ -125,7 +125,7 @@ namespace IsengardClient
         private List<string> _foundSearchedExits;
         private bool _programmaticUI = false;
 
-        private bool _setTickRoom = false;
+        private bool _setTickOrPawnRoom = false;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
@@ -1368,7 +1368,7 @@ namespace IsengardClient
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 Room r = _currentEntityInfo.CurrentRoom;
-                _setTickRoom = r != null && r.HealingRoom.HasValue;
+                _setTickOrPawnRoom = r != null && (r.HealingRoom.HasValue || r.PawnShoppe.HasValue);
             }
             else
             {
@@ -1970,7 +1970,7 @@ namespace IsengardClient
                     double seconds = (DateTime.UtcNow - stunStart.Value).TotalSeconds;
                     if (seconds > 0)
                     {
-                        flParams.Lines.Insert(0, "Stunned for " + seconds.ToString() + " seconds.");
+                        flParams.Lines.Insert(0, "Stunned for " + Math.Round(seconds, 2).ToString() + " seconds.");
                     }
                 }
             }
@@ -4243,7 +4243,7 @@ BeforeHazy:
                     }
                 }
 
-                if ((pms.MonsterKilled || pms.ProcessAllItemsInRoom) && !pms.Fled && !pms.Hazied)
+                if (pms.UsedPreForm && (pms.MonsterKilled || pms.ProcessAllItemsInRoom) && !pms.Fled && !pms.Hazied)
                 {
                     List<Exit> nextRoute;
                     Room monsterRoom = _currentEntityInfo.CurrentRoom;
@@ -6415,6 +6415,7 @@ BeforeHazy:
 
         private class BackgroundWorkerParameters
         {
+            public bool UsedPreForm { get; set; }
             public List<Exit> Exits { get; set; }
             public bool Cancelled { get; set; }
             public Strategy Strategy { get; set; }
@@ -6518,6 +6519,7 @@ BeforeHazy:
             bwp.TickRoom = healingRoom;
             bwp.PawnShop = pawnShoppe;
             bwp.ProcessAllItemsInRoom = processAllItemsInRoom;
+            bwp.UsedPreForm = true;
             RunBackgroundProcess(bwp);
         }
 
@@ -6925,28 +6927,22 @@ BeforeHazy:
                 Room oCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (oCurrentRoom != _currentEntityInfo.CurrentRoomUI)
                 {
-                    if (_setTickRoom)
+                    if (_setTickOrPawnRoom && oCurrentRoom != null)
                     {
                         HealingRoom? healFlag = oCurrentRoom.HealingRoom;
-                        bool setPawnShop = false;
                         if (healFlag.HasValue)
                         {
                             cboTickRoom.SelectedItem = healFlag.Value;
-                            if (Enum.TryParse(healFlag.Value.ToString(), out PawnShoppe ps))
-                            {
-                                cboPawnShop.SelectedItem = ps;
-                                setPawnShop = true;
-                            }
                         }
                         else
                         {
-                            cboTickRoom.SelectedIndex = 0;
+                            PawnShoppe? pawnFlag = oCurrentRoom.PawnShoppe;
+                            if (pawnFlag.HasValue)
+                            {
+                                cboPawnShop.SelectedItem = pawnFlag.Value;
+                            }
                         }
-                        if (!setPawnShop)
-                        {
-                            cboPawnShop.SelectedIndex = 0;
-                        }
-                        _setTickRoom = false;
+                        _setTickOrPawnRoom = false;
                     }
                     string sCurrentRoom;
                     if (oCurrentRoom != null)
@@ -8112,12 +8108,35 @@ BeforeHazy:
 
         private void cboTickRoom_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnGoToHealingRoom.Enabled = cboTickRoom.SelectedIndex > 0;
+            bool hasTickRoom = cboTickRoom.SelectedIndex > 0;
+            btnGoToHealingRoom.Enabled = hasTickRoom;
+            if (hasTickRoom)
+            {
+                HealingRoom eHealingRoom = (HealingRoom)cboTickRoom.SelectedItem;
+                if (Enum.TryParse(eHealingRoom.ToString(), out PawnShoppe pawnShoppe))
+                {
+                    cboPawnShop.SelectedItem = pawnShoppe;
+                }
+            }
         }
 
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)
         {
             GoToRoom(_gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem]);
+        }
+
+        private void cboPawnShop_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bool hasPawnRoom = cboPawnShop.SelectedIndex > 0;
+            btnGoToPawnShop.Enabled = hasPawnRoom;
+            if (hasPawnRoom)
+            {
+                PawnShoppe ePawnShoppe = (PawnShoppe)cboPawnShop.SelectedItem;
+                if (Enum.TryParse(ePawnShoppe.ToString(), out HealingRoom healingRoom))
+                {
+                    cboTickRoom.SelectedItem = healingRoom;
+                }
+            }
         }
 
         private void btnGoToPawnShop_Click(object sender, EventArgs e)

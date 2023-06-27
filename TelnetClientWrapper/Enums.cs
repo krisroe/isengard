@@ -449,6 +449,7 @@ namespace IsengardClient
         HarbringerInPort,
         HarbringerSailed,
         EnemyAttacksYou,
+        EnemyCirclesYou,
         FallDamage,
         MobArrived,
         MobWanderedAway,
