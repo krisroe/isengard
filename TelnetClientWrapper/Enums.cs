@@ -154,6 +154,7 @@ namespace IsengardClient
         Melee = 1,
         Magic = 2,
         Potions = 4,
+        All = 7,
     }
 
     [Flags]

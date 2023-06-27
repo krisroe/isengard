@@ -8,6 +8,7 @@ namespace IsengardClient
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
         private Room _currentRoom;
+        private CheckBox _chkPowerAttack;
 
         public List<Exit> SelectedPath { get; set; }
 
@@ -102,7 +103,8 @@ namespace IsengardClient
                         chk.AutoSize = true;
                         if (nextSkill == PromptedSkills.PowerAttack)
                         {
-                            chk.Checked = true;
+                            chk.Checked = chk.Visible = Strategy.IsCombatStrategy(CommandType.Melee);
+                            _chkPowerAttack = chk;
                         }
                         chk.Margin = new Padding(4);
                         chk.Tag = nextSkill;
@@ -118,7 +120,7 @@ namespace IsengardClient
 
         private void RefreshUIFromStrategy()
         {
-            bool showMob = Strategy.IsCombatStrategy();
+            bool showMob = Strategy.IsCombatStrategy(CommandType.All);
             lblMob.Visible = showMob;
             cboMob.Visible = showMob;
             chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
@@ -126,6 +128,10 @@ namespace IsengardClient
             chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
             cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
             grpStrategy.Text = "Strategy (" + Strategy.ToString() + ")";
+            if (_chkPowerAttack != null)
+            {
+                _chkPowerAttack.Visible = Strategy.IsCombatStrategy(CommandType.Melee);
+            }
         }
 
         public string Mob
@@ -163,7 +169,7 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (Strategy.IsCombatStrategy() && string.IsNullOrEmpty(this.Mob))
+            if (Strategy.IsCombatStrategy(CommandType.All) && string.IsNullOrEmpty(this.Mob))
             {
                 MessageBox.Show("No mob specified.");
                 return;

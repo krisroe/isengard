@@ -250,13 +250,21 @@ namespace IsengardClient
             }
         }
 
-        public bool IsCombatStrategy()
+        /// <summary>
+        /// whether the strategy involves combat
+        /// </summary>
+        /// <param name="types">which command types to check</param>
+        /// <returns>true if a combat strategy, false otherwise</returns>
+        public bool IsCombatStrategy(CommandType types)
         {
             bool ret = false;
+            bool checkMagic = (types & CommandType.Magic) != CommandType.None;
+            bool checkMelee = (types & CommandType.Melee) != CommandType.None;
+            bool checkPotions = (types & CommandType.Potions) != CommandType.None;
             bool magicEnabled = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool meleeEnabled = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool potionsEnabled = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            if (MagicSteps != null && magicEnabled)
+            if (MagicSteps != null && magicEnabled && checkMagic)
             {
                 foreach (var nextStep in MagicSteps)
                 {
@@ -267,7 +275,7 @@ namespace IsengardClient
                     }
                 }
             }
-            if (!ret && MeleeSteps != null && meleeEnabled)
+            if (!ret && MeleeSteps != null && meleeEnabled && checkMelee)
             {
                 foreach (var nextStep in MeleeSteps)
                 {
@@ -278,7 +286,7 @@ namespace IsengardClient
                     }
                 }
             }
-            if (!ret && PotionsSteps != null && potionsEnabled)
+            if (!ret && PotionsSteps != null && potionsEnabled && checkPotions)
             {
                 foreach (var nextStep in PotionsSteps)
                 {
@@ -289,15 +297,15 @@ namespace IsengardClient
                     }
                 }
             }
-            if (!ret && LastMagicStep.HasValue && magicEnabled)
+            if (!ret && LastMagicStep.HasValue && magicEnabled && checkMagic)
             {
                 ret = SingleMagicStrategyStep.IsCombatStep(LastMagicStep.Value);
             }
-            if (!ret && LastMeleeStep.HasValue && meleeEnabled)
+            if (!ret && LastMeleeStep.HasValue && meleeEnabled && checkMelee)
             {
                 ret = SingleMeleeStrategyStep.IsCombatStep(LastMeleeStep.Value);
             }
-            if (!ret && LastPotionsStep.HasValue && potionsEnabled)
+            if (!ret && LastPotionsStep.HasValue && potionsEnabled && checkPotions)
             {
                 ret = SinglePotionsStrategyStep.IsCombatStep(LastPotionsStep.Value);
             }

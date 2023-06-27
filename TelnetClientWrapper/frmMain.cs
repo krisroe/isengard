@@ -6440,7 +6440,7 @@ BeforeHazy:
             HealingRoom? healingRoom;
             PawnShoppe? pawnShoppe;
             bool processAllItemsInRoom;
-            if (!PromptForSkills(false, isMeleeStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
+            if (!PromptForSkills(out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
             {
                 return;
             }
@@ -6457,7 +6457,7 @@ BeforeHazy:
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
+        private bool PromptForSkills(out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
@@ -6480,10 +6480,7 @@ BeforeHazy:
                     {
                         if (sct == SkillWithCooldownType.PowerAttack)
                         {
-                            if (!staticSkillsOnly && forMeleeCombat)
-                            {
-                                skills |= PromptedSkills.PowerAttack;
-                            }
+                            skills |= PromptedSkills.PowerAttack;
                         }
                         else if (sct == SkillWithCooldownType.Manashield)
                         {
@@ -6495,12 +6492,6 @@ BeforeHazy:
                         }
                     }
                 }
-            }
-
-            if (staticSkillsOnly && skills == PromptedSkills.None)
-            {
-                MessageBox.Show(this, "No skills available.");
-                return false;
             }
 
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
