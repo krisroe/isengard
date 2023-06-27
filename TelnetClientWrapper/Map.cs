@@ -841,7 +841,7 @@ namespace IsengardClient
             AddBidirectionalExits(marketDistrictClothiers, oMasterJeweler, BidirectionalExitType.WestEast);
             tharbadGraph.Rooms[oMasterJeweler] = new System.Windows.Point(6, 6);
 
-            Room marketTrinkets = AddRoom("Market Trinkets", "Market District - Trinkets and Baubles");
+            Room marketTrinkets = AddPawnShoppeRoom("Market Trinkets", "Market District - Trinkets and Baubles", PawnShoppe.Tharbad);
             AddBidirectionalExits(marketBeast, marketTrinkets, BidirectionalExitType.WestEast);
             AddBidirectionalExits(marketTrinkets, oMasterJeweler, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[marketTrinkets] = new System.Windows.Point(6, 5);

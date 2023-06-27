@@ -205,6 +205,10 @@ namespace IsengardClient
         [Potion(SpellsEnum.levitate)]
         AquamarinePotion,
 
+        [SingularName("bag")]
+        [PluralName("bags")]
+        Bag,
+
         [SingularName("banded mail armor")]
         [EquipmentType(EquipmentType.Torso)]
         BandedMailArmor,
@@ -765,6 +769,7 @@ namespace IsengardClient
 
         [SingularName("magical tabulator")]
         [PluralName("magical tabulators")]
+        [Weight(5)]
         MagicalTabulator,
 
         [SingularName("magical temper")]
@@ -1113,6 +1118,7 @@ namespace IsengardClient
 
         [SingularName("sprite leather armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(7)]
         SpriteLeatherArmor,
 
         [SingularName("sprite leather boots")]
@@ -1180,6 +1186,7 @@ namespace IsengardClient
         [SingularName("tattoo of a snake")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(1)]
         TattooOfASnake,
 
         [SingularName("tattoo of a wench")]
