@@ -5,7 +5,6 @@ namespace IsengardClient
 {
     internal partial class frmPreBackgroundProcessPrompt : Form
     {
-        private bool _isCombatBackgroundProcess;
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
         private Room _currentRoom;
@@ -36,7 +35,7 @@ namespace IsengardClient
             }
         }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, bool isCombatMacro, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop)
+        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop)
         {
             InitializeComponent();
 
@@ -66,20 +65,13 @@ namespace IsengardClient
             {
                 cboPawnShoppe.SelectedIndex = 0;
             }
-            _isCombatBackgroundProcess = isCombatMacro;
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
             _currentRoom = currentRoom;
-            if (strategy != null)
-            {
-                chkProcessAllItemsInRoom.Checked = strategy.TypesWithStepsEnabled == CommandType.None;
-                Strategy = new Strategy(strategy);
-                RefreshUIFromStrategy();
-            }
-            else
-            {
-                grpStrategy.Visible = false;
-            }
+
+            chkProcessAllItemsInRoom.Checked = strategy.TypesWithStepsEnabled == CommandType.None;
+            Strategy = new Strategy(strategy);
+            RefreshUIFromStrategy();
 
             if (currentRoom == null)
             {
@@ -126,6 +118,9 @@ namespace IsengardClient
 
         private void RefreshUIFromStrategy()
         {
+            bool showMob = Strategy.IsCombatStrategy();
+            lblMob.Visible = showMob;
+            cboMob.Visible = showMob;
             chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
@@ -168,7 +163,7 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (_isCombatBackgroundProcess && string.IsNullOrEmpty(this.Mob))
+            if (Strategy.IsCombatStrategy() && string.IsNullOrEmpty(this.Mob))
             {
                 MessageBox.Show("No mob specified.");
                 return;

@@ -6425,9 +6425,7 @@ BeforeHazy:
         private void RunStrategy(Strategy strategy)
         {
             CommandType eStrategyCombatCommandType = strategy.CombatCommandTypes;
-            bool isMagicStrategy = (eStrategyCombatCommandType & CommandType.Magic) == CommandType.Magic;
             bool isMeleeStrategy = (eStrategyCombatCommandType & CommandType.Melee) == CommandType.Melee;
-            bool isCombatStrategy = isMagicStrategy || isMeleeStrategy;
             bool hasWeapon = _settingsData.Weapon.HasValue;
             if (isMeleeStrategy && !hasWeapon)
             {
@@ -6436,14 +6434,13 @@ BeforeHazy:
                     return;
                 }
             }
-
             PromptedSkills activatedSkills;
             string targetRoomMob;
             List<Exit> preExits;
             HealingRoom? healingRoom;
             PawnShoppe? pawnShoppe;
             bool processAllItemsInRoom;
-            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
+            if (!PromptForSkills(false, isMeleeStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
             {
                 return;
             }
@@ -6456,11 +6453,11 @@ BeforeHazy:
             bwp.TargetRoomMob = targetRoomMob;
             bwp.TickRoom = healingRoom;
             bwp.PawnShop = pawnShoppe;
-            bwp.ProcessAllItemsInRoom = true;
+            bwp.ProcessAllItemsInRoom = processAllItemsInRoom;
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
@@ -6509,7 +6506,7 @@ BeforeHazy:
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, isCombatStrategy, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe))
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {

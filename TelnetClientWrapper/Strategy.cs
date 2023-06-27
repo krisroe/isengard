@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Documents;
-
 namespace IsengardClient
 {
     public class Strategy
@@ -250,6 +248,60 @@ namespace IsengardClient
                     types |= CommandType.Potions;
                 return types;
             }
+        }
+
+        public bool IsCombatStrategy()
+        {
+            bool ret = false;
+            bool magicEnabled = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+            bool meleeEnabled = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+            bool potionsEnabled = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            if (MagicSteps != null && magicEnabled)
+            {
+                foreach (var nextStep in MagicSteps)
+                {
+                    if (nextStep.IsCombat())
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
+            }
+            if (!ret && MeleeSteps != null && meleeEnabled)
+            {
+                foreach (var nextStep in MeleeSteps)
+                {
+                    if (nextStep.IsCombat())
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
+            }
+            if (!ret && PotionsSteps != null && potionsEnabled)
+            {
+                foreach (var nextStep in PotionsSteps)
+                {
+                    if (nextStep.IsCombat())
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
+            }
+            if (!ret && LastMagicStep.HasValue && magicEnabled)
+            {
+                ret = SingleMagicStrategyStep.IsCombatStep(LastMagicStep.Value);
+            }
+            if (!ret && LastMeleeStep.HasValue && meleeEnabled)
+            {
+                ret = SingleMeleeStrategyStep.IsCombatStep(LastMeleeStep.Value);
+            }
+            if (!ret && LastPotionsStep.HasValue && potionsEnabled)
+            {
+                ret = SinglePotionsStrategyStep.IsCombatStep(LastPotionsStep.Value);
+            }
+            return ret;
         }
 
         public bool HasAnyMagicSteps()
@@ -551,6 +603,7 @@ namespace IsengardClient
         public abstract AMagicStrategyStep Clone();
 
         public abstract IEnumerable<MagicStrategyStep> GetBaseSteps();
+        public abstract bool IsCombat();
     }
 
     public class SingleMagicStrategyStep : AMagicStrategyStep
@@ -584,6 +637,32 @@ namespace IsengardClient
         public override string ToString()
         {
             return this.Letter.ToString();
+        }
+
+        public static bool IsCombatStep(MagicStrategyStep step)
+        {
+            bool ret;
+            switch (step)
+            {
+                case MagicStrategyStep.Stun:
+                case MagicStrategyStep.OffensiveSpellAuto:
+                case MagicStrategyStep.OffensiveSpellLevel1:
+                case MagicStrategyStep.OffensiveSpellLevel2:
+                case MagicStrategyStep.OffensiveSpellLevel3:
+                case MagicStrategyStep.OffensiveSpellLevel4:
+                case MagicStrategyStep.OffensiveSpellLevel5:
+                    ret = true;
+                    break;
+                case MagicStrategyStep.Vigor:
+                case MagicStrategyStep.MendWounds:
+                case MagicStrategyStep.CurePoison:
+                case MagicStrategyStep.GenericHeal:
+                    ret = false;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
 
         public static SingleMagicStrategyStep GetStrategyStep(MagicStrategyStep step)
@@ -636,6 +715,10 @@ namespace IsengardClient
         {
             yield return Action;
         }
+        public override bool IsCombat()
+        {
+            return IsCombatStep(this.Action);
+        }
     }
 
     public class MultipleMagicStrategyStep : AMagicStrategyStep
@@ -684,6 +767,20 @@ namespace IsengardClient
             }
             return ret;
         }
+
+        public override bool IsCombat()
+        {
+            bool ret = false;
+            foreach (var next in SubSteps)
+            {
+                if (next.IsCombat())
+                {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
+        }
     }
 
     public abstract class AMeleeStrategyStep
@@ -704,6 +801,7 @@ namespace IsengardClient
         public abstract IEnumerable<MeleeStrategyStep> GetBaseSteps();
 
         public abstract AMeleeStrategyStep Clone();
+        public abstract bool IsCombat();
     }
 
     public class SingleMeleeStrategyStep : AMeleeStrategyStep
@@ -721,6 +819,21 @@ namespace IsengardClient
         }
 
         public MeleeStrategyStep Action { get; set; }
+
+        public static bool IsCombatStep(MeleeStrategyStep step)
+        {
+            bool ret;
+            switch (step)
+            {
+                case MeleeStrategyStep.PowerAttack:
+                case MeleeStrategyStep.RegularAttack:
+                    ret = true;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
+        }
 
         public static SingleMeleeStrategyStep GetStrategyStep(MeleeStrategyStep step)
         {
@@ -752,6 +865,11 @@ namespace IsengardClient
         public override AMeleeStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
+        }
+
+        public override bool IsCombat()
+        {
+            return IsCombatStep(this.Action);
         }
     }
 
@@ -801,6 +919,20 @@ namespace IsengardClient
             }
             return ret;
         }
+
+        public override bool IsCombat()
+        {
+            bool ret = false;
+            foreach (var next in SubSteps)
+            {
+                if (next.IsCombat())
+                {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
+        }
     }
 
     public abstract class APotionsStrategyStep
@@ -821,6 +953,7 @@ namespace IsengardClient
         public abstract IEnumerable<PotionsStrategyStep> GetBaseSteps();
 
         public abstract APotionsStrategyStep Clone();
+        public abstract bool IsCombat();
     }
 
     public class SinglePotionsStrategyStep : APotionsStrategyStep
@@ -839,6 +972,23 @@ namespace IsengardClient
             Action = step;
             RepeatCount = 1;
             this.Letter = Letter;
+        }
+
+        public static bool IsCombatStep(PotionsStrategyStep step)
+        {
+            bool ret;
+            switch (step)
+            {
+                case PotionsStrategyStep.Vigor:
+                case PotionsStrategyStep.MendWounds:
+                case PotionsStrategyStep.CurePoison:
+                case PotionsStrategyStep.GenericHeal:
+                    ret = false;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
 
         public static SinglePotionsStrategyStep GetStrategyStep(PotionsStrategyStep step)
@@ -877,6 +1027,10 @@ namespace IsengardClient
         public override APotionsStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
+        }
+        public override bool IsCombat()
+        {
+            return IsCombatStep(this.Action);
         }
     }
 
@@ -923,6 +1077,20 @@ namespace IsengardClient
             foreach (var next in this.SubSteps)
             {
                 ret.SubSteps.Add(next.Clone());
+            }
+            return ret;
+        }
+
+        public override bool IsCombat()
+        {
+            bool ret = false;
+            foreach (var next in SubSteps)
+            {
+                if (next.IsCombat())
+                {
+                    ret = true;
+                    break;
+                }
             }
             return ret;
         }

@@ -274,6 +274,7 @@ namespace IsengardClient
         [SingularName("bone armor")]
         [PluralName("bone armors")] //verified 6/21/23
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(10)]
         BoneArmor,
 
         [SingularName("bone shield")]
@@ -1079,6 +1080,7 @@ namespace IsengardClient
         [SingularName("slaying sword")]
         [PluralName("slaying swords")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(5)]
         SlayingSword,
 
         [SingularName("sling")]
@@ -1228,6 +1230,7 @@ namespace IsengardClient
 
         [SingularName("toilet paper")]
         //CSRTODO: collective plural?
+        [Weight(1)]
         ToiletPaper,
 
         [SingularName("torch")]
