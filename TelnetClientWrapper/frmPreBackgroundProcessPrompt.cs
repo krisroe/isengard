@@ -178,7 +178,8 @@ namespace IsengardClient
             GraphInputs graphInputs = _GraphInputs();
 
             //verify the selected room is still reachable
-            if (cboRoom.SelectedItem != null && cboRoom.SelectedItem != _currentRoom)
+            Room targetRoom = cboRoom.SelectedItem as Room;
+            if (targetRoom != null && targetRoom != _currentRoom)
             {
                 SelectedPath = MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs);
                 if (SelectedPath == null)
@@ -191,20 +192,36 @@ namespace IsengardClient
             if (cboTickRoom.SelectedIndex > 0)
             {
                 Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
-                if (healingRoom != _currentRoom && MapComputation.ComputeLowestCostPath(_currentRoom, healingRoom, graphInputs) == null)
+                if (targetRoom != null && targetRoom != healingRoom)
                 {
-                    MessageBox.Show("Cannot find path to tick room.");
-                    return;
+                    if (MapComputation.ComputeLowestCostPath(targetRoom, healingRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show("Cannot find path from target room to tick room.");
+                        return;
+                    }
+                    if (MapComputation.ComputeLowestCostPath(healingRoom, targetRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show("Cannot find path from tick room to healing room.");
+                        return;
+                    }
                 }
             }
             //verify pawn shop is reachable
             if (cboPawnShoppe.SelectedIndex > 0)
             {
-                Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedIndex];
-                if (pawnShop != _currentRoom && MapComputation.ComputeLowestCostPath(_currentRoom, pawnShop, graphInputs) == null)
+                Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedItem];
+                if (targetRoom != null && targetRoom != pawnShop)
                 {
-                    MessageBox.Show("Cannot find path to pawn shop.");
-                    return;
+                    if (MapComputation.ComputeLowestCostPath(targetRoom, pawnShop, graphInputs) == null)
+                    {
+                        MessageBox.Show("Cannot find path from target room to pawn shop.");
+                        return;
+                    }
+                    if (MapComputation.ComputeLowestCostPath(pawnShop, targetRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show("Cannot find path from pawn shop to target room.");
+                        return;
+                    }
                 }
             }
 
