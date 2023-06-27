@@ -411,6 +411,7 @@ namespace IsengardClient
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         [Potion(SpellsEnum.detectmagic)]
+        [Weight(2)] //CSRTODO: wiki says this could also be 4
         DarkGreenPotion,
 
         [SingularName("dark flask")]
@@ -1153,6 +1154,7 @@ namespace IsengardClient
 
         [SingularName("steel-chain armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(18)]
         SteelChainArmor,
 
         [SingularName("stilleto")]
