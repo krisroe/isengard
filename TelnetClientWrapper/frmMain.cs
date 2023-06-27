@@ -1318,9 +1318,11 @@ namespace IsengardClient
                             }
                         }
                         SQLiteParameter itemNameParameter = cmd.Parameters.Add("@ItemName", DbType.String);
-                        foreach (DynamicItemData did in _settingsData.DynamicItemDataList)
+                        foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> nextDID in _settingsData.DynamicItemData)
                         {
-                            string sItemName = did.ItemType.ToString();
+                            ItemTypeEnum eItemType = nextDID.Key;
+                            DynamicItemData did = nextDID.Value;
+                            string sItemName = eItemType.ToString();
                             itemNameParameter.Value = sItemName;
                             string sql;
                             if (existingItems.Contains(sItemName))
@@ -2396,7 +2398,7 @@ namespace IsengardClient
                                 EntityChangeEntry changeEntry = new EntityChangeEntry();
                                 changeEntry.MobType = nextMob;
                                 changeEntry.RoomMobAction = true;
-                                changeEntry.RoomItemIndex = -1;
+                                changeEntry.RoomMobIndex = iInsertionPoint;
                                 rc.Changes.Add(changeEntry);
                             }
                             _currentEntityInfo.CurrentEntityChanges.Add(rc);

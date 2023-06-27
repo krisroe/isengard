@@ -620,9 +620,7 @@ namespace IsengardClient
                 {
                     if (!existed)
                     {
-                        did = new DynamicItemData();
-                        did.ItemType = itemType;
-                        _settings.DynamicItemDataList.Add(did);
+                        did = new DynamicItemData(itemType);
                         _settings.DynamicItemData[itemType] = did;
                     }
                     did.Action = action.Value;
@@ -630,7 +628,6 @@ namespace IsengardClient
                 else if (existed)
                 {
                     _settings.DynamicItemData.Remove(itemType);
-                    _settings.DynamicItemDataList.Remove(did);
                 }
                 lvi.SubItems[1].Text = action.HasValue ? action.Value.ToString() : "None";
             }

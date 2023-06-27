@@ -21,7 +21,6 @@ namespace IsengardClient
         public AutoEscapeType AutoEscapeType { get; set; }
         public bool AutoEscapeActive { get; set; }
         public bool RemoveAllOnStartup { get; set; }
-        public List<DynamicItemData> DynamicItemDataList { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         private IsengardSettingData()
         {
@@ -38,7 +37,6 @@ namespace IsengardClient
             AutoEscapeThreshold = 0;
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
-            DynamicItemDataList = new List<DynamicItemData>();
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
         }
         public IsengardSettingData(IsengardSettingData copied)
@@ -56,11 +54,10 @@ namespace IsengardClient
             AutoEscapeType = copied.AutoEscapeType;
             AutoEscapeActive = copied.AutoEscapeActive;
             RemoveAllOnStartup = copied.RemoveAllOnStartup;
-            DynamicItemDataList = new List<DynamicItemData>(copied.DynamicItemDataList);
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
-            foreach (var next in DynamicItemDataList)
+            foreach (var next in copied.DynamicItemData)
             {
-                DynamicItemData[next.ItemType] = next;
+                DynamicItemData[next.Key] = new DynamicItemData(next.Value);
             }
         }
         public IsengardSettingData(SQLiteCommand cmd, int UserID, List<string> errorMessages) : this()
@@ -89,13 +86,11 @@ namespace IsengardClient
                         continue;
                     }
                     ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
-                    DynamicItemData did = new DynamicItemData()
+                    DynamicItemData did = new DynamicItemData(itemType)
                     {
-                        ItemType = itemType,
                         Action = action
                     };
                     DynamicItemData[itemType] = did;
-                    DynamicItemDataList.Add(did);
                 }
             }
         }
@@ -278,7 +273,6 @@ namespace IsengardClient
         public void SaveToXmlWriter(XmlWriter writer)
         {
             writer.WriteStartElement("DynamicData");
-
             writer.WriteStartElement("Settings");
             WriteSetting(writer, "Weapon", Weapon.HasValue ? Weapon.Value.ToString() : string.Empty);
             WriteSetting(writer, "Realm", Realm.ToString());
@@ -293,7 +287,24 @@ namespace IsengardClient
             WriteSetting(writer, "AutoEscapeThreshold", AutoEscapeThreshold.ToString());
             WriteSetting(writer, "AutoEscapeType", AutoEscapeType.ToString());
             WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
+            writer.WriteEndElement();
 
+            List<DynamicItemData> didList = new List<DynamicItemData>();
+            foreach (ItemTypeEnum nextItemType in Enum.GetValues(typeof(ItemTypeEnum)))
+            {
+                if (DynamicItemData.TryGetValue(nextItemType, out DynamicItemData did))
+                {
+                    didList.Add(did);
+                }
+            }
+            writer.WriteStartElement("DynamicItemData");
+            foreach (DynamicItemData did in didList)
+            {
+                writer.WriteStartElement("Item");
+                writer.WriteAttributeString("item", did.ItemType.ToString());
+                writer.WriteAttributeString("action", did.Action.ToString());
+                writer.WriteEndElement();
+            }
             writer.WriteEndElement();
 
             writer.WriteEndElement();

@@ -155,6 +155,14 @@ namespace IsengardClient
     {
         public ItemTypeEnum ItemType { get; set; }
         public ItemInventoryAction Action { get; set; }
+        public DynamicItemData(ItemTypeEnum ItemType)
+        {
+            this.ItemType = ItemType;
+        }
+        public DynamicItemData(DynamicItemData copied) : this(copied.ItemType)
+        {
+            this.Action = copied.Action;
+        }
     }
 
     /// <summary>
