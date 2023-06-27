@@ -91,7 +91,6 @@
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
             this.btnHeal = new System.Windows.Forms.Button();
-            this.btnSkills = new System.Windows.Forms.Button();
             this.lblAutoEscapeValue = new System.Windows.Forms.Label();
             this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiAutoEscapeIsActive = new System.Windows.Forms.ToolStripMenuItem();
@@ -314,7 +313,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(655, 26);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(271, 26);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -618,7 +617,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1263, 1015);
+            this.tcMain.Size = new System.Drawing.Size(1263, 820);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -629,7 +628,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1255, 986);
+            this.tabMain.Size = new System.Drawing.Size(1255, 791);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -651,7 +650,6 @@
             this.pnlMain.Controls.Add(this.btnIncrementWand);
             this.pnlMain.Controls.Add(this.grpSkillCooldowns);
             this.pnlMain.Controls.Add(this.btnHeal);
-            this.pnlMain.Controls.Add(this.btnSkills);
             this.pnlMain.Controls.Add(this.lblAutoEscapeValue);
             this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
@@ -912,7 +910,7 @@
             // 
             // btnHeal
             // 
-            this.btnHeal.Location = new System.Drawing.Point(1110, 773);
+            this.btnHeal.Location = new System.Drawing.Point(1110, 735);
             this.btnHeal.Margin = new System.Windows.Forms.Padding(4);
             this.btnHeal.Name = "btnHeal";
             this.btnHeal.Size = new System.Drawing.Size(103, 34);
@@ -920,17 +918,6 @@
             this.btnHeal.Text = "Heal";
             this.btnHeal.UseVisualStyleBackColor = true;
             this.btnHeal.Click += new System.EventHandler(this.btnHeal_Click);
-            // 
-            // btnSkills
-            // 
-            this.btnSkills.Location = new System.Drawing.Point(1110, 735);
-            this.btnSkills.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSkills.Name = "btnSkills";
-            this.btnSkills.Size = new System.Drawing.Size(103, 34);
-            this.btnSkills.TabIndex = 135;
-            this.btnSkills.Text = "Skills";
-            this.btnSkills.UseVisualStyleBackColor = true;
-            this.btnSkills.Click += new System.EventHandler(this.btnSkills_Click);
             // 
             // lblAutoEscapeValue
             // 
@@ -1508,7 +1495,7 @@
             this.pnlOverallLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlOverallLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlOverallLeft.Name = "pnlOverallLeft";
-            this.pnlOverallLeft.Size = new System.Drawing.Size(1263, 1040);
+            this.pnlOverallLeft.Size = new System.Drawing.Size(1263, 845);
             this.pnlOverallLeft.TabIndex = 0;
             // 
             // pnlTabControl
@@ -1518,7 +1505,7 @@
             this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1015);
+            this.pnlTabControl.Size = new System.Drawing.Size(1263, 820);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1712,7 +1699,7 @@
             this.grpConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpConsole.Size = new System.Drawing.Size(661, 1040);
+            this.grpConsole.Size = new System.Drawing.Size(277, 845);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1724,7 +1711,7 @@
             this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 17);
             this.pnlConsoleHolder.Margin = new System.Windows.Forms.Padding(4);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(655, 959);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(271, 764);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1739,7 +1726,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(655, 959);
+            this.rtbConsole.Size = new System.Drawing.Size(271, 764);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1762,17 +1749,17 @@
             // 
             this.pnlCommand.Controls.Add(this.txtOneOffCommand);
             this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCommand.Location = new System.Drawing.Point(3, 976);
+            this.pnlCommand.Location = new System.Drawing.Point(3, 781);
             this.pnlCommand.Margin = new System.Windows.Forms.Padding(4);
             this.pnlCommand.Name = "pnlCommand";
-            this.pnlCommand.Size = new System.Drawing.Size(655, 62);
+            this.pnlCommand.Size = new System.Drawing.Size(271, 62);
             this.pnlCommand.TabIndex = 30;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1924, 1040);
+            this.ClientSize = new System.Drawing.Size(1540, 845);
             this.Controls.Add(this.grpConsole);
             this.Controls.Add(this.pnlOverallLeft);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -1931,7 +1918,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeIsActive;
-        private System.Windows.Forms.Button btnSkills;
         private System.Windows.Forms.Button btnHeal;
         private System.Windows.Forms.Label lblToNextLevelValue;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;

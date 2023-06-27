@@ -5877,7 +5877,6 @@ BeforeHazy:
             yield return btnOut;
             yield return btnOtherSingleMove;
             yield return btnHeal;
-            yield return btnSkills;
             yield return btnSearch;
             yield return btnHide;
             yield return btnSet;
@@ -7903,18 +7902,6 @@ BeforeHazy:
                     _strategies = frm.Strategies;
                     RefreshStrategyButtons();
                 }
-            }
-        }
-
-        private void btnSkills_Click(object sender, EventArgs e)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            Strategy temp = null;
-            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp, out _, out _, out _))
-            {
-                bwp = new BackgroundWorkerParameters();
-                bwp.UsedSkills = activatedSkills;
-                RunBackgroundProcess(bwp);
             }
         }
 
