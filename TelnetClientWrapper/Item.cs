@@ -212,6 +212,7 @@ namespace IsengardClient
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(2)]
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
@@ -800,7 +801,8 @@ namespace IsengardClient
 
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Polearm)]
+        [Weight(5)]
         MithrilJoStick,
 
         [SingularName("mithril lamella leggings")]

@@ -813,8 +813,8 @@ namespace IsengardClient
     public class InventorySequence : AOutputProcessingSequence
     {
         private const string YOU_HAVE_PREFIX = "You have: ";
-        private Action<FeedLineParameters, List<ItemEntity>> _onSatisfied;
-        public InventorySequence(Action<FeedLineParameters, List<ItemEntity>> onSatisfied)
+        private Action<FeedLineParameters, List<ItemEntity>, int> _onSatisfied;
+        public InventorySequence(Action<FeedLineParameters, List<ItemEntity>, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -825,22 +825,30 @@ namespace IsengardClient
             {
                 string sFullContent = StringProcessing.GetListAsString(Lines, 0, YOU_HAVE_PREFIX, true, out _, null);
                 int totalInventoryWeightIndex = sFullContent.IndexOf("Inventory weight is ");
-                if (totalInventoryWeightIndex > 0)
+                if (totalInventoryWeightIndex > 0 && totalInventoryWeightIndex + "Inventory weight is ".Length != sFullContent.Length)
                 {
-                    sFullContent = sFullContent.Substring(0, totalInventoryWeightIndex).Trim();
-                    if (sFullContent.EndsWith(".") && sFullContent != ".")
+                    string totalInventoryText = sFullContent.Substring(totalInventoryWeightIndex + "Inventory weight is ".Length).Trim();
+                    if (totalInventoryText.EndsWith(" lbs") && totalInventoryText != " lbs")
                     {
-                        sFullContent = sFullContent.Substring(0, sFullContent.Length - 1);
-                        List<string> items = StringProcessing.ParseList(sFullContent);
-                        if (items != null)
+                        string sTotalWeight = totalInventoryText.Substring(0, totalInventoryText.Length - " lbs".Length);
+                        if (int.TryParse(sTotalWeight, out int iTotalWeight) && iTotalWeight >= 0)
                         {
-                            List<ItemEntity> itemList = new List<ItemEntity>();
-                            if (items.Count > 1 || items[0] != "nothing")
+                            sFullContent = sFullContent.Substring(0, totalInventoryWeightIndex).Trim();
+                            if (sFullContent.EndsWith(".") && sFullContent != ".")
                             {
-                                RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                                sFullContent = sFullContent.Substring(0, sFullContent.Length - 1);
+                                List<string> items = StringProcessing.ParseList(sFullContent);
+                                if (items != null)
+                                {
+                                    List<ItemEntity> itemList = new List<ItemEntity>();
+                                    if (items.Count > 1 || items[0] != "nothing")
+                                    {
+                                        RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                                    }
+                                    _onSatisfied(flParams, itemList, iTotalWeight);
+                                    flParams.FinishedProcessing = true;
+                                }
                             }
-                            _onSatisfied(flParams, itemList);
-                            flParams.FinishedProcessing = true;
                         }
                     }
                 }

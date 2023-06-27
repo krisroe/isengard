@@ -321,6 +321,10 @@
         [Alignment(AlignmentType.Blue)]
         FrodoBaggins,
 
+        [SingularName("gambler")]
+        [PluralName("gamblers")]
+        Gambler,
+
         [SingularName("garbage collector")]
         [PluralName("garbage collectors")]
         GarbageCollector,

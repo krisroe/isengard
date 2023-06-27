@@ -108,6 +108,7 @@ namespace IsengardClient
         SellItem,
         DropItem,
         Score,
+        Inventory,
         Quit,
     }
 

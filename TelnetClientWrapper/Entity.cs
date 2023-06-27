@@ -730,6 +730,7 @@ namespace IsengardClient
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
         public List<ItemEntity> CurrentRoomItems { get; set; }
         public List<ItemTypeEnum> InventoryItems { get; set; }
+        public int? TotalInventoryWeight { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
         public List<string> CurrentObviousExits { get; set; }
         public TreeNode tnObviousMobs { get; set; }
