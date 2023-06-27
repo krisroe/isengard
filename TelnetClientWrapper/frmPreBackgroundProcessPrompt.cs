@@ -28,6 +28,14 @@ namespace IsengardClient
             }
         }
 
+        public bool ProcessAllItemsInRoom
+        {
+            get
+            {
+                return chkProcessAllItemsInRoom.Checked;
+            }
+        }
+
         public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, bool isCombatMacro, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop)
         {
             InitializeComponent();
@@ -64,6 +72,7 @@ namespace IsengardClient
             _currentRoom = currentRoom;
             if (strategy != null)
             {
+                chkProcessAllItemsInRoom.Checked = strategy.TypesWithStepsEnabled == CommandType.None;
                 Strategy = new Strategy(strategy);
                 RefreshUIFromStrategy();
             }

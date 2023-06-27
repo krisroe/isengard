@@ -1661,12 +1661,11 @@ namespace IsengardClient
                             ItemTypeEnum? itemType = nextItem.ItemType;
                             if (itemType.HasValue)
                             {
-                                ItemTypeEnum itemTypeValue = itemType.Value;
-                                for (int i = 0; i < nextItem.SetCount; i++)
+                                foreach (ItemEntity nextSplitEntity in InventoryEquipmentManagementSequence.SplitItemEntity(nextItem, false, null))
                                 {
-                                    currentRoomItems.Add(nextItem);
+                                    currentRoomItems.Add(nextSplitEntity);
                                     EntityChangeEntry changeEntry = new EntityChangeEntry();
-                                    changeEntry.Item = nextItem;
+                                    changeEntry.Item = nextSplitEntity;
                                     changeEntry.RoomItemAction = true;
                                     changeEntry.RoomItemIndex = -1;
                                     rc.Changes.Add(changeEntry);
@@ -4171,23 +4170,31 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.MonsterKilled && !pms.Fled && !pms.Hazied)
+                if ((pms.MonsterKilled || pms.ProcessAllItemsInRoom) && !pms.Fled && !pms.Hazied)
                 {
                     List<Exit> nextRoute;
                     Room monsterRoom = _currentEntityInfo.CurrentRoom;
-                    BackgroundLocation currentLoc = BackgroundLocation.Monster;
-                    List<ItemEntity> monsterItems = new List<ItemEntity>();
+                    Room currentRoom = monsterRoom;
+                    Room targetRoom;
+                    List<ItemEntity> itemsToProcess = new List<ItemEntity>();
                     List<ItemEntity> itemsToSell = new List<ItemEntity>();
                     List<ItemEntity> itemsToTick = new List<ItemEntity>();
                     lock (_entityLock)
                     {
-                        monsterItems.AddRange(_monsterKilledItems);
+                        if (pms.ProcessAllItemsInRoom)
+                        {
+                            itemsToProcess.AddRange(_currentEntityInfo.CurrentRoomItems);
+                        }
+                        else //process items the monster(s) dropped
+                        {
+                            itemsToProcess.AddRange(_monsterKilledItems);
+                        }
                     }
                 NextItemCycle:
                     bool anythingCouldNotBePickedUp = false;
                     bool anythingFailed = false;
                     List<ItemEntity> monsterItemsToRemove = new List<ItemEntity>();
-                    foreach (ItemEntity nextItem in monsterItems)
+                    foreach (ItemEntity nextItem in itemsToProcess)
                     {
                         if (nextItem.ItemType.HasValue)
                         {
@@ -4208,7 +4215,7 @@ BeforeHazy:
                                 string sItemText;
                                 lock (_entityLock)
                                 {
-                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true);
+                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, ItemLocationTypeFlags.None);
                                 }
                                 if (string.IsNullOrEmpty(sItemText))
                                 {
@@ -4251,7 +4258,7 @@ BeforeHazy:
                     }
                     foreach (ItemEntity nextItem in monsterItemsToRemove)
                     {
-                        monsterItems.Remove(nextItem);
+                        itemsToProcess.Remove(nextItem);
                     }
                     if (anythingFailed)
                     {
@@ -4260,14 +4267,18 @@ BeforeHazy:
                     bool somethingGottenRidOf = false;
                     if (itemsToSell.Count > 0 && pms.PawnShop.HasValue)
                     {
-                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, _gameMap.PawnShoppes[pms.PawnShop.Value]);
-                        if (nextRoute == null) return;
-                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        currentLoc = BackgroundLocation.PawnShop;
+                        currentRoom = _currentEntityInfo.CurrentRoom;
+                        targetRoom = _gameMap.PawnShoppes[pms.PawnShop.Value];
+                        if (currentRoom != targetRoom)
+                        {
+                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
+                            if (nextRoute == null) return;
+                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                        }
                         anythingFailed = false;
                         foreach (ItemEntity nextItem in itemsToSell)
                         {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true);
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, ItemLocationTypeFlags.None);
                             if (string.IsNullOrEmpty(sItemText))
                             {
                                 anythingFailed = true;
@@ -4297,14 +4308,18 @@ BeforeHazy:
                     }
                     if (itemsToTick.Count > 0 && pms.TickRoom.HasValue)
                     {
-                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, _gameMap.HealingRooms[pms.TickRoom.Value]);
-                        if (nextRoute == null) return;
-                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        currentLoc = BackgroundLocation.Tick;
+                        currentRoom = _currentEntityInfo.CurrentRoom;
+                        targetRoom = _gameMap.HealingRooms[pms.TickRoom.Value];
+                        if (currentRoom != targetRoom)
+                        {
+                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
+                            if (nextRoute == null) return;
+                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                        }
                         anythingFailed = false;
                         foreach (ItemEntity nextItem in itemsToTick)
                         {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true);
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, ItemLocationTypeFlags.None);
                             if (string.IsNullOrEmpty(sItemText))
                             {
                                 anythingFailed = true;
@@ -4333,10 +4348,13 @@ BeforeHazy:
                     }
                     if (anythingCouldNotBePickedUp) //go back to the monster
                     {
-                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, monsterRoom);
-                        if (nextRoute == null) return;
-                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        currentLoc = BackgroundLocation.Monster;
+                        currentRoom = _currentEntityInfo.CurrentRoom;
+                        if (currentRoom != monsterRoom)
+                        {
+                            nextRoute = CalculateRouteExits(currentRoom, monsterRoom, true);
+                            if (nextRoute == null) return;
+                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                        }
                         if (somethingGottenRidOf)
                         {
                             goto NextItemCycle;
@@ -4346,12 +4364,16 @@ BeforeHazy:
                             return;
                         }
                     }
-                    if (currentLoc != BackgroundLocation.Tick && pms.TickRoom.HasValue)
+                    if (pms.TickRoom.HasValue)
                     {
-                        nextRoute = CalculateRouteExits(_currentEntityInfo.CurrentRoom, _gameMap.HealingRooms[pms.TickRoom.Value]);
-                        if (nextRoute == null) return;
-                        if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        currentLoc = BackgroundLocation.Tick;
+                        currentRoom = _currentEntityInfo.CurrentRoom;
+                        targetRoom = _gameMap.HealingRooms[pms.TickRoom.Value];
+                        if (currentRoom != targetRoom)
+                        {
+                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
+                            if (nextRoute == null) return;
+                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
+                        }
                         if (!PerformBackgroundHeal(true, true, true, true, pms, true))
                         {
                             return;
@@ -4459,7 +4481,7 @@ BeforeHazy:
                 foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
                 {
                     ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
-                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex);
+                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex, ItemLocationTypeFlags.All);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         command = "drink " + sText;
@@ -4479,7 +4501,7 @@ BeforeHazy:
                         ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
                         if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
                         {
-                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot);
+                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot, ItemLocationTypeFlags.All);
                             if (!string.IsNullOrEmpty(sText))
                             {
                                 command = "drink " + sText;
@@ -4636,7 +4658,7 @@ BeforeHazy:
                         }
                         else if (_lastCommandMovementResult == MovementResult.MapFailure)
                         {
-                            List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget);
+                            List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget, true);
                             if (newRoute != null && newRoute.Count > 0)
                             {
                                 exitList.Clear();
@@ -4980,7 +5002,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false, ItemLocationTypeFlags.All);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "remove " + sWeaponText;
@@ -5006,7 +5028,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryItems.Contains(weaponItemValue))
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false, ItemLocationTypeFlags.All);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "wield " + sWeaponText;
@@ -6284,6 +6306,7 @@ BeforeHazy:
             public bool UsedPawnShoppe { get; set; }
             public HealingRoom? TickRoom { get; set; }
             public bool Success { get; set; }
+            public bool ProcessAllItemsInRoom { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -6346,7 +6369,8 @@ BeforeHazy:
             List<Exit> preExits;
             HealingRoom? healingRoom;
             PawnShoppe? pawnShoppe;
-            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe))
+            bool processAllItemsInRoom;
+            if (!PromptForSkills(false, isMeleeStrategy, isCombatStrategy, out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
             {
                 return;
             }
@@ -6359,16 +6383,18 @@ BeforeHazy:
             bwp.TargetRoomMob = targetRoomMob;
             bwp.TickRoom = healingRoom;
             bwp.PawnShop = pawnShoppe;
+            bwp.ProcessAllItemsInRoom = true;
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe)
+        private bool PromptForSkills(bool staticSkillsOnly, bool forMeleeCombat, bool isCombatStrategy, out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
             preExits = null;
             healingRoom = null;
             pawnShoppe = null;
+            processAllItemsInRoom = true;
 
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
@@ -6422,6 +6448,7 @@ BeforeHazy:
                 strategy = frmSkills.Strategy;
                 healingRoom = frmSkills.HealingRoom;
                 pawnShoppe = frmSkills.PawnShop;
+                processAllItemsInRoom = frmSkills.ProcessAllItemsInRoom;
             }
             return true;
         }
@@ -7668,11 +7695,11 @@ BeforeHazy:
             return ret;
         }
 
-        private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
+        private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom, bool silent)
         {
             GraphInputs gi = GetGraphInputs();
             List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, gi);
-            if (pathExits == null)
+            if (pathExits == null && !silent)
             {
                 MessageBox.Show("No path to target room found.");
             }
@@ -7684,7 +7711,7 @@ BeforeHazy:
             Room currentRoom = _currentEntityInfo.CurrentRoom;
             if (currentRoom != null)
             {
-                List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom);
+                List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom, false);
                 if (exits != null)
                 {
                     NavigateExitsInBackground(exits);
@@ -7811,7 +7838,7 @@ BeforeHazy:
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             Strategy temp = null;
-            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp, out _, out _))
+            if (bwp == null && PromptForSkills(true, false, false, out _, out PromptedSkills activatedSkills, out _, ref temp, out _, out _, out _))
             {
                 bwp = new BackgroundWorkerParameters();
                 bwp.UsedSkills = activatedSkills;
@@ -8267,7 +8294,7 @@ BeforeHazy:
                 ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 lock (_entityLock)
                 {
-                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false);
+                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, ItemLocationTypeFlags.All);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);

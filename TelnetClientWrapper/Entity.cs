@@ -646,7 +646,7 @@ namespace IsengardClient
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
                 ItemEntity nextIt = itemList[i];
-                if (nextIt.Count == nextItemEntity.Count && nextIt.ItemType.Value == nextItemEntity.ItemType.Value)
+                if (nextIt.ItemType.Value == nextItemEntity.ItemType.Value)
                 {
                     foundIndex = i;
                     break;
@@ -1069,8 +1069,9 @@ namespace IsengardClient
         /// <param name="itemType">item type</param>
         /// <param name="itemCounter">item counter of that type</param>
         /// <param name="reverseOrder">whether to search in reverse order</param>
-        /// <returns></returns>
-        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder)
+        /// <param name="validationTypes">types to check for duplicate validation</param>
+        /// <returns>text of the item</returns>
+        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, ItemLocationTypeFlags validationTypes)
         {
             int iActualIndex = -1;
             int iCounter = 0;
@@ -1120,10 +1121,10 @@ namespace IsengardClient
                     }
                 }
             }
-            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex);
+            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex, validationTypes);
         }
 
-        public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex)
+        public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex, ItemLocationTypeFlags validationTypes)
         {
             string ret = null;
             foreach (string word in ItemEntity.GetItemWords(itemType))
@@ -1180,7 +1181,7 @@ namespace IsengardClient
 
                 //for equipment, check for a duplicate in inventory
                 bool isDuplicate = false;
-                if (locationType != ItemLocationType.Inventory)
+                if (locationType != ItemLocationType.Inventory && (validationTypes & ItemLocationTypeFlags.Inventory) != ItemLocationTypeFlags.None)
                 {
                     int iInventoryCounter = 0;
                     foreach (ItemTypeEnum nextItem in InventoryItems)
@@ -1200,7 +1201,7 @@ namespace IsengardClient
                     }
                     isDuplicate = iInventoryCounter == iCounter;
                 }
-                if (!isDuplicate && locationType != ItemLocationType.Inventory && locationType != ItemLocationType.Equipment)
+                if (!isDuplicate && locationType != ItemLocationType.Inventory && locationType != ItemLocationType.Equipment && (validationTypes & ItemLocationTypeFlags.Equipment) != ItemLocationTypeFlags.None)
                 {
                     int iEquipmentCounter = 0;
                     foreach (ItemTypeEnum? nextItem in Equipment)

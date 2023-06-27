@@ -771,6 +771,7 @@ namespace IsengardClient
 
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
+        [Weight(12)]
         MarbleChessSet,
 
         [SingularName("mask of darkness")]

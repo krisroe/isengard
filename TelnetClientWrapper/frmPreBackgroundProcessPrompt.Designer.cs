@@ -49,6 +49,7 @@
             this.lblPawnShoppe = new System.Windows.Forms.Label();
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.lblTickRoom = new System.Windows.Forms.Label();
+            this.chkProcessAllItemsInRoom = new System.Windows.Forms.CheckBox();
             this.grpSkills.SuspendLayout();
             this.grpStrategy.SuspendLayout();
             this.SuspendLayout();
@@ -280,12 +281,23 @@
             this.lblTickRoom.TabIndex = 14;
             this.lblTickRoom.Text = "Tick room:";
             // 
+            // chkProcessAllItemsInRoom
+            // 
+            this.chkProcessAllItemsInRoom.AutoSize = true;
+            this.chkProcessAllItemsInRoom.Location = new System.Drawing.Point(498, 53);
+            this.chkProcessAllItemsInRoom.Name = "chkProcessAllItemsInRoom";
+            this.chkProcessAllItemsInRoom.Size = new System.Drawing.Size(182, 20);
+            this.chkProcessAllItemsInRoom.TabIndex = 1;
+            this.chkProcessAllItemsInRoom.Text = "Process all items in room?";
+            this.chkProcessAllItemsInRoom.UseVisualStyleBackColor = true;
+            // 
             // frmPreBackgroundProcessPrompt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(821, 346);
             this.ControlBox = false;
+            this.Controls.Add(this.chkProcessAllItemsInRoom);
             this.Controls.Add(this.cboTickRoom);
             this.Controls.Add(this.lblTickRoom);
             this.Controls.Add(this.cboPawnShoppe);
@@ -334,5 +346,6 @@
         private System.Windows.Forms.Label lblPawnShoppe;
         private System.Windows.Forms.ComboBox cboTickRoom;
         private System.Windows.Forms.Label lblTickRoom;
+        private System.Windows.Forms.CheckBox chkProcessAllItemsInRoom;
     }
 }

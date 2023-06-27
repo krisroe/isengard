@@ -9,6 +9,7 @@ namespace IsengardClient
     {
         private IsengardMap _fullMap;
         private GraphInputs _graphInputs;
+        private bool _forRoomSelection;
 
         public frmLocations(IsengardMap fullMap, Room currentRoom, bool forRoomSelection, GraphInputs gi)
         {
@@ -17,6 +18,7 @@ namespace IsengardClient
             _fullMap = fullMap;
             CurrentRoom = currentRoom;
             _graphInputs = gi;
+            _forRoomSelection = forRoomSelection;
 
             if (forRoomSelection)
             {
@@ -79,11 +81,14 @@ namespace IsengardClient
         private void btnGo_Click(object sender, EventArgs e)
         {
             Room selectedRoom = (Room)treeLocations.SelectedNode.Tag;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
-            if (SelectedPath == null)
+            if (!_forRoomSelection)
             {
-                MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
-                return;
+                SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
+                if (SelectedPath == null)
+                {
+                    MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
+                    return;
+                }
             }
             SelectedRoom = selectedRoom;
             this.DialogResult = DialogResult.OK;
@@ -103,7 +108,7 @@ namespace IsengardClient
                 }
             }
             btnSet.Enabled = !isCurrentRoom;
-            btnGo.Enabled = CurrentRoom != null && !isCurrentRoom;
+            btnGo.Enabled = CurrentRoom != null && (!isCurrentRoom || _forRoomSelection);
         }
     }
 }

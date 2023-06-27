@@ -1264,27 +1264,42 @@ namespace IsengardClient
                 }
                 else
                 {
-                    ItemTypeEnum eItemType = ie.ItemType.Value;
-                    StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-                    int iEntityCount = ie.Count;
-                    int iSplitCount;
-                    if (sid.ItemClass == ItemClass.Coins)
+                    foreach (ItemEntity nextIE in SplitItemEntity(ie, expectSingleItem, flp.ErrorMessages))
                     {
-                        iEntityCount = ie.SetCount;
-                        iSplitCount = ie.Count;
+                        itemList.Add(nextIE);
                     }
-                    else
-                    {
-                        iSplitCount = 1;
-                        if (iEntityCount != 1 && expectSingleItem)
-                        {
-                            flp.ErrorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + ie.Count);
-                        }
-                    }
-                    for (int i = 0; i < iEntityCount; i++)
-                    {
-                        itemList.Add(new ItemEntity(eItemType, iSplitCount, 1));
-                    }
+                }
+            }
+        }
+
+        public static IEnumerable<ItemEntity> SplitItemEntity(ItemEntity input, bool expectSingleItem, List<string> errorMessages)
+        {
+            ItemTypeEnum eItemType = input.ItemType.Value;
+            StaticItemData sid = ItemEntity.StaticItemData[eItemType];
+            int iEntityCount = input.Count;
+            int iSplitCount;
+            if (sid.ItemClass == ItemClass.Coins)
+            {
+                iEntityCount = input.SetCount;
+                iSplitCount = input.Count;
+            }
+            else
+            {
+                iSplitCount = 1;
+                if (iEntityCount != 1 && expectSingleItem)
+                {
+                    errorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + input.Count);
+                }
+            }
+            if (iEntityCount == 1)
+            {
+                yield return input;
+            }
+            else
+            {
+                for (int i = 0; i < iEntityCount; i++)
+                {
+                    yield return new ItemEntity(eItemType, iSplitCount, 1);
                 }
             }
         }

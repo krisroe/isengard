@@ -416,6 +416,15 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
+            s.FinalMeleeAction = FinalStepAction.FinishCombat;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.FinalPotionsAction = FinalStepAction.FinishCombat;
+            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.TypesWithStepsEnabled = CommandType.None;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;

@@ -197,6 +197,16 @@ namespace IsengardClient
         Room,
     }
 
+    [Flags]
+    public enum ItemLocationTypeFlags
+    {
+        None = 0,
+        Inventory = 1,
+        Equipment = 2,
+        Room = 4,
+        All = 7,
+    }
+
     public enum AutoEscapeType
     {
         Flee = 0,
@@ -640,13 +650,6 @@ namespace IsengardClient
         StopCombat = 1,
         SelectFirstMonsterInRoom = 2,
         SelectFirstMonsterInRoomOfSameType = 3,
-    }
-
-    public enum BackgroundLocation
-    {
-        Monster,
-        PawnShop,
-        Tick,
     }
 
     public enum SpellProficiency
