@@ -2692,6 +2692,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.DetectInvisibleOver;
                 }
+                else if (sLine == "Your detect-magic wears off.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.DetectMagicOver;
+                }
                 else if (sLine == "Your magical light fades.")
                 {
                     haveDataToDisplay = true;
