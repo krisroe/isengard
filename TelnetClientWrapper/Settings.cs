@@ -21,6 +21,7 @@ namespace IsengardClient
         public AutoEscapeType AutoEscapeType { get; set; }
         public bool AutoEscapeActive { get; set; }
         public bool RemoveAllOnStartup { get; set; }
+        public bool DisplayStunLength { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         private IsengardSettingData()
         {
@@ -34,6 +35,7 @@ namespace IsengardClient
             AutoSpellLevelMin = frmConfiguration.AUTO_SPELL_LEVEL_MINIMUM;
             AutoSpellLevelMax = frmConfiguration.AUTO_SPELL_LEVEL_MAXIMUM;
             RemoveAllOnStartup = true;
+            DisplayStunLength = false;
             AutoEscapeThreshold = 0;
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
@@ -54,6 +56,7 @@ namespace IsengardClient
             AutoEscapeType = copied.AutoEscapeType;
             AutoEscapeActive = copied.AutoEscapeActive;
             RemoveAllOnStartup = copied.RemoveAllOnStartup;
+            DisplayStunLength = copied.DisplayStunLength;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             foreach (var next in copied.DynamicItemData)
             {
@@ -245,6 +248,12 @@ namespace IsengardClient
                         RemoveAllOnStartup = bValue;
                     else
                         errorMessages.Add("Invalid RemoveAllOnStartup: " + sValue);
+                    break;
+                case "DisplayStunLength":
+                    if (bool.TryParse(sValue, out bValue))
+                        DisplayStunLength = bValue;
+                    else
+                        errorMessages.Add("Invalid DisplayStunLength: " + sValue);
                     break;
                 case "AutoEscapeThreshold":
                     if (int.TryParse(sValue, out iValue))

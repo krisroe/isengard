@@ -93,9 +93,9 @@ namespace IsengardClient
             cboMeleeFinalAction.SelectedItem = s.FinalMeleeAction.ToString();
             cboPotionsFinalAction.SelectedItem = s.FinalPotionsAction.ToString();
 
-            chkMagicOnlyWhenStunned.Checked = (s.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None;
-            chkMeleeOnlyWhenStunned.Checked = (s.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None;
-            chkPotionsOnlyWhenStunned.Checked = (s.TypesToRunOnlyWhenMonsterStunned & CommandType.Potions) != CommandType.None;
+            txtMagicOnlyWhenStunnedForXMS.Text = s.MagicOnlyWhenStunnedForXMS.HasValue ? s.MagicOnlyWhenStunnedForXMS.ToString() : string.Empty;
+            txtMeleeOnlyWhenStunnedForXMS.Text = s.MeleeOnlyWhenStunnedForXMS.HasValue ? s.MeleeOnlyWhenStunnedForXMS.ToString() : string.Empty;
+            txtPotionsOnlyWhenStunnedForXMS.Text = s.PotionsOnlyWhenStunnedForXMS.HasValue ? s.PotionsOnlyWhenStunnedForXMS.ToString() : string.Empty;
 
             chkMagicEnabled.Checked = (s.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             chkMeleeEnabled.Checked = (s.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
@@ -193,6 +193,7 @@ namespace IsengardClient
         private void btnOK_Click(object sender, EventArgs e)
         {
             string sInt = txtManaPool.Text;
+            int iTemp;
             if (!string.IsNullOrEmpty(sInt) && !int.TryParse(sInt, out _))
             {
                 MessageBox.Show("Invalid mana pool", "Strategy");
@@ -221,6 +222,24 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid potions mend when down X HP", "Strategy");
                 txtPotionsMendWhenDownXHP.Focus();
+            }
+            sInt = txtMagicOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
+            {
+                MessageBox.Show("Invalid magic only when stunned for X MS", "Strategy");
+                txtMagicOnlyWhenStunnedForXMS.Focus();
+            }
+            sInt = txtMeleeOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
+            {
+                MessageBox.Show("Invalid melee only when stunned for X MS", "Strategy");
+                txtMeleeOnlyWhenStunnedForXMS.Focus();
+            }
+            sInt = txtPotionsOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
+            {
+                MessageBox.Show("Invalid potions only when stunned for X MS", "Strategy");
+                txtPotionsOnlyWhenStunnedForXMS.Focus();
             }
             if (!chkAutogenerateName.Checked && string.IsNullOrEmpty(txtName.Text))
             {
@@ -300,11 +319,12 @@ namespace IsengardClient
             if (chkPotionsRepeatLastStepIndefinitely.Checked) ct |= CommandType.Potions;
             NewStrategy.TypesToRunLastCommandIndefinitely = ct;
 
-            ct = CommandType.None;
-            if (chkMagicOnlyWhenStunned.Checked) ct |= CommandType.Magic;
-            if (chkMeleeOnlyWhenStunned.Checked) ct |= CommandType.Melee;
-            if (chkPotionsOnlyWhenStunned.Checked) ct |= CommandType.Potions;
-            NewStrategy.TypesToRunOnlyWhenMonsterStunned = ct;
+            sInt = txtMagicOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt)) NewStrategy.MagicOnlyWhenStunnedForXMS = int.Parse(sInt);
+            sInt = txtMeleeOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt)) NewStrategy.MeleeOnlyWhenStunnedForXMS = int.Parse(sInt);
+            sInt = txtPotionsOnlyWhenStunnedForXMS.Text;
+            if (!string.IsNullOrEmpty(sInt)) NewStrategy.PotionsOnlyWhenStunnedForXMS = int.Parse(sInt);
 
             ct = CommandType.None;
             if (chkMagicEnabled.Checked) ct |= CommandType.Magic;

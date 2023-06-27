@@ -57,6 +57,7 @@ namespace IsengardClient
             chkQueryMonsterStatus.Checked = settingsData.QueryMonsterStatus;
             chkVerboseOutput.Checked = settingsData.VerboseMode;
             chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
+            chkDisplayStunLength.Checked = settingsData.DisplayStunLength;
 
             _fullColor = settingsData.FullColor;
             SetColorUI(lblFullColorValue, _fullColor);
@@ -158,6 +159,14 @@ namespace IsengardClient
             get
             {
                 return chkRemoveAllOnStartup.Checked;
+            }
+        }
+
+        public bool DisplayStunLength
+        {
+            get
+            {
+                return chkDisplayStunLength.Checked;
             }
         }
 

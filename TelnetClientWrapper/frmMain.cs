@@ -161,7 +161,7 @@ namespace IsengardClient
         private MonsterStatus _currentMonsterStatusUI;
         private int _monsterDamage;
         private int _monsterDamageUI;
-        private bool _monsterStunned;
+        private DateTime? _monsterStunnedSince;
         private bool _monsterKilled;
         private MobTypeEnum? _monsterKilledType;
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
@@ -1245,6 +1245,7 @@ namespace IsengardClient
                     newSettings["VerboseMode"] = _settingsData.VerboseMode.ToString();
                     newSettings["QueryMonsterStatus"] = _settingsData.QueryMonsterStatus.ToString();
                     newSettings["RemoveAllOnStartup"] = _settingsData.RemoveAllOnStartup.ToString();
+                    newSettings["DisplayStunLength"] = _settingsData.DisplayStunLength.ToString();
                     newSettings["FullColor"] = _settingsData.FullColor.ToArgb().ToString();
                     newSettings["EmptyColor"] = _settingsData.EmptyColor.ToArgb().ToString();
                     newSettings["AutoSpellLevelMin"] = _settingsData.AutoSpellLevelMin.ToString();
@@ -1962,7 +1963,16 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
-                _monsterStunned = false;
+                DateTime? stunStart = _monsterStunnedSince;
+                _monsterStunnedSince = null;
+                if (stunStart.HasValue)
+                {
+                    double ms = (DateTime.UtcNow - stunStart.Value).Milliseconds;
+                    if (ms > 0)
+                    {
+                        AddConsoleMessage("Stunned for " + ms.ToString() + " ms.");
+                    }
+                }
             }
         }
 
@@ -1971,7 +1981,7 @@ namespace IsengardClient
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
             {
-                _monsterStunned = true;
+                _monsterStunnedSince = DateTime.UtcNow;
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
@@ -3810,7 +3820,7 @@ namespace IsengardClient
 
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
-                        _monsterStunned = false;
+                        _monsterStunnedSince = null;
                         _monsterKilled = false;
                         _monsterKilledType = null;
                         _monsterKilledItems.Clear();
@@ -3841,15 +3851,18 @@ namespace IsengardClient
                             bool magicStepsFinished = magicSteps == null || !magicSteps.MoveNext();
                             bool meleeStepsFinished = meleeSteps == null || !meleeSteps.MoveNext();
                             bool potionsStepsFinished = potionsSteps == null || !potionsSteps.MoveNext();
-                            bool magicOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Magic) != CommandType.None);
-                            bool meleeOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Melee) != CommandType.None);
-                            bool potionsOnlyWhenStunned = strategy != null && ((strategy.TypesToRunOnlyWhenMonsterStunned & CommandType.Potions) != CommandType.None);
+                            int? magicOnlyWhenStunnedAfterXMS = strategy?.MagicOnlyWhenStunnedForXMS;
+                            int? meleeOnlyWhenStunnedAfterXMS = strategy?.MeleeOnlyWhenStunnedForXMS;
+                            int? potionsOnlyWhenStunnedAfterXMS = strategy?.PotionsOnlyWhenStunnedForXMS;
                             if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                             if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                             if (!potionsStepsFinished) nextPotionsStep = potionsSteps.Current;
                             DateTime? dtNextMagicCommand = null;
                             DateTime? dtNextMeleeCommand = null;
                             DateTime? dtNextPotionsCommand = null;
+                            DateTime dtUtcNow;
+                            bool allowBasedOnStun;
+                            string command;
                             while (true) //combat cycle
                             {
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
@@ -3857,10 +3870,27 @@ namespace IsengardClient
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
                                 bool didDamage = false;
-                                string command;
-                                if (nextMagicStep.HasValue && 
-                                    (_monsterStunned || !magicOnlyWhenStunned) && 
-                                    (!dtNextMagicCommand.HasValue || DateTime.UtcNow > dtNextMagicCommand.Value))
+
+                                dtUtcNow = DateTime.UtcNow;
+                                if (magicOnlyWhenStunnedAfterXMS.HasValue)
+                                {
+                                    DateTime? stunnedSince = _monsterStunnedSince;
+                                    if (stunnedSince.HasValue)
+                                    {
+                                        allowBasedOnStun = (dtUtcNow - stunnedSince.Value).TotalMilliseconds >= magicOnlyWhenStunnedAfterXMS.Value;
+                                    }
+                                    else //monster isn't stunned, can't use
+                                    {
+                                        allowBasedOnStun = false;
+                                    }
+                                }
+                                else //no stun restriction
+                                {
+                                    allowBasedOnStun = true;
+                                }
+
+                                if (nextMagicStep.HasValue && allowBasedOnStun &&
+                                    (!dtNextMagicCommand.HasValue || dtUtcNow > dtNextMagicCommand.Value))
                                 {
                                     int currentMana = useManaPool ? _currentMana : _automp;
                                     int currentHP = _autohp;
@@ -3925,9 +3955,26 @@ namespace IsengardClient
                                 if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
-                                if (nextMeleeStep.HasValue &&
-                                    (_monsterStunned || !meleeOnlyWhenStunned) && 
-                                    (!dtNextMeleeCommand.HasValue || DateTime.UtcNow > dtNextMeleeCommand.Value))
+                                dtUtcNow = DateTime.UtcNow;
+                                if (meleeOnlyWhenStunnedAfterXMS.HasValue)
+                                {
+                                    DateTime? stunnedSince = _monsterStunnedSince;
+                                    if (stunnedSince.HasValue)
+                                    {
+                                        allowBasedOnStun = (dtUtcNow - stunnedSince.Value).TotalMilliseconds >= meleeOnlyWhenStunnedAfterXMS.Value;
+                                    }
+                                    else //monster isn't stunned, can't use
+                                    {
+                                        allowBasedOnStun = false;
+                                    }
+                                }
+                                else //no stun restriction
+                                {
+                                    allowBasedOnStun = true;
+                                }
+
+                                if (nextMeleeStep.HasValue && allowBasedOnStun &&
+                                    (!dtNextMeleeCommand.HasValue || dtUtcNow > dtNextMeleeCommand.Value))
                                 {
                                     GetMeleeCommand(nextMeleeStep.Value, out command);
                                     WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
@@ -3965,9 +4012,26 @@ namespace IsengardClient
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
-                                if (nextPotionsStep.HasValue &&
-                                    (_monsterStunned || !potionsOnlyWhenStunned) &&
-                                    (!dtNextPotionsCommand.HasValue || DateTime.UtcNow > dtNextPotionsCommand.Value))
+                                dtUtcNow = DateTime.UtcNow;
+                                if (potionsOnlyWhenStunnedAfterXMS.HasValue)
+                                {
+                                    DateTime? stunnedSince = _monsterStunnedSince;
+                                    if (stunnedSince.HasValue)
+                                    {
+                                        allowBasedOnStun = (dtUtcNow - stunnedSince.Value).TotalMilliseconds >= potionsOnlyWhenStunnedAfterXMS.Value;
+                                    }
+                                    else //monster isn't stunned, can't use
+                                    {
+                                        allowBasedOnStun = false;
+                                    }
+                                }
+                                else //no stun restriction
+                                {
+                                    allowBasedOnStun = true;
+                                }
+
+                                if (nextPotionsStep.HasValue && allowBasedOnStun &&
+                                    (!dtNextPotionsCommand.HasValue || dtUtcNow > dtNextPotionsCommand.Value))
                                 {
                                     PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _currentEntityInfo, _entityLock, _autohp, _totalhp);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
@@ -4167,7 +4231,7 @@ BeforeHazy:
                         _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
                         _currentlyFightingMob = null;
                         _currentMonsterStatus = MonsterStatus.None;
-                        _monsterStunned = false;
+                        _monsterStunnedSince = null;
                         if (_monsterKilled)
                         {
                             pms.MonsterKilled = true;
@@ -7864,6 +7928,7 @@ BeforeHazy:
                 clone.QueryMonsterStatus = frm.QueryMonsterStatus;
                 clone.VerboseMode = frm.VerboseOutput;
                 clone.RemoveAllOnStartup = frm.RemoveAllOnStartup;
+                clone.DisplayStunLength = frm.DisplayStunLength;
                 clone.FullColor = frm.FullColor;
                 clone.EmptyColor = frm.EmptyColor;
                 clone.Realm = frm.Realm;

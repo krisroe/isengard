@@ -25,18 +25,20 @@ namespace IsengardClient
         public List<AMagicStrategyStep> MagicSteps { get; set; }
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
+        public int? MagicOnlyWhenStunnedForXMS { get; set; }
 
         public MeleeStrategyStep? LastMeleeStep { get; set; }
         public FinalStepAction FinalMeleeAction { get; set; }
         public List<AMeleeStrategyStep> MeleeSteps { get; set; }
+        public int? MeleeOnlyWhenStunnedForXMS { get; set; }
 
         public PotionsStrategyStep? LastPotionsStep { get; set; }
         public int PotionsVigorOnlyWhenDownXHP { get; set; }
         public int PotionsMendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalPotionsAction { get; set; }
         public List<APotionsStrategyStep> PotionsSteps { get; set; }
+        public int? PotionsOnlyWhenStunnedForXMS { get; set; }
 
-        public CommandType TypesToRunOnlyWhenMonsterStunned { get; set; }
         public CommandType TypesToRunLastCommandIndefinitely { get; set; }
         public CommandType TypesWithStepsEnabled { get; set; }
 
@@ -72,7 +74,7 @@ namespace IsengardClient
             this.FinalMagicAction = copied.FinalMagicAction;
             this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
             this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
-
+            this.MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
             if (copied.MagicSteps != null)
             {
                 this.MagicSteps = new List<AMagicStrategyStep>();
@@ -84,6 +86,7 @@ namespace IsengardClient
 
             this.LastMeleeStep = copied.LastMeleeStep;
             this.FinalMeleeAction = copied.FinalMeleeAction;
+            this.MeleeOnlyWhenStunnedForXMS = copied.MeleeOnlyWhenStunnedForXMS;
             if (copied.MeleeSteps != null)
             {
                 this.MeleeSteps = new List<AMeleeStrategyStep>();
@@ -97,6 +100,7 @@ namespace IsengardClient
             this.PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
             this.PotionsMendOnlyWhenDownXHP = copied.PotionsMendOnlyWhenDownXHP;
             this.FinalPotionsAction = copied.FinalPotionsAction;
+            this.PotionsOnlyWhenStunnedForXMS = copied.PotionsOnlyWhenStunnedForXMS;
             if (copied.PotionsSteps != null)
             {
                 this.PotionsSteps = new List<APotionsStrategyStep>();
@@ -107,7 +111,6 @@ namespace IsengardClient
             }
 
             this.TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
-            this.TypesToRunOnlyWhenMonsterStunned = copied.TypesToRunOnlyWhenMonsterStunned;
             this.TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
         }
 
@@ -471,6 +474,10 @@ namespace IsengardClient
 
         public static List<Strategy> GetDefaultStrategies()
         {
+            int iPotionsMendWhenDownXHP = 12;
+            int iPotionsVigorWhenDownXHP = 6;
+            int stunWaitMS = 250;
+
             List<Strategy> allStrategies = new List<Strategy>();
             Strategy s;
 
@@ -489,8 +496,8 @@ namespace IsengardClient
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
-            s.PotionsMendOnlyWhenDownXHP = 12;
-            s.PotionsVigorOnlyWhenDownXHP = 6;
+            s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
@@ -506,9 +513,9 @@ namespace IsengardClient
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
-            s.PotionsMendOnlyWhenDownXHP = 12;
-            s.PotionsVigorOnlyWhenDownXHP = 6;
-            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
+            s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
@@ -527,9 +534,9 @@ namespace IsengardClient
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
-            s.PotionsMendOnlyWhenDownXHP = 12;
-            s.PotionsVigorOnlyWhenDownXHP = 6;
-            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
+            s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
@@ -550,9 +557,9 @@ namespace IsengardClient
             s.FinalMagicAction = FinalStepAction.Flee;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
-            s.PotionsMendOnlyWhenDownXHP = 12;
-            s.PotionsVigorOnlyWhenDownXHP = 6;
-            s.TypesToRunOnlyWhenMonsterStunned = CommandType.Melee;
+            s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
+            s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
