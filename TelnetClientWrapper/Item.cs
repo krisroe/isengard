@@ -78,6 +78,13 @@ namespace IsengardClient
                     eItemClass = ItemClass.Scroll;
                 }
 
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WandAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eSpell = ((WandAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Wand;
+                }
+
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
@@ -291,6 +298,7 @@ namespace IsengardClient
         [WeaponType(WeaponType.Missile)]
         Boomerang,
 
+        //first use casts levitation
         [SingularName("boots of levitation")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(2)]
@@ -560,6 +568,7 @@ namespace IsengardClient
         GirionsKey,
 
         [SingularName("glitter")]
+        //CSRTODO: wand?
         //CSRTODO: glitter (does not use some)
         Glitter,
 
@@ -758,11 +767,13 @@ namespace IsengardClient
 
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
+        [Potion(SpellsEnum.endurecold)]
         LittleBrownJug,
 
         [SingularName("lollipop")]
         [PluralName("lollipops")]
         [Weight(1)]
+        //CSRTODO: potion?
         Lollipop,
 
         [SingularName("long bow")]
@@ -782,6 +793,7 @@ namespace IsengardClient
         [SingularName("magical tabulator")]
         [PluralName("magical tabulators")]
         [Weight(5)]
+        [Wand(SpellsEnum.detectmagic)]
         MagicalTabulator,
 
         [SingularName("magical temper")]
@@ -911,6 +923,7 @@ namespace IsengardClient
 
         [SingularName("pipe weed")]
         //CSRTODO: plural?
+        //CSRTODO: wand?
         PipeWeed,
 
         [SingularName("platinum pieces")]
@@ -941,6 +954,7 @@ namespace IsengardClient
         [SingularName("purple wand")]
         [PluralName("purple wands")]
         [Weight(5)]
+        //CSRTODO: wand
         PurpleWand,
 
         [SingularName("quarterstaff")]
@@ -951,6 +965,7 @@ namespace IsengardClient
         [SingularName("quartz stone")]
         [PluralName("quartz stones")]
         [Weight(5)]
+        //CSRTODO: wand?
         QuartzStone,
 
         [SingularName("rake")]
@@ -1029,6 +1044,7 @@ namespace IsengardClient
 
         [SingularName("scythe")]
         [PluralName("scythes")]
+        [WeaponType(WeaponType.Unknown)]
         Scythe,
 
         [SingularName("sextant")]
@@ -1076,6 +1092,7 @@ namespace IsengardClient
 
         [SingularName("silver wand")]
         [PluralName("silver wands")]
+        //CSRTODO: wand?
         SilverWand,
 
         [SingularName("slaying sword")]
@@ -1313,6 +1330,7 @@ namespace IsengardClient
 
         [SingularName("yellow beholder's eye")]
         [PluralName("yellow beholder's eyes")]
+        [Wand(SpellsEnum.lightning)]
         YellowBeholdersEye,
 
         [SingularName("yellow potion")]

@@ -3225,7 +3225,8 @@ StartProcessRoom:
             { "You feel holy.", "bless" },
             { "You feel watched.", "protection" },
             { "You can fly!", "fly"},
-            { "Your eyes feel funny.", "detect-magic" },
+            { "Your eyes feel funny.", "detect-magic" }, //dark green potion
+            { "You can count magical bonuses now!", "detect-magic" }, //magical tabulator
             { "You turn invisible.", "invisibility" },
             { "You become shielded from the normal fire element.", "endure-fire" },
             { "You become shielded from the normal wind element.", "endure-cold" },

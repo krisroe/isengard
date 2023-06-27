@@ -127,6 +127,15 @@ namespace IsengardClient
         }
     }
 
+    internal class WandAttribute : Attribute
+    {
+        public SpellsEnum Spell { get; set; }
+        public WandAttribute(SpellsEnum Spell)
+        {
+            this.Spell = Spell;
+        }
+    }
+
     internal class SpellInformationAttribute : Attribute
     {
         public SpellProficiency Proficiency { get; set; }
