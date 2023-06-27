@@ -489,6 +489,7 @@ namespace IsengardClient
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
         [EquipmentType(EquipmentType.Neck)]
+        [Weight(4)]
         EmeraldCollar,
 
         [SingularName("engagement ring")]
