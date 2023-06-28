@@ -868,6 +868,7 @@ namespace IsengardClient
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]
         [WeaponType(WeaponType.Blunt)]
+        [Weight(5)]
         LeadHammer,
 
         [SingularName("leather armor")]
@@ -984,6 +985,7 @@ namespace IsengardClient
         [SingularName("mithron hood")]
         [PluralName("mithron hoods")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(5)]
         MithronHood,
 
         [SingularName("mithron shield")]
@@ -1248,6 +1250,7 @@ namespace IsengardClient
         [SingularName("small bag")]
         [PluralName("small bags")]
         [Bag]
+        [Weight(2)]
         SmallBag,
 
         [SingularName("small knife")]
@@ -1298,6 +1301,7 @@ namespace IsengardClient
 
         [SingularName("splint mail")]
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(15)]
         SplintMail,
 
         [SingularName("sprite bracelet")]
@@ -1360,6 +1364,7 @@ namespace IsengardClient
         [SingularName("tattoo of a wench")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(1)]
         TattooOfAWench,
 
         [SingularName("taupe scroll")]
