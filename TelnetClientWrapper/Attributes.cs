@@ -170,6 +170,9 @@ namespace IsengardClient
     {
         public int LowerRange { get; set; }
         public int UpperRange { get; set; }
+        public SellGoldRangeAttribute(int SingleValue) : this(SingleValue, SingleValue)
+        {
+        }
         public SellGoldRangeAttribute(int LowerRange, int UpperRange)
         {
             this.LowerRange = LowerRange;

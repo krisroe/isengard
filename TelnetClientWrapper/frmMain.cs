@@ -4443,7 +4443,7 @@ BeforeHazy:
                     {
                         broadcastMessages = new List<string>()
                         {
-                            "Sold " + itemText.ToLower() + " for " + goldDifference
+                            "Sold " + itemType.ToString() + " for " + goldDifference
                         };
                         if (sid.LowerSellRange == 0 || goldDifference < sid.LowerSellRange)
                         {

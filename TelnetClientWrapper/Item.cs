@@ -1455,6 +1455,8 @@ namespace IsengardClient
         [SingularName("wagonmaster's whip")]
         [PluralName("wagonmaster's whips")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(3)]
+        [SellGoldRange(1262)]
         WagonmastersWhip,
 
         [SingularName("warhammer")]
