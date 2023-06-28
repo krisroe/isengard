@@ -85,8 +85,6 @@
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.treeCurrentRoom = new System.Windows.Forms.TreeView();
-            this.ctxCurrentRoom = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiGoToRoom = new System.Windows.Forms.ToolStripMenuItem();
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
@@ -175,7 +173,6 @@
             this.grpInventory.SuspendLayout();
             this.grpEquipment.SuspendLayout();
             this.grpCurrentRoom.SuspendLayout();
-            this.ctxCurrentRoom.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.grpCurrentPlayer.SuspendLayout();
             this.grpMessages.SuspendLayout();
@@ -847,7 +844,6 @@
             // 
             // treeCurrentRoom
             // 
-            this.treeCurrentRoom.ContextMenuStrip = this.ctxCurrentRoom;
             this.treeCurrentRoom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeCurrentRoom.Location = new System.Drawing.Point(4, 19);
             this.treeCurrentRoom.Name = "treeCurrentRoom";
@@ -858,22 +854,6 @@
             this.treeCurrentRoom.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterSelect);
             this.treeCurrentRoom.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeCurrentRoom_NodeMouseClick);
             this.treeCurrentRoom.DoubleClick += new System.EventHandler(this.treeCurrentRoom_DoubleClick);
-            // 
-            // ctxCurrentRoom
-            // 
-            this.ctxCurrentRoom.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxCurrentRoom.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiGoToRoom});
-            this.ctxCurrentRoom.Name = "ctxCurrentRoom";
-            this.ctxCurrentRoom.Size = new System.Drawing.Size(160, 28);
-            this.ctxCurrentRoom.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCurrentRoom_Opening);
-            // 
-            // tsmiGoToRoom
-            // 
-            this.tsmiGoToRoom.Name = "tsmiGoToRoom";
-            this.tsmiGoToRoom.Size = new System.Drawing.Size(159, 24);
-            this.tsmiGoToRoom.Text = "Go to Room";
-            this.tsmiGoToRoom.Click += new System.EventHandler(this.tsmiGoToRoom_Click);
             // 
             // btnLocations
             // 
@@ -1778,7 +1758,6 @@
             this.grpInventory.ResumeLayout(false);
             this.grpEquipment.ResumeLayout(false);
             this.grpCurrentRoom.ResumeLayout(false);
-            this.ctxCurrentRoom.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.grpCurrentPlayer.ResumeLayout(false);
             this.grpCurrentPlayer.PerformLayout();
@@ -1933,8 +1912,6 @@
         private System.Windows.Forms.Label lblTickRoom;
         private System.Windows.Forms.Button btnGoToHealingRoom;
         private System.Windows.Forms.TreeView treeCurrentRoom;
-        private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
-        private System.Windows.Forms.ToolStripMenuItem tsmiGoToRoom;
         private System.Windows.Forms.Button btnOut;
         private System.Windows.Forms.ToolStripButton tsbSpells;
         private System.Windows.Forms.GroupBox grpEquipment;

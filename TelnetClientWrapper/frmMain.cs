@@ -6127,7 +6127,7 @@ BeforeHazy:
             {
                 navigateExit = new Exit(null, null, direction);
             }
-            NavigateExitsInBackground(new List<Exit>() { navigateExit });
+            NavigateSingleExitInBackground(navigateExit);
         }
 
         private void ctxConsole_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -7765,6 +7765,11 @@ BeforeHazy:
             }
         }
 
+        private void NavigateSingleExitInBackground(Exit exit)
+        {
+            NavigateExitsInBackground(new List<Exit>() { exit });
+        }
+
         private void NavigateExitsInBackground(List<Exit> exits)
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
@@ -8163,10 +8168,11 @@ BeforeHazy:
         {
             TreeNode selectedNode = treeCurrentRoom.SelectedNode;
             TreeNode parentNode = selectedNode.Parent;
+            object oTag = selectedNode.Tag;
             if (parentNode == _currentEntityInfo.tnObviousItems)
             {
                 int counter = 0;
-                ItemEntity ie = (ItemEntity)selectedNode.Tag;
+                ItemEntity ie = (ItemEntity)oTag;
                 ItemTypeEnum ieType = ie.ItemType.Value;
                 foreach (TreeNode nextNode in _currentEntityInfo.tnObviousItems.Nodes)
                 {
@@ -8193,6 +8199,17 @@ BeforeHazy:
                     }
                 }
             }
+            else if (parentNode == _currentEntityInfo.tnObviousExits)
+            {
+                if (oTag is Exit)
+                {
+                    NavigateSingleExitInBackground((Exit)oTag);
+                }
+                else //string
+                {
+                    DoSingleMove(oTag.ToString());
+                }
+            }
         }
 
         private void tsmiGoToRoom_Click(object sender, EventArgs e)
@@ -8201,7 +8218,7 @@ BeforeHazy:
             Exit exit = node.Tag as Exit;
             if (exit == null)
             {
-                string s = node.Tag as String;
+                string s = node.Tag as string;
                 if (s != null)
                 {
                     exit = new Exit(null, null, s);
@@ -8209,27 +8226,7 @@ BeforeHazy:
             }
             if (exit != null)
             {
-                NavigateExitsInBackground(new List<Exit>() { exit });
-            }
-        }
-
-        private void ctxCurrentRoom_Opening(object sender, CancelEventArgs e)
-        {
-            TreeNode node = treeCurrentRoom.SelectedNode;
-            bool isObviousExit = false;
-            bool isOtherExit = false;
-            TreeNode parent = node?.Parent;
-            if (parent == _currentEntityInfo.tnObviousExits)
-            {
-                isObviousExit = true;
-            }
-            else if (parent == _currentEntityInfo.tnOtherExits)
-            {
-                isOtherExit = true;
-            }
-            if (!isOtherExit && !isObviousExit)
-            {
-                e.Cancel = true;
+                NavigateSingleExitInBackground(exit);
             }
         }
 
