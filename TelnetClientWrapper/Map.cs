@@ -4625,6 +4625,7 @@ namespace IsengardClient
             armenelosGraph.Rooms[oAzgara] = new System.Windows.Point(7, 3);
 
             Room oOnlyArmor = AddRoom("Kali", "Only Armor");
+            oOnlyArmor.AddPermanentMobs(MobTypeEnum.Kali);
             AddBidirectionalExitsWithOut(oAzgara, oOnlyArmor, "door");
             armenelosGraph.Rooms[oOnlyArmor] = new System.Windows.Point(6.5, 3.5);
 
@@ -4819,6 +4820,12 @@ namespace IsengardClient
             AddBidirectionalExits(oMerchantsMarket1, oBalan2, BidirectionalExitType.NorthSouth);
             armenelosGraph.Rooms[oMerchantsMarket1] = new System.Windows.Point(3, 9.5);
 
+            Room oCultOfAzogHQ = AddRoom("Cult of Azoq HQ", "Cult of Azog Headquarters");
+            oCultOfAzogHQ.AddPermanentMobs(MobTypeEnum.Voteli);
+            Exit e = AddBidirectionalExitsWithOut(oMerchantsMarket1, oCultOfAzogHQ, "tent");
+            e.Hidden = true;
+            armenelosGraph.Rooms[oCultOfAzogHQ] = new System.Windows.Point(3, 9);
+
             Room oMerchantsMarket2 = AddRoom("Merchant Market", "Merchant's Market");
             AddBidirectionalExits(oMerchantsMarket1, oMerchantsMarket2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oMerchantsMarket2, oBalan3, BidirectionalExitType.NorthSouth);
@@ -4914,7 +4921,7 @@ namespace IsengardClient
             armenelosGraph.Rooms[oGateInside] = new System.Windows.Point(8, 12);
 
             AddExit(oGateInside, oArmenelosGatesOutside, "gate");
-            Exit e = AddExit(oArmenelosGatesOutside, oGateInside, "gate");
+            e = AddExit(oArmenelosGatesOutside, oGateInside, "gate");
             e.RequiresDay = true;
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
         }
@@ -4926,14 +4933,14 @@ namespace IsengardClient
             Room previousRoom = oSouthernJunction;
             for (int i = 0; i < 7; i++)
             {
-                r = AddRoom("Laiquendi");
+                r = AddRoom("Laiquendi", "Laiquendi");
                 AddBidirectionalExits(r, previousRoom, BidirectionalExitType.WestEast);
                 previousRoom = r;
             }
             Room hiddenPathRoom = null;
             for (int i = 0; i < 9; i++)
             {
-                r = AddRoom("Liara");
+                r = AddRoom("Liara", "Liara");
                 e = AddExit(r, previousRoom, "south");
                 if (i == 4)
                 {
@@ -4942,54 +4949,54 @@ namespace IsengardClient
                 AddExit(previousRoom, r, "north");
                 previousRoom = r;
             }
-            r = AddRoom("Liara");
+            r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
             previousRoom = r;
-            r = AddRoom("Liara");
+            r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
             previousRoom = r;
-            r = AddRoom("Liara");
+            r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.NorthSouth);
             previousRoom = r;
-            r = AddRoom("Liara");
+            r = AddRoom("Liara", "Liara");
             e = AddExit(r, previousRoom, "south");
             AddExit(previousRoom, r, "north");
             previousRoom = r;
             Room oLastLiara = r;
 
-            Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma");
+            Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma", "Base of Menel tarma");
             oBaseOfMenelTarma.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
 
-            Room oHiddenPath1 = AddRoom("Hidden Path");
+            Room oHiddenPath1 = AddRoom("Streambed", "Streambed");
             AddBidirectionalExits(hiddenPathRoom, oHiddenPath1, BidirectionalExitType.SoutheastNorthwest, true);
-            Room oHiddenPath2 = AddRoom("Hidden Path");
+            Room oHiddenPath2 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath1, oHiddenPath2, BidirectionalExitType.SoutheastNorthwest, true);
-            Room oHiddenPath3 = AddRoom("Hidden Path");
+            Room oHiddenPath3 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath2, oHiddenPath3, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath4 = AddRoom("Hidden Path");
+            Room oHiddenPath4 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath3, oHiddenPath4, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath5 = AddRoom("Hidden Path");
+            Room oHiddenPath5 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath4, oHiddenPath5, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath6 = AddRoom("Hidden Path");
+            Room oHiddenPath6 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath5, oHiddenPath6, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath7 = AddRoom("Hidden Path");
+            Room oHiddenPath7 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath6, oHiddenPath7, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath8 = AddRoom("Hidden Path");
+            Room oHiddenPath8 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath7, oHiddenPath8, BidirectionalExitType.NorthSouth, true);
-            Room oHiddenPath9 = AddRoom("Hidden Path");
+            Room oHiddenPath9 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath8, oHiddenPath9, BidirectionalExitType.SoutheastNorthwest, true);
-            Room oHiddenPath10 = AddRoom("Hidden Path");
+            Room oHiddenPath10 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath9, oHiddenPath10, BidirectionalExitType.WestEast, true);
-            Room oHiddenPath11 = AddRoom("Hidden Path");
+            Room oHiddenPath11 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath10, oHiddenPath11, BidirectionalExitType.WestEast, true);
-            Room oHiddenPath12 = AddRoom("Hidden Path");
+            Room oHiddenPath12 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath12, oHiddenPath11, BidirectionalExitType.SouthwestNortheast, true);
-            Room oHiddenPath13 = AddRoom("Hidden Path");
+            Room oHiddenPath13 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath12, oHiddenPath13, BidirectionalExitType.WestEast, true);
-            Room oHiddenPath14 = AddRoom("Hidden Path");
+            Room oHiddenPath14 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath13, oHiddenPath14, BidirectionalExitType.WestEast, true);
-            Room oHiddenPath15 = AddRoom("Hidden Path");
+            Room oHiddenPath15 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath14, oHiddenPath15, BidirectionalExitType.WestEast, true);
             AddBidirectionalExits(oHiddenPath15, oPathThroughTheValley, BidirectionalExitType.SoutheastNorthwest, true);
 

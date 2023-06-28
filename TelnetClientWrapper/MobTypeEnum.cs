@@ -159,6 +159,10 @@
         //CSRTODO: plural
         Child,
 
+        [SingularName("citizen")]
+        [PluralName("citizens")]
+        Citizen,
+
         [SingularName("cook")]
         [PluralName("cooks")]
         Cook,
@@ -413,7 +417,7 @@
         Graddy,
 
         [SingularName("Granite Knucklebuster")]
-        //CSRTODO: no plural
+        [PluralName("Granite Knucklebusters")] //verified 6/28/23
         GraniteKnucklebuster,
 
         [SingularName("Grant")]
@@ -622,6 +626,10 @@
         [Alignment(AlignmentType.Blue)]
         [SingularSelection("Ixell")]
         IxellDeSantis,
+
+        [SingularName("Kali")]
+        //CSRTODO: no plural
+        Kali,
 
         [SingularName("Kasnar the Guard")]
         //CSRTODO: no plural
@@ -944,6 +952,10 @@
         [PluralName("peasants")]
         Peasant,
 
+        [SingularName("pilgrim")]
+        [PluralName("pilgrims")]
+        Pilgrim,
+
         [SingularName("pixie")]
         [PluralName("pixies")]
         Pixie,
@@ -1237,6 +1249,10 @@
         [SingularName("villager's ghost")]
         [PluralName("villager's ghosts")]
         VillagersGhost,
+
+        [SingularName("Voteli")]
+        //CSRTODO: no plural
+        Voteli,
 
         [SingularName("vulture")]
         [PluralName("vultures")]

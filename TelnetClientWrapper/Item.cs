@@ -1235,7 +1235,7 @@ namespace IsengardClient
 
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         SilverDagger,
 
         [SingularName("silver scimitar")]
