@@ -909,6 +909,7 @@ namespace IsengardClient
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
         [Potion(SpellsEnum.endurecold)]
+        [Weight(3)]
         LittleBrownJug,
 
         [SingularName("lollipop")]
@@ -1105,6 +1106,7 @@ namespace IsengardClient
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(2)]
         Quarterstaff,
 
         [SingularName("quartz stone")]
