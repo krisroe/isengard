@@ -8509,7 +8509,7 @@ BeforeHazy:
                     bool success = false;
                     try
                     {
-                        _settingsData = new IsengardSettingData(ofd.FileName, errorMessages);
+                        _settingsData = new IsengardSettingData(ofd.FileName, errorMessages, true);
                         success = true;
                     }
                     catch (Exception ex)

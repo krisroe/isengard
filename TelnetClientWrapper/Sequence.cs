@@ -1018,7 +1018,7 @@ namespace IsengardClient
                 List<ItemEntity> itemsManaged = null;
                 if (firstLine.StartsWith(YOU_WEAR_PREFIX))
                 {
-                    List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out _, null);
+                    List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wornObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1044,7 +1044,7 @@ namespace IsengardClient
                 }
                 else if (firstLine.StartsWith(YOU_HOLD_PREFIX))
                 {
-                    List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out _, null);
+                    List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, heldObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1079,7 +1079,7 @@ namespace IsengardClient
                     {
                         sExpectedPrefix = YOU_REMOVED_PREFIX;
                     }
-                    List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out _, null);
+                    List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, removedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Unequip;
@@ -1105,7 +1105,7 @@ namespace IsengardClient
                 }
                 else if (firstLine.StartsWith(YOU_WIELD_PREFIX))
                 {
-                    List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out _, null);
+                    List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, wieldedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.Equip;
@@ -1135,7 +1135,7 @@ namespace IsengardClient
                     {
                         return;
                     }
-                    List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out _, null);
+                    List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, retrievedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.PickUpItem;
@@ -1161,7 +1161,7 @@ namespace IsengardClient
                     {
                         return;
                     }
-                    List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out _, null);
+                    List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
                     RoomTransitionSequence.LoadItems(items, droppedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
                     eAction = ItemManagementAction.DropItem;
@@ -1181,115 +1181,113 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (eAction != ItemManagementAction.Equip && eAction != ItemManagementAction.Unequip && eAction != ItemManagementAction.PickUpItem && eAction != ItemManagementAction.DropItem)
+                bool expectCapitalized = false;
+                for (int i = iIndex; i < Lines.Count; i++)
                 {
-                    bool expectCapitalized = false;
-                    foreach (string nextLine in Lines)
+                    string nextLine = Lines[i];
+                    int lineLength = nextLine.Length;
+                    string objectText = string.Empty;
+                    if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
                     {
-                        int lineLength = nextLine.Length;
-                        string objectText = string.Empty;
-                        if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
-                        {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem)
-                            {
-                                return;
-                            }
-                            eAction = ItemManagementAction.SellItem;
-                            if (!nextLine.EndsWith("."))
-                            {
-                                return;
-                            }
-                            int goldForPrefixIndex = nextLine.IndexOf(" gold for ");
-                            int goldLength = goldForPrefixIndex - THE_SHOPKEEP_GIVES_YOU_PREFIX.Length;
-                            if (goldLength <= 0) return;
-                            string sGold = nextLine.Substring(THE_SHOPKEEP_GIVES_YOU_PREFIX.Length, goldLength);
-                            if (!int.TryParse(sGold, out int iNextGold))
-                            {
-                                return;
-                            }
-                            iSellGold += iNextGold;
-                            int objectLen = lineLength - goldForPrefixIndex - " gold for ".Length - 1;
-                            if (objectLen <= 0) return;
-                            objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
-                        }
-                        else if (nextLine.EndsWith(" disintegrates."))
-                        {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem)
-                            {
-                                return;
-                            }
-                            eAction = ItemManagementAction.ConsumeItem;
-                            int suffixIndex = nextLine.IndexOf(" disintegrates.");
-                            if (suffixIndex > 0)
-                            {
-                                objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
-                            }
-                            expectCapitalized = true;
-                        }
-                        else if (nextLine == "Substance consumed.")
-                        {
-                            potionConsumed = true;
-                        }
-                        else if (nextLine == "Thanks for recycling." ||
-                                 nextLine == "You feel better." || //vigor/mend
-                                 nextLine == "You feel dizzy." || //speckled potion
-                                 nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
-                                 nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
-                                 nextLine == "Yuck! That's terrible!" || //viscous potion
-                                 nextLine == "Yuck!" || //viscous potion
-                                 nextLine.EndsWith(" hit points removed."))
-                        {
-                            continue; //skipped
-                        }
-                        else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
-                        {
-                            if (activeSpells == null)
-                            {
-                                activeSpells = new List<string>() { activeSpell };
-                            }
-                        }
-                        else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
-                        {
-                            if (nextLine.Length == "You have ".Length + " gold.".Length)
-                            {
-                                return;
-                            }
-                            else
-                            {
-                                string sGold = nextLine.Substring("You have ".Length, nextLine.Length - "You have ".Length - " gold.".Length);
-                                if (!int.TryParse(sGold, out int iFoundGold))
-                                {
-                                    return;
-                                }
-                                iTotalGold = iFoundGold;
-                            }
-                            continue;
-                        }
-                        else if (nextLine.StartsWith("You now have ") && nextLine.EndsWith(" gold pieces."))
-                        {
-                            if (nextLine.Length == "You now have ".Length + " gold pieces.".Length)
-                            {
-                                return;
-                            }
-                            else
-                            {
-                                string sGold = nextLine.Substring("You now have ".Length, nextLine.Length - "You now have ".Length - " gold pieces.".Length);
-                                if (!int.TryParse(sGold, out int iFoundGold))
-                                {
-                                    return;
-                                }
-                                iTotalGold = iFoundGold;
-                            }
-                            continue;
-                        }
-                        else if (!string.IsNullOrWhiteSpace(nextLine))
+                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem)
                         {
                             return;
                         }
-                        if (!string.IsNullOrEmpty(objectText))
+                        eAction = ItemManagementAction.SellItem;
+                        if (!nextLine.EndsWith("."))
                         {
-                            GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
+                            return;
                         }
+                        int goldForPrefixIndex = nextLine.IndexOf(" gold for ");
+                        int goldLength = goldForPrefixIndex - THE_SHOPKEEP_GIVES_YOU_PREFIX.Length;
+                        if (goldLength <= 0) return;
+                        string sGold = nextLine.Substring(THE_SHOPKEEP_GIVES_YOU_PREFIX.Length, goldLength);
+                        if (!int.TryParse(sGold, out int iNextGold))
+                        {
+                            return;
+                        }
+                        iSellGold += iNextGold;
+                        int objectLen = lineLength - goldForPrefixIndex - " gold for ".Length - 1;
+                        if (objectLen <= 0) return;
+                        objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
+                    }
+                    else if (nextLine.EndsWith(" disintegrates."))
+                    {
+                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem)
+                        {
+                            return;
+                        }
+                        eAction = ItemManagementAction.ConsumeItem;
+                        int suffixIndex = nextLine.IndexOf(" disintegrates.");
+                        if (suffixIndex > 0)
+                        {
+                            objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
+                        }
+                        expectCapitalized = true;
+                    }
+                    else if (nextLine == "Substance consumed.")
+                    {
+                        potionConsumed = true;
+                    }
+                    else if (nextLine == "Thanks for recycling." ||
+                             nextLine == "You feel better." || //vigor/mend
+                             nextLine == "You feel dizzy." || //speckled potion
+                             nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
+                             nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
+                             nextLine == "Yuck! That's terrible!" || //viscous potion
+                             nextLine == "Yuck!" || //viscous potion
+                             nextLine.EndsWith(" hit points removed."))
+                    {
+                        continue; //skipped
+                    }
+                    else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
+                    {
+                        if (activeSpells == null)
+                        {
+                            activeSpells = new List<string>() { activeSpell };
+                        }
+                    }
+                    else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
+                    {
+                        if (nextLine.Length == "You have ".Length + " gold.".Length)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            string sGold = nextLine.Substring("You have ".Length, nextLine.Length - "You have ".Length - " gold.".Length);
+                            if (!int.TryParse(sGold, out int iFoundGold))
+                            {
+                                return;
+                            }
+                            iTotalGold = iFoundGold;
+                        }
+                        continue;
+                    }
+                    else if (nextLine.StartsWith("You now have ") && nextLine.EndsWith(" gold pieces."))
+                    {
+                        if (nextLine.Length == "You now have ".Length + " gold pieces.".Length)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            string sGold = nextLine.Substring("You now have ".Length, nextLine.Length - "You now have ".Length - " gold pieces.".Length);
+                            if (!int.TryParse(sGold, out int iFoundGold))
+                            {
+                                return;
+                            }
+                            iTotalGold = iFoundGold;
+                        }
+                        continue;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(nextLine))
+                    {
+                        return;
+                    }
+                    if (!string.IsNullOrEmpty(objectText))
+                    {
+                        GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
                     }
                 }
                 if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)

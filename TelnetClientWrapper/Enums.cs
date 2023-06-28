@@ -231,7 +231,7 @@ namespace IsengardClient
         UpDown,
     }
 
-    internal enum AlignmentType
+    public enum AlignmentType
     {
         Blue,
         Grey,

@@ -17,6 +17,9 @@ namespace IsengardClient.Tests
             int iIndex = 0;
 
             strategy = defaultStrategies[iIndex++];
+            Assert.IsTrue(strategy.TypesWithStepsEnabled == CommandType.None);
+
+            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, null, true);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
@@ -31,45 +34,6 @@ namespace IsengardClient.Tests
             strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, false);
             ValidateIndefiniteAttackStrategy(strategy, false);
-
-            strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, null, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true);
-            ValidateNonMeleeStrategy(strategy);
-
-            strategy = defaultStrategies[iIndex++];
-            Assert.IsFalse(strategy.HasAnyMagicSteps());
-            foreach (var _ in strategy.GetMagicSteps())
-            {
-                Assert.Fail();
-            }
-            var magicSteps = strategy.GetMagicSteps();
-            var magicEnumerator = magicSteps.GetEnumerator();
-            bool move = magicEnumerator.MoveNext();
-            Assert.AreEqual(move, false);
-
-            ValidateIndefiniteAttackStrategy(strategy, true);
-            ValidateIndefiniteAttackStrategy(strategy, false);
-        }
-
-        private void ValidateNonMeleeStrategy(Strategy strategy)
-        {
-            Assert.IsFalse(strategy.HasAnyMeleeSteps());
-            foreach (var _ in strategy.GetMeleeSteps(true))
-            {
-                Assert.Fail();
-            }
-            var meleeSteps = strategy.GetMeleeSteps(false);
-            var meleeEnumerator = meleeSteps.GetEnumerator();
-            bool move = meleeEnumerator.MoveNext();
-            Assert.AreEqual(move, false);
         }
 
         private void ValidateCastStrategy(Strategy strategy, List<MagicStrategyStep> leadingSteps, bool indefinite)

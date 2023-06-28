@@ -3,10 +3,9 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Xml;
 using System.Data.SQLite;
-
 namespace IsengardClient
 {
-    internal class IsengardSettingData
+    public class IsengardSettingData
     {
         public ItemTypeEnum? Weapon { get; set; }
         public RealmType Realm { get; set; }
@@ -23,7 +22,7 @@ namespace IsengardClient
         public bool RemoveAllOnStartup { get; set; }
         public bool DisplayStunLength { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
-        private IsengardSettingData()
+        public IsengardSettingData()
         {
             Weapon = null;
             Realm = RealmType.Earth;
@@ -98,28 +97,40 @@ namespace IsengardClient
             }
         }
 
-        public IsengardSettingData(string FileName, List<string> errorMessages) : this()
+        public IsengardSettingData(string Input, List<string> errorMessages, bool IsFile) : this()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(FileName);
-
+            if (IsFile)
+            {
+                doc.Load(Input);
+            }
+            else
+            {
+                doc.LoadXml(Input);
+            }
             XmlElement docElement = doc.DocumentElement;
-
             bool foundSettings = false;
+            bool foundDynamicItemData = false;
             foreach (XmlNode nextNode in docElement.ChildNodes)
             {
                 if (nextNode is XmlElement)
                 {
                     XmlElement elem = (XmlElement)nextNode;
-                    switch (elem.Name)
+                    string sElemName = elem.Name;
+                    switch (sElemName)
                     {
                         case "Settings":
-                            if (foundSettings)
-                            {
-                                errorMessages.Add("Duplicate settings element found.");
-                            }
+                            if (foundSettings) errorMessages.Add("Duplicate settings element found.");
                             HandleSettings(elem, errorMessages);
                             foundSettings = true;
+                            break;
+                        case "DynamicItemData":
+                            if (foundDynamicItemData) errorMessages.Add("Duplicate dynamic item data element found.");
+                            HandleDynamicItemData(elem, errorMessages);
+                            foundDynamicItemData = true;
+                            break;
+                        default:
+                            errorMessages.Add("Unexpected element found: " + sElemName);
                             break;
                     }
                 }
@@ -152,30 +163,73 @@ namespace IsengardClient
             }
         }
 
+        private void HandleDynamicItemData(XmlElement dynamicItemData, List<string> errorMessages)
+        {
+            foreach (XmlNode nextNode in dynamicItemData.ChildNodes)
+            {
+                XmlElement elem = nextNode as XmlElement;
+                if (elem == null) continue;
+                if (elem.Name == "Info")
+                {
+                    string sName = elem.Attributes["key"]?.Value;
+                    if (sName == null)
+                    {
+                        errorMessages.Add("Item dynamic data element missing key");
+                    }
+                    else
+                    {
+                        if (Enum.TryParse(sName, out ItemTypeEnum itemType))
+                        {
+                            if (DynamicItemData.ContainsKey(itemType))
+                            {
+                                errorMessages.Add("Duplicate item dynamic item element for " + sName);
+                            }
+                            else
+                            {
+                                string sAction = elem.Attributes["action"]?.Value;
+                                if (Enum.TryParse(sAction, out ItemInventoryAction iia))
+                                {
+                                    DynamicItemData did = new DynamicItemData(itemType);
+                                    did.Action = iia;
+                                    DynamicItemData[itemType] = did;
+                                }
+                                else
+                                {
+                                    errorMessages.Add("Item dynamic data element with invalid action: " + sAction);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            errorMessages.Add("Item dynamic data element with invalid name: " + sName);
+                        }
+                    }
+                }
+            }
+        }
+
         private void HandleSettings(XmlElement settings, List<string> errorMessages)
         {
             foreach (XmlNode nextNode in settings.ChildNodes)
             {
-                if (nextNode is XmlElement)
+                XmlElement elem = nextNode as XmlElement;
+                if (elem == null) continue;
+                if (elem.Name == "Setting")
                 {
-                    XmlElement elem = (XmlElement)nextNode;
-                    if (elem.Name == "Setting")
+                    string sName = elem.Attributes["name"]?.Value;
+                    if (sName == null)
                     {
-                        string sName = elem.Attributes["name"]?.Value;
-                        if (sName == null)
-                        {
-                            errorMessages.Add("Setting element missing name");
-                        }
-                        else
-                        {
-                            string sValue = elem.Attributes["value"]?.Value;
-                            HandleSetting(sName, sValue, errorMessages);
-                        }
+                        errorMessages.Add("Setting element missing name");
                     }
                     else
                     {
-                        errorMessages.Add("Invalid setting element: " + elem.Name);
+                        string sValue = elem.Attributes["value"]?.Value;
+                        HandleSetting(sName, sValue, errorMessages);
                     }
+                }
+                else
+                {
+                    errorMessages.Add("Invalid setting element: " + elem.Name);
                 }
             }
         }
@@ -309,8 +363,8 @@ namespace IsengardClient
             writer.WriteStartElement("DynamicItemData");
             foreach (DynamicItemData did in didList)
             {
-                writer.WriteStartElement("Item");
-                writer.WriteAttributeString("item", did.ItemType.ToString());
+                writer.WriteStartElement("Info");
+                writer.WriteAttributeString("key", did.ItemType.ToString());
                 writer.WriteAttributeString("action", did.Action.ToString());
                 writer.WriteEndElement();
             }
