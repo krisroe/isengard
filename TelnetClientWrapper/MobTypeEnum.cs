@@ -460,6 +460,10 @@
         [Experience(140)]
         Griffon,
 
+        [SingularName("Grimaxe Grimson")]
+        //CSRTODO: no plural
+        GrimaxeGrimson,
+
         [SingularName("grizzly bear")]
         [PluralName("grizzly bears")]
         GrizzlyBear,

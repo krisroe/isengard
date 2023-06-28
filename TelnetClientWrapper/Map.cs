@@ -5369,40 +5369,41 @@ namespace IsengardClient
             AddBidirectionalExits(oPalaceSouth, oPalaceSoutheast, BidirectionalExitType.WestEast);
             eldemondeGraph.Rooms[oPalaceSoutheast] = new System.Windows.Point(5.6, 3);
 
-            Room oGrimaxeGrimson = AddRoom("Grimaxe Grimson");
+            Room oGrimaxeGrimson = AddRoom("Grimaxe Grimson", "Dwarven Embassy");
+            oGrimaxeGrimson.AddPermanentMobs(MobTypeEnum.GrimaxeGrimson);
             AddBidirectionalSameNameExit(oPalaceSoutheast, oGrimaxeGrimson, "door");
             eldemondeGraph.Rooms[oGrimaxeGrimson] = new System.Windows.Point(6.6, 3);
 
-            Room oMirrorHallEast = AddRoom("Mirror Hall");
+            Room oMirrorHallEast = AddRoom("Mirror Hall", "Mirror Hall");
             AddBidirectionalExits(oMirrorHallEast, oPalaceSoutheast, BidirectionalExitType.NorthSouth);
             eldemondeGraph.Rooms[oMirrorHallEast] = new System.Windows.Point(5.6, 2);
 
-            Room oMirrorHallCenter = AddRoom("Mirror Hall");
+            Room oMirrorHallCenter = AddRoom("Mirror Hall", "Mirror Hall");
             AddBidirectionalExits(oMirrorHallCenter, oMirrorHallEast, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oMirrorHallCenter, oPalaceSouth, BidirectionalExitType.NorthSouth);
             eldemondeGraph.Rooms[oMirrorHallCenter] = new System.Windows.Point(4.6, 2);
 
-            Room oMirrorHallWest = AddRoom("Mirror Hall");
+            Room oMirrorHallWest = AddRoom("Mirror Hall", "Mirror Hall");
             AddBidirectionalExits(oMirrorHallWest, oMirrorHallCenter, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oMirrorHallWest, oPalaceSouthwest, BidirectionalExitType.NorthSouth);
             eldemondeGraph.Rooms[oMirrorHallWest] = new System.Windows.Point(3.6, 2);
 
-            Room oThroneHallWest = AddRoom("Throne Hall");
+            Room oThroneHallWest = AddRoom("Throne Hall", "Throne hall");
             AddExit(oMirrorHallWest, oThroneHallWest, "hall");
             AddExit(oThroneHallWest, oMirrorHallWest, "south");
             eldemondeGraph.Rooms[oThroneHallWest] = new System.Windows.Point(3.6, 1);
 
-            Room oThroneHallCenter = AddRoom("Throne Hall");
+            Room oThroneHallCenter = AddRoom("Throne Hall", "Throne Hall");
             AddBidirectionalExits(oThroneHallWest, oThroneHallCenter, BidirectionalExitType.WestEast);
             eldemondeGraph.Rooms[oThroneHallCenter] = new System.Windows.Point(4.6, 1);
 
-            Room oThroneHallEast = AddRoom("Throne Hall");
+            Room oThroneHallEast = AddRoom("Throne Hall", "Throne Hall");
             AddBidirectionalExits(oThroneHallCenter, oThroneHallEast, BidirectionalExitType.WestEast);
             AddExit(oMirrorHallEast, oThroneHallEast, "hall");
             AddExit(oThroneHallEast, oMirrorHallEast, "south");
             eldemondeGraph.Rooms[oThroneHallEast] = new System.Windows.Point(5.6, 1);
 
-            Room oThroneHall = AddRoom("Throne Hall");
+            Room oThroneHall = AddRoom("Throne Hall", "Throne Hall");
             AddBidirectionalSameNameExit(oThroneHallCenter, oThroneHall, "stairs");
             eldemondeGraph.Rooms[oThroneHall] = new System.Windows.Point(4.6, 0);
 
