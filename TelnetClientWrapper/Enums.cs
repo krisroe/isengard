@@ -450,6 +450,7 @@ namespace IsengardClient
         HarbringerSailed,
         EnemyAttacksYou,
         EnemyCirclesYou,
+        EnemyTriesToCircleYou,
         FallDamage,
         MobArrived,
         MobWanderedAway,

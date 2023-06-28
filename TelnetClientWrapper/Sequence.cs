@@ -3006,6 +3006,10 @@ StartProcessRoom:
                     {
                         nextMsg = new InformationalMessages(InformationalMessageType.EnemyCirclesYou);
                     }
+                    if (nextMsg == null && sLine.EndsWith(" tried to circle you."))
+                    {
+                        nextMsg = new InformationalMessages(InformationalMessageType.EnemyTriesToCircleYou);
+                    }
 
                     if (nextMsg == null)
                     {
@@ -3219,7 +3223,8 @@ StartProcessRoom:
             {
                 InformationalMessageType msgType = nextMessage.MessageType;
                 if (msgType == InformationalMessageType.EnemyAttacksYou ||
-                    msgType == InformationalMessageType.EnemyCirclesYou)
+                    msgType == InformationalMessageType.EnemyCirclesYou ||
+                    msgType == InformationalMessageType.EnemyTriesToCircleYou)
                 {
                     _onSatisfied(flParams);
                     break;

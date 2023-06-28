@@ -268,7 +268,7 @@ namespace IsengardClient
                 foreach (string nextItemName in existingKeys)
                 {
                     keyParameter.Value = nextItemName;
-                    cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND ItemName = @ItemName";
+                    cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND Key = @Key";
                     cmd.ExecuteNonQuery();
                 }
             }
