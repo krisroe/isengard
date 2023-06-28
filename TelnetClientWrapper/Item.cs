@@ -1372,7 +1372,7 @@ namespace IsengardClient
 
         [SingularName("tattoo of a wench")]
         //CSRTODO: plural?
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         TattooOfAWench,
 
