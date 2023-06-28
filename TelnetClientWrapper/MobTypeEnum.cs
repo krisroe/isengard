@@ -63,6 +63,10 @@
         [PluralName("bears")]
         Bear,
 
+        [SingularName("Bezanthi")]
+        //CSRTODO: no plural
+        Bezanthi,
+
         [SingularName("Big Papa")]
         //CSRTODO: no plural?
         [Experience(350)]
@@ -284,6 +288,10 @@
         [SingularName("Ele Honor Guard")]
         [PluralName("Ele Honor Guards")]
         EleHonorGuard,
+
+        [SingularName("elven archer")]
+        [PluralName("elven archers")]
+        ElvenArcher,
 
         [SingularName("elven guard")]
         [PluralName("elven guards")]
@@ -1161,6 +1169,10 @@
         [Experience(120)]
         [Alignment(AlignmentType.Blue)]
         SpriteGuard,
+
+        [SingularName("Sssreth the Lizardman")]
+        //CSRTODO: no plural
+        SssrethTheLizardman,
 
         [SingularName("stablehand")]
         [PluralName("stablehands")]

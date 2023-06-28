@@ -375,7 +375,7 @@ namespace IsengardClient
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
-        //CSRTODO: plural?
+        [SingularName("bec de corbins")]
         [WeaponType(WeaponType.Polearm)]
         BecDeCorbin,
 
