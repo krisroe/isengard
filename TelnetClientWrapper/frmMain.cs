@@ -8199,7 +8199,7 @@ BeforeHazy:
                     }
                 }
             }
-            else if (parentNode == _currentEntityInfo.tnObviousExits)
+            else if (parentNode == _currentEntityInfo.tnObviousExits || parentNode == _currentEntityInfo.tnOtherExits)
             {
                 if (oTag is Exit)
                 {
@@ -8209,24 +8209,6 @@ BeforeHazy:
                 {
                     DoSingleMove(oTag.ToString());
                 }
-            }
-        }
-
-        private void tsmiGoToRoom_Click(object sender, EventArgs e)
-        {
-            TreeNode node = treeCurrentRoom.SelectedNode;
-            Exit exit = node.Tag as Exit;
-            if (exit == null)
-            {
-                string s = node.Tag as string;
-                if (s != null)
-                {
-                    exit = new Exit(null, null, s);
-                }
-            }
-            if (exit != null)
-            {
-                NavigateSingleExitInBackground(exit);
             }
         }
 
