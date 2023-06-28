@@ -3295,8 +3295,9 @@ StartProcessRoom:
                         hasSpellCast = true;
                         continue;
                     }
-                    else if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out activeSpell))
+                    else if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpellTemp))
                     {
+                        activeSpell = activeSpellTemp;
                         if (activeSpell == "bless")
                         {
                             matchingSpell = BackgroundCommandType.Bless;
@@ -3316,7 +3317,8 @@ StartProcessRoom:
                         }
                     }
                     else if (!string.IsNullOrWhiteSpace(nextLine) &&
-                             nextLine != "You start to feel real strange, as if connected to another dimension.") //detect invis
+                             nextLine != "You start to feel real strange, as if connected to another dimension." && //detect invis
+                             nextLine != "You feel much better.") //cure-poison
                     {
                         return;
                     }

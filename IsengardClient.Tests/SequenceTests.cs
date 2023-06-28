@@ -788,6 +788,38 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestSelfSpellCastSequence()
+        {
+            BackgroundCommandType? eBCT = null;
+            string spell = null;
+            List<ItemEntity> items = null;
+            Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> a = (flp, bct, sp, it) =>
+            {
+                eBCT = bct;
+                spell = sp;
+                items = it;
+            };
+
+            SelfSpellCastSequence seq = new SelfSpellCastSequence(a);
+            FeedLineParameters flParams = new FeedLineParameters(null);
+
+            eBCT = null;
+            spell = null;
+            items = null;
+            flParams.Lines = new List<string>() { "Curepoison spell cast on yourself.", "You feel much better." };
+            seq.FeedLine(flParams);
+            Assert.IsTrue(eBCT.Value == BackgroundCommandType.CurePoison);
+
+            eBCT = null;
+            spell = null;
+            items = null;
+            flParams.Lines = new List<string>() { "Protection spell cast.", "You feel watched.", string.Empty };
+            seq.FeedLine(flParams);
+            Assert.IsTrue(eBCT.Value == BackgroundCommandType.Protection);
+            Assert.IsTrue(spell == "protection");
+        }
+
+        [TestMethod]
         public void TestConstantSequences()
         {
             bool satisfied;

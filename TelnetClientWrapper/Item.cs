@@ -1028,6 +1028,7 @@ namespace IsengardClient
         [SingularName("ork blade")]
         [PluralName("ork blades")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(5)]
         OrkBlade,
 
         [SingularName("out of order sign")]
