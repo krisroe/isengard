@@ -26,6 +26,10 @@
         [PluralName("art students")]
         ArtStudent,
 
+        [SingularName("Aurelius the Scholar")]
+        //CSRTODO: no plural
+        AureliusTheScholar,
+
         [SingularName("Azgara")]
         //CSRTODO: no plural
         Azgara,
@@ -294,6 +298,10 @@
         //CSRTODO: no plural?
         EugeneTheExecutioner,
 
+        [SingularName("Faeldor")]
+        //CSRTODO: no plural
+        Faeldor,
+
         [SingularName("Fallon")]
         //CSRTODO: no plural?
         [Experience(350)]
@@ -340,6 +348,10 @@
         [SingularName("gargoyle")]
         [PluralName("gargoyles")]
         Gargoyle,
+
+        [SingularName("gate guard")]
+        [PluralName("gate guards")]
+        GateGuard,
 
         [SingularName("ghast")]
         [PluralName("ghasts")]
@@ -620,6 +632,10 @@
         [PluralName("irrigation engineers")]
         IrrigationEngineer,
 
+        [SingularName("Isildur")]
+        //CSRTODO: no plural
+        Isildur,
+
         [SingularName("Ixell DeSantis")]
         //CSRTODO: no plural
         [Experience(70)]
@@ -828,6 +844,10 @@
         [SingularName("morality officer")]
         [PluralName("morality officers")]
         MoralityOfficer,
+
+        [SingularName("Morgatha the Enchantress")]
+        //CSRTODO: no plural
+        MorgathaTheEnchantress,
 
         [SingularName("mosquito")]
         [PluralName("mosquitos")] //CSRTODO: dictionary has plural as either mosquito or mosquitoes
