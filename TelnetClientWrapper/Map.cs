@@ -28,7 +28,7 @@ namespace IsengardClient
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
         private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
 
-        public IsengardMap()
+        public IsengardMap(List<string> errorMessages)
         {
             _graphs = new Dictionary<MapType, RoomGraph>();
             _map = new AdjacencyGraph<Room, Exit>();
@@ -73,6 +73,11 @@ namespace IsengardClient
                 });
             }
 
+            HashSet<Room> unmappedRooms = new HashSet<Room>();
+            foreach (Room r in _map.Vertices)
+            {
+                unmappedRooms.Add(r);
+            }
             foreach (KeyValuePair<MapType, RoomGraph> nextGraph in _graphs)
             {
                 RoomGraph g = nextGraph.Value;
@@ -80,8 +85,17 @@ namespace IsengardClient
                 g.Rooms = new Dictionary<Room, System.Windows.Point>();
                 foreach (KeyValuePair<Room, System.Windows.Point> next in oldRooms)
                 {
-                    g.Rooms[next.Key] = new System.Windows.Point(next.Value.X * g.ScalingFactor, next.Value.Y * g.ScalingFactor);
+                    Room r = next.Key;
+                    if (unmappedRooms.Contains(r))
+                    {
+                        unmappedRooms.Remove(r);
+                    }
+                    g.Rooms[r] = new System.Windows.Point(next.Value.X * g.ScalingFactor, next.Value.Y * g.ScalingFactor);
                 }
+            }
+            foreach (Room r in unmappedRooms)
+            {
+                errorMessages.Add("Unmapped room: " + r.Name + " (" + r.BackendName + ")");
             }
         }
 

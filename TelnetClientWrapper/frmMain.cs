@@ -252,7 +252,15 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            _gameMap = new IsengardMap();
+            List<string> errorMessages = new List<string>();
+            _gameMap = new IsengardMap(errorMessages);
+            if (errorMessages.Count > 0)
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.AddRange(errorMessages);
+                }
+            }
 
             cboSetOption.SelectedIndex = 0;
 
