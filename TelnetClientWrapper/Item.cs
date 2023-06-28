@@ -225,7 +225,7 @@ namespace IsengardClient
             }
             else if (ic == ItemClass.Bag)
             {
-                yield return DynamicDataItemClass.Bag;
+                yield return DynamicDataItemClass.BagClass;
             }
             else if (ic == ItemClass.Potion)
             {
@@ -292,7 +292,7 @@ namespace IsengardClient
         Potion,
         Scroll,
         Wand,
-        Bag,
+        BagClass,
         Coins,
         Money,
 
