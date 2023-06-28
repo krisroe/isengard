@@ -169,7 +169,7 @@ namespace IsengardClient
             {
                 if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out did))
                 {
-                    if (Action != ItemInventoryAction.None)
+                    if (Action != ItemInventoryAction.None && did.Action == ItemInventoryAction.None)
                     {
                         Action = did.Action;
                         ActionInheritance = nextInheritanceClass;
