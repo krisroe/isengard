@@ -86,15 +86,11 @@ namespace IsengardClient
                 }
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eItemClass = ItemClass.Money;
-                }
+                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Money;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CoinsAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    eItemClass = ItemClass.Coins;
-                }
+                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Coins;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(BagAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Bag;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -227,6 +223,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.Money;
             }
+            else if (ic == ItemClass.Bag)
+            {
+                yield return DynamicDataItemClass.Bag;
+            }
             else if (ic == ItemClass.Potion)
             {
                 yield return DynamicDataItemClass.Potion;
@@ -266,6 +266,7 @@ namespace IsengardClient
         Potion,
         Scroll,
         Wand,
+        Bag,
         Coins,
         Money,
         Other,
@@ -291,6 +292,7 @@ namespace IsengardClient
         Potion,
         Scroll,
         Wand,
+        Bag,
         Coins,
         Money,
 
@@ -842,6 +844,7 @@ namespace IsengardClient
 
         [SingularName("knapsack")]
         [PluralName("knapsacks")]
+        [Bag]
         Knapsack,
 
         [SingularName("lancette")]
@@ -1082,6 +1085,7 @@ namespace IsengardClient
 
         [SingularName("purple wand")]
         [PluralName("purple wands")]
+        [Wand(SpellsEnum.stun)]
         [Weight(5)]
         //CSRTODO: wand
         PurpleWand,
@@ -1242,6 +1246,7 @@ namespace IsengardClient
 
         [SingularName("small bag")]
         [PluralName("small bags")]
+        [Bag]
         SmallBag,
 
         [SingularName("small knife")]
@@ -1270,7 +1275,7 @@ namespace IsengardClient
 
         [SingularName("speckled potion")]
         [PluralName("speckled potions")]
-        [Potion(SpellsEnum.stun)]
+        //CSRTODO: stun potion???
         SpeckledPotion,
 
         [SingularName("sprite boots")]
@@ -1377,6 +1382,7 @@ namespace IsengardClient
 
         [SingularName("toilet paper")]
         //CSRTODO: collective plural?
+        [Wand(SpellsEnum.stun)]
         [Weight(1)]
         ToiletPaper,
 
