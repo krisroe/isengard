@@ -412,6 +412,10 @@
         [Experience(350)]
         Graddy,
 
+        [SingularName("Granite Knucklebuster")]
+        //CSRTODO: no plural
+        GraniteKnucklebuster,
+
         [SingularName("Grant")]
         //CSRTODO: no plural
         [Experience(170)]
@@ -855,6 +859,10 @@
         [Experience(205)]
         [Alignment(AlignmentType.Red)]
         Naugrim,
+
+        [SingularName("netmaker")]
+        [PluralName("netmakers")]
+        Netmaker,
 
         [SingularName("nobleman")]
         [PluralName("noblemen")]

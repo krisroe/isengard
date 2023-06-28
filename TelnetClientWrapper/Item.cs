@@ -456,6 +456,11 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Unknown)]
         BracersOfOgreStrength,
 
+        [SingularName("brass knuckles")]
+        //CSRTODO: plural?
+        [WeaponType(WeaponType.Blunt)]
+        BrassKnuckles,
+
         [SingularName("broad sword")]
         [PluralName("broad swords")]
         [WeaponType(WeaponType.Slash)]
@@ -653,6 +658,7 @@ namespace IsengardClient
         [PluralName("emerald collars")]
         [EquipmentType(EquipmentType.Neck)]
         [Weight(4)]
+        [SellGoldRange(495)]
         EmeraldCollar,
 
         [SingularName("engagement ring")]
@@ -1041,6 +1047,7 @@ namespace IsengardClient
         [PluralName("ork blades")]
         [WeaponType(WeaponType.Slash)]
         [Weight(5)]
+        [SellGoldRange(841)]
         OrkBlade,
 
         [SingularName("out of order sign")]
@@ -1246,6 +1253,7 @@ namespace IsengardClient
         [PluralName("slaying swords")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
+        [SellGoldRange(562)]
         SlayingSword,
 
         [SingularName("sling")]
