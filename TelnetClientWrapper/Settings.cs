@@ -88,7 +88,7 @@ namespace IsengardClient
                         continue;
                     }
                     ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
-                    DynamicItemData did = new DynamicItemData(itemType)
+                    DynamicItemData did = new DynamicItemData()
                     {
                         Action = action
                     };
@@ -189,7 +189,7 @@ namespace IsengardClient
                                 string sAction = elem.Attributes["action"]?.Value;
                                 if (Enum.TryParse(sAction, out ItemInventoryAction iia))
                                 {
-                                    DynamicItemData did = new DynamicItemData(itemType);
+                                    DynamicItemData did = new DynamicItemData();
                                     did.Action = iia;
                                     DynamicItemData[itemType] = did;
                                 }
@@ -352,20 +352,20 @@ namespace IsengardClient
             WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
             writer.WriteEndElement();
 
-            List<DynamicItemData> didList = new List<DynamicItemData>();
+            List<KeyValuePair<ItemTypeEnum, DynamicItemData>> didList = new List<KeyValuePair<ItemTypeEnum, DynamicItemData>>();
             foreach (ItemTypeEnum nextItemType in Enum.GetValues(typeof(ItemTypeEnum)))
             {
                 if (DynamicItemData.TryGetValue(nextItemType, out DynamicItemData did))
                 {
-                    didList.Add(did);
+                    didList.Add(new KeyValuePair<ItemTypeEnum, DynamicItemData>(nextItemType, did));
                 }
             }
             writer.WriteStartElement("DynamicItemData");
-            foreach (DynamicItemData did in didList)
+            foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> did in didList)
             {
                 writer.WriteStartElement("Info");
-                writer.WriteAttributeString("key", did.ItemType.ToString());
-                writer.WriteAttributeString("action", did.Action.ToString());
+                writer.WriteAttributeString("key", did.Key.ToString());
+                writer.WriteAttributeString("action", did.Value.Action.ToString());
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();

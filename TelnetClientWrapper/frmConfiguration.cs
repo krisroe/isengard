@@ -629,7 +629,7 @@ namespace IsengardClient
                 {
                     if (!existed)
                     {
-                        did = new DynamicItemData(itemType);
+                        did = new DynamicItemData();
                         _settings.DynamicItemData[itemType] = did;
                     }
                     did.Action = action.Value;

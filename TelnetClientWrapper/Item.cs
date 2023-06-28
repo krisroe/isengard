@@ -160,13 +160,11 @@ namespace IsengardClient
 
     public class DynamicItemData
     {
-        public ItemTypeEnum ItemType { get; set; }
         public ItemInventoryAction Action { get; set; }
-        public DynamicItemData(ItemTypeEnum ItemType)
+        public DynamicItemData()
         {
-            this.ItemType = ItemType;
         }
-        public DynamicItemData(DynamicItemData copied) : this(copied.ItemType)
+        public DynamicItemData(DynamicItemData copied)
         {
             this.Action = copied.Action;
         }
