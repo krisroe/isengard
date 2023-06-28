@@ -165,4 +165,15 @@ namespace IsengardClient
             this.Pounds = Pounds;
         }
     }
+
+    internal class SellGoldRangeAttribute : Attribute
+    {
+        public int LowerRange { get; set; }
+        public int UpperRange { get; set; }
+        public SellGoldRangeAttribute(int LowerRange, int UpperRange)
+        {
+            this.LowerRange = LowerRange;
+            this.UpperRange = UpperRange;
+        }
+    }
 }

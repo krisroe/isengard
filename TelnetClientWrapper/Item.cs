@@ -97,6 +97,13 @@ namespace IsengardClient
                 {
                     sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
                 }
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellGoldRangeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    SellGoldRangeAttribute sgra = (SellGoldRangeAttribute)valueAttributes[0];
+                    sid.LowerSellRange = sgra.LowerRange;
+                    sid.UpperSellRange = sgra.UpperRange;
+                }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(sid.PluralName);
@@ -152,6 +159,8 @@ namespace IsengardClient
         public string SingularName { get; set; }
         public string PluralName { get; set; }
         public int Weight { get; set; }
+        public int LowerSellRange { get; set; }
+        public int UpperSellRange { get; set; }
     }
 
     public class DynamicItemDataWithInheritance : DynamicItemData

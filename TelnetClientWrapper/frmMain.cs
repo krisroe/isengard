@@ -4405,6 +4405,7 @@ BeforeHazy:
             bool checkWeight = sid.Weight == 0;
             int beforeWeight = 0;
             int afterWeight;
+            int beforeGold = _gold;
             if (checkWeight)
             {
                 if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true) != CommandResult.CommandSuccessful)
@@ -4432,27 +4433,55 @@ BeforeHazy:
                     throw new InvalidOperationException();
             }
             CommandResult ret = RunSingleCommandForCommandResult(commandType, command + " " + itemText, pms, null, false);
-            if (ret == CommandResult.CommandSuccessful && checkWeight)
+            if (ret == CommandResult.CommandSuccessful)
             {
-                if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true) != CommandResult.CommandSuccessful)
+                List<string> broadcastMessages = null;
+                if (commandType == BackgroundCommandType.SellItem)
                 {
-                    return CommandResult.CommandUnsuccessfulAlways;
+                    int goldDifference = _gold - beforeGold;
+                    if (goldDifference > 0 && (sid.LowerSellRange == 0 || sid.UpperSellRange == 0 || goldDifference < sid.LowerSellRange || goldDifference > sid.UpperSellRange))
+                    {
+                        broadcastMessages = new List<string>()
+                        {
+                            "Sold " + itemText.ToLower() + " for " + goldDifference
+                        };
+                        if (sid.LowerSellRange == 0 || goldDifference < sid.LowerSellRange)
+                        {
+                            sid.LowerSellRange = goldDifference;
+                        }
+                        if (sid.UpperSellRange == 0 || goldDifference > sid.UpperSellRange)
+                        {
+                            sid.UpperSellRange = goldDifference;
+                        }
+                    }
                 }
-                lock (_entityLock)
+                if (checkWeight)
                 {
-                    afterWeight = _currentEntityInfo.TotalInventoryWeight.Value;
+                    if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true) != CommandResult.CommandSuccessful)
+                    {
+                        return CommandResult.CommandUnsuccessfulAlways;
+                    }
+                    lock (_entityLock)
+                    {
+                        afterWeight = _currentEntityInfo.TotalInventoryWeight.Value;
+                    }
+                    int weightDifference = afterWeight - beforeWeight;
+                    if (commandType == BackgroundCommandType.DropItem || commandType == BackgroundCommandType.SellItem)
+                    {
+                        weightDifference = -weightDifference;
+                    }
+                    if (weightDifference > 0)
+                    {
+                        if (broadcastMessages == null) broadcastMessages = new List<string>();
+                        broadcastMessages.Add("Found weight for " + sid.ItemType.ToString() + ": " + weightDifference);
+                        sid.Weight = weightDifference;
+                    }
                 }
-                int weightDifference = afterWeight - beforeWeight;
-                if (commandType == BackgroundCommandType.DropItem || commandType == BackgroundCommandType.SellItem)
-                {
-                    weightDifference = -weightDifference;
-                }
-                if (weightDifference > 0)
+                if (broadcastMessages != null)
                 {
                     lock (_broadcastMessagesLock)
                     {
-                        sid.Weight = weightDifference;
-                        _broadcastMessages.Add("Found weight for " + sid.ItemType.ToString() + ": " + weightDifference);
+                        _broadcastMessages.AddRange(broadcastMessages);
                     }
                 }
             }
