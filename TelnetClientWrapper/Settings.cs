@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Xml;
 using System.Data.SQLite;
+using System.Data;
+
 namespace IsengardClient
 {
     public class IsengardSettingData
@@ -22,6 +24,7 @@ namespace IsengardClient
         public bool RemoveAllOnStartup { get; set; }
         public bool DisplayStunLength { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
+        public Dictionary<DynamicDataItemClass, DynamicItemData> DynamicItemClassData { get; set; }
         public IsengardSettingData()
         {
             Weapon = null;
@@ -39,6 +42,7 @@ namespace IsengardClient
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
+            DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
         }
         public IsengardSettingData(IsengardSettingData copied)
         {
@@ -61,6 +65,11 @@ namespace IsengardClient
             {
                 DynamicItemData[next.Key] = new DynamicItemData(next.Value);
             }
+            DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
+            foreach (var next in copied.DynamicItemClassData)
+            {
+                DynamicItemClassData[next.Key] = new DynamicItemData(next.Value);
+            }
         }
         public IsengardSettingData(SQLiteCommand cmd, int UserID, List<string> errorMessages) : this()
         {
@@ -76,15 +85,27 @@ namespace IsengardClient
             }
             ValidateSettings();
 
-            cmd.CommandText = "SELECT ItemName, Action FROM DynamicItemData WHERE UserID = @UserID";
+            cmd.CommandText = "SELECT Key, Action FROM DynamicItemData WHERE UserID = @UserID";
             using (SQLiteDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    string itemName = reader["ItemName"].ToString();
-                    if (!Enum.TryParse(itemName, out ItemTypeEnum itemType))
+                    string key = reader["Key"].ToString();
+                    ItemTypeEnum itemType;
+                    DynamicDataItemClass itemClass = DynamicDataItemClass.Item;
+                    bool isItemType = false;
+                    bool isItemClass = false;
+                    if (Enum.TryParse(key, out itemType))
                     {
-                        errorMessages.Add("Invalid item for dynamic data: " + itemName);
+                        isItemType = true;
+                    }
+                    else if (Enum.TryParse(key, out itemClass))
+                    {
+                        isItemClass = true;
+                    }
+                    else
+                    {
+                        errorMessages.Add("Invalid dynamic data key for dynamic data: " + key);
                         continue;
                     }
                     ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
@@ -92,7 +113,18 @@ namespace IsengardClient
                     {
                         Action = action
                     };
-                    DynamicItemData[itemType] = did;
+                    if (isItemType)
+                    {
+                        DynamicItemData[itemType] = did;
+                    }
+                    else if (isItemClass)
+                    {
+                        DynamicItemClassData[itemClass] = did;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
             }
         }
@@ -142,6 +174,119 @@ namespace IsengardClient
             ValidateSettings();
         }
 
+        public void SaveSettings(SQLiteConnection conn, int userID)
+        {
+            Dictionary<string, string> existingSettings = new Dictionary<string, string>();
+            Dictionary<string, string> newSettings = new Dictionary<string, string>();
+            newSettings["Weapon"] = Weapon.HasValue ? Weapon.Value.ToString() : string.Empty;
+            newSettings["Realm"] = Realm.ToString();
+            newSettings["PreferredAlignment"] = PreferredAlignment.ToString();
+            newSettings["VerboseMode"] = VerboseMode.ToString();
+            newSettings["QueryMonsterStatus"] = QueryMonsterStatus.ToString();
+            newSettings["RemoveAllOnStartup"] = RemoveAllOnStartup.ToString();
+            newSettings["DisplayStunLength"] = DisplayStunLength.ToString();
+            newSettings["FullColor"] = FullColor.ToArgb().ToString();
+            newSettings["EmptyColor"] = EmptyColor.ToArgb().ToString();
+            newSettings["AutoSpellLevelMin"] = AutoSpellLevelMin.ToString();
+            newSettings["AutoSpellLevelMax"] = AutoSpellLevelMax.ToString();
+            newSettings["AutoEscapeThreshold"] = AutoEscapeThreshold.ToString();
+            newSettings["AutoEscapeType"] = AutoEscapeType.ToString();
+            newSettings["AutoEscapeActive"] = AutoEscapeActive.ToString();
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        existingSettings[reader["SettingName"].ToString()] = reader["SettingValue"].ToString();
+                    }
+                }
+                List<string> keysToRemove = new List<string>();
+                foreach (var next in newSettings)
+                {
+                    string sKey = next.Key;
+                    if (existingSettings.TryGetValue(sKey, out string sValue))
+                    {
+                        if (sValue == next.Value)
+                        {
+                            keysToRemove.Add(sKey);
+                        }
+                    }
+                }
+                foreach (string nextKey in keysToRemove)
+                {
+                    newSettings.Remove(nextKey);
+                    existingSettings.Remove(nextKey);
+                }
+                cmd.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND SettingName = @SettingName";
+                SQLiteParameter settingName = cmd.Parameters.Add("@SettingName", DbType.String);
+                foreach (var next in existingSettings)
+                {
+                    string sKey = next.Key;
+                    if (!newSettings.ContainsKey(sKey))
+                    {
+                        settingName.Value = sKey;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                SQLiteParameter settingValue = cmd.Parameters.Add("@SettingValue", DbType.String);
+                foreach (var next in newSettings)
+                {
+                    string sKey = next.Key;
+                    settingName.Value = sKey;
+                    settingValue.Value = next.Value;
+                    if (existingSettings.ContainsKey(sKey))
+                        cmd.CommandText = "UPDATE Settings SET SettingValue = @SettingValue WHERE SettingName = @SettingName AND UserID = @UserID";
+                    else
+                        cmd.CommandText = "INSERT INTO Settings (UserID, SettingName, SettingValue) VALUES (@UserID, @SettingName, @SettingValue)";
+                    cmd.ExecuteNonQuery();
+                }
+
+                HashSet<string> existingKeys = new HashSet<string>();
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                cmd.CommandText = "SELECT Key FROM DynamicItemData WHERE UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        existingKeys.Add(reader["Key"].ToString());
+                    }
+                }
+                SQLiteParameter keyParameter = cmd.Parameters.Add("@Key", DbType.String);
+                foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> nextDID in DynamicItemData)
+                {
+                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingKeys);
+                }
+                foreach (KeyValuePair<DynamicDataItemClass, DynamicItemData> nextDID in DynamicItemClassData)
+                {
+                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingKeys);
+                }
+                foreach (string nextItemName in existingKeys)
+                {
+                    keyParameter.Value = nextItemName;
+                    cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND ItemName = @ItemName";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void SaveDynamicItemDataRow(string key, DynamicItemData did, SQLiteCommand cmd, SQLiteParameter keyParameter, HashSet<string> existingKeys)
+        {
+            keyParameter.Value = key;
+            string sql;
+            if (existingKeys.Contains(key))
+                sql = $"UPDATE DynamicItemData SET Action = {Convert.ToInt32(did.Action)} WHERE UserID = @UserID AND Key = @Key";
+            else
+                sql = $"INSERT INTO DynamicItemData (UserID, Key, Action) VALUES (@UserID, @Key, {Convert.ToInt32(did.Action)})";
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
+            existingKeys.Remove(key);
+        }
+
         private void ValidateSettings()
         {
             if (AutoEscapeType != AutoEscapeType.Flee && AutoEscapeType != AutoEscapeType.Hazy)
@@ -178,26 +323,26 @@ namespace IsengardClient
                     }
                     else
                     {
+                        string sAction = elem.Attributes["action"]?.Value;
+                        if (!Enum.TryParse(sAction, out ItemInventoryAction iia))
+                        {
+                            errorMessages.Add("Item dynamic data element with invalid action: " + sAction);
+                        }
+                        DynamicItemData did = new DynamicItemData();
+                        did.Action = iia;
                         if (Enum.TryParse(sName, out ItemTypeEnum itemType))
                         {
                             if (DynamicItemData.ContainsKey(itemType))
-                            {
                                 errorMessages.Add("Duplicate item dynamic item element for " + sName);
-                            }
                             else
-                            {
-                                string sAction = elem.Attributes["action"]?.Value;
-                                if (Enum.TryParse(sAction, out ItemInventoryAction iia))
-                                {
-                                    DynamicItemData did = new DynamicItemData();
-                                    did.Action = iia;
-                                    DynamicItemData[itemType] = did;
-                                }
-                                else
-                                {
-                                    errorMessages.Add("Item dynamic data element with invalid action: " + sAction);
-                                }
-                            }
+                                DynamicItemData[itemType] = did;
+                        }
+                        else if (Enum.TryParse(sName, out DynamicDataItemClass itemClass))
+                        {
+                            if (DynamicItemClassData.ContainsKey(itemClass))
+                                errorMessages.Add("Duplicate item dynamic class element for " + sName);
+                            else
+                                DynamicItemClassData[itemClass] = did;
                         }
                         else
                         {
@@ -352,16 +497,31 @@ namespace IsengardClient
             WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
             writer.WriteEndElement();
 
-            List<KeyValuePair<ItemTypeEnum, DynamicItemData>> didList = new List<KeyValuePair<ItemTypeEnum, DynamicItemData>>();
+            List<KeyValuePair<ItemTypeEnum, DynamicItemData>> didItemList = new List<KeyValuePair<ItemTypeEnum, DynamicItemData>>();
+            List<KeyValuePair<DynamicDataItemClass, DynamicItemData>> didItemClassList = new List<KeyValuePair<DynamicDataItemClass, DynamicItemData>>();
+            foreach (DynamicDataItemClass nextItemClass in Enum.GetValues(typeof(DynamicDataItemClass)))
+            {
+                if (DynamicItemClassData.TryGetValue(nextItemClass, out DynamicItemData did))
+                {
+                    didItemClassList.Add(new KeyValuePair<DynamicDataItemClass, DynamicItemData>(nextItemClass, did));
+                }
+            }
             foreach (ItemTypeEnum nextItemType in Enum.GetValues(typeof(ItemTypeEnum)))
             {
                 if (DynamicItemData.TryGetValue(nextItemType, out DynamicItemData did))
                 {
-                    didList.Add(new KeyValuePair<ItemTypeEnum, DynamicItemData>(nextItemType, did));
+                    didItemList.Add(new KeyValuePair<ItemTypeEnum, DynamicItemData>(nextItemType, did));
                 }
             }
             writer.WriteStartElement("DynamicItemData");
-            foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> did in didList)
+            foreach (KeyValuePair<DynamicDataItemClass, DynamicItemData> did in didItemClassList)
+            {
+                writer.WriteStartElement("Info");
+                writer.WriteAttributeString("key", did.Key.ToString());
+                writer.WriteAttributeString("action", did.Value.Action.ToString());
+                writer.WriteEndElement();
+            }
+            foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> did in didItemList)
             {
                 writer.WriteStartElement("Info");
                 writer.WriteAttributeString("key", did.Key.ToString());

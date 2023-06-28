@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
@@ -1172,7 +1171,7 @@ namespace IsengardClient
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, ItemName TEXT NOT NULL, Action INTEGER NOT NULL, PRIMARY KEY (UserID, ItemName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, Action INTEGER NOT NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
                 }
                 cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
@@ -1237,113 +1236,9 @@ namespace IsengardClient
                 List<string> errorMessages = new List<string>();
                 try
                 {
-                    Dictionary<string, string> existingSettings = new Dictionary<string, string>();
-                    Dictionary<string, string> newSettings = new Dictionary<string, string>();
-                    newSettings["Weapon"] = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
-                    newSettings["Realm"] = _settingsData.Realm.ToString();
-                    newSettings["PreferredAlignment"] = _settingsData.PreferredAlignment.ToString();
-                    newSettings["VerboseMode"] = _settingsData.VerboseMode.ToString();
-                    newSettings["QueryMonsterStatus"] = _settingsData.QueryMonsterStatus.ToString();
-                    newSettings["RemoveAllOnStartup"] = _settingsData.RemoveAllOnStartup.ToString();
-                    newSettings["DisplayStunLength"] = _settingsData.DisplayStunLength.ToString();
-                    newSettings["FullColor"] = _settingsData.FullColor.ToArgb().ToString();
-                    newSettings["EmptyColor"] = _settingsData.EmptyColor.ToArgb().ToString();
-                    newSettings["AutoSpellLevelMin"] = _settingsData.AutoSpellLevelMin.ToString();
-                    newSettings["AutoSpellLevelMax"] = _settingsData.AutoSpellLevelMax.ToString();
-                    newSettings["AutoEscapeThreshold"] = _settingsData.AutoEscapeThreshold.ToString();
-                    newSettings["AutoEscapeType"] = _settingsData.AutoEscapeType.ToString();
-                    newSettings["AutoEscapeActive"] = _settingsData.AutoEscapeActive.ToString();
                     using (SQLiteConnection conn = GetSqliteConnection())
-                    using (SQLiteCommand cmd = conn.CreateCommand())
                     {
-                        conn.Open();
-                        cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
-                        cmd.Parameters.AddWithValue("@UserID", _userid);
-                        using (SQLiteDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                existingSettings[reader["SettingName"].ToString()] = reader["SettingValue"].ToString();
-                            }
-                        }
-                        List<string> keysToRemove = new List<string>();
-                        foreach (var next in newSettings)
-                        {
-                            string sKey = next.Key;
-                            if (existingSettings.TryGetValue(sKey, out string sValue))
-                            {
-                                if (sValue == next.Value)
-                                {
-                                    keysToRemove.Add(sKey);
-                                }
-                            }
-                        }
-                        foreach (string nextKey in keysToRemove)
-                        {
-                            newSettings.Remove(nextKey);
-                            existingSettings.Remove(nextKey);
-                        }
-                        cmd.CommandText = "DELETE FROM Settings WHERE UserID = @UserID AND SettingName = @SettingName";
-                        SQLiteParameter settingName = cmd.Parameters.Add("@SettingName", DbType.String);
-                        foreach (var next in existingSettings)
-                        {
-                            string sKey = next.Key;
-                            if (!newSettings.ContainsKey(sKey))
-                            {
-                                settingName.Value = sKey;
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        SQLiteParameter settingValue = cmd.Parameters.Add("@SettingValue", DbType.String);
-                        foreach (var next in newSettings)
-                        {
-                            string sKey = next.Key;
-                            settingName.Value = sKey;
-                            settingValue.Value = next.Value;
-                            if (existingSettings.ContainsKey(sKey))
-                                cmd.CommandText = "UPDATE Settings SET SettingValue = @SettingValue WHERE SettingName = @SettingName AND UserID = @UserID";
-                            else
-                                cmd.CommandText = "INSERT INTO Settings (UserID, SettingName, SettingValue) VALUES (@UserID, @SettingName, @SettingValue)";
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        HashSet<string> existingItems = new HashSet<string>();
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@UserID", _userid);
-                        cmd.CommandText = "SELECT ItemName FROM DynamicItemData WHERE UserID = @UserID";
-                        using (SQLiteDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                existingItems.Add(reader["ItemName"].ToString());
-                            }
-                        }
-                        SQLiteParameter itemNameParameter = cmd.Parameters.Add("@ItemName", DbType.String);
-                        foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> nextDID in _settingsData.DynamicItemData)
-                        {
-                            ItemTypeEnum eItemType = nextDID.Key;
-                            DynamicItemData did = nextDID.Value;
-                            string sItemName = eItemType.ToString();
-                            itemNameParameter.Value = sItemName;
-                            string sql;
-                            if (existingItems.Contains(sItemName))
-                            {
-                                sql = $"UPDATE DynamicItemData SET Action = {Convert.ToInt32(did.Action)} WHERE UserID = @UserID AND ItemName = @ItemName";
-                            }
-                            else
-                            {
-                                sql = $"INSERT INTO DynamicItemData (UserID, ItemName, Action) VALUES (@UserID, @ItemName, {Convert.ToInt32(did.Action)})";
-                            }
-                            cmd.CommandText = sql;
-                            cmd.ExecuteNonQuery();
-                            existingItems.Remove(sItemName);
-                        }
-                        foreach (string nextItemName in existingItems)
-                        {
-                            itemNameParameter.Value = nextItemName;
-                            cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND ItemName = @ItemName";
-                            cmd.ExecuteNonQuery();
-                        }
+                        _settingsData.SaveSettings(conn, _userid);
                     }
                 }
                 finally
@@ -4272,12 +4167,13 @@ BeforeHazy:
                         if (nextItem.ItemType.HasValue)
                         {
                             ItemTypeEnum eItemType = nextItem.ItemType.Value;
-                            if (!_settingsData.DynamicItemData.TryGetValue(eItemType, out DynamicItemData did))
+                            DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, eItemType);
+                            ItemInventoryAction eAction = didWithInherit.Action;
+                            if (eAction == ItemInventoryAction.None)
                             {
                                 anythingFailed = true;
                                 continue;
                             }
-                            ItemInventoryAction eAction = did.Action;
                             if (eAction == ItemInventoryAction.Ignore)
                             {
                                 monsterItemsToRemove.Add(nextItem);

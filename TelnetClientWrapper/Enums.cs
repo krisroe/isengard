@@ -617,20 +617,12 @@ namespace IsengardClient
         Count = 15,
     }
 
-    public enum ItemClass
-    {
-        Equipment,
-        Weapon,
-        Potion,
-        Scroll,
-        Wand,
-        Coins,
-        Money,
-        Other,
-    }
-
     public enum ItemInventoryAction
     {
+        /// <summary>
+        /// no action listed
+        /// </summary>
+        None,
         /// <summary>
         /// skip the item
         /// </summary>

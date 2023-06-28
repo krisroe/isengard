@@ -158,6 +158,91 @@ namespace IsengardClient
         public int Weight { get; set; }
     }
 
+    public class DynamicItemDataWithInheritance : DynamicItemData
+    {
+        public DynamicDataItemClass? ActionInheritance;
+
+        public DynamicItemDataWithInheritance(IsengardSettingData settings, ItemTypeEnum itemType)
+        {
+            DynamicItemData did;
+            if (settings.DynamicItemData.TryGetValue(itemType, out did))
+            {
+                Action = did.Action;
+            }
+            foreach (DynamicDataItemClass nextInheritanceClass in GetInheritanceClasses(itemType))
+            {
+                if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out did))
+                {
+                    if (Action != ItemInventoryAction.None)
+                    {
+                        Action = did.Action;
+                        ActionInheritance = nextInheritanceClass;
+                    }
+                }
+            }
+        }
+
+        public DynamicItemDataWithInheritance(IsengardSettingData settings, DynamicDataItemClass itemClass)
+        {
+            DynamicItemData did;
+            if (settings.DynamicItemClassData.TryGetValue(itemClass, out did))
+            {
+                Action = did.Action;
+            }
+            foreach (DynamicDataItemClass nextInheritanceClass in GetInheritanceClasses(itemClass))
+            {
+                if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out did))
+                {
+                    if (Action != ItemInventoryAction.None)
+                    {
+                        Action = did.Action;
+                        ActionInheritance = nextInheritanceClass;
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<DynamicDataItemClass> GetInheritanceClasses(DynamicDataItemClass ItemClass)
+        {
+            yield return DynamicDataItemClass.Item;
+        }
+
+        public static IEnumerable<DynamicDataItemClass> GetInheritanceClasses(ItemTypeEnum ItemType)
+        {
+            StaticItemData sid = ItemEntity.StaticItemData[ItemType];
+            ItemClass ic = sid.ItemClass;
+            if (ic == ItemClass.Equipment)
+            {
+                yield return DynamicDataItemClass.Equipment;
+            }
+            else if (ic == ItemClass.Weapon)
+            {
+                yield return DynamicDataItemClass.Weapon;
+            }
+            else if (ic == ItemClass.Coins)
+            {
+                yield return DynamicDataItemClass.Coins;
+            }
+            else if (ic == ItemClass.Money)
+            {
+                yield return DynamicDataItemClass.Money;
+            }
+            else if (ic == ItemClass.Potion)
+            {
+                yield return DynamicDataItemClass.Potion;
+            }
+            else if (ic == ItemClass.Scroll)
+            {
+                yield return DynamicDataItemClass.Scroll;
+            }
+            else if (ic == ItemClass.Wand)
+            {
+                yield return DynamicDataItemClass.Wand;
+            }
+            yield return DynamicDataItemClass.Item;
+        }
+    }
+
     public class DynamicItemData
     {
         public ItemInventoryAction Action { get; set; }
@@ -168,6 +253,51 @@ namespace IsengardClient
         {
             this.Action = copied.Action;
         }
+        public bool HasData()
+        {
+            return this.Action != ItemInventoryAction.None;
+        }
+    }
+
+    public enum ItemClass
+    {
+        Equipment,
+        Weapon,
+        Potion,
+        Scroll,
+        Wand,
+        Coins,
+        Money,
+        Other,
+    }
+
+    public enum DynamicDataItemClass
+    {
+        /// <summary>
+        /// catchall default for any item
+        /// </summary>
+        Item,
+
+        /// <summary>
+        /// any equipment
+        /// </summary>
+        Equipment,
+
+        /// <summary>
+        /// any weapon
+        /// </summary>
+        Weapon,
+
+        Potion,
+        Scroll,
+        Wand,
+        Coins,
+        Money,
+
+        /// <summary>
+        /// item class not covered by other item classes
+        /// </summary>
+        Other,
     }
 
     /// <summary>
@@ -1295,7 +1425,8 @@ namespace IsengardClient
 
         [SingularName("voulge")]
         [PluralName("voulges")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(1)]
         Voulge,
 
         [SingularName("wagonmaster's whip")]

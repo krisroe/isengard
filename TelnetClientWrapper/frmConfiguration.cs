@@ -73,9 +73,23 @@ namespace IsengardClient
 
             RefreshStrategyList();
 
+            ListViewItem lvi = new ListViewItem();
+            foreach (DynamicDataItemClass nextItemClass in Enum.GetValues(typeof(DynamicDataItemClass)))
+            {
+                lvi = new ListViewItem();
+                lvi.Text = nextItemClass.ToString();
+                lvi.Tag = nextItemClass;
+                ItemInventoryAction? action = null;
+                if (_settings.DynamicItemClassData.TryGetValue(nextItemClass, out DynamicItemData did))
+                {
+                    action = did.Action;
+                }
+                lvi.SubItems.Add(string.Empty);
+                lvItems.Items.Add(lvi);
+            }
             foreach (ItemTypeEnum nextItem in Enum.GetValues(typeof(ItemTypeEnum)))
             {
-                ListViewItem lvi = new ListViewItem();
+                lvi = new ListViewItem();
                 lvi.Text = nextItem.ToString();
                 lvi.Tag = nextItem;
                 ItemInventoryAction? action = null;
@@ -83,8 +97,29 @@ namespace IsengardClient
                 {
                     action = did.Action;
                 }
-                lvi.SubItems.Add(action.HasValue ? action.Value.ToString() : "None");
+                lvi.SubItems.Add(string.Empty);
                 lvItems.Items.Add(lvi);
+            }
+            RefreshAllItemEntries();
+        }
+
+        private void RefreshAllItemEntries()
+        {
+            foreach (ListViewItem lvi in lvItems.Items)
+            {
+                object oTag = lvi.Tag;
+                if (oTag is ItemTypeEnum)
+                {
+                    lvi.SubItems[1].Text = GetActionText((ItemTypeEnum)oTag);
+                }
+                else if (oTag is DynamicDataItemClass)
+                {
+                    lvi.SubItems[1].Text = GetActionText((DynamicDataItemClass)oTag);
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
             }
         }
 
@@ -619,27 +654,102 @@ namespace IsengardClient
             btnClear.Enabled = btnIgnore.Enabled = btnKeep.Enabled = lvItems.SelectedItems.Count > 0;
         }
 
-        private void SetItemActions(ItemInventoryAction? action)
+        private void SetItemActions(ItemInventoryAction action)
         {
+            bool refreshAllItems = false;
             foreach (ListViewItem lvi in lvItems.SelectedItems)
             {
-                ItemTypeEnum itemType = (ItemTypeEnum)lvi.Tag;
-                bool existed = _settings.DynamicItemData.TryGetValue(itemType, out DynamicItemData did);
-                if (action.HasValue)
+                object oTag = lvi.Tag;
+                bool hasData;
+                if (oTag is ItemTypeEnum)
                 {
-                    if (!existed)
+                    ItemTypeEnum itemType = (ItemTypeEnum)oTag;
+                    bool existed = _settings.DynamicItemData.TryGetValue(itemType, out DynamicItemData did);
+                    if (!existed) did = new DynamicItemData();
+                    did.Action = action;
+                    hasData = did.HasData();
+                    if (existed)
                     {
-                        did = new DynamicItemData();
-                        _settings.DynamicItemData[itemType] = did;
+                        if (!hasData)
+                        {
+                            _settings.DynamicItemData.Remove(itemType);
+                        }
                     }
-                    did.Action = action.Value;
+                    else //new entry
+                    {
+                        if (hasData)
+                        {
+                            _settings.DynamicItemData[itemType] = did;
+                        }
+                    }
+                    lvi.SubItems[1].Text = GetActionText(itemType);
                 }
-                else if (existed)
+                else
                 {
-                    _settings.DynamicItemData.Remove(itemType);
+                    DynamicDataItemClass itemClass = (DynamicDataItemClass)oTag;
+                    bool existed = _settings.DynamicItemClassData.TryGetValue(itemClass, out DynamicItemData did);
+                    if (!existed) did = new DynamicItemData();
+                    did.Action = action;
+                    hasData = did.HasData();
+                    if (existed)
+                    {
+                        if (!hasData)
+                        {
+                            _settings.DynamicItemClassData.Remove(itemClass);
+                        }
+                    }
+                    else //new entry
+                    {
+                        if (hasData)
+                        {
+                            _settings.DynamicItemClassData[itemClass] = did;
+                        }
+                    }
+                    refreshAllItems = true;
                 }
-                lvi.SubItems[1].Text = action.HasValue ? action.Value.ToString() : "None";
             }
+            if (refreshAllItems)
+            {
+                RefreshAllItemEntries();
+            }
+        }
+
+        private string GetActionText(ItemTypeEnum itemType)
+        {
+            string ret;
+            var did = new DynamicItemDataWithInheritance(_settings, itemType);
+            if (did.Action == ItemInventoryAction.None)
+            {
+                ret = "None";
+            }
+            else if (!did.ActionInheritance.HasValue)
+            {
+                ret = did.Action.ToString();
+            }
+            else
+            {
+                ret = did.Action.ToString() + " from " + did.ActionInheritance.Value.ToString();
+            }
+            return ret;
+        }
+
+        private string GetActionText(DynamicDataItemClass itemClass)
+        {
+            string ret;
+            var did = new DynamicItemDataWithInheritance(_settings, itemClass);
+            if (did.Action == ItemInventoryAction.None)
+            {
+                ret = "None";
+            }
+            else if (!did.ActionInheritance.HasValue)
+            {
+                ret = did.Action.ToString();
+            }
+            else
+            {
+                ret = did.Action.ToString() + " from " + did.ActionInheritance.Value.ToString();
+            }
+            return ret;
         }
 
         private void btnIgnore_Click(object sender, EventArgs e)
@@ -654,7 +764,7 @@ namespace IsengardClient
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            SetItemActions(null);
+            SetItemActions(ItemInventoryAction.None);
         }
 
         private void btnSell_Click(object sender, EventArgs e)
