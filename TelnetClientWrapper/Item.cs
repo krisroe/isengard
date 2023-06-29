@@ -1113,6 +1113,7 @@ namespace IsengardClient
 
         [SingularName("piece of coal")]
         //CSRTODO: plural?
+        [Weight(10)]
         PieceOfCoal,
 
         [SingularName("pipe weed")]
