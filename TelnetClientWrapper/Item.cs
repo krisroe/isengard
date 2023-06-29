@@ -786,6 +786,8 @@ namespace IsengardClient
         [SingularName("gypsy cape")]
         [PluralName("gypsy capes")]
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(2)]
+        [SellGoldRange(148, 148)]
         GypsyCape,
 
         [SingularName("gypsy crown")]
@@ -1361,6 +1363,7 @@ namespace IsengardClient
         [SingularName("splint mail")]
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(15)]
+        [SellGoldRange(3093, 3093)]
         SplintMail,
 
         [SingularName("sprite bracelet")]
