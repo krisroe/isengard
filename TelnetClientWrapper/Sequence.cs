@@ -3066,6 +3066,8 @@ StartProcessRoom:
                             sLine.Contains(" maims ") ||
                             sLine.Contains(" pulverizes ") ||
                             sLine.Contains(" devestates ") ||
+                            sLine.Contains(" obliterates ") ||  //CSRTODO: not sure of order
+                            sLine.Contains(" annihilates ") ||  //CSRTODO: not sure of order
                             sLine.Contains(" circles "))
                         {
                             haveDataToDisplay = true;
@@ -3217,6 +3219,14 @@ StartProcessRoom:
                 else if (remainder.EndsWith(" devestates"))
                 {
                     matches = true; //CSRTODO: 33
+                }
+                else if (remainder.EndsWith(" obliterates"))
+                {
+                    matches = true; //CSRTODO: ?
+                }
+                else if (remainder.EndsWith(" annihilates "))
+                {
+                    matches = true; //CSRTODO: ?
                 }
                 else if (remainder.EndsWith(" spell on"))
                 {
