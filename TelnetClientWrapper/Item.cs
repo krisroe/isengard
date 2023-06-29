@@ -783,6 +783,7 @@ namespace IsengardClient
 
         [SingularName("half-giant chain mail gloves")]
         [Weight(10)]
+        [SellGoldRange(123, 123)]
         HalfGiantChainMailGloves,
 
         [SingularName("hand axe")]
@@ -986,6 +987,7 @@ namespace IsengardClient
         [PluralName("mithril jo sticks")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(5)]
+        [SellGoldRange(2376, 2376)]
         MithrilJoStick,
 
         [SingularName("mithril lamella leggings")]
