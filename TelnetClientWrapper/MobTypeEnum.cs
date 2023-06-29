@@ -1029,6 +1029,10 @@
         [PluralName("pilgrims")]
         Pilgrim,
 
+        [SingularName("pirate")]
+        [PluralName("pirates")]
+        Pirate,
+
         [SingularName("pixie")]
         [PluralName("pixies")]
         Pixie,

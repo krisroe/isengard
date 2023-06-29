@@ -1111,6 +1111,10 @@ namespace IsengardClient
         [WeaponType(WeaponType.Unknown)]
         PetrifiedMorningStar,
 
+        [SingularName("piece of coal")]
+        //CSRTODO: plural?
+        PieceOfCoal,
+
         [SingularName("pipe weed")]
         //CSRTODO: plural?
         //CSRTODO: wand?
