@@ -664,9 +664,9 @@ namespace IsengardClient
             mithlondGraph.Rooms[oKralle] = new System.Windows.Point(4.5, 8);
 
             Room oShipsHoldSE = AddRoom("Ship's Hold", "Ship's Hold");
-            AddExit(oHarbringerEast4, oShipsHoldSE, "hatch");
-            AddExit(oShipsHoldSE, oHarbringerEast4, "up");
-            mithlondGraph.Rooms[oShipsHoldSE] = new System.Windows.Point(7, 7);
+            AddExit(oHarbringerEast3, oShipsHoldSE, "hatch");
+            AddExit(oShipsHoldSE, oHarbringerEast3, "up");
+            mithlondGraph.Rooms[oShipsHoldSE] = new System.Windows.Point(7, 7.5);
 
             Room oShipsHoldS = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldSE, oShipsHoldS, BidirectionalExitType.SouthwestNortheast);
@@ -674,7 +674,7 @@ namespace IsengardClient
 
             Room oShipsHoldSW = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldSW, oShipsHoldS, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oShipsHoldSW] = new System.Windows.Point(6, 7);
+            mithlondGraph.Rooms[oShipsHoldSW] = new System.Windows.Point(6, 7.5);
 
             Room oBrig = AddRoom("Brig", "Brig");
             oBrig.AddPermanentMobs(MobTypeEnum.Smee);
@@ -683,14 +683,14 @@ namespace IsengardClient
 
             Room oShipsHoldNE = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldNE, oShipsHoldSE, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oShipsHoldNE] = new System.Windows.Point(7, 6.5);
+            mithlondGraph.Rooms[oShipsHoldNE] = new System.Windows.Point(7, 7);
 
             Room oRandsQuarters = AddRoom("Rand's Quarters", "Rand's Quarters");
             e = AddExit(oShipsHoldNE, oRandsQuarters, "door");
             e.MustOpen = true;
             e = AddExit(oRandsQuarters, oShipsHoldNE, "door");
             e.MustOpen = true;
-            mithlondGraph.Rooms[oRandsQuarters] = new System.Windows.Point(7, 6);
+            mithlondGraph.Rooms[oRandsQuarters] = new System.Windows.Point(7, 6.5);
         }
 
         private void AddBullroarer(RoomGraph mithlondGraph, Room mithlondEntrance, Room nindamosDocks, RoomGraph nindamosGraph)
