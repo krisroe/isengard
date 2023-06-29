@@ -5208,75 +5208,91 @@ namespace IsengardClient
 
             deathValleyGraph.Rooms[oDeathValleyEntrance] = new System.Windows.Point(6, 10);
 
-            Room oDeathValleyWest1 = AddRoom("Death Valley");
+            Room oDeathValleyWest1 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest1, oDeathValleyEntrance, BidirectionalExitType.WestEast);
             deathValleyGraph.Rooms[oDeathValleyWest1] = new System.Windows.Point(5, 10);
 
-            Room oDeathValleyWest2 = AddRoom("Death Valley");
+            Room oDeathValleyWest2 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest2, oDeathValleyWest1, BidirectionalExitType.NorthSouth);
+            deathValleyGraph.Rooms[oDeathValleyWest2] = new System.Windows.Point(5, 9);
 
-            Room oAmlug = AddRoom("Amlug");
-            //CSRTODO
-            //oAmlug.Mob1 = "Amlug";
+            Room oAmlug = AddRoom("Amlug", "Tomb of Amlug");
+            oAmlug.AddPermanentMobs(MobTypeEnum.Amlug);
             AddBidirectionalExitsWithOut(oDeathValleyWest2, oAmlug, "tomb");
+            deathValleyGraph.Rooms[oAmlug] = new System.Windows.Point(5, 8);
 
-            Room oDeathValleyWest3 = AddRoom("Death Valley");
+            Room oDeathValleyWest3 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest3, oDeathValleyWest2, BidirectionalExitType.SouthwestNortheast);
+            deathValleyGraph.Rooms[oDeathValleyWest3] = new System.Windows.Point(6, 8);
 
-            Room oDeathValleyWest4 = AddRoom("Death Valley");
+            Room oDeathValleyWest4 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest4, oDeathValleyWest3, BidirectionalExitType.NorthSouth);
+            deathValleyGraph.Rooms[oDeathValleyWest4] = new System.Windows.Point(6, 7);
 
-            Room oKallo = AddRoom("Kallo");
-            //CSRTODO
-            //oKallo.Mob1 = "Kallo";
+            Room oKallo = AddRoom("Kallo", "Kallo's Final Resting Place");
+            oKallo.AddPermanentMobs(MobTypeEnum.Kallo);
             AddBidirectionalExitsWithOut(oDeathValleyWest4, oKallo, "tomb");
+            deathValleyGraph.Rooms[oKallo] = new System.Windows.Point(5, 7);
 
-            Room oDeathValleyWest5 = AddRoom("Death Valley");
+            Room oDeathValleyWest5 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest5, oDeathValleyWest4, BidirectionalExitType.SoutheastNorthwest);
+            deathValleyGraph.Rooms[oDeathValleyWest5] = new System.Windows.Point(5, 6);
 
-            Room oDeathValleyWest6 = AddRoom("Death Valley");
+            Room oDeathValleyWest6 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyWest6, oDeathValleyWest5, BidirectionalExitType.NorthSouth);
+            deathValleyGraph.Rooms[oDeathValleyWest6] = new System.Windows.Point(5, 5);
 
-            Room oWizard = AddRoom("Wizard of the First Order");
-            //CSRTODO: oWizard.Mob1 = "Wizard";
+            Room oWizard = AddRoom("Wizard of the First Order", "Wizard's Resting Place");
+            oWizard.AddPermanentMobs(MobTypeEnum.WizardOfTheFirstOrder);
             AddBidirectionalExitsWithOut(oDeathValleyWest6, oWizard, "vault");
+            deathValleyGraph.Rooms[oWizard] = new System.Windows.Point(6, 5);
 
-            Room oDeathValleyWest7 = AddRoom("Death Valley");
+            Room oDeathValleyWest7 = AddRoom("Death Valley", "Valley of the Dead.");
             AddBidirectionalExits(oDeathValleyWest7, oDeathValleyWest6, BidirectionalExitType.SouthwestNortheast);
             //CSRTODO: doorway
+            deathValleyGraph.Rooms[oDeathValleyWest7] = new System.Windows.Point(6, 4);
 
-            Room oDeathValleyEast1 = AddRoom("Death Valley");
+            Room oDeathValleyEast1 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEntrance, oDeathValleyEast1, BidirectionalExitType.WestEast);
+            deathValleyGraph.Rooms[oDeathValleyEast1] = new System.Windows.Point(7, 10);
 
-            Room oDeathValleyEast2 = AddRoom("Death Valley");
+            Room oDeathValleyEast2 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast2, oDeathValleyEast1, BidirectionalExitType.NorthSouth);
+            deathValleyGraph.Rooms[oDeathValleyEast2] = new System.Windows.Point(7, 9.5);
 
-            Room oDeathValleyEast3 = AddRoom("Death Valley");
+            Room oDeathValleyEast3 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast3, oDeathValleyEast2, BidirectionalExitType.NorthSouth);
+            deathValleyGraph.Rooms[oDeathValleyEast3] = new System.Windows.Point(7, 9);
 
-            Room oTranquilParkKaivo = AddHealingRoom("Kaivo", UNKNOWN_ROOM_NAME, HealingRoom.DeathValley);
-            //CSRTODO
-            //oTranquilParkKaivo.Mob1 = "Kaivo";
+            Room oTranquilParkKaivo = AddHealingRoom("Kaivo", "Tranquil Park", HealingRoom.DeathValley);
+            oTranquilParkKaivo.AddPermanentMobs(MobTypeEnum.Kaivo);
             AddBidirectionalExits(oTranquilParkKaivo, oDeathValleyEast3, BidirectionalExitType.WestEast);
+            deathValleyGraph.Rooms[oTranquilParkKaivo] = new System.Windows.Point(6, 9);
 
-            Room oDeathValleyEast4 = AddRoom("Death Valley");
+            Room oDeathValleyEast4 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast4, oDeathValleyEast3, BidirectionalExitType.SouthwestNortheast);
+            deathValleyGraph.Rooms[oDeathValleyEast4] = new System.Windows.Point(8, 7);
 
-            Room oDeathValleyEast5 = AddRoom("Death Valley");
+            Room oDeathValleyEast5 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast4, oDeathValleyEast5, BidirectionalExitType.SoutheastNorthwest);
+            deathValleyGraph.Rooms[oDeathValleyEast5] = new System.Windows.Point(9, 8);
 
-            Room oDeathValleyEast6 = AddRoom("Death Valley");
+            Room oDeathValleyEast6 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast6, oDeathValleyEast5, BidirectionalExitType.SouthwestNortheast);
+            deathValleyGraph.Rooms[oDeathValleyEast6] = new System.Windows.Point(11, 7);
 
-            Room oDeathValleyEast7 = AddRoom("Death Valley");
+            Room oDeathValleyEast7 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast7, oDeathValleyEast6, BidirectionalExitType.WestEast);
+            deathValleyGraph.Rooms[oDeathValleyEast7] = new System.Windows.Point(10, 7);
 
-            Room oDeathValleyEast8 = AddRoom("Death Valley");
+            Room oDeathValleyEast8 = AddRoom("Death Valley", "Valley of the Dead");
             AddBidirectionalExits(oDeathValleyEast8, oDeathValleyEast7, BidirectionalExitType.WestEast);
+            deathValleyGraph.Rooms[oDeathValleyEast8] = new System.Windows.Point(9, 7);
 
-            Room oStorageRoom = AddRoom("Storage Room");
+            Room oStorageRoom = AddRoom("Storage Room", "Storage Room");
             Exit e = AddBidirectionalExitsWithOut(oDeathValleyEast8, oStorageRoom, "rocky");
             e.Hidden = true;
+            deathValleyGraph.Rooms[oStorageRoom] = new System.Windows.Point(9, 6);
         }
 
         private void AddEldemondeCity(Room oEldemondeEastGateOutside)

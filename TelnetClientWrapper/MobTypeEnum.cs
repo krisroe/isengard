@@ -10,6 +10,10 @@
         [PluralName("alley cats")]
         AlleyCat,
 
+        [SingularName("Amlug")]
+        //CSRTODO: no plural
+        Amlug,
+
         [SingularName("Amme")]
         //CSRTODO: no plural
         Amme,
@@ -659,9 +663,17 @@
         [SingularSelection("Ixell")]
         IxellDeSantis,
 
+        [SingularName("Kaivo")]
+        //CSRTODO: no plural
+        Kaivo,
+
         [SingularName("Kali")]
         //CSRTODO: no plural
         Kali,
+
+        [SingularName("Kallo")]
+        //CSRTODO: no plural
+        Kallo,
 
         [SingularName("Kasnar the Guard")]
         //CSRTODO: no plural
@@ -884,6 +896,10 @@
         [SingularName("Mountain Dragon")]
         //CSRTODO: plural?
         MountainDragon,
+
+        [SingularName("mountain goat")]
+        [PluralName("mountain goats")]
+        MountainGoat,
 
         [SingularName("mountain hiker")]
         [PluralName("mountain hikers")]
@@ -1344,6 +1360,10 @@
         [SingularName("wildman")]
         [PluralName("wildmen")]
         Wildman,
+
+        [SingularName("Wizard of the First Order")]
+        //CSRTODO: no plural?
+        WizardOfTheFirstOrder,
 
         [SingularName("wolf")]
         [PluralName("wolves")]
