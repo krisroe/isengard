@@ -2356,6 +2356,9 @@ namespace IsengardClient
                     case InformationalMessageType.EquipmentDestroyed:
                         AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.DestroyEquipment);
                         break;
+                    case InformationalMessageType.EquipmentFellApart:
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip);
+                        break;
                     case InformationalMessageType.MobPickedUpItem:
                         lock (_entityLock)
                         {
@@ -2664,67 +2667,70 @@ namespace IsengardClient
                         nextItem = nextItemEntity.ItemType.Value;
                         sid = ItemEntity.StaticItemData[nextItem];
                     }
-                    if (changeType == EntityChangeType.EquipItem || removeEquipment)
+                    if (sid != null)
                     {
-                        if (sid.EquipmentType != EquipmentType.Unknown)
+                        if (changeType == EntityChangeType.EquipItem || removeEquipment)
                         {
-                            foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
+                            if (sid.EquipmentType != EquipmentType.Unknown)
                             {
-                                int iSlotIndex = (int)nextSlot;
-                                if (changeType == EntityChangeType.EquipItem)
+                                foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
                                 {
-                                    if (_currentEntityInfo.Equipment[iSlotIndex] == null)
+                                    int iSlotIndex = (int)nextSlot;
+                                    if (changeType == EntityChangeType.EquipItem)
                                     {
-                                        changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
-                                        changeEntry.EquipmentAction = true;
-                                        _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
-                                        iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, false, changeEntry);
-                                        addChange = true;
-                                        break;
-                                    }
-                                }
-                                else //remove
-                                {
-                                    if (_currentEntityInfo.Equipment[iSlotIndex] == nextItem)
-                                    {
-                                        changeEntry.EquipmentIndex = _currentEntityInfo.FindEquipmentRemovalPoint(nextSlot);
-                                        changeEntry.EquipmentAction = false;
-                                        _currentEntityInfo.Equipment[iSlotIndex] = null;
-                                        if (changeType == EntityChangeType.UnequipItem)
+                                        if (_currentEntityInfo.Equipment[iSlotIndex] == null)
                                         {
-                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, true, changeEntry);
+                                            changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
+                                            changeEntry.EquipmentAction = true;
+                                            _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
+                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, false, changeEntry);
+                                            addChange = true;
+                                            break;
                                         }
-                                        addChange = true;
-                                        break;
+                                    }
+                                    else //remove
+                                    {
+                                        if (_currentEntityInfo.Equipment[iSlotIndex] == nextItem)
+                                        {
+                                            changeEntry.EquipmentIndex = _currentEntityInfo.FindEquipmentRemovalPoint(nextSlot);
+                                            changeEntry.EquipmentAction = false;
+                                            _currentEntityInfo.Equipment[iSlotIndex] = null;
+                                            if (changeType == EntityChangeType.UnequipItem)
+                                            {
+                                                iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, true, changeEntry);
+                                            }
+                                            addChange = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
-                        }
-                    }
-                    else if (sid != null) //equipment not involved
-                    {
-                        if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
-                        {
-                            //add/remove from inventory
-                            bool isAddToInventory = changeType == EntityChangeType.PickUpItem;
-                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAddToInventory, changeEntry);
-
-                            if (changeType == EntityChangeType.PickUpItem) //remove from room items
+                            else
                             {
-                                addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
+                                flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
                             }
                         }
-                        else if (changeType == EntityChangeType.PickUpItem)
+                        else //equipment not involved
                         {
-                            pickupItemsMoney.Add(nextItemEntity); //picking up money handled below since it doesn't go into inventory
-                        }
-                        if (changeType == EntityChangeType.DropItem)
-                        {
-                            addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, true, changeEntry);
+                            if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
+                            {
+                                //add/remove from inventory
+                                bool isAddToInventory = changeType == EntityChangeType.PickUpItem;
+                                addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAddToInventory, changeEntry);
+
+                                if (changeType == EntityChangeType.PickUpItem) //remove from room items
+                                {
+                                    addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
+                                }
+                            }
+                            else if (changeType == EntityChangeType.PickUpItem)
+                            {
+                                pickupItemsMoney.Add(nextItemEntity); //picking up money handled below since it doesn't go into inventory
+                            }
+                            if (changeType == EntityChangeType.DropItem)
+                            {
+                                addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, true, changeEntry);
+                            }
                         }
                     }
                     if (addChange)

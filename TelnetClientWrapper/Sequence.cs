@@ -2969,10 +2969,28 @@ StartProcessRoom:
                     if (nextMsg == null)
                     {
                         ient = ProcessMessageEndingInItem(sLine, " destroys your ", Parameters);
-                        if (ient != null && ient.ItemType.HasValue)
+                        if (ient != null)
                         {
                             nextMsg = new InformationalMessages(InformationalMessageType.EquipmentDestroyed);
                             nextMsg.Item = ient;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        if (sLine.StartsWith("Your ") && sLine.EndsWith(" fell apart."))
+                        {
+                            int objectLen = lineLength - "Your.".Length + " fell apart.".Length;
+                            if (objectLen > 0)
+                            {
+                                string objectText = sLine.Substring("Your ".Length, objectLen);
+                                ient = ProcessItemInMessage(objectText, Parameters.ErrorMessages);
+                                if (ient != null)
+                                {
+                                    nextMsg = new InformationalMessages(InformationalMessageType.EquipmentFellApart);
+                                    nextMsg.Item = ient;
+                                }
+                            }
                         }
                     }
 
@@ -3124,11 +3142,18 @@ StartProcessRoom:
             if (index > 0 && sLine.EndsWith("."))
             {
                 string sWhat = sLine.Substring(index + midText.Length, lineLength - index - midText.Length - 1);
-                Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, Parameters.ErrorMessages, null, false);
-                if (RoomTransitionSequence.CheckForValidItem(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Item))
-                {
-                    ret = (ItemEntity)e;
-                }
+                ret = ProcessItemInMessage(sWhat, Parameters.ErrorMessages);
+            }
+            return ret;
+        }
+
+        private ItemEntity ProcessItemInMessage(string sWhat, List<string> errorMessages)
+        {
+            ItemEntity ret = null;
+            Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, errorMessages, null, false);
+            if (RoomTransitionSequence.CheckForValidItem(sWhat, e, errorMessages, EntityTypeFlags.Item))
+            {
+                ret = (ItemEntity)e;
             }
             return ret;
         }

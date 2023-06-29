@@ -458,6 +458,7 @@ namespace IsengardClient
         MobWanderedAway,
         ReceiveVampyricTouch,
         EquipmentDestroyed,
+        EquipmentFellApart,
         FireshieldInflictsDamageAndDissipates,
         MobPickedUpItem,
     }
