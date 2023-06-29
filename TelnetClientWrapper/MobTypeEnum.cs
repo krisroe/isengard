@@ -437,6 +437,7 @@
 
         [SingularName("golden eagle")]
         [PluralName("golden eagles")]
+        [Experience(350)]
         GoldenEagle,
 
         [SingularName("Graddy")]

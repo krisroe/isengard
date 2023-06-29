@@ -377,6 +377,7 @@ namespace IsengardClient
         [SingularName("bec de corbin")]
         [PluralName("bec de corbins")]
         [WeaponType(WeaponType.Polearm)]
+        [SellGoldRange(99, 99)]
         BecDeCorbin,
 
         [SingularName("black bag")]
@@ -779,6 +780,10 @@ namespace IsengardClient
         [PluralName("halberds")]
         [WeaponType(WeaponType.Polearm)]
         Halberd,
+
+        [SingularName("half-giant chain mail gloves")]
+        [Weight(10)]
+        HalfGiantChainMailGloves,
 
         [SingularName("hand axe")]
         [PluralName("hand axes")]
@@ -1184,6 +1189,7 @@ namespace IsengardClient
         [SingularName("rod of the dead")]
         //CSRTODO: plural
         [Wand(SpellsEnum.removecurse)] //spell per wiki
+        [SellGoldRange(24, 24)]
         RodOfTheDead,
 
         [SingularName("ruby")]
@@ -1247,6 +1253,7 @@ namespace IsengardClient
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
         [WeaponType(WeaponType.Stab)]
+        [SellGoldRange(67, 67)]
         SilverDagger,
 
         [SingularName("silver scimitar")]

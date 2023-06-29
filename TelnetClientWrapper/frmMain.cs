@@ -8282,6 +8282,7 @@ BeforeHazy:
             StaticItemData sid;
             int iCounter = 0;
             ItemTypeEnum itemType;
+            Room r;
             lock (_entityLock)
             {
                 object oObj = lst.SelectedItem;
@@ -8332,6 +8333,7 @@ BeforeHazy:
                     e.Cancel = true;
                     return;
                 }
+                r = _currentEntityInfo.CurrentRoom;
             }
 
             SelectedInventoryOrEquipmentItem sioei = new SelectedInventoryOrEquipmentItem();
@@ -8345,6 +8347,12 @@ BeforeHazy:
             ToolStripMenuItem tsmi;
             if (isInventory)
             {
+                if (r != null && r.PawnShoppe.HasValue)
+                {
+                    tsmi = new ToolStripMenuItem();
+                    tsmi.Text = "sell";
+                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                }
                 if (iclass == ItemClass.Potion)
                 {
                     tsmi = new ToolStripMenuItem();
