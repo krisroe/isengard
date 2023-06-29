@@ -58,7 +58,7 @@ namespace IsengardClient
             AddNorthOfEsgaroth(esgarothNorthGateOutside);
             AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter);
             AddArmenelos(oArmenelosGatesOutside);
-            AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside);
+            AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside, nindamosGraph);
             AddEldemondeCity(oEldemondeEastGateOutside);
             AddMithlond(boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
@@ -4926,41 +4926,56 @@ namespace IsengardClient
             armenelosGraph.Rooms[oArmenelosGatesOutside] = new System.Windows.Point(8, 13);
         }
 
-        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley, out Room oEldemondeEastGateOutside)
+        private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley, out Room oEldemondeEastGateOutside, RoomGraph nindamosGraph)
         {
+            RoomGraph nindamosEldemondeGraph = new RoomGraph("Nindamos/Eldemonde");
+            nindamosEldemondeGraph.ScalingFactor = 100;
+            _graphs[MapType.NindamosToEldemonde] = nindamosEldemondeGraph;
+
             Room r;
             Exit e;
             Room previousRoom = oSouthernJunction;
+            nindamosEldemondeGraph.Rooms[oSouthernJunction] = new System.Windows.Point(26, 18);
             for (int i = 0; i < 7; i++)
             {
                 r = AddRoom("Laiquendi", "Laiquendi");
                 AddBidirectionalExits(r, previousRoom, BidirectionalExitType.WestEast);
+                nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(25 - i, 18);
+                if (i == 0)
+                {
+                    System.Windows.Point pSJ = nindamosGraph.Rooms[oSouthernJunction];
+                    nindamosGraph.Rooms[r] = new System.Windows.Point(pSJ.X - 1, pSJ.Y);
+                }
                 previousRoom = r;
             }
             Room hiddenPathRoom = null;
             for (int i = 0; i < 9; i++)
             {
                 r = AddRoom("Liara", "Liara");
-                e = AddExit(r, previousRoom, "south");
+                AddExit(r, previousRoom, "south");
                 if (i == 4)
                 {
                     hiddenPathRoom = r;
                 }
                 AddExit(previousRoom, r, "north");
+                nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(19, 17-i);
                 previousRoom = r;
             }
             r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(18, 8);
             previousRoom = r;
             r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(17, 7);
             previousRoom = r;
             r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(17, 6);
             previousRoom = r;
             r = AddRoom("Liara", "Liara");
-            e = AddExit(r, previousRoom, "south");
-            AddExit(previousRoom, r, "north");
+            AddBidirectionalExits(r, previousRoom, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(17, 5);
             previousRoom = r;
             Room oLastLiara = r;
 
@@ -4970,170 +4985,232 @@ namespace IsengardClient
 
             Room oHiddenPath1 = AddRoom("Streambed", "Streambed");
             AddBidirectionalExits(hiddenPathRoom, oHiddenPath1, BidirectionalExitType.SoutheastNorthwest, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath1] = new System.Windows.Point(20, 13.5);
             Room oHiddenPath2 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath1, oHiddenPath2, BidirectionalExitType.SoutheastNorthwest, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath2] = new System.Windows.Point(21, 14);
             Room oHiddenPath3 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath2, oHiddenPath3, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath3] = new System.Windows.Point(21, 14.5);
             Room oHiddenPath4 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath3, oHiddenPath4, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath4] = new System.Windows.Point(21, 15);
             Room oHiddenPath5 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath4, oHiddenPath5, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath5] = new System.Windows.Point(21, 15.5);
             Room oHiddenPath6 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath5, oHiddenPath6, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath6] = new System.Windows.Point(21, 16);
             Room oHiddenPath7 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath6, oHiddenPath7, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath7] = new System.Windows.Point(21, 16.5);
             Room oHiddenPath8 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath7, oHiddenPath8, BidirectionalExitType.NorthSouth, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath8] = new System.Windows.Point(21, 17);
             Room oHiddenPath9 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath8, oHiddenPath9, BidirectionalExitType.SoutheastNorthwest, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath9] = new System.Windows.Point(22, 17.5);
             Room oHiddenPath10 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath9, oHiddenPath10, BidirectionalExitType.WestEast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath10] = new System.Windows.Point(23, 17.5);
             Room oHiddenPath11 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath10, oHiddenPath11, BidirectionalExitType.WestEast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath11] = new System.Windows.Point(24, 17.5);
             Room oHiddenPath12 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath12, oHiddenPath11, BidirectionalExitType.SouthwestNortheast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath12] = new System.Windows.Point(25, 17);
             Room oHiddenPath13 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath12, oHiddenPath13, BidirectionalExitType.WestEast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath13] = new System.Windows.Point(26, 17);
             Room oHiddenPath14 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath13, oHiddenPath14, BidirectionalExitType.WestEast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath14] = new System.Windows.Point(27, 17);
             Room oHiddenPath15 = AddRoom("Hidden Path", "Hidden Path");
             AddBidirectionalExits(oHiddenPath14, oHiddenPath15, BidirectionalExitType.WestEast, true);
+            nindamosEldemondeGraph.Rooms[oHiddenPath15] = new System.Windows.Point(28, 17);
             AddBidirectionalExits(oHiddenPath15, oPathThroughTheValley, BidirectionalExitType.SoutheastNorthwest, true);
+            nindamosEldemondeGraph.Rooms[oPathThroughTheValley] = new System.Windows.Point(29, 17.5);
+            System.Windows.Point p = nindamosGraph.Rooms[oPathThroughTheValley];
+            nindamosGraph.Rooms[oHiddenPath15] = new System.Windows.Point(p.X - 1, p.Y - 1);
 
-            Room oGrasslands1 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands1 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oSouthernJunction, oGrasslands1, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrasslands1] = new System.Windows.Point(25, 19);
 
-            Room oGrasslands2 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands2 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands2, oGrasslands1, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrasslands2] = new System.Windows.Point(24, 19);
 
-            Room oHostaEncampment = AddRoom("Hosta Encampment");
+            Room oHostaEncampment = AddRoom("Hosta Encampment", "Hosta Encampment");
+            oHostaEncampment.AddPermanentMobs(MobTypeEnum.HostaWarrior);
             AddBidirectionalExits(oHostaEncampment, oGrasslands2, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oHostaEncampment] = new System.Windows.Point(23, 18.5);
 
-            Room oGrasslands3 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands3 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands2, oGrasslands3, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrasslands3] = new System.Windows.Point(23, 20);
 
-            Room oGrasslands4 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands4 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands4, oGrasslands3, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrasslands4] = new System.Windows.Point(22, 20);
 
-            Room oGrasslands5 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands5 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands5, oGrasslands4, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[oGrasslands5] = new System.Windows.Point(22, 19);
 
-            Room oGrasslands6 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands6 = AddRoom("Grasslands", "Grasslands of Mittalamar");
             AddBidirectionalExits(oGrasslands5, oGrasslands6, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrasslands6] = new System.Windows.Point(23, 19);
 
-            Room oGrasslands7 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands7 = AddRoom("Grasslands", "Grasslands of Mittalamar");
             AddBidirectionalExits(oGrasslands6, oGrasslands7, BidirectionalExitType.NorthSouth);
             AddExit(oGrasslands7, oGrasslands3, "south");
+            nindamosEldemondeGraph.Rooms[oGrasslands7] = new System.Windows.Point(23, 19.5);
 
-            Room oGrasslands8 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands8 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands4, oGrasslands8, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrasslands8] = new System.Windows.Point(21, 21);
 
-            Room oGrasslands9 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands9 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands9, oGrasslands4, BidirectionalExitType.WestEast);
-            e = AddExit(oGrasslands8, oGrasslands9, "north");
+            AddExit(oGrasslands8, oGrasslands9, "north");
             AddExit(oGrasslands9, oGrasslands8, "north");
+            nindamosEldemondeGraph.Rooms[oGrasslands9] = new System.Windows.Point(21, 20);
 
-            Room oGrasslands10 = AddRoom("Mittalmar Grasslands");
-            e = AddExit(oGrasslands4, oGrasslands10, "south");
-            AddExit(oGrasslands10, oGrasslands4, "north");
+            Room oGrasslands10 = AddRoom("Grasslands", "Grasslands of Mittalmar");
+            AddBidirectionalExits(oGrasslands4, oGrasslands10, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[oGrasslands10] = new System.Windows.Point(22, 21);
 
-            Room oGrasslands11 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands11 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands10, oGrasslands11, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrasslands11] = new System.Windows.Point(21, 22);
 
-            Room oGrasslands12 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands12 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands12, oGrasslands11, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrasslands12] = new System.Windows.Point(20, 22);
 
-            Room oGrasslands13 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands13 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands13, oGrasslands12, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[oGrasslands13] = new System.Windows.Point(20, 21);
 
-            Room oGrasslands14 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands14 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands14, oGrasslands13, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[oGrasslands14] = new System.Windows.Point(20, 20);
 
-            Room oGrasslands15 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands15 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands15, oGrasslands14, BidirectionalExitType.SouthwestNortheast);
             AddBidirectionalExits(oGrasslands15, oGrasslands5, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oGrasslands15] = new System.Windows.Point(21, 18.5);
 
-            Room oGrasslands16 = AddRoom("Mittalmar Grasslands");
+            Room oGrasslands16 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands16, oGrasslands13, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oGrasslands16] = new System.Windows.Point(19, 20);
 
-            Room oDeathValleyEntrance = AddRoom("Death Valley Entrance");
+            Room oDeathValleyEntrance = AddRoom("Death Valley Entrance", "Entrance to the Valley of the Dead");
             AddBidirectionalExits(oGrasslands16, oDeathValleyEntrance, BidirectionalExitType.NorthSouth);
+            nindamosEldemondeGraph.Rooms[oDeathValleyEntrance] = new System.Windows.Point(19, 21);
 
-            Room oGrassCoveredField1 = AddRoom("Grass Field");
+            Room oGrassCoveredField1 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oLastLiara, oGrassCoveredField1, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField1] = new System.Windows.Point(16, 6);
 
-            Room oGrassCoveredField2 = AddRoom("Grass Field");
+            Room oGrassCoveredField2 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oGrassCoveredField2, oGrassCoveredField1, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField2] = new System.Windows.Point(15, 6);
 
-            Room oGrassCoveredField3 = AddRoom("Grass Field");
+            Room oGrassCoveredField3 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oGrassCoveredField3, oGrassCoveredField2, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField3] = new System.Windows.Point(14, 6);
 
-            Room oGrassCoveredField4 = AddRoom("Grass Field");
+            Room oGrassCoveredField4 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oGrassCoveredField4, oGrassCoveredField3, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField4] = new System.Windows.Point(13, 5);
 
-            Room oRiverPath1 = AddRoom("River Path");
+            Room oRiverPath1 = AddRoom("River Path", "River Path");
             AddBidirectionalExits(oRiverPath1, oGrassCoveredField4, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oRiverPath1] = new System.Windows.Point(12, 5);
 
-            Room oRiverPath2 = AddRoom("River Path");
+            Room oRiverPath2 = AddRoom("River Path", "River Path");
             AddBidirectionalExits(oRiverPath2, oRiverPath1, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oRiverPath2] = new System.Windows.Point(11, 5);
 
-            Room oRiverBank = AddRoom("River Bank");
+            Room oRiverBank = AddRoom("River Bank", "River Bank");
             AddBidirectionalExits(oRiverBank, oRiverPath2, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oRiverBank] = new System.Windows.Point(10, 4);
 
-            Room oGrassCoveredField5 = AddRoom("Grass Field");
+            Room oGrassCoveredField5 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oGrassCoveredField3, oGrassCoveredField5, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField5] = new System.Windows.Point(13, 7);
 
-            Room oGrassCoveredField6 = AddRoom("Grass Field");
+            Room oGrassCoveredField6 = AddRoom("Grass Field", "Grass Covered Field");
             AddBidirectionalExits(oGrassCoveredField6, oGrassCoveredField5, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oGrassCoveredField6] = new System.Windows.Point(12, 7);
 
-            Room oEdgeOfNisimaldar = AddRoom("Nisimaldar Edge");
+            Room oEdgeOfNisimaldar = AddRoom("Nisimaldar Edge", "Edge of Nisimaldar");
             AddBidirectionalExits(oGrassCoveredField6, oEdgeOfNisimaldar, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oEdgeOfNisimaldar] = new System.Windows.Point(11, 8);
 
-            Room oNisimaldar1 = AddRoom("Nisimaldar");
+            Room oNisimaldar1 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar1, oEdgeOfNisimaldar, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar1] = new System.Windows.Point(10, 9);
 
-            Room oNisimaldar2 = AddRoom("Nisimaldar");
+            Room oNisimaldar2 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar2, oNisimaldar1, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar2] = new System.Windows.Point(9, 9);
 
-            Room oNisimaldar3 = AddRoom("Nisimaldar");
+            Room oNisimaldar3 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar3, oNisimaldar2, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oNisimaldar3] = new System.Windows.Point(8, 8);
 
-            Room oNisimaldar4 = AddRoom("Nisimaldar");
+            Room oNisimaldar4 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar4, oNisimaldar3, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar4] = new System.Windows.Point(7, 8);
 
-            Room oNisimaldar5 = AddRoom("Nisimaldar");
+            Room oNisimaldar5 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar4, oNisimaldar5, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar5] = new System.Windows.Point(6, 9);
 
-            Room oNisimaldar6 = AddRoom("Nisimaldar");
+            Room oNisimaldar6 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar6, oNisimaldar5, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar6] = new System.Windows.Point(5, 9);
 
-            Room oNisimaldar7 = AddRoom("Nisimaldar");
+            Room oNisimaldar7 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar6, oNisimaldar7, BidirectionalExitType.SouthwestNortheast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar7] = new System.Windows.Point(4, 10);
 
-            Room oNisimaldar8 = AddRoom("Nisimaldar");
+            Room oNisimaldar8 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar8, oNisimaldar7, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar8] = new System.Windows.Point(3, 10);
 
-            Room oNisimaldar9 = AddRoom("Nisimaldar");
+            Room oNisimaldar9 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar9, oNisimaldar8, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oNisimaldar9] = new System.Windows.Point(2, 9);
 
-            Room oNisimaldar10 = AddRoom("Nisimaldar");
+            Room oNisimaldar10 = AddRoom("Nisimaldar", "Nisimaldar");
             AddBidirectionalExits(oNisimaldar10, oNisimaldar9, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oNisimaldar10] = new System.Windows.Point(1, 9);
 
             oEldemondeEastGateOutside = AddRoom("East Gate Outside", "East Gate of Eldalonde");
             AddBidirectionalExits(oEldemondeEastGateOutside, oNisimaldar10, BidirectionalExitType.SoutheastNorthwest);
+            nindamosEldemondeGraph.Rooms[oEldemondeEastGateOutside] = new System.Windows.Point(0, 8);
 
             AddDeathValley(oDeathValleyEntrance);
 
             AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
-            AddLocation(_aNindamosArmenelos, oHostaEncampment);
             AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
-            AddLocation(_aNindamosArmenelos, oEldemondeEastGateOutside);
         }
 
         private void AddDeathValley(Room oDeathValleyEntrance)
         {
+            RoomGraph deathValleyGraph = new RoomGraph("Death Valley");
+            deathValleyGraph.ScalingFactor = 100;
+            _graphs[MapType.DeathValley] = deathValleyGraph;
+
+            deathValleyGraph.Rooms[oDeathValleyEntrance] = new System.Windows.Point(6, 10);
+
             Room oDeathValleyWest1 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest1, oDeathValleyEntrance, BidirectionalExitType.WestEast);
+            deathValleyGraph.Rooms[oDeathValleyWest1] = new System.Windows.Point(5, 10);
 
             Room oDeathValleyWest2 = AddRoom("Death Valley");
             AddBidirectionalExits(oDeathValleyWest2, oDeathValleyWest1, BidirectionalExitType.NorthSouth);

@@ -261,7 +261,9 @@ namespace IsengardClient
         Mithlond,
         Nindamos,
         Armenelos,
+        NindamosToEldemonde,
         Eldemonde,
+        DeathValley,
         Intangible,
     }
 

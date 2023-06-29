@@ -602,6 +602,10 @@
         [Alignment(AlignmentType.Blue)]
         Hogoth,
 
+        [SingularName("hosta warrior")]
+        [PluralName("hosta warriors")]
+        HostaWarrior,
+
         [SingularName("Ho-suan the Penniless")]
         //CSRTODO: no plural?
         HoSuanThePenniless,
@@ -694,6 +698,10 @@
         [SingularName("laborer")]
         [PluralName("laborers")]
         Laborer,
+
+        [SingularName("lady in waiting")]
+        //CSRTODO: plural?
+        LadyInWaiting,
 
         [SingularName("lag")]
         [PluralName("lags")] //verified 6/21/23
@@ -807,6 +815,10 @@
         [SingularName("meistersinger")]
         [PluralName("meistersingers")]
         Meistersinger,
+
+        [SingularName("member of lower royalty")]
+        //CSRTODO: plural
+        MemberOfLowerRoyalty,
 
         [SingularName("mercenary")]
         //CSRTODO: plural?

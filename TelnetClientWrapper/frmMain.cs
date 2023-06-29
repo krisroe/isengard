@@ -252,8 +252,17 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
+            ReloadMap();
+
+            cboSetOption.SelectedIndex = 0;
+
+            DoConnect();
+        }
+
+        private void ReloadMap()
+        {
             List<string> errorMessages = new List<string>();
-            _gameMap = new IsengardMap(errorMessages);
+            IsengardMap newMap = new IsengardMap(errorMessages);
             if (errorMessages.Count > 0)
             {
                 lock (_broadcastMessagesLock)
@@ -261,10 +270,25 @@ namespace IsengardClient
                     _broadcastMessages.AddRange(errorMessages);
                 }
             }
-
-            cboSetOption.SelectedIndex = 0;
-
-            DoConnect();
+            lock (_entityLock)
+            {
+                Room r = _currentEntityInfo.CurrentRoom;
+                Room newRoom = null;
+                if (r != null)
+                {
+                    string backendName = r.BackendName;
+                    if (!string.IsNullOrEmpty(backendName))
+                    {
+                        newMap.UnambiguousRooms.TryGetValue(backendName, out newRoom);
+                    }
+                    if (newRoom == null && _gameMap.AmbiguousRooms.TryGetValue(backendName, out List<Room> possibleRooms))
+                    {
+                        newRoom = TryDisambiguateRoomPerObviousExits(possibleRooms, _currentEntityInfo.CurrentObviousExits);
+                    }
+                }
+                _gameMap = newMap;
+                _currentEntityInfo.CurrentRoom = newRoom;
+            }
         }
 
         private void RefreshStrategyButtons()
@@ -1426,50 +1450,7 @@ namespace IsengardClient
 
             if (disambiguationRooms != null) //disambiguate based on obvious exits
             {
-                Room foundRoom = null;
-                foreach (Room nextDisambigRoom in disambiguationRooms)
-                {
-                    bool matches = true;
-                    List<string> nextCheckObviousExits = IsengardMap.GetObviousExits(nextDisambigRoom, out List<string> optionalExits);
-                    if (obviousExits.Count == 1 && string.Equals(obviousExits[0], "None", StringComparison.OrdinalIgnoreCase))
-                    {
-                        matches = nextCheckObviousExits.Count == 0;
-                    }
-                    else
-                    {
-                        foreach (string nextExitText in nextCheckObviousExits)
-                        {
-                            if (!obviousExits.Contains(nextExitText))
-                            {
-                                matches = false;
-                                break;
-                            }
-                        }
-                        if (matches)
-                        {
-                            foreach (string nextExitText in obviousExits)
-                            {
-                                if (!nextCheckObviousExits.Contains(nextExitText) && (optionalExits == null || !optionalExits.Contains(nextExitText)))
-                                {
-                                    matches = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (matches)
-                    {
-                        if (foundRoom == null)
-                        {
-                            foundRoom = nextDisambigRoom;
-                        }
-                        else //still ambiguous
-                        {
-                            foundRoom = null;
-                            break;
-                        }
-                    }
-                }
+                Room foundRoom = TryDisambiguateRoomPerObviousExits(disambiguationRooms, obviousExits);
                 if (foundRoom != null)
                 {
                     newRoom = foundRoom;
@@ -1590,6 +1571,55 @@ namespace IsengardClient
                     _currentEntityInfo.CurrentRoom = newRoom;
                 }
             }
+        }
+
+        private Room TryDisambiguateRoomPerObviousExits(List<Room> disambiguationRooms, List<string> obviousExits)
+        {
+            Room foundRoom = null;
+            foreach (Room nextDisambigRoom in disambiguationRooms)
+            {
+                bool matches = true;
+                List<string> nextCheckObviousExits = IsengardMap.GetObviousExits(nextDisambigRoom, out List<string> optionalExits);
+                if (obviousExits.Count == 1 && string.Equals(obviousExits[0], "None", StringComparison.OrdinalIgnoreCase))
+                {
+                    matches = nextCheckObviousExits.Count == 0;
+                }
+                else
+                {
+                    foreach (string nextExitText in nextCheckObviousExits)
+                    {
+                        if (!obviousExits.Contains(nextExitText))
+                        {
+                            matches = false;
+                            break;
+                        }
+                    }
+                    if (matches)
+                    {
+                        foreach (string nextExitText in obviousExits)
+                        {
+                            if (!nextCheckObviousExits.Contains(nextExitText) && (optionalExits == null || !optionalExits.Contains(nextExitText)))
+                            {
+                                matches = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (matches)
+                {
+                    if (foundRoom == null)
+                    {
+                        foundRoom = nextDisambigRoom;
+                    }
+                    else //still ambiguous
+                    {
+                        foundRoom = null;
+                        break;
+                    }
+                }
+            }
+            return foundRoom;
         }
 
         private bool ExitExistsInList(List<string> displayedObviousExits, string mapExitText)
@@ -5844,6 +5874,7 @@ BeforeHazy:
         {
             yield return tsbExport;
             yield return tsbImport;
+            yield return tsbReloadMap;
             yield return tsbQuit;
             yield return tsbConfiguration;
         }
@@ -8442,6 +8473,12 @@ BeforeHazy:
                     }
                 }
             }
+        }
+
+        private void tsbReloadMap_Click(object sender, EventArgs e)
+        {
+            ReloadMap();
+            MessageBox.Show("Reloaded!");
         }
     }
 }

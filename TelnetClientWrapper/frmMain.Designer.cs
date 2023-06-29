@@ -166,6 +166,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.tsbReloadMap = new System.Windows.Forms.ToolStripButton();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -1505,6 +1506,7 @@
             this.tsbConfiguration,
             this.tsbExport,
             this.tsbImport,
+            this.tsbReloadMap,
             this.tsbQuit});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
@@ -1736,6 +1738,16 @@
             this.pnlCommand.Size = new System.Drawing.Size(271, 62);
             this.pnlCommand.TabIndex = 30;
             // 
+            // tsbReloadMap
+            // 
+            this.tsbReloadMap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbReloadMap.Image = ((System.Drawing.Image)(resources.GetObject("tsbReloadMap.Image")));
+            this.tsbReloadMap.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbReloadMap.Name = "tsbReloadMap";
+            this.tsbReloadMap.Size = new System.Drawing.Size(94, 24);
+            this.tsbReloadMap.Text = "Reload Map";
+            this.tsbReloadMap.Click += new System.EventHandler(this.tsbReloadMap_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1928,6 +1940,7 @@
         private System.Windows.Forms.Button btnGoToPawnShop;
         private System.Windows.Forms.Label lblPawnShop;
         private System.Windows.Forms.ComboBox cboPawnShop;
+        private System.Windows.Forms.ToolStripButton tsbReloadMap;
     }
 }
 

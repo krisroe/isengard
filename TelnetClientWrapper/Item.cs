@@ -375,7 +375,7 @@ namespace IsengardClient
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
-        [SingularName("bec de corbins")]
+        [PluralName("bec de corbins")]
         [WeaponType(WeaponType.Polearm)]
         BecDeCorbin,
 
@@ -1038,6 +1038,11 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Neck)]
         [Weight(4)]
         OnyxAmulet,
+
+        [SingularName("opal staff")]
+        [PluralName("opal staffs")]
+        [Wand(SpellsEnum.mend)]
+        OpalStaff,
 
         [SingularName("orc's sword")]
         [PluralName("orc's swords")]
