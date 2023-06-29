@@ -629,6 +629,8 @@ namespace IsengardClient
         [SingularName("dwarven mithril gaiters")]
         [SingularSelection("dwarven mithril gaiter")]
         [EquipmentType(EquipmentType.Legs)]
+        [Weight(4)]
+        [SellGoldRange(742)]
         DwarvenMithrilGaiters,
 
         [SingularName("ear lobe plug")]
@@ -860,6 +862,7 @@ namespace IsengardClient
 
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
+        [Weight(3)]
         KasnarsRedKey,
 
         [SingularName("kelp necklace")]
