@@ -37,6 +37,12 @@ namespace IsengardClient
                     throw new InvalidOperationException();
                 sid.SingularName = sSingular;
 
+                string sSingularSelection = null;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SingularSelectionAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    sSingularSelection = ((SingularSelectionAttribute)valueAttributes[0]).Name;
+                if (!string.IsNullOrEmpty(sSingularSelection)) sid.SingularSelection = sSingularSelection;
+
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(PluralNameAttribute), false);
                 string sPlural;
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -132,7 +138,12 @@ namespace IsengardClient
         /// <returns>words for the item</returns>
         public static IEnumerable<string> GetItemWords(ItemTypeEnum nextItem)
         {
-            StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+            StaticItemData sid = StaticItemData[nextItem];
+            string sSingular = sid.SingularSelection;
+            if (string.IsNullOrEmpty(sSingular))
+            {
+                sSingular = sid.SingularName;
+            }
             foreach (string s in StringProcessing.PickWords(sid.SingularName))
             {
                 yield return s;
@@ -157,6 +168,7 @@ namespace IsengardClient
         public WeaponType? WeaponType { get; set; }
         public SpellsEnum? Spell { get; set; }
         public string SingularName { get; set; }
+        public string SingularSelection { get; set; }
         public string PluralName { get; set; }
         public int Weight { get; set; }
         public int LowerSellRange { get; set; }
@@ -615,7 +627,8 @@ namespace IsengardClient
         DungeonKey,
 
         [SingularName("dwarven mithril gaiters")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [SingularSelection("dwarven mithril gaiter")]
+        [EquipmentType(EquipmentType.Legs)]
         DwarvenMithrilGaiters,
 
         [SingularName("ear lobe plug")]
