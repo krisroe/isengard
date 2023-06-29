@@ -1191,6 +1191,10 @@
         [PluralName("small spiders")]
         SmallSpider,
 
+        [SingularName("Smee")]
+        //CSRTODO: no plural
+        Smee,
+
         [SingularName("smithy")]
         //CSRTODO: plural?
         Smithy,

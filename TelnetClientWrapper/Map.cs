@@ -662,6 +662,35 @@ namespace IsengardClient
             AddBidirectionalExits(oHarbringerWest4, oKralle, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oHarbringerEast4, oKralle, BidirectionalExitType.SouthwestNortheast);
             mithlondGraph.Rooms[oKralle] = new System.Windows.Point(4.5, 8);
+
+            Room oShipsHoldSE = AddRoom("Ship's Hold", "Ship's Hold");
+            AddExit(oHarbringerEast4, oShipsHoldSE, "hatch");
+            AddExit(oShipsHoldSE, oHarbringerEast4, "up");
+            mithlondGraph.Rooms[oShipsHoldSE] = new System.Windows.Point(7, 7);
+
+            Room oShipsHoldS = AddRoom("Ship's Hold", "Ship's Hold");
+            AddBidirectionalExits(oShipsHoldSE, oShipsHoldS, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oShipsHoldS] = new System.Windows.Point(6.5, 8);
+
+            Room oShipsHoldSW = AddRoom("Ship's Hold", "Ship's Hold");
+            AddBidirectionalExits(oShipsHoldSW, oShipsHoldS, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oShipsHoldSW] = new System.Windows.Point(6, 7);
+
+            Room oBrig = AddRoom("Brig", "Brig");
+            oBrig.AddPermanentMobs(MobTypeEnum.Smee);
+            AddExit(oShipsHoldSW, oBrig, "door");
+            mithlondGraph.Rooms[oBrig] = new System.Windows.Point(6, 6.5);
+
+            Room oShipsHoldNE = AddRoom("Ship's Hold", "Ship's Hold");
+            AddBidirectionalExits(oShipsHoldNE, oShipsHoldSE, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oShipsHoldNE] = new System.Windows.Point(7, 6.5);
+
+            Room oRandsQuarters = AddRoom("Rand's Quarters", "Rand's Quarters");
+            e = AddExit(oShipsHoldNE, oRandsQuarters, "door");
+            e.MustOpen = true;
+            e = AddExit(oRandsQuarters, oShipsHoldNE, "door");
+            e.MustOpen = true;
+            mithlondGraph.Rooms[oRandsQuarters] = new System.Windows.Point(7, 6);
         }
 
         private void AddBullroarer(RoomGraph mithlondGraph, Room mithlondEntrance, Room nindamosDocks, RoomGraph nindamosGraph)
