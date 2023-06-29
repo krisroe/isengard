@@ -549,6 +549,7 @@ namespace IsengardClient
         [SingularName("club")]
         [PluralName("clubs")]
         [WeaponType(WeaponType.Blunt)]
+        [Weight(2)]
         Club,
 
         [SingularName("copper pieces")]
@@ -577,6 +578,7 @@ namespace IsengardClient
         [SingularName("dagger")]
         [PluralName("daggers")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
         Dagger,
 
         [SingularName("dark blade")]
@@ -997,6 +999,8 @@ namespace IsengardClient
 
         [SingularName("mithril chain armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(18)]
+        [SellGoldRange(6187)]
         MithrilChainArmor,
 
         [SingularName("mithril jo stick")]
