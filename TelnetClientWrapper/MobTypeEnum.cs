@@ -435,6 +435,10 @@
         [Experience(1200)]
         Godfather,
 
+        [SingularName("golden eagle")]
+        [PluralName("golden eagles")]
+        GoldenEagle,
+
         [SingularName("Graddy")]
         //CSRTODO: no plural
         [Experience(350)]

@@ -1499,6 +1499,7 @@ namespace IsengardClient
         WelcomeSign,
 
         [SingularName("white armor")]
+        [PluralName("white armors")] //verified 6/29/23
         [EquipmentType(EquipmentType.Torso)]
         WhiteArmor,
 

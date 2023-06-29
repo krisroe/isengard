@@ -22,11 +22,9 @@ namespace IsengardClient
         private Room _orderOfLove = null;
         private Area _aBreePerms;
         private Area _aImladrisTharbadPerms;
-        private Area _aNindamosArmenelos;
 
         private const string AREA_BREE_PERMS = "Bree Perms";
         private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
-        private const string AREA_NINDAMOS_ARMENELOS = "Nindamos/Armenelos";
 
         public IsengardMap(List<string> errorMessages)
         {
@@ -37,7 +35,6 @@ namespace IsengardClient
 
             _aBreePerms = AddArea(AREA_BREE_PERMS);
             _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
-            _aNindamosArmenelos = AddArea(AREA_NINDAMOS_ARMENELOS);
 
             RoomGraph graphMillwoodMansion = new RoomGraph("Millwood Mansion");
             graphMillwoodMansion.ScalingFactor = 100;
@@ -4975,13 +4972,15 @@ namespace IsengardClient
             previousRoom = r;
             r = AddRoom("Liara", "Liara");
             AddBidirectionalExits(r, previousRoom, BidirectionalExitType.NorthSouth);
-            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(17, 5);
+            nindamosEldemondeGraph.Rooms[r] = new System.Windows.Point(17, 4);
             previousRoom = r;
             Room oLastLiara = r;
 
             Room oBaseOfMenelTarma = AddRoom("Base of Menel tarma", "Base of Menel tarma");
             oBaseOfMenelTarma.AddPermanentMobs(MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oBaseOfMenelTarma, previousRoom, BidirectionalExitType.WestEast);
+            nindamosEldemondeGraph.Rooms[oBaseOfMenelTarma] = new System.Windows.Point(15, 4);
+            AddMenelTarma(oBaseOfMenelTarma, nindamosEldemondeGraph);
 
             Room oHiddenPath1 = AddRoom("Streambed", "Streambed");
             AddBidirectionalExits(hiddenPathRoom, oHiddenPath1, BidirectionalExitType.SoutheastNorthwest, true);
@@ -5195,9 +5194,47 @@ namespace IsengardClient
             nindamosEldemondeGraph.Rooms[oEldemondeEastGateOutside] = new System.Windows.Point(0, 8);
 
             AddDeathValley(oDeathValleyEntrance);
+        }
 
-            AddLocation(_aNindamosArmenelos, oBaseOfMenelTarma);
-            AddLocation(_aNindamosArmenelos, oDeathValleyEntrance);
+        private void AddMenelTarma(Room baseOfMenelTarma, RoomGraph eldemondeToNindamosGraph)
+        {
+            Room oRoad1 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(baseOfMenelTarma, oRoad1, BidirectionalExitType.NorthSouth);
+            eldemondeToNindamosGraph.Rooms[oRoad1] = new System.Windows.Point(15, 4.5);
+
+            Room oRoad2 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad2, oRoad1, BidirectionalExitType.WestEast);
+            eldemondeToNindamosGraph.Rooms[oRoad2] = new System.Windows.Point(14, 4.5);
+
+            Room oRoad3 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad2, oRoad3, BidirectionalExitType.NorthSouth);
+            eldemondeToNindamosGraph.Rooms[oRoad3] = new System.Windows.Point(14, 5);
+
+            Room oRoad4 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad3, oRoad4, BidirectionalExitType.WestEast);
+            eldemondeToNindamosGraph.Rooms[oRoad4] = new System.Windows.Point(15, 5);
+
+            Room oRoad5 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad4, oRoad5, BidirectionalExitType.NorthSouth);
+            eldemondeToNindamosGraph.Rooms[oRoad5] = new System.Windows.Point(15, 5.5);
+
+            Room oRoad6 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad5, oRoad6, BidirectionalExitType.WestEast);
+            eldemondeToNindamosGraph.Rooms[oRoad6] = new System.Windows.Point(16, 5.5);
+
+            Room oRoad7 = AddRoom("Road", "Road up Menel tarma");
+            AddBidirectionalExits(oRoad7, oRoad6, BidirectionalExitType.NorthSouth);
+            eldemondeToNindamosGraph.Rooms[oRoad7] = new System.Windows.Point(16, 5.1);
+
+            Room oPath1 = AddRoom("Path", "Path to the summit of Menel tarma");
+            AddBidirectionalExits(oPath1, oRoad7, BidirectionalExitType.UpDown);
+            eldemondeToNindamosGraph.Rooms[oPath1] = new System.Windows.Point(16, 4.7);
+
+            Room oSummit = AddRoom("Summit", "Summit of Menel Tarma");
+            oSummit.AddPermanentMobs(MobTypeEnum.GoldenEagle, MobTypeEnum.GoldenEagle, MobTypeEnum.GoldenEagle);
+            AddExit(oPath1, oSummit, "up");
+            AddExit(oSummit, oPath1, "slope");
+            eldemondeToNindamosGraph.Rooms[oSummit] = new System.Windows.Point(16, 4.3);
         }
 
         private void AddDeathValley(Room oDeathValleyEntrance)
