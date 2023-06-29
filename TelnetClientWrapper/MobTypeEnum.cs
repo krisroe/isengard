@@ -141,6 +141,14 @@
         [PluralName("butlers")]
         Butler,
 
+        [SingularName("cabin boy")]
+        [PluralName("cabin boys")]
+        CabinBoy,
+
+        [SingularName("Captain Felagund")]
+        //CSRTODO: no plural
+        CaptainFelagund,
+
         [SingularName("Captain Renton")]
         //CSRTODO: no plural
         CaptainRenton,
@@ -1214,6 +1222,10 @@
         [SingularName("stegosaurus")]
         //CSRTODO: plural?
         Stegosaurus,
+
+        [SingularName("stoker")]
+        [PluralName("stokers")]
+        Stoker,
 
         [SingularName("strumpet")]
         [PluralName("strumpets")]

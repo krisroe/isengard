@@ -34,6 +34,8 @@ namespace IsengardClient
         GateKey,
         KasnarsRedKey,
         SilverKey,
+        BoilerKey,
+        BridgeKey,
         UnknownKnockable,
     }
 

@@ -454,8 +454,6 @@ namespace IsengardClient
             _graphs[MapType.Mithlond] = mithlondGraph;
             mithlondGraph.ScalingFactor = 100;
 
-            mithlondGraph.Rooms[boatswain] = new System.Windows.Point(1, 5);
-
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
             oCelduinExpressSlip.AddPermanentMobs(MobTypeEnum.HarborMaster);
             oCelduinExpressSlip.BoatLocationType = BoatEmbarkOrDisembark.CelduinExpressMithlond;
@@ -553,25 +551,57 @@ namespace IsengardClient
 
         private void AddCelduinExpress(RoomGraph mithlondGraph, Room boatswain)
         {
+            mithlondGraph.Rooms[boatswain] = new System.Windows.Point(1, 4);
+
+            Room oBeneathBridge = AddRoom("Under Bridge", "Beneath the Bridge of the Celduin Express");
+            mithlondGraph.Rooms[oBeneathBridge] = new System.Windows.Point(-0.5, 4.5);
+            AddBidirectionalExits(boatswain, oBeneathBridge, BidirectionalExitType.SouthwestNortheast);
+
+            Room oBridge = AddRoom("Bridge", "Bridge of the Celduin Express");
+            oBridge.AddPermanentMobs(MobTypeEnum.CaptainFelagund);
+            Exit e = AddExit(oBeneathBridge, oBridge, "hatchway");
+            e.KeyType = KeyType.BridgeKey;
+            e.MustOpen = true;
+            e = AddExit(oBridge, oBeneathBridge, "down");
+            e.MustOpen = true;
+            mithlondGraph.Rooms[oBridge] = new System.Windows.Point(-0.5, 4.25);
+
+            Room oUnderDeck = AddRoom("Under Deck", "Beneath the Deck of the Celduin Express");
+            AddBidirectionalSameNameExit(oBeneathBridge, oUnderDeck, "stairway");
+            mithlondGraph.Rooms[oUnderDeck] = new System.Windows.Point(-1, 5.5);
+
+            Room oPassengerLounge = AddRoom("Passenger Lounge", "Passenger Lounge");
+            AddBidirectionalExits(oUnderDeck, oPassengerLounge, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oPassengerLounge] = new System.Windows.Point(-1, 5.75);
+
+            Room oBoilerRoom = AddRoom("Boiler Room", "Boiler Room");
+            e = AddExit(oUnderDeck, oBoilerRoom, "door");
+            e.KeyType = KeyType.BoilerKey;
+            e.MustOpen = true;
+            e = AddExit(oBoilerRoom, oUnderDeck, "door");
+            e.MustOpen = true;
+            mithlondGraph.Rooms[oBoilerRoom] = new System.Windows.Point(0, 5.5);
+
             Room oCelduinExpressNW = AddRoom("Stern", "Stern of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, boatswain, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oCelduinExpressNW] = new System.Windows.Point(0, 5);
+            AddBidirectionalExits(oCelduinExpressNW, oBeneathBridge, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oCelduinExpressNW] = new System.Windows.Point(-2, 4);
 
             Room oCelduinExpressMainDeckW = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, oCelduinExpressMainDeckW, BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(boatswain, oCelduinExpressMainDeckW, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckW] = new System.Windows.Point(0, 5.5);
+            AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckW, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oCelduinExpressMainDeckW] = new System.Windows.Point(-2, 6);
 
             Room oCelduinExpressMainDeckE = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(boatswain, oCelduinExpressMainDeckE, BidirectionalExitType.NorthSouth);
-            AddBidirectionalExits(oCelduinExpressNW, oCelduinExpressMainDeckE, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckE, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressMainDeckE, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckE] = new System.Windows.Point(1, 5.5);
+            mithlondGraph.Rooms[oCelduinExpressMainDeckE] = new System.Windows.Point(1, 6);
 
             Room oCelduinExpressBow = AddRoom("Bow", "Bow of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressMainDeckE, oCelduinExpressBow, BidirectionalExitType.SouthwestNortheast);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressBow, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oCelduinExpressBow] = new System.Windows.Point(0.5, 6);
+            mithlondGraph.Rooms[oCelduinExpressBow] = new System.Windows.Point(-0.5, 7);
         }
 
         /// <summary>

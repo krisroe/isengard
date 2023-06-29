@@ -474,6 +474,10 @@ namespace IsengardClient
         [WeaponType(WeaponType.Blunt)]
         BrassKnuckles,
 
+        [SingularName("bridge key")]
+        [PluralName("bridge keys")]
+        BridgeKey,
+
         [SingularName("broad sword")]
         [PluralName("broad swords")]
         [WeaponType(WeaponType.Slash)]
