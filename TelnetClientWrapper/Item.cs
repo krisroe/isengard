@@ -1180,6 +1180,12 @@ namespace IsengardClient
         [Weight(1)]
         RingOfInvisibility,
 
+        //mages cannot use
+        [SingularName("rod of the dead")]
+        //CSRTODO: plural
+        [Wand(SpellsEnum.removecurse)] //spell per wiki
+        RodOfTheDead,
+
         [SingularName("ruby")]
         [PluralName("rubys")] //verified 6/21/23
         Ruby,
