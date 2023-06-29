@@ -631,7 +631,6 @@ namespace IsengardClient.Tests
             bool? killed = null;
             MobTypeEnum? mobType = null;
             int? tnl = null;
-            List<ItemEntity> monsterItems = null;
             Action<int, bool, MobTypeEnum?, int, List<ItemEntity>, FeedLineParameters> a = (d, k, mt, t, mi, flp) =>
             {
                 success = true;
@@ -639,7 +638,6 @@ namespace IsengardClient.Tests
                 killed = k;
                 mobType = mt;
                 tnl = t;
-                monsterItems = null;
             };
             CastOffensiveSpellSequence cseq = new CastOffensiveSpellSequence(a);
             FeedLineParameters flParams = new FeedLineParameters(null);
@@ -649,7 +647,6 @@ namespace IsengardClient.Tests
             damage = null;
             killed = null;
             mobType = null;
-            monsterItems = null;
             flParams.Lines = new List<string>() { "You cast a rumble spell on the drunk for 10 damage." };
             cseq.FeedLine(flParams);
             Assert.IsTrue(success);
@@ -660,7 +657,6 @@ namespace IsengardClient.Tests
             damage = null;
             killed = null;
             mobType = null;
-            monsterItems = null;
             flParams.Lines = new List<string>() { "You cast a rumble spell on Igor the Bouncer for 2 damage.", "You gained 130 experience for the death of Igor the Bouncer." };
             cseq.FeedLine(flParams);
             Assert.IsTrue(success);

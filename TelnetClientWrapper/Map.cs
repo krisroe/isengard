@@ -4930,7 +4930,6 @@ namespace IsengardClient
             _graphs[MapType.NindamosToEldemonde] = nindamosEldemondeGraph;
 
             Room r;
-            Exit e;
             Room previousRoom = oSouthernJunction;
             nindamosEldemondeGraph.Rooms[oSouthernJunction] = new System.Windows.Point(26, 18);
             for (int i = 0; i < 7; i++)

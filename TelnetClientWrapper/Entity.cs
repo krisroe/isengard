@@ -105,7 +105,12 @@ namespace IsengardClient
                 possibleEntityTypes = possibleEntityTypes & ~EntityTypeFlags.Player;
 
                 string firstWord = remainder.Substring(0, iSpaceIndex);
-                int? parsedCount = ParseNumberWord(firstWord, expectCapitalized);
+                bool mustBeItem;
+                int? parsedCount = ParseNumberWord(firstWord, expectCapitalized, out mustBeItem);
+                if (mustBeItem)
+                {
+                    possibleEntityTypes = possibleEntityTypes & EntityTypeFlags.Item;
+                }
                 if (!parsedCount.HasValue)
                 {
                     return ParseNamedEntity(remainder, possibleEntityTypes, null);
@@ -137,7 +142,11 @@ namespace IsengardClient
                     else if (iSpaceIndex > 0)
                     {
                         firstWord = remainder.Substring(0, iSpaceIndex);
-                        parsedCount = ParseNumberWord(firstWord, false);
+                        parsedCount = ParseNumberWord(firstWord, false, out mustBeItem);
+                        if (mustBeItem)
+                        {
+                            possibleEntityTypes = possibleEntityTypes & EntityTypeFlags.Item;
+                        }
                         if (parsedCount.HasValue) //sets of [1] singular thing
                         {
                             count = parsedCount.Value;
@@ -211,10 +220,16 @@ namespace IsengardClient
             return ret;
         }
 
-        public static int? ParseNumberWord(string input, bool expectCapitalized)
+        public static int? ParseNumberWord(string input, bool expectCapitalized, out bool mustBeItem)
         {
+            mustBeItem = false;
             int? count = null;
-            if (input == GetCapitalized("the", expectCapitalized) || input == GetCapitalized("a", expectCapitalized) || input == GetCapitalized("an", expectCapitalized) || input == GetCapitalized("some", expectCapitalized))
+            if (input == GetCapitalized("some", expectCapitalized))
+            {
+                mustBeItem = true;
+                count = 1;
+            }
+            else if (input == GetCapitalized("the", expectCapitalized) || input == GetCapitalized("a", expectCapitalized) || input == GetCapitalized("an", expectCapitalized))
             {
                 count = 1;
             }

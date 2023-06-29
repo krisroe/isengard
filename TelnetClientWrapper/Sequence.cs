@@ -1320,33 +1320,40 @@ namespace IsengardClient
 
         public static IEnumerable<ItemEntity> SplitItemEntity(ItemEntity input, bool expectSingleItem, List<string> errorMessages)
         {
-            ItemTypeEnum eItemType = input.ItemType.Value;
-            StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-            int iEntityCount = input.Count;
-            int iSplitCount;
-            if (sid.ItemClass == ItemClass.Coins)
+            if (input.ItemType.HasValue)
             {
-                iEntityCount = input.SetCount;
-                iSplitCount = input.Count;
-            }
-            else
-            {
-                iSplitCount = 1;
-                if (iEntityCount != 1 && expectSingleItem)
+                ItemTypeEnum eItemType = input.ItemType.Value;
+                StaticItemData sid = ItemEntity.StaticItemData[eItemType];
+                int iEntityCount = input.Count;
+                int iSplitCount;
+                if (sid.ItemClass == ItemClass.Coins)
                 {
-                    errorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + input.Count);
+                    iEntityCount = input.SetCount;
+                    iSplitCount = input.Count;
+                }
+                else
+                {
+                    iSplitCount = 1;
+                    if (iEntityCount != 1 && expectSingleItem)
+                    {
+                        errorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + input.Count);
+                    }
+                }
+                if (iEntityCount == 1)
+                {
+                    yield return input;
+                }
+                else
+                {
+                    for (int i = 0; i < iEntityCount; i++)
+                    {
+                        yield return new ItemEntity(eItemType, iSplitCount, 1);
+                    }
                 }
             }
-            if (iEntityCount == 1)
+            else
             {
                 yield return input;
-            }
-            else
-            {
-                for (int i = 0; i < iEntityCount; i++)
-                {
-                    yield return new ItemEntity(eItemType, iSplitCount, 1);
-                }
             }
         }
 
@@ -1778,10 +1785,8 @@ StartProcessRoom:
             foreach (string next in itemNames)
             {
                 Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
-                if (CheckForValidItem(next, e, errorMessages, possibleEntityTypes))
-                {
-                    items.Add((ItemEntity)e);
-                }
+                CheckForValidItem(next, e, errorMessages, possibleEntityTypes);
+                items.Add((ItemEntity)e);
             }
         }
         private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
@@ -3122,11 +3127,7 @@ StartProcessRoom:
                 Entity e = Entity.GetEntity(sWhat, EntityTypeFlags.Item, Parameters.ErrorMessages, null, false);
                 if (RoomTransitionSequence.CheckForValidItem(sWhat, e, Parameters.ErrorMessages, EntityTypeFlags.Item))
                 {
-                    ItemEntity ient = (ItemEntity)e;
-                    if (ient.ItemType.HasValue)
-                    {
-                        ret = ient;
-                    }
+                    ret = (ItemEntity)e;
                 }
             }
             return ret;
