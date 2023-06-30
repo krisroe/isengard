@@ -608,13 +608,15 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oMithlondGateInside, oMithlondGateOutside, "gate");
             mithlondGraph.Rooms[oMithlondGateOutside] = new System.Windows.Point(2, 0);
 
-            AddHarbringer(mithlondGraph, oHarbringerGangplank, tharbadDocks, tharbadGraph);
-            AddBullroarer(mithlondGraph, oBullroarerSlip, nindamosDocks, nindamosGraph);
-            AddCelduinExpress(mithlondGraph, boatswain, breeDocks);
+            AddHarbringer(oHarbringerGangplank, tharbadDocks);
+            AddBullroarer(oBullroarerSlip, nindamosDocks);
+            AddCelduinExpress(boatswain, breeDocks);
         }
 
-        private void AddCelduinExpress(RoomGraph mithlondGraph, Room boatswain, Room breeDocks)
+        private void AddCelduinExpress(Room boatswain, Room breeDocks)
         {
+            RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+
             mithlondGraph.Rooms[boatswain] = new System.Windows.Point(1, 4);
             mithlondGraph.Rooms[breeDocks] = new System.Windows.Point(1, 3.5);
 
@@ -672,8 +674,11 @@ namespace IsengardClient
         /// <summary>
         /// harbringer allows travel from Tharbad to Mithlond (but not the reverse?)
         /// </summary>
-        private void AddHarbringer(RoomGraph mithlondGraph, Room mithlondEntrance, Room tharbadDocks, RoomGraph tharbadGraph)
+        private void AddHarbringer(Room mithlondEntrance, Room tharbadDocks)
         {
+            RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
+
             Room oHarbringerTop = AddRoom("Bluejacket", "Bow of the Harbringer.");
             oHarbringerTop.AddPermanentMobs(MobTypeEnum.Bluejacket, MobTypeEnum.Scallywag);
             mithlondGraph.Rooms[oHarbringerTop] = new System.Windows.Point(4.5, 5.5);
@@ -697,6 +702,7 @@ namespace IsengardClient
             e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
             e.PresenceType = ExitPresenceType.Periodic;
             mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(4, 6.5);
+            mithlondGraph.Rooms[tharbadDocks] = new System.Windows.Point(3, 6.5);
             tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new System.Windows.Point(0, 9);
             AddMapBoundaryPoint(tharbadDocks, oHarbringerMithlondEntrance, MapType.Tharbad, MapType.Mithlond);
 
@@ -759,8 +765,11 @@ namespace IsengardClient
             mithlondGraph.Rooms[oRandsQuarters] = new System.Windows.Point(7, 6.5);
         }
 
-        private void AddBullroarer(RoomGraph mithlondGraph, Room mithlondEntrance, Room nindamosDocks, RoomGraph nindamosGraph)
+        private void AddBullroarer(Room mithlondEntrance, Room nindamosDocks)
         {
+            RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+            RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
+
             Room bullroarerSE = AddRoom("Bullroarer", "Deck of the Bullroarer");
             bullroarerSE.BoatLocationType = BoatEmbarkOrDisembark.Bullroarer;
             Exit e = AddExit(mithlondEntrance, bullroarerSE, "gangway");
@@ -773,6 +782,7 @@ namespace IsengardClient
             e.WaitForMessage = InformationalMessageType.BullroarerInNindamos;
             nindamosGraph.Rooms[bullroarerSE] = new System.Windows.Point(15, 6);
             mithlondGraph.Rooms[bullroarerSE] = new System.Windows.Point(5, 5);
+            mithlondGraph.Rooms[nindamosDocks] = new System.Windows.Point(6, 5);
             AddMapBoundaryPoint(nindamosDocks, bullroarerSE, MapType.Nindamos, MapType.Mithlond);
 
             Room bullroarerSW = AddRoom("Bullroarer", "Covered Deck");
@@ -4394,6 +4404,9 @@ namespace IsengardClient
         private void AddIntangible(Room oBreeTownSquare, Room healingHand, Room nindamosVillageCenter)
         {
             RoomGraph intangibleGraph = _graphs[MapType.Intangible];
+            RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
+            RoomGraph imladrisGraph = _graphs[MapType.Imladris];
+            RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
 
             intangibleGraph.Rooms[oBreeTownSquare] = new System.Windows.Point(0, 0);
             intangibleGraph.Rooms[healingHand] = new System.Windows.Point(1, 0);
@@ -4403,6 +4416,7 @@ namespace IsengardClient
             treeOfLife.Intangible = true;
             AddExit(treeOfLife, oBreeTownSquare, "down");
             intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
+            breeStreetsGraph.Rooms[treeOfLife] = new System.Windows.Point(5, 2);
             AddMapBoundaryPoint(treeOfLife, oBreeTownSquare, MapType.Intangible, MapType.BreeStreets);
 
             Room oLimbo = AddRoom("Limbo", "Limbo");
@@ -4418,6 +4432,7 @@ namespace IsengardClient
             e.MinimumLevel = 4;
             AddExit(oDarkTunnel, healingHand, "light");
             intangibleGraph.Rooms[oDarkTunnel] = new System.Windows.Point(1, 1);
+            imladrisGraph.Rooms[oDarkTunnel] = new System.Windows.Point(5, 4);
             AddMapBoundaryPoint(oDarkTunnel, healingHand, MapType.Intangible, MapType.Imladris);
 
             Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds", "Fluffy clouds above Nindamos");
@@ -4426,6 +4441,7 @@ namespace IsengardClient
             e.MustOpen = true;
             AddExit(oFluffyCloudsAboveNindamos, nindamosVillageCenter, "green");
             intangibleGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(2, 1);
+            nindamosGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(7, 3);
             AddMapBoundaryPoint(oFluffyCloudsAboveNindamos, nindamosVillageCenter, MapType.Intangible, MapType.Nindamos);
         }
 
@@ -4732,6 +4748,7 @@ namespace IsengardClient
         private void AddArmenelos(Room oArmenelosGatesOutside)
         {
             RoomGraph armenelosGraph = _graphs[MapType.Armenelos];
+            RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
 
             Room oAdrahilHirgon = AddRoom("Adrahil/Hirgon", "Hirgon Way/ Adrahil Road");
             armenelosGraph.Rooms[oAdrahilHirgon] = new System.Windows.Point(0, 0);
@@ -5158,6 +5175,7 @@ namespace IsengardClient
             AddBidirectionalExits(oWindfola6, oGateInside, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oGoldberry5, oGateInside, BidirectionalExitType.WestEast);
             armenelosGraph.Rooms[oGateInside] = new System.Windows.Point(8, 12);
+            nindamosGraph.Rooms[oGateInside] = new System.Windows.Point(2, -3);
 
             AddExit(oGateInside, oArmenelosGatesOutside, "gate");
             e = AddExit(oArmenelosGatesOutside, oGateInside, "gate");
@@ -5169,6 +5187,7 @@ namespace IsengardClient
         private void AddWestOfNindamosAndArmenelos(Room oSouthernJunction, Room oPathThroughTheValley, out Room oEldemondeEastGateOutside, RoomGraph nindamosGraph)
         {
             RoomGraph nindamosEldemondeGraph = _graphs[MapType.NindamosToEldemonde];
+            RoomGraph deathValleyGraph = _graphs[MapType.DeathValley];
 
             Room r;
             Room previousRoom = oSouthernJunction;
@@ -5346,6 +5365,7 @@ namespace IsengardClient
             Room oGrasslands16 = AddRoom("Grasslands", "Grasslands of Mittalmar");
             AddBidirectionalExits(oGrasslands16, oGrasslands13, BidirectionalExitType.SoutheastNorthwest);
             nindamosEldemondeGraph.Rooms[oGrasslands16] = new System.Windows.Point(19, 20);
+            deathValleyGraph.Rooms[oGrasslands16] = new System.Windows.Point(6, 9.5);
 
             Room oDeathValleyEntrance = AddRoom("Death Valley Entrance", "Entrance to the Valley of the Dead");
             AddBidirectionalExits(oGrasslands16, oDeathValleyEntrance, BidirectionalExitType.NorthSouth);
@@ -5576,6 +5596,7 @@ namespace IsengardClient
         private void AddEldemondeCity(Room oEldemondeEastGateOutside)
         {
             RoomGraph eldemondeGraph = _graphs[MapType.Eldemonde];
+            RoomGraph nindamosToEldemondeGraph = _graphs[MapType.NindamosToEldemonde];
 
             eldemondeGraph.Rooms[oEldemondeEastGateOutside] = new System.Windows.Point(10, 7);
 
@@ -5583,6 +5604,7 @@ namespace IsengardClient
             oEldemondeEastGateInside.AddPermanentMobs(MobTypeEnum.GateGuard, MobTypeEnum.GateGuard);
             AddBidirectionalSameNameExit(oEldemondeEastGateOutside, oEldemondeEastGateInside, "gate");
             eldemondeGraph.Rooms[oEldemondeEastGateInside] = new System.Windows.Point(9, 7);
+            nindamosToEldemondeGraph.Rooms[oEldemondeEastGateInside] = new System.Windows.Point(-1, 8);
             AddMapBoundaryPoint(oEldemondeEastGateOutside, oEldemondeEastGateInside, MapType.NindamosToEldemonde, MapType.Eldemonde);
 
             Room oCebe1 = AddRoom("Cebe", "Cebe Avenue");
