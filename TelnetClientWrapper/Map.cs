@@ -1630,6 +1630,7 @@ namespace IsengardClient
 
             oCemetery = AddRoom("Cemetery", "The Cemetery");
             e = AddExit(breeEastGateOutside, oCemetery, "path");
+            e.Hidden = true;
             e.RequiresDay = true;
             e = AddExit(oCemetery, oHobbitClearing, "west");
             e.MaximumLevel = 8;
@@ -2692,6 +2693,10 @@ namespace IsengardClient
             Room oRoadToFarm6 = AddRoom("Front Steps", "Ranch House Front Steps");
             AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oRoadToFarm6] = new System.Windows.Point(2, 8);
+
+            Room oGrainSilo = AddRoom("Grain Silo", "Grain Silo");
+            AddBidirectionalExits(oRoadToFarm6, oGrainSilo, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oGrainSilo] = new System.Windows.Point(2, 9);
 
             oOuthouse = AddRoom("Outhouse", "Outhouse");
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
