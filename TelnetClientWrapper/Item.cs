@@ -379,6 +379,12 @@ namespace IsengardClient
         [Potion(SpellsEnum.levitate)]
         AquamarinePotion,
 
+        [SingularName("assassin's dagger")]
+        [PluralName("assassin's daggers")]
+        [Weight(3)]
+        [SellGoldRange(3168)]
+        AssassinsDagger,
+
         [SingularName("assassin's mask")]
         [PluralName("assassin's masks")]
         [EquipmentType(EquipmentType.Face)]

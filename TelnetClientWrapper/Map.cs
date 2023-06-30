@@ -1755,7 +1755,7 @@ namespace IsengardClient
         private void AddUnderBree(Room oNorthBridge, Room oOuthouse, Room oSewerPipeExit)
         {
             RoomGraph underBreeGraph = _graphs[MapType.UnderBree];
-
+            RoomGraph breeToImladrisGraph = _graphs[MapType.BreeToImladris];
             RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
 
             Room droolie = AddRoom("Droolie", "Under North Bridge");
@@ -1774,6 +1774,7 @@ namespace IsengardClient
             Room oCatchBasin = AddRoom("Catch Basin", "Catch Basin");
             AddBidirectionalExitsWithOut(oOuthouse, oCatchBasin, "hole");
             underBreeGraph.Rooms[oCatchBasin] = new System.Windows.Point(8, 11);
+            breeToImladrisGraph.Rooms[oCatchBasin] = new System.Windows.Point(5, 7.5);
             AddMapBoundaryPoint(oOuthouse, oCatchBasin, MapType.BreeToImladris, MapType.UnderBree);
 
             Room oSepticTank = AddRoom("Septic Tank", "Septic Tank");
@@ -1833,6 +1834,7 @@ namespace IsengardClient
             AddExit(oSewerPipe, oSewerTunnel2, "down");
             AddExit(oSewerPipe, oSewerPipeExit, "up");
             underBreeGraph.Rooms[oSewerPipe] = new System.Windows.Point(7, 3);
+            breeStreetsGraph.Rooms[oSewerPipe] = new System.Windows.Point(10, 11);
             AddMapBoundaryPoint(oSewerPipe, oSewerPipeExit, MapType.UnderBree, MapType.BreeStreets);
 
             Room oSalamander = AddRoom("Salamander", "The Brandywine River");
@@ -3319,6 +3321,7 @@ namespace IsengardClient
         {
             RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
             RoomGraph westOfBreeMap = _graphs[MapType.WestOfBree];
+            RoomGraph breeSewersMap = _graphs[MapType.BreeSewers];
 
             westOfBreeMap.Rooms[oBreeWestGateInside] = new System.Windows.Point(15, 0);
 
@@ -3443,6 +3446,7 @@ namespace IsengardClient
             AddExit(oNorthFork1, oShepherd, "pasture");
             AddExit(oShepherd, oNorthFork1, "south");
             westOfBreeMap.Rooms[oShepherd] = new System.Windows.Point(13, -2);
+            breeSewersMap.Rooms[oShepherd] = new System.Windows.Point(1, -2);
 
             AddExit(oSmoulderingVillage, oShepherd, "gate");
             e = AddExit(oShepherd, oSmoulderingVillage, "gate");
