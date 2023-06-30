@@ -3810,7 +3810,7 @@ namespace IsengardClient
             AddBidirectionalExits(lakeCircle2, frostEastLake, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[lakeCircle2] = new System.Windows.Point(9, 2);
 
-            Room lakeParthShore = AddRoom("Shore", "Lake Parth Shore");
+            Room lakeParthShore = AddHealingRoom("Shore", "Lake Parth Shore", HealingRoom.Esgaroth);
             AddBidirectionalExits(lakeParthShore, lakeCircle2, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(lakeParthShore, dairyProduction, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(lakeParthShore, lakeCircle, BidirectionalExitType.SouthwestNortheast);

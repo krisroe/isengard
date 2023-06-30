@@ -513,6 +513,7 @@ namespace IsengardClient
         BreeSouthwest,
         Imladris,
         Tharbad,
+        Esgaroth,
         SpindrilsCastle,
         Nindamos,
         Underhalls,
