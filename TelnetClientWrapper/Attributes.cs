@@ -4,7 +4,7 @@ namespace IsengardClient
     /// <summary>
     /// base attribute for names
     /// </summary>
-    public class NameAttribute : Attribute
+    internal class NameAttribute : Attribute
     {
         public string Name { get; set; }
     }
@@ -12,7 +12,7 @@ namespace IsengardClient
     /// <summary>
     /// singular name for items/mobs
     /// </summary>
-    public class SingularNameAttribute : NameAttribute
+    internal class SingularNameAttribute : NameAttribute
     {
         public SingularNameAttribute(string Name)
         {
@@ -23,7 +23,7 @@ namespace IsengardClient
     /// <summary>
     /// singular selection name where the singular name has components that aren't used for selection
     /// </summary>
-    public class SingularSelectionAttribute : NameAttribute
+    internal class SingularSelectionAttribute : NameAttribute
     {
         public SingularSelectionAttribute(string Name)
         {
@@ -34,7 +34,7 @@ namespace IsengardClient
     /// <summary>
     /// plural name for items/mobs
     /// </summary>
-    public class PluralNameAttribute : NameAttribute
+    internal class PluralNameAttribute : NameAttribute
     {
         public PluralNameAttribute(string Name)
         {
@@ -45,7 +45,7 @@ namespace IsengardClient
     /// <summary>
     /// experience gained when killing a mob
     /// </summary>
-    public class ExperienceAttribute : Attribute
+    internal class ExperienceAttribute : Attribute
     {
         public ExperienceAttribute(int Experience)
         {

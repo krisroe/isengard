@@ -40,7 +40,7 @@ namespace IsengardClient
     /// <summary>
     /// result of a single command
     /// </summary>
-    public enum CommandResult
+    internal enum CommandResult
     {
         /// <summary>
         /// the command completed successfully
@@ -73,7 +73,7 @@ namespace IsengardClient
         CommandTimeout,
     }
 
-    public enum BackgroundCommandType
+    internal enum BackgroundCommandType
     {
         Movement,
         OpenDoor,
@@ -139,7 +139,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    public enum CommandType
+    internal enum CommandType
     {
         None = 0,
         Melee = 1,
@@ -166,7 +166,7 @@ namespace IsengardClient
         All = 1023,
     }
 
-    public enum EntityType
+    internal enum EntityType
     {
         Player,
         Mob,
@@ -175,7 +175,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    public enum EntityTypeFlags
+    internal enum EntityTypeFlags
     {
         None = 0,
         Player = 1,
@@ -183,7 +183,7 @@ namespace IsengardClient
         Item = 4,
     }
 
-    public enum ItemLocationType
+    internal enum ItemLocationType
     {
         Inventory,
         Equipment,
@@ -191,7 +191,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    public enum ItemLocationTypeFlags
+    internal enum ItemLocationTypeFlags
     {
         None = 0,
         Inventory = 1,
@@ -200,20 +200,20 @@ namespace IsengardClient
         All = 7,
     }
 
-    public enum InventoryProcessWorkflow
+    internal enum InventoryProcessWorkflow
     {
         NoProcessing = 0,
         ProcessMonsterDrops = 1,
         ProcessAllItemsInRoom = 2,
     }
 
-    public enum AutoEscapeType
+    internal enum AutoEscapeType
     {
         Flee = 0,
         Hazy = 1,
     }
 
-    public enum AutoEscapeActivity
+    internal enum AutoEscapeActivity
     {
         Active,
         Inactive,
@@ -229,7 +229,7 @@ namespace IsengardClient
         UpDown,
     }
 
-    public enum AlignmentType
+    internal enum AlignmentType
     {
         Blue,
         Grey,
@@ -266,7 +266,7 @@ namespace IsengardClient
         Intangible,
     }
 
-    public enum FinalStepAction
+    internal enum FinalStepAction
     {
         None = 0,
         Flee = 1,
@@ -274,7 +274,7 @@ namespace IsengardClient
         FinishCombat = 3,
     }
 
-    public enum MagicStrategyStep
+    internal enum MagicStrategyStep
     {
         Stun,
         OffensiveSpellAuto,
@@ -289,13 +289,13 @@ namespace IsengardClient
         CurePoison,
     }
 
-    public enum MeleeStrategyStep
+    internal enum MeleeStrategyStep
     {
         RegularAttack,
         PowerAttack,
     }
 
-    public enum PotionsStrategyStep
+    internal enum PotionsStrategyStep
     {
         Vigor,
         MendWounds,
@@ -303,14 +303,14 @@ namespace IsengardClient
         CurePoison,
     }
 
-    public enum PotionsCommandChoiceResult
+    internal enum PotionsCommandChoiceResult
     {
         Drink,
         Skip,
         Fail,
     }
 
-    public enum MagicCommandChoiceResult
+    internal enum MagicCommandChoiceResult
     {
         Cast,
         Skip,
@@ -318,7 +318,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    public enum DependentObjectType
+    internal enum DependentObjectType
     {
         None = 0,
         Mob = 1,
@@ -326,14 +326,14 @@ namespace IsengardClient
         Wand = 4,
     }
 
-    public enum ValidPotionType
+    internal enum ValidPotionType
     {
         Invalid,
         Primary,
         Secondary,
     }
 
-    public enum OutputItemSequenceType
+    internal enum OutputItemSequenceType
     {
         UserNamePrompt,
         PasswordPrompt,
@@ -342,7 +342,7 @@ namespace IsengardClient
         Goodbye,
     }
 
-    public enum ConstantSequenceMatchType
+    internal enum ConstantSequenceMatchType
     {
         ExactMatch,
         StartsWith,
@@ -350,7 +350,7 @@ namespace IsengardClient
         Contains,
     }
 
-    public enum SkillCooldownStatus
+    internal enum SkillCooldownStatus
     {
         /// <summary>
         /// currently active
@@ -373,7 +373,7 @@ namespace IsengardClient
         Inactive,
     }
 
-    public enum RoomTransitionType
+    internal enum RoomTransitionType
     {
         Initial,
         Move,
@@ -382,7 +382,7 @@ namespace IsengardClient
         Death,
     }
 
-    public class InformationalMessages
+    internal class InformationalMessages
     {
         public InformationalMessages(InformationalMessageType msgType)
         {
@@ -411,7 +411,7 @@ namespace IsengardClient
         }
     }
 
-    public enum InformationalMessageType
+    internal enum InformationalMessageType
     {
         InitialLogin,
         Death,
@@ -462,7 +462,7 @@ namespace IsengardClient
         MobPickedUpItem,
     }
 
-    public enum SkillWithCooldownType
+    internal enum SkillWithCooldownType
     {
         Unknown,
         PowerAttack,
@@ -470,7 +470,7 @@ namespace IsengardClient
         Fireshield,
     }
 
-    public enum MovementResult
+    internal enum MovementResult
     {
         Success,
         TotalFailure,
@@ -481,7 +481,7 @@ namespace IsengardClient
         FallFailure,
     }
 
-    public enum RealmType
+    internal enum RealmType
     {
         Earth = 0,
         Wind = 1,
@@ -489,7 +489,7 @@ namespace IsengardClient
         Fire = 3,
     }
 
-    public enum RoomDamageType
+    internal enum RoomDamageType
     {
         Earth = 0,
         Wind = 1,
@@ -498,7 +498,7 @@ namespace IsengardClient
         Poison = 4,
     }
 
-    public enum PawnShoppe
+    internal enum PawnShoppe
     {
         BreeNortheast,
         BreeSouthwest,
@@ -507,7 +507,7 @@ namespace IsengardClient
         Esgaroth,
     }
 
-    public enum HealingRoom
+    internal enum HealingRoom
     {
         BreeNortheast,
         BreeSouthwest,
@@ -521,14 +521,14 @@ namespace IsengardClient
     }
 
     [Flags]
-    public enum TrapType
+    internal enum TrapType
     {
         None = 0,
         PoisonDart = 1,
         Fall = 2,
     }
 
-    public enum BoatEmbarkOrDisembark
+    internal enum BoatEmbarkOrDisembark
     {
         CelduinExpress,
         CelduinExpressMithlond,
@@ -561,7 +561,7 @@ namespace IsengardClient
         RemoveRoomItems,
     }
 
-    public enum ItemManagementAction
+    internal enum ItemManagementAction
     {
         None,
         PickUpItem,
@@ -573,7 +573,7 @@ namespace IsengardClient
         DestroyEquipment,
     }
 
-    public enum EquipmentType
+    internal enum EquipmentType
     {
         Torso,
         Arms,
@@ -592,7 +592,7 @@ namespace IsengardClient
         Unknown,
     }
 
-    public enum WeaponType
+    internal enum WeaponType
     {
         Slash,
         Stab,
@@ -602,7 +602,7 @@ namespace IsengardClient
         Unknown,
     }
 
-    public enum EquipmentSlot
+    internal enum EquipmentSlot
     {
         Torso = 0,
         Arms = 1,
@@ -623,7 +623,7 @@ namespace IsengardClient
         Count = 16,
     }
 
-    public enum ItemInventoryAction
+    internal enum ItemInventoryAction
     {
         /// <summary>
         /// no action listed
@@ -647,7 +647,7 @@ namespace IsengardClient
         Tick,
     }
 
-    public enum AfterKillMonsterAction
+    internal enum AfterKillMonsterAction
     {
         ContinueCombat = 0,
         StopCombat = 1,
@@ -655,7 +655,7 @@ namespace IsengardClient
         SelectFirstMonsterInRoomOfSameType = 3,
     }
 
-    public enum SpellProficiency
+    internal enum SpellProficiency
     {
         Earth,
         Wind,
@@ -667,7 +667,7 @@ namespace IsengardClient
         Sorcery,
     }
 
-    public enum SpellsEnum
+    internal enum SpellsEnum
     {
         [SpellInformation(SpellProficiency.Earth, 1)]
         rumble,

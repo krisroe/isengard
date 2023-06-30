@@ -6071,7 +6071,7 @@ namespace IsengardClient
         }
     }
 
-    public class GraphInputs
+    internal class GraphInputs
     {
         public bool Flying { get; set; }
         public bool Levitating { get; set; }

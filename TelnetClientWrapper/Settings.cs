@@ -7,7 +7,7 @@ using System.Data;
 
 namespace IsengardClient
 {
-    public class IsengardSettingData
+    internal class IsengardSettingData
     {
         public ItemTypeEnum? Weapon { get; set; }
         public RealmType Realm { get; set; }

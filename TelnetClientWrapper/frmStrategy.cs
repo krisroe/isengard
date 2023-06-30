@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 namespace IsengardClient
 {
-    public partial class frmStrategy : Form
+    internal partial class frmStrategy : Form
     {
         private int _currentAutoEscapeThreshold;
         private AutoEscapeType _currentAutoEscapeType;

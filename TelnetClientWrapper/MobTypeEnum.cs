@@ -1,6 +1,6 @@
 ﻿namespace IsengardClient
 {
-    public enum MobTypeEnum
+    internal enum MobTypeEnum
     {
         [SingularName("Alasse")]
         //CSRTODO: no plural

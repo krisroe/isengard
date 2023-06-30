@@ -4,24 +4,24 @@ using System.Drawing;
 using System.Text;
 namespace IsengardClient
 {
-    public interface IOutputItemSequence
+    internal interface IOutputItemSequence
     {
         OutputItemInfo FeedByte(int nextByte);
     }
 
-    public class OutputItemInfo
+    internal class OutputItemInfo
     {
         public OutputItemSequenceType SequenceType { get; set; }
         public int HP { get; set; }
         public int MP { get; set; }
     }
 
-    public abstract class AOutputProcessingSequence
+    internal abstract class AOutputProcessingSequence
     {
-        public abstract void FeedLine(FeedLineParameters Parameters);
+        internal abstract void FeedLine(FeedLineParameters Parameters);
     }
 
-    public class FeedLineParameters
+    internal class FeedLineParameters
     {
         public FeedLineParameters(List<string> Lines)
         {
@@ -63,7 +63,7 @@ namespace IsengardClient
         }
     }
 
-    public class ConstantOutputSequence : AOutputProcessingSequence
+    internal class ConstantOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters> _onSatisfied;
         private string _characters;
@@ -94,7 +94,7 @@ namespace IsengardClient
             _backgroundCommandTypes = backgroundCommandTypes;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -327,7 +327,7 @@ namespace IsengardClient
         }
     }
 
-    public class TimeOutputSequence : AOutputProcessingSequence
+    internal class TimeOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, int> _onSatisfied;
         private const string PREFIX = "Game-Time: ";
@@ -337,7 +337,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0)
@@ -437,14 +437,14 @@ namespace IsengardClient
         }
     }
 
-    public class InformationOutputSequence : AOutputProcessingSequence
+    internal class InformationOutputSequence : AOutputProcessingSequence
     {
         public Action<FeedLineParameters, int, int, int, int, int, int, int, int> _onSatisfied;
         public InformationOutputSequence(Action<FeedLineParameters, int, int, int, int, int, int, int, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters Parameters)
+        internal override void FeedLine(FeedLineParameters Parameters)
         {
             int iEarth = 0;
             int iWind = 0;
@@ -535,7 +535,7 @@ namespace IsengardClient
         }
     }
 
-    public class ScoreOutputSequence : AOutputProcessingSequence
+    internal class ScoreOutputSequence : AOutputProcessingSequence
     {
         public Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
@@ -550,7 +550,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             int iLevel = 0;
@@ -746,14 +746,14 @@ namespace IsengardClient
         }
     }
 
-    public class EquipmentSequence : AOutputProcessingSequence
+    internal class EquipmentSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, List<KeyValuePair<string, string>>> _onSatisfied;
         public EquipmentSequence(Action<FeedLineParameters, List<KeyValuePair<string, string>>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0)
@@ -810,7 +810,7 @@ namespace IsengardClient
         }
     }
 
-    public class InventorySequence : AOutputProcessingSequence
+    internal class InventorySequence : AOutputProcessingSequence
     {
         private const string YOU_HAVE_PREFIX = "You have: ";
         private Action<FeedLineParameters, List<ItemEntity>, int> _onSatisfied;
@@ -818,7 +818,7 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0 && !string.IsNullOrEmpty(Lines[0]) && Lines[0].StartsWith(YOU_HAVE_PREFIX))
@@ -862,7 +862,7 @@ namespace IsengardClient
         }
     }
 
-    public class SpellsSequence : AOutputProcessingSequence
+    internal class SpellsSequence : AOutputProcessingSequence
     {
         private const string SPELLS_KNOWN_PREFIX = "Spells known: ";
         private const string SPELLS_CAST_PREFIX = "Spells cast: ";
@@ -872,7 +872,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters Parameters)
+        internal override void FeedLine(FeedLineParameters Parameters)
         {
             List<string> Lines = Parameters.Lines;
             for (int i = 0; i < Lines.Count; i++)
@@ -901,7 +901,7 @@ namespace IsengardClient
         }
     }
 
-    public class WhoOutputSequence : AOutputProcessingSequence
+    internal class WhoOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, HashSet<string>> _onSatisfied;
         public WhoOutputSequence(Action<FeedLineParameters, HashSet<string>> onSatisfied)
@@ -909,7 +909,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             int index = 0;
@@ -970,7 +970,7 @@ namespace IsengardClient
         }
     }
 
-    public class InventoryEquipmentManagementSequence : AOutputProcessingSequence
+    internal class InventoryEquipmentManagementSequence : AOutputProcessingSequence
     {
         private const string YOU_WIELD_PREFIX = "You wield ";
         private const string YOU_GET_A_PREFIX = "You get ";
@@ -985,7 +985,7 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flp)
+        internal override void FeedLine(FeedLineParameters flp)
         {
             List<string> Lines = flp.Lines;
             int iSellGold = 0;
@@ -1371,7 +1371,7 @@ namespace IsengardClient
         }
     }
 
-    public class SkillCooldown
+    internal class SkillCooldown
     {
         public SkillCooldown()
         {
@@ -1394,7 +1394,7 @@ namespace IsengardClient
         public string List3 { get; set; }
     }
 
-    public class RoomTransitionInfo
+    internal class RoomTransitionInfo
     {
         public RoomTransitionType TransitionType { get; set; }
         public string RoomName { get; set; }
@@ -1414,7 +1414,7 @@ namespace IsengardClient
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             bool isLogin = false;
             foreach (var nextMessage in flParams.InfoMessages)
@@ -1437,7 +1437,7 @@ namespace IsengardClient
         }
     }
 
-    public class RoomTransitionSequence : AOutputProcessingSequence
+    internal class RoomTransitionSequence : AOutputProcessingSequence
     {
         private const string YOU_SEE_PREFIX = "You see ";
         private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> _onSatisfied;
@@ -1445,7 +1445,7 @@ namespace IsengardClient
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             TrapType eTrapType = TrapType.None;
@@ -1905,7 +1905,7 @@ StartProcessRoom:
         }
     }
 
-    public class CastOffensiveSpellSequence : AOutputProcessingSequence
+    internal class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
         internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone", "engulf", "tremor" };
         internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame", "immolate", "flamefill" };
@@ -1958,7 +1958,7 @@ StartProcessRoom:
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             int lineCount = Lines.Count;
@@ -2008,7 +2008,7 @@ StartProcessRoom:
         }
     }
 
-    public class AttackSequence : AOutputProcessingSequence
+    internal class AttackSequence : AOutputProcessingSequence
     {
         private const string YOUR_REGULAR_ATTACK_PREFIX = "Your ";
         private const string YOUR_POWER_ATTACK_PREFIX = "Your power attack ";
@@ -2024,7 +2024,7 @@ StartProcessRoom:
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             int lineCount = Lines.Count;
@@ -2266,7 +2266,7 @@ StartProcessRoom:
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
@@ -2339,7 +2339,7 @@ StartProcessRoom:
         }
     }
 
-    public class PleaseWaitSequence : AOutputProcessingSequence
+    internal class PleaseWaitSequence : AOutputProcessingSequence
     {
         private const string PLEASE_WAIT_PREFIX = "Please wait ";
         private const string ENDS_WITH_MINUTES_SUFFIX = " minutes.";
@@ -2369,7 +2369,7 @@ StartProcessRoom:
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             BackgroundCommandType? backgroundCommandType = flParams.BackgroundCommandType;
@@ -2468,7 +2468,7 @@ StartProcessRoom:
         }
     }
 
-    public class SearchSequence : AOutputProcessingSequence
+    internal class SearchSequence : AOutputProcessingSequence
     {
         private const string YOU_DIDNT_FIND_ANYTHING = "You didn't find anything.";
         private const string YOU_FIND_A_HIDDEN_EXIT = "You find a hidden exit: ";
@@ -2480,7 +2480,7 @@ StartProcessRoom:
             _onSearchUnsuccessful = onSearchUnsuccessful;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
             if (Lines.Count > 0 && Lines.Count <= 3)
@@ -2521,7 +2521,7 @@ StartProcessRoom:
         }
     }
 
-    public class FailMovementSequence : AOutputProcessingSequence
+    internal class FailMovementSequence : AOutputProcessingSequence
     {
         private const string YOU_FELL_AND_HURT_YOURSELF_PREFIX = "You fell and hurt yourself for ";
         private const string YOU_FELL_AND_HURT_YOURSELF_SUFFIX = " damage.";
@@ -2532,7 +2532,7 @@ StartProcessRoom:
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters Parameters)
+        internal override void FeedLine(FeedLineParameters Parameters)
         {
             int iDamage = 0;
             List<string> Lines = Parameters.Lines;
@@ -2603,7 +2603,7 @@ StartProcessRoom:
         }
     }
 
-    public class InformationalMessagesSequence : AOutputProcessingSequence
+    internal class InformationalMessagesSequence : AOutputProcessingSequence
     {
         public const string CELDUIN_EXPRESS_IN_BREE_MESSAGE = "### The Celduin Express is ready for boarding in Bree.";
 
@@ -2618,7 +2618,7 @@ StartProcessRoom:
             _deathPrefixMessage = "### Sadly, " + userName + " ";
         }
 
-        public override void FeedLine(FeedLineParameters Parameters)
+        internal override void FeedLine(FeedLineParameters Parameters)
         {
             List<string> broadcastMessages = null;
             List<string> Lines = Parameters.Lines;
@@ -3245,7 +3245,7 @@ StartProcessRoom:
         }
     }
 
-    public class EntityAttacksYouSequence : AOutputProcessingSequence
+    internal class EntityAttacksYouSequence : AOutputProcessingSequence
     {
         public Action<FeedLineParameters> _onSatisfied;
 
@@ -3253,7 +3253,7 @@ StartProcessRoom:
         {
             _onSatisfied = onSatisfied;
         }
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             foreach (InformationalMessages nextMessage in flParams.InfoMessages)
             {
@@ -3269,7 +3269,7 @@ StartProcessRoom:
         }
     }
 
-    public class SelfSpellCastSequence : AOutputProcessingSequence
+    internal class SelfSpellCastSequence : AOutputProcessingSequence
     {
         public static Dictionary<string, string> ACTIVE_SPELL_TO_ACTIVE_TEXT = new Dictionary<string, string>()
         {
@@ -3293,7 +3293,7 @@ StartProcessRoom:
             _onSatisfied = onSatisfied;
         }
 
-        public override void FeedLine(FeedLineParameters flParams)
+        internal override void FeedLine(FeedLineParameters flParams)
         {
             BackgroundCommandType? matchingSpell = null;
             List<string> Lines = flParams.Lines;

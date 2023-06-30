@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace IsengardClient
 {
-    public class Entity
+    internal class Entity
     {
         /// <summary>
         /// number of entities present
@@ -415,7 +415,7 @@ namespace IsengardClient
         }
     }
 
-    public class MobEntity : Entity
+    internal class MobEntity : Entity
     {
         public static Dictionary<string, StaticMobData> MobMappingByDisplayName = new Dictionary<string, StaticMobData>();
         public static Dictionary<MobTypeEnum, StaticMobData> StaticMobData = new Dictionary<MobTypeEnum, StaticMobData>();
@@ -540,7 +540,7 @@ namespace IsengardClient
         }
     }
 
-    public class StaticMobData
+    internal class StaticMobData
     {
         public MobTypeEnum MobType { get; set; }
         public string SingularName { get; set; }
@@ -550,12 +550,12 @@ namespace IsengardClient
         public int Experience { get; set; }
     }
 
-    public class NamedEntity : Entity
+    internal class NamedEntity : Entity
     {
         public string Name { get; set; }
     }
 
-    public class PlayerEntity : NamedEntity
+    internal class PlayerEntity : NamedEntity
     {
         /// <summary>
         /// creates an unknown player entity
@@ -610,7 +610,7 @@ namespace IsengardClient
         }
     }
 
-    public class UnknownMobEntity : MobEntity
+    internal class UnknownMobEntity : MobEntity
     {
         public string Name { get; set; }
         public UnknownMobEntity(string Name, int count, int setCount) : base(null, count, setCount)
@@ -622,7 +622,7 @@ namespace IsengardClient
     /// <summary>
     /// entity whose type is not unknown
     /// </summary>
-    public class UnknownTypeEntity : NamedEntity
+    internal class UnknownTypeEntity : NamedEntity
     {
         private EntityTypeFlags PossibleTypes { get; set; }
         public UnknownTypeEntity(string Name, int count, EntityTypeFlags possibleTypes)
@@ -1266,7 +1266,7 @@ namespace IsengardClient
             return ret;
         }
     }
-    public class EntityChangeEntry
+    internal class EntityChangeEntry
     {
         /// <summary>
         /// type of item being updated

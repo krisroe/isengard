@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 namespace IsengardClient
 {
-    public class Strategy
+    internal class Strategy
     {
         public const string CAST_VIGOR_SPELL = "cast vigor";
         public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
@@ -600,7 +600,7 @@ namespace IsengardClient
         }
     }
 
-    public abstract class AMagicStrategyStep
+    internal abstract class AMagicStrategyStep
     {
         public int RepeatCount { get; set; }
 
@@ -615,13 +615,13 @@ namespace IsengardClient
             }
         }
 
-        public abstract AMagicStrategyStep Clone();
+        internal abstract AMagicStrategyStep Clone();
 
-        public abstract IEnumerable<MagicStrategyStep> GetBaseSteps();
-        public abstract bool IsCombat();
+        internal abstract IEnumerable<MagicStrategyStep> GetBaseSteps();
+        internal abstract bool IsCombat();
     }
 
-    public class SingleMagicStrategyStep : AMagicStrategyStep
+    internal class SingleMagicStrategyStep : AMagicStrategyStep
     {
         public static SingleMagicStrategyStep MagicStepStun = new SingleMagicStrategyStep(MagicStrategyStep.Stun, 'S');
         public static SingleMagicStrategyStep MagicStepOffensiveSpellAuto = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellAuto, 'C');
@@ -644,7 +644,7 @@ namespace IsengardClient
             this.Letter = Letter;
         }
 
-        public override AMagicStrategyStep Clone()
+        internal override AMagicStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
         }
@@ -726,17 +726,17 @@ namespace IsengardClient
 
         public MagicStrategyStep Action { get; set; }
 
-        public override IEnumerable<MagicStrategyStep> GetBaseSteps()
+        internal override IEnumerable<MagicStrategyStep> GetBaseSteps()
         {
             yield return Action;
         }
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             return IsCombatStep(this.Action);
         }
     }
 
-    public class MultipleMagicStrategyStep : AMagicStrategyStep
+    internal class MultipleMagicStrategyStep : AMagicStrategyStep
     {
         public List<AMagicStrategyStep> SubSteps { get; private set; }
 
@@ -762,7 +762,7 @@ namespace IsengardClient
             return ret.ToString();
         }
 
-        public override IEnumerable<MagicStrategyStep> GetBaseSteps()
+        internal override IEnumerable<MagicStrategyStep> GetBaseSteps()
         {
             foreach (var nextStep in SubSteps)
             {
@@ -773,7 +773,7 @@ namespace IsengardClient
             }
         }
 
-        public override AMagicStrategyStep Clone()
+        internal override AMagicStrategyStep Clone()
         {
             MultipleMagicStrategyStep ret = new MultipleMagicStrategyStep();
             foreach (var next in this.SubSteps)
@@ -783,7 +783,7 @@ namespace IsengardClient
             return ret;
         }
 
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             bool ret = false;
             foreach (var next in SubSteps)
@@ -798,7 +798,7 @@ namespace IsengardClient
         }
     }
 
-    public abstract class AMeleeStrategyStep
+    internal abstract class AMeleeStrategyStep
     {
         public int RepeatCount { get; set; }
 
@@ -813,13 +813,13 @@ namespace IsengardClient
             }
         }
 
-        public abstract IEnumerable<MeleeStrategyStep> GetBaseSteps();
+        internal abstract IEnumerable<MeleeStrategyStep> GetBaseSteps();
 
-        public abstract AMeleeStrategyStep Clone();
-        public abstract bool IsCombat();
+        internal abstract AMeleeStrategyStep Clone();
+        internal abstract bool IsCombat();
     }
 
-    public class SingleMeleeStrategyStep : AMeleeStrategyStep
+    internal class SingleMeleeStrategyStep : AMeleeStrategyStep
     {
         public static SingleMeleeStrategyStep MeleeStepRegularAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.RegularAttack, 'A');
         public static SingleMeleeStrategyStep MeleeStepPowerAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.PowerAttack, 'P');
@@ -872,23 +872,23 @@ namespace IsengardClient
             return this.Letter.ToString();
         }
 
-        public override IEnumerable<MeleeStrategyStep> GetBaseSteps()
+        internal override IEnumerable<MeleeStrategyStep> GetBaseSteps()
         {
             yield return Action;
         }
 
-        public override AMeleeStrategyStep Clone()
+        internal override AMeleeStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
         }
 
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             return IsCombatStep(this.Action);
         }
     }
 
-    public class MultipleMeleeStrategyStep : AMeleeStrategyStep
+    internal class MultipleMeleeStrategyStep : AMeleeStrategyStep
     {
         public List<AMeleeStrategyStep> SubSteps { get; private set; }
 
@@ -914,7 +914,7 @@ namespace IsengardClient
             return ret.ToString();
         }
 
-        public override IEnumerable<MeleeStrategyStep> GetBaseSteps()
+        internal override IEnumerable<MeleeStrategyStep> GetBaseSteps()
         {
             foreach (var nextStep in SubSteps)
             {
@@ -925,7 +925,7 @@ namespace IsengardClient
             }
         }
 
-        public override AMeleeStrategyStep Clone()
+        internal override AMeleeStrategyStep Clone()
         {
             MultipleMeleeStrategyStep ret = new MultipleMeleeStrategyStep();
             foreach (var next in this.SubSteps)
@@ -935,7 +935,7 @@ namespace IsengardClient
             return ret;
         }
 
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             bool ret = false;
             foreach (var next in SubSteps)
@@ -950,7 +950,7 @@ namespace IsengardClient
         }
     }
 
-    public abstract class APotionsStrategyStep
+    internal abstract class APotionsStrategyStep
     {
         public int RepeatCount { get; set; }
 
@@ -965,13 +965,13 @@ namespace IsengardClient
             }
         }
 
-        public abstract IEnumerable<PotionsStrategyStep> GetBaseSteps();
+        internal abstract IEnumerable<PotionsStrategyStep> GetBaseSteps();
 
-        public abstract APotionsStrategyStep Clone();
-        public abstract bool IsCombat();
+        internal abstract APotionsStrategyStep Clone();
+        internal abstract bool IsCombat();
     }
 
-    public class SinglePotionsStrategyStep : APotionsStrategyStep
+    internal class SinglePotionsStrategyStep : APotionsStrategyStep
     {
         public static SinglePotionsStrategyStep PotionsStepVigor = new SinglePotionsStrategyStep(PotionsStrategyStep.Vigor, 'v');
         public static SinglePotionsStrategyStep PotionsStepMendWounds = new SinglePotionsStrategyStep(PotionsStrategyStep.MendWounds, 'm');
@@ -1034,22 +1034,22 @@ namespace IsengardClient
             return this.Letter.ToString();
         }
 
-        public override IEnumerable<PotionsStrategyStep> GetBaseSteps()
+        internal override IEnumerable<PotionsStrategyStep> GetBaseSteps()
         {
             yield return Action;
         }
 
-        public override APotionsStrategyStep Clone()
+        internal override APotionsStrategyStep Clone()
         {
             return this; //singleton object, doesn't need to be cloned
         }
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             return IsCombatStep(this.Action);
         }
     }
 
-    public class MultiplePotionsStrategyStep : APotionsStrategyStep
+    internal class MultiplePotionsStrategyStep : APotionsStrategyStep
     {
         public List<APotionsStrategyStep> SubSteps { get; private set; }
 
@@ -1075,7 +1075,7 @@ namespace IsengardClient
             return ret.ToString();
         }
 
-        public override IEnumerable<PotionsStrategyStep> GetBaseSteps()
+        internal override IEnumerable<PotionsStrategyStep> GetBaseSteps()
         {
             foreach (var nextStep in SubSteps)
             {
@@ -1086,7 +1086,7 @@ namespace IsengardClient
             }
         }
 
-        public override APotionsStrategyStep Clone()
+        internal override APotionsStrategyStep Clone()
         {
             MultiplePotionsStrategyStep ret = new MultiplePotionsStrategyStep();
             foreach (var next in this.SubSteps)
@@ -1096,7 +1096,7 @@ namespace IsengardClient
             return ret;
         }
 
-        public override bool IsCombat()
+        internal override bool IsCombat()
         {
             bool ret = false;
             foreach (var next in SubSteps)

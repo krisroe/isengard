@@ -6554,7 +6554,7 @@ BeforeHazy:
             return true;
         }
 
-        public class CommandButtonTag
+        internal class CommandButtonTag
         {
             public CommandButtonTag(object ctl, string Command, CommandType CommandType, DependentObjectType ObjectType)
             {

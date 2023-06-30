@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 namespace IsengardClient
 {
-    public class ItemEntity : Entity
+    internal class ItemEntity : Entity
     {
         public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
         public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
@@ -153,7 +153,7 @@ namespace IsengardClient
         }
     }
 
-    public class UnknownItemEntity : ItemEntity
+    internal class UnknownItemEntity : ItemEntity
     {
         public string Name { get; set; }
         public UnknownItemEntity(string Name, int count, int setCount) : base(null, count, setCount)
@@ -162,7 +162,7 @@ namespace IsengardClient
         }
     }
 
-    public class StaticItemData
+    internal class StaticItemData
     {
         public ItemClass ItemClass { get; set; }
         public ItemTypeEnum ItemType { get; set; }
@@ -177,7 +177,7 @@ namespace IsengardClient
         public int UpperSellRange { get; set; }
     }
 
-    public class DynamicItemDataWithInheritance : DynamicItemData
+    internal class DynamicItemDataWithInheritance : DynamicItemData
     {
         public DynamicDataItemClass? ActionInheritance;
 
@@ -270,7 +270,7 @@ namespace IsengardClient
         }
     }
 
-    public class DynamicItemData
+    internal class DynamicItemData
     {
         public ItemInventoryAction Action { get; set; }
         public DynamicItemData()
@@ -286,7 +286,7 @@ namespace IsengardClient
         }
     }
 
-    public enum ItemClass
+    internal enum ItemClass
     {
         Equipment,
         Weapon,
@@ -300,7 +300,7 @@ namespace IsengardClient
         Other,
     }
 
-    public enum DynamicDataItemClass
+    internal enum DynamicDataItemClass
     {
         /// <summary>
         /// catchall default for any item
@@ -337,7 +337,7 @@ namespace IsengardClient
     /// 2. coin items use "X gold coins" and "sets of X gold coins" formats. These currently have both singular and plural attributes.
     /// 3. collective items only have a singular name, and use "sets of X" for the plural case. These currently only have a singular attribute.
     /// </summary>
-    public enum ItemTypeEnum
+    internal enum ItemTypeEnum
     {
         [SingularName("adamantine scale mail armor")]
         [EquipmentType(EquipmentType.Torso)]
