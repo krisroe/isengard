@@ -496,6 +496,7 @@ namespace IsengardClient
         BreeSouthwest,
         Imladris,
         Tharbad,
+        Esgaroth,
     }
 
     public enum HealingRoom

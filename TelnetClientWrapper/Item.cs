@@ -680,6 +680,15 @@ namespace IsengardClient
         [WeaponType(WeaponType.Missile)]
         ElvenBow,
 
+        [SingularName("elven chain mail")]
+        //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Unknown)]
+        ElvenChainMail,
+
+        [SingularName("elven chain mail gloves")]
+        [EquipmentType(EquipmentType.Hands)]
+        ElvenChainMailGloves,
+
         [SingularName("elven cured leather gloves")]
         [EquipmentType(EquipmentType.Hands)]
         ElvenCuredLeatherGloves,
