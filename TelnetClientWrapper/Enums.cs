@@ -200,6 +200,13 @@ namespace IsengardClient
         All = 7,
     }
 
+    public enum InventoryProcessWorkflow
+    {
+        NoProcessing = 0,
+        ProcessMonsterDrops = 1,
+        ProcessAllItemsInRoom = 2,
+    }
+
     public enum AutoEscapeType
     {
         Flee = 0,

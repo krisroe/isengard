@@ -28,15 +28,15 @@ namespace IsengardClient
             }
         }
 
-        public bool ProcessAllItemsInRoom
+        public InventoryProcessWorkflow InventoryFlow
         {
             get
             {
-                return chkProcessAllItemsInRoom.Checked;
+                return (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
             }
         }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop)
+        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow)
         {
             InitializeComponent();
 
@@ -66,11 +66,16 @@ namespace IsengardClient
             {
                 cboPawnShoppe.SelectedIndex = 0;
             }
+
+            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.NoProcessing);
+            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.ProcessMonsterDrops);
+            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.ProcessAllItemsInRoom);
+            cboInventoryFlow.SelectedItem = invWorkflow;
+
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
             _currentRoom = currentRoom;
 
-            chkProcessAllItemsInRoom.Checked = strategy.TypesWithStepsEnabled == CommandType.None;
             Strategy = new Strategy(strategy);
             RefreshUIFromStrategy();
 

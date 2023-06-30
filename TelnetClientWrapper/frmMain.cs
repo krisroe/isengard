@@ -4182,7 +4182,8 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.UsedPreForm && (pms.MonsterKilled || pms.ProcessAllItemsInRoom) && !pms.Fled && !pms.Hazied)
+                InventoryProcessWorkflow eInvProcess = pms.InventoryProcessWorkflow;
+                if (eInvProcess != InventoryProcessWorkflow.NoProcessing && (eInvProcess == InventoryProcessWorkflow.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcess == InventoryProcessWorkflow.ProcessMonsterDrops)) && !pms.Fled && !pms.Hazied)
                 {
                     List<Exit> nextRoute;
                     Room monsterRoom = _currentEntityInfo.CurrentRoom;
@@ -4193,13 +4194,17 @@ BeforeHazy:
                     List<ItemEntity> itemsToTick = new List<ItemEntity>();
                     lock (_entityLock)
                     {
-                        if (pms.ProcessAllItemsInRoom)
+                        if (eInvProcess == InventoryProcessWorkflow.ProcessAllItemsInRoom)
                         {
                             itemsToProcess.AddRange(_currentEntityInfo.CurrentRoomItems);
                         }
-                        else //process items the monster(s) dropped
+                        else if (eInvProcess == InventoryProcessWorkflow.ProcessMonsterDrops)
                         {
                             itemsToProcess.AddRange(_monsterKilledItems);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
                         }
                     }
                 NextItemCycle:
@@ -6382,7 +6387,6 @@ BeforeHazy:
 
         private class BackgroundWorkerParameters
         {
-            public bool UsedPreForm { get; set; }
             public List<Exit> Exits { get; set; }
             public bool Cancelled { get; set; }
             public Strategy Strategy { get; set; }
@@ -6411,7 +6415,7 @@ BeforeHazy:
             public bool UsedPawnShoppe { get; set; }
             public HealingRoom? TickRoom { get; set; }
             public bool Success { get; set; }
-            public bool ProcessAllItemsInRoom { get; set; }
+            public InventoryProcessWorkflow InventoryProcessWorkflow { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -6471,8 +6475,8 @@ BeforeHazy:
             List<Exit> preExits;
             HealingRoom? healingRoom;
             PawnShoppe? pawnShoppe;
-            bool processAllItemsInRoom;
-            if (!PromptForSkills(out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out processAllItemsInRoom))
+            InventoryProcessWorkflow inventoryFlow;
+            if (!PromptForSkills(out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out inventoryFlow))
             {
                 return;
             }
@@ -6485,19 +6489,17 @@ BeforeHazy:
             bwp.TargetRoomMob = targetRoomMob;
             bwp.TickRoom = healingRoom;
             bwp.PawnShop = pawnShoppe;
-            bwp.ProcessAllItemsInRoom = processAllItemsInRoom;
-            bwp.UsedPreForm = true;
+            bwp.InventoryProcessWorkflow = inventoryFlow;
             RunBackgroundProcess(bwp);
         }
 
-        private bool PromptForSkills(out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out bool processAllItemsInRoom)
+        private bool PromptForSkills(out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out InventoryProcessWorkflow inventoryFlow)
         {
             activatedSkills = PromptedSkills.None;
             mob = string.Empty;
             preExits = null;
             healingRoom = null;
             pawnShoppe = null;
-            processAllItemsInRoom = true;
 
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
@@ -6530,7 +6532,12 @@ BeforeHazy:
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe))
+            if (strategy.TypesWithStepsEnabled == CommandType.None)
+                inventoryFlow = InventoryProcessWorkflow.ProcessAllItemsInRoom;
+            else
+                inventoryFlow = InventoryProcessWorkflow.ProcessMonsterDrops;
+
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
@@ -6542,7 +6549,7 @@ BeforeHazy:
                 strategy = frmSkills.Strategy;
                 healingRoom = frmSkills.HealingRoom;
                 pawnShoppe = frmSkills.PawnShop;
-                processAllItemsInRoom = frmSkills.ProcessAllItemsInRoom;
+                inventoryFlow = frmSkills.InventoryFlow;
             }
             return true;
         }

@@ -49,17 +49,17 @@
             this.lblPawnShoppe = new System.Windows.Forms.Label();
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.lblTickRoom = new System.Windows.Forms.Label();
-            this.chkProcessAllItemsInRoom = new System.Windows.Forms.CheckBox();
+            this.cboInventoryFlow = new System.Windows.Forms.ComboBox();
+            this.lvlInventoryFlow = new System.Windows.Forms.Label();
             this.grpSkills.SuspendLayout();
             this.grpStrategy.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(579, 293);
-            this.btnOK.Margin = new System.Windows.Forms.Padding(4);
+            this.btnOK.Location = new System.Drawing.Point(434, 283);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(100, 28);
+            this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 1;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
@@ -68,10 +68,9 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(687, 293);
-            this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
+            this.btnCancel.Location = new System.Drawing.Point(515, 283);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(100, 28);
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -80,20 +79,17 @@
             // 
             this.flp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flp.Location = new System.Drawing.Point(4, 19);
-            this.flp.Margin = new System.Windows.Forms.Padding(4);
+            this.flp.Location = new System.Drawing.Point(3, 16);
             this.flp.Name = "flp";
-            this.flp.Size = new System.Drawing.Size(429, 155);
+            this.flp.Size = new System.Drawing.Size(322, 126);
             this.flp.TabIndex = 0;
             // 
             // grpSkills
             // 
             this.grpSkills.Controls.Add(this.flp);
-            this.grpSkills.Location = new System.Drawing.Point(44, 147);
-            this.grpSkills.Margin = new System.Windows.Forms.Padding(4);
+            this.grpSkills.Location = new System.Drawing.Point(33, 164);
             this.grpSkills.Name = "grpSkills";
-            this.grpSkills.Padding = new System.Windows.Forms.Padding(4);
-            this.grpSkills.Size = new System.Drawing.Size(437, 178);
+            this.grpSkills.Size = new System.Drawing.Size(328, 145);
             this.grpSkills.TabIndex = 3;
             this.grpSkills.TabStop = false;
             this.grpSkills.Text = "Skills";
@@ -101,49 +97,44 @@
             // lblMob
             // 
             this.lblMob.AutoSize = true;
-            this.lblMob.Location = new System.Drawing.Point(55, 52);
-            this.lblMob.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblMob.Location = new System.Drawing.Point(41, 42);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(37, 16);
+            this.lblMob.Size = new System.Drawing.Size(31, 13);
             this.lblMob.TabIndex = 4;
             this.lblMob.Text = "Mob:";
             // 
             // cboMob
             // 
             this.cboMob.FormattingEnabled = true;
-            this.cboMob.Location = new System.Drawing.Point(104, 49);
-            this.cboMob.Margin = new System.Windows.Forms.Padding(4);
+            this.cboMob.Location = new System.Drawing.Point(78, 40);
             this.cboMob.Name = "cboMob";
-            this.cboMob.Size = new System.Drawing.Size(376, 24);
+            this.cboMob.Size = new System.Drawing.Size(283, 21);
             this.cboMob.TabIndex = 5;
             // 
             // cboRoom
             // 
             this.cboRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboRoom.FormattingEnabled = true;
-            this.cboRoom.Location = new System.Drawing.Point(104, 17);
-            this.cboRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboRoom.Location = new System.Drawing.Point(78, 14);
             this.cboRoom.Name = "cboRoom";
-            this.cboRoom.Size = new System.Drawing.Size(376, 24);
+            this.cboRoom.Size = new System.Drawing.Size(283, 21);
             this.cboRoom.TabIndex = 7;
             this.cboRoom.SelectedIndexChanged += new System.EventHandler(this.cboRoom_SelectedIndexChanged);
             // 
             // lblRoom
             // 
             this.lblRoom.AutoSize = true;
-            this.lblRoom.Location = new System.Drawing.Point(55, 20);
-            this.lblRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblRoom.Location = new System.Drawing.Point(41, 16);
             this.lblRoom.Name = "lblRoom";
-            this.lblRoom.Size = new System.Drawing.Size(47, 16);
+            this.lblRoom.Size = new System.Drawing.Size(38, 13);
             this.lblRoom.TabIndex = 6;
             this.lblRoom.Text = "Room:";
             // 
             // btnEditStrategy
             // 
-            this.btnEditStrategy.Location = new System.Drawing.Point(122, 81);
-            this.btnEditStrategy.Margin = new System.Windows.Forms.Padding(4);
+            this.btnEditStrategy.Location = new System.Drawing.Point(92, 66);
             this.btnEditStrategy.Name = "btnEditStrategy";
-            this.btnEditStrategy.Size = new System.Drawing.Size(100, 28);
+            this.btnEditStrategy.Size = new System.Drawing.Size(75, 23);
             this.btnEditStrategy.TabIndex = 8;
             this.btnEditStrategy.Text = "Edit";
             this.btnEditStrategy.UseVisualStyleBackColor = true;
@@ -151,9 +142,10 @@
             // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(487, 12);
+            this.btnGraph.Location = new System.Drawing.Point(365, 10);
+            this.btnGraph.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnGraph.Name = "btnGraph";
-            this.btnGraph.Size = new System.Drawing.Size(95, 32);
+            this.btnGraph.Size = new System.Drawing.Size(71, 26);
             this.btnGraph.TabIndex = 9;
             this.btnGraph.Text = "Graph";
             this.btnGraph.UseVisualStyleBackColor = true;
@@ -161,9 +153,10 @@
             // 
             // btnLocations
             // 
-            this.btnLocations.Location = new System.Drawing.Point(588, 12);
+            this.btnLocations.Location = new System.Drawing.Point(441, 10);
+            this.btnLocations.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnLocations.Name = "btnLocations";
-            this.btnLocations.Size = new System.Drawing.Size(95, 32);
+            this.btnLocations.Size = new System.Drawing.Size(71, 26);
             this.btnLocations.TabIndex = 10;
             this.btnLocations.Text = "Locations";
             this.btnLocations.UseVisualStyleBackColor = true;
@@ -177,9 +170,11 @@
             this.grpStrategy.Controls.Add(this.chkMelee);
             this.grpStrategy.Controls.Add(this.chkMagic);
             this.grpStrategy.Controls.Add(this.btnEditStrategy);
-            this.grpStrategy.Location = new System.Drawing.Point(498, 147);
+            this.grpStrategy.Location = new System.Drawing.Point(374, 164);
+            this.grpStrategy.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.grpStrategy.Name = "grpStrategy";
-            this.grpStrategy.Size = new System.Drawing.Size(295, 121);
+            this.grpStrategy.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpStrategy.Size = new System.Drawing.Size(221, 98);
             this.grpStrategy.TabIndex = 11;
             this.grpStrategy.TabStop = false;
             this.grpStrategy.Text = "Strategy";
@@ -193,27 +188,30 @@
             "Stop Combat",
             "Fight First Monster",
             "Fight First Same Monster"});
-            this.cboOnKillMonster.Location = new System.Drawing.Point(122, 50);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(92, 41);
+            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
-            this.cboOnKillMonster.Size = new System.Drawing.Size(167, 24);
+            this.cboOnKillMonster.Size = new System.Drawing.Size(126, 21);
             this.cboOnKillMonster.TabIndex = 148;
             this.cboOnKillMonster.SelectedIndexChanged += new System.EventHandler(this.cboOnKillMonster_SelectedIndexChanged);
             // 
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(10, 54);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(8, 44);
+            this.lblOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
-            this.lblOnKillMonster.Size = new System.Drawing.Size(97, 16);
+            this.lblOnKillMonster.Size = new System.Drawing.Size(79, 13);
             this.lblOnKillMonster.TabIndex = 147;
             this.lblOnKillMonster.Text = "On kill monster:";
             // 
             // chkPotions
             // 
             this.chkPotions.AutoSize = true;
-            this.chkPotions.Location = new System.Drawing.Point(153, 21);
+            this.chkPotions.Location = new System.Drawing.Point(115, 17);
+            this.chkPotions.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkPotions.Name = "chkPotions";
-            this.chkPotions.Size = new System.Drawing.Size(71, 20);
+            this.chkPotions.Size = new System.Drawing.Size(61, 17);
             this.chkPotions.TabIndex = 11;
             this.chkPotions.Text = "Potions";
             this.chkPotions.UseVisualStyleBackColor = true;
@@ -222,9 +220,10 @@
             // chkMelee
             // 
             this.chkMelee.AutoSize = true;
-            this.chkMelee.Location = new System.Drawing.Point(83, 21);
+            this.chkMelee.Location = new System.Drawing.Point(62, 17);
+            this.chkMelee.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkMelee.Name = "chkMelee";
-            this.chkMelee.Size = new System.Drawing.Size(64, 20);
+            this.chkMelee.Size = new System.Drawing.Size(55, 17);
             this.chkMelee.TabIndex = 10;
             this.chkMelee.Text = "Melee";
             this.chkMelee.UseVisualStyleBackColor = true;
@@ -233,9 +232,10 @@
             // chkMagic
             // 
             this.chkMagic.AutoSize = true;
-            this.chkMagic.Location = new System.Drawing.Point(7, 21);
+            this.chkMagic.Location = new System.Drawing.Point(5, 17);
+            this.chkMagic.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkMagic.Name = "chkMagic";
-            this.chkMagic.Size = new System.Drawing.Size(63, 20);
+            this.chkMagic.Size = new System.Drawing.Size(55, 17);
             this.chkMagic.TabIndex = 9;
             this.chkMagic.Text = "Magic";
             this.chkMagic.UseVisualStyleBackColor = true;
@@ -245,20 +245,18 @@
             // 
             this.cboPawnShoppe.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboPawnShoppe.FormattingEnabled = true;
-            this.cboPawnShoppe.Location = new System.Drawing.Point(104, 81);
-            this.cboPawnShoppe.Margin = new System.Windows.Forms.Padding(4);
+            this.cboPawnShoppe.Location = new System.Drawing.Point(78, 93);
             this.cboPawnShoppe.Name = "cboPawnShoppe";
-            this.cboPawnShoppe.Size = new System.Drawing.Size(376, 24);
+            this.cboPawnShoppe.Size = new System.Drawing.Size(283, 21);
             this.cboPawnShoppe.TabIndex = 13;
             this.cboPawnShoppe.SelectedIndexChanged += new System.EventHandler(this.cboPawnShoppe_SelectedIndexChanged);
             // 
             // lblPawnShoppe
             // 
             this.lblPawnShoppe.AutoSize = true;
-            this.lblPawnShoppe.Location = new System.Drawing.Point(16, 84);
-            this.lblPawnShoppe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPawnShoppe.Location = new System.Drawing.Point(12, 95);
             this.lblPawnShoppe.Name = "lblPawnShoppe";
-            this.lblPawnShoppe.Size = new System.Drawing.Size(76, 16);
+            this.lblPawnShoppe.Size = new System.Drawing.Size(63, 13);
             this.lblPawnShoppe.TabIndex = 12;
             this.lblPawnShoppe.Text = "Pawn shop:";
             // 
@@ -266,40 +264,47 @@
             // 
             this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTickRoom.FormattingEnabled = true;
-            this.cboTickRoom.Location = new System.Drawing.Point(105, 113);
-            this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboTickRoom.Location = new System.Drawing.Point(79, 119);
             this.cboTickRoom.Name = "cboTickRoom";
-            this.cboTickRoom.Size = new System.Drawing.Size(376, 24);
+            this.cboTickRoom.Size = new System.Drawing.Size(283, 21);
             this.cboTickRoom.TabIndex = 15;
             this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
             // 
             // lblTickRoom
             // 
             this.lblTickRoom.AutoSize = true;
-            this.lblTickRoom.Location = new System.Drawing.Point(17, 116);
-            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblTickRoom.Location = new System.Drawing.Point(13, 121);
             this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(70, 16);
+            this.lblTickRoom.Size = new System.Drawing.Size(57, 13);
             this.lblTickRoom.TabIndex = 14;
             this.lblTickRoom.Text = "Tick room:";
             // 
-            // chkProcessAllItemsInRoom
+            // cboInventoryFlow
             // 
-            this.chkProcessAllItemsInRoom.AutoSize = true;
-            this.chkProcessAllItemsInRoom.Location = new System.Drawing.Point(498, 53);
-            this.chkProcessAllItemsInRoom.Name = "chkProcessAllItemsInRoom";
-            this.chkProcessAllItemsInRoom.Size = new System.Drawing.Size(182, 20);
-            this.chkProcessAllItemsInRoom.TabIndex = 1;
-            this.chkProcessAllItemsInRoom.Text = "Process all items in room?";
-            this.chkProcessAllItemsInRoom.UseVisualStyleBackColor = true;
+            this.cboInventoryFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboInventoryFlow.FormattingEnabled = true;
+            this.cboInventoryFlow.Location = new System.Drawing.Point(79, 66);
+            this.cboInventoryFlow.Name = "cboInventoryFlow";
+            this.cboInventoryFlow.Size = new System.Drawing.Size(283, 21);
+            this.cboInventoryFlow.TabIndex = 17;
+            // 
+            // lvlInventoryFlow
+            // 
+            this.lvlInventoryFlow.AutoSize = true;
+            this.lvlInventoryFlow.Location = new System.Drawing.Point(26, 69);
+            this.lvlInventoryFlow.Name = "lvlInventoryFlow";
+            this.lvlInventoryFlow.Size = new System.Drawing.Size(47, 13);
+            this.lvlInventoryFlow.TabIndex = 16;
+            this.lvlInventoryFlow.Text = "Inv flow:";
             // 
             // frmPreBackgroundProcessPrompt
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(821, 346);
+            this.ClientSize = new System.Drawing.Size(616, 328);
             this.ControlBox = false;
-            this.Controls.Add(this.chkProcessAllItemsInRoom);
+            this.Controls.Add(this.cboInventoryFlow);
+            this.Controls.Add(this.lvlInventoryFlow);
             this.Controls.Add(this.cboTickRoom);
             this.Controls.Add(this.lblTickRoom);
             this.Controls.Add(this.cboPawnShoppe);
@@ -314,7 +319,6 @@
             this.Controls.Add(this.grpSkills);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "frmPreBackgroundProcessPrompt";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Skills";
@@ -348,6 +352,7 @@
         private System.Windows.Forms.Label lblPawnShoppe;
         private System.Windows.Forms.ComboBox cboTickRoom;
         private System.Windows.Forms.Label lblTickRoom;
-        private System.Windows.Forms.CheckBox chkProcessAllItemsInRoom;
+        private System.Windows.Forms.ComboBox cboInventoryFlow;
+        private System.Windows.Forms.Label lvlInventoryFlow;
     }
 }
