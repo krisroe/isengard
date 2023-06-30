@@ -1737,6 +1737,15 @@ namespace IsengardClient
             AddExit(oMonkTraining, breeStreets[7, 4], "east");
             breeStreetsGraph.Rooms[oMonkTraining] = new System.Windows.Point(6, 6);
 
+            Room oOldClassRoom = AddRoom("Old Classroom", "Old Classroom");
+            AddExit(oBreeTownSquare, oOldClassRoom, "school");
+            AddExit(oOldClassRoom, oBreeTownSquare, "south");
+            breeStreetsGraph.Rooms[oOldClassRoom] = new System.Windows.Point(5, 2.5);
+
+            Room oClassroomDesk = AddRoom("Classroom Desk", Room.UNKNOWN_ROOM);
+            AddExit(oOldClassRoom, oClassroomDesk, "north");
+            breeStreetsGraph.Rooms[oClassroomDesk] = new System.Windows.Point(5, 2);
+
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
@@ -4638,7 +4647,7 @@ namespace IsengardClient
             treeOfLife.Intangible = true;
             AddExit(treeOfLife, oBreeTownSquare, "down");
             intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
-            breeStreetsGraph.Rooms[treeOfLife] = new System.Windows.Point(5, 2);
+            breeStreetsGraph.Rooms[treeOfLife] = new System.Windows.Point(5.5, 3.3);
             AddMapBoundaryPoint(treeOfLife, oBreeTownSquare, MapType.Intangible, MapType.BreeStreets);
 
             Room oLimbo = AddRoom("Limbo", "Limbo");
