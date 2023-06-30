@@ -3597,7 +3597,7 @@ namespace IsengardClient
             Room oMarkFrey = AddRoom("Mark Frey", "Potent Potions, Inc.");
             oMarkFrey.AddPermanentMobs(MobTypeEnum.MarkFrey);
             AddBidirectionalExitsWithOut(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
-            imladrisToTharbadGraph.Rooms[oMarkFrey] = new System.Windows.Point(3, 5);
+            imladrisToTharbadGraph.Rooms[oMarkFrey] = new System.Windows.Point(3, 4.5);
 
             Room oMistyTrail5 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
@@ -3606,6 +3606,10 @@ namespace IsengardClient
             Room oMistyTrail6 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail5, oMistyTrail6, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oMistyTrail6] = new System.Windows.Point(4, 5);
+
+            Room oMistyTrailForest = AddRoom("Forest", Room.UNKNOWN_ROOM);
+            AddExit(oMistyTrail6, oMistyTrailForest, "forest");
+            imladrisToTharbadGraph.Rooms[oMistyTrailForest] = new System.Windows.Point(3, 5);
 
             Room oMistyTrail7 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail6, oMistyTrail7, BidirectionalExitType.NorthSouth);

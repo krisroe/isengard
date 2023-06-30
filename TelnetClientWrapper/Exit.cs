@@ -91,6 +91,8 @@ namespace IsengardClient
                 ret = int.MaxValue;
             else if (isKeyExit && requiresKey)
                 ret = int.MaxValue;
+            else if (Target.BackendName == Room.UNKNOWN_ROOM)
+                ret = int.MaxValue;
             else if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
                 ret = 10000;
             else if (PresenceType == ExitPresenceType.RequiresSearch)

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Forms;
-
 namespace IsengardClient
 {
     internal class Room
     {
+        public const string UNKNOWN_ROOM = "!@#UNKNOWN$%^";
+
         public override string ToString()
         {
             return Name; //CSRTODO: we used to display experience and alignment here

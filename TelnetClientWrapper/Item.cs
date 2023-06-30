@@ -375,6 +375,12 @@ namespace IsengardClient
         [Weight(4)]
         AncientLyre,
 
+        [SingularName("animal hides")]
+        //CSRTODO: plural
+        [Weight(5)]
+        [EquipmentType(EquipmentType.Torso)]
+        AnimalHides,
+
         [SingularName("aquamarine potion")]
         [PluralName("aquamarine potions")]
         [Potion(SpellsEnum.levitate)]
