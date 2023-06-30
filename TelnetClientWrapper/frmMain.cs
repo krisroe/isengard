@@ -8498,5 +8498,15 @@ BeforeHazy:
             ReloadMap();
             MessageBox.Show("Reloaded!");
         }
+
+        private void ctxMessages_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, lstMessages.SelectedItems.OfType<string>()));
+        }
+
+        private void ctxMessages_Opening(object sender, CancelEventArgs e)
+        {
+            e.Cancel = lstMessages.SelectedItems.Count == 0;
+        }
     }
 }

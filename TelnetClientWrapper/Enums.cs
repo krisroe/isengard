@@ -238,31 +238,82 @@ namespace IsengardClient
 
     internal enum MapType
     {
+        [MapTypeDisplayName("Bree Streets")]
         BreeStreets,
+
+        [MapTypeDisplayName("Bree Sewers")]
         BreeSewers,
+
+        [MapTypeDisplayName("Under Bree")]
         UnderBree,
+
+        [MapTypeDisplayName("Millwood Mansion")]
         MillwoodMansion,
+
+        [MapTypeDisplayName("Millwood Mansion Upstairs")]
         MillwoodMansionUpstairs,
+
+        [MapTypeDisplayName("Bree Haunted Mansion")]
         BreeHauntedMansion,
+
+        [MapTypeDisplayName("West of Bree")]
         WestOfBree,
+
+        [MapTypeDisplayName("Bree/Imladris")]
         BreeToImladris,
+
+        [MapTypeDisplayName("Imladris")]
         Imladris,
+
+        [MapTypeDisplayName("Imladris/Tharbad")]
         ImladrisToTharbad,
+
+        [MapTypeDisplayName("East of Imladris")]
         EastOfImladris,
+
+        [MapTypeDisplayName("Shanty Town")]
         ShantyTown,
+
+        [MapTypeDisplayName("Spindril's Castle Level 1")]
         SpindrilsCastleLevel1,
+
+        [MapTypeDisplayName("Tharbad")]
         Tharbad,
+
+        [MapTypeDisplayName("West of Tharbad")]
         WestOfTharbad,
+
+        [MapTypeDisplayName("East of Tharbad")]
         AlliskPlainsEastOfTharbad,
+
+        [MapTypeDisplayName("Esgaroth")]
         Esgaroth,
+
+        [MapTypeDisplayName("Esgaroth Museum")]
         EsgarothMuseum,
+
+        [MapTypeDisplayName("North of Esgaroth")]
         NorthOfEsgaroth,
+
+        [MapTypeDisplayName("Mithlond")]
         Mithlond,
+
+        [MapTypeDisplayName("Nindamos")]
         Nindamos,
+
+        [MapTypeDisplayName("Armenelos")]
         Armenelos,
+
+        [MapTypeDisplayName("Nindamos/Eldemonde")]
         NindamosToEldemonde,
+
+        [MapTypeDisplayName("Eldemonde")]
         Eldemonde,
+
+        [MapTypeDisplayName("Death Valley")]
         DeathValley,
+
+        [MapTypeDisplayName("Intangible")]
         Intangible,
     }
 

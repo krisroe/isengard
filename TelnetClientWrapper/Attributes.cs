@@ -9,6 +9,14 @@ namespace IsengardClient
         public string Name { get; set; }
     }
 
+    internal class MapTypeDisplayNameAttribute : NameAttribute
+    {
+        public MapTypeDisplayNameAttribute(string Name)
+        {
+            this.Name = Name;
+        }
+    }
+
     /// <summary>
     /// singular name for items/mobs
     /// </summary>
