@@ -52,8 +52,8 @@ namespace IsengardClient
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
             AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery);
             AddUnderBree(oNorthBridge, oOuthouse, oSewerPipeExit);
-            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand);
-            AddEastOfImladris(oEastGateOfImladrisOutside, out Room westGateOfEsgaroth);
+            AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand, out Room oEastGateOfImladrisInside);
+            AddEastOfImladris(oEastGateOfImladrisOutside, oEastGateOfImladrisInside, out Room westGateOfEsgaroth);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
             AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate);
             AddWestOfTharbad(tharbadWestGateOutside, tharbadGraph);
@@ -836,7 +836,7 @@ namespace IsengardClient
         {
             tharbadGraph = _graphs[MapType.Tharbad];
 
-            tharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(3, 0);
+            tharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(3, 0.5);
 
             Room balleNightingale = AddRoom("Balle/Nightingale", "Nightingale Ave./Balle St.");
             Room balle1 = AddRoom("Balle", "Balle Street");
@@ -3000,9 +3000,10 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oUnderhallsAntechamber] = new System.Windows.Point(4, 2);
         }
 
-        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand)
+        private void AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, Room imladrisWestGateOutside, out Room healingHand, out Room oEastGateOfImladrisInside)
         {
             RoomGraph imladrisGraph = _graphs[MapType.Imladris];
+            RoomGraph breeToImladrisGraph = _graphs[MapType.BreeToImladris];
 
             Room imladrisWestGateInside = AddRoom("West Gate Inside", "West Gate of Imladris");
             AddExit(imladrisWestGateInside, imladrisWestGateOutside, "gate");
@@ -3010,6 +3011,7 @@ namespace IsengardClient
             e.RequiresDay = true;
             imladrisGraph.Rooms[imladrisWestGateOutside] = new System.Windows.Point(-1, 5);
             imladrisGraph.Rooms[imladrisWestGateInside] = new System.Windows.Point(0, 5);
+            breeToImladrisGraph.Rooms[imladrisWestGateInside] = new System.Windows.Point(19, 4);
             AddMapBoundaryPoint(imladrisWestGateOutside, imladrisWestGateInside, MapType.BreeToImladris, MapType.Imladris);
 
             Room oImladrisCircle1 = AddRoom("Circle", "Imladris Circle");
@@ -3102,7 +3104,7 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oImladrisMainStreet6] = new System.Windows.Point(8, 5);
 
-            Room oEastGateOfImladrisInside = AddRoom("East Gate Inside", "East Gate of Imladris");
+            oEastGateOfImladrisInside = AddRoom("East Gate Inside", "East Gate of Imladris");
             AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(9, 5);
@@ -3171,11 +3173,12 @@ namespace IsengardClient
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
-        private void AddEastOfImladris(Room oEastGateOfImladrisOutside, out Room westGateOfEsgaroth)
+        private void AddEastOfImladris(Room oEastGateOfImladrisOutside, Room oEastGateOfImladrisInside, out Room westGateOfEsgaroth)
         {
             RoomGraph eastOfImladrisGraph = _graphs[MapType.EastOfImladris];
 
             eastOfImladrisGraph.Rooms[oEastGateOfImladrisOutside] = new System.Windows.Point(0, 6);
+            eastOfImladrisGraph.Rooms[oEastGateOfImladrisInside] = new System.Windows.Point(-1, 6);
 
             Room oMountainPath1 = AddRoom("Mountain Path", "Mountain Path");
             AddBidirectionalExits(oEastGateOfImladrisOutside, oMountainPath1, BidirectionalExitType.WestEast);
@@ -3463,11 +3466,14 @@ namespace IsengardClient
         {
             RoomGraph imladrisGraph = _graphs[MapType.Imladris];
             RoomGraph imladrisToTharbadGraph = _graphs[MapType.ImladrisToTharbad];
+            RoomGraph spindrilsCastleLevel1Graph = _graphs[MapType.SpindrilsCastleLevel1];
+            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
 
             Room oMistyTrail1 = AddRoom("South Gate Outside", "Misty Trail");
             AddBidirectionalSameNameExit(oImladrisSouthGateInside, oMistyTrail1, "gate");
             imladrisGraph.Rooms[oMistyTrail1] = new System.Windows.Point(5, 11);
             imladrisToTharbadGraph.Rooms[oMistyTrail1] = new System.Windows.Point(5, 0);
+            imladrisToTharbadGraph.Rooms[oImladrisSouthGateInside] = new System.Windows.Point(5, -1);
             AddMapBoundaryPoint(oImladrisSouthGateInside, oMistyTrail1, MapType.Imladris, MapType.ImladrisToTharbad);
 
             Room oBrunskidTradersGuild1 = AddRoom("Brunskid Guild", "Brunskid Trader's Guild Store Front");
@@ -3556,11 +3562,13 @@ namespace IsengardClient
             Room oMistyTrail14 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail13, oMistyTrail14, BidirectionalExitType.SouthwestNortheast);
             imladrisToTharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(0, 13);
+            tharbadGraph.Rooms[oMistyTrail14] = new System.Windows.Point(3, 0);
 
             Room oGrassyField = AddRoom("Grassy Field", "Grassy Field");
             oGrassyField.AddNonPermanentMobs(MobTypeEnum.Griffon);
             AddBidirectionalExits(oGrassyField, oMistyTrail14, BidirectionalExitType.SoutheastNorthwest);
             imladrisToTharbadGraph.Rooms[oGrassyField] = new System.Windows.Point(-1, 12);
+            spindrilsCastleLevel1Graph.Rooms[oGrassyField] = new System.Windows.Point(11, 10.5);
 
             Room spindrilsCastleOutside = AddRoom("Dark Clouds", "Dark Clouds");
             Exit e = AddExit(oGrassyField,spindrilsCastleOutside, "up");
