@@ -3109,7 +3109,7 @@ namespace IsengardClient
 
             Room oImladrisMainStreet2 = AddRoom("Main", "Imladris Main Street");
             AddBidirectionalExits(oImladrisMainStreet1, oImladrisMainStreet2, BidirectionalExitType.WestEast);
-            imladrisGraph.Rooms[oImladrisMainStreet2] = new System.Windows.Point(2, 5);
+            imladrisGraph.Rooms[oImladrisMainStreet2] = new System.Windows.Point(2.3, 5);
 
             Room oImladrisMainStreet3 = AddRoom("Main", "Imladris Main Street");
             AddBidirectionalExits(oImladrisMainStreet2, oImladrisMainStreet3, BidirectionalExitType.WestEast);
@@ -3242,6 +3242,26 @@ namespace IsengardClient
             Room oImladrisMageClub = AddRoom("Mage Club", "Imladris Mage's Club");
             AddBidirectionalExits(oImladrisMainStreet3, oImladrisMageClub, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oImladrisMageClub] = new System.Windows.Point(3, 5.5);
+
+            Room oImladrisBank = AddRoom("Bank", "Bank of Imladris");
+            AddBidirectionalExits(oImladrisMainStreet2, oImladrisBank, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisBank] = new System.Windows.Point(2.3, 5.5);
+
+            Room oCombatMall = AddRoom("Combat Mall", "Combat Mall");
+            AddBidirectionalExits(oCombatMall, oImladrisMainStreet2, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oCombatMall] = new System.Windows.Point(2.3, 4.2);
+
+            Room oParmasPolearms = AddRoom("Polearms", "Parma's Polearms");
+            AddBidirectionalExits(oParmasPolearms, oCombatMall, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oParmasPolearms] = new System.Windows.Point(1.5, 4.2);
+
+            Room oWeaponsmith = AddRoom("Weaponsmith", "Elven Weaponsmith");
+            AddBidirectionalExits(oWeaponsmith, oCombatMall, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oWeaponsmith] = new System.Windows.Point(2.3, 3.7);
+
+            Room oArchery = AddRoom("Archery", "Feanaro's Archery Shoppe");
+            AddBidirectionalExits(oCombatMall, oArchery, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oArchery] = new System.Windows.Point(3.3, 4.2);
 
             Room oImladrisCityJail = AddRoom("City Jail", "Imladris City Jail");
             e = AddBidirectionalExitsWithOut(oImladrisAlley4, oImladrisCityJail, "door");
