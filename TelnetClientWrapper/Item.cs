@@ -421,6 +421,7 @@ namespace IsengardClient
 
         [SingularName("black iron key")]
         [PluralName("black iron keys")]
+        [Key]
         BlackIronKey,
 
         [SingularName("black vestments")]
@@ -436,6 +437,7 @@ namespace IsengardClient
 
         [SingularName("boiler key")]
         [PluralName("boiler keys")]
+        [Key]
         BoilerKey,
 
         [SingularName("bone armor")]
@@ -484,6 +486,7 @@ namespace IsengardClient
 
         [SingularName("bridge key")]
         [PluralName("bridge keys")]
+        [Key]
         BridgeKey,
 
         [SingularName("broad sword")]
@@ -510,6 +513,7 @@ namespace IsengardClient
 
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
+        [Key]
         CarvedIvoryKey,
 
         [SingularName("cat o' nine tails")]
@@ -638,6 +642,7 @@ namespace IsengardClient
 
         [SingularName("dungeon key")]
         [PluralName("dungeon keys")]
+        [Key]
         DungeonKey,
 
         [SingularName("dwarven mithril gaiters")]
@@ -721,6 +726,7 @@ namespace IsengardClient
 
         [SingularName("gate key")]
         [PluralName("gate keys")]
+        [Key]
         GateKey,
 
         [SingularName("gate warning")]
@@ -744,6 +750,7 @@ namespace IsengardClient
 
         [SingularName("Girion's key")]
         [PluralName("Girion's keys")]
+        [Key]
         GirionsKey,
 
         [SingularName("glitter")]
@@ -787,6 +794,7 @@ namespace IsengardClient
 
         [SingularName("grate key")]
         [PluralName("grate keys")]
+        [Key]
         GrateKey,
 
         [SingularName("green potion")]
@@ -868,6 +876,7 @@ namespace IsengardClient
         //mage training level 13
         [SingularName("invisible key")]
         [PluralName("invisible keys")]
+        [Key]
         InvisibleKey,
 
         [SingularName("iron ring")]
@@ -887,6 +896,7 @@ namespace IsengardClient
 
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
+        [Key]
         [Weight(3)]
         KasnarsRedKey,
 
@@ -897,6 +907,7 @@ namespace IsengardClient
 
         [SingularName("key of the elements")]
         //CSRTODO: plural?
+        [Key]
         KeyOfTheElements,
 
         [SingularName("khopesh sword")]
@@ -1061,6 +1072,7 @@ namespace IsengardClient
 
         [SingularName("molten iron key")]
         [PluralName("molten iron keys")]
+        [Key]
         MoltenIronKey,
 
         [SingularName("MOM tattoo")]
@@ -1248,6 +1260,7 @@ namespace IsengardClient
 
         [SingularName("rusty key")]
         [PluralName("rusty key")]
+        [Key]
         RustyKey,
 
         [SingularName("sack of potatoes")]
@@ -1308,6 +1321,7 @@ namespace IsengardClient
 
         [SingularName("silver key")]
         [PluralName("silver keys")]
+        [Key]
         SilverKey,
 
         [SingularName("silver scimitar")]
@@ -1431,6 +1445,7 @@ namespace IsengardClient
 
         [SingularName("stone key")]
         [PluralName("stone keys")]
+        [Key]
         StoneKey,
 
         [SingularName("storage sign")]
@@ -1491,6 +1506,7 @@ namespace IsengardClient
 
         [SingularName("training key")]
         [PluralName("training keys")]
+        [Key]
         TrainingKey,
 
         [SingularName("translucent armor")]
