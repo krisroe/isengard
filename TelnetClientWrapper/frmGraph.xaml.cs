@@ -43,15 +43,7 @@ namespace IsengardClient
             if (currentRoom != null)
             {
                 txtCurrentRoom.Text = currentRoom.ToString();
-                foreach (KeyValuePair<MapType, RoomGraph> next in _graphs)
-                {
-                    RoomGraph nextRoomGraph = next.Value;
-                    if (nextRoomGraph.Rooms.ContainsKey(currentRoom))
-                    {
-                        startingGraph = nextRoomGraph;
-                        break;
-                    }
-                }
+                startingGraph = fullMap.Graphs[fullMap.RoomsToMaps[currentRoom]];
             }
             if (startingGraph == null)
             {

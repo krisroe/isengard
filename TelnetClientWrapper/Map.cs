@@ -55,8 +55,8 @@ namespace IsengardClient
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand, out Room oEastGateOfImladrisInside);
             AddEastOfImladris(oEastGateOfImladrisOutside, oEastGateOfImladrisInside, out Room westGateOfEsgaroth);
             AddImladrisToTharbad(oImladrisSouthGateInside, out Room oTharbadGateOutside);
-            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate);
-            AddWestOfTharbad(tharbadWestGateOutside, tharbadGraph);
+            AddTharbadCity(oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out Room tharbadEastGate);
+            AddWestOfTharbad(tharbadWestGateOutside);
             AddEastOfTharbad(tharbadEastGate);
             AddEsgaroth(westGateOfEsgaroth, out Room esgarothNorthGateOutside);
             AddNorthOfEsgaroth(esgarothNorthGateOutside);
@@ -64,7 +64,7 @@ namespace IsengardClient
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside, nindamosGraph);
             AddEldemondeCity(oEldemondeEastGateOutside);
-            AddMithlond(breeDocks, boatswain, tharbadDocks, tharbadGraph, nindamosDocks, nindamosGraph);
+            AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
 
             foreach (Area a in _areas)
@@ -334,9 +334,10 @@ namespace IsengardClient
             tharbadEastGraph.Rooms[oTrakardOgreRanger] = new System.Windows.Point(4, 14);
         }
 
-        private void AddWestOfTharbad(Room tharbadWestGateOutside, RoomGraph tharbadGraph)
+        private void AddWestOfTharbad(Room tharbadWestGateOutside)
         {
             RoomGraph tharbadWestGraph = _graphs[MapType.WestOfTharbad];
+            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
 
             tharbadWestGraph.Rooms[tharbadWestGateOutside] = new System.Windows.Point(6, 5);
 
@@ -512,9 +513,10 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oWildmanVillage] = new System.Windows.Point(-1, 15);
         }
 
-        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, RoomGraph tharbadGraph, Room nindamosDocks, RoomGraph nindamosGraph)
+        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, RoomGraph nindamosGraph)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
             oCelduinExpressSlip.AddPermanentMobs(MobTypeEnum.HarborMaster);
@@ -832,9 +834,10 @@ namespace IsengardClient
             }
         }
 
-        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out RoomGraph tharbadGraph, out Room tharbadEastGate)
+        private void AddTharbadCity(Room oTharbadGateOutside, out Room tharbadWestGateOutside, out Room tharbadDocks, out Room tharbadEastGate)
         {
-            tharbadGraph = _graphs[MapType.Tharbad];
+            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
+            RoomGraph eastOfTharbadGraph = _graphs[MapType.AlliskPlainsEastOfTharbad];
 
             tharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(3, 0.5);
 
@@ -878,6 +881,7 @@ namespace IsengardClient
             Room sabreEvard = AddRoom("Sabre/Evard", "Sabre Street/Evard Avenue");
             AddBidirectionalExits(evard2, sabreEvard, BidirectionalExitType.NorthSouth);
             tharbadGraph.Rooms[sabreEvard] = new System.Windows.Point(10, 8);
+            eastOfTharbadGraph.Rooms[sabreEvard] = new System.Windows.Point(-1, 4);
 
             Room sabre1 = AddRoom("Sabre", "Sabre Street");
             AddBidirectionalExits(sabre1, sabreEvard, BidirectionalExitType.WestEast);
@@ -3683,12 +3687,15 @@ namespace IsengardClient
         private void AddEsgaroth(Room westGateOfEsgaroth, out Room northGateOutside)
         {
             RoomGraph esgarothGraph = _graphs[MapType.Esgaroth];
+            RoomGraph eastOfImladrisGraph = _graphs[MapType.EastOfImladris];
+            RoomGraph northOfEsgarothGraph = _graphs[MapType.NorthOfEsgaroth];
 
             esgarothGraph.Rooms[westGateOfEsgaroth] = new System.Windows.Point(0, 7);
 
             Room plymouthIndigo = AddRoom("Plymouth/Indigo", "Plymouth Road/Indigo Avenue Intersection");
             AddBidirectionalSameNameExit(westGateOfEsgaroth, plymouthIndigo, "gate");
             esgarothGraph.Rooms[plymouthIndigo] = new System.Windows.Point(1, 6);
+            eastOfImladrisGraph.Rooms[plymouthIndigo] = new System.Windows.Point(10, 4);
             AddMapBoundaryPoint(westGateOfEsgaroth, plymouthIndigo, MapType.EastOfImladris, MapType.Esgaroth);
 
             Room cathedralEntrance = AddRoom("Cathedral Entrance", "Cathedral of Worldly Bliss Court");
@@ -3867,6 +3874,7 @@ namespace IsengardClient
             Room northEntranceInside = AddRoom("North Gate Inside", "North Entrance to Esgaroth");
             AddBidirectionalExits(northEntranceInside, frostIndigo, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[northEntranceInside] = new System.Windows.Point(1, 2);
+            northOfEsgarothGraph.Rooms[northEntranceInside] = new System.Windows.Point(5, 11);
 
             northGateOutside = AddRoom("North Gate Outside", "North Entrance to Esgaroth");
             AddBidirectionalSameNameExit(northEntranceInside, northGateOutside, "gate");
