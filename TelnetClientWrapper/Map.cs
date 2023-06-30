@@ -2681,6 +2681,12 @@ namespace IsengardClient
             AddBidirectionalExits(oGreatEastRoad13, oGreatEastRoad14, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad14] = new System.Windows.Point(17, 4);
 
+            Room oThickFog = AddRoom("Thick Fog", "Thick Fog");
+            AddExit(oGreatEastRoad14, oThickFog, "north");
+            e = AddExit(oThickFog, oGreatEastRoad12, "east");
+            e.Hidden = true;
+            breeToImladrisGraph.Rooms[oThickFog] = new System.Windows.Point(17, 3);
+
             imladrisWestGateOutside = AddRoom("West Gate Outside", "West Gate of Imladris");
             AddBidirectionalExits(oGreatEastRoad14, imladrisWestGateOutside, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[imladrisWestGateOutside] = new System.Windows.Point(18, 4);
