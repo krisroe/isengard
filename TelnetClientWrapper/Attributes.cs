@@ -99,6 +99,9 @@ namespace IsengardClient
     internal class BagAttribute : Attribute
     {
     }
+    internal class KeyAttribute : Attribute
+    {
+    }
 
     /// <summary>
     /// weapon type for an item

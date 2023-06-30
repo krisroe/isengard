@@ -28,17 +28,6 @@ namespace IsengardClient
         RequiresSearch,
     }
 
-    internal enum KeyType
-    {
-        None,
-        GateKey,
-        KasnarsRedKey,
-        SilverKey,
-        BoilerKey,
-        BridgeKey,
-        UnknownKnockable,
-    }
-
     [Flags]
     internal enum PromptedSkills
     {

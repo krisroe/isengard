@@ -97,6 +97,8 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Coins;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(BagAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Bag;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(KeyAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Key;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -248,6 +250,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.BagClass;
             }
+            else if (ic == ItemClass.Key)
+            {
+                yield return DynamicDataItemClass.Key;
+            }
             else if (ic == ItemClass.Potion)
             {
                 yield return DynamicDataItemClass.Potion;
@@ -288,6 +294,7 @@ namespace IsengardClient
         Scroll,
         Wand,
         Bag,
+        Key,
         Coins,
         Money,
         Other,
@@ -314,6 +321,7 @@ namespace IsengardClient
         Scroll,
         Wand,
         BagClass,
+        Key,
         Coins,
         Money,
 
@@ -711,6 +719,10 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Finger)]
         GalvornRing,
 
+        [SingularName("gate key")]
+        [PluralName("gate keys")]
+        GateKey,
+
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
         GateWarning,
@@ -781,6 +793,11 @@ namespace IsengardClient
         [PluralName("green potions")]
         [Potion(SpellsEnum.curepoison)]
         GreenPotion,
+
+        [SingularName("grey cloak")]
+        [PluralName("grey cloaks")]
+        [EquipmentType(EquipmentType.Neck)]
+        GreyCloak,
 
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
@@ -1288,6 +1305,10 @@ namespace IsengardClient
         [WeaponType(WeaponType.Stab)]
         [SellGoldRange(67, 67)]
         SilverDagger,
+
+        [SingularName("silver key")]
+        [PluralName("silver keys")]
+        SilverKey,
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]

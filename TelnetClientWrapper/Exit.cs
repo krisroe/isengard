@@ -31,7 +31,11 @@ namespace IsengardClient
         /// <summary>
         /// what type of key is needed to use the exit
         /// </summary>
-        public KeyType KeyType { get; set; }
+        public ItemTypeEnum? KeyType { get; set; }
+        /// <summary>
+        /// if true, the exit is locked and knockable but the key type is unknown
+        /// </summary>
+        public bool IsUnknownKnockableKeyType { get; set; }
         /// <summary>
         /// whether the exit requires floating (fly/levitation)
         /// </summary>
@@ -85,7 +89,7 @@ namespace IsengardClient
         /// <returns>true if the key is required, false otherwise</returns>
         public bool RequiresKey()
         {
-            return this.KeyType == KeyType.GateKey;
+            return KeyType.HasValue && KeyType == ItemTypeEnum.GateKey;
         }
 
         public int GetCost()
@@ -99,7 +103,7 @@ namespace IsengardClient
             {
                 ret = 1000;
             }
-            else if (KeyType != KeyType.None && !RequiresKey())
+            else if (KeyType.HasValue && !RequiresKey())
             {
                 ret = 1000;
             }

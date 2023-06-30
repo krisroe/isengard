@@ -4706,13 +4706,10 @@ BeforeHazy:
                     if (_hazying) break;
                     if (_bw.CancellationPending) break;
 
-                    if (nextExit.KeyType != KeyType.None)
+                    if ((nextExit.KeyType.HasValue || nextExit.IsUnknownKnockableKeyType) && !nextExit.RequiresKey())
                     {
-                        if (!nextExit.RequiresKey())
-                        {
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying, false);
-                            if (!backgroundCommandSuccess) return false;
-                        }
+                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying, false);
+                        if (!backgroundCommandSuccess) return false;
                     }
 
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))

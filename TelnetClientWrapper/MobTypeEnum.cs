@@ -381,6 +381,11 @@
         [PluralName("ghosts")]
         Ghost,
 
+        [SingularName("ghostly fencer")]
+        [PluralName("ghostly fencers")]
+        [Experience(82)]
+        GhostlyFencer,
+
         [SingularName("ghost of Muzgash")]
         //CSRTODO: no plural
         GhostOfMuzgash,
@@ -1044,6 +1049,10 @@
         [SingularName("poor fisherman")]
         [PluralName("poor fishermen")]
         PoorFisherman,
+
+        [SingularName("pregnant goat")]
+        [PluralName("pregnant goats")]
+        PregnantGoat,
 
         [SingularName("priest")]
         [PluralName("priests")]

@@ -560,7 +560,7 @@ namespace IsengardClient
             Room oBridge = AddRoom("Bridge", "Bridge of the Celduin Express");
             oBridge.AddPermanentMobs(MobTypeEnum.CaptainFelagund);
             Exit e = AddExit(oBeneathBridge, oBridge, "hatchway");
-            e.KeyType = KeyType.BridgeKey;
+            e.KeyType = ItemTypeEnum.BridgeKey;
             e.MustOpen = true;
             e = AddExit(oBridge, oBeneathBridge, "down");
             e.MustOpen = true;
@@ -576,7 +576,7 @@ namespace IsengardClient
 
             Room oBoilerRoom = AddRoom("Boiler Room", "Boiler Room");
             e = AddExit(oUnderDeck, oBoilerRoom, "door");
-            e.KeyType = KeyType.BoilerKey;
+            e.KeyType = ItemTypeEnum.BoilerKey;
             e.MustOpen = true;
             e = AddExit(oBoilerRoom, oUnderDeck, "door");
             e.MustOpen = true;
@@ -1598,7 +1598,7 @@ namespace IsengardClient
             Room oOldGardener = AddRoom("Old Gardener", "Path to Mansion");
             oOldGardener.AddPermanentMobs(MobTypeEnum.OldGardener);
             Exit e = AddExit(hauntedMansionEntrance, oOldGardener, "gate");
-            e.KeyType = KeyType.SilverKey;
+            e.KeyType = ItemTypeEnum.SilverKey;
             e.MustOpen = true;
             AddExit(oOldGardener, hauntedMansionEntrance, "gate");
             breeStreetsGraph.Rooms[oOldGardener] = new System.Windows.Point(2, 2.5);
@@ -1606,7 +1606,7 @@ namespace IsengardClient
 
             Room oFoyer = AddRoom("Foyer", "Foyer of the Old Mansion");
             e = AddBidirectionalExitsWithOut(oOldGardener, oFoyer, "door");
-            e.KeyType = KeyType.SilverKey;
+            e.KeyType = ItemTypeEnum.SilverKey;
             e.MustOpen = true;
             hauntedMansionGraph.Rooms[oFoyer] = new System.Windows.Point(2, 6);
 
@@ -1666,6 +1666,7 @@ namespace IsengardClient
             hauntedMansionGraph.Rooms[oChildsBedroom] = new System.Windows.Point(2, 1);
 
             Room oGhostlyFencer = AddRoom("Ghostly Fencer", "Decrepit Training Room");
+            oGhostlyFencer.AddPermanentMobs(MobTypeEnum.GhostlyFencer);
             AddExit(oEasternHallway, oGhostlyFencer, "north");
             AddExit(oGhostlyFencer, oEasternHallway, "southeast");
             hauntedMansionGraph.Rooms[oGhostlyFencer] = new System.Windows.Point(2, 0);
@@ -2041,7 +2042,7 @@ namespace IsengardClient
             e.Hidden = true;
             e.MustOpen = true;
             e = AddExit(oEaldsHideout, oBurnedRemainsOfNimrodel, "trap");
-            e.KeyType = KeyType.UnknownKnockable;
+            e.IsUnknownKnockableKeyType = true;
             AddExit(oBurnedRemainsOfNimrodel, oEaldsHideout, "up");
             breeSewersGraph.Rooms[oEaldsHideout] = new System.Windows.Point(2, 0);
 
@@ -2058,7 +2059,7 @@ namespace IsengardClient
 
             AddExit(aqueduct, oKasnarTheGuard, "north");
             e = AddExit(oKasnarTheGuard, aqueduct, "south");
-            e.KeyType = KeyType.KasnarsRedKey;
+            e.KeyType = ItemTypeEnum.KasnarsRedKey;
             e.MustOpen = true;
 
             Room oOldMansReadingRoom = AddRoom("Reading Room", "Old man's reading room");
@@ -2780,7 +2781,7 @@ namespace IsengardClient
             oBlackEyeOrcDwelling.AddPermanentMobs(MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc, MobTypeEnum.SewerOrc);
             e = AddBidirectionalExitsWithOut(oUnderhallsIronDoor, oBlackEyeOrcDwelling, "iron");
             e.MustOpen = true;
-            e.KeyType = KeyType.UnknownKnockable;
+            e.IsUnknownKnockableKeyType = true;
             e.IsTrapExit = true;
             breeToImladrisGraph.Rooms[oBlackEyeOrcDwelling] = new System.Windows.Point(9, -0.5);
 
@@ -2863,17 +2864,17 @@ namespace IsengardClient
             Room oUnderhallsBugbearsLair = AddRoom("Bugbear Lair", "Bugbears' Lair");
             oUnderhallsBugbearsLair.AddPermanentMobs(MobTypeEnum.Bugbear, MobTypeEnum.Bugbear, MobTypeEnum.Bugbear);
             e = AddExit(oUnderhallsCorridorsStoneDoor, oUnderhallsBugbearsLair, "stone");
-            e.KeyType = KeyType.UnknownKnockable;
+            e.IsUnknownKnockableKeyType = true;
             e.MustOpen = true;
             e = AddExit(oUnderhallsBugbearsLair, oUnderhallsCorridorsStoneDoor, "stone");
-            e.KeyType = KeyType.UnknownKnockable;
+            e.IsUnknownKnockableKeyType = true;
             e.MustOpen = true;
             breeToImladrisGraph.Rooms[oUnderhallsBugbearsLair] = new System.Windows.Point(4, -2);
 
             Room oHiddenCubicle = AddRoom("Hidden Cubicle", "Hidden Cubicle");
             e = AddBidirectionalExitsWithOut(oUnderhallsBugbearsLair, oHiddenCubicle, "hidden");
             e.Hidden = true;
-            e.KeyType = KeyType.UnknownKnockable;
+            e.IsUnknownKnockableKeyType = true;
             e.MustOpen = true;
             breeToImladrisGraph.Rooms[oHiddenCubicle] = new System.Windows.Point(5, -2);
 
