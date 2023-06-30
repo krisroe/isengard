@@ -61,28 +61,6 @@ namespace IsengardClient
         /// </summary>
         public bool IsTrapExit { get; set; }
 
-        public bool ExitIsUsable(GraphInputs graphInputs)
-        {
-            int level = graphInputs.Level;
-            bool levitating = graphInputs.Levitating;
-            bool ret;
-            if (RequiresDay && !graphInputs.IsDay)
-                ret = false;
-            else if (MaximumLevel.HasValue && level > MaximumLevel.Value)
-                ret = false;
-            else if (MinimumLevel.HasValue && level < MinimumLevel.Value)
-                ret = false;
-            else if (FloatRequirement == FloatRequirement.Fly && !graphInputs.Flying)
-                ret = false;
-            else if (FloatRequirement == FloatRequirement.Levitation && !levitating)
-                ret = false;
-            else if (FloatRequirement == FloatRequirement.NoLevitation && levitating)
-                ret = false;
-            else
-                ret = true;
-            return ret;
-        }
-
         /// <summary>
         /// whether the key is required to use the exit (returns false when knockable)
         /// </summary>
@@ -92,25 +70,35 @@ namespace IsengardClient
             return KeyType.HasValue && KeyType == ItemTypeEnum.GateKey;
         }
 
-        public int GetCost()
+        public int GetCost(GraphInputs graphInputs)
         {
             int ret;
-            if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
-            {
+            int level = graphInputs.Level;
+            bool levitating = graphInputs.Levitating;
+            bool isKeyExit = KeyType.HasValue;
+            bool requiresKey = RequiresKey();
+            if (RequiresDay && !graphInputs.IsDay)
+                ret = int.MaxValue;
+            else if (MaximumLevel.HasValue && level > MaximumLevel.Value)
+                ret = int.MaxValue;
+            else if (MinimumLevel.HasValue && level < MinimumLevel.Value)
+                ret = int.MaxValue;
+            else if (FloatRequirement == FloatRequirement.Fly && !graphInputs.Flying)
+                ret = int.MaxValue;
+            else if (FloatRequirement == FloatRequirement.Levitation && !levitating)
+                ret = int.MaxValue;
+            else if (FloatRequirement == FloatRequirement.NoLevitation && levitating)
+                ret = int.MaxValue;
+            else if (isKeyExit && requiresKey)
+                ret = int.MaxValue;
+            else if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
                 ret = 10000;
-            }
             else if (PresenceType == ExitPresenceType.RequiresSearch)
-            {
                 ret = 1000;
-            }
-            else if (KeyType.HasValue && !RequiresKey())
-            {
+            else if (isKeyExit) //knockable locked exit
                 ret = 1000;
-            }
             else
-            {
                 ret = 1;
-            }
             return ret;
         }
 

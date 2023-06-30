@@ -84,7 +84,7 @@ namespace IsengardClient
                             rbg.AddVertex(targetRoom);
                             addedRooms.Add(targetRoom);
                         }
-                        nextExit.ShowAsRedOnGraph = !nextExit.ExitIsUsable(_graphInputs);
+                        nextExit.ShowAsRedOnGraph = nextExit.GetCost(_graphInputs) == int.MaxValue;
                         rbg.AddEdge(nextExit);
                     }
                 }

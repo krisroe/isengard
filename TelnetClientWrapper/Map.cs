@@ -3371,9 +3371,9 @@ namespace IsengardClient
             AddExit(oShepherd, oNorthFork1, "south");
             westOfBreeMap.Rooms[oShepherd] = new System.Windows.Point(13, -2);
 
-            //Gate is locked (and knocking doesn't work) so not treating as an exit. This is only accessible from the other way around.
-            //AddExit(oShepherd, oSmoulderingVillage, "gate");
             AddExit(oSmoulderingVillage, oShepherd, "gate");
+            e = AddExit(oShepherd, oSmoulderingVillage, "gate");
+            e.KeyType = ItemTypeEnum.GateKey; //not actually a usable exit since full key support is not there yet
             westOfBreeMap.Rooms[oSmoulderingVillage] = new System.Windows.Point(13, -2.5);
 
             AddLocation(_aBreePerms, oBilboBaggins);
@@ -5930,14 +5930,17 @@ namespace IsengardClient
             GenericPriorityQueue<ExitPriorityNode, int> pq = new GenericPriorityQueue<ExitPriorityNode, int>(2000);
 
             pathMapping[currentRoom] = null;
-
-            Func<Exit, bool> discriminator = (exit) =>
+            foreach (Exit e in currentRoom.Exits)
             {
-                return !pathMapping.ContainsKey(exit.Target) && exit.ExitIsUsable(graphInputs);
-            };
-            foreach (Exit e in IsengardMap.GetRoomExits(currentRoom, discriminator))
-            {
-                pq.Enqueue(new ExitPriorityNode(e), e.GetCost());
+                if (!pathMapping.ContainsKey(e.Target))
+                {
+                    int cost = e.GetCost(graphInputs);
+                    if (cost != int.MaxValue)
+                    {
+                        pq.Enqueue(new ExitPriorityNode(e), cost);
+                    }
+                }
+                
             }
             while (pq.Count > 0)
             {
@@ -5964,9 +5967,16 @@ namespace IsengardClient
                     }
                     else
                     {
-                        foreach (Exit e in IsengardMap.GetRoomExits(nextNodeTarget, discriminator))
+                        foreach (Exit e in nextNodeTarget.Exits)
                         {
-                            pq.Enqueue(new ExitPriorityNode(e), iPriority + e.GetCost());
+                            if (!pathMapping.ContainsKey(e.Target))
+                            {
+                                int cost = e.GetCost(graphInputs);
+                                if (cost != int.MaxValue)
+                                {
+                                    pq.Enqueue(new ExitPriorityNode(e), iPriority + cost);
+                                }
+                            }
                         }
                     }
                 }
