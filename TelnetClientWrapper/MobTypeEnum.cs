@@ -297,6 +297,10 @@
         //CSRTODO: no plural
         EaldTheWise,
 
+        [SingularName("Earthen Loremaster")]
+        //CSRTODO: no plural
+        EarthenLoremaster,
+
         [SingularName("eccentric artist")]
         [PluralName("eccentric artists")]
         EccentricArtist,

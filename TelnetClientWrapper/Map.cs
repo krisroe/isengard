@@ -1651,6 +1651,33 @@ namespace IsengardClient
             e.MustOpen = true;
             breeStreetsGraph.Rooms[oBigPapaSmallHallway] = new System.Windows.Point(8, 4.5);
 
+            Room oWizardsEye = AddRoom("Wizard's Eye", "Wizard's Eye");
+            AddBidirectionalExitsWithOut(breeStreets[5, 0], oWizardsEye, "north");
+            breeStreetsGraph.Rooms[oWizardsEye] = new System.Windows.Point(5, 9.75);
+
+            Room oMageTraining = AddRoom("Mage Training", "Mage Training");
+            oMageTraining.AddPermanentMobs(MobTypeEnum.MagorTheInstructor);
+            e = AddExit(oWizardsEye, oMageTraining, "archway");
+            e.Hidden = true;
+            AddExit(oMageTraining, oWizardsEye, "door");
+            breeStreetsGraph.Rooms[oMageTraining] = new System.Windows.Point(5, 9.5);
+
+            Room oPostOffice = AddRoom("Post Office", "Post Office");
+            AddExit(breeStreets[1, 7], oPostOffice, "post office");
+            AddExit(oPostOffice, breeStreets[1, 7], "north");
+            breeStreetsGraph.Rooms[oPostOffice] = new System.Windows.Point(1, 3.5);
+
+            Room oHallOfQuests = AddRoom("Quest Hall", "Hall of Quests");
+            oHallOfQuests.AddPermanentMobs(MobTypeEnum.DenethoreTheWise);
+            AddExit(breeStreets[1, 7], oHallOfQuests, "hall");
+            AddExit(oHallOfQuests, breeStreets[1, 7], "south");
+            breeStreetsGraph.Rooms[oHallOfQuests] = new System.Windows.Point(1, 2.5);
+
+            Room oHallOfEarth = AddRoom("Earth Hall", "Hall of Earth");
+            oHallOfEarth.AddPermanentMobs(MobTypeEnum.EarthenLoremaster);
+            AddBidirectionalExitsWithOut(oHallOfQuests, oHallOfEarth, "earth");
+            breeStreetsGraph.Rooms[oHallOfEarth] = new System.Windows.Point(1, 2);
+
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
