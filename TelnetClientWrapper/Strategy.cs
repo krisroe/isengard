@@ -499,6 +499,8 @@ namespace IsengardClient
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastMagicStep = MagicStrategyStep.GenericHeal;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
+            s.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
@@ -511,8 +513,6 @@ namespace IsengardClient
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
-            s.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
-            s.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
