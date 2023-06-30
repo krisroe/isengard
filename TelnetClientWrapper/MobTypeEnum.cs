@@ -293,6 +293,10 @@
         //CSRTODO: plural?
         Dwarf,
 
+        [SingularName("dwarven acolyte")]
+        [PluralName("dwarven acolytes")]
+        DwarvenAcolyte,
+
         [SingularName("dwarven miner")]
         [PluralName("dwarven miners")]
         DwarvenMiner,
@@ -1321,6 +1325,10 @@
         [PluralName("thiefs")]
         Thief,
 
+        [SingularName("Thoringil the Holy")]
+        //CSRTODO: no plural
+        ThoringilTheHoly,
+
         [SingularName("tour guide")]
         [PluralName("tour guides")]
         TourGuide,
@@ -1455,6 +1463,10 @@
         [SingularName("worker")]
         [PluralName("workers")]
         Worker,
+
+        [SingularName("worshiper")]
+        [PluralName("worshiper")]
+        Worshiper,
 
         [SingularName("Zain")]
         //CSRTODO: no plural

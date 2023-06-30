@@ -1686,6 +1686,37 @@ namespace IsengardClient
             AddExit(oFarmersMarket, breeStreets[11, 7], "south");
             breeStreetsGraph.Rooms[oFarmersMarket] = new System.Windows.Point(11, 2.5);
 
+            Room oBank = AddRoom("Bank", "Bree Municipal Bank");
+            AddExit(breeStreets[8, 7], oBank, "bank");
+            AddExit(oBank, breeStreets[8, 7], "south");
+            breeStreetsGraph.Rooms[oBank] = new System.Windows.Point(8, 2.5);
+
+            Room oShrineEntrance = AddRoom("Shrine Entrance", "Entrance to Shrine of Moradin");
+            AddExit(breeStreets[8, 7], oShrineEntrance, "shrine");
+            AddExit(oShrineEntrance, breeStreets[8, 7], "north");
+            breeStreetsGraph.Rooms[oShrineEntrance] = new System.Windows.Point(8, 3.3);
+
+            Room oShrineFoyer = AddRoom("Shrine Foyer", "Foyer of Shrine of Moradin");
+            AddBidirectionalSameNameExit(oShrineEntrance, oShrineFoyer, "gate");
+            breeStreetsGraph.Rooms[oShrineFoyer] = new System.Windows.Point(8, 3.8);
+
+            Room oShrineWest = AddRoom("Thoringil", "High Priest's Chambers");
+            oShrineWest.AddPermanentMobs(MobTypeEnum.ThoringilTheHoly);
+            e = AddExit(oShrineFoyer, oShrineWest, "west door");
+            e.MustOpen = true;
+            AddExit(oShrineWest, oShrineFoyer, "east");
+            breeStreetsGraph.Rooms[oShrineWest] = new System.Windows.Point(7.3, 3.8);
+
+            Room oShrineEast = AddRoom("Prayer Room", "Prayer room");
+            e = AddExit(oShrineFoyer, oShrineEast, "east door");
+            e.MustOpen = true;
+            AddExit(oShrineEast, oShrineFoyer, "west");
+            breeStreetsGraph.Rooms[oShrineEast] = new System.Windows.Point(8.7, 3.8);
+
+            Room oGreatHallOfMoradin = AddRoom("Great Hall", "Great Hall of Moradin");
+            AddBidirectionalExits(oShrineFoyer, oGreatHallOfMoradin, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oGreatHallOfMoradin] = new System.Windows.Point(8, 4.3);
+
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);
@@ -1817,7 +1848,7 @@ namespace IsengardClient
             Exit e = AddExit(oNorthBridge, droolie, "rope");
             e.Hidden = true;
             AddExit(droolie, oNorthBridge, "up");
-            breeStreetsGraph.Rooms[droolie] = new System.Windows.Point(9, 3.5);
+            breeStreetsGraph.Rooms[droolie] = new System.Windows.Point(9, 3.3);
             AddMapBoundaryPoint(oNorthBridge, droolie, MapType.BreeStreets, MapType.UnderBree);
 
             underBreeGraph.Rooms[oNorthBridge] = new System.Windows.Point(0, 0);
