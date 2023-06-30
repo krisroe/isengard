@@ -1469,7 +1469,9 @@ namespace IsengardClient
             breeStreetsGraph.Rooms[oBreePawnShopWest] = new System.Windows.Point(2, 8);
 
             Room oBreePawnShopEast = AddPawnShoppeRoom("Pawn Shop", "Pawn Shop", PawnShoppe.BreeNortheast);
-            AddBidirectionalExits(oPoorAlley1, oBreePawnShopEast, BidirectionalExitType.WestEast);
+            e = AddExit(oPoorAlley1, oBreePawnShopEast, "east");
+            e.Hidden = true;
+            AddExit(oBreePawnShopEast, oPoorAlley1, "west");
             breeStreetsGraph.Rooms[oBreePawnShopEast] = new System.Windows.Point(13, 4);
 
             Room oLeonardosFoundry = AddRoom("Leo Foundry", "Leonardo's Foundry");
@@ -1678,6 +1680,11 @@ namespace IsengardClient
             oHallOfEarth.AddPermanentMobs(MobTypeEnum.EarthenLoremaster);
             AddBidirectionalExitsWithOut(oHallOfQuests, oHallOfEarth, "earth");
             breeStreetsGraph.Rooms[oHallOfEarth] = new System.Windows.Point(1, 2);
+
+            Room oFarmersMarket = AddRoom("Farmer's Market", "Farmer's Market");
+            AddExit(breeStreets[11, 7], oFarmersMarket, "market");
+            AddExit(oFarmersMarket, breeStreets[11, 7], "south");
+            breeStreetsGraph.Rooms[oFarmersMarket] = new System.Windows.Point(11, 2.5);
 
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
