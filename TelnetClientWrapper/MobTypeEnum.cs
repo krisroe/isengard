@@ -103,6 +103,10 @@
         //CSRTODO: plural?
         BlackPegasus,
 
+        [SingularName("blind crone")]
+        [PluralName("blind crones")]
+        BlindCrone,
+
         [SingularName("blue flying snake")]
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
@@ -496,6 +500,10 @@
         //CSRTODO: no plural?
         [Experience(1200)]
         GregoryHiester,
+
+        [SingularName("grey knight")]
+        [PluralName("grey knights")]
+        GreyKnight,
 
         [SingularName("griffon")]
         [PluralName("griffons")]
@@ -1107,6 +1115,10 @@
         [SingularName("ranger")]
         [PluralName("rangers")]
         Ranger,
+
+        [SingularName("Ranier the Librarian")]
+        //CSRTODO: no plural
+        RanierTheLibrarian,
 
         [SingularName("raving lunatic")]
         [PluralName("raving lunatics")]

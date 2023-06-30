@@ -426,6 +426,10 @@ namespace IsengardClient
         [Scroll(SpellsEnum.light)]
         BlackenedScroll,
 
+        [SingularName("black rune")]
+        [PluralName("black runes")]
+        BlackRune,
+
         [SingularName("black scroll")]
         [PluralName("black scrolls")]
         [Scroll(SpellsEnum.hurt)]
@@ -446,6 +450,10 @@ namespace IsengardClient
         [Potion(SpellsEnum.detectinvis)]
         [Weight(2)]
         BlueBubblyPotion,
+
+        [SingularName("blue rune")]
+        [PluralName("blue runes")]
+        BlueRune,
 
         [SingularName("boiler key")]
         [PluralName("boiler keys")]
@@ -830,10 +838,18 @@ namespace IsengardClient
         [Potion(SpellsEnum.curepoison)]
         GreenPotion,
 
+        [SingularName("green rune")]
+        [PluralName("green runes")]
+        GreenRune,
+
         [SingularName("grey cloak")]
         [PluralName("grey cloaks")]
         [EquipmentType(EquipmentType.Neck)]
         GreyCloak,
+
+        [SingularName("grey rune")]
+        [PluralName("grey runes")]
+        GreyRune,
 
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]

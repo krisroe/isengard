@@ -3802,11 +3802,15 @@ namespace IsengardClient
             AddBidirectionalExits(briarIndigo, briarMagenta, BidirectionalExitType.WestEast);
             AddBidirectionalExits(briarMagenta, plymouthMagenta, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[briarMagenta] = new System.Windows.Point(2, 5);
-            //CSRTODO: library
 
             Room briarLane = AddRoom("Briar", "Briar Lane");
             AddBidirectionalExits(briarMagenta, briarLane, BidirectionalExitType.WestEast);
             esgarothGraph.Rooms[briarLane] = new System.Windows.Point(3, 5);
+
+            Room parthTowers = AddRoom("Parth Towers", "Entrance to the Parth Towers");
+            AddBidirectionalExits(parthTowers, briarLane, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[parthTowers] = new System.Windows.Point(3, 4.5);
+            //CSRTODO: drawbridge
 
             Room briarAquamarine = AddRoom("Briar/Aquamarine", "Briar Lane/Aquamarine Way Intersection");
             AddBidirectionalExits(briarLane, briarAquamarine, BidirectionalExitType.WestEast);
@@ -3880,7 +3884,7 @@ namespace IsengardClient
 
             Room oEsgarothPawnShop = AddPawnShoppeRoom("Pawnshop", "Esgaroth Pawnshop", PawnShoppe.Esgaroth);
             AddBidirectionalSameNameExit(sweetwaterFuchsia, oEsgarothPawnShop, "door");
-            esgarothGraph.Rooms[oEsgarothPawnShop] = new System.Windows.Point(9, 3.5);
+            esgarothGraph.Rooms[oEsgarothPawnShop] = new System.Windows.Point(7, 3.5);
 
             Room parthRecreationField = AddRoom("Recreation Field", "Parth Recreation Field");
             AddBidirectionalExits(sweetwaterFuchsia, parthRecreationField, BidirectionalExitType.WestEast);
@@ -3912,6 +3916,7 @@ namespace IsengardClient
 
             Room frostEastLake = AddRoom("Frost/EastLake", "Frost Lane/East Lake Circle");
             AddBidirectionalExits(frostFuchsia, frostEastLake, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(frostEastLake, parthRecreationField, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[frostEastLake] = new System.Windows.Point(9, 3);
 
             Room northEntranceInside = AddRoom("North Gate Inside", "North Entrance to Esgaroth");
@@ -4038,6 +4043,34 @@ namespace IsengardClient
             AddExit(archeryEmporium, archeryRange, "range");
             AddBidirectionalSameNameExit(archeryEmporium, gardenCircle, "door");
             esgarothGraph.Rooms[archeryEmporium] = new System.Windows.Point(2, 8);
+
+            Room libraryEntrance = AddRoom("Front Entry", "Front Entry of the Great Library");
+            AddExit(briarMagenta, libraryEntrance, "library");
+            AddExit(libraryEntrance, briarMagenta, "oak door");
+            esgarothGraph.Rooms[libraryEntrance] = new System.Windows.Point(0, 4);
+
+            Room referenceDesk = AddRoom("Reference Desk", "Reference Desk");
+            referenceDesk.AddPermanentMobs(MobTypeEnum.RanierTheLibrarian);
+            AddExit(libraryEntrance, referenceDesk, "blue door");
+            AddExit(referenceDesk, libraryEntrance, "door");
+            esgarothGraph.Rooms[referenceDesk] = new System.Windows.Point(0, 5);
+
+            Room colloquiaRoom = AddRoom("Colloquia Room", "Colloquia Room");
+            colloquiaRoom.AddPermanentMobs(MobTypeEnum.BlindCrone);
+            e = AddExit(libraryEntrance, colloquiaRoom, "golden door");
+            e.MustOpen = true;
+            AddExit(colloquiaRoom, libraryEntrance, "door");
+            esgarothGraph.Rooms[colloquiaRoom] = new System.Windows.Point(-1, 5);
+
+            Room researchRoom = AddRoom("Research Room", "The Research Room");
+            AddExit(libraryEntrance, researchRoom, "green door");
+            AddExit(researchRoom, libraryEntrance, "door");
+            esgarothGraph.Rooms[researchRoom] = new System.Windows.Point(-1, 4);
+
+            Room languageStudies = AddRoom("Language Studies", "Language studies room");
+            AddExit(researchRoom, languageStudies, "small door");
+            AddExit(languageStudies, researchRoom, "door");
+            esgarothGraph.Rooms[languageStudies] = new System.Windows.Point(-1, 3);
         }
 
         private void AddEsgarothMuseum(Room briarLane2, RoomGraph esgarothGraph)

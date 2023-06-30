@@ -1569,7 +1569,50 @@ namespace IsengardClient
                     }
                     _currentEntityInfo.CurrentEntityChanges.Add(rc);
                     _currentEntityInfo.CurrentRoom = newRoom;
+
+                    List<string> errorMessages = new List<string>();
+                    ValidateObviousExits(newRoom, _currentEntityInfo.CurrentObviousExits, errorMessages);
+                    if (errorMessages.Count > 0)
+                    {
+                        lock (_broadcastMessagesLock)
+                        {
+                            _broadcastMessages.AddRange(errorMessages);
+                        }
+                    }
                 }
+            }
+        }
+
+        private void ValidateObviousExits(Room r, List<string> obviousExits, List<string> errorMessages)
+        {
+            List<string> toProcess = new List<string>(obviousExits);
+            string sBackendName = r.BackendName;
+            foreach (Exit e in r.Exits)
+            {
+                string sExitText = e.ExitText;
+                bool seeExit = obviousExits.Contains(sExitText);
+                if (e.Hidden)
+                {
+                    if (seeExit)
+                    {
+                        errorMessages.Add("Can see hidden exit " + sExitText + " for " + sBackendName);
+                    }
+                }
+                else if (seeExit)
+                {
+                    if (toProcess.Contains(e.ExitText))
+                    {
+                        toProcess.Remove(e.ExitText);
+                    }
+                }
+                else if (e.PresenceType != ExitPresenceType.Periodic)
+                {
+                    errorMessages.Add("Cannot see visible exit " + sExitText + " for " + sBackendName);
+                }
+            }
+            foreach (string s in toProcess)
+            {
+                errorMessages.Add("See unexpected exit " + s + " for " + sBackendName);
             }
         }
 
