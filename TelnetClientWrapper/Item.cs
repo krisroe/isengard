@@ -810,7 +810,7 @@ namespace IsengardClient
 
         [SingularName("godentag")]
         [PluralName("godentags")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Blunt)]
         Godentag,
 
         [SingularName("gold coins")]

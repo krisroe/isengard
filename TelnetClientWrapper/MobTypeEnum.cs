@@ -684,6 +684,10 @@
         //CSRTODO: no plural
         Imrahil,
 
+        [SingularName("innkeeper")]
+        [PluralName("innkeepers")]
+        Innkeeper,
+
         [SingularName("Iorlas the hermit")]
         //CSRTODO: no plural?
         [Experience(200)]

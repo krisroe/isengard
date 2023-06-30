@@ -3203,7 +3203,9 @@ namespace IsengardClient
 
             Room oPoisonedDagger = AddRoom("Master Assassins", "The Poisoned Dagger");
             oPoisonedDagger.AddPermanentMobs(MobTypeEnum.MasterAssassin, MobTypeEnum.MasterAssassin);
-            AddBidirectionalSameNameExit(oRearAlley, oPoisonedDagger, "door");
+            e = AddExit(oRearAlley, oPoisonedDagger, "door");
+            e.Hidden = true;
+            AddExit(oPoisonedDagger, oRearAlley, "door");
             imladrisGraph.Rooms[oPoisonedDagger] = new System.Windows.Point(5, 6.5);
 
             oImladrisSouthGateInside = AddRoom("South Gate Inside", "Southern Gate of Imladris");
@@ -3227,6 +3229,11 @@ namespace IsengardClient
             Room oImladrisArmory = AddRoom("Armory", "Imladris Armory");
             AddBidirectionalExits(oImladrisArmory, oImladrisMainStreet4, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oImladrisArmory] = new System.Windows.Point(4, 4.5);
+
+            Room oDriscollsPoolHall = AddRoom("Pool Hall", "Driscoll's Pool Hall");
+            oDriscollsPoolHall.AddPermanentMobs(MobTypeEnum.Innkeeper);
+            AddBidirectionalExits(oImladrisMainStreet4, oDriscollsPoolHall, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oDriscollsPoolHall] = new System.Windows.Point(4, 5.5);
 
             Room oImladrisCityJail = AddRoom("City Jail", "Imladris City Jail");
             e = AddBidirectionalExitsWithOut(oImladrisAlley4, oImladrisCityJail, "door");
