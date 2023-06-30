@@ -683,10 +683,12 @@ namespace IsengardClient
         [SingularName("elven chain mail")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Unknown)]
+        [SellGoldRange(185, 185)]
         ElvenChainMail,
 
         [SingularName("elven chain mail gloves")]
         [EquipmentType(EquipmentType.Hands)]
+        [SellGoldRange(86, 86)]
         ElvenChainMailGloves,
 
         [SingularName("elven cured leather gloves")]

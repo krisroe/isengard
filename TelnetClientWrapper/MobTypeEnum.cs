@@ -305,6 +305,10 @@
         [PluralName("elven archers")]
         ElvenArcher,
 
+        [SingularName("elven dignitary")]
+        //CSRTODO: plural
+        ElvenDignitary,
+
         [SingularName("elven guard")]
         [PluralName("elven guards")]
         ElvenGuard,
