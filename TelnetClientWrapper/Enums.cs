@@ -719,6 +719,17 @@ namespace IsengardClient
         Sorcery,
     }
 
+    internal enum ClassType
+    {
+        Mage,
+        Priest,
+        Bard,
+        Monk,
+        Hunter,
+        Rogue,
+        Warrior,
+    }
+
     internal enum SpellsEnum
     {
         [SpellInformation(SpellProficiency.Earth, 1)]

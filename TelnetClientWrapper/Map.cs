@@ -1655,7 +1655,8 @@ namespace IsengardClient
             breeStreetsGraph.Rooms[oBigPapaSmallHallway] = new System.Windows.Point(8, 4.5);
 
             Room oWizardsEye = AddRoom("Wizard's Eye", "Wizard's Eye");
-            AddBidirectionalExitsWithOut(breeStreets[5, 0], oWizardsEye, "north");
+            e = AddBidirectionalExitsWithOut(breeStreets[5, 0], oWizardsEye, "north");
+            e.RequiredClass = ClassType.Mage;
             breeStreetsGraph.Rooms[oWizardsEye] = new System.Windows.Point(5, 9.75);
 
             Room oMageTraining = AddRoom("Mage Training", "Mage Training");
@@ -1727,6 +1728,13 @@ namespace IsengardClient
             AddExit(breeStreets[6, 7], oShepherdsShop, "shop");
             AddExit(oShepherdsShop, breeStreets[6, 7], "south");
             breeStreetsGraph.Rooms[oShepherdsShop] = new System.Windows.Point(6, 2.5);
+
+            Room oMonkTraining = AddRoom("Caladon Monastery", "Monastary");
+            oMonkTraining.AddPermanentMobs(MobTypeEnum.AgedMonk);
+            e = AddExit(breeStreets[7, 4], oMonkTraining, "monastary");
+            e.RequiredClass = ClassType.Monk;
+            AddExit(oMonkTraining, breeStreets[7, 4], "east");
+            breeStreetsGraph.Rooms[oMonkTraining] = new System.Windows.Point(6, 6);
 
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
@@ -6420,9 +6428,18 @@ namespace IsengardClient
 
     internal class GraphInputs
     {
+        public GraphInputs(ClassType Class, int Level, bool IsDay, bool Flying, bool Levitating)
+        {
+            this.Class = Class;
+            this.Level = Level;
+            this.IsDay = IsDay;
+            this.Flying = Flying;
+            this.Levitating = Levitating;
+        }
         public bool Flying { get; set; }
         public bool Levitating { get; set; }
         public bool IsDay { get; set; }
         public int Level { get; set; }
+        public ClassType Class { get; set; }
     }
 }

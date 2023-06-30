@@ -49,6 +49,7 @@ namespace IsengardClient
         private byte _mpColorRUI;
         private byte _mpColorGUI;
         private byte _mpColorBUI;
+        private ClassType _class;
         private int _level = 0;
         private string _currentPlayerHeader = null;
         private string _currentPlayerHeaderUI = null;
@@ -921,7 +922,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, int level, int maxHP, int maxMP, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -969,6 +970,7 @@ namespace IsengardClient
                 _refreshSpellsCast = true;
             }
 
+            _class = playerClass;
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
@@ -7819,7 +7821,6 @@ BeforeHazy:
 
         private GraphInputs GetGraphInputs()
         {
-            GraphInputs ret = new GraphInputs();
             bool flying, levitating;
             lock (_spellsCastLock)
             {
@@ -7834,11 +7835,7 @@ BeforeHazy:
                     levitating = _spellsCast.Contains("levitation");
                 }
             }
-            ret.Flying = flying;
-            ret.Levitating = levitating;
-            ret.IsDay = TimeOutputSequence.IsDay(_time);
-            ret.Level = _level;
-            return ret;
+            return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
         }
 
         private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom, bool silent)

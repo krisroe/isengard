@@ -537,14 +537,14 @@ namespace IsengardClient
 
     internal class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -553,55 +553,59 @@ namespace IsengardClient
         internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            int iLevel = 0;
+            int iLevel;
             if (Lines.Count >= 7)
             {
                 int iNextLineIndex = 0;
                 int iIndex;
+                ClassType? foundClass = null;
 
                 //first line is the player name, title, and level. Parse out the level.
                 string sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine == null || sNextLine.Length < 17) return;
-                if (!sNextLine.StartsWith(_username + " the ", StringComparison.OrdinalIgnoreCase))
+                string[] playerWords = sNextLine.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                if (playerWords.Length < 4) return;
+                if (playerWords[0] != _username) return;
+                if (playerWords[1] != "the") return;
+                for (int i = 2; i < playerWords.Length; i++)
                 {
-                    return;
-                }
-                if (!sNextLine.EndsWith(")"))
-                {
-                    return;
-                }
-                int iSpaceIndex = -1;
-                int iPlace = 1;
-                for (int i = sNextLine.Length - 2; i >= 0; i--)
-                {
-                    char cChar = sNextLine[i];
-                    if (cChar == ' ')
+                    switch (playerWords[i])
                     {
-                        if (iLevel == 0)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            iSpaceIndex = i;
+                        case "Mage":
+                            foundClass = ClassType.Mage;
                             break;
-                        }
+                        case "Priest":
+                            foundClass = ClassType.Priest;
+                            break;
+                        case "Bard":
+                            foundClass = ClassType.Bard;
+                            break;
+                        case "Monk":
+                            foundClass = ClassType.Monk;
+                            break;
+                        case "Hunter":
+                            foundClass = ClassType.Hunter;
+                            break;
+                        case "Rogue":
+                            foundClass = ClassType.Rogue;
+                            break;
+                        case "Warrior":
+                            foundClass = ClassType.Warrior;
+                            break;
                     }
-                    else if (!char.IsDigit(cChar))
+                    if (foundClass.HasValue)
                     {
-                        return;
-                    }
-                    else
-                    {
-                        iLevel += int.Parse(cChar.ToString()) * iPlace;
-                        iPlace *= 10;
+                        break;
                     }
                 }
-                if (sNextLine[--iSpaceIndex] != 'l') return;
-                if (sNextLine[--iSpaceIndex] != 'v') return;
-                if (sNextLine[--iSpaceIndex] != 'l') return;
-                if (sNextLine[--iSpaceIndex] != '(') return;
-                if (sNextLine[--iSpaceIndex] != ' ') return;
+                if (!foundClass.HasValue) return;
+                if (playerWords[playerWords.Length - 2] != "(lvl") return;
+                string sLastWord = playerWords[playerWords.Length - 1];
+                if (!sLastWord.EndsWith(")")) return;
+                if (sLastWord == ")") return;
+                sLastWord = sLastWord.Substring(0, sLastWord.Length - 1);
+                if (!int.TryParse(sLastWord, out iLevel)) return;
+                if (iLevel <= 0) return;
 
                 //second line contains the poisoned indicator
                 bool poisoned = false;
@@ -740,7 +744,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, iLevel, iTotalHP, iTotalMP, iGold, iTNL, cooldowns, spells, poisoned);
+                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, iGold, iTNL, cooldowns, spells, poisoned);
                 flParams.FinishedProcessing = true;
             }
         }
@@ -2594,6 +2598,10 @@ StartProcessRoom:
                     result = MovementResult.TotalFailure;
                 }
                 else if (firstLine == "Your gender prevents you from using that exit.")
+                {
+                    result = MovementResult.TotalFailure;
+                }
+                else if (firstLine == "Your class prevents you from using that exit.")
                 {
                     result = MovementResult.TotalFailure;
                 }

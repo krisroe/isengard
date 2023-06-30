@@ -2,6 +2,10 @@
 {
     internal enum MobTypeEnum
     {
+        [SingularName("aged monk")]
+        [PluralName("aged monks")]
+        AgedMonk,
+
         [SingularName("Alasse")]
         //CSRTODO: no plural
         Alasse,
