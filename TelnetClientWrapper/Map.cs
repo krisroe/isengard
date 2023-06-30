@@ -1746,6 +1746,36 @@ namespace IsengardClient
             AddExit(oOldClassRoom, oClassroomDesk, "north");
             breeStreetsGraph.Rooms[oClassroomDesk] = new System.Windows.Point(5, 2);
 
+            Room oGrandBallroom = AddRoom("Grant Ballroom", "The Isengard Grand Ballroom");
+            AddBidirectionalExitsWithOut(breeStreets[4, 7], oGrandBallroom, "ballroom");
+            breeStreetsGraph.Rooms[oGrandBallroom] = new System.Windows.Point(4, 3.5);
+
+            Room oCityHall = AddRoom("City Hall", "Bree City Hall");
+            AddExit(breeStreets[4, 7], oCityHall, "hall");
+            AddExit(oCityHall, breeStreets[4, 7], "south");
+            breeStreetsGraph.Rooms[oCityHall] = new System.Windows.Point(4, 2.5);
+
+            Room oStocks = AddRoom("Stocks", "The Stocks");
+            oStocks.AddPermanentMobs(MobTypeEnum.Rex, MobTypeEnum.Accuser);
+            AddExit(oCityHall, oStocks, "stocks");
+            AddExit(oStocks, oCityHall, "office");
+            AddExit(oStocks, breeStreets[3, 9], "west");
+            AddExit(breeStreets[3, 8], oStocks, "stocks");
+            AddExit(breeStreets[3, 9], oStocks, "stocks");
+            breeStreetsGraph.Rooms[oStocks] = new System.Windows.Point(4, 2);
+
+            Room oExecutionersChamber = AddRoom("Executioner's Chamber", "Executioner's Chamber");
+            AddBidirectionalExits(oStocks, oExecutionersChamber, BidirectionalExitType.UpDown);
+            breeStreetsGraph.Rooms[oExecutionersChamber] = new System.Windows.Point(4, 1.5);
+
+            Room oHallOfAvatars = AddRoom("Avatar Hall", "Hall of Avatars");
+            AddBidirectionalExitsWithOut(oCityHall, oHallOfAvatars, "avatar hall");
+            breeStreetsGraph.Rooms[oHallOfAvatars] = new System.Windows.Point(5, 1.5);
+
+            Room oHallOfAvatars2 = AddRoom("Avatar Hall", "Hall of Avatars");
+            AddBidirectionalSameNameExit(oHallOfAvatars, oHallOfAvatars2, "curtain");
+            breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(5, 1);
+
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
             AddLocation(_aBreePerms, oFallon);

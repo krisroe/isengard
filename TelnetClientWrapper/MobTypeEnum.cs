@@ -2,6 +2,10 @@
 {
     internal enum MobTypeEnum
     {
+        [SingularName("accuser")]
+        [PluralName("accusers")]
+        Accuser,
+
         [SingularName("aged monk")]
         [PluralName("aged monks")]
         AgedMonk,
@@ -1143,6 +1147,10 @@
         [SingularName("raving lunatic")]
         [PluralName("raving lunatics")]
         RavingLunatic,
+
+        [SingularName("Rex")]
+        //CSRTODO: no plural
+        Rex,
 
         [SingularName("Roc")]
         //CSRTODO: no plural

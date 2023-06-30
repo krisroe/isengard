@@ -925,6 +925,10 @@ namespace IsengardClient
         [Weight(2)]
         IceBluePotion,
 
+        [SingularName("information kiosk")]
+        [PluralName("information kiosks")]
+        InformationKiosk,
+
         //mage training level 13
         [SingularName("invisible key")]
         [PluralName("invisible keys")]
@@ -1558,6 +1562,10 @@ namespace IsengardClient
         [PluralName("torchs")] //verified 6/21/23
         [Weight(1)]
         Torch,
+
+        [SingularName("town map")]
+        [PluralName("town maps")]
+        TownMap,
 
         [SingularName("training key")]
         [PluralName("training keys")]
