@@ -193,6 +193,20 @@ namespace IsengardClient.Tests
             seq.FeedLine(flp);
             Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentDestroyed);
             Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.SilverScimitar);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Your gawdy ear hoop fell apart.", "Naugrim wounds you for 15 damage!" };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentFellApart);
+            Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.GawdyEarHoop);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Your claw gauntlet is broken." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentFellApart);
+            Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.ClawGauntlet);
         }
 
         [TestMethod]

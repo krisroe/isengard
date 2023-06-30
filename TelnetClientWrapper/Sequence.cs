@@ -2978,19 +2978,21 @@ StartProcessRoom:
 
                     if (nextMsg == null)
                     {
-                        if (sLine.StartsWith("Your ") && sLine.EndsWith(" fell apart."))
+                        ient = ProcessEquipmentFellApartMessage(sLine, "Your ", " fell apart.", Parameters.ErrorMessages);
+                        if (ient != null)
                         {
-                            int objectLen = lineLength - "Your.".Length + " fell apart.".Length;
-                            if (objectLen > 0)
-                            {
-                                string objectText = sLine.Substring("Your ".Length, objectLen);
-                                ient = ProcessItemInMessage(objectText, Parameters.ErrorMessages);
-                                if (ient != null)
-                                {
-                                    nextMsg = new InformationalMessages(InformationalMessageType.EquipmentFellApart);
-                                    nextMsg.Item = ient;
-                                }
-                            }
+                            nextMsg = new InformationalMessages(InformationalMessageType.EquipmentFellApart);
+                            nextMsg.Item = ient;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
+                        ient = ProcessEquipmentFellApartMessage(sLine, "Your ", " is broken.", Parameters.ErrorMessages);
+                        if (ient != null)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.EquipmentFellApart);
+                            nextMsg.Item = ient;
                         }
                     }
 
@@ -3134,6 +3136,22 @@ StartProcessRoom:
             {
                 _onSatisfied(Parameters, broadcastMessages, addedPlayers, removedPlayers);
             }
+        }
+
+        private ItemEntity ProcessEquipmentFellApartMessage(string sLine, string prefix, string suffix, List<string> errorMessages)
+        {
+            ItemEntity ient = null;
+            if (sLine.StartsWith(prefix) && sLine.EndsWith(suffix))
+            {
+                int lineLength = sLine.Length;
+                int objectLen = lineLength - prefix.Length - suffix.Length;
+                if (objectLen > 0)
+                {
+                    string objectText = sLine.Substring(prefix.Length, objectLen);
+                    ient = ProcessItemInMessage(objectText, errorMessages);
+                }
+            }
+            return ient;
         }
 
         private ItemEntity ProcessMessageEndingInItem(string sLine, string midText, FeedLineParameters Parameters)
