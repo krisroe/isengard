@@ -2204,7 +2204,7 @@ namespace IsengardClient
             breeSewersGraph.Rooms[oSmoulderingVillage] = new System.Windows.Point(1, -1);
 
             Room oFirePit = AddRoom("Fire Pit", "Fire Pit");
-            AddExit(oSmoulderingVillage, oFirePit, "fire");
+            AddExit(oSmoulderingVillage, oFirePit, "fire pit");
             AddExit(oFirePit, oSmoulderingVillage, "village");
             breeSewersGraph.Rooms[oFirePit] = new System.Windows.Point(0, -1);
 
