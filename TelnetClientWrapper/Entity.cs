@@ -1050,6 +1050,9 @@ namespace IsengardClient
                 case EquipmentType.Hands:
                     yield return EquipmentSlot.Hands;
                     break;
+                case EquipmentType.Face:
+                    yield return EquipmentSlot.Face;
+                    break;
                 case EquipmentType.Finger:
                     if (reverse)
                     {

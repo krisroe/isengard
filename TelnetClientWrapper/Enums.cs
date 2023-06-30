@@ -573,7 +573,8 @@ namespace IsengardClient
         Neck,
         Waist,
         Head,
-        Hands,
+        Hands, //CSRTODO: hands vs face?
+        Face,  //CSRTODO: hands vs face?
         Finger,
         Ears,
         Holding,
@@ -601,15 +602,16 @@ namespace IsengardClient
         Neck = 4,
         Waist = 5,
         Head = 6,
-        Hands = 7,
-        Finger1 = 8,
-        Finger2 = 9,
-        Ears = 10,
-        Held = 11,
-        Shield = 12,
-        Weapon1 = 13,
-        Weapon2 = 14,
-        Count = 15,
+        Hands = 7, //CSRTODO: hands vs face
+        Face = 8, //CSRTODO: hands vs face
+        Finger1 = 9,
+        Finger2 = 10,
+        Ears = 11,
+        Held = 12,
+        Shield = 13,
+        Weapon1 = 14,
+        Weapon2 = 15,
+        Count = 16,
     }
 
     public enum ItemInventoryAction

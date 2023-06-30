@@ -379,6 +379,11 @@ namespace IsengardClient
         [Potion(SpellsEnum.levitate)]
         AquamarinePotion,
 
+        [SingularName("assassin's mask")]
+        [PluralName("assassin's masks")]
+        [EquipmentType(EquipmentType.Face)]
+        AssassinsMask,
+
         [SingularName("bag")]
         [PluralName("bags")]
         [Weight(1)]
@@ -510,6 +515,11 @@ namespace IsengardClient
         [SingularName("bundle of wheat")]
         [PluralName("bundle of wheats")] //verified 6/14/2023
         BundleOfWheat,
+
+        [SingularName("carbon scroll")]
+        [PluralName("carbon scrolls")]
+        [Scroll(SpellsEnum.rumble)]
+        CarbonScroll,
 
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]

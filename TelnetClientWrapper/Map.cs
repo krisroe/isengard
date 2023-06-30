@@ -3729,6 +3729,10 @@ namespace IsengardClient
             AddBidirectionalExits(sweetwaterFuchsia, dragonpawFuchsia, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[sweetwaterFuchsia] = new System.Windows.Point(6, 4);
 
+            Room oEsgarothPawnShop = AddRoom("Pawnshop", "Esgaroth Pawnshop");
+            AddBidirectionalSameNameExit(sweetwaterFuchsia, oEsgarothPawnShop, "door");
+            esgarothGraph.Rooms[oEsgarothPawnShop] = new System.Windows.Point(7, 3.5);
+
             Room parthRecreationField = AddRoom("Recreation Field", "Parth Recreation Field");
             AddBidirectionalExits(sweetwaterFuchsia, parthRecreationField, BidirectionalExitType.WestEast);
             AddBidirectionalExits(parthRecreationField, dragonpaw, BidirectionalExitType.NorthSouth);

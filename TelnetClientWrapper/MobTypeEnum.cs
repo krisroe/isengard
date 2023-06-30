@@ -681,6 +681,10 @@
         [SingularSelection("Ixell")]
         IxellDeSantis,
 
+        [SingularName("jongleur")]
+        [PluralName("jongleurs")]
+        Jongleur,
+
         [SingularName("Kaivo")]
         //CSRTODO: no plural
         Kaivo,
