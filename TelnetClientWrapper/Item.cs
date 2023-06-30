@@ -372,6 +372,7 @@ namespace IsengardClient
 
         [SingularName("ancient lyre")]
         [PluralName("ancient lyres")]
+        [Weight(4)]
         AncientLyre,
 
         [SingularName("aquamarine potion")]
