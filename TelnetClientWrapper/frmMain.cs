@@ -2501,9 +2501,13 @@ namespace IsengardClient
                     EntityChangeEntry entry = new EntityChangeEntry();
                     entry.Item = nextItem;
                     entry.RoomItemAction = true;
-                    entry.RoomItemIndex = _currentEntityInfo.FindNewRoomItemInsertionPoint(nextItem);
+                    int iInsertionPoint = _currentEntityInfo.FindNewRoomItemInsertionPoint(nextItem);
+                    entry.RoomItemIndex = iInsertionPoint;
                     rc.Changes.Add(entry);
-                    _currentEntityInfo.CurrentRoomItems.Add(nextItem);
+                    if (iInsertionPoint == -1)
+                        _currentEntityInfo.CurrentRoomItems.Add(nextItem);
+                    else
+                        _currentEntityInfo.CurrentRoomItems.Insert(iInsertionPoint, nextItem);
                 }
             }
             if (rc.Changes.Count > 0)

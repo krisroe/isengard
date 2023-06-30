@@ -1333,6 +1333,7 @@ namespace IsengardClient
             breeStreets[0, 10] = AddRoom("Ormenel/Wain", "Wain Road North/Ormenel Street Intersection"); //1x11
             breeSewers[0, 10] = AddRoom("Sewers Ormenel/Wain", "Wain Road Sewer Main"); //1x11
             Exit e = AddExit(breeStreets[0, 10], breeSewers[0, 10], "sewer");
+            e.Hidden = true;
             e.MustOpen = true;
             e.MinimumLevel = 4;
             AddMapBoundaryPoint(breeStreets[0, 10], breeSewers[0, 10], MapType.BreeStreets, MapType.BreeSewers);
