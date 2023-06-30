@@ -297,7 +297,7 @@
         //CSRTODO: no plural
         EaldTheWise,
 
-        [SingularName("Earthen Loremaster")]
+        [SingularName("The Earthen Loremaster")]
         //CSRTODO: no plural
         EarthenLoremaster,
 
@@ -827,6 +827,10 @@
         //CSRTODO: no plural?
         [Experience(450)]
         MarkFrey,
+
+        [SingularName("marksman archer")]
+        //CSRTODO: plural
+        MarksmanArcher,
 
         [SingularName("master assassin")]
         [PluralName("master assassins")]

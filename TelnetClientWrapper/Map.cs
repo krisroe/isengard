@@ -4010,6 +4010,34 @@ namespace IsengardClient
             foundry.AddPermanentMobs(MobTypeEnum.SivalTheArtificer);
             AddBidirectionalExitsWithOut(jaysSmithShoppe, foundry, "foundry");
             esgarothGraph.Rooms[foundry] = new System.Windows.Point(2.33, 2.5);
+
+            Room archeryRange = AddRoom("Archery Range", "Archery Range");
+            AddBidirectionalExits(plymouthMagenta, archeryRange, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[archeryRange] = new System.Windows.Point(2, 7);
+
+            Room gardenCircle = AddRoom("Garden Circle", "Garden Circle Road");
+            AddBidirectionalExits(archeryRange, gardenCircle, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(plymouthGardenCir, gardenCircle, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[gardenCircle] = new System.Windows.Point(3, 7);
+
+            Room gardenCircle2 = AddRoom("Garden Circle", "Garden Circle Road");
+            AddBidirectionalExits(gardenCircle, gardenCircle2, BidirectionalExitType.WestEast);
+            esgarothGraph.Rooms[gardenCircle2] = new System.Windows.Point(6, 7);
+
+            Room gardenCirFuchsia = AddRoom("Garden/Fuchsia", "Garden Circle Road/Fuchsia Way");
+            AddBidirectionalExits(gardenCircle2, gardenCirFuchsia, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(plymouthFuchsia, gardenCirFuchsia, BidirectionalExitType.NorthSouth);
+            esgarothGraph.Rooms[gardenCirFuchsia] = new System.Windows.Point(8, 7);
+
+            Room southGate = AddRoom("South Gate", "South Gate of Esgaroth");
+            AddBidirectionalSameNameExit(gardenCirFuchsia, southGate, "gate");
+            esgarothGraph.Rooms[southGate] = new System.Windows.Point(8, 8);
+
+            Room archeryEmporium = AddRoom("Archery Emporium", "Elena's Archery Emporium");
+            AddExit(archeryRange, archeryEmporium, "door");
+            AddExit(archeryEmporium, archeryRange, "range");
+            AddBidirectionalSameNameExit(archeryEmporium, gardenCircle, "door");
+            esgarothGraph.Rooms[archeryEmporium] = new System.Windows.Point(2, 8);
         }
 
         private void AddEsgarothMuseum(Room briarLane2, RoomGraph esgarothGraph)
