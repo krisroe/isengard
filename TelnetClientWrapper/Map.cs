@@ -3122,7 +3122,9 @@ namespace IsengardClient
             imladrisGraph.Rooms[oImladrisAlley3] = new System.Windows.Point(6, 5);
 
             Room oImladrisAlley4 = AddRoom("Side Alley", "Side Alley North");
-            AddBidirectionalExits(oImladrisAlley3, oImladrisAlley4, BidirectionalExitType.NorthSouth);
+            e = AddExit(oImladrisAlley3, oImladrisAlley4, "south");
+            e.Hidden = true;
+            AddExit(oImladrisAlley4, oImladrisAlley3, "north");
             imladrisGraph.Rooms[oImladrisAlley4] = new System.Windows.Point(6, 6);
 
             Room oImladrisAlley5 = AddRoom("Side Alley", "Side Alley South");
@@ -3145,6 +3147,10 @@ namespace IsengardClient
             Room oImladrisTownCircle = AddRoom("Town Circle", "Imladris Town Circle");
             AddBidirectionalExits(oImladrisAlley3, oImladrisTownCircle, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oImladrisTownCircle] = new System.Windows.Point(7, 5);
+
+            Room oThenardiersInn = AddRoom("Thenardier's Inn", "Thenardier's Inn");
+            AddBidirectionalExits(oThenardiersInn, oImladrisTownCircle, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oThenardiersInn] = new System.Windows.Point(7, 4.5);
 
             Room oImladrisMainStreet6 = AddRoom("Main", "Imladris Main Street");
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
