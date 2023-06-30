@@ -1486,9 +1486,9 @@ namespace IsengardClient
                             }
                             periodicExits[nextExitText].Add(nextExit);
                         }
-                        else if (nextExit.PresenceType != ExitPresenceType.RequiresSearch && ExitExistsInList(obviousExits, nextExitText)) //requires search exits behave like hidden ones
+                        else if (nextExit.PresenceType != ExitPresenceType.RequiresSearch && ExitExistsInList(obviousExits, nextExitText, out string nextExitTextOut)) //requires search exits behave like hidden ones
                         {
-                            rc.MappedExits[nextExitText] = nextExit;
+                            rc.MappedExits[nextExitTextOut] = nextExit;
                         }
                         else
                         {
@@ -1665,20 +1665,28 @@ namespace IsengardClient
             return foundRoom;
         }
 
-        private bool ExitExistsInList(List<string> displayedObviousExits, string mapExitText)
+        private bool ExitExistsInList(List<string> displayedObviousExits, string mapExitText, out string mapExitTextOut)
         {
+            mapExitTextOut = null;
             bool ret = false;
+            string sExitTextForCheck = mapExitText.Trim();
+            int iFirstSpace = sExitTextForCheck.IndexOf(' ');
+            if (iFirstSpace > 0)
+            {
+                sExitTextForCheck = sExitTextForCheck.Substring(0, iFirstSpace);
+            }
             foreach (string sNextExit in displayedObviousExits)
             {
                 //use the first word for the mapping since subsequent words aren't used anyway
                 string sCheck = sNextExit.Trim();
-                int iFirstSpace = sCheck.IndexOf(' ');
+                iFirstSpace = sCheck.IndexOf(' ');
                 if (iFirstSpace > 0)
                 {
                     sCheck = sCheck.Substring(0, iFirstSpace);
                 }
-                if (sCheck == mapExitText)
+                if (sCheck == sExitTextForCheck)
                 {
+                    mapExitTextOut = sExitTextForCheck;
                     ret = true;
                     break;
                 }
