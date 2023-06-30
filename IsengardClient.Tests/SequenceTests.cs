@@ -214,15 +214,17 @@ namespace IsengardClient.Tests
         {
             List<SkillCooldown> cooldowns = null;
             List<string> spells = null;
+            ClassType? classType = null;
             int iLevel = -1;
             int iMaxHP = -1;
             int iMaxMP = -1;
             int iGold = -1;
             int iTNL = -1;
             bool? poisoned = null;
-            Action<FeedLineParameters, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, l, hp, mp, g, tnl, cs, ss, p) =>
+            Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, ct, l, hp, mp, g, tnl, cs, ss, p) =>
             {
                 iLevel = l;
+                classType = ct;
                 iMaxHP = hp;
                 iMaxMP = mp;
                 iGold = g;
@@ -232,12 +234,13 @@ namespace IsengardClient.Tests
                 poisoned = p;
             };
 
-            ScoreOutputSequence sos = new ScoreOutputSequence("despug", a);
+            ScoreOutputSequence sos = new ScoreOutputSequence("Despug", a);
 
             List<string> input = new List<string>();
             FeedLineParameters flp = new FeedLineParameters(input);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            classType = null;
             poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
@@ -252,6 +255,7 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.AreEqual(classType.Value, ClassType.Mage);
             Assert.IsTrue(iLevel == 12);
             Assert.AreEqual(iMaxHP, 59);
             Assert.AreEqual(iMaxMP, 61);
@@ -273,6 +277,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(poisoned);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            classType = null;
+            poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 1)");
             input.Add(string.Empty);
@@ -286,6 +292,7 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.IsTrue(classType.Value == ClassType.Mage);
             Assert.IsTrue(iLevel == 1);
             Assert.IsTrue(iMaxHP == 159);
             Assert.IsTrue(iMaxMP == 261);
@@ -306,6 +313,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(spells[1] == "protection");
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            classType = null;
+            poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 62)");
             input.Add(string.Empty);
@@ -319,6 +328,7 @@ namespace IsengardClient.Tests
             cooldowns = null;
             spells = null;
             sos.FeedLine(flp);
+            Assert.IsTrue(classType.Value == ClassType.Mage);
             Assert.IsTrue(iLevel == 62);
             Assert.IsTrue(iMaxHP == 9);
             Assert.IsTrue(iMaxMP == 9);

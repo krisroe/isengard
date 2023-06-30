@@ -20,23 +20,27 @@ namespace IsengardClient.Tests
             Assert.IsTrue(strategy.TypesWithStepsEnabled == CommandType.None);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, null, true);
+            ValidateCastStrategy(strategy, null, true, MagicStrategyStep.GenericHeal);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true);
+            ValidateCastStrategy(strategy, null, true, MagicStrategyStep.OffensiveSpellAuto);
+            ValidateIndefiniteAttackStrategy(strategy, true);
+
+            strategy = defaultStrategies[iIndex++];
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, false);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true);
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, false);
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, false, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, false);
         }
 
-        private void ValidateCastStrategy(Strategy strategy, List<MagicStrategyStep> leadingSteps, bool indefinite)
+        private void ValidateCastStrategy(Strategy strategy, List<MagicStrategyStep> leadingSteps, bool indefinite, MagicStrategyStep indefiniteStep)
         {
             Assert.IsTrue(strategy.HasAnyMagicSteps());
             int i = 0;
@@ -53,7 +57,7 @@ namespace IsengardClient.Tests
                     {
                         Assert.Fail();
                     }
-                    expectedStep = MagicStrategyStep.OffensiveSpellAuto;
+                    expectedStep = indefiniteStep;
                 }
                 if (nextStep != expectedStep)
                 {

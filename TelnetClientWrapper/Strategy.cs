@@ -474,6 +474,10 @@ namespace IsengardClient
 
         public static List<Strategy> GetDefaultStrategies()
         {
+            //CSR: this is dependent on how powerful the casts are
+            int iMagicMendWhenDownXHP = 20;
+            int iMagicVigorWhenDownXHP = 10;
+
             int iPotionsMendWhenDownXHP = 12;
             int iPotionsVigorWhenDownXHP = 6;
             int stunWaitMS = 250;
@@ -492,10 +496,23 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
+            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
+            s.LastMagicStep = MagicStrategyStep.GenericHeal;
+            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
+            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
+            allStrategies.Add(s);
+
+            s = new Strategy();
+            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
             s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
             s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
+            s.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
