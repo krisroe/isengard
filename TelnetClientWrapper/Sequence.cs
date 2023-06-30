@@ -849,7 +849,7 @@ namespace IsengardClient
                                     List<ItemEntity> itemList = new List<ItemEntity>();
                                     if (items.Count > 1 || items[0] != "nothing")
                                     {
-                                        RoomTransitionSequence.LoadItems(itemList, items, flParams.ErrorMessages, EntityTypeFlags.Item);
+                                        RoomTransitionSequence.LoadMustBeItems(itemList, items, flParams.ErrorMessages);
                                     }
                                     _onSatisfied(flParams, itemList, iTotalWeight);
                                     flParams.FinishedProcessing = true;
@@ -1020,7 +1020,7 @@ namespace IsengardClient
                 {
                     List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, wornObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, wornObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
@@ -1046,7 +1046,7 @@ namespace IsengardClient
                 {
                     List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, heldObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, heldObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
@@ -1081,7 +1081,7 @@ namespace IsengardClient
                     }
                     List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, removedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, removedObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.Unequip;
                     if (items.Count > 0)
                     {
@@ -1107,7 +1107,7 @@ namespace IsengardClient
                 {
                     List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, wieldedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, wieldedObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.Equip;
                     if (items.Count > 0)
                     {
@@ -1137,7 +1137,7 @@ namespace IsengardClient
                     }
                     List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, retrievedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, retrievedObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.PickUpItem;
                     if (items.Count > 0)
                     {
@@ -1155,7 +1155,7 @@ namespace IsengardClient
                         }
                     }
                 }
-                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX))
+                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != "You drop your weapon and run like a chicken.")
                 {
                     if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
                     {
@@ -1163,7 +1163,7 @@ namespace IsengardClient
                     }
                     List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out iIndex, null);
                     List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadItems(items, droppedObjects, flp.ErrorMessages, EntityTypeFlags.Item);
+                    RoomTransitionSequence.LoadMustBeItems(items, droppedObjects, flp.ErrorMessages);
                     eAction = ItemManagementAction.DropItem;
                     if (items.Count > 0)
                     {
@@ -1402,6 +1402,7 @@ namespace IsengardClient
         public List<PlayerEntity> Players { get; set; }
         public List<ItemEntity> Items { get; set; }
         public List<MobEntity> Mobs { get; set; }
+        public List<Entity> UnknownEntities { get; set; }
         public bool DrankHazy { get; set; }
     }
 
@@ -1559,6 +1560,7 @@ namespace IsengardClient
                 return false;
             }
 
+            List<Entity> unknownEntities = new List<Entity>();
             List<ItemEntity> items = new List<ItemEntity>();
             List<MobEntity> mobs = new List<MobEntity>();
             List<PlayerEntity> players = new List<PlayerEntity>();
@@ -1582,7 +1584,7 @@ namespace IsengardClient
 
             if (roomList3 != null) //this is known to be the item list
             {
-                LoadItems(items, roomList3, flParams.ErrorMessages, EntityTypeFlags.Item);
+                LoadMustBeItems(items, roomList3, flParams.ErrorMessages);
             }
             if (roomList2 != null)
             {
@@ -1607,7 +1609,7 @@ namespace IsengardClient
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList2, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        LoadMustBeItems(items, roomList2, flParams.ErrorMessages);
                     }
                     else
                     {
@@ -1674,7 +1676,7 @@ namespace IsengardClient
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
-                        LoadItems(items, roomList1, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        LoadMustBeItems(items, roomList1, flParams.ErrorMessages);
                     }
                     else
                     {
@@ -1694,7 +1696,19 @@ namespace IsengardClient
                     }
                     else
                     {
-                        LoadItems(items, roomList1, flParams.ErrorMessages, possibleTypes);
+                        List<Entity> entities = new List<Entity>();
+                        LoadItems(entities, roomList1, flParams.ErrorMessages, possibleTypes);
+                        foreach (Entity e in entities)
+                        {
+                            if (e is ItemEntity)
+                            {
+                                items.Add((ItemEntity)e);
+                            }
+                            else
+                            {
+                                unknownEntities.Add(e);
+                            }
+                        }
                     }
                 }
             }
@@ -1723,6 +1737,7 @@ namespace IsengardClient
             rti.Players = players;
             rti.Mobs = mobs;
             rti.Items = items;
+            rti.UnknownEntities = unknownEntities;
             rti.DrankHazy = drankHazy;
             onSatisfied(flParams, rti, damage, trapType);
             return true;
@@ -1780,13 +1795,23 @@ StartProcessRoom:
             return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType, drankHazy);
         }
 
-        public static void LoadItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
+        public static void LoadMustBeItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages)
+        {
+            foreach (string next in itemNames)
+            {
+                Entity e = Entity.GetEntity(next, EntityTypeFlags.Item, errorMessages, null, false);
+                CheckForValidItem(next, e, errorMessages, EntityTypeFlags.Item);
+                items.Add((ItemEntity)e);
+            }
+        }
+
+        public static void LoadItems(List<Entity> items, List<string> itemNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in itemNames)
             {
                 Entity e = Entity.GetEntity(next, possibleEntityTypes, errorMessages, null, false);
                 CheckForValidItem(next, e, errorMessages, possibleEntityTypes);
-                items.Add((ItemEntity)e);
+                items.Add(e);
             }
         }
         private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
@@ -2158,7 +2183,7 @@ StartProcessRoom:
                         skipToNextLine = false;
                         List<string> itemsString = StringProcessing.ParseList(itemList);
                         List<ItemEntity> itemsFirstPass = new List<ItemEntity>();
-                        RoomTransitionSequence.LoadItems(itemsFirstPass, itemsString, flParams.ErrorMessages, EntityTypeFlags.Item);
+                        RoomTransitionSequence.LoadMustBeItems(itemsFirstPass, itemsString, flParams.ErrorMessages);
                         foreach (ItemEntity next in itemsFirstPass)
                         {
                             InventoryEquipmentManagementSequence.ProcessAndSplitItemEntity(next, ref items, flParams, false);

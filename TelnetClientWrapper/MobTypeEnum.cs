@@ -173,6 +173,10 @@
         [PluralName("catapult officers")]
         CatapultOfficer,
 
+        [SingularName("cave troll")]
+        [PluralName("cave trolls")]
+        CaveTroll,
+
         [SingularName("centaur")]
         [PluralName("centaurs")]
         Centaur,

@@ -3222,6 +3222,17 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisArmory, oImladrisMainStreet4, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oImladrisArmory] = new System.Windows.Point(4, 4.5);
 
+            Room oImladrisCityJail = AddRoom("City Jail", "Imladris City Jail");
+            e = AddBidirectionalExitsWithOut(oImladrisAlley4, oImladrisCityJail, "door");
+            e.MustOpen = true;
+            imladrisGraph.Rooms[oImladrisCityJail] = new System.Windows.Point(7, 6);
+
+            Room oCaveTrollCell = AddRoom("Troll Cell", "Cave Troll Cell");
+            oCaveTrollCell.AddPermanentMobs(MobTypeEnum.CaveTroll);
+            e = AddBidirectionalExitsWithOut(oImladrisCityJail, oCaveTrollCell, "grate");
+            e.MustOpen = true;
+            imladrisGraph.Rooms[oCaveTrollCell] = new System.Windows.Point(7, 5.5);
+
             AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
