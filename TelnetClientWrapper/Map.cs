@@ -1819,7 +1819,8 @@ namespace IsengardClient
             underBreeGraph.Rooms[oSewerPipeExit] = new System.Windows.Point(7, 2);
 
             Room oCatchBasin = AddRoom("Catch Basin", "Catch Basin");
-            AddBidirectionalExitsWithOut(oOuthouse, oCatchBasin, "hole");
+            e = AddBidirectionalExitsWithOut(oOuthouse, oCatchBasin, "hole");
+            e.Hidden = true;
             underBreeGraph.Rooms[oCatchBasin] = new System.Windows.Point(8, 11);
             breeToImladrisGraph.Rooms[oCatchBasin] = new System.Windows.Point(5, 7.5);
             AddMapBoundaryPoint(oOuthouse, oCatchBasin, MapType.BreeToImladris, MapType.UnderBree);
