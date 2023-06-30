@@ -1353,7 +1353,7 @@ namespace IsengardClient
 
         [SingularName("silver wand")]
         [PluralName("silver wands")]
-        //CSRTODO: wand?
+        [Wand(SpellsEnum.hurt)]
         SilverWand,
 
         [SingularName("slaying sword")]

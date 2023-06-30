@@ -10,6 +10,10 @@
         [PluralName("alley cats")]
         AlleyCat,
 
+        [SingularName("alligator")]
+        [PluralName("alligators")]
+        Alligator,
+
         [SingularName("Amlug")]
         //CSRTODO: no plural
         Amlug,
@@ -1053,6 +1057,10 @@
         [SingularName("policeman")]
         [PluralName("policemen")]
         Policeman,
+
+        [SingularName("pony")]
+        //CSRTODO: plural
+        Pony,
 
         [SingularName("poor fisherman")]
         [PluralName("poor fishermen")]
