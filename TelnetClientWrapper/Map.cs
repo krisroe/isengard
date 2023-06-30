@@ -3235,6 +3235,14 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisMainStreet4, oDriscollsPoolHall, BidirectionalExitType.NorthSouth);
             imladrisGraph.Rooms[oDriscollsPoolHall] = new System.Windows.Point(4, 5.5);
 
+            Room oImladrisGeneralStore = AddRoom("General Store", "Imladris General Store");
+            AddBidirectionalExits(oImladrisGeneralStore, oImladrisMainStreet3, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisGeneralStore] = new System.Windows.Point(3, 4.5);
+
+            Room oImladrisMageClub = AddRoom("Mage Club", "Imladris Mage's Club");
+            AddBidirectionalExits(oImladrisMainStreet3, oImladrisMageClub, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oImladrisMageClub] = new System.Windows.Point(3, 5.5);
+
             Room oImladrisCityJail = AddRoom("City Jail", "Imladris City Jail");
             e = AddBidirectionalExitsWithOut(oImladrisAlley4, oImladrisCityJail, "door");
             e.MustOpen = true;
