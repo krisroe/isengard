@@ -132,6 +132,10 @@
         //CSRTODO: no plural?
         BrentDiehard,
 
+        [SingularName("bride named Princess")]
+        //CSRTODO: no plural
+        BrideNamedPrincess,
+
         [SingularName("bugbear")]
         [PluralName("bugbears")]
         Bugbear,

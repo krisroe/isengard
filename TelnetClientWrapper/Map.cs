@@ -1588,12 +1588,12 @@ namespace IsengardClient
             Room oPearlAlley = AddRoom("Pearl Alley", "Pearl Alley");
             AddExit(oBreeTownSquare, oPearlAlley, "alley");
             AddExit(oPearlAlley, oBreeTownSquare, "north");
-            breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 3.5);
+            breeStreetsGraph.Rooms[oPearlAlley] = new System.Windows.Point(5, 4);
 
             Room oPrancingPony = AddRoom("Prancing Pony", "Prancing Pony Tavern");
             oPrancingPony.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
             AddBidirectionalExits(oPearlAlley, oPrancingPony, BidirectionalExitType.WestEast);
-            breeStreetsGraph.Rooms[oPrancingPony] = new System.Windows.Point(6, 3.5);
+            breeStreetsGraph.Rooms[oPrancingPony] = new System.Windows.Point(6, 4);
 
             Room oHobbitsHideawayEntrance = AddRoom("Hideaway Entrance", "Entrance to the Hobbit's Hideaway");
             e = AddExit(orderOfLove, oHobbitsHideawayEntrance, "cubbyhole");
@@ -1716,6 +1716,17 @@ namespace IsengardClient
             Room oGreatHallOfMoradin = AddRoom("Great Hall", "Great Hall of Moradin");
             AddBidirectionalExits(oShrineFoyer, oGreatHallOfMoradin, BidirectionalExitType.NorthSouth);
             breeStreetsGraph.Rooms[oGreatHallOfMoradin] = new System.Windows.Point(8, 4.3);
+
+            Room oChapel = AddRoom("Princess Bride", "The Chapel");
+            oChapel.AddPermanentMobs(MobTypeEnum.BrideNamedPrincess);
+            AddExit(breeStreets[6, 7], oChapel, "chapel");
+            AddExit(oChapel, breeStreets[6, 7], "north");
+            breeStreetsGraph.Rooms[oChapel] = new System.Windows.Point(6, 3.5);
+
+            Room oShepherdsShop = AddRoom("Shepherd's Shop", "Shepherd's Shop");
+            AddExit(breeStreets[6, 7], oShepherdsShop, "shop");
+            AddExit(oShepherdsShop, breeStreets[6, 7], "south");
+            breeStreetsGraph.Rooms[oShepherdsShop] = new System.Windows.Point(6, 2.5);
 
             AddLocation(_aBreePerms, oGuido);
             AddLocation(_aBreePerms, oGodfather);
