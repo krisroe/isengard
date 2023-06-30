@@ -1230,6 +1230,11 @@
         [PluralName("sobbing girls")]
         SobbingGirl,
 
+        [SingularName("spectre")]
+        [PluralName("spectres")]
+        [Experience(140)]
+        Spectre,
+
         [SingularName("sprite guard")]
         [PluralName("sprite guards")]
         [Experience(120)]

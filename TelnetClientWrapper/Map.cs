@@ -13,7 +13,6 @@ namespace IsengardClient
         public Dictionary<HealingRoom, Room> HealingRooms = new Dictionary<HealingRoom, Room>();
         public Dictionary<PawnShoppe, Room> PawnShoppes = new Dictionary<PawnShoppe, Room>();
 
-        private string UNKNOWN_ROOM_NAME = "!@#UNKNOWN$%^";
         public Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
         public Dictionary<string, List<Room>> AmbiguousRooms = new Dictionary<string, List<Room>>();
 
@@ -3680,7 +3679,7 @@ namespace IsengardClient
             Room briarLane2 = AddRoom("Briar", "Briar Lane");
             AddBidirectionalExits(briarAquamarine, briarLane2, BidirectionalExitType.WestEast);
             esgarothGraph.Rooms[briarLane2] = new System.Windows.Point(6, 5);
-            //CSRTODO: museum
+            AddEsgarothMuseum(briarLane2, esgarothGraph);
 
             Room briarFuchsia = AddRoom("Briar/Fuchsia", "Briar Lane/Fuchsia Way Intersection");
             AddBidirectionalExits(briarLane2, briarFuchsia, BidirectionalExitType.WestEast);
@@ -3872,6 +3871,84 @@ namespace IsengardClient
             foundry.AddPermanentMobs(MobTypeEnum.SivalTheArtificer);
             AddBidirectionalExitsWithOut(jaysSmithShoppe, foundry, "foundry");
             esgarothGraph.Rooms[foundry] = new System.Windows.Point(2.33, 2.5);
+        }
+
+        private void AddEsgarothMuseum(Room briarLane2, RoomGraph esgarothGraph)
+        {
+            RoomGraph esgarothMuseumGraph = new RoomGraph("Esgaroth Museum");
+            esgarothMuseumGraph.ScalingFactor = 100;
+            _graphs[MapType.EsgarothMuseum] = esgarothMuseumGraph;
+
+            esgarothMuseumGraph.Rooms[briarLane2] = new System.Windows.Point(0, 0);
+
+            Room giftShoppe = AddRoom("Gift Shoppe", "Museum Gift Shoppe");
+            AddExit(briarLane2, giftShoppe, "museum");
+            AddExit(giftShoppe, briarLane2, "door");
+            esgarothGraph.Rooms[giftShoppe] = new System.Windows.Point(6, 5.5);
+            esgarothMuseumGraph.Rooms[giftShoppe] = new System.Windows.Point(0, 1);
+
+            Room foyer = AddRoom("Foyer", "Adrilite Museum Entrance Foyer");
+            AddBidirectionalExits(giftShoppe, foyer, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[foyer] = new System.Windows.Point(1, 1);
+
+            Room childsExhibition = AddRoom("Child's Exhibition", "Adrilite Child's Exhibition");
+            AddBidirectionalExits(childsExhibition, foyer, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[childsExhibition] = new System.Windows.Point(1, 0);
+
+            Room oForestExhibit = AddRoom("Forest", "Adrilite Museum Forest Exhibit");
+            AddBidirectionalExits(foyer, oForestExhibit, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[oForestExhibit] = new System.Windows.Point(2, 1);
+
+            Room oDarkForestExhibit = AddRoom("Dark Forest", "Dark Forest Exhibit");
+            AddBidirectionalExits(oForestExhibit, oDarkForestExhibit, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[oDarkForestExhibit] = new System.Windows.Point(3, 1);
+
+            Room hallOfDoomNorth = AddRoom("Hall of Doom", "Adrilite Museum Hall of Doom");
+            AddBidirectionalExits(foyer, hallOfDoomNorth, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[hallOfDoomNorth] = new System.Windows.Point(1, 2);
+
+            Room hallOfDoomSouth = AddRoom("Hall of Doom", "Adrilite Museum Hall of Doom");
+            AddBidirectionalExits(hallOfDoomNorth, hallOfDoomSouth, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[hallOfDoomSouth] = new System.Windows.Point(1, 3);
+
+            Room dragonsAndBrimstone = AddRoom("Dragons/Brimstone", "Dragons and Brimstone Exhibit");
+            AddExit(hallOfDoomNorth, dragonsAndBrimstone, "west");
+            AddExit(dragonsAndBrimstone, hallOfDoomNorth, "northeast");
+            AddExit(hallOfDoomSouth, dragonsAndBrimstone, "west");
+            AddExit(dragonsAndBrimstone, hallOfDoomSouth, "southeast");
+            esgarothMuseumGraph.Rooms[dragonsAndBrimstone] = new System.Windows.Point(0, 2.5);
+
+            Room theatreOfDoom = AddRoom("Theatre of Doom", "Adrilite Museum Theatre of Doom");
+            AddBidirectionalExits(hallOfDoomNorth, theatreOfDoom, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[theatreOfDoom] = new System.Windows.Point(2, 2);
+
+            Room cavernsOfDoom = AddRoom("Caverns of Doom", "Adrilite Museum Caverns of Doom Exhibit");
+            AddBidirectionalExits(hallOfDoomSouth, cavernsOfDoom, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[cavernsOfDoom] = new System.Windows.Point(2, 3);
+
+            Room kTralDesertExhibit = AddRoom("K'Tral Desert", "Adrilite K'Tral Desert Exhibit");
+            AddBidirectionalExits(hallOfDoomSouth, kTralDesertExhibit, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[kTralDesertExhibit] = new System.Windows.Point(1, 4);
+
+            Room hallOfPrehistory = AddRoom("Hall of Prehistory", "Adrilite Museum Hall of Prehistory");
+            AddBidirectionalSameNameExit(foyer, hallOfPrehistory, "stairs");
+            esgarothMuseumGraph.Rooms[hallOfPrehistory] = new System.Windows.Point(4, 2);
+
+            Room hallOfPrehistory2 = AddRoom("Hall of Prehistory", "Adrilite Museum Hall of Prehistory");
+            AddBidirectionalExits(hallOfPrehistory, hallOfPrehistory2, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[hallOfPrehistory2] = new System.Windows.Point(4, 3);
+
+            Room carnivoreExhibit = AddRoom("Carnivores", "Adrilite Museum Prehistoric Carnivore Exhibit");
+            AddBidirectionalExits(carnivoreExhibit, hallOfPrehistory2, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[carnivoreExhibit] = new System.Windows.Point(3, 3);
+
+            Room herbivoresExhibit = AddRoom("Herbivores", "Adrilite Museum Prehistoric Herbivore Exhibit");
+            AddBidirectionalExits(hallOfPrehistory2, herbivoresExhibit, BidirectionalExitType.WestEast);
+            esgarothMuseumGraph.Rooms[herbivoresExhibit] = new System.Windows.Point(5, 3);
+
+            Room mammalsExhibit = AddRoom("Mammals", "Adrilite Museum Prehistoric Mammal Exhibit");
+            AddBidirectionalExits(hallOfPrehistory2, mammalsExhibit, BidirectionalExitType.NorthSouth);
+            esgarothMuseumGraph.Rooms[mammalsExhibit] = new System.Windows.Point(4, 4);
         }
 
         private void AddSpindrilsCastle(Room spindrilsCastleOutside)
@@ -5760,30 +5837,22 @@ namespace IsengardClient
             eldemondeGraph.Rooms[oCityWalkway4] = new System.Windows.Point(2, 9);
         }
 
-        private Room AddRoom(string roomName)
-        {
-            return AddRoom(roomName, UNKNOWN_ROOM_NAME);
-        }
-
         private Room AddRoom(string roomName, string backendName)
         {
             Room r = new Room(roomName, backendName);
             _map.AddVertex(r);
-            if (backendName != UNKNOWN_ROOM_NAME)
+            if (AmbiguousRooms.TryGetValue(backendName, out List<Room> rooms))
             {
-                if (AmbiguousRooms.TryGetValue(backendName, out List<Room> rooms))
-                {
-                    rooms.Add(r);
-                }
-                else if (UnambiguousRooms.TryGetValue(backendName, out Room existingRoom))
-                {
-                    UnambiguousRooms.Remove(backendName);
-                    AmbiguousRooms[backendName] = new List<Room>() { existingRoom, r };
-                }
-                else
-                {
-                    UnambiguousRooms[backendName] = r;
-                }
+                rooms.Add(r);
+            }
+            else if (UnambiguousRooms.TryGetValue(backendName, out Room existingRoom))
+            {
+                UnambiguousRooms.Remove(backendName);
+                AmbiguousRooms[backendName] = new List<Room>() { existingRoom, r };
+            }
+            else
+            {
+                UnambiguousRooms[backendName] = r;
             }
             return r;
         }

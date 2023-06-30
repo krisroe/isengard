@@ -248,6 +248,7 @@ namespace IsengardClient
         WestOfTharbad,
         AlliskPlainsEastOfTharbad,
         Esgaroth,
+        EsgarothMuseum,
         NorthOfEsgaroth,
         Mithlond,
         Nindamos,
