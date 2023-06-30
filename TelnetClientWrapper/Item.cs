@@ -1454,8 +1454,9 @@ namespace IsengardClient
         [WeaponType(WeaponType.Polearm)]
         StaffOfForce,
 
-        [SingularName("statuette of Balthazar")]
-        [PluralName("statuettes of Balthazar")]
+        //cannot be interacted with at all
+        [SingularName("A statuette of Balthazar")]
+        //CSRTODO: no plural?
         StatuetteOfBalthazar,
 
         [SingularName("steel-chain armor")]

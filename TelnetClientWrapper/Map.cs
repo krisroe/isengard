@@ -8,7 +8,7 @@ namespace IsengardClient
 {
     internal class IsengardMap
     {
-        private AdjacencyGraph<Room, Exit> _map;
+        internal AdjacencyGraph<Room, Exit> _map;
         private List<Area> _areas;
         private Dictionary<string, Area> _areasByName;
         private Dictionary<MapType, RoomGraph> _graphs;
@@ -1225,6 +1225,7 @@ namespace IsengardClient
             Room[,] breeSewers = new Room[16, 11];
             breeStreets[0, 0] = AddRoom("Thalion/Wain", "Wain Road South/Thalion Road Intersection"); //1x1
             breeStreets[1, 0] = AddRoom("Thalion", "Thalion Road"); //2x1
+            breeStreets[1, 0].AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
             breeStreets[2, 0] = AddRoom("Thalion", "Thalion Road"); //3x1
             breeStreets[3, 0] = AddRoom("Thalion/High", "Thalion Road/South High Street Intersection"); //4x1
             breeStreets[4, 0] = AddRoom("Thalion", "Thalion Road"); //5x1
@@ -1252,6 +1253,7 @@ namespace IsengardClient
             breeSewers[0, 3] = AddRoom("Sewers Periwinkle/Wain", "Wain Road/Periwinkle Road Sewer Main"); //1x4
             AddExit(breeSewers[0, 3], breeStreets[0, 3], "up");
             breeStreets[1, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //2x4
+            breeStreets[1, 3].AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
             breeSewers[1, 3] = AddRoom("Sewers Periwinkle", "Periwinkle Road Sewer Main"); //2x4
             breeStreets[2, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //3x4
             breeSewers[2, 3] = AddRoom("Sewers Periwinkle", "Periwinkle Road Sewer Main"); //3x4
@@ -1268,6 +1270,7 @@ namespace IsengardClient
             breeSewers[7, 3] = AddRoom("Shirriffs", "Main Street/Periwinkle Road Sewer Main"); //Bree Sewers Periwinkle/Main 8x4
             AddExit(breeSewers[7, 3], breeStreets[7, 3], "up");
             breeStreets[8, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //9x4
+            breeStreets[8, 3].AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
             breeStreets[9, 3] = AddRoom("South Bridge", "South Bridge"); //10x4
             breeStreets[10, 3] = AddRoom("Periwinkle/Crissaegrim", "Periwinkle Road/Crissaegrim Road Intersection"); //11x4
             breeStreets[11, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //12x4
@@ -1300,6 +1303,7 @@ namespace IsengardClient
             breeStreets[1, 7] = AddRoom("Leviathan", "Leviathan Way"); //2x8
             Room oHauntedMansionEntrance = breeStreets[2, 7] = AddRoom("Leviathan", "Leviathan Way"); //3x8
             breeStreets[3, 7] = AddRoom("Leviathan/High", "Leviathan Way/High Street"); //4x8
+            breeStreets[3, 7].AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
             breeStreets[4, 7] = AddRoom("Leviathan", "Leviathan Way"); //5x8
             oBreeTownSquare = breeStreets[5, 7] = AddRoom("Town Square", "Bree Town Square"); //6x8
             oBreeTownSquare.AddPermanentMobs(MobTypeEnum.TheTownCrier, MobTypeEnum.Scribe, MobTypeEnum.SmallSpider, MobTypeEnum.Vagrant);
@@ -1336,6 +1340,7 @@ namespace IsengardClient
             Room oToZoo = breeStreets[2, 10] = AddRoom("Ormenel", "Ormenel Street"); //3x11
             breeStreets[3, 10] = AddRoom("Ormenel/High", "North High Street/Ormenel Street Intersection"); //4x11
             Room oToCasino = breeStreets[4, 10] = AddRoom("Ormenel", "Ormenel Street"); //5x11
+            oToCasino.AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
             breeStreets[5, 10] = AddRoom("Ormenel", "Ormenel Street"); //6x11
             breeStreets[6, 10] = AddRoom("Ormenel", "Ormenel Street"); //7x11
             breeStreets[7, 10] = AddRoom("Ormenel/Main", "Main Street/Ormenel Street Intersection"); //8x11
@@ -3444,6 +3449,7 @@ namespace IsengardClient
             westOfBreeMap.Rooms[oFrodoBaggins] = new System.Windows.Point(4, 2.75);
 
             Room oGreatHallOfHeroes = AddRoom("Great Hall of Heroes", "The Great Hall of Heroes.");
+            oGreatHallOfHeroes.AddPermanentMobs(MobTypeEnum.DenethoreTheWise);
             AddBidirectionalExitsWithOut(oGrandIntersection, oGreatHallOfHeroes, "hall");
             westOfBreeMap.Rooms[oGreatHallOfHeroes] = new System.Windows.Point(13, 0.5);
 
