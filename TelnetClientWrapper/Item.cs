@@ -1397,6 +1397,7 @@ namespace IsengardClient
         [SingularName("sling")]
         [PluralName("slings")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(5)]
         Sling,
 
         [SingularName("small ash bow")]
@@ -1432,6 +1433,7 @@ namespace IsengardClient
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [Weight(5)]
         SmallWoodenShield,
 
         [SingularName("speckled potion")]
