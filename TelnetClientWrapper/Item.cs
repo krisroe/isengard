@@ -843,6 +843,8 @@ namespace IsengardClient
         [SingularName("gypsy crown")]
         [PluralName("gypsy crowns")]
         [EquipmentType(EquipmentType.Unknown)]
+        [SellGoldRange(247, 247)]
+        [Weight(7)]
         GypsyCrown,
 
         [SingularName("halberd")]
