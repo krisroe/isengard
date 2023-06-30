@@ -2598,6 +2598,14 @@ namespace IsengardClient
             AddBidirectionalExits(oGreatEastRoad11, oGreatEastRoad12, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad12] = new System.Windows.Point(15, 4);
 
+            Room oPathThroughForest = AddRoom("Forest Path", "Path through Forest");
+            AddBidirectionalExits(oGreatEastRoad12, oPathThroughForest, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oPathThroughForest] = new System.Windows.Point(15, 5);
+
+            Room oForestUnmapped = AddRoom("Forest", Room.UNKNOWN_ROOM);
+            AddExit(oPathThroughForest, oForestUnmapped, "forest");
+            breeToImladrisGraph.Rooms[oForestUnmapped] = new System.Windows.Point(15, 6);
+
             Room oGreatEastRoad13 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad12, oGreatEastRoad13, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad13] = new System.Windows.Point(16, 4);
