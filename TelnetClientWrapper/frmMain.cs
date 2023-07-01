@@ -3875,7 +3875,11 @@ namespace IsengardClient
                                     (!dtNextMagicCommand.HasValue || dtUtcNow > dtNextMagicCommand.Value))
                                 {
                                     string sMobTarget = GetMobTarget(false);
-                                    if (string.IsNullOrEmpty(sMobTarget)) return;
+                                    if (string.IsNullOrEmpty(sMobTarget))
+                                    {
+                                        AddConsoleMessage("Target mob not found.");
+                                        return;
+                                    }
 
                                     int currentMana = useManaPool ? _currentMana : _automp;
                                     int currentHP = _autohp;
@@ -3962,7 +3966,11 @@ namespace IsengardClient
                                     (!dtNextMeleeCommand.HasValue || dtUtcNow > dtNextMeleeCommand.Value))
                                 {
                                     string sMobTarget = GetMobTarget(false);
-                                    if (string.IsNullOrEmpty(sMobTarget)) return;
+                                    if (string.IsNullOrEmpty(sMobTarget))
+                                    {
+                                        AddConsoleMessage("Target mob not found.");
+                                        return;
+                                    }
 
                                     GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
                                     WieldWeapon(weaponItem); //wield the weapon in case it was fumbled

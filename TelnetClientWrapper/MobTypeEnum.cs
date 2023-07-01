@@ -1094,6 +1094,10 @@
         [Alignment(AlignmentType.Red)]
         PansySmallburrows,
 
+        [SingularName("parlor maid")]
+        [PluralName("parlor maids")]
+        ParlorMaid,
+
         [SingularName("peasant")]
         [PluralName("peasants")]
         Peasant,

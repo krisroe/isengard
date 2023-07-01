@@ -105,7 +105,14 @@ namespace IsengardClient
                 }
                 cboRoom.SelectedItem = currentRoom;
             }
-            cboMob.Text = currentMob;
+            if (cboMob.Items.Contains(currentMob))
+            {
+                cboMob.SelectedItem = currentMob;
+            }
+            else
+            {
+                cboMob.Text = currentMob;
+            }
 
             foreach (PromptedSkills nextSkill in Enum.GetValues(typeof(PromptedSkills)))
             {
@@ -342,6 +349,10 @@ namespace IsengardClient
                             }
                         }
                     }
+                }
+                if (!isCurrentRoom && cboMob.Items.Count > 0)
+                {
+                    cboMob.SelectedIndex = 0;
                 }
             }
         }
