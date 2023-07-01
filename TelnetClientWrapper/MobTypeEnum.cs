@@ -87,7 +87,7 @@
         [SingularName("Big Papa")]
         //CSRTODO: no plural?
         [Experience(350)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         BigPapa,
 
         [SingularName("Bilbo Baggins")]
@@ -205,7 +205,7 @@
         [SingularName("Chancellor of Protection")]
         //CSRTODO: no plural
         [Experience(200)]
-        [Alignment(AlignmentType.Blue)]
+        //[Alignment(AlignmentType.Blue)] //CSRTODO: determine actual alignment
         ChancellorOfProtection,
 
         [SingularName("child")]
@@ -566,7 +566,7 @@
         [SingularName("Guido")]
         //CSRTODO: no plural?
         [Experience(350)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         Guido,
 
         [SingularName("guildmaster")]
@@ -687,7 +687,7 @@
         [SingularName("hound dog")]
         [PluralName("hound dogs")]
         [Experience(150)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         HoundDog,
 
         [SingularName("Hummley")]
@@ -1204,7 +1204,7 @@
         [SingularName("Scranlin")]
         //CSRTODO: no plural
         [Experience(500)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         Scranlin,
 
         [SingularName("scribe")]
@@ -1308,12 +1308,12 @@
         [SingularName("snarling mutt")]
         [PluralName("snarling mutts")]
         [Experience(50)]
-        [Alignment(AlignmentType.Red)] //straight up red
+        [Alignment(AlignmentType.Red)]
         SnarlingMutt,
 
         [SingularName("Snar Slystone")]
         //CSRTODO: no plural
-        [Alignment(AlignmentType.Red)] //straight up red
+        [Alignment(AlignmentType.Red)]
         SnarSlystone,
 
         [SingularName("sobbing girl")]

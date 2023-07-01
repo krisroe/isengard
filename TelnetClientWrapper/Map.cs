@@ -1354,17 +1354,17 @@ namespace IsengardClient
 
             Room oBreeRealEstateOffice = AddRoom("Real Estate Office", "Bree Real Estate Office");
             AddBidirectionalExits(oToRealEstateOffice, oBreeRealEstateOffice, BidirectionalExitType.NorthSouth);
-            breeStreetsGraph.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(11, 0.5);
+            breeStreetsGraph.Rooms[oBreeRealEstateOffice] = new System.Windows.Point(11, 0.3);
 
             Room oIxell = AddRoom("Ixell", "Kista Hills Show Home");
             oIxell.AddPermanentMobs(MobTypeEnum.IxellDeSantis);
             AddBidirectionalExitsWithOut(oBreeRealEstateOffice, oIxell, "door");
-            breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, 1);
+            breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, 0.6);
 
             oConstructionSite = AddRoom("Construction Site", "Construction Site");
             AddExit(oIxell, oConstructionSite, "back");
             AddExit(oConstructionSite, oIxell, "hoist");
-            breeStreetsGraph.Rooms[oConstructionSite] = new System.Windows.Point(11, 1.5);
+            breeStreetsGraph.Rooms[oConstructionSite] = new System.Windows.Point(11, 0.9);
 
             Room oKistaHillsHousing = AddRoom("Kista Hills Housing", "Kista Hills Housing");
             AddBidirectionalExits(oStreetToFallon, oKistaHillsHousing, BidirectionalExitType.NorthSouth);
@@ -1869,6 +1869,7 @@ namespace IsengardClient
 
             Room oThievesDen = AddRoom("Thieves Den", "Thieve's Den");
             e = AddExit(oRavensRuseTavern, oThievesDen, "sliding panel");
+            e.Hidden = true;
             e.IsUnknownKnockableKeyType = true;
             e.MustOpen = true;
             AddExit(oThievesDen, oRavensRuseTavern, "door");
@@ -1878,8 +1879,14 @@ namespace IsengardClient
             e = AddExit(oThievesDen, oRavensBackroom, "hatchway");
             e.IsUnknownKnockableKeyType = true;
             e.MustOpen = true;
+            e.Hidden = true;
             AddExit(oRavensBackroom, oThievesDen, "hatchway");
             breeStreetsGraph.Rooms[oRavensBackroom] = new System.Windows.Point(13, 8.33);
+
+            Room oReneesElvenLeatherWorks = AddRoom("Leather Works", "Renee's Elven Leather Works");
+            AddExit(breeStreets[10, 8], oReneesElvenLeatherWorks, "shoppe");
+            AddExit(oReneesElvenLeatherWorks, breeStreets[10, 8], "west");
+            breeStreetsGraph.Rooms[oReneesElvenLeatherWorks] = new System.Windows.Point(11, 2);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
@@ -2416,7 +2423,7 @@ namespace IsengardClient
             AddBidirectionalExits(oConstructionSite, oPathToMansion2, BidirectionalExitType.NorthSouth);
             graphMillwoodMansion.Rooms[oPathToMansion2] = new System.Windows.Point(1, 2);
             graphMillwoodMansion.Rooms[oConstructionSite] = new System.Windows.Point(1, 1);
-            breeStreetsGraph.Rooms[oPathToMansion2] = new System.Windows.Point(11, 2);
+            breeStreetsGraph.Rooms[oPathToMansion2] = new System.Windows.Point(11, 1.2);
             AddMapBoundaryPoint(oConstructionSite, oPathToMansion2, MapType.BreeStreets, MapType.MillwoodMansion);
 
             Room oPathToMansion3 = AddRoom("The South Wall", "The South Wall");
