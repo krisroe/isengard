@@ -2355,7 +2355,7 @@ namespace IsengardClient
             e = AddBidirectionalExitsWithOut(oBurntHut, oEaldsHideout, "sliding");
             e.Hidden = true;
             e.MustOpen = true;
-            e = AddExit(oEaldsHideout, oBurnedRemainsOfNimrodel, "trap");
+            e = AddExit(oEaldsHideout, oBurnedRemainsOfNimrodel, "trap door");
             e.IsUnknownKnockableKeyType = true;
             AddExit(oBurnedRemainsOfNimrodel, oEaldsHideout, "up");
             breeSewersGraph.Rooms[oEaldsHideout] = new System.Windows.Point(2, 0);
@@ -2819,26 +2819,30 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oNorthBrethilForest2] = new System.Windows.Point(11, 2);
 
             Room oDarkFootpath = AddRoom("Dark Footpath", "Dark Footpath");
-            AddBidirectionalExits(oDarkFootpath, oGreatEastRoad10, BidirectionalExitType.NorthSouth);
+            e = AddExit(oGreatEastRoad10, oDarkFootpath, "north");
+            e.Hidden = true;
+            AddExit(oDarkFootpath, oGreatEastRoad10, "south");
             AddBidirectionalExits(oNorthBrethilForest2, oDarkFootpath, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oDarkFootpath] = new System.Windows.Point(12, 2);
+            breeToImladrisGraph.Rooms[oDarkFootpath] = new System.Windows.Point(13, 2);
 
             Room oNorthBrethilForest3 = AddRoom("Brethil Forest", "North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest3, oDarkFootpath, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(12, 1);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest3] = new System.Windows.Point(13, 1);
 
             Room oNorthBrethilForest4 = AddRoom("Brethil Forest", "North Brethil Forest");
             AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest3, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oNorthBrethilForest4] = new System.Windows.Point(12, 0);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest4] = new System.Windows.Point(13, 0);
 
             Room oNorthBrethilForest5GobAmbush = AddRoom("Gob Ambush #2", "North Brethil Forest");
             oNorthBrethilForest5GobAmbush.AddPermanentMobs(MobTypeEnum.GoblinWarrior, MobTypeEnum.GoblinWarrior, MobTypeEnum.LargeGoblin);
             AddBidirectionalExits(oNorthBrethilForest4, oNorthBrethilForest5GobAmbush, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(13, 0);
+            breeToImladrisGraph.Rooms[oNorthBrethilForest5GobAmbush] = new System.Windows.Point(14, 0);
 
             //South Brethil Forest
             Room oDeepForest = AddRoom("Deep Forest", "Deep Forest");
-            AddBidirectionalExits(oGreatEastRoad9, oDeepForest, BidirectionalExitType.NorthSouth);
+            e = AddExit(oGreatEastRoad9, oDeepForest, "south");
+            e.Hidden = true;
+            AddExit(oDeepForest, oGreatEastRoad9, "north");
             breeToImladrisGraph.Rooms[oDeepForest] = new System.Windows.Point(12, 5);
 
             Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");

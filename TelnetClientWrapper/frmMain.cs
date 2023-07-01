@@ -2237,6 +2237,10 @@ namespace IsengardClient
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("detect-invisible");
                         break;
+                    case InformationalMessageType.KnowAuraOver:
+                        if (spellsOff == null) spellsOff = new List<string>();
+                        spellsOff.Add("know-aura");
+                        break;
                     case InformationalMessageType.EndureFireOver:
                         if (spellsOff == null) spellsOff = new List<string>();
                         spellsOff.Add("endure-fire");

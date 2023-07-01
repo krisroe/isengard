@@ -483,6 +483,7 @@ namespace IsengardClient
         LevitationOver,
         InvisibilityOver,
         DetectInvisibleOver,
+        KnowAuraOver,
         LightOver,
         EndureFireOver,
         EndureColdOver,

@@ -2735,6 +2735,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.DetectInvisibleOver;
                 }
+                else if (sLine == "Your perception is diminished.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.KnowAuraOver;
+                }
                 else if (sLine == "Your detect-magic wears off.")
                 {
                     haveDataToDisplay = true;

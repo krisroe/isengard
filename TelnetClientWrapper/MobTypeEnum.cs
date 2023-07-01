@@ -158,6 +158,7 @@
         [SingularName("The burned remains of Nimrodel")]
         //CSRTODO: no plural.
         [Experience(300)]
+        [Alignment(AlignmentType.DullRed)]
         BurnedRemainsOfNimrodel,
 
         [SingularName("butcher")]
@@ -388,6 +389,7 @@
         [SingularName("farm cat")]
         [PluralName("farm cats")]
         [Experience(550)]
+        [Alignment(AlignmentType.DullRed)]
         FarmCat,
 
         [SingularName("field laborer")]
@@ -497,6 +499,7 @@
         [SingularName("Godfather")]
         //CSRTODO: no plural
         [Experience(1200)]
+        [Alignment(AlignmentType.Red)]
         Godfather,
 
         [SingularName("golden eagle")]
@@ -507,6 +510,7 @@
         [SingularName("Graddy")]
         //CSRTODO: no plural
         [Experience(350)]
+        [Alignment(AlignmentType.DullRed)]
         Graddy,
 
         [SingularName("Granite Knucklebuster")]
@@ -565,6 +569,7 @@
         [SingularName("guard")]
         [PluralName("guards")]
         [Experience(110)]
+        [Alignment(AlignmentType.DullBlue)]
         Guard,
 
         [SingularName("Guido")]
@@ -575,11 +580,14 @@
 
         [SingularName("guildmaster")]
         [PluralName("guildmasters")]
+        [Experience(850)]
+        [Alignment(AlignmentType.DullRed)]
         Guildmaster,
 
         [SingularName("Guildmaster Ansette")]
         //CSRTODO: no plural?
         [Experience(1200)]
+        [Alignment(AlignmentType.Blue)]
         GuildmasterAnsette,
 
         [SingularName("gypsy-bard")]
@@ -760,6 +768,7 @@
         [SingularName("Kasnar the Guard")]
         //CSRTODO: no plural
         [Experience(535)]
+        [Alignment(AlignmentType.Red)]
         KasnarTheGuard,
 
         [SingularName("Kauka")]
@@ -881,6 +890,7 @@
         [SingularName("Mark Frey")]
         //CSRTODO: no plural?
         [Experience(450)]
+        [Alignment(AlignmentType.DullRed)]
         MarkFrey,
 
         [SingularName("marksman archer")]
@@ -937,6 +947,8 @@
 
         [SingularName("merchant")]
         [PluralName("merchants")]
+        [Alignment(AlignmentType.DullRed)]
+        [Experience(6)]
         Merchant,
 
         [SingularName("merchant marine")]
@@ -1154,6 +1166,7 @@
 
         [SingularName("Prucilla the Groupie")]
         //CSRTODO: no plural?
+        [Alignment(AlignmentType.Blue)]
         PrucillaTheGroupie,
 
         [SingularName("rabbit")]
@@ -1220,6 +1233,7 @@
 
         [SingularName("seasoned veteran")]
         [PluralName("seasoned veterans")]
+        [Alignment(AlignmentType.Red)]
         SeasonedVeteran,
 
         [SingularName("Sergeant Grimgall")]
@@ -1249,6 +1263,8 @@
 
         [SingularName("sewer rat")]
         [PluralName("sewer rats")]
+        [Alignment(AlignmentType.DullRed)]
+        [Experience(10)]
         SewerRat,
 
         [SingularName("sewer wolf")]
@@ -1280,6 +1296,7 @@
         [SingularName("shirriff")]
         [PluralName("shirriffs")]
         [Experience(325)]
+        [Alignment(AlignmentType.Blue)]
         Shirriff,
 
         [SingularName("Sival the Artificer")]

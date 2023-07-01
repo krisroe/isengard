@@ -7,7 +7,7 @@ namespace IsengardClient
 
         public override string ToString()
         {
-            return Name; //CSRTODO: we used to display experience and alignment here
+            return Name;
         }
 
         public Room(string name, string backendName)
