@@ -1458,6 +1458,10 @@
         [PluralName("warrant officers")]
         WarrantOfficer,
 
+        [SingularName("warrior")]
+        [PluralName("warriors")]
+        Warrior,
+
         [SingularName("warrior bard")]
         [PluralName("warrior bards")]
         [Experience(100)]

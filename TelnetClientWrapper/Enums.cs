@@ -573,6 +573,7 @@ namespace IsengardClient
         Imladris,
         Tharbad,
         Esgaroth,
+        BreeArena,
         SpindrilsCastle,
         Nindamos,
         Underhalls,

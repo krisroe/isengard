@@ -501,6 +501,7 @@ namespace IsengardClient
         [SingularName("bo stick")]
         [PluralName("bo sticks")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(4)]
         BoStick,
 
         [SingularName("box of strawberries")]
@@ -1011,6 +1012,8 @@ namespace IsengardClient
         [SingularName("lancette")]
         [PluralName("lancettes")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [SellGoldRange(59, 59)]
         Lancette,
 
         [SingularName("lantern")]

@@ -1308,7 +1308,7 @@ namespace IsengardClient
             breeStreets[3, 10] = AddRoom("Ormenel/High", "North High Street/Ormenel Street Intersection"); //4x11
             Room oToCasino = breeStreets[4, 10] = AddRoom("Ormenel", "Ormenel Street"); //5x11
             oToCasino.AddPermanentMobs(MobTypeEnum.SeasonedVeteran);
-            breeStreets[5, 10] = AddRoom("Ormenel", "Ormenel Street"); //6x11
+            Room oToArena = breeStreets[5, 10] = AddRoom("Ormenel", "Ormenel Street"); //6x11
             breeStreets[6, 10] = AddRoom("Ormenel", "Ormenel Street"); //7x11
             breeStreets[7, 10] = AddRoom("Ormenel/Main", "Main Street/Ormenel Street Intersection"); //8x11
             breeStreets[10, 10] = AddRoom("Ormenel/Crissaegrim", "Crissaegrim Road/Ormenel Street Intersection"); //11x11
@@ -1734,17 +1734,17 @@ namespace IsengardClient
             AddExit(breeStreets[3, 9], oStocks, "stocks");
             breeStreetsGraph.Rooms[oStocks] = new System.Windows.Point(4, 2);
 
-            Room oExecutionersChamber = AddRoom("Executioner's Chamber", "Executioner's Chamber");
+            Room oExecutionersChamber = AddRoom("Execution Chamber", "Executioner's Chamber");
             AddBidirectionalExits(oStocks, oExecutionersChamber, BidirectionalExitType.UpDown);
             breeStreetsGraph.Rooms[oExecutionersChamber] = new System.Windows.Point(4, 1.5);
 
             Room oHallOfAvatars = AddRoom("Avatar Hall", "Hall of Avatars");
             AddBidirectionalExitsWithOut(oCityHall, oHallOfAvatars, "avatar hall");
-            breeStreetsGraph.Rooms[oHallOfAvatars] = new System.Windows.Point(5, 1.5);
+            breeStreetsGraph.Rooms[oHallOfAvatars] = new System.Windows.Point(3.33, 2.67);
 
             Room oHallOfAvatars2 = AddRoom("Avatar Hall", "Hall of Avatars");
             AddBidirectionalSameNameExit(oHallOfAvatars, oHallOfAvatars2, "curtain");
-            breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(5, 1);
+            breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(3.33, 2.33);
 
             Room oDabinsFuneralHome = AddRoom("Funeral Home", "Dabin's Funeral Home");
             AddExit(breeStreets[3, 9], oDabinsFuneralHome, "home");
@@ -1763,6 +1763,44 @@ namespace IsengardClient
             AddExit(breeStreets[7, 6], oClans, "hall");
             AddExit(oClans, breeStreets[7, 6], "east");
             breeStreetsGraph.Rooms[oClans] = new System.Windows.Point(6.4, 4);
+
+            Room oTempleOfLolth = AddRoom("Lolth Temple", "Temple of Lolth");
+            AddExit(breeStreets[0, 9], oTempleOfLolth, "temple");
+            AddExit(oTempleOfLolth, breeStreets[0, 9], "west");
+            breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(0.67, 1);
+            //CSRTODO: underground temple (not straightforward return)
+
+            Room oReadyRoom = AddRoom("Ready Room", "Ready Room");
+            AddExit(oToArena, oReadyRoom, "arena");
+            AddExit(oReadyRoom, oToArena, "north");
+            breeStreetsGraph.Rooms[oReadyRoom] = new System.Windows.Point(5, 0.375);
+
+            Room oArenaWarmup = AddRoom("Arena Warmup", "Arena Warmup");
+            AddBidirectionalExits(oReadyRoom, oArenaWarmup, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oArenaWarmup] = new System.Windows.Point(5, 0.75);
+
+            Room oMainArena = AddRoom("Main Arena", "Main Arena");
+            AddBidirectionalExits(oArenaWarmup, oMainArena, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oMainArena] = new System.Windows.Point(5, 1.125);
+
+            Room oArenaChallenge = AddRoom("Arena Challenge", "Arena Challenge");
+            AddBidirectionalExits(oMainArena, oArenaChallenge, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oArenaChallenge] = new System.Windows.Point(5, 1.5);
+
+            Room oArenaFirstAid = AddHealingRoom("First Aid", "Arena First Aid", HealingRoom.BreeArena);
+            AddBidirectionalExits(oArenaFirstAid, oArenaChallenge, BidirectionalExitType.SouthwestNortheast);
+            breeStreetsGraph.Rooms[oArenaFirstAid] = new System.Windows.Point(6, 0.5);
+
+            Room oChampionsArena = AddRoom("Champion's Arena", "Champion's Arena");
+            AddBidirectionalExits(oArenaChallenge, oChampionsArena, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oChampionsArena] = new System.Windows.Point(5.67, 1.5);
+
+            Room oChampionsWarmup = AddRoom("Champion's Warmup", "Warmup for Champion's Arena");
+            AddBidirectionalExits(oChampionsArena, oChampionsWarmup, BidirectionalExitType.WestEast);
+            AddExit(oChampionsWarmup, breeStreets[7, 8], "east");
+            e = AddExit(breeStreets[7, 8], oChampionsWarmup, "west");
+            e.Hidden = true;
+            breeStreetsGraph.Rooms[oChampionsWarmup] = new System.Windows.Point(6.33, 1.5);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
@@ -4625,6 +4663,11 @@ namespace IsengardClient
             intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
             breeStreetsGraph.Rooms[treeOfLife] = new System.Windows.Point(5.5, 3.3);
             AddMapBoundaryPoint(treeOfLife, oBreeTownSquare, MapType.Intangible, MapType.BreeStreets);
+
+            Room branch = AddRoom("Branch", Room.UNKNOWN_ROOM);
+            branch.Intangible = true;
+            AddExit(treeOfLife, branch, "branch");
+            intangibleGraph.Rooms[branch] = new System.Windows.Point(-1, 1);
 
             Room oLimbo = AddRoom("Limbo", "Limbo");
             oLimbo.Intangible = true;
