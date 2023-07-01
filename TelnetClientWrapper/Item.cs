@@ -1459,6 +1459,7 @@ namespace IsengardClient
         [SingularName("sprite leather armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(7)]
+        [SellGoldRange(185, 185)]
         SpriteLeatherArmor,
 
         [SingularName("sprite leather boots")]
