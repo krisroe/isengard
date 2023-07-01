@@ -1425,6 +1425,7 @@ namespace IsengardClient
         [SingularName("small knife")]
         [PluralName("small knifes")] //verified 6/21/23
         [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
         SmallKnife,
 
         [SingularName("small metal shield")]

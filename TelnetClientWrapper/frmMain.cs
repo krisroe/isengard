@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-
 namespace IsengardClient
 {
     internal partial class frmMain : Form
@@ -4348,7 +4347,7 @@ BeforeHazy:
                                 string sItemText;
                                 lock (_entityLock)
                                 {
-                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, ItemLocationTypeFlags.None);
+                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, false);
                                 }
                                 if (string.IsNullOrEmpty(sItemText))
                                 {
@@ -4411,7 +4410,7 @@ BeforeHazy:
                         anythingFailed = false;
                         foreach (ItemEntity nextItem in itemsToSell)
                         {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, ItemLocationTypeFlags.None);
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, false);
                             if (string.IsNullOrEmpty(sItemText))
                             {
                                 anythingFailed = true;
@@ -4452,7 +4451,7 @@ BeforeHazy:
                         anythingFailed = false;
                         foreach (ItemEntity nextItem in itemsToTick)
                         {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, ItemLocationTypeFlags.None);
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, false);
                             if (string.IsNullOrEmpty(sItemText))
                             {
                                 anythingFailed = true;
@@ -4703,7 +4702,7 @@ BeforeHazy:
                 foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
                 {
                     ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
-                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex, ItemLocationTypeFlags.All);
+                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex, false);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         command = "drink " + sText;
@@ -4723,7 +4722,7 @@ BeforeHazy:
                         ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
                         if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
                         {
-                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot, ItemLocationTypeFlags.All);
+                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot, true);
                             if (!string.IsNullOrEmpty(sText))
                             {
                                 command = "drink " + sText;
@@ -5221,7 +5220,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false, ItemLocationTypeFlags.All);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false, false);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "remove " + sWeaponText;
@@ -5247,7 +5246,7 @@ BeforeHazy:
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryItems.Contains(weaponItemValue))
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false, ItemLocationTypeFlags.All);
+                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false, false);
                         if (!string.IsNullOrEmpty(sWeaponText))
                         {
                             sWieldCommand = "wield " + sWeaponText;
@@ -8328,26 +8327,13 @@ BeforeHazy:
             TreeNode selectedNode = treeCurrentRoom.SelectedNode;
             TreeNode parentNode = selectedNode.Parent;
             object oTag = selectedNode.Tag;
-            if (parentNode == _currentEntityInfo.tnObviousItems)
+            if (parentNode == _currentEntityInfo.tnObviousItems) //pick up item
             {
-                int counter = 0;
-                ItemEntity ie = (ItemEntity)oTag;
-                ItemTypeEnum ieType = ie.ItemType.Value;
-                foreach (TreeNode nextNode in _currentEntityInfo.tnObviousItems.Nodes)
-                {
-                    ItemEntity next = (ItemEntity)nextNode.Tag;
-                    if (ieType == next.ItemType.Value)
-                    {
-                        counter++;
-                        if (ie == next)
-                        {
-                            break;
-                        }
-                    }
-                }
+                int counter = FindItemOrMobCounterInRoomUI(selectedNode, true);
+                ItemEntity ie = (ItemEntity)selectedNode.Tag;
                 lock (_entityLock)
                 {
-                    string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ieType, counter, false, ItemLocationTypeFlags.None);
+                    string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, false, false);
                     if (string.IsNullOrEmpty(sItemText))
                     {
                         MessageBox.Show("Unable to pick up item.");
@@ -8369,6 +8355,64 @@ BeforeHazy:
                     DoSingleMove(oTag.ToString());
                 }
             }
+            else if (parentNode == _currentEntityInfo.tnObviousMobs || parentNode == _currentEntityInfo.tnPermanentMobs) //look at mob
+            {
+                int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
+                MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
+                MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.RoomMobs : MobLocationType.RoomPermanentMobs;
+                lock (_entityLock)
+                {
+                    string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(mtLocType, mt, counter, false, true);
+                    if (string.IsNullOrEmpty(sMobText))
+                    {
+                        MessageBox.Show("Unable to look at mob.");
+                    }
+                    else
+                    {
+                        SendCommand("look " + sMobText, InputEchoType.On);
+                    }
+                }
+            }
+        }
+
+        private int FindItemOrMobCounterInRoomUI(TreeNode node, bool isItem)
+        {
+            int counter = 0;
+            ItemEntity ie;
+            ItemTypeEnum ieType = ItemTypeEnum.GoldCoins;
+            MobTypeEnum mtType = MobTypeEnum.LittleMouse;
+            if (isItem)
+            {
+                ie = (ItemEntity)node.Tag;
+                ieType = ie.ItemType.Value;
+            }
+            else
+            {
+                mtType = (MobTypeEnum)node.Tag;
+            }
+            foreach (TreeNode nextNode in node.Parent.Nodes)
+            {
+                bool matches;
+                if (isItem)
+                {
+                    ItemEntity next = (ItemEntity)nextNode.Tag;
+                    matches = ieType == next.ItemType.Value;
+                }
+                else
+                {
+                    MobTypeEnum nextMT = (MobTypeEnum)nextNode.Tag;
+                    matches = nextMT == mtType;
+                }
+                if (matches)
+                {
+                    counter++;
+                    if (node == nextNode)
+                    {
+                        break;
+                    }
+                }
+            }
+            return counter;
         }
 
         private void btnLook_Click(object sender, EventArgs e)
@@ -8534,7 +8578,8 @@ BeforeHazy:
                 ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 lock (_entityLock)
                 {
-                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, ItemLocationTypeFlags.All);
+                    bool validateAgainstOtherSources = ilt == ItemLocationType.Equipment;
+                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
                     if (!string.IsNullOrEmpty(sText))
                     {
                         SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);

@@ -190,14 +190,10 @@ namespace IsengardClient
         Room,
     }
 
-    [Flags]
-    internal enum ItemLocationTypeFlags
+    internal enum MobLocationType
     {
-        None = 0,
-        Inventory = 1,
-        Equipment = 2,
-        Room = 4,
-        All = 7,
+        RoomMobs,
+        RoomPermanentMobs,
     }
 
     internal enum InventoryProcessWorkflow

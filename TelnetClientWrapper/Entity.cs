@@ -1089,16 +1089,44 @@ namespace IsengardClient
             }
         }
 
+        public string PickMobTextFromMobCounter(MobLocationType mobLocType, MobTypeEnum mobType, int mobCounter, bool reverseOrder, bool validateAgainstOtherSources)
+        {
+            int iActualIndex = -1;
+            int iCounter = 0;
+            int iIncrement = reverseOrder ? -1 : 1;
+            List<MobTypeEnum> sourceList;
+            if (mobLocType == MobLocationType.RoomMobs)
+                sourceList = CurrentRoomMobs;
+            else if (mobLocType == MobLocationType.RoomPermanentMobs)
+                sourceList = CurrentRoom.PermanentMobs;
+            else
+                throw new InvalidOperationException();
+            for (int i = reverseOrder ? sourceList.Count - 1 : 0; reverseOrder ? i >= 0 : i < sourceList.Count; i+= iIncrement)
+            {
+                MobTypeEnum nextMobType = sourceList[i];
+                if (nextMobType == mobType)
+                {
+                    iCounter++;
+                    if (mobCounter == iCounter)
+                    {
+                        iActualIndex = i;
+                        break;
+                    }
+                }
+            }
+            return iActualIndex < 0 ? null : PickMobTextFromActualIndex(mobType, sourceList, iActualIndex, validateAgainstOtherSources);
+        }
+
         /// <summary>
-        /// pick selection text for an inventory/equipment item, assumes the entity lock is present
+        /// pick selection text for an inventory/equipment/room item, assumes the entity lock is present
         /// </summary>
-        /// <param name="locationType">whether to search for the items</param>
+        /// <param name="locationType">where to look for the item</param>
         /// <param name="itemType">item type</param>
         /// <param name="itemCounter">item counter of that type</param>
         /// <param name="reverseOrder">whether to search in reverse order</param>
-        /// <param name="validationTypes">types to check for duplicate validation</param>
-        /// <returns>text of the item</returns>
-        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, ItemLocationTypeFlags validationTypes)
+        /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
+        /// <returns>selection text for the item</returns>
+        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, bool validateAgainstOtherSources)
         {
             int iActualIndex = -1;
             int iCounter = 0;
@@ -1148,10 +1176,119 @@ namespace IsengardClient
                     }
                 }
             }
-            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex, validationTypes);
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex, validateAgainstOtherSources);
         }
 
-        public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex, ItemLocationTypeFlags validationTypes)
+        /// <summary>
+        /// pick selectio text for a mob, assumes the entity lock is present
+        /// </summary>
+        /// <param name="mobType">mob type</param>
+        /// <param name="sourceList">source mob list (either room mobs or permanent mobs)</param>
+        /// <param name="iActualIndex">actual index in the list to look for the mob at</param>
+        /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
+        /// <returns>selection text for the mob</returns>
+        public string PickMobTextFromActualIndex(MobTypeEnum mobType, List<MobTypeEnum> sourceList, int iActualIndex, bool validateAgainstOtherSources)
+        {
+            string ret = null;
+            foreach (string word in MobEntity.GetMobWords(mobType))
+            {
+                string sSingular;
+
+                //find word index within the list of mobs
+                int iCounter = 0;
+                for (int i = 0; i <= iActualIndex; i++)
+                {
+                    MobTypeEnum eMobType = sourceList[i];
+                    bool matches = false;
+                    if (eMobType == mobType)
+                    {
+                        matches = true;
+                    }
+                    else
+                    {
+                        sSingular = MobEntity.StaticMobData[eMobType].SingularName;
+                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        {
+                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                            {
+                                matches = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (matches)
+                    {
+                        iCounter++;
+                    }
+                }
+
+                bool isDuplicate = false;
+                int iDuplicateCounter;
+                if (validateAgainstOtherSources)
+                {
+                    iDuplicateCounter = 0;
+                    foreach (ItemTypeEnum nextItem in InventoryItems)
+                    {
+                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        {
+                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                break;
+                        }
+                    }
+                    isDuplicate = iDuplicateCounter == iCounter;
+
+                    if (!isDuplicate)
+                    {
+                        iDuplicateCounter = 0;
+                        foreach (ItemTypeEnum? nextItem in Equipment)
+                        {
+                            if (nextItem.HasValue)
+                            {
+                                sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                        break;
+                                }
+                            }
+                        }
+                        isDuplicate = iDuplicateCounter == iCounter;
+                    }
+
+                    if (!isDuplicate)
+                    {
+                        iDuplicateCounter = 0;
+                        foreach (ItemEntity nextItem in CurrentRoomItems)
+                        {
+                            sSingular = ItemEntity.StaticItemData[nextItem.ItemType.Value].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                    break;
+                            }
+                        }
+                        isDuplicate = iDuplicateCounter == iCounter;
+                    }
+                }
+
+                if (!isDuplicate)
+                {
+                    if (iCounter == 1)
+                        ret = word;
+                    else
+                        ret = word + " " + iCounter;
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex, bool validateAgainstOtherSources)
         {
             string ret = null;
             foreach (string word in ItemEntity.GetItemWords(itemType))
@@ -1206,60 +1343,52 @@ namespace IsengardClient
                     }
                 }
 
-                //for equipment, check for a duplicate in inventory
                 bool isDuplicate = false;
-                if (locationType != ItemLocationType.Inventory && (validationTypes & ItemLocationTypeFlags.Inventory) != ItemLocationTypeFlags.None)
+                int iDuplicateCounter;
+                if (validateAgainstOtherSources)
                 {
-                    int iInventoryCounter = 0;
-                    foreach (ItemTypeEnum nextItem in InventoryItems)
+                    if (locationType != ItemLocationType.Inventory)
                     {
-                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        //validate for a duplicate in inventory
+                        iDuplicateCounter = 0;
+                        foreach (ItemTypeEnum nextItem in InventoryItems)
                         {
-                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                            {
-                                iInventoryCounter++;
-                                if (iInventoryCounter == iCounter)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    isDuplicate = iInventoryCounter == iCounter;
-                }
-                if (!isDuplicate && locationType != ItemLocationType.Inventory && locationType != ItemLocationType.Equipment && (validationTypes & ItemLocationTypeFlags.Equipment) != ItemLocationTypeFlags.None)
-                {
-                    int iEquipmentCounter = 0;
-                    foreach (ItemTypeEnum? nextItem in Equipment)
-                    {
-                        if (nextItem.HasValue)
-                        {
-                            sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                            sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
                             foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                             {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                    break;
+                            }
+                        }
+                        isDuplicate = iDuplicateCounter == iCounter;
+
+                        //validate for a duplicate in equipment
+                        if (!isDuplicate && locationType != ItemLocationType.Equipment)
+                        {
+                            iDuplicateCounter = 0;
+                            foreach (ItemTypeEnum? nextItem in Equipment)
+                            {
+                                if (nextItem.HasValue)
                                 {
-                                    iEquipmentCounter++;
-                                    if (iEquipmentCounter == iCounter)
+                                    sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                                    foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                                     {
-                                        break;
+                                        if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                            break;
                                     }
                                 }
                             }
+                            isDuplicate = iDuplicateCounter == iCounter;
                         }
                     }
                 }
+
                 if (!isDuplicate)
                 {
                     if (iCounter == 1)
-                    {
                         ret = word;
-                    }
                     else
-                    {
                         ret = word + " " + iCounter;
-                    }
                     break;
                 }
             }
