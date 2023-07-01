@@ -16,6 +16,7 @@
 
         [SingularName("alley cat")]
         [PluralName("alley cats")]
+        [Alignment(AlignmentType.DullBlue)]
         AlleyCat,
 
         [SingularName("alligator")]
@@ -123,6 +124,7 @@
         [SingularName("boatswain")]
         [PluralName("boatswains")]
         [Experience(350)]
+        [Alignment(AlignmentType.DullBlue)]
         Boatswain,
 
         [SingularName("bosun's mate")]
@@ -172,6 +174,8 @@
 
         [SingularName("Captain Felagund")]
         //CSRTODO: no plural
+        [Alignment(AlignmentType.Blue)]
+        [Experience(1000)]
         CaptainFelagund,
 
         [SingularName("Captain Renton")]
@@ -937,6 +941,7 @@
 
         [SingularName("merchant marine")]
         [PluralName("merchant marines")]
+        [Alignment(AlignmentType.DullBlue)]
         MerchantMarine,
 
         [SingularName("migrant worker")]
@@ -1473,6 +1478,7 @@
 
         [SingularName("warrant officer")]
         [PluralName("warrant officers")]
+        [Alignment(AlignmentType.DullBlue)]
         WarrantOfficer,
 
         [SingularName("warrior")]

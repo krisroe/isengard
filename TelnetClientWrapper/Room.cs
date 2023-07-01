@@ -120,6 +120,35 @@ namespace IsengardClient
                         ret += nextExp.ToString();
                     }
                 }
+                AlignmentType? alignType = null;
+                foreach (MobTypeEnum nextMobType in PermanentMobs)
+                {
+                    StaticMobData smd = MobEntity.StaticMobData[nextMobType];
+                    if (smd.Alignment.HasValue)
+                    {
+                        if (alignType.HasValue)
+                        {
+                            if (alignType.Value != smd.Alignment.Value)
+                            {
+                                alignType = null;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            alignType = smd.Alignment.Value;
+                        }
+                    }
+                    else
+                    {
+                        alignType = null;
+                        break;
+                    }
+                }
+                if (alignType.HasValue)
+                {
+                    ret += " " + StaticMobData.GetAlignmentString(alignType.Value);
+                }
             }
             return ret;
         }

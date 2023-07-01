@@ -7467,7 +7467,17 @@ BeforeHazy:
 
         private TreeNode GetMobsNode(MobTypeEnum mob)
         {
-            TreeNode ret = new TreeNode(MobEntity.StaticMobData[mob].SingularName);
+            StaticMobData smd = MobEntity.StaticMobData[mob];
+            string sName = smd.SingularName;
+            if (smd.Experience > 0)
+            {
+                sName += " " + smd.Experience.ToString();
+            }
+            if (smd.Alignment.HasValue)
+            {
+                sName += " " + StaticMobData.GetAlignmentString(smd.Alignment.Value);
+            }
+            TreeNode ret = new TreeNode(sName);
             ret.Tag = mob;
             return ret;
         }

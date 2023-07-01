@@ -473,6 +473,10 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.Visibility = ((MobVisibilityAttribute)valueAttributes[0]).MobVisibility;
 
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(AlignmentAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.Alignment = ((AlignmentAttribute)valueAttributes[0]).Alignment;
+
                 bool hasSingular = !string.IsNullOrEmpty(smd.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(smd.PluralName);
                 if (hasSingular)
@@ -567,6 +571,39 @@ namespace IsengardClient
         public bool Aggressive { get; set; }
         public int Experience { get; set; }
         public MobVisibility Visibility { get; set; }
+        public AlignmentType? Alignment { get; set; }
+
+        public static string GetAlignmentString(AlignmentType alignment)
+        {
+            string sAlign;
+            switch (alignment)
+            {
+                case AlignmentType.IntenseBlue:
+                    sAlign = "Bl+";
+                    break;
+                case AlignmentType.Blue:
+                    sAlign = "Bl";
+                    break;
+                case AlignmentType.DullBlue:
+                    sAlign = "Bl-";
+                    break;
+                case AlignmentType.Grey:
+                    sAlign = "Gy";
+                    break;
+                case AlignmentType.IntenseRed:
+                    sAlign = "Rd+";
+                    break;
+                case AlignmentType.Red:
+                    sAlign = "Rd";
+                    break;
+                case AlignmentType.DullRed:
+                    sAlign = "Rd-";
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return sAlign;
+        }
     }
 
     internal class NamedEntity : Entity
