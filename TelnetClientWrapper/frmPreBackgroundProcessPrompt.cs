@@ -285,6 +285,7 @@ namespace IsengardClient
             }
         }
 
+        //CSRTODO: select mob type for visible mobs, mob selection value for hidden mobs
         private void cboRoom_SelectedIndexChanged(object sender, EventArgs e)
         {
             Room r = (Room)cboRoom.SelectedItem;

@@ -275,6 +275,7 @@
 
         [SingularName("door mimic")]
         [PluralName("door mimics")]
+        [MobVisibility(MobVisibility.Hidden)]
         DoorMimic,
 
         [SingularName("Dori")]
@@ -521,6 +522,7 @@
 
         [SingularName("green slime")]
         //CSRTODO: plurals are hard to get since hidden
+        [MobVisibility(MobVisibility.Hidden)]
         [Experience(35)]
         GreenSlime,
 
@@ -878,6 +880,7 @@
 
         [SingularName("master assassin")]
         [PluralName("master assassins")]
+        [MobVisibility(MobVisibility.Hidden)]
         [Experience(600)]
         MasterAssassin,
 
@@ -941,6 +944,7 @@
 
         [SingularName("minor lich")]
         //CSRTODO: no plural
+        [MobVisibility(MobVisibility.Invisible)]
         MinorLich,
 
         [SingularName("minstrel of Esgaroth")]

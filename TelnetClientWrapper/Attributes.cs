@@ -50,6 +50,8 @@ namespace IsengardClient
         }
     }
 
+    #region mob attributes
+
     /// <summary>
     /// experience gained when killing a mob
     /// </summary>
@@ -85,6 +87,19 @@ namespace IsengardClient
             this.Aggressive = true;
         }
     }
+
+    internal class MobVisibilityAttribute : Attribute
+    {
+        public MobVisibility MobVisibility { get; set; }
+        public MobVisibilityAttribute(MobVisibility MobVisibility)
+        {
+            this.MobVisibility = MobVisibility;
+        }
+    }
+
+    #endregion
+
+    #region item attributes
 
     /// <summary>
     /// equipment type for an item
@@ -150,6 +165,8 @@ namespace IsengardClient
         }
     }
 
+    #endregion
+
     internal class SpellInformationAttribute : Attribute
     {
         public SpellProficiency Proficiency { get; set; }
@@ -190,4 +207,5 @@ namespace IsengardClient
             this.UpperRange = UpperRange;
         }
     }
+
 }

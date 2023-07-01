@@ -203,6 +203,13 @@ namespace IsengardClient
         ProcessAllItemsInRoom = 2,
     }
 
+    internal enum MobVisibility
+    {
+        Visible,
+        Hidden,
+        Invisible,
+    }
+
     internal enum AutoEscapeType
     {
         Flee = 0,

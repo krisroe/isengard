@@ -551,6 +551,7 @@ namespace IsengardClient
         [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
         [WeaponType(WeaponType.Slash)]
         [Weight(12)]
+        [SellGoldRange(396, 396)]
         CatONineTails,
 
         [SingularName("chain mail armor")]
