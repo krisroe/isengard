@@ -39,9 +39,9 @@
             this.tsmiAddSiblingAfter = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnAdd = new System.Windows.Forms.Button();
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAdd = new System.Windows.Forms.Button();
             this.ctxTree.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -90,6 +90,7 @@
             this.treeLocations.Size = new System.Drawing.Size(372, 674);
             this.treeLocations.TabIndex = 64;
             this.treeLocations.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeLocations_AfterSelect);
+            this.treeLocations.DoubleClick += new System.EventHandler(this.treeLocations_DoubleClick);
             // 
             // ctxTree
             // 
@@ -102,39 +103,51 @@
             this.tsmiMoveUp,
             this.tsmiMoveDown});
             this.ctxTree.Name = "ctxTree";
-            this.ctxTree.Size = new System.Drawing.Size(181, 180);
+            this.ctxTree.Size = new System.Drawing.Size(173, 158);
             this.ctxTree.Opening += new System.ComponentModel.CancelEventHandler(this.ctxTree_Opening);
             this.ctxTree.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxTree_ItemClicked);
             // 
             // tsmiAddChild
             // 
             this.tsmiAddChild.Name = "tsmiAddChild";
-            this.tsmiAddChild.Size = new System.Drawing.Size(180, 22);
+            this.tsmiAddChild.Size = new System.Drawing.Size(172, 22);
             this.tsmiAddChild.Text = "Add Child";
             // 
             // tsmiAddSiblingBefore
             // 
             this.tsmiAddSiblingBefore.Name = "tsmiAddSiblingBefore";
-            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(180, 22);
+            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(172, 22);
             this.tsmiAddSiblingBefore.Text = "Add Sibling Before";
             // 
             // tsmiAddSiblingAfter
             // 
             this.tsmiAddSiblingAfter.Name = "tsmiAddSiblingAfter";
-            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(180, 22);
+            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(172, 22);
             this.tsmiAddSiblingAfter.Text = "Add Sibling After";
             // 
             // tsmiEdit
             // 
             this.tsmiEdit.Name = "tsmiEdit";
-            this.tsmiEdit.Size = new System.Drawing.Size(180, 22);
+            this.tsmiEdit.Size = new System.Drawing.Size(172, 22);
             this.tsmiEdit.Text = "Edit";
             // 
             // tsmiRemove
             // 
             this.tsmiRemove.Name = "tsmiRemove";
-            this.tsmiRemove.Size = new System.Drawing.Size(180, 22);
+            this.tsmiRemove.Size = new System.Drawing.Size(172, 22);
             this.tsmiRemove.Text = "Remove";
+            // 
+            // tsmiMoveUp
+            // 
+            this.tsmiMoveUp.Name = "tsmiMoveUp";
+            this.tsmiMoveUp.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveUp.Text = "Move Up";
+            // 
+            // tsmiMoveDown
+            // 
+            this.tsmiMoveDown.Name = "tsmiMoveDown";
+            this.tsmiMoveDown.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveDown.Text = "Move Down";
             // 
             // btnAdd
             // 
@@ -146,18 +159,6 @@
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-            // 
-            // tsmiMoveUp
-            // 
-            this.tsmiMoveUp.Name = "tsmiMoveUp";
-            this.tsmiMoveUp.Size = new System.Drawing.Size(180, 22);
-            this.tsmiMoveUp.Text = "Move Up";
-            // 
-            // tsmiMoveDown
-            // 
-            this.tsmiMoveDown.Name = "tsmiMoveDown";
-            this.tsmiMoveDown.Size = new System.Drawing.Size(180, 22);
-            this.tsmiMoveDown.Text = "Move Down";
             // 
             // frmLocations
             // 

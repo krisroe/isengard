@@ -313,5 +313,10 @@ namespace IsengardClient
                 }
             }
         }
+
+        private void treeLocations_DoubleClick(object sender, EventArgs e)
+        {
+            btnGo_Click(null, null);
+        }
     }
 }

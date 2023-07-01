@@ -92,7 +92,7 @@
         [SingularName("Bilbo Baggins")]
         //CSRTODO: no plural
         [Experience(260)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         BilboBaggins,
 
         [SingularName("blade")]
@@ -289,12 +289,12 @@
         [SingularName("Droolie the troll")]
         //CSRTODO: no plural?
         [Experience(100)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         DroolieTheTroll,
 
         [SingularName("drunk")]
         [PluralName("drunks")]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         Drunk,
 
         [SingularName("drunken greek")]
@@ -352,6 +352,7 @@
 
         [SingularName("elven guard")]
         [PluralName("elven guards")]
+        [Alignment(AlignmentType.DullBlue)]
         ElvenGuard,
 
         [SingularName("evil sorcerer")]
@@ -376,7 +377,7 @@
         [SingularName("Faornil the Seer")]
         //CSRTODO: no plural?
         [Experience(250)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         FaornilTheSeer,
 
         [SingularName("farm cat")]
@@ -399,7 +400,7 @@
         [SingularName("Frodo Baggins")]
         //CSRTODO: no plural?
         [Experience(260)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         FrodoBaggins,
 
         [SingularName("gambler")]
@@ -583,7 +584,7 @@
         [SingularName("gypsy blademaster")]
         [PluralName("gypsy blademasters")]
         [Experience(160)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         GypsyBlademaster,
 
         [SingularName("gypsy dancer")]
@@ -671,7 +672,7 @@
         [SingularName("Hogoth")]
         //CSRTODO: no plural?
         [Experience(260)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         Hogoth,
 
         [SingularName("hosta warrior")]
@@ -731,7 +732,7 @@
         [SingularName("Ixell DeSantis")]
         //CSRTODO: no plural
         [Experience(70)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         [SingularSelection("Ixell")]
         IxellDeSantis,
 
@@ -763,12 +764,13 @@
         [SingularName("King Brunden")]
         //CSRTODO: no plural
         [Experience(300)]
+        [Alignment(AlignmentType.Grey)]
         KingBrunden,
 
         [SingularName("king's moneychanger")]
         [PluralName("king's moneychangers")]
         [Experience(150)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         KingsMoneychanger,
 
         [SingularName("knight")]
@@ -843,7 +845,7 @@
         [SingularName("Madame Nicolov")]
         //CSRTODO: no plural?
         [Experience(180)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.Blue)] //straight up blue
         MadameNicolov,
 
         [SingularName("madman")]
@@ -866,7 +868,7 @@
         [SingularName("Manager Mulloy")]
         //CSRTODO: no plural?
         [Experience(600)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.Blue)] //straight up blue
         ManagerMulloy,
 
         [SingularName("Mark Frey")]
@@ -891,7 +893,7 @@
         [SingularName("Master Jeweler")]
         //CSRTODO: no plural
         [Experience(170)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         MasterJeweler,
 
         [SingularName("Matriarch Alliyana of Isengard")]
@@ -1011,7 +1013,7 @@
         [SingularName("Naugrim")]
         //CSRTODO: no plural
         [Experience(205)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         Naugrim,
 
         [SingularName("netmaker")]
@@ -1020,6 +1022,7 @@
 
         [SingularName("nobleman")]
         [PluralName("noblemen")]
+        [Alignment(AlignmentType.DullRed)]
         Nobleman,
 
         [SingularName("Numenorean Captain")]
@@ -1051,7 +1054,7 @@
         [SingularName("Oliphaunt the Tattoo Artist")]
         //CSRTODO: no plural
         [Experience(310)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.Blue)] //straight up blue
         OliphauntTheTattooArtist,
 
         [SingularName("Oohlgrist")]
@@ -1091,7 +1094,7 @@
         [SingularName("Pansy Smallburrows")]
         //CSRTODO: no plural?
         [Experience(95)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         PansySmallburrows,
 
         [SingularName("parlor maid")]
@@ -1100,6 +1103,7 @@
 
         [SingularName("peasant")]
         [PluralName("peasants")]
+        [Alignment(AlignmentType.DullRed)]
         Peasant,
 
         [SingularName("pilgrim")]
@@ -1137,7 +1141,7 @@
         [SingularName("Prince Brunden")]
         //CSRTODO: no plural?
         [Experience(150)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         PrinceBrunden,
 
         [SingularName("Prucilla the Groupie")]
@@ -1183,7 +1187,7 @@
         [SingularName("salamander")]
         [PluralName("salamanders")]
         [Experience(100)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         Salamander,
 
         [SingularName("scallywag")]
@@ -1192,6 +1196,7 @@
 
         [SingularName("scholar")]
         [PluralName("scholars")]
+        [Alignment(AlignmentType.Grey)]
         Scholar,
 
         [SingularName("Scranlin")]
@@ -1260,7 +1265,7 @@
         [SingularName("shepherd")]
         //CSRTODO: no plural?
         [Experience(60)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         Shepherd,
 
         [SingularName("shirriff")]
@@ -1299,7 +1304,7 @@
         [SingularName("snarling mutt")]
         [PluralName("snarling mutts")]
         [Experience(50)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.Red)] //straight up red
         SnarlingMutt,
 
         [SingularName("sobbing girl")]
@@ -1465,7 +1470,7 @@
         [SingularName("warrior bard")]
         [PluralName("warrior bards")]
         [Experience(100)]
-        [Alignment(AlignmentType.Red)]
+        [Alignment(AlignmentType.DullRed)]
         WarriorBard,
 
         [SingularName("water turtle")]
@@ -1516,7 +1521,7 @@
         [SingularSelection("Minstrel")]
         //CSRTODO: no plural?
         [Experience(220)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.Blue)] //straight up blue
         ZathrielTheMinstrel,
 
         [SingularName("zombie")]

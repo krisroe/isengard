@@ -235,7 +235,11 @@ namespace IsengardClient
     internal enum AlignmentType
     {
         Blue,
+        IntenseBlue,
+        DullBlue,
         Grey,
+        DullRed,
+        IntenseRed,
         Red,
     }
 
