@@ -1775,15 +1775,15 @@ namespace IsengardClient
             AddExit(oReadyRoom, oToArena, "north");
             breeStreetsGraph.Rooms[oReadyRoom] = new System.Windows.Point(5, 0.375);
 
-            Room oArenaWarmup = AddRoom("Arena Warmup", "Arena Warmup");
+            Room oArenaWarmup = AddRoom("Warmup", "Arena Warmup");
             AddBidirectionalExits(oReadyRoom, oArenaWarmup, BidirectionalExitType.NorthSouth);
             breeStreetsGraph.Rooms[oArenaWarmup] = new System.Windows.Point(5, 0.75);
 
-            Room oMainArena = AddRoom("Main Arena", "Main Arena");
+            Room oMainArena = AddRoom("Main", "Main Arena");
             AddBidirectionalExits(oArenaWarmup, oMainArena, BidirectionalExitType.NorthSouth);
             breeStreetsGraph.Rooms[oMainArena] = new System.Windows.Point(5, 1.125);
 
-            Room oArenaChallenge = AddRoom("Arena Challenge", "Arena Challenge");
+            Room oArenaChallenge = AddRoom("Challenge", "Arena Challenge");
             AddBidirectionalExits(oMainArena, oArenaChallenge, BidirectionalExitType.NorthSouth);
             breeStreetsGraph.Rooms[oArenaChallenge] = new System.Windows.Point(5, 1.5);
 
@@ -1791,16 +1791,17 @@ namespace IsengardClient
             AddBidirectionalExits(oArenaFirstAid, oArenaChallenge, BidirectionalExitType.SouthwestNortheast);
             breeStreetsGraph.Rooms[oArenaFirstAid] = new System.Windows.Point(6, 0.5);
 
-            Room oChampionsArena = AddRoom("Champion's Arena", "Champion's Arena");
+            Room oChampionsArena = AddRoom("Champion", "Champion's Arena");
             AddBidirectionalExits(oArenaChallenge, oChampionsArena, BidirectionalExitType.WestEast);
             breeStreetsGraph.Rooms[oChampionsArena] = new System.Windows.Point(5.67, 1.5);
 
-            Room oChampionsWarmup = AddRoom("Champion's Warmup", "Warmup for Champion's Arena");
+            Room oChampionsWarmup = AddRoom("Warmup", "Warmup for Champion's Arena");
             AddBidirectionalExits(oChampionsArena, oChampionsWarmup, BidirectionalExitType.WestEast);
             AddExit(oChampionsWarmup, breeStreets[7, 8], "east");
-            e = AddExit(breeStreets[7, 8], oChampionsWarmup, "west");
+            e = AddExit(breeStreets[7, 8], oChampionsWarmup, "arena");
             e.Hidden = true;
             breeStreetsGraph.Rooms[oChampionsWarmup] = new System.Windows.Point(6.33, 1.5);
+            breeStreetsGraph.Rooms[breeStreets[7, 8]] = new System.Windows.Point(7, 1.5);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
