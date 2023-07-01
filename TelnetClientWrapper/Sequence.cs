@@ -2863,6 +2863,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.Death;
                 }
+                else if (sLine.StartsWith("Stun cast on "))
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.StunCastOnEnemy;
+                }
                 else if (sLine == "The air is still and quiet." ||
                          sLine == "Light clouds appear over the mountains." ||
                          sLine == "A light breeze blows from the south." ||

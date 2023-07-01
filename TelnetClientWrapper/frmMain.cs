@@ -1964,20 +1964,6 @@ namespace IsengardClient
             }
         }
 
-        private void OnStun(FeedLineParameters flParams)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
-            {
-                _monsterStunnedSince = DateTime.UtcNow;
-            }
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
-            {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
-            }
-        }
-
         /// <summary>
         /// when a spell fails (e.g. alignment out of whack)
         /// </summary>
@@ -2239,6 +2225,19 @@ namespace IsengardClient
                         ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
                         break;
                     case InformationalMessageType.FleeFailed:
+                        finishedProcessing = true;
+                        break;
+                    case InformationalMessageType.StunCastOnEnemy:
+                        BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+                        if (bwp != null && !string.IsNullOrEmpty(flp.CurrentlyFightingMob))
+                        {
+                            _monsterStunnedSince = DateTime.UtcNow;
+                        }
+                        BackgroundCommandType? bct = flp.BackgroundCommandType;
+                        if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
+                        {
+                            flp.CommandResult = CommandResult.CommandSuccessful;
+                        }
                         finishedProcessing = true;
                         break;
                     case InformationalMessageType.BullroarerInMithlond:
@@ -3042,7 +3041,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("You create a protective fireshield.", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new SelfSpellCastSequence(OnSelfSpellCast),
-                new ConstantOutputSequence("Stun cast on ", OnStun, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.Stun),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life

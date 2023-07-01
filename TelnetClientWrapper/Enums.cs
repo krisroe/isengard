@@ -511,6 +511,7 @@ namespace IsengardClient
         EquipmentFellApart,
         FireshieldInflictsDamageAndDissipates,
         MobPickedUpItem,
+        StunCastOnEnemy,
     }
 
     internal enum SkillWithCooldownType
