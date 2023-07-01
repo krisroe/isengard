@@ -1344,7 +1344,7 @@ namespace IsengardClient
 
             Room oMensClub = AddRoom("Men's Club", "Men's Club");
             AddBidirectionalExits(oMensClub, oPoorAlley3, BidirectionalExitType.WestEast);
-            breeStreetsGraph.Rooms[oMensClub] = new System.Windows.Point(11, 6)
+            breeStreetsGraph.Rooms[oMensClub] = new System.Windows.Point(11, 6);
 
             Room oCampusFreeClinic = AddHealingRoom("Bree Campus Free Clinic", "Campus Free Clinic", HealingRoom.BreeSouthwest);
             oCampusFreeClinic.AddNonPermanentMobs(MobTypeEnum.Student);
