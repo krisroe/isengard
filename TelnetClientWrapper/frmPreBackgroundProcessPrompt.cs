@@ -182,6 +182,15 @@ namespace IsengardClient
                 return;
             }
 
+            InventoryProcessWorkflow ipw = (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
+            if (ipw != InventoryProcessWorkflow.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
+            {
+                if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                {
+                    return;
+                }
+            }
+
             GraphInputs graphInputs = _GraphInputs();
 
             //verify the selected room is still reachable
