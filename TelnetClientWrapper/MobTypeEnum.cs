@@ -787,6 +787,7 @@
 
         [SingularName("laborer")]
         [PluralName("laborers")]
+        [Alignment(AlignmentType.DullBlue)]
         Laborer,
 
         [SingularName("lady in waiting")]
@@ -1207,6 +1208,7 @@
 
         [SingularName("scribe")]
         [PluralName("scribes")]
+        [Alignment(AlignmentType.DullRed)]
         Scribe,
 
         [SingularName("seasoned veteran")]
@@ -1291,6 +1293,7 @@
 
         [SingularName("small spider")]
         [PluralName("small spiders")]
+        [Alignment(AlignmentType.DullRed)]
         SmallSpider,
 
         [SingularName("Smee")]
@@ -1433,6 +1436,7 @@
 
         [SingularName("vagrant")]
         [PluralName("vagrants")]
+        [Alignment(AlignmentType.DullBlue)]
         Vagrant,
 
         [SingularName("vampire bat")]
