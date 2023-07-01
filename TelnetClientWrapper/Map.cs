@@ -1747,12 +1747,12 @@ namespace IsengardClient
             AddExit(oDabinsFuneralHome, breeStreets[3, 9], "east");
             breeStreetsGraph.Rooms[oDabinsFuneralHome] = new System.Windows.Point(2, 1);
 
-            oCemetery = AddRoom("Cemetery", "Cemetery");
-            oCemetery.AddPermanentMobs(MobTypeEnum.Caretaker);
-            e = AddExit(oDabinsFuneralHome, oCemetery, "northwest");
+            Room oFuneralHomeCemetery = AddRoom("Cemetery", "Cemetery");
+            oFuneralHomeCemetery.AddPermanentMobs(MobTypeEnum.Caretaker);
+            e = AddExit(oDabinsFuneralHome, oFuneralHomeCemetery, "northwest");
             e.Hidden = true;
-            AddExit(oCemetery, oDabinsFuneralHome, "southeast");
-            breeStreetsGraph.Rooms[oCemetery] = new System.Windows.Point(1.5, 0.5);
+            AddExit(oFuneralHomeCemetery, oDabinsFuneralHome, "southeast");
+            breeStreetsGraph.Rooms[oFuneralHomeCemetery] = new System.Windows.Point(1.5, 0.5);
             //CSRTODO: hidden exit that doesn't seem to be returnable since the return exit is locked
 
             AddHauntedMansion(oHauntedMansionEntrance);

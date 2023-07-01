@@ -192,6 +192,7 @@ namespace IsengardClient
             XmlElement docElement = doc.DocumentElement;
             bool foundSettings = false;
             bool foundDynamicItemData = false;
+            bool foundLocations = false;
             foreach (XmlNode nextNode in docElement.ChildNodes)
             {
                 if (nextNode is XmlElement)
@@ -210,6 +211,11 @@ namespace IsengardClient
                             HandleDynamicItemData(elem, errorMessages);
                             foundDynamicItemData = true;
                             break;
+                        case "Locations":
+                            if (foundLocations) errorMessages.Add("Duplicate locations data element found.");
+                            HandleLocations(elem, errorMessages, Locations);
+                            foundLocations = true;
+                            break;
                         default:
                             errorMessages.Add("Unexpected element found: " + sElemName);
                             break;
@@ -221,6 +227,57 @@ namespace IsengardClient
                 errorMessages.Add("No settings element found.");
             }
             ValidateSettings();
+        }
+
+        private void HandleLocations(XmlElement elem, List<string> errorMessages, List<LocationNode> locations)
+        {
+            foreach (XmlNode nextLocationNode in elem.ChildNodes)
+            {
+                XmlElement nextLocationElem = nextLocationNode as XmlElement;
+                if (nextLocationElem != null)
+                {
+                    if (nextLocationElem.Name == "Location")
+                    {
+                        string sDisplayName = nextLocationElem.GetAttribute("displayname");
+                        string sRoom = nextLocationElem.GetAttribute("room");
+                        string sExpanded = nextLocationElem.GetAttribute("expanded");
+                        bool bExpanded = false;
+                        if (!string.IsNullOrEmpty(sExpanded))
+                        {
+                            if (!bool.TryParse(sExpanded, out bExpanded))
+                            {
+                                errorMessages.Add("Invalid location expanded: " + sExpanded);
+                            }
+                        }
+                        if (string.IsNullOrEmpty(sDisplayName) && string.IsNullOrEmpty(sRoom))
+                        {
+                            errorMessages.Add("No room or display name specified for location");
+                        }
+                        else
+                        {
+                            LocationNode node = new LocationNode();
+                            node.DisplayName = sDisplayName;
+                            node.Room = sRoom;
+                            locations.Add(node);
+                            List<LocationNode> subNodes = new List<LocationNode>();
+                            HandleLocations(nextLocationElem, errorMessages, subNodes);
+                            if (subNodes.Count > 0)
+                            {
+                                node.Children = subNodes;
+                                node.Expanded = bExpanded;
+                                foreach (LocationNode nextSubNode in subNodes)
+                                {
+                                    nextSubNode.Parent = node;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        errorMessages.Add("Invalid location element: " + nextLocationElem.Name);
+                    }
+                }
+            }
         }
 
         public void SaveSettings(SQLiteConnection conn, int userID)
@@ -653,8 +710,44 @@ namespace IsengardClient
             }
             writer.WriteEndElement();
 
+            if (Locations.Count > 0)
+            {
+                writer.WriteStartElement("Locations");
+                foreach (var next in Locations)
+                {
+                    WriteLocation(next, writer);
+                }
+                writer.WriteEndElement();
+            }
+
             writer.WriteEndElement();
         }
+
+        private void WriteLocation(LocationNode node, XmlWriter writer)
+        {
+            writer.WriteStartElement("Location");
+            if (!string.IsNullOrEmpty(node.DisplayName))
+            {
+                writer.WriteAttributeString("displayname", node.DisplayName);
+            }
+            if (!string.IsNullOrEmpty(node.Room))
+            {
+                writer.WriteAttributeString("room", node.Room);
+            }
+            if (node.Children != null && node.Children.Count > 0)
+            {
+                if (node.Expanded)
+                {
+                    writer.WriteAttributeString("expanded", node.Expanded.ToString());
+                }
+                foreach (LocationNode childNode in node.Children)
+                {
+                    WriteLocation(childNode, writer);
+                }
+            }
+            writer.WriteEndElement();
+        }
+
         public void WriteSetting(XmlWriter writer, string Name, string Value)
         {
             writer.WriteStartElement("Setting");
