@@ -1255,7 +1255,7 @@ namespace IsengardClient
             breeStreets[7, 5] = AddRoom("Main", "Main Street"); //8x6
             Room oBigPapa = breeStreets[8, 5] = AddRoom("Big Papa", "Papa Joe's"); //9x6
             oBigPapa.AddPermanentMobs(MobTypeEnum.BigPapa);
-            breeStreets[10, 5] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x6
+            Room oToMagicShop = breeStreets[10, 5] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x6
             breeStreets[14, 5] = AddRoom("Brownhaven", "Brownhaven Road"); //15x6
             breeStreets[0, 6] = AddRoom("Wain", "Wain Road South"); //1x7
             breeSewers[0, 6] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x7
@@ -1825,6 +1825,10 @@ namespace IsengardClient
             AddExit(oToSmithy, oSmithy, "smithy");
             AddExit(oSmithy, oToSmithy, "south");
             breeStreetsGraph.Rooms[oSmithy] = new System.Windows.Point(13, 6.5);
+
+            Room oMagicShop = AddRoom("Magic Shop", "Magic Shop");
+            AddBidirectionalExitsWithOut(oToMagicShop, oMagicShop, "shop");
+            breeStreetsGraph.Rooms[oMagicShop] = new System.Windows.Point(9, 5);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }

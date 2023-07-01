@@ -1204,6 +1204,11 @@ namespace IsengardClient
         [Wand(SpellsEnum.mend)]
         OpalStaff,
 
+        [SingularName("orange potion")]
+        [PluralName("orange potions")]
+        [Potion(SpellsEnum.knowaura)]
+        OrangePotion,
+
         [SingularName("orc's sword")]
         [PluralName("orc's swords")]
         OrcsSword,
