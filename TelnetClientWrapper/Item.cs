@@ -1104,7 +1104,9 @@ namespace IsengardClient
 
         [SingularName("mask of darkness")]
         //CSRTODO: plural?
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Face)]
+        [Weight(3)]
+        [SellGoldRange(742, 742)]
         MaskOfDarkness,
 
         [SingularName("metal helmet")]
