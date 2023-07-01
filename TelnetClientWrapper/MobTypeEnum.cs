@@ -814,6 +814,7 @@
 
         [SingularName("leprechaun")]
         [PluralName("leprechauns")]
+        [Alignment(AlignmentType.DullBlue)]
         Leprechaun,
 
         [SingularName("little boy")]
@@ -847,7 +848,7 @@
         [SingularName("Madame Nicolov")]
         //CSRTODO: no plural?
         [Experience(180)]
-        [Alignment(AlignmentType.Blue)] //straight up blue
+        [Alignment(AlignmentType.Blue)]
         MadameNicolov,
 
         [SingularName("madman")]
@@ -870,7 +871,7 @@
         [SingularName("Manager Mulloy")]
         //CSRTODO: no plural?
         [Experience(600)]
-        [Alignment(AlignmentType.Blue)] //straight up blue
+        [Alignment(AlignmentType.Blue)]
         ManagerMulloy,
 
         [SingularName("Mark Frey")]
@@ -1056,7 +1057,7 @@
         [SingularName("Oliphaunt the Tattoo Artist")]
         //CSRTODO: no plural
         [Experience(310)]
-        [Alignment(AlignmentType.Blue)] //straight up blue
+        [Alignment(AlignmentType.Blue)]
         OliphauntTheTattooArtist,
 
         [SingularName("Oohlgrist")]
@@ -1328,7 +1329,7 @@
         [SingularName("sprite guard")]
         [PluralName("sprite guards")]
         [Experience(120)]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         SpriteGuard,
 
         [SingularName("Sssreth the Lizardman")]
@@ -1532,7 +1533,7 @@
         [SingularSelection("Minstrel")]
         //CSRTODO: no plural?
         [Experience(220)]
-        [Alignment(AlignmentType.Blue)] //straight up blue
+        [Alignment(AlignmentType.Blue)]
         ZathrielTheMinstrel,
 
         [SingularName("zombie")]

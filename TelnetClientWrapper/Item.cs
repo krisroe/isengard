@@ -656,6 +656,7 @@ namespace IsengardClient
 
         [SingularName("dead rat carcass")]
         //CSRTODO: plural?
+        [Weight(1)]
         DeadRatCarcass,
 
         [SingularName("Death's galvorn sickle")]
@@ -1252,7 +1253,8 @@ namespace IsengardClient
 
         [SingularName("pipe weed")]
         //CSRTODO: plural?
-        //CSRTODO: wand?
+        [Wand(SpellsEnum.stun)]
+        [Weight(1)]
         PipeWeed,
 
         [SingularName("platinum pieces")]
