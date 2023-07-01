@@ -1468,6 +1468,7 @@ namespace IsengardClient
         [SingularName("sprite leather leggings")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(3)]
+        [SellGoldRange(185, 185)]
         SpriteLeatherLeggings,
 
         [SingularName("splint mail")]

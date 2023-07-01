@@ -1560,7 +1560,7 @@ namespace IsengardClient
             Room oPrancingPony = AddRoom("Prancing Pony", "Prancing Pony Tavern");
             oPrancingPony.AddPermanentMobs(MobTypeEnum.Bartender, MobTypeEnum.Bartender, MobTypeEnum.Waitress, MobTypeEnum.Waitress, MobTypeEnum.Waitress);
             AddBidirectionalExits(oPearlAlley, oPrancingPony, BidirectionalExitType.WestEast);
-            breeStreetsGraph.Rooms[oPrancingPony] = new System.Windows.Point(6, 4);
+            breeStreetsGraph.Rooms[oPrancingPony] = new System.Windows.Point(5.8, 4);
 
             Room oHobbitsHideawayEntrance = AddRoom("Hideaway Entrance", "Entrance to the Hobbit's Hideaway");
             e = AddExit(orderOfLove, oHobbitsHideawayEntrance, "cubbyhole");
@@ -1754,6 +1754,11 @@ namespace IsengardClient
             AddExit(oFuneralHomeCemetery, oDabinsFuneralHome, "southeast");
             breeStreetsGraph.Rooms[oFuneralHomeCemetery] = new System.Windows.Point(1.5, 0.5);
             //CSRTODO: hidden exit that doesn't seem to be returnable since the return exit is locked
+
+            Room oClans = AddRoom("Clans", "The Clans of Middle Earth");
+            AddExit(breeStreets[7, 6], oClans, "hall");
+            AddExit(oClans, breeStreets[7, 6], "east");
+            breeStreetsGraph.Rooms[oClans] = new System.Windows.Point(6.4, 4);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
