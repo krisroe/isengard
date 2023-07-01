@@ -1241,7 +1241,7 @@ namespace IsengardClient
             breeStreets[10, 3] = AddRoom("Periwinkle/Crissaegrim", "Periwinkle Road/Crissaegrim Road Intersection"); //11x4
             breeStreets[11, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //12x4
             Room oPeriwinklePoorAlley = breeStreets[12, 3] = AddRoom("Periwinkle/PoorAlley", "Periwinkle Road/Poor Alley Intersection"); //13x4
-            breeStreets[13, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //14x4
+            Room oToSmithy = breeStreets[13, 3] = AddRoom("Periwinkle", "Periwinkle Road"); //14x4
             breeStreets[14, 3] = AddRoom("Periwinkle/Brownhaven", "Brownhaven Road/Periwinkle Road Intersection"); //15x4
             breeStreets[0, 4] = AddRoom("Wain", "Wain Road South"); //1x5
             breeSewers[0, 4] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x5
@@ -1820,6 +1820,11 @@ namespace IsengardClient
             Room oThievesGuild = AddRoom("Thieves Guild", "Thieves Guild");
             AddBidirectionalExitsWithOut(oHallOfGuilds, oThievesGuild, "thief");
             breeStreetsGraph.Rooms[oThievesGuild] = new System.Windows.Point(9, -1);
+
+            Room oSmithy = AddRoom("Smithy", "U'tral Smiths Inc.");
+            AddExit(oToSmithy, oSmithy, "smithy");
+            AddExit(oSmithy, oToSmithy, "south");
+            breeStreetsGraph.Rooms[oSmithy] = new System.Windows.Point(13, 6.5);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
