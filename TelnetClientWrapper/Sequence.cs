@@ -2828,7 +2828,8 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.WindDamage;
                 }
-                else if (sLine == "The toxic air poisoned you.")
+                //could be of the form "The toxic air poisoned you." (room damage) or "The green slime poisoned you." (monster damage)
+                else if (sLine.EndsWith(" poisoned you."))
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.RoomPoisoned;

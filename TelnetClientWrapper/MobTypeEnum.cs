@@ -177,6 +177,10 @@
         //CSRTODO: no plural
         CaptainRenton,
 
+        [SingularName("caretaker")]
+        [PluralName("caretakers")]
+        Caretaker,
+
         [SingularName("carrion crawler")]
         [PluralName("carrion crawlers")]
         CarrionCrawler,

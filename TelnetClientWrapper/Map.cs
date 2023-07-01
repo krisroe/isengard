@@ -1742,6 +1742,19 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oHallOfAvatars, oHallOfAvatars2, "curtain");
             breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(5, 1);
 
+            Room oDabinsFuneralHome = AddRoom("Funeral Home", "Dabin's Funeral Home");
+            AddExit(breeStreets[3, 9], oDabinsFuneralHome, "home");
+            AddExit(oDabinsFuneralHome, breeStreets[3, 9], "east");
+            breeStreetsGraph.Rooms[oDabinsFuneralHome] = new System.Windows.Point(2, 1);
+
+            oCemetery = AddRoom("Cemetery", "Cemetery");
+            oCemetery.AddPermanentMobs(MobTypeEnum.Caretaker);
+            e = AddExit(oDabinsFuneralHome, oCemetery, "northwest");
+            e.Hidden = true;
+            AddExit(oCemetery, oDabinsFuneralHome, "southeast");
+            breeStreetsGraph.Rooms[oCemetery] = new System.Windows.Point(1.5, 0.5);
+            //CSRTODO: hidden exit that doesn't seem to be returnable since the return exit is locked
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
