@@ -469,6 +469,10 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.Experience = ((ExperienceAttribute)valueAttributes[0]).Experience;
 
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MobVisibilityAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.Visibility = ((MobVisibilityAttribute)valueAttributes[0]).MobVisibility;
+
                 bool hasSingular = !string.IsNullOrEmpty(smd.SingularName);
                 bool hasPlural = !string.IsNullOrEmpty(smd.PluralName);
                 if (hasSingular)
@@ -548,6 +552,7 @@ namespace IsengardClient
         public string PluralName { get; set; }
         public bool Aggressive { get; set; }
         public int Experience { get; set; }
+        public MobVisibility Visibility { get; set; }
     }
 
     internal class NamedEntity : Entity
