@@ -10,6 +10,7 @@ namespace IsengardClient
         private IsengardSettingData _settingsData;
         private Room _currentRoom;
         private CheckBox _chkPowerAttack;
+        private CurrentEntityInfo _currentEntityInfo;
 
         public List<Exit> SelectedPath { get; set; }
 
@@ -37,7 +38,12 @@ namespace IsengardClient
             }
         }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow)
+        public bool IsCombatStrategy { get; set; }
+        public string MobText { get; set; }
+        public MobTypeEnum? MobType { get; set; }
+        public int MobIndex { get; set; }
+
+        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo)
         {
             InitializeComponent();
 
@@ -77,6 +83,7 @@ namespace IsengardClient
             _gameMap = gameMap;
             _settingsData = settingsData;
             _currentRoom = currentRoom;
+            _currentEntityInfo = currentEntityInfo;
 
             Strategy = new Strategy(strategy);
             RefreshUIFromStrategy();
@@ -141,21 +148,14 @@ namespace IsengardClient
             }
         }
 
-        public string Mob
+        private string GetInputMobText()
         {
-            get
-            {
-                string ret;
-                if (cboMob.SelectedItem == null)
-                {
-                    ret = cboMob.Text;
-                }
-                else
-                {
-                    ret = cboMob.SelectedItem.ToString();
-                }
-                return ret;
-            }
+            string full;
+            if (cboMob.SelectedItem == null)
+                full = cboMob.Text;
+            else
+                full = cboMob.SelectedItem.ToString();
+            return full;
         }
 
         public PromptedSkills SelectedSkills
@@ -176,10 +176,20 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (Strategy.IsCombatStrategy(CommandType.All) && string.IsNullOrEmpty(this.Mob))
+            IsCombatStrategy = Strategy.IsCombatStrategy(CommandType.All);
+            if (IsCombatStrategy)
             {
-                MessageBox.Show("No mob specified.");
-                return;
+                if (MobEntity.GetMobInfo(GetInputMobText(), out string mobText, out MobTypeEnum? mobType, out int mobIndex))
+                {
+                    MobText = mobText;
+                    MobType = mobType;
+                    MobIndex = mobIndex;
+                }
+                else
+                {
+                    MessageBox.Show("No mob specified.");
+                    return;
+                }
             }
 
             InventoryProcessWorkflow ipw = (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
@@ -285,21 +295,52 @@ namespace IsengardClient
             }
         }
 
-        //CSRTODO: select mob type for visible mobs, mob selection value for hidden mobs
         private void cboRoom_SelectedIndexChanged(object sender, EventArgs e)
         {
             Room r = (Room)cboRoom.SelectedItem;
             cboMob.Items.Clear();
-            if (r.PermanentMobs != null)
+            HashSet<string> entries = new HashSet<string>();
+            lock (_currentEntityInfo)
             {
-                for (int i = 0; i < r.PermanentMobs.Count; i++)
+                int iCounter = 0;
+                MobTypeEnum? prevMob = null;
+                bool isCurrentRoom = _currentEntityInfo.CurrentRoom == r;
+                if (isCurrentRoom)
                 {
-                    MobTypeEnum eNextPerm = r.PermanentMobs[i];
-                    string sMobText = MobEntity.PickMobTextWithinList(eNextPerm, MobEntity.IterateThroughMobs(r.PermanentMobs, i + 1));
-                    cboMob.Items.Add(sMobText);
-                    if (i == 0)
+                    foreach (MobTypeEnum nextMob in _currentEntityInfo.CurrentRoomMobs)
                     {
-                        cboMob.SelectedItem = sMobText;
+                        if (prevMob.HasValue && prevMob.Value == nextMob)
+                            iCounter++;
+                        else
+                            iCounter = 1;
+                        string sMobText = nextMob.ToString();
+                        if (iCounter > 1) sMobText += " 1";
+                        prevMob = nextMob;
+                        cboMob.Items.Add(sMobText);
+                        entries.Add(sMobText);
+                    }
+                }
+                if (r.PermanentMobs != null)
+                {
+                    prevMob = null;
+                    foreach (MobTypeEnum nextMob in r.PermanentMobs)
+                    {
+                        StaticMobData smb = MobEntity.StaticMobData[nextMob];
+                        if (smb.Visibility != MobVisibility.Visible || !isCurrentRoom)
+                        {
+                            if (prevMob.HasValue && prevMob.Value == nextMob)
+                                iCounter++;
+                            else
+                                iCounter = 1;
+                            string sMobText = nextMob.ToString();
+                            if (iCounter > 1) sMobText += " 1";
+                            prevMob = nextMob;
+                            if (!entries.Contains(sMobText))
+                            {
+                                cboMob.Items.Add(sMobText);
+                                entries.Add(sMobText);
+                            }
+                        }
                     }
                 }
             }

@@ -31,7 +31,7 @@ namespace IsengardClient
         }
         public List<string> Lines { get; set; }
         public BackgroundCommandType? BackgroundCommandType { get; set; }
-        public string CurrentlyFightingMob { get; set; }
+        public bool IsFightingMob { get; set; }
         public bool FinishedProcessing { get; set; }
         public bool SuppressEcho { get; set; }
         public CommandResult? CommandResult { get; set; }
@@ -2302,10 +2302,7 @@ StartProcessRoom:
         internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            if (string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
-            {
-                return;
-            }
+            if (!flParams.IsFightingMob) return;
             bool firstLine = true;
             MonsterStatus status = MonsterStatus.None;
             foreach (string nextLine in Lines)
@@ -2363,7 +2360,7 @@ StartProcessRoom:
                     if (status != MonsterStatus.None)
                     {
                         flParams.FinishedProcessing = true;
-                        flParams.SuppressEcho = !string.IsNullOrEmpty(flParams.CurrentlyFightingMob);
+                        flParams.SuppressEcho = flParams.IsFightingMob;
                         _onSatisfied(status, flParams);
                         return;
                     }

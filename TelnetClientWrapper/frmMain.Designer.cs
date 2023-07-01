@@ -273,7 +273,7 @@
             this.btnLookAtMob.TabIndex = 8;
             this.btnLookAtMob.Text = "Look at Mob";
             this.btnLookAtMob.UseVisualStyleBackColor = true;
-            this.btnLookAtMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnLookAtMob.Click += new System.EventHandler(this.btnLookAtMob_Click);
             // 
             // btnLook
             // 
@@ -454,7 +454,7 @@
             this.btnUseWandOnMob.TabIndex = 50;
             this.btnUseWandOnMob.Text = "Wand";
             this.btnUseWandOnMob.UseVisualStyleBackColor = true;
-            this.btnUseWandOnMob.Click += new System.EventHandler(this.btnDoAction_Click);
+            this.btnUseWandOnMob.Click += new System.EventHandler(this.btnUseWandOnMob_Click);
             // 
             // btnPowerAttackMob
             // 
@@ -1067,14 +1067,14 @@
             this.ctxMessages.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiCopyMessages});
             this.ctxMessages.Name = "ctxMessages";
-            this.ctxMessages.Size = new System.Drawing.Size(181, 48);
+            this.ctxMessages.Size = new System.Drawing.Size(103, 26);
             this.ctxMessages.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMessages_Opening);
             this.ctxMessages.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMessages_ItemClicked);
             // 
             // tsmiCopyMessages
             // 
             this.tsmiCopyMessages.Name = "tsmiCopyMessages";
-            this.tsmiCopyMessages.Size = new System.Drawing.Size(180, 22);
+            this.tsmiCopyMessages.Size = new System.Drawing.Size(102, 22);
             this.tsmiCopyMessages.Text = "Copy";
             // 
             // grpMob

@@ -154,8 +154,13 @@ namespace IsengardClient
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
 
-        private string _currentlyFightingMob;
-        private string _currentlyFightingMobUI;
+        private string _currentlyFightingMobText;
+        private MobTypeEnum? _currentlyFightingMobType;
+        private int _currentlyFightingMobCounter;
+        private string _currentlyFightingMobTextUI;
+        private MobTypeEnum? _currentlyFightingMobTypeUI;
+        private int _currentlyFightingMobCounterUI;
+
         private MonsterStatus _currentMonsterStatus;
         private MonsterStatus _currentMonsterStatusUI;
         private int _monsterDamage;
@@ -1992,7 +1997,7 @@ namespace IsengardClient
         private void OnEntityAttacksYou(FeedLineParameters flParams)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp != null && !string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+            if (bwp != null && flParams.IsFightingMob)
             {
                 DateTime? stunStart = _monsterStunnedSince;
                 _monsterStunnedSince = null;
@@ -2044,7 +2049,7 @@ namespace IsengardClient
             lock (_entityLock)
             {
                 bool hasMonsterItems = monsterItems.Count > 0;
-                if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+                if (flParams.IsFightingMob)
                 {
                     if (!fumbled && killedMonster)
                     {
@@ -2077,7 +2082,7 @@ namespace IsengardClient
             bool hasMonsterItems = monsterItems.Count > 0;
             lock (_entityLock)
             {
-                if (!string.IsNullOrEmpty(flParams.CurrentlyFightingMob))
+                if (flParams.IsFightingMob)
                 {
                     _monsterDamage += damage;
                     if (killedMonster)
@@ -2188,6 +2193,7 @@ namespace IsengardClient
             Exit currentBackgroundExit = _currentBackgroundExit;
             EntityChange rc;
             BackgroundCommandType? bct = flp.BackgroundCommandType;
+            bool isFightingMob = flp.IsFightingMob;
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
@@ -2262,7 +2268,7 @@ namespace IsengardClient
                         ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
                         break;
                     case InformationalMessageType.FireshieldInflictsDamageAndDissipates:
-                        if (!string.IsNullOrEmpty(flp.CurrentlyFightingMob))
+                        if (isFightingMob)
                         {
                             _monsterDamage += next.Damage;
                         }
@@ -2273,7 +2279,7 @@ namespace IsengardClient
                         break;
                     case InformationalMessageType.StunCastOnEnemy:
                         BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-                        if (bwp != null && !string.IsNullOrEmpty(flp.CurrentlyFightingMob))
+                        if (bwp != null && isFightingMob)
                         {
                             _monsterStunnedSince = DateTime.UtcNow;
                         }
@@ -2963,7 +2969,7 @@ namespace IsengardClient
                             int initialCount = sNewLinesList.Count;
                             FeedLineParameters flParams = new FeedLineParameters(sNewLinesList);
                             flParams.BackgroundCommandType = _backgroundCommandType;
-                            flParams.CurrentlyFightingMob = _currentlyFightingMob;
+                            flParams.IsFightingMob = !string.IsNullOrEmpty(_currentlyFightingMobText) || _currentlyFightingMobType.HasValue;
                             flParams.PlayerNames = _players;
                             int previousCommandResultCounter = _commandResultCounter;
                             CommandResult? previousCommandResult = _commandResult;
@@ -3537,14 +3543,14 @@ namespace IsengardClient
             btnLevel1OffensiveSpell.Tag = new CommandButtonTag(btnLevel1OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
             btnLevel2OffensiveSpell.Tag = new CommandButtonTag(btnLevel2OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
             btnLevel3OffensiveSpell.Tag = new CommandButtonTag(btnLevel3OffensiveSpell, null, CommandType.Magic, DependentObjectType.Mob);
-            btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, "look {mob}", CommandType.None, DependentObjectType.Mob);
+            btnLookAtMob.Tag = new CommandButtonTag(btnLookAtMob, null, CommandType.None, DependentObjectType.Mob);
             btnCastVigor.Tag = new CommandButtonTag(btnCastVigor, null, CommandType.Magic, DependentObjectType.None);
             btnCastCurePoison.Tag = new CommandButtonTag(btnCastCurePoison, null, CommandType.Magic, DependentObjectType.None);
             btnAttackMob.Tag = new CommandButtonTag(btnAttackMob, null, CommandType.Melee, DependentObjectType.Mob);
             btnDrinkVigor.Tag = new CommandButtonTag(btnDrinkVigor, null, CommandType.Potions, DependentObjectType.None);
             btnDrinkCurepoison.Tag = new CommandButtonTag(btnDrinkCurepoison, null, CommandType.Potions, DependentObjectType.None);
             btnDrinkMend.Tag = new CommandButtonTag(btnDrinkMend, null, CommandType.Potions, DependentObjectType.None);
-            btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, "zap {wand} {mob}", CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
+            btnUseWandOnMob.Tag = new CommandButtonTag(btnUseWandOnMob, null, CommandType.Magic, DependentObjectType.Wand | DependentObjectType.Mob);
             btnPowerAttackMob.Tag = new CommandButtonTag(btnPowerAttackMob, null, CommandType.Melee, DependentObjectType.Mob);
             btnCastMend.Tag = new CommandButtonTag(btnCastMend, null, CommandType.Magic, DependentObjectType.None);
             btnStunMob.Tag = new CommandButtonTag(btnStunMob, null, CommandType.Magic, DependentObjectType.Mob);
@@ -3580,29 +3586,44 @@ namespace IsengardClient
                 _lastCommandMovementResult = null;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 bool setMobToFirstAvailable = true;
-                if (bwp.AtDestination && !string.IsNullOrEmpty(bwp.TargetRoomMob))
+                if (bwp.AtDestination && (!string.IsNullOrEmpty(bwp.MobText) || bwp.MobType.HasValue))
                 {
                     if (bwp.MonsterKilled)
                     {
-                        if (bwp.MonsterKilledType.HasValue)
+                        if (bwp.MonsterKilledType.HasValue) //choose first monster of the same type
                         {
-                            //choose first monster of the same type
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
                             List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
+                            string sFound = null;
                             lock (_entityLock)
                             {
-                                int iIndexOfMonster = currentRoomMobs.IndexOf(eMobValue);
-                                if (iIndexOfMonster >= 0)
-                                {
-                                    txtMob.Text = PickMobText(iIndexOfMonster);
-                                    setMobToFirstAvailable = false;
-                                }
+                                if (currentRoomMobs.IndexOf(eMobValue) >= 0) sFound = eMobValue.ToString();
+                            }
+                            if (!string.IsNullOrEmpty(sFound))
+                            {
+                                txtMob.Text = sFound;
+                                setMobToFirstAvailable = false;
                             }
                         }
                     }
                     else //presumably the mob is still there so leave it selected
                     {
-                        txtMob.Text = bwp.TargetRoomMob;
+                        string sText;
+                        if (bwp.MobType.HasValue)
+                        {
+                            sText = bwp.MobType.ToString();
+                            if (bwp.MobTypeCounter > 1) sText += " " + bwp.MobTypeCounter;
+                        }
+                        else if (!string.IsNullOrEmpty(bwp.MobText))
+                        {
+                            sText = bwp.MobText;
+                            if (bwp.MobTextCounter > 1) sText += " " + bwp.MobTextCounter;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        txtMob.Text = sText;
                         setMobToFirstAvailable = false;
                     }
                 }
@@ -3614,7 +3635,7 @@ namespace IsengardClient
                     {
                         if (currentRoomMobs.Count > 0)
                         {
-                            sText = PickMobText(0);
+                            sText = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, currentRoomMobs[0], 1, false, true);
                         }
                     }
                     if (!string.IsNullOrEmpty(sText))
@@ -3644,114 +3665,6 @@ namespace IsengardClient
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
             }
-        }
-
-        /// <summary>
-        /// pick selection text for an entity, assumes the entity lock is present
-        /// </summary>
-        /// <param name="index">index of the mob in the room mob list</param>
-        /// <param name="isMob">true for a mob, false for an inventory item</param>
-        /// <returns>selection text for the entity</returns>
-        private string PickMobText(int mobIndex)
-        {
-            string ret = null;
-            List<MobTypeEnum> mobs = _currentEntityInfo.CurrentRoomMobs;
-            if (mobs.Count > mobIndex)
-            {
-                MobTypeEnum eMobType = mobs[mobIndex];
-                foreach (string word in MobEntity.GetMobWords(eMobType))
-                {
-                    string sSingular;
-
-                    //find word index within the list of mobs
-                    int iCounter = 0;
-                    for (int i = 0; i < mobIndex; i++)
-                    {
-                        MobTypeEnum eMob = _currentEntityInfo.CurrentRoomMobs[i];
-                        bool matches = false;
-                        if (eMob == eMobType)
-                        {
-                            matches = true;
-                        }
-                        else
-                        {
-                            sSingular = MobEntity.StaticMobData[eMob].SingularName;
-                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                            {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    matches = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (matches)
-                        {
-                            iCounter++;
-                        }
-                    }
-                    iCounter++;
-
-                    bool isDuplicate = false;
-
-                    int iInventoryCounter = 0;
-                    foreach (ItemTypeEnum nextItem in _currentEntityInfo.InventoryItems)
-                    {
-                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                        {
-                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                            {
-                                iInventoryCounter++;
-                                if (iInventoryCounter == iCounter)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    isDuplicate = iInventoryCounter == iCounter;
-
-                    if (!isDuplicate)
-                    {
-                        int iEquipmentCounter = 0;
-                        foreach (ItemTypeEnum? nextItem in _currentEntityInfo.Equipment)
-                        {
-                            if (nextItem.HasValue)
-                            {
-                                ItemTypeEnum eItemValue = nextItem.Value;
-                                sSingular = ItemEntity.StaticItemData[eItemValue].SingularName;
-                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
-                                {
-                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        iEquipmentCounter++;
-                                        if (iEquipmentCounter == iCounter)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        isDuplicate = iEquipmentCounter == iCounter;
-                    }
-
-                    if (!isDuplicate)
-                    {
-                        if (iCounter == 1)
-                        {
-                            ret = word;
-                        }
-                        else
-                        {
-                            ret = word + " " + iCounter;
-                        }
-                        break;
-                    }
-                }
-            }
-            return ret;
         }
 
         private void _bw_DoWork(object sender, DoWorkEventArgs e)
@@ -3806,14 +3719,6 @@ namespace IsengardClient
                 }
                 pms.AtDestination = true;
 
-                bool hasCombat = !string.IsNullOrEmpty(pms.TargetRoomMob);
-                if (hasCombat)
-                {
-                    _mob = pms.TargetRoomMob;
-                }
-
-                bool useManaPool = pms.ManaPool > 0;
-                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
                 bool hasInitialQueuedPotionsStep;
@@ -3823,13 +3728,37 @@ namespace IsengardClient
                     hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
                     hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
                 }
+                bool hasCombat = pms.HasCombat();
+                string sMobText;
+                if (hasCombat)
+                {
+                    if (pms.MobType.HasValue)
+                    {
+                        sMobText = pms.MobType.ToString();
+                        if (pms.MobTypeCounter > 1) sMobText += " " + pms.MobTypeCounter;
+                    }
+                    else
+                    {
+                        sMobText = pms.MobText;
+                        if (pms.MobTextCounter > 1) sMobText += " " + pms.MobTextCounter;
+                    }
+                }
+                else
+                {
+                    sMobText = string.Empty;
+                }
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
-                    int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
-                    int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
                     try
                     {
-                        _currentlyFightingMob = pms.TargetRoomMob;
+                        _mob = sMobText;
+                        _currentlyFightingMobText = pms.MobText;
+                        _currentlyFightingMobType = pms.MobType;
+                        _currentlyFightingMobCounter = pms.MobType.HasValue ? pms.MobTypeCounter : pms.MobTextCounter;
+                        bool useManaPool = pms.ManaPool > 0;
+                        AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
+                        int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
+                        int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
 
                         bool haveMeleeStrategySteps = false;
                         bool haveMagicStrategySteps = false;
@@ -4145,7 +4074,8 @@ namespace IsengardClient
 
                                 if (didDamage && _settingsData.QueryMonsterStatus)
                                 {
-                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + _currentlyFightingMob, pms, AbortIfFleeingOrHazying, true);
+                                    string sMobTextForLook = GetMobTarget(true);
+                                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + sMobTextForLook, pms, AbortIfFleeingOrHazying, true);
                                     if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
                                     {
                                         return;
@@ -4282,7 +4212,9 @@ BeforeHazy:
                         _pleaseWaitSequence.ClearLastMagicWaitSeconds();
                         _pleaseWaitSequence.ClearLastMeleeWaitSeconds();
                         _pleaseWaitSequence.ClearLastPotionsWaitSeconds();
-                        _currentlyFightingMob = null;
+                        _currentlyFightingMobType = null;
+                        _currentlyFightingMobText = null;
+                        _currentlyFightingMobCounter = 0;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunnedSince = null;
                         if (_monsterKilled)
@@ -4560,6 +4492,37 @@ BeforeHazy:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        private string GetMobTarget(bool forLook)
+        {
+            string sMobTextForTarget;
+            if (_currentlyFightingMobType.HasValue)
+            {
+                MobTypeEnum eMobType = _currentlyFightingMobType.Value;
+                StaticMobData smd = MobEntity.StaticMobData[eMobType];
+                if (smd.Visibility == MobVisibility.Visible)
+                {
+                    lock (_entityLock)
+                    {
+                        sMobTextForTarget = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, eMobType, _currentlyFightingMobCounter, false, forLook);
+                    }
+                }
+                else
+                {
+                    List<MobTypeEnum> tempList = new List<MobTypeEnum>();
+                    for (int i = 0; i < _currentlyFightingMobCounter; i++)
+                    {
+                        tempList.Add(eMobType);
+                    }
+                    sMobTextForTarget = _currentEntityInfo.PickMobTextFromMobCounter(tempList, MobLocationType.PickFromList, eMobType, tempList.Count, false, false);
+                }
+            }
+            else
+            {
+                sMobTextForTarget = _mob;
+            }
+            return sMobTextForTarget;
         }
 
         private CommandResult TryGetOrDropItem(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms)
@@ -5032,7 +4995,7 @@ BeforeHazy:
             {
                 throw new InvalidOperationException();
             }
-            command = sAttackType + " " + _currentlyFightingMob;
+            command = sAttackType + " " + GetMobTarget(false);
         }
 
         public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency)
@@ -5044,7 +5007,7 @@ BeforeHazy:
             bct = null;
             if (nextMagicStep == MagicStrategyStep.Stun)
             {
-                command = "cast stun " + _currentlyFightingMob;
+                command = "cast stun " + GetMobTarget(false);
                 manaDrain = 10;
                 bct = BackgroundCommandType.Stun;
             }
@@ -5158,7 +5121,7 @@ BeforeHazy:
                     }
                     if (knownSpells.Contains(spell))
                     {
-                        command = "cast " + spell + " " + _currentlyFightingMob;
+                        command = "cast " + spell + " " + GetMobTarget(false);
                         bct = BackgroundCommandType.OffensiveSpell;
                     }
                     else
@@ -5185,23 +5148,30 @@ BeforeHazy:
                 bwp.MonsterKilledType = _monsterKilledType;
                 lock (_entityLock)
                 {
+                    MobTypeEnum monsterType = MobTypeEnum.LittleMouse;
                     int index;
                     if (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom)
                     {
                         if (_currentEntityInfo.CurrentRoomMobs.Count == 0) return false;
                         index = 0;
+                        monsterType = _currentEntityInfo.CurrentRoomMobs[0];
                     }
                     else
                     {
                         if (!_monsterKilledType.HasValue) return false;
+                        monsterType = _monsterKilledType.Value;
                         index = _currentEntityInfo.CurrentRoomMobs.IndexOf(_monsterKilledType.Value);
                         if (index < 0) return false;
                     }
-                    string sMobText = PickMobText(index);
-                    if (string.IsNullOrEmpty(sMobText)) return false;
-                    _currentlyFightingMob = sMobText;
+                    bwp.MobText = string.Empty;
+                    bwp.MobTextCounter = 0;
+                    bwp.MobType = monsterType;
+                    bwp.MobTypeCounter = 1;
+                    string sMobText = monsterType.ToString();
+                    _currentlyFightingMobText = string.Empty;
+                    _currentlyFightingMobType = monsterType;
+                    _currentlyFightingMobCounter = 1;
                     _mob = sMobText;
-                    bwp.TargetRoomMob = sMobText;
                     _monsterKilled = false;
                     _monsterKilledType = null;
                 }
@@ -6048,11 +6018,11 @@ BeforeHazy:
             ToolStripButton tsb = null;
             Button btn = null;
             bool enabled;
-            string sMob = _currentlyFightingMob;
-            if (string.IsNullOrEmpty(sMob))
-            {
-                sMob = _mob;
-            }
+            bool hasMobTarget;
+            if (_currentlyFightingMobType.HasValue || !string.IsNullOrEmpty(_currentlyFightingMobText))
+                hasMobTarget = true;
+            else
+                hasMobTarget = !string.IsNullOrEmpty(_mob);
             bool haveSettings = _settingsData != null;
             List<string> knownSpells;
             List<string> realmSpells = haveSettings ? CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm) : null;
@@ -6063,7 +6033,7 @@ BeforeHazy:
             foreach (CommandButtonTag oTag in GetButtonsForEnablingDisabling())
             {
                 object oControl = oTag.Control;
-                if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && string.IsNullOrEmpty(sMob))
+                if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && !hasMobTarget)
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && (!haveSettings || !_settingsData.Weapon.HasValue))
                     enabled = false;
@@ -6389,6 +6359,7 @@ BeforeHazy:
                 bwp = new BackgroundWorkerParameters();
                 Strategy s = new Strategy();
                 s.LastPotionsStep = step;
+                s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
                 bwp.Strategy = s;
                 RunBackgroundProcess(bwp);
             }
@@ -6406,12 +6377,10 @@ BeforeHazy:
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = new BackgroundWorkerParameters();
                 Strategy s = new Strategy();
                 s.LastMagicStep = step;
-                bwp.TargetRoomMob = txtMob.Text;
-                bwp.Strategy = s;
-                RunBackgroundProcess(bwp);
+                s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+                RunStandaloneStrategy(s);
             }
             else
             {
@@ -6427,12 +6396,10 @@ BeforeHazy:
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp == null)
             {
-                bwp = new BackgroundWorkerParameters();
                 Strategy s = new Strategy();
                 s.LastMeleeStep = step;
-                bwp.Strategy = s;
-                bwp.TargetRoomMob = txtMob.Text;
-                RunBackgroundProcess(bwp);
+                s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+                RunStandaloneStrategy(s);
             }
             else
             {
@@ -6441,6 +6408,34 @@ BeforeHazy:
                     bwp.QueuedMeleeStep = step;
                 }
             }
+        }
+
+        private void RunStandaloneStrategy(Strategy s)
+        {
+            if (MobEntity.GetMobInfo(txtMob.Text, out string sMobText, out MobTypeEnum? eMobType, out int iMobCounter))
+            {
+                BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+                bwp.MobText = sMobText;
+                bwp.MobType = eMobType;
+                if (eMobType.HasValue) bwp.MobTypeCounter = iMobCounter;
+                else bwp.MobTextCounter = iMobCounter;
+                bwp.Strategy = s;
+                RunBackgroundProcess(bwp);
+            }
+            else
+            {
+                MessageBox.Show("Invalid mob text: " + txtMob.Text);
+            }
+        }
+
+        private void btnLookAtMob_Click(object sender, EventArgs e)
+        {
+            RunCommand("look " + GetMobTarget(true));
+        }
+
+        private void btnUseWandOnMob_Click(object sender, EventArgs e)
+        {
+            RunCommand("zap " + _wand + " " + GetMobTarget(false));
         }
 
         private void btnDoAction_Click(object sender, EventArgs e)
@@ -6456,24 +6451,13 @@ BeforeHazy:
                 command = cmdButtonTag.Command;
             else
                 command = oButtonTag.ToString();
-            RunCommand(TranslateCommand(command));
+            RunCommand(command);
         }
 
         private void tsbInventoryAndEquipment_Click(object sender, EventArgs e)
         {
             RunCommand("equipment");
             RunCommand("inventory");
-        }
-
-        private string TranslateCommand(string command)
-        {
-            string sMob = _currentlyFightingMob;
-            if (string.IsNullOrEmpty(sMob))
-            {
-                sMob = _mob;
-            }
-            return command.Replace("{mob}", sMob)
-                          .Replace("{wand}", _wand);
         }
 
         private void RunCommand(string command)
@@ -6515,7 +6499,26 @@ BeforeHazy:
             public bool Flee { get; set; }
             public bool Fled { get; set; }
             public bool DoScore { get; set; }
-            public string TargetRoomMob { get; set; }
+            /// <summary>
+            /// text for a mob identified by a word
+            /// </summary>
+            public string MobText { get; set; }
+            /// <summary>
+            /// counter for a mob identified by a word
+            /// </summary>
+            public int MobTextCounter { get; set; }
+            /// <summary>
+            /// type for a mob identified by a type
+            /// </summary>
+            public MobTypeEnum? MobType { get; set; }
+            /// <summary>
+            /// counter for a mob identified by a type
+            /// </summary>
+            public int MobTypeCounter { get; set; }
+            public bool HasCombat()
+            {
+                return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
+            }
             public bool Foreground { get; set; }
             public bool HealHitpoints { get; set; }
             public bool CureIfPoisoned { get; set; }
@@ -6584,37 +6587,12 @@ BeforeHazy:
                     return;
                 }
             }
-            PromptedSkills activatedSkills;
+            PromptedSkills activatedSkills = PromptedSkills.None;
             string targetRoomMob;
-            List<Exit> preExits;
-            HealingRoom? healingRoom;
-            PawnShoppe? pawnShoppe;
+            List<Exit> preExits = null;
+            HealingRoom? healingRoom = null;
+            PawnShoppe? pawnShoppe = null;
             InventoryProcessWorkflow inventoryFlow;
-            if (!PromptForSkills(out preExits, out activatedSkills, out targetRoomMob, ref strategy, out healingRoom, out pawnShoppe, out inventoryFlow))
-            {
-                return;
-            }
-
-            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            bwp.Strategy = strategy;
-            if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
-            bwp.Exits = preExits;
-            bwp.UsedSkills = activatedSkills;
-            bwp.TargetRoomMob = targetRoomMob;
-            bwp.TickRoom = healingRoom;
-            bwp.PawnShop = pawnShoppe;
-            bwp.InventoryProcessWorkflow = inventoryFlow;
-            RunBackgroundProcess(bwp);
-        }
-
-        private bool PromptForSkills(out List<Exit> preExits, out PromptedSkills activatedSkills, out string mob, ref Strategy strategy, out HealingRoom? healingRoom, out PawnShoppe? pawnShoppe, out InventoryProcessWorkflow inventoryFlow)
-        {
-            activatedSkills = PromptedSkills.None;
-            mob = string.Empty;
-            preExits = null;
-            healingRoom = null;
-            pawnShoppe = null;
-
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
 
@@ -6651,21 +6629,45 @@ BeforeHazy:
             else
                 inventoryFlow = InventoryProcessWorkflow.ProcessMonsterDrops;
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow))
+            string sMobText;
+            MobTypeEnum? eMobType;
+            int iMobIndex;
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
-                    return false;
+                    return;
                 }
                 preExits = frmSkills.SelectedPath;
                 activatedSkills = frmSkills.SelectedSkills;
-                mob = frmSkills.Mob;
+                sMobText = frmSkills.MobText;
+                eMobType = frmSkills.MobType;
+                iMobIndex = frmSkills.MobIndex;
                 strategy = frmSkills.Strategy;
                 healingRoom = frmSkills.HealingRoom;
                 pawnShoppe = frmSkills.PawnShop;
                 inventoryFlow = frmSkills.InventoryFlow;
             }
-            return true;
+
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.Strategy = strategy;
+            if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
+            bwp.Exits = preExits;
+            bwp.UsedSkills = activatedSkills;
+            if (eMobType.HasValue)
+            {
+                bwp.MobType = eMobType;
+                bwp.MobTypeCounter = iMobIndex;
+            }
+            else
+            {
+                bwp.MobText = sMobText;
+                bwp.MobTextCounter = iMobIndex;
+            }
+            bwp.TickRoom = healingRoom;
+            bwp.PawnShop = pawnShoppe;
+            bwp.InventoryProcessWorkflow = inventoryFlow;
+            RunBackgroundProcess(bwp);
         }
 
         internal class CommandButtonTag
@@ -6942,14 +6944,35 @@ BeforeHazy:
                 }
             }
 
-            string sMonster = _currentlyFightingMob;
             int iMonsterDamage = _monsterDamage;
             MonsterStatus monsterStatus = _currentMonsterStatus;
 
-            if (!string.Equals(sMonster, _currentlyFightingMobUI))
+            string sCurrentMonsterText = _currentlyFightingMobText;
+            MobTypeEnum? eCurrentMonsterType = _currentlyFightingMobType;
+            int iCurrentMonsterCounter = _currentlyFightingMobCounter;
+            if (!string.Equals(sCurrentMonsterText, _currentlyFightingMobTextUI) ||
+                eCurrentMonsterType != _currentlyFightingMobTypeUI ||
+                iCurrentMonsterCounter != _currentlyFightingMobCounterUI)
             {
-                grpMob.Text = sMonster ?? "Mob";
-                _currentlyFightingMobUI = sMonster;
+                string sMobText;
+                if (eCurrentMonsterType.HasValue)
+                {
+                    sMobText = eCurrentMonsterType.Value.ToString();
+                    if (iCurrentMonsterCounter > 1) sMobText += " " + iCurrentMonsterCounter;
+                }
+                else if (string.IsNullOrEmpty(sCurrentMonsterText))
+                {
+                    sMobText = sCurrentMonsterText;
+                    if (iCurrentMonsterCounter > 1) sMobText += " " + iCurrentMonsterCounter;
+                }
+                else
+                {
+                    sMobText = "Mob";
+                }
+                grpMob.Text = sMobText;
+                _currentlyFightingMobTextUI = sCurrentMonsterText;
+                _currentlyFightingMobTypeUI = eCurrentMonsterType;
+                _currentlyFightingMobCounterUI = iCurrentMonsterCounter;
             }
             if (iMonsterDamage != _monsterDamageUI)
             {
@@ -7223,7 +7246,7 @@ BeforeHazy:
                                     string sNewMobText = string.Empty;
                                     if (_currentEntityInfo.CurrentRoomMobs.Count > 0)
                                     {
-                                        sNewMobText = PickMobText(0);
+                                        sNewMobText = _currentEntityInfo.CurrentRoomMobs[0].ToString();
                                     }
                                     txtMob.Text = sNewMobText;
                                 }
@@ -8279,46 +8302,9 @@ BeforeHazy:
                         break;
                     }
                 }
-                int iFoundMobCount = 0;
-                string mobText = null;
-                lock (_entityLock)
-                {
-                    //find the equivalently numbered mob in the current room list
-                    int iCurrentMobIndex = -1;
-                    int iIteratorMobIndex = 0;
-                    foreach (MobTypeEnum nextMobType in _currentEntityInfo.CurrentRoomMobs)
-                    {
-                        if (nextMobType == selectedMob)
-                        {
-                            iCurrentMobIndex = iIteratorMobIndex;
-                            iFoundMobCount++;
-                            if (iFoundMobCount == iMobCount)
-                            {
-                                break;
-                            }
-                        }
-                        iIteratorMobIndex++;
-                    }
-                    if (iCurrentMobIndex >= 0)
-                    {
-                        mobText = PickMobText(iCurrentMobIndex);
-                    }
-                }
-
-                //Fall back on using the index in the permanent mobs list. This
-                //is particularly useful for hidden permanent mobs.
-                if (isPermanentMobs && iFoundMobCount == 0 && string.IsNullOrEmpty(mobText))
-                {
-                    var enumerator = MobEntity.GetMobWords(selectedMob).GetEnumerator();
-                    enumerator.MoveNext();
-                    mobText = enumerator.Current;
-                    if (iMobCount > 1)
-                    {
-                        mobText += " " + iMobCount;
-                    }
-                }
-
-                txtMob.Text = mobText;
+                string sMobText = selectedMob.ToString();
+                if (iMobCount > 1) sMobText += " " + iMobCount;
+                txtMob.Text = sMobText;
             }
         }
 
@@ -8359,10 +8345,11 @@ BeforeHazy:
             {
                 int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
                 MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
-                MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.RoomMobs : MobLocationType.RoomPermanentMobs;
+                MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.CurrentRoomMobs : MobLocationType.PickFromList;
                 lock (_entityLock)
                 {
-                    string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(mtLocType, mt, counter, false, true);
+                    Room currentRoom = _currentEntityInfo.CurrentRoom;
+                    string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(currentRoom.PermanentMobs, mtLocType, mt, counter, false, true);
                     if (string.IsNullOrEmpty(sMobText))
                     {
                         MessageBox.Show("Unable to look at mob.");

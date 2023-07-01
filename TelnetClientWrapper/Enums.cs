@@ -192,8 +192,8 @@ namespace IsengardClient
 
     internal enum MobLocationType
     {
-        RoomMobs,
-        RoomPermanentMobs,
+        CurrentRoomMobs,
+        PickFromList,
     }
 
     internal enum InventoryProcessWorkflow
@@ -205,9 +205,9 @@ namespace IsengardClient
 
     internal enum MobVisibility
     {
-        Visible,
-        Hidden,
-        Invisible,
+        Visible = 0,
+        Hidden = 1,
+        Invisible = 2,
     }
 
     internal enum AutoEscapeType

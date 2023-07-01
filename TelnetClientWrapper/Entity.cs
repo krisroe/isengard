@@ -510,37 +510,51 @@ namespace IsengardClient
             }
         }
 
-        public static string PickMobTextWithinList(MobTypeEnum nextMob, IEnumerable<MobTypeEnum> mobList)
+        /// <summary>
+        /// retrieves mob info from text
+        /// </summary>
+        /// <param name="inputMobText">
+        /// input mob text. the first word could be a mob enum (if starts with upper case letter).
+        /// or could be a mob word (if starts with a lower case letter)
+        /// </param>
+        /// <param name="mobText">returns the mob word in case of a word-based mob specification</param>
+        /// <param name="mobType">returns the mob type in case of a type-based mob specification</param>
+        /// <param name="mobCounter">returns the mob counter from the second piece of the text if present. returns 1 if no mob counter was specified.</param>
+        /// <returns>true if the input text was successfully processed, false otherwise</returns>
+        public static bool GetMobInfo(string inputMobText, out string mobText, out MobTypeEnum? mobType, out int mobCounter)
         {
-            var wordEnumerator = GetMobWords(nextMob).GetEnumerator();
-            wordEnumerator.MoveNext();
-            string sWord = wordEnumerator.Current;
-            int iCounter = 0;
-            foreach (MobTypeEnum nextMobInList in mobList)
+            mobType = null;
+            bool ret = false;
+            mobText = string.Empty;
+            mobCounter = 1;
+            if (!string.IsNullOrEmpty(inputMobText))
             {
-                string sSingular = StaticMobData[nextMobInList].SingularName;
-                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                string[] split = inputMobText.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                int len = split.Length;
+                if (len >= 1 && len <= 2)
                 {
-                    if (nextWord.StartsWith(sWord, StringComparison.OrdinalIgnoreCase))
-                    {
-                        iCounter++;
-                        break;
-                    }
+                    mobText = split[0];
+                    if (int.TryParse(mobText, out _)) return false;
+                    if (len == 2 && (!int.TryParse(split[1], out mobCounter) || mobCounter < 1)) return false;
+                    if (len == 1) mobCounter = 1;
+                    ret = true;
                 }
             }
-            if (iCounter > 1)
+            if (!ret) return false;
+            if (char.IsUpper(mobText[0]))
             {
-                sWord += " " + iCounter;
+                MobTypeEnum mt;
+                if (Enum.TryParse(mobText, out mt))
+                {
+                    mobType = mt;
+                    mobText = string.Empty;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            return sWord;
-        }
-
-        public static IEnumerable<MobTypeEnum> IterateThroughMobs(List<MobTypeEnum> mobs, int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                yield return mobs[i];
-            }
+            return true;
         }
     }
 
@@ -1094,16 +1108,26 @@ namespace IsengardClient
             }
         }
 
-        public string PickMobTextFromMobCounter(MobLocationType mobLocType, MobTypeEnum mobType, int mobCounter, bool reverseOrder, bool validateAgainstOtherSources)
+        /// <summary>
+        /// picks mob text from a mob counter
+        /// </summary>
+        /// <param name="mobList">list of mobs (for the pick from list case)</param>
+        /// <param name="mobLocType">whether to pick the mob from the current room mobs list or the specified list</param>
+        /// <param name="mobType">mob type</param>
+        /// <param name="mobCounter">mob counter within the list</param>
+        /// <param name="reverseOrder">whether to search mobs in forward or backward order</param>
+        /// <param name="validateAgainstOtherSources">whether to validate the mob selection against other sources (inventory/equipment/roomitems)</param>
+        /// <returns>mob text if selection could be constructed, otherwise blank</returns>
+        public string PickMobTextFromMobCounter(List<MobTypeEnum> mobList, MobLocationType mobLocType, MobTypeEnum mobType, int mobCounter, bool reverseOrder, bool validateAgainstOtherSources)
         {
             int iActualIndex = -1;
             int iCounter = 0;
             int iIncrement = reverseOrder ? -1 : 1;
             List<MobTypeEnum> sourceList;
-            if (mobLocType == MobLocationType.RoomMobs)
+            if (mobLocType == MobLocationType.CurrentRoomMobs)
                 sourceList = CurrentRoomMobs;
-            else if (mobLocType == MobLocationType.RoomPermanentMobs)
-                sourceList = CurrentRoom.PermanentMobs;
+            else if (mobLocType == MobLocationType.PickFromList)
+                sourceList = mobList;
             else
                 throw new InvalidOperationException();
             for (int i = reverseOrder ? sourceList.Count - 1 : 0; reverseOrder ? i >= 0 : i < sourceList.Count; i+= iIncrement)

@@ -339,6 +339,12 @@ namespace IsengardClient
     /// </summary>
     internal enum ItemTypeEnum
     {
+        [SingularName("adamantine dart")]
+        [PluralName("adamantine darts")]
+        [Weight(3)]
+        [SellGoldRange(81, 81)]
+        AdamantineDart,
+
         [SingularName("adamantine scale mail armor")]
         [EquipmentType(EquipmentType.Torso)]
         AdamantineScaleMailArmor,
@@ -654,6 +660,18 @@ namespace IsengardClient
         [WeaponType(WeaponType.Unknown)]
         DeathsGalvornSickle,
 
+        [SingularName("diamond")]
+        [PluralName("diamonds")]
+        [Weight(1)]
+        [SellGoldRange(371, 371)]
+        Diamond,
+
+        [SingularName("diamond laurel ring")]
+        [PluralName("diamond laurel rings")]
+        [Weight(2)]
+        [SellGoldRange(148, 148)]
+        DiamondLaurelRing,
+
         [SingularName("dildo")]
         [PluralName("dildos")]
         Dildo,
@@ -726,6 +744,7 @@ namespace IsengardClient
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(5)]
         [SellGoldRange(148, 148)]
         ElvenLeatherWhip,
 
@@ -780,12 +799,15 @@ namespace IsengardClient
         [SingularName("gaudy scepter")]
         [PluralName("gaudy scepters")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(3)]
+        [SellGoldRange(1212)]
         GaudyScepter,
 
         [SingularName("gawdy ear hoop")]
         [PluralName("gawdy ear hoops")]
         [EquipmentType(EquipmentType.Ears)]
         [Weight(2)]
+        [SellGoldRange(99, 99)]
         GawdyEarHoop,
 
         [SingularName("giant stylus")]
@@ -834,6 +856,8 @@ namespace IsengardClient
         [SingularName("golden dagger")]
         [PluralName("golden daggers")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [SellGoldRange(278, 278)]
         GoldenDagger,
 
         [SingularName("golden mask of the gods")]
@@ -993,8 +1017,11 @@ namespace IsengardClient
         [PluralName("lanterns")]
         Lantern,
 
+        //wiki says cure blindness?
         [SingularName("large egg")]
         [PluralName("large eggs")]
+        [Weight(3)]
+        [SellGoldRange(49, 49)]
         LargeEgg,
 
         [SingularName("large metal shield")]
@@ -1110,6 +1137,8 @@ namespace IsengardClient
 
         [SingularName("mithril lamella leggings")]
         [EquipmentType(EquipmentType.Legs)]
+        [Weight(5)]
+        [SellGoldRange(3217)]
         MithrilLamellaLeggings,
 
         [SingularName("mithron blade")]
@@ -1456,6 +1485,8 @@ namespace IsengardClient
 
         [SingularName("sprite boots")]
         [EquipmentType(EquipmentType.Feet)]
+        [Weight(3)]
+        [SellGoldRange(198, 198)]
         SpriteBoots,
 
         [SingularName("sprite leather armor")]
