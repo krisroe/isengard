@@ -428,7 +428,8 @@ namespace IsengardClient
     {
         Initial,
         Move,
-        Flee,
+        FleeWithoutDropWeapon,
+        FleeWithDropWeapon,
         WordOfRecall,
         Death,
     }
@@ -489,7 +490,8 @@ namespace IsengardClient
         WindDamage,
         PoisonDamage,
         RoomPoisoned,
-        Flee,
+        FleeWithoutDropWeapon,
+        FleeWithDropWeapon,
         FleeFailed,
         WordOfRecall,
         BullroarerInMithlond,

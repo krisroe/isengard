@@ -1345,7 +1345,7 @@ namespace IsengardClient
             Room newRoom = GetCurrentRoomIfUnambiguous(sRoomName);
             List<Room> disambiguationRooms = null;
             bool lookForRoomsByRoomName = false;
-            if (rtType == RoomTransitionType.Flee)
+            if (rtType == RoomTransitionType.FleeWithoutDropWeapon || rtType == RoomTransitionType.FleeWithDropWeapon)
             {
                 _fleeing = false;
                 if (fromBackgroundFlee)
@@ -1467,9 +1467,53 @@ namespace IsengardClient
 
             lock (_entityLock) //update the room change list with the next room
             {
+                EntityChange rc;
+                if (rtType == RoomTransitionType.FleeWithDropWeapon)
+                {
+                    int weapon1Slot = (int)EquipmentSlot.Weapon1;
+                    int weapon2Slot = (int)EquipmentSlot.Weapon2;
+                    bool hasWeapon1 = _currentEntityInfo.Equipment[weapon1Slot] != null;
+                    bool hasWeapon2 = _currentEntityInfo.Equipment[weapon2Slot] != null;
+                    if (hasWeapon1 || hasWeapon2)
+                    {
+                        rc = new EntityChange();
+                        rc.ChangeType = EntityChangeType.DestroyEquipment;
+                        int iEquipmentRemovalPoint;
+                        if (hasWeapon1)
+                        {
+                            iEquipmentRemovalPoint = _currentEntityInfo.FindEquipmentRemovalPoint(EquipmentSlot.Weapon1);
+                            if (iEquipmentRemovalPoint >= 0)
+                            {
+                                rc.Changes.Add(new EntityChangeEntry()
+                                {
+                                    EquipmentAction = false,
+                                    EquipmentIndex = iEquipmentRemovalPoint
+                                });
+                            }
+                            _currentEntityInfo.Equipment[weapon1Slot] = null;
+                        }
+                        if (hasWeapon2)
+                        {
+                            iEquipmentRemovalPoint = _currentEntityInfo.FindEquipmentRemovalPoint(EquipmentSlot.Weapon2);
+                            if (iEquipmentRemovalPoint >= 0)
+                            {
+                                rc.Changes.Add(new EntityChangeEntry()
+                                {
+                                    EquipmentAction = false,
+                                    EquipmentIndex = iEquipmentRemovalPoint
+                                });
+                            }
+                            _currentEntityInfo.Equipment[weapon2Slot] = null;
+                        }
+                        if (rc.Changes.Count > 0)
+                        {
+                            _currentEntityInfo.CurrentEntityChanges.Add(rc);
+                        }
+                    }
+                }
                 _currentEntityInfo.CurrentObviousExits.Clear();
                 _currentEntityInfo.CurrentObviousExits.AddRange(obviousExits);
-                EntityChange rc = new EntityChange();
+                rc = new EntityChange();
                 rc.Room = newRoom;
                 rc.ChangeType = EntityChangeType.RefreshRoom;
                 rc.Exits = new List<string>(obviousExits);

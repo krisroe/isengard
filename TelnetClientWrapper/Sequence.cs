@@ -1159,7 +1159,7 @@ namespace IsengardClient
                         }
                     }
                 }
-                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != "You drop your weapon and run like a chicken.")
+                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != InformationalMessagesSequence.FLEE_WITH_DROP_WEAPON)
                 {
                     if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
                     {
@@ -1459,9 +1459,13 @@ namespace IsengardClient
             foreach (var nextMessage in flParams.InfoMessages)
             {
                 InformationalMessageType eType = nextMessage.MessageType;
-                if (eType == InformationalMessageType.Flee)
+                if (eType == InformationalMessageType.FleeWithoutDropWeapon)
                 {
-                    rtType = RoomTransitionType.Flee;
+                    rtType = RoomTransitionType.FleeWithoutDropWeapon;
+                }
+                else if (eType == InformationalMessageType.FleeWithDropWeapon)
+                {
+                    rtType = RoomTransitionType.FleeWithDropWeapon;
                 }
                 else if (eType == InformationalMessageType.WordOfRecall)
                 {
@@ -2643,6 +2647,8 @@ StartProcessRoom:
     internal class InformationalMessagesSequence : AOutputProcessingSequence
     {
         public const string CELDUIN_EXPRESS_IN_BREE_MESSAGE = "### The Celduin Express is ready for boarding in Bree.";
+        public const string FLEE_WITHOUT_DROP_WEAPON = "You run like a chicken.";
+        public const string FLEE_WITH_DROP_WEAPON = "You drop your weapon and run like a chicken.";
 
         public Action<FeedLineParameters, List<string>, List<string>, List<string>> _onSatisfied;
         private string _userLoginPrefix;
@@ -2843,10 +2849,15 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                     im = InformationalMessageType.PoisonDamage;
                 }
-                else if (sLine == "You run like a chicken.")
+                else if (sLine == FLEE_WITHOUT_DROP_WEAPON)
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessageType.Flee;
+                    im = InformationalMessageType.FleeWithoutDropWeapon;
+                }
+                else if (sLine == FLEE_WITH_DROP_WEAPON)
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.FleeWithDropWeapon;
                 }
                 else if (sLine == "You are thrown back by an invisible force.")
                 {
