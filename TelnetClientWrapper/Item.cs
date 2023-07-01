@@ -619,6 +619,8 @@ namespace IsengardClient
         [SingularName("crossbow")]
         [PluralName("crossbows")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(5)]
+        [SellGoldRange(207, 207)]
         Crossbow,
 
         [SingularName("crystal amulet")]

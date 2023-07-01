@@ -655,7 +655,7 @@
 
         [SingularName("hobbitish doctor")]
         [PluralName("hobbitish doctors")]
-        [Alignment(AlignmentType.Blue)]
+        [Alignment(AlignmentType.DullBlue)]
         HobbitishDoctor,
 
         [SingularName("hobbit mother")]

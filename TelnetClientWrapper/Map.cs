@@ -4751,7 +4751,6 @@ namespace IsengardClient
             AddMapBoundaryPoint(treeOfLife, oBreeTownSquare, MapType.Intangible, MapType.BreeStreets);
 
             Room branch = AddRoom("Branch", Room.UNKNOWN_ROOM);
-            branch.Intangible = true;
             AddExit(treeOfLife, branch, "branch");
             intangibleGraph.Rooms[branch] = new System.Windows.Point(-1, 1);
 
@@ -4779,6 +4778,43 @@ namespace IsengardClient
             intangibleGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(2, 1);
             nindamosGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(7, 3);
             AddMapBoundaryPoint(oFluffyCloudsAboveNindamos, nindamosVillageCenter, MapType.Intangible, MapType.Nindamos);
+
+            Room oGuildedTunnel = AddRoom("Guilded Tunnel", "Guilded Tunnel");
+            e = AddExit(treeOfLife, oGuildedTunnel, "guild halls");
+            e.MustOpen = true;
+            intangibleGraph.Rooms[oGuildedTunnel] = new System.Windows.Point(-1, 0);
+            //CSRTODO: accursed guild
+
+            Room oGuildedTunnel2 = AddRoom("Guilded Tunnel", "Guilded Tunnel");
+            AddBidirectionalExits(oGuildedTunnel2, oGuildedTunnel, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildedTunnel2] = new System.Windows.Point(-1, -1);
+
+            Room oGuildedTunnel3 = AddRoom("Guilded Tunnel", "Guilded Tunnel");
+            AddBidirectionalExits(oGuildedTunnel3, oGuildedTunnel2, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildedTunnel3] = new System.Windows.Point(-1, -2);
+            //CSRTODO: crusader guild
+
+            Room oGuildStreet1 = AddRoom("Guild Street", "Guild Street");
+            AddBidirectionalExits(oGuildStreet1, oGuildedTunnel3, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildStreet1] = new System.Windows.Point(-1, -3);
+
+            Room oGuildStreet2 = AddRoom("Guild Street", "Guild Street");
+            AddBidirectionalExits(oGuildStreet2, oGuildStreet1, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildStreet2] = new System.Windows.Point(-1, -4);
+
+            Room oGuildStreet3 = AddRoom("Guild Street", "Guild Street");
+            AddBidirectionalExits(oGuildStreet3, oGuildStreet2, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildStreet3] = new System.Windows.Point(-1, -5);
+
+            Room oGuildStreet4 = AddRoom("Guild Street", "Guild Street");
+            AddBidirectionalExits(oGuildStreet4, oGuildStreet3, BidirectionalExitType.NorthSouth);
+            intangibleGraph.Rooms[oGuildStreet4] = new System.Windows.Point(-1, -6);
+            //CSRTODO: thieves guild
+
+            Room oNorthGuildStreet = AddRoom("North Guild Street", "North Guild Street");
+            AddBidirectionalExits(oNorthGuildStreet, oGuildStreet4, BidirectionalExitType.NorthSouth);
+            AddExit(oNorthGuildStreet, oBreeTownSquare, "out");
+            intangibleGraph.Rooms[oNorthGuildStreet] = new System.Windows.Point(-1, -7);
         }
 
         private void AddNindamos(out Room oArmenelosGatesOutside, out Room oSouthernJunction, out Room oPathThroughTheValleyHiddenPath, out Room nindamosDocks, out RoomGraph nindamosGraph, out Room nindamosVillageCenter)

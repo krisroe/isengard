@@ -7952,11 +7952,22 @@ BeforeHazy:
             Room currentRoom = _currentEntityInfo.CurrentRoom;
             if (currentRoom != null)
             {
-                List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom, false);
-                if (exits != null)
+                if (currentRoom == targetRoom)
                 {
-                    NavigateExitsInBackground(exits);
+                    MessageBox.Show("Already at specified room.");
                 }
+                else
+                {
+                    List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom, false);
+                    if (exits != null)
+                    {
+                        NavigateExitsInBackground(exits);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("No current room, unable to travel to specified room.");
             }
         }
 
