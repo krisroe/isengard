@@ -7,6 +7,7 @@ namespace IsengardClient
     {
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
+        private IsengardSettingData _settingsData;
         private Room _currentRoom;
         private CheckBox _chkPowerAttack;
 
@@ -36,7 +37,7 @@ namespace IsengardClient
             }
         }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow)
+        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow)
         {
             InitializeComponent();
 
@@ -74,6 +75,7 @@ namespace IsengardClient
 
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
+            _settingsData = settingsData;
             _currentRoom = currentRoom;
 
             Strategy = new Strategy(strategy);
@@ -237,7 +239,7 @@ namespace IsengardClient
         private void btnGraph_Click(object sender, EventArgs e)
         {
             GraphInputs graphInputs = _GraphInputs();
-            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, graphInputs);
+            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, graphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
             graphForm.ShowDialog();
             if (graphForm.SelectedRoom != null)
             {
@@ -252,7 +254,7 @@ namespace IsengardClient
         private void btnLocations_Click(object sender, EventArgs e)
         {
             GraphInputs graphInputs = _GraphInputs();
-            frmLocations locationsForm = new frmLocations(_gameMap, _currentRoom, true, graphInputs);
+            frmLocations locationsForm = new frmLocations(_gameMap, _settingsData, _currentRoom, true, graphInputs);
             locationsForm.ShowDialog();
             if (locationsForm.SelectedRoom != null)
             {

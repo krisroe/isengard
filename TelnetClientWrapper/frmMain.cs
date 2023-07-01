@@ -280,9 +280,9 @@ namespace IsengardClient
                     string backendName = r.BackendName;
                     if (!string.IsNullOrEmpty(backendName))
                     {
-                        newMap.UnambiguousRooms.TryGetValue(backendName, out newRoom);
+                        newMap.UnambiguousRoomsByBackendName.TryGetValue(backendName, out newRoom);
                     }
-                    if (newRoom == null && _gameMap.AmbiguousRooms.TryGetValue(backendName, out List<Room> possibleRooms))
+                    if (newRoom == null && _gameMap.AmbiguousRoomsByBackendName.TryGetValue(backendName, out List<Room> possibleRooms))
                     {
                         newRoom = TryDisambiguateRoomPerObviousExits(possibleRooms, _currentEntityInfo.CurrentObviousExits);
                     }
@@ -1201,11 +1201,13 @@ namespace IsengardClient
                 conn.Open();
                 if (newDatabase) //generate database schema
                 {
-                    cmd.CommandText = "CREATE TABLE Users (UserID INTEGER PRIMARY KEY AUTOINCREMENT, UserName TEXT UNIQUE NOT NULL)";
+                    cmd.CommandText = "CREATE TABLE Users (UserID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, Action INTEGER NOT NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))";
                     cmd.ExecuteNonQuery();
                 }
                 cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
@@ -1308,7 +1310,7 @@ namespace IsengardClient
         private Room GetCurrentRoomIfUnambiguous(string sRoomName)
         {
             Room ret;
-            _gameMap.UnambiguousRooms.TryGetValue(sRoomName, out ret);
+            _gameMap.UnambiguousRoomsByBackendName.TryGetValue(sRoomName, out ret);
             return ret;
         }
 
@@ -1444,7 +1446,7 @@ namespace IsengardClient
             if (lookForRoomsByRoomName)
             {
                 disambiguationRooms = new List<Room>();
-                if (_gameMap.AmbiguousRooms.TryGetValue(sRoomName, out List<Room> possibleRooms))
+                if (_gameMap.AmbiguousRoomsByBackendName.TryGetValue(sRoomName, out List<Room> possibleRooms))
                 {
                     disambiguationRooms.AddRange(possibleRooms);
                 }
@@ -6594,7 +6596,7 @@ BeforeHazy:
             else
                 inventoryFlow = InventoryProcessWorkflow.ProcessMonsterDrops;
 
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow))
+            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {
@@ -7882,7 +7884,7 @@ BeforeHazy:
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
             GraphInputs gi = GetGraphInputs();
-            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, gi);
+            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, gi, VertexSelectionRequirement.ValidPathFromCurrentLocation);
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;
@@ -7909,7 +7911,7 @@ BeforeHazy:
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
             GraphInputs gi = GetGraphInputs();
-            frmLocations frm = new frmLocations(_gameMap, originalCurrentRoom, false, gi);
+            frmLocations frm = new frmLocations(_gameMap, _settingsData, originalCurrentRoom, false, gi);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;

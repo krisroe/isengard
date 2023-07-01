@@ -9,32 +9,25 @@ namespace IsengardClient
     internal class IsengardMap
     {
         internal AdjacencyGraph<Room, Exit> _map;
-        private List<Area> _areas;
-        private Dictionary<string, Area> _areasByName;
         private Dictionary<MapType, RoomGraph> _graphs;
         internal Dictionary<HealingRoom, Room> HealingRooms = new Dictionary<HealingRoom, Room>();
         internal Dictionary<PawnShoppe, Room> PawnShoppes = new Dictionary<PawnShoppe, Room>();
         internal Dictionary<Room, MapType> RoomsToMaps = new Dictionary<Room, MapType>();
         internal Dictionary<Room, List<MapType>> BoundaryPointsToMaps = new Dictionary<Room, List<MapType>>();
 
-        internal Dictionary<string, Room> UnambiguousRooms = new Dictionary<string, Room>();
-        internal Dictionary<string, List<Room>> AmbiguousRooms = new Dictionary<string, List<Room>>();
+        internal Dictionary<string, Room> UnambiguousRoomsByBackendName = new Dictionary<string, Room>();
 
-        private Area _aBreePerms;
-        private Area _aImladrisTharbadPerms;
+        /// <summary>
+        /// maps room display names to rooms when unambiguous. for ambiguous room names the value is null.
+        /// </summary>
+        internal Dictionary<string, Room> UnambiguousRoomsByDisplayName = new Dictionary<string, Room>();
 
-        private const string AREA_BREE_PERMS = "Bree Perms";
-        private const string AREA_IMLADRIS_THARBAD_PERMS = "Imladris/Tharbad Perms";
+        internal Dictionary<string, List<Room>> AmbiguousRoomsByBackendName = new Dictionary<string, List<Room>>();
 
         public IsengardMap(List<string> errorMessages)
         {
             _graphs = new Dictionary<MapType, RoomGraph>();
             _map = new AdjacencyGraph<Room, Exit>();
-            _areas = new List<Area>();
-            _areasByName = new Dictionary<string, Area>();
-
-            _aBreePerms = AddArea(AREA_BREE_PERMS);
-            _aImladrisTharbadPerms = AddArea(AREA_IMLADRIS_THARBAD_PERMS);
 
             Type t = typeof(MapType);
             foreach (MapType nextMapType in Enum.GetValues(typeof(MapType)))
@@ -66,16 +59,6 @@ namespace IsengardClient
             AddEldemondeCity(oEldemondeEastGateOutside);
             AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, nindamosGraph);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter);
-
-            foreach (Area a in _areas)
-            {
-                a.Locations.Sort((roomA, roomB) =>
-                {
-                    int ret = -(roomA.GetTotalExperience().CompareTo(roomB.GetTotalExperience()));
-                    if (ret == 0) ret = roomA.ToString().CompareTo(roomB.ToString());
-                    return ret;
-                });
-            }
 
             Dictionary<Room, MapType> roomsWithoutExplicitMaps = new Dictionary<Room, MapType>();
             HashSet<Room> unmappedRooms = new HashSet<Room>();
@@ -828,14 +811,6 @@ namespace IsengardClient
             }
         }
 
-        public List<Area> Areas
-        {
-            get
-            {
-                return _areas;
-            }
-        }
-
         public Dictionary<MapType, RoomGraph> Graphs
         {
             get
@@ -1205,15 +1180,6 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(sabreEvard, tharbadEastGate, "gate");
             tharbadGraph.Rooms[tharbadEastGate] = new System.Windows.Point(11, 8);
             AddMapBoundaryPoint(sabreEvard, tharbadEastGate, MapType.Tharbad, MapType.AlliskPlainsEastOfTharbad);
-
-            AddLocation(_aImladrisTharbadPerms, oGuildmasterAnsette);
-            AddLocation(_aImladrisTharbadPerms, zathriel);
-            AddLocation(_aImladrisTharbadPerms, oOliphaunt);
-            AddLocation(_aImladrisTharbadPerms, oMasterJeweler);
-            AddLocation(_aImladrisTharbadPerms, oMadameNicolov);
-            AddLocation(_aImladrisTharbadPerms, oKingsMoneychanger);
-            AddLocation(_aImladrisTharbadPerms, oGypsyBlademaster);
-            AddLocation(_aImladrisTharbadPerms, oKingBrunden);
         }
 
         private void AddBreeCity(out Room oConstructionSite, out Room oBreeTownSquare, out Room oWestGateInside, out Room oSmoulderingVillage, out Room oNorthBridge, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain, out Room breeEastGateOutside, out Room oCemetery, out Room breeDocks)
@@ -1776,17 +1742,6 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oHallOfAvatars, oHallOfAvatars2, "curtain");
             breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(5, 1);
 
-            AddLocation(_aBreePerms, oGuido);
-            AddLocation(_aBreePerms, oGodfather);
-            AddLocation(_aBreePerms, oFallon);
-            AddLocation(_aBreePerms, oSergeantGrimgall);
-            AddLocation(_aBreePerms, oBigPapa);
-            AddLocation(_aBreePerms, oScranlin);
-            AddLocation(_aBreePerms, oPrancingPony);
-            AddLocation(_aBreePerms, oIxell);
-            AddLocation(_aBreePerms, oIgor);
-            AddLocation(_aBreePerms, oSnarlingMutt);
-
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
@@ -2098,11 +2053,6 @@ namespace IsengardClient
             AddBidirectionalExits(oStagnantCesspool, oSlopingSewerPassage2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oSlopingSewerPassage2, oSmoothedSewerPassage, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSlopingSewerPassage2] = new System.Windows.Point(11, 5);
-
-            AddLocation(_aBreePerms, oSalamander);
-            AddLocation(_aBreePerms, oSewerOrcChamber);
-            AddLocation(_aBreePerms, oSewerOrcLair);
-            AddLocation(_aBreePerms, droolie);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)
@@ -2284,10 +2234,6 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oBurnedRemainsOfNimrodel, oOldMansReadingRoom, "hallway");
             breeSewersGraph.Rooms[oOldMansReadingRoom] = new System.Windows.Point(3, 0);
             //CSRTODO: safe
-
-            AddLocation(_aBreePerms, oShirriff);
-            AddLocation(_aBreePerms, oBurnedRemainsOfNimrodel);
-            AddLocation(_aBreePerms, oKasnarTheGuard);
         }
 
         private void AddGridBidirectionalExits(Room[,] grid, int x, int y)
@@ -2513,9 +2459,6 @@ namespace IsengardClient
             graphMillwoodMansion.Rooms[oDungeonGuardSouth] = new System.Windows.Point(8, 14);
 
             AddMillwoodMansionUpstairs(oWarriorBardMansionNorth, oWarriorBardMansionSouth, oWarriorBardMansionEast);
-
-            AddLocation(_aBreePerms, oPathToMansion4WarriorBardsx2);
-            AddLocation(_aBreePerms, oGrandPorch);
         }
 
         private void AddMillwoodMansionUpstairs(Room northStairwell, Room southStairwell, Room eastStairwell)
@@ -2762,10 +2705,6 @@ namespace IsengardClient
             e.Hidden = true;
             AddExit(oSpriteGuards, oBrethilForest, "east");
             breeToImladrisGraph.Rooms[oSpriteGuards] = new System.Windows.Point(11, 6);
-
-            AddLocation(_aBreePerms, oGreatEastRoadGoblinAmbushGobLrgLrg);
-            AddLocation(_aBreePerms, oNorthBrethilForest5GobAmbush);
-            AddLocation(_aBreePerms, oSpriteGuards);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
@@ -2871,7 +2810,7 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
             breeToImladrisGraph.Rooms[oManagerMulloy] = new System.Windows.Point(2, 6.5);
 
-            Room oFarmKitchen = AddRoom("Kitchen", "Study");
+            Room oFarmKitchen = AddRoom("Kitchen", "Kitchen");
             AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
             AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
             breeToImladrisGraph.Rooms[oFarmKitchen] = new System.Windows.Point(1, 6.5);
@@ -2897,10 +2836,6 @@ namespace IsengardClient
             oMrWartnose.AddPermanentMobs(MobTypeEnum.MrWartnose);
             AddBidirectionalExitsWithOut(oUglyKidClassroomK7, oMrWartnose, "office");
             breeToImladrisGraph.Rooms[oMrWartnose] = new System.Windows.Point(7.5, 7);
-
-            AddLocation(_aBreePerms, oRoadToFarm7HoundDog);
-            AddLocation(_aBreePerms, oManagerMulloy);
-            AddLocation(_aBreePerms, oFarmCat);
         }
 
         private void AddGalbasiDowns(Room oGreatEastRoad2, Room oGreatEastRoad3, RoomGraph breeToImladrisGraph)
@@ -3384,8 +3319,6 @@ namespace IsengardClient
             e = AddBidirectionalExitsWithOut(oImladrisCityJail, oCaveTrollCell, "grate");
             e.MustOpen = true;
             imladrisGraph.Rooms[oCaveTrollCell] = new System.Windows.Point(7, 5.5);
-
-            AddLocation(_aImladrisTharbadPerms, oPoisonedDagger);
         }
 
         private void AddEastOfImladris(Room oEastGateOfImladrisOutside, Room oEastGateOfImladrisInside, out Room westGateOfEsgaroth)
@@ -3531,8 +3464,6 @@ namespace IsengardClient
             AddExit(oIorlasThreshold, oIorlas, "shack");
             AddExit(oIorlas, oIorlasThreshold, "door");
             eastOfImladrisGraph.Rooms[oIorlas] = new System.Windows.Point(2, 3);
-
-            AddLocation(_aImladrisTharbadPerms, oIorlas);
         }
 
         private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage)
@@ -3672,10 +3603,6 @@ namespace IsengardClient
             e.KeyType = ItemTypeEnum.GateKey; //not actually a usable exit since full key support is not there yet
             westOfBreeMap.Rooms[oSmoulderingVillage] = new System.Windows.Point(13, -2.5);
             AddMapBoundaryPoint(oShepherd, oSmoulderingVillage, MapType.WestOfBree, MapType.BreeSewers);
-
-            AddLocation(_aBreePerms, oBilboBaggins);
-            AddLocation(_aBreePerms, oFrodoBaggins);
-            AddLocation(_aBreePerms, oShepherd);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside)
@@ -3804,9 +3731,6 @@ namespace IsengardClient
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new System.Windows.Point(0, 14);
             AddMapBoundaryPoint(oMistyTrail14, oTharbadGateOutside, MapType.ImladrisToTharbad, MapType.Tharbad);
-
-            AddLocation(_aImladrisTharbadPerms, oCutthroatAssassin);
-            AddLocation(_aImladrisTharbadPerms, oMarkFrey);
         }
 
         private void AddNorthOfEsgaroth(Room esgarothNorthGateOutside)
@@ -4660,12 +4584,6 @@ namespace IsengardClient
             e = AddExit(oGraddyOgre, oGraddy, "gate");
             e.MustOpen = true;
             oShantyTownGraph.Rooms[oGraddyOgre] = new System.Windows.Point(5, 4);
-
-            AddLocation(_aImladrisTharbadPerms, oPrinceBrunden);
-            AddLocation(_aImladrisTharbadPerms, oNaugrim);
-            AddLocation(_aImladrisTharbadPerms, oHogoth);
-            AddLocation(_aImladrisTharbadPerms, oFaornil);
-            AddLocation(_aImladrisTharbadPerms, oGraddy);
         }
 
         private void AddIntangible(Room oBreeTownSquare, Room healingHand, Room nindamosVillageCenter)
@@ -6242,18 +6160,26 @@ namespace IsengardClient
         {
             Room r = new Room(roomName, backendName);
             _map.AddVertex(r);
-            if (AmbiguousRooms.TryGetValue(backendName, out List<Room> rooms))
+            if (AmbiguousRoomsByBackendName.TryGetValue(backendName, out List<Room> rooms))
             {
                 rooms.Add(r);
             }
-            else if (UnambiguousRooms.TryGetValue(backendName, out Room existingRoom))
+            else if (UnambiguousRoomsByBackendName.TryGetValue(backendName, out Room existingRoom))
             {
-                UnambiguousRooms.Remove(backendName);
-                AmbiguousRooms[backendName] = new List<Room>() { existingRoom, r };
+                UnambiguousRoomsByBackendName.Remove(backendName);
+                AmbiguousRoomsByBackendName[backendName] = new List<Room>() { existingRoom, r };
             }
             else
             {
-                UnambiguousRooms[backendName] = r;
+                UnambiguousRoomsByBackendName[backendName] = r;
+            }
+            if (UnambiguousRoomsByDisplayName.TryGetValue(roomName, out Room foundRoom))
+            {
+                UnambiguousRoomsByDisplayName[roomName] = null;
+            }
+            else
+            {
+                UnambiguousRoomsByDisplayName[roomName] = r;
             }
             return r;
         }
@@ -6272,11 +6198,6 @@ namespace IsengardClient
             r.HealingRoom = healingRoom;
             HealingRooms[healingRoom] = r;
             return r;
-        }
-
-        private void AddLocation(Area area, Room locRoom)
-        {
-            area.Locations.Add(locRoom);
         }
 
         private Exit AddExit(Room a, Room b, string exitText)
@@ -6376,31 +6297,6 @@ namespace IsengardClient
             e.Hidden = hidden;
             AddExit(e);
         }
-
-        private Area AddArea(string areaName)
-        {
-            Area a = new Area(areaName);
-            _areas.Add(a);
-            _areasByName[a.Name] = a;
-            return a;
-        }
-    }
-
-    internal class Area
-    {
-        public Area(string name)
-        {
-            this.Name = name;
-            this.Locations = new List<Room>();
-        }
-
-        public override string ToString()
-        {
-            return this.Name;
-        }
-
-        public string Name { get; set; }
-        public List<Room> Locations { get; set; }
     }
 
     internal static class MapComputation

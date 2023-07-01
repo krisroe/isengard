@@ -730,6 +730,12 @@ namespace IsengardClient
         Warrior,
     }
 
+    internal enum VertexSelectionRequirement
+    {
+        ValidPathFromCurrentLocation,
+        UnambiguousRoomBackendOrDisplayName,
+    }
+
     internal enum SpellsEnum
     {
         [SpellInformation(SpellProficiency.Earth, 1)]

@@ -13,25 +13,27 @@ namespace IsengardClient
     internal partial class frmGraph : Window
     {
         private VertexControl _currentVertexControl;
-        private Dictionary<MapType, RoomGraph> _graphs;
+        private IsengardMap _fullMap;
         private bool _forVertexSelection;
         private GraphInputs _graphInputs;
+        private VertexSelectionRequirement _selectionRequirement;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, GraphInputs graphInputs)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, GraphInputs graphInputs, VertexSelectionRequirement selectionRequirement)
         {
             InitializeComponent();
 
             _graphInputs = graphInputs;
-            _graphs = fullMap.Graphs;
+            _fullMap = fullMap;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
             CurrentRoom = currentRoom;
             _forVertexSelection = forVertexSelection;
+            _selectionRequirement = selectionRequirement;
 
             Dictionary<RoomGraph, ComboBoxItem> graphItems = new Dictionary<RoomGraph, ComboBoxItem>();
             foreach (MapType mt in Enum.GetValues(typeof(MapType)))
             {
-                RoomGraph nextGraph = _graphs[mt];
+                RoomGraph nextGraph = fullMap.Graphs[mt];
                 ComboBoxItem cbi = new ComboBoxItem();
                 cbi.Content = nextGraph.Name;
                 cbi.Tag = nextGraph;
@@ -47,7 +49,7 @@ namespace IsengardClient
             }
             if (startingGraph == null)
             {
-                startingGraph = _graphs[0];
+                startingGraph = fullMap.Graphs[0];
             }
             cboGraphs.SelectedItem = graphItems[startingGraph];
         }
@@ -130,7 +132,7 @@ namespace IsengardClient
 
                 //add menu items for other graphs containing the room
                 RoomGraph currentRoomGraph = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
-                foreach (KeyValuePair<MapType, RoomGraph> next in _graphs)
+                foreach (KeyValuePair<MapType, RoomGraph> next in _fullMap.Graphs)
                 {
                     RoomGraph rg = next.Value;
                     if (rg != currentRoomGraph && rg.Rooms.ContainsKey(oRoom))
@@ -173,11 +175,23 @@ namespace IsengardClient
         private void mnuGoToOrSelectRoom_Click(object sender, RoutedEventArgs e)
         {
             Room selectedRoom = (Room)_currentVertexControl.Vertex;
-            SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
-            if (SelectedPath == null)
+            if (_selectionRequirement == VertexSelectionRequirement.ValidPathFromCurrentLocation)
             {
-                MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButton.OK);
-                return;
+                SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
+                if (SelectedPath == null)
+                {
+                    MessageBox.Show("No path to target room found.", "Select Room", MessageBoxButton.OK);
+                    return;
+                }
+            }
+            else if (_selectionRequirement == VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName)
+            {
+                if (!_fullMap.UnambiguousRoomsByBackendName.TryGetValue(selectedRoom.BackendName, out _) &&
+                     _fullMap.UnambiguousRoomsByDisplayName[selectedRoom.Name] == null)
+                {
+                    MessageBox.Show("Cannot select this room because the backend and display names are ambiguous.", "Select Room", MessageBoxButton.OK);
+                    return;
+                }
             }
             SelectedRoom = selectedRoom;
             this.DialogResult = true;

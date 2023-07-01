@@ -157,6 +157,10 @@
         [Experience(300)]
         BurnedRemainsOfNimrodel,
 
+        [SingularName("butcher")]
+        [PluralName("butchers")]
+        Butcher,
+
         [SingularName("butler")]
         [PluralName("butlers")]
         Butler,
@@ -843,6 +847,10 @@
         [SingularName("Magor the Instructor")]
         //CSRTODO: no plural
         MagorTheInstructor,
+
+        [SingularName("maid")]
+        [PluralName("maids")]
+        Maid,
 
         [SingularName("Malika")]
         //CSRTODO: no plural

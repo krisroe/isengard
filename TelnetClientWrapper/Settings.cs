@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Data.SQLite;
 using System.Data;
-
 namespace IsengardClient
 {
     internal class IsengardSettingData
@@ -25,6 +24,7 @@ namespace IsengardClient
         public bool DisplayStunLength { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         public Dictionary<DynamicDataItemClass, DynamicItemData> DynamicItemClassData { get; set; }
+        public List<LocationNode> Locations { get; set; }
         public IsengardSettingData()
         {
             Weapon = null;
@@ -43,6 +43,7 @@ namespace IsengardClient
             AutoEscapeActive = false;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
+            Locations = new List<LocationNode>();
         }
         public IsengardSettingData(IsengardSettingData copied)
         {
@@ -69,6 +70,11 @@ namespace IsengardClient
             foreach (var next in copied.DynamicItemClassData)
             {
                 DynamicItemClassData[next.Key] = new DynamicItemData(next.Value);
+            }
+            Locations = new List<LocationNode>();
+            foreach (LocationNode next in copied.Locations)
+            {
+                Locations.Add(new LocationNode(next, null));
             }
         }
         public IsengardSettingData(SQLiteCommand cmd, int UserID, List<string> errorMessages) : this()
@@ -127,6 +133,49 @@ namespace IsengardClient
                     }
                 }
             }
+
+            List<LocationNode> locationFlatList = new List<LocationNode>();
+            Dictionary<int, LocationNode> locationMapping = new Dictionary<int, LocationNode>();
+            cmd.CommandText = "SELECT ID,DisplayName,Room,Expanded,ParentID FROM LocationNodes WHERE UserID = @UserID ORDER BY OrderValue";
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int iID = Convert.ToInt32(reader["ID"]);
+                    object oData = reader["DisplayName"];
+                    string sDisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
+                    oData = reader["Room"];
+                    string sRoom = oData == DBNull.Value ? string.Empty : oData.ToString();
+                    bool expanded = Convert.ToInt32(reader["Expanded"]) != 0;
+                    oData = reader["ParentID"];
+                    int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
+                    LocationNode ln = new LocationNode();
+                    ln.ID = iID;
+                    ln.DisplayName = sDisplayName;
+                    ln.Room = sRoom;
+                    ln.Expanded = expanded;
+                    ln.ParentID = iParentID;
+                    locationMapping[iID] = ln;
+                    locationFlatList.Add(ln);
+                }
+            }
+            foreach (LocationNode ln in locationFlatList)
+            {
+                if (ln.ParentID == 0)
+                {
+                    Locations.Add(ln);
+                }
+                else if (locationMapping.TryGetValue(ln.ParentID, out LocationNode parent))
+                {
+                    if (parent.Children == null) parent.Children = new List<LocationNode>();
+                    parent.Children.Add(ln);
+                }
+                else
+                {
+                    errorMessages.Add("Location parent ID not found for " + ln.GetDisplayName());
+                }
+            }
+            
         }
 
         public IsengardSettingData(string Input, List<string> errorMessages, bool IsFile) : this()
@@ -270,6 +319,80 @@ namespace IsengardClient
                     keyParameter.Value = nextItemName;
                     cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND Key = @Key";
                     cmd.ExecuteNonQuery();
+                }
+
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                cmd.CommandText = "SELECT ID FROM LocationNodes WHERE UserID = @UserID";
+                HashSet<int> existingIDs = new HashSet<int>();
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        existingIDs.Add(Convert.ToInt32(reader["ID"]));
+                    }
+                }
+                SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
+                SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
+                SQLiteParameter roomParameter = cmd.Parameters.Add("@Room", DbType.String);
+                SQLiteParameter expandedParameter = cmd.Parameters.Add("@Expanded", DbType.Int32);
+                SQLiteParameter parentIDParameter = cmd.Parameters.Add("@ParentID", DbType.Int32);
+                SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
+
+                int iOrder = 0;
+                foreach (LocationNode nextLoc in EnumerateLocations())
+                {
+                    iOrder++;
+                    orderParam.Value = iOrder;
+                    displayNameParam.Value = string.IsNullOrEmpty(nextLoc.DisplayName) ? (object)DBNull.Value : nextLoc.DisplayName;
+                    roomParameter.Value = string.IsNullOrEmpty(nextLoc.Room) ? (object)DBNull.Value : nextLoc.Room;
+                    expandedParameter.Value = nextLoc.Expanded ? 1 : 0;
+                    parentIDParameter.Value = nextLoc.Parent == null ? (object)DBNull.Value : nextLoc.Parent.ID;
+                    int iID = nextLoc.ID;
+                    bool isNew = iID == 0;
+                    if (isNew)
+                    {
+                        cmd.CommandText = "INSERT INTO LocationNodes (UserID, OrderValue, DisplayName, Room, Expanded, ParentID) VALUES (@UserID, @OrderValue, @DisplayName, @Room, @Expanded, @ParentID)";
+                    }
+                    else
+                    {
+                        cmd.CommandText = "UPDATE LocationNodes SET OrderValue = @OrderValue, DisplayName = @DisplayName, Room = @Room, Expanded = @Expanded WHERE ID = @ID";
+                        existingIDs.Remove(iID);
+                    }
+                    cmd.ExecuteNonQuery();
+                    if (isNew)
+                    {
+                        cmd.CommandText = "SELECT last_insert_rowid()";
+                        int iSavedID = Convert.ToInt32(cmd.ExecuteScalar());
+                        nextLoc.ID = iSavedID;
+                        if (nextLoc.Children != null)
+                        {
+                            foreach (LocationNode nextChild in nextLoc.Children)
+                            {
+                                nextChild.ParentID = iSavedID;
+                            }
+                        }
+                    }
+                }
+                cmd.Parameters.Clear();
+                idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
+                cmd.CommandText = "DELETE FROM LocationNodes WHERE ID = @ID";
+                foreach (int iID in existingIDs)
+                {
+                    idParameter.Value = iID;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private IEnumerable<LocationNode> EnumerateLocations()
+        {
+            foreach (LocationNode nextLoc in Locations)
+            {
+                yield return nextLoc;
+                foreach (LocationNode nextSub in nextLoc.GetChildNodes())
+                {
+                    yield return nextSub;
                 }
             }
         }
