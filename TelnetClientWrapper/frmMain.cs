@@ -2144,6 +2144,7 @@ namespace IsengardClient
             bool finishedProcessing = false;
             Exit currentBackgroundExit = _currentBackgroundExit;
             EntityChange rc;
+            BackgroundCommandType? bct = flp.BackgroundCommandType;
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
@@ -2233,7 +2234,6 @@ namespace IsengardClient
                         {
                             _monsterStunnedSince = DateTime.UtcNow;
                         }
-                        BackgroundCommandType? bct = flp.BackgroundCommandType;
                         if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
                         {
                             flp.CommandResult = CommandResult.CommandSuccessful;
@@ -2412,6 +2412,14 @@ namespace IsengardClient
                         break;
                     case InformationalMessageType.EquipmentFellApart:
                         AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip);
+                        break;
+                    case InformationalMessageType.WeaponIsBroken:
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip);
+                        if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+                        {
+                            _lastCommandDamage = 0;
+                            flp.CommandResult = CommandResult.CommandSuccessful;
+                        }
                         break;
                     case InformationalMessageType.MobPickedUpItem:
                         lock (_entityLock)

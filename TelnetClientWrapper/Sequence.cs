@@ -3029,7 +3029,7 @@ StartProcessRoom:
                         ient = ProcessEquipmentFellApartMessage(sLine, "Your ", " is broken.", Parameters.ErrorMessages);
                         if (ient != null)
                         {
-                            nextMsg = new InformationalMessages(InformationalMessageType.EquipmentFellApart);
+                            nextMsg = new InformationalMessages(InformationalMessageType.WeaponIsBroken);
                             nextMsg.Item = ient;
                         }
                     }

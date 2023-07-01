@@ -842,6 +842,7 @@ namespace IsengardClient
         [SingularName("green potion")]
         [PluralName("green potions")]
         [Potion(SpellsEnum.curepoison)]
+        [Weight(1)]
         GreenPotion,
 
         [SingularName("green rune")]

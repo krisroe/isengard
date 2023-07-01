@@ -509,6 +509,7 @@ namespace IsengardClient
         ReceiveVampyricTouch,
         EquipmentDestroyed,
         EquipmentFellApart,
+        WeaponIsBroken,
         FireshieldInflictsDamageAndDissipates,
         MobPickedUpItem,
         StunCastOnEnemy,

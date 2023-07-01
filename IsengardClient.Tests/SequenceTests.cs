@@ -205,7 +205,7 @@ namespace IsengardClient.Tests
             broadcasts = addedPlayers = removedPlayers = null;
             flp.Lines = new List<string>() { "Your claw gauntlet is broken." };
             seq.FeedLine(flp);
-            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EquipmentFellApart);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.WeaponIsBroken);
             Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.ClawGauntlet);
         }
 
