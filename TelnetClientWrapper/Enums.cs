@@ -513,6 +513,7 @@ namespace IsengardClient
         FireshieldInflictsDamageAndDissipates,
         MobPickedUpItem,
         StunCastOnEnemy,
+        ItemMagicallySentToYou,
     }
 
     internal enum SkillWithCooldownType
@@ -606,6 +607,7 @@ namespace IsengardClient
         AddMob,
         RemoveMob,
         PickUpItem,
+        MagicallySentItem,
         DropItem,
         ConsumeItem,
         EquipItem,
@@ -619,6 +621,7 @@ namespace IsengardClient
     {
         None,
         PickUpItem,
+        MagicallySentItem,
         DropItem,
         ConsumeItem,
         SellItem,

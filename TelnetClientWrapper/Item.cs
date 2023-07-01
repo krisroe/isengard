@@ -724,7 +724,7 @@ namespace IsengardClient
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Missile)]
         ElvenLeatherWhip,
 
         [SingularName("emerald")]
@@ -794,6 +794,11 @@ namespace IsengardClient
         [PluralName("Girion's keys")]
         [Key]
         GirionsKey,
+
+        [SingularName("glimmering blade")]
+        [PluralName("glimmering blades")]
+        [WeaponType(WeaponType.Slash)]
+        GlimmeringBlade,
 
         [SingularName("glitter")]
         //CSRTODO: wand?
@@ -1461,6 +1466,7 @@ namespace IsengardClient
 
         [SingularName("sprite leather leggings")]
         [EquipmentType(EquipmentType.Legs)]
+        [Weight(3)]
         SpriteLeatherLeggings,
 
         [SingularName("splint mail")]

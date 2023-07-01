@@ -3016,6 +3016,16 @@ StartProcessRoom:
 
                     if (nextMsg == null)
                     {
+                        ient = ProcessMessageEndingInItem(sLine, " magically sends you ", Parameters);
+                        if (ient != null)
+                        {
+                            nextMsg = new InformationalMessages(InformationalMessageType.ItemMagicallySentToYou);
+                            nextMsg.Item = ient;
+                        }
+                    }
+
+                    if (nextMsg == null)
+                    {
                         ient = ProcessEquipmentFellApartMessage(sLine, "Your ", " fell apart.", Parameters.ErrorMessages);
                         if (ient != null)
                         {

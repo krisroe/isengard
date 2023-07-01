@@ -2421,6 +2421,9 @@ namespace IsengardClient
                             flp.CommandResult = CommandResult.CommandSuccessful;
                         }
                         break;
+                    case InformationalMessageType.ItemMagicallySentToYou:
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.MagicallySentItem);
+                        break;
                     case InformationalMessageType.MobPickedUpItem:
                         lock (_entityLock)
                         {
@@ -2700,6 +2703,10 @@ namespace IsengardClient
                 changeType = EntityChangeType.PickUpItem;
                 pickupItemsMoney = new List<ItemEntity>();
             }
+            else if (action == ItemManagementAction.MagicallySentItem)
+            {
+                changeType = EntityChangeType.MagicallySentItem;
+            }
             else if (action == ItemManagementAction.DropItem)
             {
                 changeType = EntityChangeType.DropItem;
@@ -2781,9 +2788,8 @@ namespace IsengardClient
                             if (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins)
                             {
                                 //add/remove from inventory
-                                bool isAddToInventory = changeType == EntityChangeType.PickUpItem;
+                                bool isAddToInventory = changeType == EntityChangeType.PickUpItem || changeType == EntityChangeType.MagicallySentItem;
                                 addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAddToInventory, changeEntry);
-
                                 if (changeType == EntityChangeType.PickUpItem) //remove from room items
                                 {
                                     addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
@@ -7261,7 +7267,7 @@ BeforeHazy:
                                     }
                                 }
                             }
-                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem)
+                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.MagicallySentItem)
                             {
                                 foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                                 {
