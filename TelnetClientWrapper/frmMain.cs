@@ -3874,11 +3874,14 @@ namespace IsengardClient
                                 if (nextMagicStep.HasValue && allowBasedOnStun &&
                                     (!dtNextMagicCommand.HasValue || dtUtcNow > dtNextMagicCommand.Value))
                                 {
+                                    string sMobTarget = GetMobTarget(false);
+                                    if (string.IsNullOrEmpty(sMobTarget)) return;
+
                                     int currentMana = useManaPool ? _currentMana : _automp;
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency);
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency, sMobTarget);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -3958,7 +3961,10 @@ namespace IsengardClient
                                 if (nextMeleeStep.HasValue && allowBasedOnStun &&
                                     (!dtNextMeleeCommand.HasValue || dtUtcNow > dtNextMeleeCommand.Value))
                                 {
-                                    GetMeleeCommand(nextMeleeStep.Value, out command);
+                                    string sMobTarget = GetMobTarget(false);
+                                    if (string.IsNullOrEmpty(sMobTarget)) return;
+
+                                    GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
                                     WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
                                     if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
                                         return;
@@ -4980,7 +4986,7 @@ BeforeHazy:
             return ret;
         }
 
-        public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command)
+        public void GetMeleeCommand(MeleeStrategyStep nextMeleeStep, out string command, string mobTarget)
         {
             string sAttackType;
             if (nextMeleeStep == MeleeStrategyStep.PowerAttack)
@@ -4995,10 +5001,10 @@ BeforeHazy:
             {
                 throw new InvalidOperationException();
             }
-            command = sAttackType + " " + GetMobTarget(false);
+            command = sAttackType + " " + mobTarget;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency)
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency, string mobTarget)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -5007,7 +5013,7 @@ BeforeHazy:
             bct = null;
             if (nextMagicStep == MagicStrategyStep.Stun)
             {
-                command = "cast stun " + GetMobTarget(false);
+                command = "cast stun " + mobTarget;
                 manaDrain = 10;
                 bct = BackgroundCommandType.Stun;
             }
@@ -5121,7 +5127,7 @@ BeforeHazy:
                     }
                     if (knownSpells.Contains(spell))
                     {
-                        command = "cast " + spell + " " + GetMobTarget(false);
+                        command = "cast " + spell + " " + mobTarget;
                         bct = BackgroundCommandType.OffensiveSpell;
                     }
                     else
