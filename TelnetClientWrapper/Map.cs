@@ -1853,6 +1853,13 @@ namespace IsengardClient
             AddExit(oShippingWarehouse, breeStreets[10, 2], "west");
             breeStreetsGraph.Rooms[oShippingWarehouse] = new System.Windows.Point(11, 8);
 
+            Room oSouthernDump = AddRoom("Dump", "The Southern Dump");
+            AddExit(breeStreets[10, 1], oSouthernDump, "dump");
+            AddExit(oSouthernDump, breeStreets[10, 1], "west");
+            AddExit(breeStreets[11, 0], oSouthernDump, "dump");
+            AddExit(oSouthernDump, breeStreets[11, 0], "south");
+            breeStreetsGraph.Rooms[oSouthernDump] = new System.Windows.Point(11, 9);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
