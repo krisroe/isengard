@@ -725,6 +725,7 @@ namespace IsengardClient
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
         [WeaponType(WeaponType.Missile)]
+        [SellGoldRange(148, 148)]
         ElvenLeatherWhip,
 
         [SingularName("emerald")]
