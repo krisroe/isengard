@@ -1410,6 +1410,22 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oToSnarSlystoneShoppe, oSnarlingMutt, "shoppe");
             breeStreetsGraph.Rooms[oSnarlingMutt] = new System.Windows.Point(9, 6);
 
+            Room oSnarSlystone = AddRoom("Snar Slystone", "Behind The Counter");
+            oSnarSlystone.AddPermanentMobs(MobTypeEnum.SnarSlystone);
+            AddBidirectionalExitsWithOut(oSnarlingMutt, oSnarSlystone, "counter");
+            breeStreetsGraph.Rooms[oSnarSlystone] = new System.Windows.Point(9, 5.75);
+
+            Room oBackHall = AddRoom("Back Hall", "Back Hall");
+            AddBidirectionalSameNameExit(oSnarSlystone, oBackHall, "curtain");
+            breeStreetsGraph.Rooms[oBackHall] = new System.Windows.Point(9, 5.5);
+
+            Room oAtticCrawlway = AddRoom("Attic Crawlway", "Attic Crawlway");
+            oAtticCrawlway.AddPermanentMobs(MobTypeEnum.Bugbear);
+            e = AddExit(oBackHall, oAtticCrawlway, "hatch");
+            e.Hidden = true;
+            AddExit(oAtticCrawlway, oBackHall, "hatch");
+            breeStreetsGraph.Rooms[oAtticCrawlway] = new System.Windows.Point(9, 5.25);
+
             Room oGuido = AddRoom("Guido", "Godfather's House of Games");
             oGuido.AddPermanentMobs(MobTypeEnum.Guido);
             AddExit(oToCasino, oGuido, "casino");

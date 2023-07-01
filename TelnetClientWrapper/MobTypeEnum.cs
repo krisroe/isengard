@@ -1307,6 +1307,11 @@
         [Alignment(AlignmentType.Red)] //straight up red
         SnarlingMutt,
 
+        [SingularName("Snar Slystone")]
+        //CSRTODO: no plural
+        [Alignment(AlignmentType.Red)] //straight up red
+        SnarSlystone,
+
         [SingularName("sobbing girl")]
         [PluralName("sobbing girls")]
         SobbingGirl,
