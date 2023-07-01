@@ -1293,7 +1293,7 @@ namespace IsengardClient
             breeStreets[0, 9] = AddRoom("Wain", "Wain Road North"); //1x10
             breeSewers[0, 9] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x10
             breeStreets[3, 9] = AddRoom("High", "North High Street"); //4x10
-            breeStreets[7, 9] = AddRoom("Main", "Main Street"); //8x10
+            Room oToGuildHall = breeStreets[7, 9] = AddRoom("Main", "Main Street"); //8x10
             Room oToLeonardosFoundry = breeStreets[10, 9] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x10
             Room oToGamblingPit = breeStreets[14, 9] = AddRoom("Brownhaven", "Brownhaven Road"); //15x10
             breeStreets[0, 10] = AddRoom("Ormenel/Wain", "Wain Road North/Ormenel Street Intersection"); //1x11
@@ -1802,6 +1802,24 @@ namespace IsengardClient
             e.Hidden = true;
             breeStreetsGraph.Rooms[oChampionsWarmup] = new System.Windows.Point(6.33, 1.5);
             breeStreetsGraph.Rooms[breeStreets[7, 8]] = new System.Windows.Point(7, 1.5);
+
+            Room oHallOfGuilds = AddRoom("Guild Hall", "Hall of Guilds");
+            e = AddExit(oToGuildHall, oHallOfGuilds, "hall");
+            e.MustOpen = true;
+            AddExit(oHallOfGuilds, oToGuildHall, "door");
+            breeStreetsGraph.Rooms[oHallOfGuilds] = new System.Windows.Point(8, 0);
+
+            Room oAccursedGuildHall = AddRoom("Accursed Guild", "Accursed Guild Hall");
+            AddBidirectionalExitsWithOut(oHallOfGuilds, oAccursedGuildHall, "accursed");
+            breeStreetsGraph.Rooms[oAccursedGuildHall] = new System.Windows.Point(7, -1);
+
+            Room oCrusadersGuild = AddRoom("Crusader Guild", "Crusader's Guild");
+            AddBidirectionalExitsWithOut(oHallOfGuilds, oCrusadersGuild, "crusader");
+            breeStreetsGraph.Rooms[oCrusadersGuild] = new System.Windows.Point(8, -1);
+
+            Room oThievesGuild = AddRoom("Thieves Guild", "Thieves Guild");
+            AddBidirectionalExitsWithOut(oHallOfGuilds, oThievesGuild, "thief");
+            breeStreetsGraph.Rooms[oThievesGuild] = new System.Windows.Point(9, -1);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }
