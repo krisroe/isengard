@@ -172,10 +172,11 @@ namespace IsengardClient
         {
             ToolStripItem tsi = e.ClickedItem;
             TreeNode selectedNode = treeLocations.SelectedNode;
-            TreeNode parentNode = selectedNode.Parent;
-            TreeNodeCollection parentNodes = parentNode == null ? treeLocations.Nodes : selectedNode.Parent.Nodes;
-            int iCurrentIndex = parentNodes.IndexOf(selectedNode);
             LocationNode currentLoc = (LocationNode)selectedNode.Tag;
+            TreeNode parentNode = selectedNode.Parent;
+            TreeNodeCollection parentTreeNodes = parentNode == null ? treeLocations.Nodes : selectedNode.Parent.Nodes;
+            List<LocationNode> parentLocationNodes = parentNode == null ? _settingsData.Locations : currentLoc.Parent.Children;
+            int iCurrentIndex = parentTreeNodes.IndexOf(selectedNode);
             bool isTopLevel = currentLoc.Parent == null;
             TreeNode newNodeInfo;
             if (tsi == tsmiAddChild || tsi == tsmiAddSiblingAfter || tsi == tsmiAddSiblingBefore)
@@ -184,7 +185,6 @@ namespace IsengardClient
                 if (newNodeInfo != null)
                 {
                     LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
-                    List<LocationNode> parentLocs;
                     if (tsi == tsmiAddChild)
                     {
                         selectedNode.Nodes.Add(newNodeInfo);
@@ -197,8 +197,7 @@ namespace IsengardClient
                     else if (tsi == tsmiAddSiblingBefore)
                     {
                         selectedNode.Parent.Nodes.Insert(iCurrentIndex, newNodeInfo);
-                        parentLocs = isTopLevel ? _settingsData.Locations : currentLoc.Parent.Children;
-                        parentLocs.Insert(iCurrentIndex, newLoc);
+                        parentLocationNodes.Insert(iCurrentIndex, newLoc);
                         newLoc.Parent = currentLoc.Parent;
                         if (!isTopLevel)
                         {
@@ -207,16 +206,15 @@ namespace IsengardClient
                     }
                     else if (tsi == tsmiAddSiblingAfter)
                     {
-                        parentLocs = isTopLevel ? _settingsData.Locations : currentLoc.Parent.Children;
-                        if (iCurrentIndex == parentNodes.Count - 1)
+                        if (iCurrentIndex == parentTreeNodes.Count - 1)
                         {
-                            parentNodes.Add(newNodeInfo);
-                            parentLocs.Add(newLoc);
+                            parentTreeNodes.Add(newNodeInfo);
+                            parentLocationNodes.Add(newLoc);
                         }
                         else
                         {
-                            parentNodes.Insert(iCurrentIndex - 1, newNodeInfo);
-                            parentLocs.Insert(iCurrentIndex - 1, newLoc);
+                            parentTreeNodes.Insert(iCurrentIndex - 1, newNodeInfo);
+                            parentLocationNodes.Insert(iCurrentIndex - 1, newLoc);
                         }
                         newLoc.Parent = currentLoc.Parent;
                         if (!isTopLevel)
@@ -239,38 +237,34 @@ namespace IsengardClient
             }
             else if (tsi == tsmiRemove)
             {
-                if (currentLoc.Parent == null)
+                parentTreeNodes.Remove(selectedNode);
+                parentLocationNodes.Remove(currentLoc);
+                if (currentLoc.Parent != null && parentLocationNodes.Count == 0)
                 {
-                    _settingsData.Locations.Remove(currentLoc);
+                    currentLoc.Parent.Children = null;
                 }
-                else
-                {
-                    currentLoc.Parent.Children.Remove(currentLoc);
-                    if (currentLoc.Parent.Children.Count == 0)
-                    {
-                        currentLoc.Parent.Children = null;
-                    }
-                }
-                parentNodes.Remove(selectedNode);
             }
             else if (tsi == tsmiMoveUp)
             {
-                int iIndex = parentNodes.IndexOf(selectedNode);
-                parentNodes.Remove(selectedNode);
-                parentNodes.Insert(iIndex - 1, selectedNode);
+                parentTreeNodes.Remove(selectedNode);
+                parentLocationNodes.Remove(currentLoc);
+                parentTreeNodes.Insert(iCurrentIndex - 1, selectedNode);
+                parentLocationNodes.Insert(iCurrentIndex - 1, currentLoc);
                 treeLocations.SelectedNode = selectedNode;
             }
             else if (tsi == tsmiMoveDown)
             {
-                int iIndex = parentNodes.IndexOf(selectedNode);
-                parentNodes.Remove(selectedNode);
-                if (iIndex == parentNodes.Count)
+                parentTreeNodes.Remove(selectedNode);
+                parentLocationNodes.Remove(currentLoc);
+                if (iCurrentIndex == parentTreeNodes.Count)
                 {
-                    parentNodes.Add(selectedNode);
+                    parentTreeNodes.Add(selectedNode);
+                    parentLocationNodes.Add(currentLoc);
                 }
                 else
                 {
-                    parentNodes.Insert(iIndex + 1, selectedNode);
+                    parentTreeNodes.Insert(iCurrentIndex + 1, selectedNode);
+                    parentLocationNodes.Insert(iCurrentIndex + 1, currentLoc);
                 }
                 treeLocations.SelectedNode = selectedNode;
             }

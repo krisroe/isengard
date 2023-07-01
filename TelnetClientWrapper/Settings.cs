@@ -169,6 +169,7 @@ namespace IsengardClient
                 {
                     if (parent.Children == null) parent.Children = new List<LocationNode>();
                     parent.Children.Add(ln);
+                    ln.Parent = parent;
                 }
                 else
                 {
