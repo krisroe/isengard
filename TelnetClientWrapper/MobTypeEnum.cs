@@ -73,6 +73,7 @@
         [SingularName("bartender")]
         [PluralName("bartenders")]
         [Experience(15)]
+        [Alignment(AlignmentType.DullRed)]
         Bartender,
 
         [SingularName("bear")]
@@ -1372,6 +1373,7 @@
 
         [SingularName("thief")]
         [PluralName("thiefs")]
+        [Alignment(AlignmentType.DullRed)]
         Thief,
 
         [SingularName("Thoringil the Holy")]

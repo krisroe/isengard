@@ -1860,6 +1860,27 @@ namespace IsengardClient
             AddExit(oSouthernDump, breeStreets[11, 0], "south");
             breeStreetsGraph.Rooms[oSouthernDump] = new System.Windows.Point(11, 9);
 
+            Room oRavensRuseTavern = AddRoom("Raven's Ruse", "Raven's Ruse Tavern");
+            AddExit(breeStreets[13, 0], oRavensRuseTavern, "tavern");
+            AddExit(oRavensRuseTavern, breeStreets[13, 0], "south");
+            AddExit(breeStreets[14, 1], oRavensRuseTavern, "tavern");
+            AddExit(oRavensRuseTavern, breeStreets[14, 1], "east");
+            breeStreetsGraph.Rooms[oRavensRuseTavern] = new System.Windows.Point(13, 9);
+
+            Room oThievesDen = AddRoom("Thieves Den", "Thieve's Den");
+            e = AddExit(oRavensRuseTavern, oThievesDen, "sliding panel");
+            e.IsUnknownKnockableKeyType = true;
+            e.MustOpen = true;
+            AddExit(oThievesDen, oRavensRuseTavern, "door");
+            breeStreetsGraph.Rooms[oThievesDen] = new System.Windows.Point(13, 8.67);
+
+            Room oRavensBackroom = AddRoom("Backroom", "Raven's Backroom");
+            e = AddExit(oThievesDen, oRavensBackroom, "hatchway");
+            e.IsUnknownKnockableKeyType = true;
+            e.MustOpen = true;
+            AddExit(oRavensBackroom, oThievesDen, "hatchway");
+            breeStreetsGraph.Rooms[oRavensBackroom] = new System.Windows.Point(13, 8.33);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
