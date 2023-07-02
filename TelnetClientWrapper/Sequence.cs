@@ -1240,6 +1240,8 @@ namespace IsengardClient
                              nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
                              nextLine == "Yuck! That's terrible!" || //viscous potion
                              nextLine == "Yuck!" || //viscous potion
+                             nextLine == "Nothing happens." || //lollipop when not diseased?
+                             nextLine == "MMMMMM!!!!    GOOD!" || //lollipop
                              nextLine.EndsWith(" hit points removed."))
                     {
                         continue; //skipped

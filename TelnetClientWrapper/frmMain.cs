@@ -1209,7 +1209,7 @@ namespace IsengardClient
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, Action INTEGER NOT NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, TickCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))";
                     cmd.ExecuteNonQuery();
@@ -1984,6 +1984,15 @@ namespace IsengardClient
             }
         }
 
+        private static void OnCannotRemoveEquipment(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.RemoveEquipment)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
         private static void OnCannotCarryAnymore(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -2728,7 +2737,8 @@ namespace IsengardClient
                 BackgroundCommandType bctValue = bct.Value;
                 if ((action == ItemManagementAction.PickUpItem && bctValue == BackgroundCommandType.GetItem) ||
                     (action == ItemManagementAction.SellItem && bctValue == BackgroundCommandType.SellItem) ||
-                    (action == ItemManagementAction.DropItem && bctValue == BackgroundCommandType.DropItem))
+                    (action == ItemManagementAction.DropItem && bctValue == BackgroundCommandType.DropItem) ||
+                    (action == ItemManagementAction.Unequip && bctValue == BackgroundCommandType.RemoveEquipment))
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
@@ -3135,6 +3145,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You can't take that!", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItem, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence("The shopkeep says, \"I won't buy that crap from you.\"", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
+                new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
             };
             return seqs;
         }
@@ -4255,8 +4266,6 @@ BeforeHazy:
                     Room currentRoom = monsterRoom;
                     Room targetRoom;
                     List<ItemEntity> itemsToProcess = new List<ItemEntity>();
-                    List<ItemEntity> itemsToSell = new List<ItemEntity>();
-                    List<ItemEntity> itemsToTick = new List<ItemEntity>();
                     lock (_entityLock)
                     {
                         if (eInvProcess == InventoryProcessWorkflow.ProcessAllItemsInRoom)
@@ -4273,124 +4282,134 @@ BeforeHazy:
                         }
                     }
                 NextItemCycle:
-                    bool anythingCouldNotBePickedUp = false;
-                    bool anythingFailed = false;
+                    bool somethingDone = false;
+                    bool anythingCouldNotBePickedUpFromSourceRoom = false;
+                    bool anythingFailedForSourceRoom = false;
                     List<ItemEntity> monsterItemsToRemove = new List<ItemEntity>();
+                    List<ItemEntity> itemsPickedUp = new List<ItemEntity>();
+                    int weightFailed = int.MaxValue;
                     foreach (ItemEntity nextItem in itemsToProcess)
                     {
                         if (nextItem.ItemType.HasValue)
                         {
                             ItemTypeEnum eItemType = nextItem.ItemType.Value;
+                            StaticItemData sid = ItemEntity.StaticItemData[eItemType];
                             DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, eItemType);
-                            ItemInventoryAction eAction = didWithInherit.Action;
-                            if (eAction == ItemInventoryAction.None)
+
+                            bool processItem = false;
+                            if (didWithInherit.KeepCount > 0 || didWithInherit.TickCount > 0)
+                                processItem = true;
+                            else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
+                                processItem = true;
+                            else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.Ignore)
+                                processItem = false;
+                            else
                             {
-                                anythingFailed = true;
+                                anythingFailedForSourceRoom = true;
                                 continue;
                             }
-                            if (eAction == ItemInventoryAction.Ignore)
+                            if (processItem)
+                            {
+                                if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
+                                {
+                                    string sItemText;
+                                    lock (_entityLock)
+                                    {
+                                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, false);
+                                    }
+                                    if (string.IsNullOrEmpty(sItemText))
+                                    {
+                                        anythingFailedForSourceRoom = true;
+                                    }
+                                    else
+                                    {
+                                        backgroundCommandResult = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, eItemType, sItemText, pms);
+                                        if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                                        {
+                                            itemsPickedUp.Add(nextItem);
+                                            somethingDone = true;
+                                        }
+                                        else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulThisTime)
+                                        {
+                                            if (sid.Weight > 0 && sid.Weight < weightFailed)
+                                            {
+                                                weightFailed = sid.Weight;
+                                            }
+                                            anythingCouldNotBePickedUpFromSourceRoom = true;
+                                        }
+                                        else
+                                        {
+                                            anythingFailedForSourceRoom = true;
+                                        }
+                                    }
+                                }
+                            }
+                            else
                             {
                                 monsterItemsToRemove.Add(nextItem);
                                 continue;
                             }
-                            else if (eAction == ItemInventoryAction.Take || eAction == ItemInventoryAction.Sell || eAction == ItemInventoryAction.Tick)
+                        }
+                        else
+                        {
+                            anythingFailedForSourceRoom = true;
+                        }
+                    }
+                    foreach (ItemEntity nextItem in monsterItemsToRemove) itemsToProcess.Remove(nextItem);
+                    foreach (ItemEntity nextItem in itemsPickedUp) itemsToProcess.Remove(nextItem);
+                    if (anythingFailedForSourceRoom) return;
+
+                    List<ItemEntity> itemsToTick = new List<ItemEntity>();
+                    List<ItemEntity> itemsToSellOrJunk = new List<ItemEntity>();
+                    foreach (ItemEntity nextItemPickedUp in itemsPickedUp)
+                    {
+                        ItemTypeEnum itemType = nextItemPickedUp.ItemType.Value;
+                        StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                        if (sid.ItemClass != ItemClass.Coins && sid.ItemClass != ItemClass.Money)
+                        {
+                            DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
+                            if (didWithInherit.KeepCount > 0)
                             {
-                                string sItemText;
                                 lock (_entityLock)
                                 {
-                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, false);
-                                }
-                                if (string.IsNullOrEmpty(sItemText))
-                                {
-                                    anythingFailed = true;
-                                }
-                                else
-                                {
-                                    backgroundCommandResult = TryGetOrDropItem(BackgroundCommandType.GetItem, eItemType, sItemText, pms);
-                                    if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                                    int currentCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
+                                    if (currentCount <= didWithInherit.KeepCount)
                                     {
-                                        monsterItemsToRemove.Add(nextItem);
-                                        if (eAction == ItemInventoryAction.Sell)
-                                        {
-                                            itemsToSell.Add(nextItem);
-                                        }
-                                        else if (eAction == ItemInventoryAction.Tick)
-                                        {
-                                            itemsToTick.Add(nextItem);
-                                        }
+                                        itemsToProcess.Remove(nextItemPickedUp);
                                     }
-                                    else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulThisTime)
+                                    else if (didWithInherit.TickCount > 0)
                                     {
-                                        anythingCouldNotBePickedUp = true;
+                                        itemsToTick.Add(nextItemPickedUp);
                                     }
-                                    else
+                                    else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
                                     {
-                                        anythingFailed = true;
+                                        itemsToSellOrJunk.Add(nextItemPickedUp);
+                                    }
+                                    else //don't know what to do with the item
+                                    {
+                                        AddConsoleMessage("Don't know what to do with " + itemType);
+                                        return;
                                     }
                                 }
                             }
-                            else
-                            {
-                                throw new InvalidOperationException();
-                            }
-                        }
-                        else
-                        {
-                            anythingFailed = true;
                         }
                     }
-                    foreach (ItemEntity nextItem in monsterItemsToRemove)
+
+                    //sell/junk anything that was picked up and should immediately be sold or junked
+                    if (!SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone)) return;
+                    itemsToSellOrJunk.Clear();
+
+                    if (itemsToTick.Count > 0)
                     {
-                        itemsToProcess.Remove(nextItem);
-                    }
-                    if (anythingFailed)
-                    {
-                        return;
-                    }
-                    bool somethingGottenRidOf = false;
-                    if (itemsToSell.Count > 0 && pms.PawnShop.HasValue)
-                    {
-                        currentRoom = _currentEntityInfo.CurrentRoom;
-                        targetRoom = _gameMap.PawnShoppes[pms.PawnShop.Value];
-                        if (currentRoom != targetRoom)
+                        if (!pms.TickRoom.HasValue)
                         {
-                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
-                            if (nextRoute == null) return;
-                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        }
-                        anythingFailed = false;
-                        foreach (ItemEntity nextItem in itemsToSell)
-                        {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, false);
-                            if (string.IsNullOrEmpty(sItemText))
-                            {
-                                anythingFailed = true;
-                            }
-                            else
-                            {
-                                bool sellSucceeded = TryGetOrDropItem(BackgroundCommandType.SellItem, nextItem.ItemType.Value, sItemText, pms) == CommandResult.CommandSuccessful;
-                                if (sellSucceeded)
-                                {
-                                    somethingGottenRidOf = true;
-                                    pms.UsedPawnShoppe = true;
-                                }
-                                else
-                                {
-                                    anythingFailed = true;
-                                }
-                            }
-                        }
-                        if (anythingFailed)
-                        {
+                            AddConsoleMessage("No tick room specified.");
                             return;
                         }
-                        else
-                        {
-                            itemsToSell.Clear();
-                        }
-                    }
-                    if (itemsToTick.Count > 0 && pms.TickRoom.HasValue)
-                    {
+
+StartTickRoomProcessing:
+
+                        //navigate to the tick room
                         currentRoom = _currentEntityInfo.CurrentRoom;
                         targetRoom = _gameMap.HealingRooms[pms.TickRoom.Value];
                         if (currentRoom != targetRoom)
@@ -4399,37 +4418,129 @@ BeforeHazy:
                             if (nextRoute == null) return;
                             if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
                         }
-                        anythingFailed = false;
-                        foreach (ItemEntity nextItem in itemsToTick)
+
+                        bool anythingCouldNotBePickedUpFromTickRoom = false;
+                        bool anythingFailedForTickRoom = false;
+
+                        HashSet<ItemTypeEnum> tickItemsProcessedForDropping = new HashSet<ItemTypeEnum>();
+                        foreach (ItemEntity ie in itemsToTick)
                         {
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, nextItem.ItemType.Value, 1, true, false);
-                            if (string.IsNullOrEmpty(sItemText))
+                            ItemTypeEnum itemType = ie.ItemType.Value;
+                            if (!tickItemsProcessedForDropping.Contains(itemType))
                             {
-                                anythingFailed = true;
+                                DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
+                                int iCountToDrop = 0;
+                                lock (_entityLock)
+                                {
+                                    int iInventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
+                                    if (didWithInherit.KeepCount == -1)
+                                        iCountToDrop = iInventoryCount;
+                                    else if (iInventoryCount > didWithInherit.KeepCount)
+                                        iCountToDrop = didWithInherit.KeepCount - iInventoryCount;
+                                }
+                                for (int i = 0; i < iCountToDrop; i++)
+                                {
+                                    string sItemText;
+                                    bool remove = false;
+                                    lock (_entityLock)
+                                    {
+                                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
+                                        if (string.IsNullOrEmpty(sItemText))
+                                        {
+                                            remove = true;
+                                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, itemType, 1, true, false);
+                                        }
+                                    }
+                                    if (remove)
+                                    {
+                                        if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, itemType, sItemText, pms) != CommandResult.CommandSuccessful) return;
+                                        lock (_entityLock)
+                                        {
+                                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
+                                            if (string.IsNullOrEmpty(sItemText)) return;
+                                        }
+                                    }
+                                    if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms) != CommandResult.CommandSuccessful) return;
+                                    somethingDone = true;
+                                }
+                            }
+                        }
+
+                        weightFailed = int.MaxValue;
+                        HashSet<ItemTypeEnum> tickItemsProcessed = new HashSet<ItemTypeEnum>();
+                        foreach (ItemEntity ie in itemsToTick)
+                        {
+                            ItemTypeEnum itemType = ie.ItemType.Value;
+                            if (!tickItemsProcessed.Contains(itemType))
+                            {
+                                StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                                DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
+
+                                //dispose of overflow items from tick room
+                                int iTickRoomCount = 0;
+                                int iOverflow = 0;
+                                lock (_currentEntityInfo)
+                                {
+                                    iTickRoomCount = _currentEntityInfo.GetTotalRoomItemsCount(itemType);
+                                    if (didWithInherit.TickCount == -1)
+                                        iOverflow = iTickRoomCount;
+                                    else if (iTickRoomCount > didWithInherit.TickCount)
+                                        iOverflow = iTickRoomCount - didWithInherit.TickCount;
+                                }
+                                for (int i = 0; i < iOverflow; i++)
+                                {
+                                    if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
+                                    {
+                                        string sItemText;
+                                        lock (_entityLock)
+                                        {
+                                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, itemType, 1, true, false);
+                                        }
+                                        backgroundCommandResult = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, itemType, sItemText, pms);
+                                        if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                                        {
+                                            itemsToSellOrJunk.Add(ie);
+                                        }
+                                        else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulThisTime)
+                                        {
+                                            if (sid.Weight > 0 && sid.Weight < weightFailed)
+                                            {
+                                                weightFailed = sid.Weight;
+                                            }
+                                            anythingCouldNotBePickedUpFromTickRoom = true;
+                                        }
+                                        else
+                                        {
+                                            anythingFailedForTickRoom = true;
+                                        }
+                                    }
+                                    else //can't pick up this item anymore
+                                    {
+                                        break;
+                                    }
+                                }
+                                tickItemsProcessed.Add(itemType);
+                            }
+                        }
+                        if (anythingFailedForTickRoom) return;
+
+                        if (itemsToSellOrJunk.Count > 0)
+                        {
+                            if (SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone))
+                            {
+                                if (anythingCouldNotBePickedUpFromTickRoom)
+                                {
+                                    goto StartTickRoomProcessing;
+                                }
                             }
                             else
                             {
-                                bool dropSucceeded = TryGetOrDropItem(BackgroundCommandType.DropItem, nextItem.ItemType.Value, sItemText, pms) == CommandResult.CommandSuccessful;
-                                if (dropSucceeded)
-                                {
-                                    somethingGottenRidOf = true;
-                                }
-                                else
-                                {
-                                    anythingFailed = true;
-                                }
+                                return;
                             }
                         }
-                        if (anythingFailed)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            itemsToTick.Clear();
-                        }
                     }
-                    if (anythingCouldNotBePickedUp) //go back to the monster
+
+                    if (anythingCouldNotBePickedUpFromSourceRoom)
                     {
                         currentRoom = _currentEntityInfo.CurrentRoom;
                         if (currentRoom != monsterRoom)
@@ -4438,7 +4549,7 @@ BeforeHazy:
                             if (nextRoute == null) return;
                             if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
                         }
-                        if (somethingGottenRidOf)
+                        if (somethingDone)
                         {
                             goto NextItemCycle;
                         }
@@ -4447,6 +4558,7 @@ BeforeHazy:
                             return;
                         }
                     }
+
                     if (pms.TickRoom.HasValue)
                     {
                         currentRoom = _currentEntityInfo.CurrentRoom;
@@ -4513,6 +4625,72 @@ BeforeHazy:
             }
         }
 
+        private bool SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
+        {
+            bool success = true;
+            if (items.Count > 0)
+            {
+                if (!pms.PawnShop.HasValue)
+                {
+                    AddConsoleMessage("No pawn shop available.");
+                    return false;
+                }
+                Room currentRoom = _currentEntityInfo.CurrentRoom;
+                Room targetRoom = _gameMap.PawnShoppes[pms.PawnShop.Value];
+                if (currentRoom != targetRoom)
+                {
+                    List<Exit> nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
+                    if (nextRoute == null) return false;
+                    if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return false;
+                }
+                foreach (ItemEntity nextItem in items)
+                {
+                    ItemTypeEnum itemType = nextItem.ItemType.Value;
+                    string sItemText;
+                    lock (_entityLock)
+                    {
+                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
+                    }
+                    if (string.IsNullOrEmpty(sItemText))
+                    {
+                        AddConsoleMessage("Unable to sell/junk" + itemType);
+                        success = false;
+                        continue;
+                    }
+
+                    StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                    bool trySell = sid.UpperSellRange > 0 || (!sid.Junk && sid.UpperSellRange == 0);
+                    if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms) == CommandResult.CommandSuccessful)
+                    {
+                        somethingDone = true;
+                        pms.UsedPawnShoppe = true;
+                        continue;
+                    }
+
+                    if (sid.Junk)
+                    {
+                        if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms) == CommandResult.CommandSuccessful)
+                        {
+                            somethingDone = true;
+                            pms.UsedPawnShoppe = true;
+                            continue;
+                        }
+                        else
+                        {
+                            AddConsoleMessage("Failed to junk " + itemType);
+                            success = true;
+                        }
+                    }
+                    else
+                    {
+                        AddConsoleMessage("Failed to sell non-junk item: " + itemType);
+                        success = false;
+                    }
+                }
+            }
+            return success;
+        }
+
         private string GetMobTarget(bool forLook)
         {
             string sMobTextForTarget;
@@ -4544,7 +4722,15 @@ BeforeHazy:
             return sMobTextForTarget;
         }
 
-        private CommandResult TryGetOrDropItem(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms)
+        /// <summary>
+        /// runs a command adding or removing an item from inventory
+        /// </summary>
+        /// <param name="commandType">command type: get/drop/sell/remove item</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="itemText">precomputed item text respecting the item's current location</param>
+        /// <param name="pms">background command parameters</param>
+        /// <returns>result of the operation</returns>
+        private CommandResult TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms)
         {
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
             bool checkWeight = sid.Weight == 0;
@@ -4573,6 +4759,9 @@ BeforeHazy:
                     break;
                 case BackgroundCommandType.SellItem:
                     command = "sell";
+                    break;
+                case BackgroundCommandType.RemoveEquipment:
+                    command = "remove";
                     break;
                 default:
                     throw new InvalidOperationException();

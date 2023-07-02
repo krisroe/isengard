@@ -91,7 +91,7 @@ namespace IsengardClient
             }
             ValidateSettings();
 
-            cmd.CommandText = "SELECT Key, Action FROM DynamicItemData WHERE UserID = @UserID";
+            cmd.CommandText = "SELECT Key,KeepCount,TickCount,OverflowAction FROM DynamicItemData WHERE UserID = @UserID";
             using (SQLiteDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -114,11 +114,15 @@ namespace IsengardClient
                         errorMessages.Add("Invalid dynamic data key for dynamic data: " + key);
                         continue;
                     }
-                    ItemInventoryAction action = (ItemInventoryAction)Convert.ToInt32(reader["Action"]);
-                    DynamicItemData did = new DynamicItemData()
-                    {
-                        Action = action
-                    };
+
+                    DynamicItemData did = new DynamicItemData();
+                    object oData = reader["KeepCount"];
+                    did.KeepCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
+                    oData = reader["TickCount"];
+                    did.TickCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
+                    oData = reader["OverflowAction"];
+                    did.OverflowAction = oData == DBNull.Value ? ItemInventoryOverflowAction.None : (ItemInventoryOverflowAction)Convert.ToInt32(oData);
+
                     if (isItemType)
                     {
                         DynamicItemData[itemType] = did;
@@ -460,10 +464,13 @@ namespace IsengardClient
         {
             keyParameter.Value = key;
             string sql;
+            string sKeepCount = did.KeepCount >= 0 ? did.KeepCount.ToString() : "NULL";
+            string sTickCount = did.TickCount >= 0 ? did.TickCount.ToString() : "NULL";
+            string sOverflowAction = did.OverflowAction == ItemInventoryOverflowAction.None ? "NULL" : Convert.ToInt32(did.OverflowAction).ToString();
             if (existingKeys.Contains(key))
-                sql = $"UPDATE DynamicItemData SET Action = {Convert.ToInt32(did.Action)} WHERE UserID = @UserID AND Key = @Key";
+                sql = $"UPDATE DynamicItemData SET KeepCount = {sKeepCount}, TickCount = {sTickCount}, OverflowAction = {sOverflowAction} WHERE UserID = @UserID AND Key = @Key";
             else
-                sql = $"INSERT INTO DynamicItemData (UserID, Key, Action) VALUES (@UserID, @Key, {Convert.ToInt32(did.Action)})";
+                sql = $"INSERT INTO DynamicItemData (UserID, Key, KeepCount, TickCount, OverflowAction) VALUES (@UserID, @Key, {sKeepCount}, {sTickCount}, {sOverflowAction})";
             cmd.CommandText = sql;
             cmd.ExecuteNonQuery();
             existingKeys.Remove(key);
@@ -505,13 +512,33 @@ namespace IsengardClient
                     }
                     else
                     {
-                        string sAction = elem.Attributes["action"]?.Value;
-                        if (!Enum.TryParse(sAction, out ItemInventoryAction iia))
-                        {
-                            errorMessages.Add("Item dynamic data element with invalid action: " + sAction);
-                        }
                         DynamicItemData did = new DynamicItemData();
-                        did.Action = iia;
+
+                        did.KeepCount = ProcessNonNegativeIntAttributeWithAll(elem, "keep", -1, errorMessages);
+                        did.TickCount = ProcessNonNegativeIntAttributeWithAll(elem, "tick", -1, errorMessages);
+
+                        string sValue = elem.Attributes["overflow"]?.Value;
+                        int iValue = 0;
+                        if (sValue != null)
+                        {
+                            if (Enum.TryParse(sValue, out ItemInventoryOverflowAction action))
+                            {
+                                if (action != ItemInventoryOverflowAction.Ignore && action != ItemInventoryOverflowAction.SellOrJunk)
+                                {
+                                    errorMessages.Add("Item dynamic data element with invalid overflow action: " + sValue);
+                                }
+                                else
+                                {
+                                    iValue = (int)action;
+                                }
+                            }
+                            else
+                            {
+                                errorMessages.Add("Item dynamic data element with invalid overflow action: " + sValue);
+                            }
+                        }
+                        did.OverflowAction = (ItemInventoryOverflowAction)iValue;
+
                         if (Enum.TryParse(sName, out ItemTypeEnum itemType))
                         {
                             if (DynamicItemData.ContainsKey(itemType))
@@ -533,6 +560,25 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private int ProcessNonNegativeIntAttributeWithAll(XmlElement elem, string attributeName, int defaultValue, List<string> errorMessages)
+        {
+            string sValue = elem.Attributes[attributeName]?.Value;
+            int iValue = defaultValue;
+            if (sValue != null)
+            {
+                if (sValue.Equals("All", StringComparison.OrdinalIgnoreCase))
+                {
+                    iValue = int.MaxValue;
+                }
+                else if (!int.TryParse(sValue, out iValue))
+                {
+                    errorMessages.Add($"Item dynamic data element with invalid {attributeName}: " + sValue);
+                }
+                if (iValue < 0) iValue = defaultValue;
+            }
+            return iValue;
         }
 
         private void HandleSettings(XmlElement settings, List<string> errorMessages)
@@ -698,17 +744,11 @@ namespace IsengardClient
             writer.WriteStartElement("DynamicItemData");
             foreach (KeyValuePair<DynamicDataItemClass, DynamicItemData> did in didItemClassList)
             {
-                writer.WriteStartElement("Info");
-                writer.WriteAttributeString("key", did.Key.ToString());
-                writer.WriteAttributeString("action", did.Value.Action.ToString());
-                writer.WriteEndElement();
+                WriteDynamicItemDataAttributes(did.Key.ToString(), writer, did.Value);
             }
             foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> did in didItemList)
             {
-                writer.WriteStartElement("Info");
-                writer.WriteAttributeString("key", did.Key.ToString());
-                writer.WriteAttributeString("action", did.Value.Action.ToString());
-                writer.WriteEndElement();
+                WriteDynamicItemDataAttributes(did.Key.ToString(), writer, did.Value);
             }
             writer.WriteEndElement();
 
@@ -720,6 +760,38 @@ namespace IsengardClient
                     WriteLocation(next, writer);
                 }
                 writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
+        }
+
+        private void WriteDynamicItemDataAttributes(string key, XmlWriter writer, DynamicItemData didValue)
+        {
+            writer.WriteStartElement("Info");
+            writer.WriteAttributeString("key", key.ToString());
+
+            string sValue;
+            int iCount;
+
+            sValue = null;
+            iCount = didValue.KeepCount;
+            if (iCount == int.MaxValue)
+                sValue = "All";
+            else if (iCount >= 0)
+                sValue = iCount.ToString();
+            if (sValue != null) writer.WriteAttributeString("keep", sValue);
+
+            sValue = null;
+            iCount = didValue.TickCount;
+            if (iCount == int.MaxValue)
+                sValue = "All";
+            else if (iCount >= 0)
+                sValue = iCount.ToString();
+            if (sValue != null) writer.WriteAttributeString("tick", sValue);
+
+            if (didValue.OverflowAction != ItemInventoryOverflowAction.None)
+            {
+                writer.WriteAttributeString("overflow", didValue.OverflowAction.ToString());
             }
 
             writer.WriteEndElement();

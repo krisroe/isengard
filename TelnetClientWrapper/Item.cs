@@ -225,26 +225,20 @@ namespace IsengardClient
 
     internal class DynamicItemDataWithInheritance : DynamicItemData
     {
-        public DynamicDataItemClass? ActionInheritance;
+        public DynamicDataItemClass? KeepCountInheritance;
+        public DynamicDataItemClass? TickCountInheritance;
+        public DynamicDataItemClass? OverflowActionInheritance;
 
         public DynamicItemDataWithInheritance(IsengardSettingData settings, ItemTypeEnum itemType)
         {
             DynamicItemData did;
             if (settings.DynamicItemData.TryGetValue(itemType, out did))
             {
-                Action = did.Action;
+                KeepCount = did.KeepCount;
+                TickCount = did.TickCount;
+                OverflowAction = did.OverflowAction;
             }
-            foreach (DynamicDataItemClass nextInheritanceClass in GetInheritanceClasses(itemType))
-            {
-                if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out did))
-                {
-                    if (Action == ItemInventoryAction.None && did.Action != ItemInventoryAction.None)
-                    {
-                        Action = did.Action;
-                        ActionInheritance = nextInheritanceClass;
-                    }
-                }
-            }
+            ProcessInheritance(settings, GetInheritanceClasses(itemType));
         }
 
         public DynamicItemDataWithInheritance(IsengardSettingData settings, DynamicDataItemClass itemClass)
@@ -252,16 +246,33 @@ namespace IsengardClient
             DynamicItemData did;
             if (settings.DynamicItemClassData.TryGetValue(itemClass, out did))
             {
-                Action = did.Action;
+                KeepCount = did.KeepCount;
+                TickCount = did.TickCount;
+                OverflowAction = did.OverflowAction;
             }
-            foreach (DynamicDataItemClass nextInheritanceClass in GetInheritanceClasses(itemClass))
+            ProcessInheritance(settings, GetInheritanceClasses(itemClass));
+        }
+
+        private void ProcessInheritance(IsengardSettingData settings, IEnumerable<DynamicDataItemClass> InheritanceClasses)
+        {
+            foreach (DynamicDataItemClass nextInheritanceClass in InheritanceClasses)
             {
-                if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out did))
+                if (settings.DynamicItemClassData.TryGetValue(nextInheritanceClass, out DynamicItemData did))
                 {
-                    if (Action != ItemInventoryAction.None)
+                    if (KeepCount < 0 && did.KeepCount >= 0)
                     {
-                        Action = did.Action;
-                        ActionInheritance = nextInheritanceClass;
+                        KeepCount = did.KeepCount;
+                        KeepCountInheritance = nextInheritanceClass;
+                    }
+                    if (TickCount < 0 && did.TickCount >= 0)
+                    {
+                        TickCount = did.TickCount;
+                        TickCountInheritance = nextInheritanceClass;
+                    }
+                    if (OverflowAction == ItemInventoryOverflowAction.None && did.OverflowAction != ItemInventoryOverflowAction.None)
+                    {
+                        OverflowAction = did.OverflowAction;
+                        OverflowActionInheritance = nextInheritanceClass;
                     }
                 }
             }
@@ -322,17 +333,24 @@ namespace IsengardClient
 
     internal class DynamicItemData
     {
-        public ItemInventoryAction Action { get; set; }
+        public int KeepCount { get; set; }
+        public int TickCount { get; set; }
+        public ItemInventoryOverflowAction OverflowAction { get; set; }
         public DynamicItemData()
         {
+            KeepCount = -1;
+            TickCount = -1;
+            OverflowAction = ItemInventoryOverflowAction.None;
         }
         public DynamicItemData(DynamicItemData copied)
         {
-            this.Action = copied.Action;
+            this.KeepCount = copied.KeepCount;
+            this.TickCount = copied.TickCount;
+            this.OverflowAction = copied.OverflowAction;
         }
         public bool HasData()
         {
-            return this.Action != ItemInventoryAction.None;
+            return KeepCount >=0 || TickCount >= 0 || OverflowAction != ItemInventoryOverflowAction.None;
         }
     }
 
@@ -468,6 +486,7 @@ namespace IsengardClient
         [PluralName("beastmaster's whips")]
         [WeaponType(WeaponType.Missile)]
         [Weight(2)]
+        [SellGoldRange(3093, 3093)]
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
@@ -534,6 +553,8 @@ namespace IsengardClient
         [SingularName("bone shield")]
         [PluralName("bone shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [Weight(5)]
+        [SellGoldRange(24, 24)]
         BoneShield,
 
         [SingularName("book of knowledge")]
@@ -737,7 +758,9 @@ namespace IsengardClient
 
         [SingularName("dirk")]
         [PluralName("dirks")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [SellGoldRange(163, 163)]
         Dirk,
 
         [SingularName("double bladed axe")]
@@ -809,6 +832,7 @@ namespace IsengardClient
 
         [SingularName("emerald")]
         [PluralName("emeralds")]
+        [Weight(1)]
         Emerald,
 
         [SingularName("emerald collar")]
@@ -831,6 +855,13 @@ namespace IsengardClient
         [SingularName("eye of newt")]
         //CSRTODO: plural?
         EyeOfNewt,
+
+        [SingularName("flint blade")]
+        [PluralName("flint blades")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(6)]
+        [SellGoldRange(224, 224)]
+        FlintBlade,
 
         [SingularName("furry sack")]
         [PluralName("furry sacks")]
@@ -967,6 +998,13 @@ namespace IsengardClient
         [Weight(1)]
         GreyScroll,
 
+        [SingularName("gypsy battle crescent")]
+        [PluralName("gypsy battle crescents")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(3)]
+        [SellGoldRange(965, 965)]
+        GypsyBattleCrescent,
+
         [SingularName("gypsy cape")]
         [PluralName("gypsy capes")]
         [EquipmentType(EquipmentType.Unknown)]
@@ -1048,6 +1086,8 @@ namespace IsengardClient
         [SingularName("iron spear")]
         [PluralName("iron spears")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(3)]
+        [SellGoldRange(203, 203)]
         IronSpear,
 
         [SingularName("juggling pin")]
@@ -1201,6 +1241,8 @@ namespace IsengardClient
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(5)]
+        [SellGoldRange(49, 49)]
         MetalHelmet,
 
         [SingularName("metal mask")]
@@ -1425,9 +1467,17 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Feet)]
         RibbedPlateBoots,
 
+        [SingularName("ribbed plate gloves")]
+        [EquipmentType(EquipmentType.Hands)]
+        [Weight(4)]
+        [SellGoldRange(123, 123)]
+        RibbedPlateGloves,
+
         [SingularName("ribbed plate hood")]
         [PluralName("ribbed plate hoods")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(6)]
+        [SellGoldRange(371, 371)]
         RibbedPlateHood,
 
         [SingularName("ribbed plate shield")]
@@ -1455,6 +1505,7 @@ namespace IsengardClient
         [PluralName("rogue's masks")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(1)]
+        [SellGoldRange(297, 297)]
         RoguesMask,
 
         [SingularName("ruby")]

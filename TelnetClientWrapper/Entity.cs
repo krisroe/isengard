@@ -1460,6 +1460,43 @@ namespace IsengardClient
             }
             return ret;
         }
+
+        /// <summary>
+        /// gets the total inventory count for an item type. assumes the entity lock.
+        /// </summary>
+        /// <param name="itemType">item type</param>
+        /// <returns>number of those item type possessed</returns>
+        public int GetTotalInventoryCount(ItemTypeEnum itemType)
+        {
+            int iCount = 0;
+            foreach (ItemTypeEnum nextItemType in InventoryItems)
+            {
+                if (itemType == nextItemType) iCount++;
+            }
+            foreach (ItemTypeEnum? nextItemType in Equipment)
+            {
+                if (nextItemType == itemType) iCount++;
+            }
+            return iCount;
+        }
+
+        /// <summary>
+        /// gets the total room items count for an item type, assumes the entity lock
+        /// </summary>
+        /// <param name="itemType">item type</param>
+        /// <returns>number of that item type in the room</returns>
+        public int GetTotalRoomItemsCount(ItemTypeEnum itemType)
+        {
+            int iCount = 0;
+            foreach (ItemEntity ie in CurrentRoomItems)
+            {
+                if (ie.ItemType == itemType)
+                {
+                    iCount++;
+                }
+            }
+            return iCount;
+        }
     }
     internal class EntityChangeEntry
     {

@@ -340,7 +340,8 @@ namespace IsengardClient
 
             Room dalePurves = AddRoom("Dale Purves", "Dale's Beach");
             dalePurves.AddPermanentMobs(MobTypeEnum.DalePurves);
-            AddExit(marinersAnchor, dalePurves, "back");
+            Exit e = AddExit(marinersAnchor, dalePurves, "back door");
+            e.Hidden = true;
             AddExit(dalePurves, marinersAnchor, "east");
             tharbadWestGraph.Rooms[dalePurves] = new System.Windows.Point(3, 6);
 
@@ -423,7 +424,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oCrookedPath] = new System.Windows.Point(1, 4);
 
             Room oNorthShoreGrotto = AddRoom("North Shore Grotto", "North Shore Grotto");
-            Exit e = AddExit(oNorthShore, oNorthShoreGrotto, "west");
+            e = AddExit(oNorthShore, oNorthShoreGrotto, "west");
             e.IsTrapExit = true;
             AddExit(oNorthShoreGrotto, oCrookedPath, "southwest");
             tharbadWestGraph.Rooms[oNorthShoreGrotto] = new System.Windows.Point(3, 3);

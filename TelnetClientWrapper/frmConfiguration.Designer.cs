@@ -83,10 +83,12 @@
             this.tabDynamicItemData = new System.Windows.Forms.TabPage();
             this.lvItems = new System.Windows.Forms.ListView();
             this.colItemName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colItemAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colKeepCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colTickCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colOverflowAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlItemsTop = new System.Windows.Forms.Panel();
             this.btnTick = new System.Windows.Forms.Button();
-            this.btnSell = new System.Windows.Forms.Button();
+            this.btnSellOrJunk = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
@@ -114,54 +116,52 @@
             this.tsmiCurrentRealmWater,
             this.tsmiCurrentRealmWind});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(116, 100);
+            this.ctxRealm.Size = new System.Drawing.Size(104, 92);
             this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiCurrentRealmEarth
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmFire
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWater
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWind
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // lblWeapon
             // 
             this.lblWeapon.AutoSize = true;
-            this.lblWeapon.Location = new System.Drawing.Point(17, 38);
-            this.lblWeapon.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblWeapon.Location = new System.Drawing.Point(13, 31);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(62, 16);
+            this.lblWeapon.Size = new System.Drawing.Size(51, 13);
             this.lblWeapon.TabIndex = 126;
             this.lblWeapon.Text = "Weapon:";
             // 
             // lblPreferredAlignment
             // 
             this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(15, 192);
-            this.lblPreferredAlignment.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(11, 156);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(127, 16);
+            this.lblPreferredAlignment.Size = new System.Drawing.Size(101, 13);
             this.lblPreferredAlignment.TabIndex = 128;
             this.lblPreferredAlignment.Text = "Preferred alignment:";
             // 
@@ -178,68 +178,67 @@
             this.tsmiCurrentAutoEscapeActive,
             this.tsmiCurrentAutoEscapeInactive});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(234, 160);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(200, 148);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiSetCurrentAutoEscapeThreshold
             // 
             this.tsmiSetCurrentAutoEscapeThreshold.Name = "tsmiSetCurrentAutoEscapeThreshold";
-            this.tsmiSetCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(233, 24);
+            this.tsmiSetCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(199, 22);
             this.tsmiSetCurrentAutoEscapeThreshold.Text = "Set Current Threshold";
             this.tsmiSetCurrentAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetCurrentAutoEscapeThreshold_Click);
             // 
             // tsmiClearCurrentAutoEscapeThreshold
             // 
             this.tsmiClearCurrentAutoEscapeThreshold.Name = "tsmiClearCurrentAutoEscapeThreshold";
-            this.tsmiClearCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(233, 24);
+            this.tsmiClearCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(199, 22);
             this.tsmiClearCurrentAutoEscapeThreshold.Text = "Clear Current Threshold";
             this.tsmiClearCurrentAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearCurrentAutoEscapeThreshold_Click);
             // 
             // sepAutoEscape1
             // 
             this.sepAutoEscape1.Name = "sepAutoEscape1";
-            this.sepAutoEscape1.Size = new System.Drawing.Size(230, 6);
+            this.sepAutoEscape1.Size = new System.Drawing.Size(196, 6);
             // 
             // tsmiCurrentAutoEscapeFlee
             // 
             this.tsmiCurrentAutoEscapeFlee.Name = "tsmiCurrentAutoEscapeFlee";
-            this.tsmiCurrentAutoEscapeFlee.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeFlee.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeFlee.Text = "Flee";
             this.tsmiCurrentAutoEscapeFlee.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeFlee_Click);
             // 
             // tsmiCurrentAutoEscapeHazy
             // 
             this.tsmiCurrentAutoEscapeHazy.Name = "tsmiCurrentAutoEscapeHazy";
-            this.tsmiCurrentAutoEscapeHazy.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeHazy.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeHazy.Text = "Hazy";
             this.tsmiCurrentAutoEscapeHazy.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeHazy_Click);
             // 
             // sepAutoEscape2
             // 
             this.sepAutoEscape2.Name = "sepAutoEscape2";
-            this.sepAutoEscape2.Size = new System.Drawing.Size(230, 6);
+            this.sepAutoEscape2.Size = new System.Drawing.Size(196, 6);
             // 
             // tsmiCurrentAutoEscapeActive
             // 
             this.tsmiCurrentAutoEscapeActive.Name = "tsmiCurrentAutoEscapeActive";
-            this.tsmiCurrentAutoEscapeActive.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeActive.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeActive.Text = "Active";
             this.tsmiCurrentAutoEscapeActive.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeActive_Click);
             // 
             // tsmiCurrentAutoEscapeInactive
             // 
             this.tsmiCurrentAutoEscapeInactive.Name = "tsmiCurrentAutoEscapeInactive";
-            this.tsmiCurrentAutoEscapeInactive.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeInactive.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeInactive.Text = "Inactive";
             this.tsmiCurrentAutoEscapeInactive.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeInactive_Click);
             // 
             // chkQueryMonsterStatus
             // 
             this.chkQueryMonsterStatus.AutoSize = true;
-            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(152, 220);
-            this.chkQueryMonsterStatus.Margin = new System.Windows.Forms.Padding(4);
+            this.chkQueryMonsterStatus.Location = new System.Drawing.Point(114, 179);
             this.chkQueryMonsterStatus.Name = "chkQueryMonsterStatus";
-            this.chkQueryMonsterStatus.Size = new System.Drawing.Size(161, 20);
+            this.chkQueryMonsterStatus.Size = new System.Drawing.Size(131, 17);
             this.chkQueryMonsterStatus.TabIndex = 135;
             this.chkQueryMonsterStatus.Text = "Query monster status?";
             this.chkQueryMonsterStatus.UseVisualStyleBackColor = true;
@@ -247,20 +246,18 @@
             // chkVerboseOutput
             // 
             this.chkVerboseOutput.AutoSize = true;
-            this.chkVerboseOutput.Location = new System.Drawing.Point(152, 248);
-            this.chkVerboseOutput.Margin = new System.Windows.Forms.Padding(4);
+            this.chkVerboseOutput.Location = new System.Drawing.Point(114, 202);
             this.chkVerboseOutput.Name = "chkVerboseOutput";
-            this.chkVerboseOutput.Size = new System.Drawing.Size(127, 20);
+            this.chkVerboseOutput.Size = new System.Drawing.Size(104, 17);
             this.chkVerboseOutput.TabIndex = 136;
             this.chkVerboseOutput.Text = "Verbose output?";
             this.chkVerboseOutput.UseVisualStyleBackColor = true;
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(872, 14);
-            this.btnOK.Margin = new System.Windows.Forms.Padding(4);
+            this.btnOK.Location = new System.Drawing.Point(654, 11);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(97, 27);
+            this.btnOK.Size = new System.Drawing.Size(73, 22);
             this.btnOK.TabIndex = 137;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
@@ -269,10 +266,9 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(977, 14);
-            this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
+            this.btnCancel.Location = new System.Drawing.Point(733, 11);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(97, 27);
+            this.btnCancel.Size = new System.Drawing.Size(73, 22);
             this.btnCancel.TabIndex = 138;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -282,10 +278,9 @@
             this.lblPreferredAlignmentValue.BackColor = System.Drawing.Color.Blue;
             this.lblPreferredAlignmentValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblPreferredAlignmentValue.ForeColor = System.Drawing.Color.White;
-            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(148, 190);
-            this.lblPreferredAlignmentValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(111, 154);
             this.lblPreferredAlignmentValue.Name = "lblPreferredAlignmentValue";
-            this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(221, 18);
+            this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(166, 15);
             this.lblPreferredAlignmentValue.TabIndex = 139;
             this.lblPreferredAlignmentValue.Text = "Good";
             this.lblPreferredAlignmentValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -297,20 +292,20 @@
             this.tsmiPreferredAlignmentGood,
             this.tsmiPreferredAlignmentEvil});
             this.ctxPreferredAlignment.Name = "ctxPreferredAlignment";
-            this.ctxPreferredAlignment.Size = new System.Drawing.Size(116, 52);
+            this.ctxPreferredAlignment.Size = new System.Drawing.Size(104, 48);
             this.ctxPreferredAlignment.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPreferredAlignment_Opening);
             // 
             // tsmiPreferredAlignmentGood
             // 
             this.tsmiPreferredAlignmentGood.Name = "tsmiPreferredAlignmentGood";
-            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(115, 24);
+            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(103, 22);
             this.tsmiPreferredAlignmentGood.Text = "Good";
             this.tsmiPreferredAlignmentGood.Click += new System.EventHandler(this.tsmiPreferredAlignmentGood_Click);
             // 
             // tsmiPreferredAlignmentEvil
             // 
             this.tsmiPreferredAlignmentEvil.Name = "tsmiPreferredAlignmentEvil";
-            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(115, 24);
+            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(103, 22);
             this.tsmiPreferredAlignmentEvil.Text = "Evil";
             this.tsmiPreferredAlignmentEvil.Click += new System.EventHandler(this.tsmiPreferredAlignmentEvil_Click);
             // 
@@ -319,10 +314,9 @@
             this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
             this.lblCurrentAutoSpellLevelsValue.ContextMenuStrip = this.ctxAutoSpellLevels;
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(148, 94);
-            this.lblCurrentAutoSpellLevelsValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(111, 76);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
-            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(221, 18);
+            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(166, 15);
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 144;
             this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
             this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -334,19 +328,19 @@
             this.tsmiSetCurrentMinimumAutoSpellLevel,
             this.tsmiSetCurrentMaximumAutoSpellLevel});
             this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 52);
+            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(192, 48);
             // 
             // tsmiSetCurrentMinimumAutoSpellLevel
             // 
             this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(191, 22);
             this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
             this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
             // 
             // tsmiSetCurrentMaximumAutoSpellLevel
             // 
             this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(191, 22);
             this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
             this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
             // 
@@ -354,20 +348,18 @@
             // 
             this.lblCurrentRealmValue.BackColor = System.Drawing.Color.White;
             this.lblCurrentRealmValue.ContextMenuStrip = this.ctxRealm;
-            this.lblCurrentRealmValue.Location = new System.Drawing.Point(148, 10);
-            this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrentRealmValue.Location = new System.Drawing.Point(111, 8);
             this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
-            this.lblCurrentRealmValue.Size = new System.Drawing.Size(221, 18);
+            this.lblCurrentRealmValue.Size = new System.Drawing.Size(166, 15);
             this.lblCurrentRealmValue.TabIndex = 141;
             this.lblCurrentRealmValue.Text = "Realm";
             this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // txtCurrentWeaponValue
             // 
-            this.txtCurrentWeaponValue.Location = new System.Drawing.Point(148, 35);
-            this.txtCurrentWeaponValue.Margin = new System.Windows.Forms.Padding(4);
+            this.txtCurrentWeaponValue.Location = new System.Drawing.Point(111, 28);
             this.txtCurrentWeaponValue.Name = "txtCurrentWeaponValue";
-            this.txtCurrentWeaponValue.Size = new System.Drawing.Size(221, 22);
+            this.txtCurrentWeaponValue.Size = new System.Drawing.Size(167, 20);
             this.txtCurrentWeaponValue.TabIndex = 142;
             // 
             // lblCurrentAutoEscapeValue
@@ -375,10 +367,9 @@
             this.lblCurrentAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblCurrentAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblCurrentAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblCurrentAutoEscapeValue.Location = new System.Drawing.Point(148, 65);
-            this.lblCurrentAutoEscapeValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrentAutoEscapeValue.Location = new System.Drawing.Point(111, 53);
             this.lblCurrentAutoEscapeValue.Name = "lblCurrentAutoEscapeValue";
-            this.lblCurrentAutoEscapeValue.Size = new System.Drawing.Size(221, 18);
+            this.lblCurrentAutoEscapeValue.Size = new System.Drawing.Size(166, 15);
             this.lblCurrentAutoEscapeValue.TabIndex = 143;
             this.lblCurrentAutoEscapeValue.Text = "Auto Escape";
             this.lblCurrentAutoEscapeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -388,20 +379,18 @@
             this.lblEmptyColorValue.BackColor = System.Drawing.Color.Red;
             this.lblEmptyColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblEmptyColorValue.ForeColor = System.Drawing.Color.Black;
-            this.lblEmptyColorValue.Location = new System.Drawing.Point(148, 157);
-            this.lblEmptyColorValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblEmptyColorValue.Location = new System.Drawing.Point(111, 128);
             this.lblEmptyColorValue.Name = "lblEmptyColorValue";
-            this.lblEmptyColorValue.Size = new System.Drawing.Size(221, 18);
+            this.lblEmptyColorValue.Size = new System.Drawing.Size(166, 15);
             this.lblEmptyColorValue.TabIndex = 143;
             this.lblEmptyColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblEmptyColor
             // 
             this.lblEmptyColor.AutoSize = true;
-            this.lblEmptyColor.Location = new System.Drawing.Point(15, 158);
-            this.lblEmptyColor.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblEmptyColor.Location = new System.Drawing.Point(11, 128);
             this.lblEmptyColor.Name = "lblEmptyColor";
-            this.lblEmptyColor.Size = new System.Drawing.Size(81, 16);
+            this.lblEmptyColor.Size = new System.Drawing.Size(65, 13);
             this.lblEmptyColor.TabIndex = 142;
             this.lblEmptyColor.Text = "Empty color:";
             // 
@@ -410,20 +399,18 @@
             this.lblFullColorValue.BackColor = System.Drawing.Color.Green;
             this.lblFullColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblFullColorValue.ForeColor = System.Drawing.Color.Black;
-            this.lblFullColorValue.Location = new System.Drawing.Point(148, 126);
-            this.lblFullColorValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblFullColorValue.Location = new System.Drawing.Point(111, 102);
             this.lblFullColorValue.Name = "lblFullColorValue";
-            this.lblFullColorValue.Size = new System.Drawing.Size(221, 18);
+            this.lblFullColorValue.Size = new System.Drawing.Size(166, 15);
             this.lblFullColorValue.TabIndex = 141;
             this.lblFullColorValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblFullColor
             // 
             this.lblFullColor.AutoSize = true;
-            this.lblFullColor.Location = new System.Drawing.Point(15, 128);
-            this.lblFullColor.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblFullColor.Location = new System.Drawing.Point(11, 104);
             this.lblFullColor.Name = "lblFullColor";
-            this.lblFullColor.Size = new System.Drawing.Size(64, 16);
+            this.lblFullColor.Size = new System.Drawing.Size(52, 13);
             this.lblFullColor.TabIndex = 140;
             this.lblFullColor.Text = "Full color:";
             // 
@@ -432,11 +419,9 @@
             this.lstStrategies.ContextMenuStrip = this.ctxStrategies;
             this.lstStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstStrategies.FormattingEnabled = true;
-            this.lstStrategies.ItemHeight = 16;
-            this.lstStrategies.Location = new System.Drawing.Point(3, 3);
-            this.lstStrategies.Margin = new System.Windows.Forms.Padding(4);
+            this.lstStrategies.Location = new System.Drawing.Point(2, 2);
             this.lstStrategies.Name = "lstStrategies";
-            this.lstStrategies.Size = new System.Drawing.Size(1084, 457);
+            this.lstStrategies.Size = new System.Drawing.Size(812, 370);
             this.lstStrategies.TabIndex = 0;
             // 
             // ctxStrategies
@@ -450,58 +435,57 @@
             this.tsmiMoveStrategyDown,
             this.tsmiRestoreDefaultStrategies});
             this.ctxStrategies.Name = "ctxStrategies";
-            this.ctxStrategies.Size = new System.Drawing.Size(188, 148);
+            this.ctxStrategies.Size = new System.Drawing.Size(160, 136);
             this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
             // 
             // tsmiAddStrategy
             // 
             this.tsmiAddStrategy.Name = "tsmiAddStrategy";
-            this.tsmiAddStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiAddStrategy.Size = new System.Drawing.Size(159, 22);
             this.tsmiAddStrategy.Text = "Add";
             this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
             // 
             // tsmiEditStrategy
             // 
             this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(159, 22);
             this.tsmiEditStrategy.Text = "Edit";
             this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
             // 
             // tsmiRemoveStrategy
             // 
             this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
-            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(159, 22);
             this.tsmiRemoveStrategy.Text = "Remove";
             this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
             // 
             // tsmiMoveStrategyUp
             // 
             this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
-            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(187, 24);
+            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(159, 22);
             this.tsmiMoveStrategyUp.Text = "Move Up";
             this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
             // 
             // tsmiMoveStrategyDown
             // 
             this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
-            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(187, 24);
+            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(159, 22);
             this.tsmiMoveStrategyDown.Text = "Move Down";
             this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
             // 
             // tsmiRestoreDefaultStrategies
             // 
             this.tsmiRestoreDefaultStrategies.Name = "tsmiRestoreDefaultStrategies";
-            this.tsmiRestoreDefaultStrategies.Size = new System.Drawing.Size(187, 24);
+            this.tsmiRestoreDefaultStrategies.Size = new System.Drawing.Size(159, 22);
             this.tsmiRestoreDefaultStrategies.Text = "Restore Defaults";
             this.tsmiRestoreDefaultStrategies.Click += new System.EventHandler(this.tsmiRestoreDefaultStrategies_Click);
             // 
             // chkRemoveAllOnStartup
             // 
             this.chkRemoveAllOnStartup.AutoSize = true;
-            this.chkRemoveAllOnStartup.Location = new System.Drawing.Point(152, 276);
-            this.chkRemoveAllOnStartup.Margin = new System.Windows.Forms.Padding(4);
+            this.chkRemoveAllOnStartup.Location = new System.Drawing.Point(114, 224);
             this.chkRemoveAllOnStartup.Name = "chkRemoveAllOnStartup";
-            this.chkRemoveAllOnStartup.Size = new System.Drawing.Size(166, 20);
+            this.chkRemoveAllOnStartup.Size = new System.Drawing.Size(135, 17);
             this.chkRemoveAllOnStartup.TabIndex = 146;
             this.chkRemoveAllOnStartup.Text = "Remove all on startup?";
             this.chkRemoveAllOnStartup.UseVisualStyleBackColor = true;
@@ -513,18 +497,20 @@
             this.tcConfiguration.Controls.Add(this.tabDynamicItemData);
             this.tcConfiguration.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcConfiguration.Location = new System.Drawing.Point(0, 0);
+            this.tcConfiguration.Margin = new System.Windows.Forms.Padding(2);
             this.tcConfiguration.Name = "tcConfiguration";
             this.tcConfiguration.SelectedIndex = 0;
-            this.tcConfiguration.Size = new System.Drawing.Size(1098, 492);
+            this.tcConfiguration.Size = new System.Drawing.Size(824, 400);
             this.tcConfiguration.TabIndex = 147;
             // 
             // tabConfiguration
             // 
             this.tabConfiguration.Controls.Add(this.pnlSettings);
-            this.tabConfiguration.Location = new System.Drawing.Point(4, 25);
+            this.tabConfiguration.Location = new System.Drawing.Point(4, 22);
+            this.tabConfiguration.Margin = new System.Windows.Forms.Padding(2);
             this.tabConfiguration.Name = "tabConfiguration";
-            this.tabConfiguration.Padding = new System.Windows.Forms.Padding(3);
-            this.tabConfiguration.Size = new System.Drawing.Size(1090, 463);
+            this.tabConfiguration.Padding = new System.Windows.Forms.Padding(2);
+            this.tabConfiguration.Size = new System.Drawing.Size(816, 374);
             this.tabConfiguration.TabIndex = 0;
             this.tabConfiguration.Text = "Settings";
             this.tabConfiguration.UseVisualStyleBackColor = true;
@@ -549,28 +535,27 @@
             this.pnlSettings.Controls.Add(this.lblPreferredAlignmentValue);
             this.pnlSettings.Controls.Add(this.chkRemoveAllOnStartup);
             this.pnlSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlSettings.Location = new System.Drawing.Point(3, 3);
+            this.pnlSettings.Location = new System.Drawing.Point(2, 2);
+            this.pnlSettings.Margin = new System.Windows.Forms.Padding(2);
             this.pnlSettings.Name = "pnlSettings";
-            this.pnlSettings.Size = new System.Drawing.Size(1084, 457);
+            this.pnlSettings.Size = new System.Drawing.Size(812, 370);
             this.pnlSettings.TabIndex = 150;
             // 
             // chkDisplayStunLength
             // 
             this.chkDisplayStunLength.AutoSize = true;
-            this.chkDisplayStunLength.Location = new System.Drawing.Point(152, 304);
-            this.chkDisplayStunLength.Margin = new System.Windows.Forms.Padding(4);
+            this.chkDisplayStunLength.Location = new System.Drawing.Point(114, 247);
             this.chkDisplayStunLength.Name = "chkDisplayStunLength";
-            this.chkDisplayStunLength.Size = new System.Drawing.Size(148, 20);
+            this.chkDisplayStunLength.Size = new System.Drawing.Size(121, 17);
             this.chkDisplayStunLength.TabIndex = 149;
             this.chkDisplayStunLength.Text = "Display stun length?";
             this.chkDisplayStunLength.UseVisualStyleBackColor = true;
             // 
             // btnSelectEmptyColor
             // 
-            this.btnSelectEmptyColor.Location = new System.Drawing.Point(377, 151);
-            this.btnSelectEmptyColor.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSelectEmptyColor.Location = new System.Drawing.Point(283, 123);
             this.btnSelectEmptyColor.Name = "btnSelectEmptyColor";
-            this.btnSelectEmptyColor.Size = new System.Drawing.Size(73, 28);
+            this.btnSelectEmptyColor.Size = new System.Drawing.Size(55, 23);
             this.btnSelectEmptyColor.TabIndex = 148;
             this.btnSelectEmptyColor.Text = "Select";
             this.btnSelectEmptyColor.UseVisualStyleBackColor = true;
@@ -578,10 +563,9 @@
             // 
             // btnSelectFullColor
             // 
-            this.btnSelectFullColor.Location = new System.Drawing.Point(377, 122);
-            this.btnSelectFullColor.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSelectFullColor.Location = new System.Drawing.Point(283, 99);
             this.btnSelectFullColor.Name = "btnSelectFullColor";
-            this.btnSelectFullColor.Size = new System.Drawing.Size(73, 28);
+            this.btnSelectFullColor.Size = new System.Drawing.Size(55, 23);
             this.btnSelectFullColor.TabIndex = 147;
             this.btnSelectFullColor.Text = "Select";
             this.btnSelectFullColor.UseVisualStyleBackColor = true;
@@ -590,10 +574,11 @@
             // tabStrategies
             // 
             this.tabStrategies.Controls.Add(this.lstStrategies);
-            this.tabStrategies.Location = new System.Drawing.Point(4, 25);
+            this.tabStrategies.Location = new System.Drawing.Point(4, 22);
+            this.tabStrategies.Margin = new System.Windows.Forms.Padding(2);
             this.tabStrategies.Name = "tabStrategies";
-            this.tabStrategies.Padding = new System.Windows.Forms.Padding(3);
-            this.tabStrategies.Size = new System.Drawing.Size(1090, 463);
+            this.tabStrategies.Padding = new System.Windows.Forms.Padding(2);
+            this.tabStrategies.Size = new System.Drawing.Size(816, 374);
             this.tabStrategies.TabIndex = 1;
             this.tabStrategies.Text = "Strategies";
             this.tabStrategies.UseVisualStyleBackColor = true;
@@ -602,9 +587,10 @@
             // 
             this.tabDynamicItemData.Controls.Add(this.lvItems);
             this.tabDynamicItemData.Controls.Add(this.pnlItemsTop);
-            this.tabDynamicItemData.Location = new System.Drawing.Point(4, 25);
+            this.tabDynamicItemData.Location = new System.Drawing.Point(4, 22);
+            this.tabDynamicItemData.Margin = new System.Windows.Forms.Padding(2);
             this.tabDynamicItemData.Name = "tabDynamicItemData";
-            this.tabDynamicItemData.Size = new System.Drawing.Size(1090, 463);
+            this.tabDynamicItemData.Size = new System.Drawing.Size(816, 374);
             this.tabDynamicItemData.TabIndex = 2;
             this.tabDynamicItemData.Text = "Items";
             this.tabDynamicItemData.UseVisualStyleBackColor = true;
@@ -613,13 +599,16 @@
             // 
             this.lvItems.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colItemName,
-            this.colItemAction});
+            this.colKeepCount,
+            this.colTickCount,
+            this.colOverflowAction});
             this.lvItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvItems.FullRowSelect = true;
             this.lvItems.HideSelection = false;
-            this.lvItems.Location = new System.Drawing.Point(0, 44);
+            this.lvItems.Location = new System.Drawing.Point(0, 36);
+            this.lvItems.Margin = new System.Windows.Forms.Padding(2);
             this.lvItems.Name = "lvItems";
-            this.lvItems.Size = new System.Drawing.Size(1090, 419);
+            this.lvItems.Size = new System.Drawing.Size(816, 338);
             this.lvItems.TabIndex = 1;
             this.lvItems.UseCompatibleStateImageBehavior = false;
             this.lvItems.View = System.Windows.Forms.View.Details;
@@ -630,49 +619,63 @@
             this.colItemName.Text = "Item";
             this.colItemName.Width = 280;
             // 
-            // colItemAction
+            // colKeepCount
             // 
-            this.colItemAction.Text = "Action";
-            this.colItemAction.Width = 152;
+            this.colKeepCount.Text = "Keep #";
+            this.colKeepCount.Width = 77;
+            // 
+            // colTickCount
+            // 
+            this.colTickCount.Text = "Tick #";
+            this.colTickCount.Width = 84;
+            // 
+            // colOverflowAction
+            // 
+            this.colOverflowAction.Text = "Overflow Action";
+            this.colOverflowAction.Width = 97;
             // 
             // pnlItemsTop
             // 
             this.pnlItemsTop.Controls.Add(this.btnTick);
-            this.pnlItemsTop.Controls.Add(this.btnSell);
+            this.pnlItemsTop.Controls.Add(this.btnSellOrJunk);
             this.pnlItemsTop.Controls.Add(this.btnClear);
             this.pnlItemsTop.Controls.Add(this.btnKeep);
             this.pnlItemsTop.Controls.Add(this.btnIgnore);
             this.pnlItemsTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlItemsTop.Location = new System.Drawing.Point(0, 0);
+            this.pnlItemsTop.Margin = new System.Windows.Forms.Padding(2);
             this.pnlItemsTop.Name = "pnlItemsTop";
-            this.pnlItemsTop.Size = new System.Drawing.Size(1090, 44);
+            this.pnlItemsTop.Size = new System.Drawing.Size(816, 36);
             this.pnlItemsTop.TabIndex = 0;
             // 
             // btnTick
             // 
-            this.btnTick.Location = new System.Drawing.Point(251, 12);
+            this.btnTick.Location = new System.Drawing.Point(67, 10);
+            this.btnTick.Margin = new System.Windows.Forms.Padding(2);
             this.btnTick.Name = "btnTick";
-            this.btnTick.Size = new System.Drawing.Size(75, 26);
+            this.btnTick.Size = new System.Drawing.Size(56, 21);
             this.btnTick.TabIndex = 4;
             this.btnTick.Text = "Tick";
             this.btnTick.UseVisualStyleBackColor = true;
             this.btnTick.Click += new System.EventHandler(this.btnTick_Click);
             // 
-            // btnSell
+            // btnSellOrJunk
             // 
-            this.btnSell.Location = new System.Drawing.Point(170, 12);
-            this.btnSell.Name = "btnSell";
-            this.btnSell.Size = new System.Drawing.Size(75, 26);
-            this.btnSell.TabIndex = 3;
-            this.btnSell.Text = "Sell";
-            this.btnSell.UseVisualStyleBackColor = true;
-            this.btnSell.Click += new System.EventHandler(this.btnSell_Click);
+            this.btnSellOrJunk.Location = new System.Drawing.Point(217, 10);
+            this.btnSellOrJunk.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSellOrJunk.Name = "btnSellOrJunk";
+            this.btnSellOrJunk.Size = new System.Drawing.Size(71, 21);
+            this.btnSellOrJunk.TabIndex = 3;
+            this.btnSellOrJunk.Text = "Sell/Junk";
+            this.btnSellOrJunk.UseVisualStyleBackColor = true;
+            this.btnSellOrJunk.Click += new System.EventHandler(this.btnSellOrJunk_Click);
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(332, 12);
+            this.btnClear.Location = new System.Drawing.Point(157, 10);
+            this.btnClear.Margin = new System.Windows.Forms.Padding(2);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 26);
+            this.btnClear.Size = new System.Drawing.Size(56, 21);
             this.btnClear.TabIndex = 2;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -680,9 +683,10 @@
             // 
             // btnKeep
             // 
-            this.btnKeep.Location = new System.Drawing.Point(89, 12);
+            this.btnKeep.Location = new System.Drawing.Point(7, 10);
+            this.btnKeep.Margin = new System.Windows.Forms.Padding(2);
             this.btnKeep.Name = "btnKeep";
-            this.btnKeep.Size = new System.Drawing.Size(75, 26);
+            this.btnKeep.Size = new System.Drawing.Size(56, 21);
             this.btnKeep.TabIndex = 1;
             this.btnKeep.Text = "Keep";
             this.btnKeep.UseVisualStyleBackColor = true;
@@ -690,9 +694,10 @@
             // 
             // btnIgnore
             // 
-            this.btnIgnore.Location = new System.Drawing.Point(8, 12);
+            this.btnIgnore.Location = new System.Drawing.Point(292, 10);
+            this.btnIgnore.Margin = new System.Windows.Forms.Padding(2);
             this.btnIgnore.Name = "btnIgnore";
-            this.btnIgnore.Size = new System.Drawing.Size(75, 26);
+            this.btnIgnore.Size = new System.Drawing.Size(56, 21);
             this.btnIgnore.TabIndex = 0;
             this.btnIgnore.Text = "Ignore";
             this.btnIgnore.UseVisualStyleBackColor = true;
@@ -703,20 +708,20 @@
             this.pnlBottom.Controls.Add(this.btnCancel);
             this.pnlBottom.Controls.Add(this.btnOK);
             this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBottom.Location = new System.Drawing.Point(0, 438);
+            this.pnlBottom.Location = new System.Drawing.Point(0, 356);
+            this.pnlBottom.Margin = new System.Windows.Forms.Padding(2);
             this.pnlBottom.Name = "pnlBottom";
-            this.pnlBottom.Size = new System.Drawing.Size(1098, 54);
+            this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
             // frmConfiguration
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1098, 492);
+            this.ClientSize = new System.Drawing.Size(824, 400);
             this.Controls.Add(this.pnlBottom);
             this.Controls.Add(this.tcConfiguration);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmConfiguration";
@@ -794,13 +799,15 @@
         private System.Windows.Forms.Panel pnlItemsTop;
         private System.Windows.Forms.ListView lvItems;
         private System.Windows.Forms.ColumnHeader colItemName;
-        private System.Windows.Forms.ColumnHeader colItemAction;
         private System.Windows.Forms.Button btnKeep;
         private System.Windows.Forms.Button btnIgnore;
         private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.Button btnSell;
+        private System.Windows.Forms.Button btnSellOrJunk;
         private System.Windows.Forms.Button btnTick;
         private System.Windows.Forms.CheckBox chkDisplayStunLength;
         private System.Windows.Forms.Panel pnlSettings;
+        private System.Windows.Forms.ColumnHeader colKeepCount;
+        private System.Windows.Forms.ColumnHeader colTickCount;
+        private System.Windows.Forms.ColumnHeader colOverflowAction;
     }
 }

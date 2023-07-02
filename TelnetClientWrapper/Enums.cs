@@ -98,6 +98,7 @@ namespace IsengardClient
         GetItem,
         SellItem,
         DropItem,
+        RemoveEquipment,
         Score,
         Inventory,
         Quit,
@@ -691,28 +692,23 @@ namespace IsengardClient
         Count = 16,
     }
 
-    internal enum ItemInventoryAction
+    /// <summary>
+    /// what action to take for an item beyond that needed to keep in inventory or in tick room
+    /// </summary>
+    internal enum ItemInventoryOverflowAction
     {
         /// <summary>
         /// no action listed
         /// </summary>
-        None,
+        None = 0,
         /// <summary>
         /// skip the item
         /// </summary>
-        Ignore,
+        Ignore = 1,
         /// <summary>
-        /// pick up the item and do nothing with it
+        /// sell or junk the item
         /// </summary>
-        Take,
-        /// <summary>
-        /// sell the item
-        /// </summary>
-        Sell,
-        /// <summary>
-        /// take the item to the tick room
-        /// </summary>
-        Tick,
+        SellOrJunk = 2,
     }
 
     internal enum AfterKillMonsterAction

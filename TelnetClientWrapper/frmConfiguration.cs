@@ -73,34 +73,26 @@ namespace IsengardClient
 
             RefreshStrategyList();
 
-            ListViewItem lvi = new ListViewItem();
             foreach (DynamicDataItemClass nextItemClass in Enum.GetValues(typeof(DynamicDataItemClass)))
             {
-                lvi = new ListViewItem();
-                lvi.Text = nextItemClass.ToString();
-                lvi.Tag = nextItemClass;
-                ItemInventoryAction? action = null;
-                if (_settings.DynamicItemClassData.TryGetValue(nextItemClass, out DynamicItemData did))
-                {
-                    action = did.Action;
-                }
-                lvi.SubItems.Add(string.Empty);
-                lvItems.Items.Add(lvi);
+                AddNewListEntry(nextItemClass);
             }
             foreach (ItemTypeEnum nextItem in Enum.GetValues(typeof(ItemTypeEnum)))
             {
-                lvi = new ListViewItem();
-                lvi.Text = nextItem.ToString();
-                lvi.Tag = nextItem;
-                ItemInventoryAction? action = null;
-                if (_settings.DynamicItemData.TryGetValue(nextItem, out DynamicItemData did))
-                {
-                    action = did.Action;
-                }
-                lvi.SubItems.Add(string.Empty);
-                lvItems.Items.Add(lvi);
+                AddNewListEntry(nextItem);
             }
             RefreshAllItemEntries();
+        }
+
+        private void AddNewListEntry(object enumValue)
+        {
+            ListViewItem lvi = new ListViewItem();
+            lvi.Text = enumValue.ToString();
+            lvi.Tag = enumValue;
+            lvi.SubItems.Add(string.Empty); //keep count
+            lvi.SubItems.Add(string.Empty); //tick count
+            lvi.SubItems.Add(string.Empty); //overflow action
+            lvItems.Items.Add(lvi);
         }
 
         private void RefreshAllItemEntries()
@@ -108,19 +100,22 @@ namespace IsengardClient
             foreach (ListViewItem lvi in lvItems.Items)
             {
                 object oTag = lvi.Tag;
+                DynamicDataItemListInfo listInfo;
                 if (oTag is ItemTypeEnum)
-                {
-                    lvi.SubItems[1].Text = GetActionText((ItemTypeEnum)oTag);
-                }
+                    listInfo = GetDynamicItemDataListInfo((ItemTypeEnum)oTag);
                 else if (oTag is DynamicDataItemClass)
-                {
-                    lvi.SubItems[1].Text = GetActionText((DynamicDataItemClass)oTag);
-                }
+                    listInfo = GetDynamicItemDataListInfo((DynamicDataItemClass)oTag);
                 else
-                {
                     throw new InvalidOperationException();
-                }
+                SetListViewItemInfo(lvi, listInfo);
             }
+        }
+        
+        private void SetListViewItemInfo(ListViewItem lvi, DynamicDataItemListInfo listInfo)
+        {
+            lvi.SubItems[1].Text = listInfo.KeepCountText;
+            lvi.SubItems[2].Text = listInfo.TickCountText;
+            lvi.SubItems[3].Text = listInfo.OverflowActionText;
         }
 
         private void RefreshStrategyList()
@@ -654,7 +649,7 @@ namespace IsengardClient
             btnClear.Enabled = btnIgnore.Enabled = btnKeep.Enabled = lvItems.SelectedItems.Count > 0;
         }
 
-        private void SetItemActions(ItemInventoryAction action)
+        private void SetItemProperty(Action<DynamicItemData> SetPropertyAction)
         {
             bool refreshAllItems = false;
             foreach (ListViewItem lvi in lvItems.SelectedItems)
@@ -666,7 +661,7 @@ namespace IsengardClient
                     ItemTypeEnum itemType = (ItemTypeEnum)oTag;
                     bool existed = _settings.DynamicItemData.TryGetValue(itemType, out DynamicItemData did);
                     if (!existed) did = new DynamicItemData();
-                    did.Action = action;
+                    SetPropertyAction(did);
                     hasData = did.HasData();
                     if (existed)
                     {
@@ -682,14 +677,14 @@ namespace IsengardClient
                             _settings.DynamicItemData[itemType] = did;
                         }
                     }
-                    lvi.SubItems[1].Text = GetActionText(itemType);
+                    SetListViewItemInfo(lvi, GetDynamicItemDataListInfo(itemType));
                 }
                 else
                 {
                     DynamicDataItemClass itemClass = (DynamicDataItemClass)oTag;
                     bool existed = _settings.DynamicItemClassData.TryGetValue(itemClass, out DynamicItemData did);
                     if (!existed) did = new DynamicItemData();
-                    did.Action = action;
+                    SetPropertyAction(did);
                     hasData = did.HasData();
                     if (existed)
                     {
@@ -714,67 +709,91 @@ namespace IsengardClient
             }
         }
 
-        private string GetActionText(ItemTypeEnum itemType)
+        private class DynamicDataItemListInfo
         {
-            string ret;
-            var did = new DynamicItemDataWithInheritance(_settings, itemType);
-            if (did.Action == ItemInventoryAction.None)
-            {
-                ret = "None";
-            }
-            else if (!did.ActionInheritance.HasValue)
-            {
-                ret = did.Action.ToString();
-            }
-            else
-            {
-                ret = did.Action.ToString() + " from " + did.ActionInheritance.Value.ToString();
-            }
-            return ret;
+            public string KeepCountText { get; set; }
+            public string TickCountText { get; set; }
+            public string OverflowActionText { get; set; }
         }
 
-        private string GetActionText(DynamicDataItemClass itemClass)
+        private DynamicDataItemListInfo GetDynamicItemDataListInfo(ItemTypeEnum itemType)
         {
-            string ret;
-            var did = new DynamicItemDataWithInheritance(_settings, itemClass);
-            if (did.Action == ItemInventoryAction.None)
-            {
-                ret = "None";
-            }
-            else if (!did.ActionInheritance.HasValue)
-            {
-                ret = did.Action.ToString();
-            }
+            return GetDynamicItemDataListInfo(new DynamicItemDataWithInheritance(_settings, itemType));
+        }
+
+        private DynamicDataItemListInfo GetDynamicItemDataListInfo(DynamicDataItemClass itemClass)
+        {
+            return GetDynamicItemDataListInfo(new DynamicItemDataWithInheritance(_settings, itemClass));
+        }
+
+        private DynamicDataItemListInfo GetDynamicItemDataListInfo(DynamicItemDataWithInheritance did)
+        {
+            DynamicDataItemListInfo ret = new DynamicDataItemListInfo();
+            string sNext;
+
+            if (did.KeepCount < 0)
+                sNext = "None";
+            else if (did.KeepCount == int.MaxValue)
+                sNext = "All";
             else
-            {
-                ret = did.Action.ToString() + " from " + did.ActionInheritance.Value.ToString();
-            }
+                sNext = did.KeepCount.ToString();
+            if (did.KeepCount >= 0 && did.KeepCountInheritance.HasValue)
+                sNext += " (" + did.KeepCountInheritance.Value.ToString() + ")";
+            ret.KeepCountText = sNext;
+
+            if (did.TickCount < 0)
+                sNext = "None";
+            else if (did.TickCount == int.MaxValue)
+                sNext = "All";
+            else
+                sNext = did.TickCount.ToString();
+            if (did.TickCount >= 0 && did.TickCountInheritance.HasValue)
+                sNext += " (" + did.TickCountInheritance.Value.ToString() + ")";
+            ret.TickCountText = sNext;
+
+            sNext = did.OverflowAction.ToString();
+            if (did.OverflowAction != ItemInventoryOverflowAction.None && did.OverflowActionInheritance.HasValue)
+                sNext += " (" + did.OverflowActionInheritance.Value.ToString() + ")";
+            ret.OverflowActionText = sNext;
+
             return ret;
         }
 
         private void btnIgnore_Click(object sender, EventArgs e)
         {
-            SetItemActions(ItemInventoryAction.Ignore);
+            SetItemProperty((did) => { did.OverflowAction = ItemInventoryOverflowAction.Ignore; });
         }
 
-        private void btnKeep_Click(object sender, EventArgs e)
+        private void btnSellOrJunk_Click(object sender, EventArgs e)
         {
-            SetItemActions(ItemInventoryAction.Take);
+            SetItemProperty((did) => { did.OverflowAction = ItemInventoryOverflowAction.SellOrJunk; });
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            SetItemActions(ItemInventoryAction.None);
-        }
-
-        private void btnSell_Click(object sender, EventArgs e)
-        {
-            SetItemActions(ItemInventoryAction.Sell);
+            SetItemProperty((did) => { did.OverflowAction = ItemInventoryOverflowAction.None; });
         }
 
         private void btnTick_Click(object sender, EventArgs e)
         {
-            SetItemActions(ItemInventoryAction.Tick);
+            string count = Interaction.InputBox("Tick Count:", "Enter count, negative to clear, all for no limit", string.Empty);
+            int iCount;
+            if (count.Equals("all", StringComparison.OrdinalIgnoreCase))
+                iCount = int.MaxValue;
+            else if (!int.TryParse(count, out iCount))
+                return;
+            SetItemProperty((did) => { did.TickCount = iCount < 0 ? -1 : iCount; });
+        }
+
+        private void btnKeep_Click(object sender, EventArgs e)
+        {
+            string count = Interaction.InputBox("Keep Count:", "Enter count, negative to clear, all for no limit", string.Empty);
+            int iCount;
+            if (count.Equals("all", StringComparison.OrdinalIgnoreCase))
+                iCount = int.MaxValue;
+            else if (!int.TryParse(count, out iCount))
+                return;
+            SetItemProperty((did) => { did.KeepCount = iCount < 0 ? -1 : iCount; });
         }
     }
 }

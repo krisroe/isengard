@@ -255,6 +255,7 @@
 
         [SingularName("Dale Purves")]
         //CSRTODO: no plural?
+        [Experience(800)]
         DalePurves,
 
         [SingularName("damaged skeleton")]
@@ -1053,6 +1054,7 @@
         //trades goblin blade for platinum ring
         //trades sprite sword for ?
         //trades diamond for mask of distortion
+        //trades emerald for flint blade
         [SingularName("Nathalin the Trader")]
         //CSRTODO: no plural
         NathalinTheTrader,
