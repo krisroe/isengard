@@ -414,6 +414,7 @@ namespace IsengardClient
                     }
                     else
                     {
+                        idParameter.Value = iID;
                         cmd.CommandText = "UPDATE LocationNodes SET OrderValue = @OrderValue, DisplayName = @DisplayName, Room = @Room, Expanded = @Expanded WHERE ID = @ID";
                         existingIDs.Remove(iID);
                     }
