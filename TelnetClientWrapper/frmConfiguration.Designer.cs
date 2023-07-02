@@ -597,18 +597,20 @@
             // 
             // lvItems
             // 
+            this.lvItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lvItems.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colItemName,
             this.colKeepCount,
             this.colTickCount,
             this.colOverflowAction});
-            this.lvItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvItems.FullRowSelect = true;
             this.lvItems.HideSelection = false;
-            this.lvItems.Location = new System.Drawing.Point(0, 36);
+            this.lvItems.Location = new System.Drawing.Point(0, 35);
             this.lvItems.Margin = new System.Windows.Forms.Padding(2);
             this.lvItems.Name = "lvItems";
-            this.lvItems.Size = new System.Drawing.Size(816, 338);
+            this.lvItems.Size = new System.Drawing.Size(816, 300);
             this.lvItems.TabIndex = 1;
             this.lvItems.UseCompatibleStateImageBehavior = false;
             this.lvItems.View = System.Windows.Forms.View.Details;

@@ -4368,29 +4368,21 @@ BeforeHazy:
                         if (sid.ItemClass != ItemClass.Coins && sid.ItemClass != ItemClass.Money)
                         {
                             DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
-                            if (didWithInherit.KeepCount > 0)
+                            int inventoryCount;
+                            lock (_entityLock)
                             {
-                                lock (_entityLock)
-                                {
-                                    int currentCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
-                                    if (currentCount <= didWithInherit.KeepCount)
-                                    {
-                                        itemsToProcess.Remove(nextItemPickedUp);
-                                    }
-                                    else if (didWithInherit.TickCount > 0)
-                                    {
-                                        itemsToTick.Add(nextItemPickedUp);
-                                    }
-                                    else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
-                                    {
-                                        itemsToSellOrJunk.Add(nextItemPickedUp);
-                                    }
-                                    else //don't know what to do with the item
-                                    {
-                                        AddConsoleMessage("Don't know what to do with " + itemType);
-                                        return;
-                                    }
-                                }
+                                inventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
+                            }
+                            if (didWithInherit.KeepCount > 0 && inventoryCount <= didWithInherit.KeepCount)
+                                itemsToProcess.Remove(nextItemPickedUp);
+                            else if (didWithInherit.TickCount > 0)
+                                itemsToTick.Add(nextItemPickedUp);
+                            else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
+                                itemsToSellOrJunk.Add(nextItemPickedUp);
+                            else //don't know what to do with the item
+                            {
+                                AddConsoleMessage("Don't know what to do with " + itemType);
+                                return;
                             }
                         }
                     }
@@ -4463,6 +4455,7 @@ StartTickRoomProcessing:
                                     if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms) != CommandResult.CommandSuccessful) return;
                                     somethingDone = true;
                                 }
+                                tickItemsProcessedForDropping.Add(itemType);
                             }
                         }
 
