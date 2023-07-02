@@ -1218,9 +1218,9 @@ namespace IsengardClient
                 cmd.Parameters.AddWithValue("@UserName", _username);
                 object oResult = cmd.ExecuteScalar();
                 int iUserID;
-                if (oResult == DBNull.Value)
+                if (oResult == null || oResult == DBNull.Value)
                 {
-                    cmd.CommandText = "INSERT Users (UserName) VALUES (@UserName)";
+                    cmd.CommandText = "INSERT INTO Users (UserName) VALUES (@UserName)";
                     cmd.ExecuteNonQuery();
                     cmd.CommandText = "SELECT last_insert_rowid()";
                     iUserID = Convert.ToInt32(cmd.ExecuteScalar());
