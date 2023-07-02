@@ -17,6 +17,7 @@
         [SingularName("alley cat")]
         [PluralName("alley cats")]
         [Alignment(AlignmentType.DullBlue)]
+        [Experience(50)]
         AlleyCat,
 
         [SingularName("alligator")]
@@ -302,6 +303,7 @@
         [SingularName("drunk")]
         [PluralName("drunks")]
         [Alignment(AlignmentType.DullRed)]
+        [Experience(7)]
         Drunk,
 
         [SingularName("drunken greek")]
@@ -672,6 +674,7 @@
         [SingularName("hobbitish doctor")]
         [PluralName("hobbitish doctors")]
         [Alignment(AlignmentType.DullBlue)]
+        [Experience(15)]
         HobbitishDoctor,
 
         [SingularName("hobbit mother")]
@@ -842,6 +845,8 @@
 
         [SingularName("little mouse")]
         [PluralName("little mice")]
+        [Alignment(AlignmentType.DullBlue)]
+        [Experience(1)]
         LittleMouse,
 
         [SingularName("longshoreman")]

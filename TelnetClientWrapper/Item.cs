@@ -109,12 +109,19 @@ namespace IsengardClient
                 {
                     sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
                 }
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellGoldRangeAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
+                bool isJunk = false;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(JunkAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) isJunk = true;
+                sid.Junk = isJunk;
+                if (!isJunk)
                 {
-                    SellGoldRangeAttribute sgra = (SellGoldRangeAttribute)valueAttributes[0];
-                    sid.LowerSellRange = sgra.LowerRange;
-                    sid.UpperSellRange = sgra.UpperRange;
+                    valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellGoldRangeAttribute), false);
+                    if (valueAttributes != null && valueAttributes.Length > 0)
+                    {
+                        SellGoldRangeAttribute sgra = (SellGoldRangeAttribute)valueAttributes[0];
+                        sid.LowerSellRange = sgra.LowerRange;
+                        sid.UpperSellRange = sgra.UpperRange;
+                    }
                 }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
@@ -177,6 +184,7 @@ namespace IsengardClient
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
         public int Weight { get; set; }
+        public bool Junk { get; set; }
         public int LowerSellRange { get; set; }
         public int UpperSellRange { get; set; }
     }
@@ -1055,6 +1063,7 @@ namespace IsengardClient
         [SingularName("large wooden shield")]
         [PluralName("large wooden shields")]
         [Weight(7)]
+        [Junk]
         LargeWoodenShield,
 
         [SingularName("lead hammer")]
@@ -1506,6 +1515,7 @@ namespace IsengardClient
         [PluralName("small knifes")] //verified 6/21/23
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
+        [Junk]
         SmallKnife,
 
         [SingularName("small metal shield")]

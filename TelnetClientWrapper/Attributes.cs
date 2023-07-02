@@ -217,4 +217,7 @@ namespace IsengardClient
         }
     }
 
+    internal class JunkAttribute : Attribute
+    {
+    }
 }
