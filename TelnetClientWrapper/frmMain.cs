@@ -4241,12 +4241,12 @@ BeforeHazy:
                             DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, eItemType);
 
                             bool processItem = false;
-                            if (didWithInherit.KeepCount > 0 || didWithInherit.TickCount > 0)
+                            if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.Ignore)
+                                processItem = false;
+                            else if (didWithInherit.KeepCount > 0 || didWithInherit.TickCount > 0)
                                 processItem = true;
                             else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
                                 processItem = true;
-                            else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.Ignore)
-                                processItem = false;
                             else
                             {
                                 anythingFailedForSourceRoom = true;
