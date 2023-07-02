@@ -1888,6 +1888,11 @@ namespace IsengardClient
             AddExit(oReneesElvenLeatherWorks, breeStreets[10, 8], "west");
             breeStreetsGraph.Rooms[oReneesElvenLeatherWorks] = new System.Windows.Point(11, 2);
 
+            Room oHagbardsFineWeapons = AddRoom("Hagbard's Weapons", "Hagbard's Fine Weapons");
+            AddExit(breeStreets[8, 3], oHagbardsFineWeapons, "shop");
+            AddExit(oHagbardsFineWeapons, breeStreets[8, 3], "south");
+            breeStreetsGraph.Rooms[oHagbardsFineWeapons] = new System.Windows.Point(8, 6.5);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
