@@ -217,13 +217,6 @@ namespace IsengardClient
         Hazy = 1,
     }
 
-    internal enum AutoEscapeActivity
-    {
-        Active,
-        Inactive,
-        Inherit,
-    }
-
     internal enum BidirectionalExitType
     {
         WestEast,

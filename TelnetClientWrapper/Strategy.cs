@@ -13,9 +13,6 @@ namespace IsengardClient
         public string Name { get; set; }
         public bool AutogenerateName { get; set; }
         public AfterKillMonsterAction AfterKillMonsterAction { get; set; }
-        public AutoEscapeActivity AutoEscapeActivity { get; set; }
-        public AutoEscapeType AutoEscapeType { get; set; }
-        public int AutoEscapeThreshold { get; set; }
         public int ManaPool { get; set; }
 
         public List<MagicStrategyStep> MagicSteps { get; set; }
@@ -45,7 +42,6 @@ namespace IsengardClient
             this.TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
             this.AutoSpellLevelMax = -1;
             this.AutoSpellLevelMin = -1;
-            this.AutoEscapeActivity = AutoEscapeActivity.Inherit;
         }
 
         public Strategy(string Name)
@@ -60,9 +56,6 @@ namespace IsengardClient
             this.Name = copied.Name;
             this.AutogenerateName = copied.AutogenerateName;
             this.AfterKillMonsterAction = copied.AfterKillMonsterAction;
-            this.AutoEscapeActivity = copied.AutoEscapeActivity;
-            this.AutoEscapeThreshold = copied.AutoEscapeThreshold;
-            this.AutoEscapeType = copied.AutoEscapeType;
             this.ManaPool = copied.ManaPool;
             this.MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
             this.MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;

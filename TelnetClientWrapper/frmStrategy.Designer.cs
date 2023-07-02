@@ -79,8 +79,6 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
-            this.lblAutoEscapeValue = new System.Windows.Forms.Label();
-            this.lblAutoEscape = new System.Windows.Forms.Label();
             this.grpMagic.SuspendLayout();
             this.ctxAutoSpellLevels.SuspendLayout();
             this.grpMelee.SuspendLayout();
@@ -531,7 +529,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(576, 372);
+            this.btnOK.Location = new System.Drawing.Point(576, 357);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 12;
@@ -543,7 +541,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(654, 373);
+            this.btnCancel.Location = new System.Drawing.Point(654, 358);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
@@ -553,7 +551,7 @@
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(260, 379);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(260, 361);
             this.lblOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(79, 13);
@@ -569,40 +567,17 @@
             "Stop Combat",
             "Fight First Monster",
             "Fight First Same Monster"});
-            this.cboOnKillMonster.Location = new System.Drawing.Point(344, 375);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(344, 357);
             this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(151, 21);
             this.cboOnKillMonster.TabIndex = 146;
             // 
-            // lblAutoEscapeValue
-            // 
-            this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
-            this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(344, 351);
-            this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
-            this.lblAutoEscapeValue.Size = new System.Drawing.Size(150, 15);
-            this.lblAutoEscapeValue.TabIndex = 147;
-            this.lblAutoEscapeValue.Text = "Auto Escape";
-            this.lblAutoEscapeValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblAutoEscape
-            // 
-            this.lblAutoEscape.AutoSize = true;
-            this.lblAutoEscape.Location = new System.Drawing.Point(260, 351);
-            this.lblAutoEscape.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblAutoEscape.Name = "lblAutoEscape";
-            this.lblAutoEscape.Size = new System.Drawing.Size(70, 13);
-            this.lblAutoEscape.TabIndex = 148;
-            this.lblAutoEscape.Text = "Auto escape:";
-            // 
             // frmStrategy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(740, 407);
-            this.Controls.Add(this.lblAutoEscape);
-            this.Controls.Add(this.lblAutoEscapeValue);
+            this.ClientSize = new System.Drawing.Size(740, 393);
             this.Controls.Add(this.cboOnKillMonster);
             this.Controls.Add(this.lblOnKillMonster);
             this.Controls.Add(this.btnCancel);
@@ -672,8 +647,6 @@
         private System.Windows.Forms.CheckBox chkPotionsEnabled;
         private System.Windows.Forms.Label lblOnKillMonster;
         private System.Windows.Forms.ComboBox cboOnKillMonster;
-        private System.Windows.Forms.Label lblAutoEscapeValue;
-        private System.Windows.Forms.Label lblAutoEscape;
         private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;

@@ -7,10 +7,6 @@ namespace IsengardClient
 {
     internal partial class frmStrategy : Form
     {
-        private int _currentAutoEscapeThreshold;
-        private AutoEscapeType _currentAutoEscapeType;
-        private AutoEscapeActivity _currentAutoEscapeActivity;
-
         private int _currentAutoSpellLevelMinimum;
         private int _currentAutoSpellLevelMaximum;
 
@@ -39,11 +35,6 @@ namespace IsengardClient
             chkAutogenerateName.Checked = s.AutogenerateName;
 
             cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
-
-            _currentAutoEscapeThreshold = s.AutoEscapeThreshold;
-            _currentAutoEscapeActivity = s.AutoEscapeActivity;
-            _currentAutoEscapeType = s.AutoEscapeType;
-            RefreshAutoEscapeUI();
 
             _currentAutoSpellLevelMinimum = s.AutoSpellLevelMin;
             _currentAutoSpellLevelMaximum = s.AutoSpellLevelMax;
@@ -114,46 +105,6 @@ namespace IsengardClient
             {
                 lblAutoSpellLevels.Text = _currentAutoSpellLevelMinimum + ":" + _currentAutoSpellLevelMaximum;
             }
-        }
-
-        private void RefreshAutoEscapeUI()
-        {
-            Color autoEscapeBackColor;
-            string autoEscapeText;
-            if (_currentAutoEscapeActivity == AutoEscapeActivity.Inherit)
-            {
-                autoEscapeBackColor = Color.Black;
-                autoEscapeText = "Inherit Auto Escape";
-            }
-            else if (_currentAutoEscapeActivity == AutoEscapeActivity.Active)
-            {
-                string sAutoEscapeType = _currentAutoEscapeType == AutoEscapeType.Hazy ? "Hazy" : "Flee";
-                if (_currentAutoEscapeThreshold > 0)
-                {
-                    autoEscapeText = sAutoEscapeType + " @ " + _currentAutoEscapeThreshold.ToString();
-                }
-                else
-                {
-                    autoEscapeText = sAutoEscapeType;
-                }
-                if (_currentAutoEscapeType == AutoEscapeType.Hazy)
-                {
-                    autoEscapeBackColor = Color.DarkBlue;
-                }
-                else //Flee
-                {
-                    autoEscapeBackColor = Color.DarkRed;
-                }
-            }
-            else //inactive
-            {
-                autoEscapeBackColor = Color.Black;
-                autoEscapeText = "No Auto Escape";
-            }
-            UIShared.GetForegroundColor(autoEscapeBackColor.R, autoEscapeBackColor.G, autoEscapeBackColor.G, out byte forer, out byte foreg, out byte foreb);
-            lblAutoEscapeValue.BackColor = autoEscapeBackColor;
-            lblAutoEscapeValue.ForeColor = Color.FromArgb(forer, foreg, foreb);
-            lblAutoEscapeValue.Text = autoEscapeText;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -243,10 +194,6 @@ namespace IsengardClient
             if (!NewStrategy.AutogenerateName) NewStrategy.Name = txtName.Text;
 
             NewStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-
-            NewStrategy.AutoEscapeActivity = _currentAutoEscapeActivity;
-            NewStrategy.AutoEscapeThreshold = _currentAutoEscapeThreshold;
-            NewStrategy.AutoEscapeType = _currentAutoEscapeType;
 
             NewStrategy.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
             NewStrategy.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
