@@ -16,7 +16,6 @@ namespace IsengardClient
         public AutoEscapeType AutoEscapeType { get; set; }
         public int AutoEscapeThreshold { get; set; }
         public int ManaPool { get; set; }
-        public bool PromptForManaPool { get; set; }
 
         public MagicStrategyStep? LastMagicStep { get; set; }
         public int MagicVigorOnlyWhenDownXHP { get; set; }
@@ -67,7 +66,6 @@ namespace IsengardClient
             this.AutoEscapeThreshold = copied.AutoEscapeThreshold;
             this.AutoEscapeType = copied.AutoEscapeType;
             this.ManaPool = copied.ManaPool;
-            this.PromptForManaPool = copied.PromptForManaPool;
             this.LastMagicStep = copied.LastMagicStep;
             this.MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
             this.MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;

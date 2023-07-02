@@ -68,7 +68,6 @@ namespace IsengardClient
             RefreshAutoSpellLevelUI();
 
             if (s.ManaPool > 0) txtManaPool.Text = s.ManaPool.ToString();
-            chkPromptForManaPool.Checked = s.PromptForManaPool;
 
             if (s.LastMagicStep.HasValue)
                 cboMagicLastStep.SelectedItem = s.LastMagicStep.Value.ToString();
@@ -284,8 +283,6 @@ namespace IsengardClient
 
             NewStrategy.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
             NewStrategy.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
-
-            NewStrategy.PromptForManaPool = chkPromptForManaPool.Checked;
 
             sInt = txtManaPool.Text;
             if (!string.IsNullOrEmpty(sInt)) NewStrategy.ManaPool = int.Parse(sInt);
