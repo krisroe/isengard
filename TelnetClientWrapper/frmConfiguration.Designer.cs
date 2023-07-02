@@ -723,10 +723,9 @@
             this.ClientSize = new System.Drawing.Size(824, 400);
             this.Controls.Add(this.pnlBottom);
             this.Controls.Add(this.tcConfiguration);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmConfiguration";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Configuration";
             this.ctxRealm.ResumeLayout(false);

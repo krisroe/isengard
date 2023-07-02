@@ -289,10 +289,73 @@ namespace IsengardClient
             ItemClass ic = sid.ItemClass;
             if (ic == ItemClass.Equipment)
             {
+                switch (sid.EquipmentType)
+                {
+                    case EquipmentType.Arms:
+                        yield return DynamicDataItemClass.EquipmentArms;
+                        break;
+                    case EquipmentType.Ears:
+                        yield return DynamicDataItemClass.EquipmentEars;
+                        break;
+                    case EquipmentType.Face:
+                        yield return DynamicDataItemClass.EquipmentFace;
+                        break;
+                    case EquipmentType.Feet:
+                        yield return DynamicDataItemClass.EquipmentFeet;
+                        break;
+                    case EquipmentType.Finger:
+                        yield return DynamicDataItemClass.EquipmentFinger;
+                        break;
+                    case EquipmentType.Hands:
+                        yield return DynamicDataItemClass.EquipmentHands;
+                        break;
+                    case EquipmentType.Head:
+                        yield return DynamicDataItemClass.EquipmentHead;
+                        break;
+                    case EquipmentType.Legs:
+                        yield return DynamicDataItemClass.EquipmentLegs;
+                        break;
+                    case EquipmentType.Neck:
+                        yield return DynamicDataItemClass.EquipmentNeck;
+                        break;
+                    case EquipmentType.Shield:
+                        yield return DynamicDataItemClass.EquipmentShield;
+                        break;
+                    case EquipmentType.Torso:
+                        yield return DynamicDataItemClass.EquipmentTorso;
+                        break;
+                    case EquipmentType.Waist:
+                        yield return DynamicDataItemClass.EquipmentWaist;
+                        break;
+                    case EquipmentType.Unknown:
+                        yield return DynamicDataItemClass.EquipmentUnknown;
+                        break;
+                }
                 yield return DynamicDataItemClass.Equipment;
             }
             else if (ic == ItemClass.Weapon)
             {
+                switch (sid.WeaponType)
+                {
+                    case WeaponType.Slash:
+                        yield return DynamicDataItemClass.WeaponSlash;
+                        break;
+                    case WeaponType.Stab:
+                        yield return DynamicDataItemClass.WeaponStab;
+                        break;
+                    case WeaponType.Blunt:
+                        yield return DynamicDataItemClass.WeaponBlunt;
+                        break;
+                    case WeaponType.Polearm:
+                        yield return DynamicDataItemClass.WeaponPolearm;
+                        break;
+                    case WeaponType.Missile:
+                        yield return DynamicDataItemClass.WeaponMissile;
+                        break;
+                    case WeaponType.Unknown:
+                        yield return DynamicDataItemClass.WeaponUnknown;
+                        break;
+                }
                 yield return DynamicDataItemClass.Weapon;
             }
             else if (ic == ItemClass.Coins)
@@ -376,15 +439,28 @@ namespace IsengardClient
         /// </summary>
         Item,
 
-        /// <summary>
-        /// any equipment
-        /// </summary>
         Equipment,
+        EquipmentTorso,
+        EquipmentArms,
+        EquipmentLegs,
+        EquipmentFeet,
+        EquipmentNeck,
+        EquipmentWaist,
+        EquipmentHead,
+        EquipmentHands,
+        EquipmentFace,
+        EquipmentFinger,
+        EquipmentEars,
+        EquipmentShield,
+        EquipmentUnknown,
 
-        /// <summary>
-        /// any weapon
-        /// </summary>
         Weapon,
+        WeaponSlash,
+        WeaponStab,
+        WeaponBlunt,
+        WeaponPolearm,
+        WeaponMissile,
+        WeaponUnknown,
 
         Potion,
         Scroll,
@@ -1550,6 +1626,7 @@ namespace IsengardClient
         [PluralName("signet rings")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
+        [SellGoldRange(272, 272)]
         SignetRing,
 
         [SingularName("silima blade")]
