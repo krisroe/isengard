@@ -847,6 +847,12 @@ namespace IsengardClient
         //CSRTODO: plural
         GlowingTalisman,
 
+        [SingularName("goblin blade")]
+        [PluralName("goblin blades")]
+        [Weight(5)]
+        [SellGoldRange(116, 116)]
+        GoblinBlade,
+
         [SingularName("godentag")]
         [PluralName("godentags")]
         [WeaponType(WeaponType.Blunt)]
@@ -1023,7 +1029,7 @@ namespace IsengardClient
         [PluralName("lanterns")]
         Lantern,
 
-        //wiki says cure blindness?
+        //wiki says cure blindness but can't be drunk so isn't a potion
         [SingularName("large egg")]
         [PluralName("large eggs")]
         [Weight(3)]
@@ -1034,6 +1040,11 @@ namespace IsengardClient
         [PluralName("large metal shields")]
         [EquipmentType(EquipmentType.Shield)]
         LargeMetalShield,
+
+        [SingularName("large wooden shield")]
+        [PluralName("large wooden shields")]
+        [Weight(7)]
+        LargeWoodenShield,
 
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]
@@ -1062,6 +1073,7 @@ namespace IsengardClient
         LeatherPouch,
 
         [SingularName("leather sleeves")]
+        [Weight(3)]
         LeatherSleeves,
 
         [SingularName("light leather armor")]

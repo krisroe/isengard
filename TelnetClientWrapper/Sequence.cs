@@ -3369,6 +3369,7 @@ StartProcessRoom:
             { "You become shielded from the normal water element.", "endure-water" },
             { "You begin to float.", "levitation" },
             { "Your eyes tingle.", "detect-invisible"},
+            { "You become more perceptive.", "know-aura" },
         };
 
         public Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> _onSatisfied;

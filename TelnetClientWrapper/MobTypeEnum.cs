@@ -789,6 +789,8 @@
 
         [SingularName("knight")]
         [PluralName("knights")]
+        [Alignment(AlignmentType.DullBlue)]
+        [Experience(70)]
         Knight,
 
         [SingularName("Kosta")]
@@ -901,6 +903,7 @@
         [PluralName("master assassins")]
         [MobVisibility(MobVisibility.Hidden)]
         [Experience(600)]
+        [Alignment(AlignmentType.Red)]
         MasterAssassin,
 
         [SingularName("master chef")]
@@ -1109,6 +1112,8 @@
 
         [SingularName("paladin")]
         [PluralName("paladins")]
+        [Alignment(AlignmentType.DullBlue)]
+        [Experience(31)]
         Paladin,
 
         [SingularName("Pansy Smallburrows")]
@@ -1183,6 +1188,8 @@
 
         [SingularName("ranger")]
         [PluralName("rangers")]
+        [Alignment(AlignmentType.DullBlue)]
+        [Experience(38)]
         Ranger,
 
         [SingularName("Ranier the Librarian")]
