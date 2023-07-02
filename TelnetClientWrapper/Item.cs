@@ -494,6 +494,7 @@ namespace IsengardClient
         [PluralName("bone armors")] //verified 6/21/23
         [EquipmentType(EquipmentType.Torso)]
         [Weight(10)]
+        [SellGoldRange(247, 247)]
         BoneArmor,
 
         [SingularName("bone shield")]
@@ -613,6 +614,8 @@ namespace IsengardClient
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]
         [EquipmentType(EquipmentType.Head)]
+        [Weight(1)]
+        [Junk]
         ClothHat,
 
         [SingularName("cloth pants")]
@@ -893,6 +896,13 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Unknown)]
         GoldenMaskOfTheGods,
 
+        [SingularName("gold sword")]
+        [PluralName("gold swords")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(5)]
+        [SellGoldRange(1267, 1267)]
+        GoldSword,
+
         [SingularName("grate key")]
         [PluralName("grate keys")]
         [Key]
@@ -1138,6 +1148,7 @@ namespace IsengardClient
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
         [Weight(12)]
+        [SellGoldRange(49, 49)]
         MarbleChessSet,
 
         [SingularName("mask of darkness")]
@@ -1406,6 +1417,12 @@ namespace IsengardClient
         [SellGoldRange(24, 24)]
         RodOfTheDead,
 
+        [SingularName("rogue's mask")]
+        [PluralName("rogue's masks")]
+        [EquipmentType(EquipmentType.Face)]
+        [Weight(1)]
+        RoguesMask,
+
         [SingularName("ruby")]
         [PluralName("rubys")] //verified 6/21/23
         Ruby,
@@ -1426,6 +1443,8 @@ namespace IsengardClient
 
         [SingularName("sapphire")]
         [PluralName("sapphires")]
+        [Weight(1)]
+        [SellGoldRange(179, 179)]
         Sapphire,
 
         [SingularName("scythe")]
@@ -1650,6 +1669,7 @@ namespace IsengardClient
         [SingularName("T-bone")]
         [PluralName("T-bones")]
         [Weight(4)]
+        [Junk]
         TBone,
 
         [SingularName("throwing axe")]
@@ -1670,6 +1690,7 @@ namespace IsengardClient
         [SingularName("torch")]
         [PluralName("torchs")] //verified 6/21/23
         [Weight(1)]
+        [Junk]
         Torch,
 
         [SingularName("town map")]
@@ -1719,6 +1740,7 @@ namespace IsengardClient
         [PluralName("voulges")]
         [WeaponType(WeaponType.Slash)]
         [Weight(1)]
+        [SellGoldRange(173, 173)]
         Voulge,
 
         [SingularName("wagonmaster's whip")]
