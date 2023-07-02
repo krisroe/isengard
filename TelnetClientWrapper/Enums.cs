@@ -335,30 +335,61 @@ namespace IsengardClient
 
     internal enum MagicStrategyStep
     {
+        [StrategyStep('S', true)]
         Stun,
+
+        [StrategyStep('C', true)]
         OffensiveSpellAuto,
+
+        [StrategyStep('1', true)]
         OffensiveSpellLevel1,
+
+        [StrategyStep('2', true)]
         OffensiveSpellLevel2,
+
+        [StrategyStep('3', true)]
         OffensiveSpellLevel3,
+
+        [StrategyStep('4', true)]
         OffensiveSpellLevel4,
+
+        [StrategyStep('5', true)]
         OffensiveSpellLevel5,
+
+        [StrategyStep('V', false)]
         Vigor,
+
+        [StrategyStep('M', false)]
         MendWounds,
+
+        [StrategyStep('H', false)]
         GenericHeal,
+
+        [StrategyStep('P', false)]
         CurePoison,
     }
 
     internal enum MeleeStrategyStep
     {
+        [StrategyStep('A', true)]
         RegularAttack,
+
+        [StrategyStep('P', true)]
         PowerAttack,
     }
 
     internal enum PotionsStrategyStep
     {
+        [StrategyStep('v', false)]
         Vigor,
+
+        [StrategyStep('m', false)]
         MendWounds,
+
+        [StrategyStep('h', false)]
         GenericHeal,
+
+        [StrategyStep('p', false)]
         CurePoison,
     }
 

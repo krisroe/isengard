@@ -921,6 +921,8 @@ namespace IsengardClient
         [SingularName("engagement ring")]
         [PluralName("engagement rings")]
         [EquipmentType(EquipmentType.Finger)]
+        [Weight(1)]
+        [SellGoldRange(198, 198)]
         EngagementRing,
 
         [SingularName("epee sword")]
@@ -931,6 +933,11 @@ namespace IsengardClient
         [SingularName("eye of newt")]
         //CSRTODO: plural?
         EyeOfNewt,
+
+        [SingularName("Faded map")]
+        [PluralName("Faded maps")]
+        [Weight(1)]
+        FadedMap,
 
         [SingularName("flint blade")]
         [PluralName("flint blades")]
@@ -1637,6 +1644,8 @@ namespace IsengardClient
         [SingularName("silk vest")]
         [PluralName("silk vests")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(1)]
+        [Junk]
         SilkVest,
 
         [SingularName("silver arm-bands")]

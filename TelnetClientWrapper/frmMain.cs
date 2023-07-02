@@ -753,6 +753,7 @@ namespace IsengardClient
                 "unarmed",
                 "uptime",
                 "use",
+                "value", //also cost
                 "vampyric",
                 "vigor",
                 "volley",
@@ -6504,7 +6505,7 @@ StartTickRoomProcessing:
             {
                 bwp = new BackgroundWorkerParameters();
                 Strategy s = new Strategy();
-                s.LastPotionsStep = step;
+                s.PotionsSteps = new List<PotionsStrategyStep>() { step };
                 s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
                 bwp.Strategy = s;
                 RunBackgroundProcess(bwp);
@@ -6524,7 +6525,7 @@ StartTickRoomProcessing:
             if (bwp == null)
             {
                 Strategy s = new Strategy();
-                s.LastMagicStep = step;
+                s.MagicSteps = new List<MagicStrategyStep> { step };
                 s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
                 RunStandaloneStrategy(s);
             }
@@ -6543,7 +6544,7 @@ StartTickRoomProcessing:
             if (bwp == null)
             {
                 Strategy s = new Strategy();
-                s.LastMeleeStep = step;
+                s.MeleeSteps = new List<MeleeStrategyStep>() { step };
                 s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
                 RunStandaloneStrategy(s);
             }

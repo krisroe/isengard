@@ -160,6 +160,7 @@
         //CSRTODO: no plural.
         [Experience(300)]
         [Alignment(AlignmentType.DullRed)]
+        [MobVisibility(MobVisibility.Hidden)]
         BurnedRemainsOfNimrodel,
 
         [SingularName("butcher")]
@@ -1476,6 +1477,10 @@
         [SingularName("tree sprite")]
         [PluralName("tree sprites")]
         TreeSprite,
+
+        [SingularName("troll")]
+        [PluralName("trolls")]
+        Troll,
 
         [SingularName("Tyrie")]
         //CSRTODO: no plural

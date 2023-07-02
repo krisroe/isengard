@@ -25,24 +25,6 @@ namespace IsengardClient
 
             cboOnKillMonster.SelectedIndex = (int)AfterKillMonsterAction.StopCombat;
 
-            cboMagicLastStep.Items.Add(string.Empty);
-            foreach (var nextMagicStep in Enum.GetValues(typeof(MagicStrategyStep)))
-            {
-                cboMagicLastStep.Items.Add(nextMagicStep.ToString());
-            }
-
-            cboMeleeLastStep.Items.Add(string.Empty);
-            foreach (var nextMeleeStep in Enum.GetValues(typeof(MeleeStrategyStep)))
-            {
-                cboMeleeLastStep.Items.Add(nextMeleeStep.ToString());
-            }
-
-            cboPotionsLastStep.Items.Add(string.Empty);
-            foreach (var nextPotionsStep in Enum.GetValues(typeof(PotionsStrategyStep)))
-            {
-                cboPotionsLastStep.Items.Add(nextPotionsStep.ToString());
-            }
-
             foreach (var nextFinalAction in Enum.GetValues(typeof(FinalStepAction)))
             {
                 cboMagicFinalAction.Items.Add(nextFinalAction.ToString());
@@ -69,21 +51,6 @@ namespace IsengardClient
 
             if (s.ManaPool > 0) txtManaPool.Text = s.ManaPool.ToString();
 
-            if (s.LastMagicStep.HasValue)
-                cboMagicLastStep.SelectedItem = s.LastMagicStep.Value.ToString();
-            else
-                cboMagicLastStep.SelectedIndex = 0;
-
-            if (s.LastMeleeStep.HasValue)
-                cboMeleeLastStep.SelectedItem = s.LastMeleeStep.Value.ToString();
-            else
-                cboMeleeLastStep.SelectedIndex = 0;
-
-            if (s.LastPotionsStep.HasValue)
-                cboPotionsLastStep.SelectedItem = s.LastPotionsStep.Value.ToString();
-            else
-                cboPotionsLastStep.SelectedIndex = 0;
-
             chkMagicLastStepIndefinite.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None;
             chkMeleeRepeatLastStepIndefinitely.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None;
             chkPotionsRepeatLastStepIndefinitely.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None;
@@ -107,21 +74,21 @@ namespace IsengardClient
 
             if (s.MagicSteps != null)
             {
-                foreach (AMagicStrategyStep nextStep in s.MagicSteps)
+                foreach (var nextStep in s.MagicSteps)
                 {
                     lstMagicSteps.Items.Add(nextStep);
                 }
             }
             if (s.MeleeSteps != null)
             {
-                foreach (AMeleeStrategyStep nextStep in s.MeleeSteps)
+                foreach (var nextStep in s.MeleeSteps)
                 {
                     lstMeleeSteps.Items.Add(nextStep);
                 }
             }
             if (s.PotionsSteps != null)
             {
-                foreach (APotionsStrategyStep nextStep in s.PotionsSteps)
+                foreach (var nextStep in s.PotionsSteps)
                 {
                     lstPotionsSteps.Items.Add(nextStep);
                 }
@@ -249,24 +216,24 @@ namespace IsengardClient
             NewStrategy = new Strategy();
             if (lstMagicSteps.Items.Count > 0)
             {
-                NewStrategy.MagicSteps = new List<AMagicStrategyStep>();
-                foreach (AMagicStrategyStep nextStep in lstMagicSteps.Items)
+                NewStrategy.MagicSteps = new List<MagicStrategyStep>();
+                foreach (MagicStrategyStep nextStep in lstMagicSteps.Items)
                 {
                     NewStrategy.MagicSteps.Add(nextStep);
                 }
             }
             if (lstMeleeSteps.Items.Count > 0)
             {
-                NewStrategy.MeleeSteps = new List<AMeleeStrategyStep>();
-                foreach (AMeleeStrategyStep nextStep in lstMeleeSteps.Items)
+                NewStrategy.MeleeSteps = new List<MeleeStrategyStep>();
+                foreach (MeleeStrategyStep nextStep in lstMeleeSteps.Items)
                 {
                     NewStrategy.MeleeSteps.Add(nextStep);
                 }
             }
             if (lstPotionsSteps.Items.Count > 0)
             {
-                NewStrategy.PotionsSteps = new List<APotionsStrategyStep>();
-                foreach (APotionsStrategyStep nextStep in lstPotionsSteps.Items)
+                NewStrategy.PotionsSteps = new List<PotionsStrategyStep>();
+                foreach (PotionsStrategyStep nextStep in lstPotionsSteps.Items)
                 {
                     NewStrategy.PotionsSteps.Add(nextStep);
                 }
@@ -294,19 +261,6 @@ namespace IsengardClient
             if (!string.IsNullOrEmpty(sInt)) NewStrategy.PotionsVigorOnlyWhenDownXHP = int.Parse(sInt);
             sInt = txtPotionsMendWhenDownXHP.Text;
             if (!string.IsNullOrEmpty(sInt)) NewStrategy.PotionsMendOnlyWhenDownXHP = int.Parse(sInt);
-
-            if (cboMagicLastStep.SelectedIndex > 0)
-            {
-                NewStrategy.LastMagicStep = (MagicStrategyStep)Enum.Parse(typeof(MagicStrategyStep), cboMagicLastStep.SelectedItem.ToString());
-            }
-            if (cboMeleeLastStep.SelectedIndex > 0)
-            {
-                NewStrategy.LastMeleeStep = (MeleeStrategyStep)Enum.Parse(typeof(MeleeStrategyStep), cboMeleeLastStep.SelectedItem.ToString());
-            }
-            if (cboPotionsLastStep.SelectedIndex > 0)
-            {
-                NewStrategy.LastPotionsStep = (PotionsStrategyStep)Enum.Parse(typeof(PotionsStrategyStep), cboPotionsLastStep.SelectedItem.ToString());
-            }
 
             CommandType ct;
 

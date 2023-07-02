@@ -33,8 +33,6 @@
             this.txtMagicOnlyWhenStunnedForXMS = new System.Windows.Forms.TextBox();
             this.lblMagicOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
             this.chkMagicEnabled = new System.Windows.Forms.CheckBox();
-            this.lblMagicLastStep = new System.Windows.Forms.Label();
-            this.cboMagicLastStep = new System.Windows.Forms.ComboBox();
             this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
             this.lblMagicMendWhenDownXHP = new System.Windows.Forms.Label();
             this.txtMagicVigorWhenDownXHP = new System.Windows.Forms.TextBox();
@@ -56,8 +54,6 @@
             this.txtMeleeOnlyWhenStunnedForXMS = new System.Windows.Forms.TextBox();
             this.lblMeleeOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
             this.chkMeleeEnabled = new System.Windows.Forms.CheckBox();
-            this.lblMeleeLastStep = new System.Windows.Forms.Label();
-            this.cboMeleeLastStep = new System.Windows.Forms.ComboBox();
             this.lblMeleeFinalAction = new System.Windows.Forms.Label();
             this.cboMeleeFinalAction = new System.Windows.Forms.ComboBox();
             this.chkMeleeRepeatLastStepIndefinitely = new System.Windows.Forms.CheckBox();
@@ -67,8 +63,6 @@
             this.txtPotionsOnlyWhenStunnedForXMS = new System.Windows.Forms.TextBox();
             this.lblPotionsOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
             this.chkPotionsEnabled = new System.Windows.Forms.CheckBox();
-            this.lblPotionsLastStep = new System.Windows.Forms.Label();
-            this.cboPotionsLastStep = new System.Windows.Forms.ComboBox();
             this.txtPotionsMendWhenDownXHP = new System.Windows.Forms.TextBox();
             this.lblPotionsMendWhenDownXHP = new System.Windows.Forms.Label();
             this.txtPotionsVigorWhenDownXHP = new System.Windows.Forms.TextBox();
@@ -98,8 +92,6 @@
             this.grpMagic.Controls.Add(this.txtMagicOnlyWhenStunnedForXMS);
             this.grpMagic.Controls.Add(this.lblMagicOnlyWhenStunnedForXMS);
             this.grpMagic.Controls.Add(this.chkMagicEnabled);
-            this.grpMagic.Controls.Add(this.lblMagicLastStep);
-            this.grpMagic.Controls.Add(this.cboMagicLastStep);
             this.grpMagic.Controls.Add(this.txtMagicMendWhenDownXHP);
             this.grpMagic.Controls.Add(this.lblMagicMendWhenDownXHP);
             this.grpMagic.Controls.Add(this.txtMagicVigorWhenDownXHP);
@@ -144,24 +136,6 @@
             this.chkMagicEnabled.TabIndex = 145;
             this.chkMagicEnabled.Text = "Enabled?";
             this.chkMagicEnabled.UseVisualStyleBackColor = true;
-            // 
-            // lblMagicLastStep
-            // 
-            this.lblMagicLastStep.AutoSize = true;
-            this.lblMagicLastStep.Location = new System.Drawing.Point(4, 159);
-            this.lblMagicLastStep.Name = "lblMagicLastStep";
-            this.lblMagicLastStep.Size = new System.Drawing.Size(53, 13);
-            this.lblMagicLastStep.TabIndex = 144;
-            this.lblMagicLastStep.Text = "Last step:";
-            // 
-            // cboMagicLastStep
-            // 
-            this.cboMagicLastStep.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMagicLastStep.FormattingEnabled = true;
-            this.cboMagicLastStep.Location = new System.Drawing.Point(70, 156);
-            this.cboMagicLastStep.Name = "cboMagicLastStep";
-            this.cboMagicLastStep.Size = new System.Drawing.Size(134, 21);
-            this.cboMagicLastStep.TabIndex = 143;
             // 
             // txtMagicMendWhenDownXHP
             // 
@@ -300,7 +274,7 @@
             this.lstMagicSteps.FormattingEnabled = true;
             this.lstMagicSteps.Location = new System.Drawing.Point(3, 16);
             this.lstMagicSteps.Name = "lstMagicSteps";
-            this.lstMagicSteps.Size = new System.Drawing.Size(219, 134);
+            this.lstMagicSteps.Size = new System.Drawing.Size(219, 160);
             this.lstMagicSteps.TabIndex = 0;
             // 
             // ctxMagicSteps
@@ -314,8 +288,6 @@
             this.grpMelee.Controls.Add(this.txtMeleeOnlyWhenStunnedForXMS);
             this.grpMelee.Controls.Add(this.lblMeleeOnlyWhenStunnedForXMS);
             this.grpMelee.Controls.Add(this.chkMeleeEnabled);
-            this.grpMelee.Controls.Add(this.lblMeleeLastStep);
-            this.grpMelee.Controls.Add(this.cboMeleeLastStep);
             this.grpMelee.Controls.Add(this.lblMeleeFinalAction);
             this.grpMelee.Controls.Add(this.cboMeleeFinalAction);
             this.grpMelee.Controls.Add(this.chkMeleeRepeatLastStepIndefinitely);
@@ -353,24 +325,6 @@
             this.chkMeleeEnabled.TabIndex = 147;
             this.chkMeleeEnabled.Text = "Enabled?";
             this.chkMeleeEnabled.UseVisualStyleBackColor = true;
-            // 
-            // lblMeleeLastStep
-            // 
-            this.lblMeleeLastStep.AutoSize = true;
-            this.lblMeleeLastStep.Location = new System.Drawing.Point(11, 159);
-            this.lblMeleeLastStep.Name = "lblMeleeLastStep";
-            this.lblMeleeLastStep.Size = new System.Drawing.Size(53, 13);
-            this.lblMeleeLastStep.TabIndex = 146;
-            this.lblMeleeLastStep.Text = "Last step:";
-            // 
-            // cboMeleeLastStep
-            // 
-            this.cboMeleeLastStep.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMeleeLastStep.FormattingEnabled = true;
-            this.cboMeleeLastStep.Location = new System.Drawing.Point(77, 156);
-            this.cboMeleeLastStep.Name = "cboMeleeLastStep";
-            this.cboMeleeLastStep.Size = new System.Drawing.Size(134, 21);
-            this.cboMeleeLastStep.TabIndex = 145;
             // 
             // lblMeleeFinalAction
             // 
@@ -411,7 +365,7 @@
             this.lstMeleeSteps.FormattingEnabled = true;
             this.lstMeleeSteps.Location = new System.Drawing.Point(3, 16);
             this.lstMeleeSteps.Name = "lstMeleeSteps";
-            this.lstMeleeSteps.Size = new System.Drawing.Size(224, 134);
+            this.lstMeleeSteps.Size = new System.Drawing.Size(224, 160);
             this.lstMeleeSteps.TabIndex = 1;
             // 
             // ctxMeleeSteps
@@ -425,8 +379,6 @@
             this.grpPotions.Controls.Add(this.txtPotionsOnlyWhenStunnedForXMS);
             this.grpPotions.Controls.Add(this.lblPotionsOnlyWhenStunnedForXMS);
             this.grpPotions.Controls.Add(this.chkPotionsEnabled);
-            this.grpPotions.Controls.Add(this.lblPotionsLastStep);
-            this.grpPotions.Controls.Add(this.cboPotionsLastStep);
             this.grpPotions.Controls.Add(this.txtPotionsMendWhenDownXHP);
             this.grpPotions.Controls.Add(this.lblPotionsMendWhenDownXHP);
             this.grpPotions.Controls.Add(this.txtPotionsVigorWhenDownXHP);
@@ -468,24 +420,6 @@
             this.chkPotionsEnabled.TabIndex = 149;
             this.chkPotionsEnabled.Text = "Enabled?";
             this.chkPotionsEnabled.UseVisualStyleBackColor = true;
-            // 
-            // lblPotionsLastStep
-            // 
-            this.lblPotionsLastStep.AutoSize = true;
-            this.lblPotionsLastStep.Location = new System.Drawing.Point(8, 159);
-            this.lblPotionsLastStep.Name = "lblPotionsLastStep";
-            this.lblPotionsLastStep.Size = new System.Drawing.Size(53, 13);
-            this.lblPotionsLastStep.TabIndex = 148;
-            this.lblPotionsLastStep.Text = "Last step:";
-            // 
-            // cboPotionsLastStep
-            // 
-            this.cboPotionsLastStep.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboPotionsLastStep.FormattingEnabled = true;
-            this.cboPotionsLastStep.Location = new System.Drawing.Point(74, 156);
-            this.cboPotionsLastStep.Name = "cboPotionsLastStep";
-            this.cboPotionsLastStep.Size = new System.Drawing.Size(134, 21);
-            this.cboPotionsLastStep.TabIndex = 147;
             // 
             // txtPotionsMendWhenDownXHP
             // 
@@ -558,7 +492,7 @@
             this.lstPotionsSteps.FormattingEnabled = true;
             this.lstPotionsSteps.Location = new System.Drawing.Point(3, 16);
             this.lstPotionsSteps.Name = "lstPotionsSteps";
-            this.lstPotionsSteps.Size = new System.Drawing.Size(224, 134);
+            this.lstPotionsSteps.Size = new System.Drawing.Size(224, 160);
             this.lstPotionsSteps.TabIndex = 2;
             // 
             // ctxPotionsSteps
@@ -636,7 +570,7 @@
             "Fight First Monster",
             "Fight First Same Monster"});
             this.cboOnKillMonster.Location = new System.Drawing.Point(344, 375);
-            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(151, 21);
             this.cboOnKillMonster.TabIndex = 146;
@@ -733,12 +667,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxMagicSteps;
         private System.Windows.Forms.ContextMenuStrip ctxMeleeSteps;
         private System.Windows.Forms.ContextMenuStrip ctxPotionsSteps;
-        private System.Windows.Forms.Label lblMagicLastStep;
-        private System.Windows.Forms.ComboBox cboMagicLastStep;
-        private System.Windows.Forms.Label lblMeleeLastStep;
-        private System.Windows.Forms.ComboBox cboMeleeLastStep;
-        private System.Windows.Forms.Label lblPotionsLastStep;
-        private System.Windows.Forms.ComboBox cboPotionsLastStep;
         private System.Windows.Forms.CheckBox chkMagicEnabled;
         private System.Windows.Forms.CheckBox chkMeleeEnabled;
         private System.Windows.Forms.CheckBox chkPotionsEnabled;

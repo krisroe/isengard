@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 namespace IsengardClient
 {
@@ -17,25 +18,22 @@ namespace IsengardClient
         public int AutoEscapeThreshold { get; set; }
         public int ManaPool { get; set; }
 
-        public MagicStrategyStep? LastMagicStep { get; set; }
+        public List<MagicStrategyStep> MagicSteps { get; set; }
         public int MagicVigorOnlyWhenDownXHP { get; set; }
         public int MagicMendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalMagicAction { get; set; }
-        public List<AMagicStrategyStep> MagicSteps { get; set; }
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
         public int? MagicOnlyWhenStunnedForXMS { get; set; }
 
-        public MeleeStrategyStep? LastMeleeStep { get; set; }
+        public List<MeleeStrategyStep> MeleeSteps { get; set; }
         public FinalStepAction FinalMeleeAction { get; set; }
-        public List<AMeleeStrategyStep> MeleeSteps { get; set; }
         public int? MeleeOnlyWhenStunnedForXMS { get; set; }
 
-        public PotionsStrategyStep? LastPotionsStep { get; set; }
+        public List<PotionsStrategyStep> PotionsSteps { get; set; }
         public int PotionsVigorOnlyWhenDownXHP { get; set; }
         public int PotionsMendOnlyWhenDownXHP { get; set; }
         public FinalStepAction FinalPotionsAction { get; set; }
-        public List<APotionsStrategyStep> PotionsSteps { get; set; }
         public int? PotionsOnlyWhenStunnedForXMS { get; set; }
 
         public CommandType TypesToRunLastCommandIndefinitely { get; set; }
@@ -66,7 +64,6 @@ namespace IsengardClient
             this.AutoEscapeThreshold = copied.AutoEscapeThreshold;
             this.AutoEscapeType = copied.AutoEscapeType;
             this.ManaPool = copied.ManaPool;
-            this.LastMagicStep = copied.LastMagicStep;
             this.MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
             this.MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;
             this.FinalMagicAction = copied.FinalMagicAction;
@@ -75,37 +72,23 @@ namespace IsengardClient
             this.MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
             if (copied.MagicSteps != null)
             {
-                this.MagicSteps = new List<AMagicStrategyStep>();
-                foreach (var next in copied.MagicSteps)
-                {
-                    this.MagicSteps.Add(next.Clone());
-                }
+                this.MagicSteps = new List<MagicStrategyStep>(copied.MagicSteps);
             }
 
-            this.LastMeleeStep = copied.LastMeleeStep;
             this.FinalMeleeAction = copied.FinalMeleeAction;
             this.MeleeOnlyWhenStunnedForXMS = copied.MeleeOnlyWhenStunnedForXMS;
             if (copied.MeleeSteps != null)
             {
-                this.MeleeSteps = new List<AMeleeStrategyStep>();
-                foreach (var next in copied.MeleeSteps)
-                {
-                    this.MeleeSteps.Add(next.Clone());
-                }
+                this.MeleeSteps = new List<MeleeStrategyStep>(copied.MeleeSteps);
             }
 
-            this.LastPotionsStep = copied.LastPotionsStep;
             this.PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
             this.PotionsMendOnlyWhenDownXHP = copied.PotionsMendOnlyWhenDownXHP;
             this.FinalPotionsAction = copied.FinalPotionsAction;
             this.PotionsOnlyWhenStunnedForXMS = copied.PotionsOnlyWhenStunnedForXMS;
             if (copied.PotionsSteps != null)
             {
-                this.PotionsSteps = new List<APotionsStrategyStep>();
-                foreach (var next in copied.PotionsSteps)
-                {
-                    this.PotionsSteps.Add(next.Clone());
-                }
+                this.PotionsSteps = new List<PotionsStrategyStep>(copied.PotionsSteps);
             }
 
             this.TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
@@ -121,20 +104,15 @@ namespace IsengardClient
                 List<string> parts = new List<string>();
                 bool supportsSteps = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
                 bool hasSteps = MagicSteps != null;
-                bool hasLastStep = LastMagicStep.HasValue;
-                if (supportsSteps && (hasSteps || hasLastStep))
+                if (supportsSteps && hasSteps)
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
                     {
                         foreach (var next in MagicSteps)
                         {
-                            sb.Append(next.ToString());
+                            sb.Append(GetMagicStrategyStepCharacter(next));
                         }
-                    }
-                    if (hasLastStep)
-                    {
-                        sb.Append(SingleMagicStrategyStep.GetStrategyStep(LastMagicStep.Value));
                     }
                     if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
                     {
@@ -155,21 +133,16 @@ namespace IsengardClient
                     parts.Add(sb.ToString());
                 }
                 supportsSteps = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
-                hasLastStep = LastMeleeStep.HasValue;
                 hasSteps = MeleeSteps != null;
-                if (supportsSteps && (hasSteps || hasLastStep))
+                if (supportsSteps && hasSteps)
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
                     {
                         foreach (var next in MeleeSteps)
                         {
-                            sb.Append(next.ToString());
+                            sb.Append(GetMeleeStrategyStepCharacter(next));
                         }
-                    }
-                    if (hasLastStep)
-                    {
-                        sb.Append(SingleMeleeStrategyStep.GetStrategyStep(LastMeleeStep.Value));
                     }
                     if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
                     {
@@ -190,21 +163,16 @@ namespace IsengardClient
                     parts.Add(sb.ToString());
                 }
                 supportsSteps = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-                hasLastStep = LastPotionsStep.HasValue;
                 hasSteps = PotionsSteps != null;
-                if (supportsSteps && (hasSteps || hasLastStep))
+                if (supportsSteps && hasSteps)
                 {
                     sb = new StringBuilder();
                     if (hasSteps)
                     {
                         foreach (var next in PotionsSteps)
                         {
-                            sb.Append(next.ToString());
+                            sb.Append(GetPotionsStrategyStepCharacter(next));
                         }
-                    }
-                    if (hasLastStep)
-                    {
-                        sb.Append(SinglePotionsStrategyStep.GetStrategyStep(LastPotionsStep.Value));
                     }
                     if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
                     {
@@ -241,11 +209,11 @@ namespace IsengardClient
             get
             {
                 CommandType types = CommandType.None;
-                if (((TypesWithStepsEnabled & CommandType.Magic) != CommandType.None) && (MagicSteps != null || LastMagicStep.HasValue))
+                if (((TypesWithStepsEnabled & CommandType.Magic) != CommandType.None) && MagicSteps != null)
                     types |= CommandType.Magic;
-                if (((TypesWithStepsEnabled & CommandType.Melee) != CommandType.None) && (MeleeSteps != null || LastMeleeStep.HasValue))
+                if (((TypesWithStepsEnabled & CommandType.Melee) != CommandType.None) && MeleeSteps != null)
                     types |= CommandType.Melee;
-                if (((TypesWithStepsEnabled & CommandType.Potions) != CommandType.None) && (PotionsSteps != null || LastPotionsStep.HasValue))
+                if (((TypesWithStepsEnabled & CommandType.Potions) != CommandType.None) && PotionsSteps != null)
                     types |= CommandType.Potions;
                 return types;
             }
@@ -269,7 +237,7 @@ namespace IsengardClient
             {
                 foreach (var nextStep in MagicSteps)
                 {
-                    if (nextStep.IsCombat())
+                    if (GetMagicStrategyStepIsCombat(nextStep))
                     {
                         ret = true;
                         break;
@@ -280,7 +248,7 @@ namespace IsengardClient
             {
                 foreach (var nextStep in MeleeSteps)
                 {
-                    if (nextStep.IsCombat())
+                    if (GetMeleeStrategyStepIsCombat(nextStep))
                     {
                         ret = true;
                         break;
@@ -291,24 +259,12 @@ namespace IsengardClient
             {
                 foreach (var nextStep in PotionsSteps)
                 {
-                    if (nextStep.IsCombat())
+                    if (GetPotionsStrategyStepIsCombat(nextStep))
                     {
                         ret = true;
                         break;
                     }
                 }
-            }
-            if (!ret && LastMagicStep.HasValue && magicEnabled && checkMagic)
-            {
-                ret = SingleMagicStrategyStep.IsCombatStep(LastMagicStep.Value);
-            }
-            if (!ret && LastMeleeStep.HasValue && meleeEnabled && checkMelee)
-            {
-                ret = SingleMeleeStrategyStep.IsCombatStep(LastMeleeStep.Value);
-            }
-            if (!ret && LastPotionsStep.HasValue && potionsEnabled && checkPotions)
-            {
-                ret = SinglePotionsStrategyStep.IsCombatStep(LastPotionsStep.Value);
             }
             return ret;
         }
@@ -318,10 +274,8 @@ namespace IsengardClient
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Magic) == CommandType.None)
                 ret = false;
-            else if (LastMagicStep.HasValue)
-                ret = true;
             else
-                ret = GetMagicSteps().GetEnumerator().MoveNext();
+                ret = MagicSteps != null;
             return ret;
         }
 
@@ -330,10 +284,8 @@ namespace IsengardClient
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Melee) == CommandType.None)
                 ret = false;
-            else if (LastMeleeStep.HasValue)
-                ret = true;
             else
-                ret = GetMeleeSteps(false).GetEnumerator().MoveNext();
+                ret = MeleeSteps != null;
             return ret;
         }
 
@@ -342,38 +294,22 @@ namespace IsengardClient
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Potions) == CommandType.None)
                 ret = false;
-            else if (LastPotionsStep.HasValue)
-                ret = true;
             else
-                ret = GetPotionsSteps().GetEnumerator().MoveNext();
+                ret = PotionsSteps != null;
             return ret;
         }
 
         public IEnumerable<MagicStrategyStep> GetMagicSteps()
         {
-            if ((TypesWithStepsEnabled & CommandType.Magic) != CommandType.None)
+            if ((TypesWithStepsEnabled & CommandType.Magic) != CommandType.None && MagicSteps != null)
             {
-                bool haveAnySteps = false;
                 MagicStrategyStep eLastStepValue = MagicStrategyStep.GenericHeal;
-                if (MagicSteps != null)
+                foreach (var nextStep in MagicSteps)
                 {
-                    foreach (var nextStep in MagicSteps)
-                    {
-                        foreach (var nextAction in nextStep.GetSteps())
-                        {
-                            haveAnySteps = true;
-                            eLastStepValue = nextAction;
-                            yield return nextAction;
-                        }
-                    }
+                    eLastStepValue = nextStep;
+                    yield return nextStep;
                 }
-                if (LastMagicStep.HasValue)
-                {
-                    haveAnySteps = true;
-                    eLastStepValue = LastMagicStep.Value;
-                    yield return eLastStepValue;
-                }
-                if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None))
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
                 {
                     while (true)
                     {
@@ -385,48 +321,25 @@ namespace IsengardClient
 
         public IEnumerable<MeleeStrategyStep> GetMeleeSteps(bool powerAttack)
         {
-            if ((TypesWithStepsEnabled & CommandType.Melee) != CommandType.None)
+            if ((TypesWithStepsEnabled & CommandType.Melee) != CommandType.None && MeleeSteps != null)
             {
-                bool haveAnySteps = false;
                 MeleeStrategyStep eLastStepValue = MeleeStrategyStep.RegularAttack;
-                if (MeleeSteps != null)
+                foreach (var nextStep in MeleeSteps)
                 {
-                    foreach (var nextStep in MeleeSteps)
+                    MeleeStrategyStep nextStepActual;
+                    if (nextStep == MeleeStrategyStep.RegularAttack && powerAttack)
                     {
-                        foreach (var nextAction in nextStep.GetSteps())
-                        {
-                            MeleeStrategyStep nextStepActual;
-                            if (nextAction == MeleeStrategyStep.RegularAttack && powerAttack)
-                            {
-                                powerAttack = false;
-                                nextStepActual = MeleeStrategyStep.PowerAttack;
-                            }
-                            else
-                            {
-                                nextStepActual = nextAction;
-                            }
-                            haveAnySteps = true;
-                            eLastStepValue = nextAction; //never power attack
-                            yield return nextStepActual; //could be power attack or regular attack
-                        }
+                        powerAttack = false;
+                        nextStepActual = MeleeStrategyStep.PowerAttack;
                     }
+                    else
+                    {
+                        nextStepActual = nextStep;
+                    }
+                    eLastStepValue = nextStep; //never power attack
+                    yield return nextStepActual; //could be power attack or regular attack
                 }
-                if (LastMeleeStep.HasValue)
-                {
-                    eLastStepValue = LastMeleeStep.Value;
-                    bool switchToPowerAttack = !haveAnySteps && powerAttack && eLastStepValue == MeleeStrategyStep.RegularAttack;
-                    if (switchToPowerAttack)
-                    {
-                        eLastStepValue = MeleeStrategyStep.PowerAttack;
-                    }
-                    haveAnySteps = true;
-                    yield return eLastStepValue;
-                    if (switchToPowerAttack)
-                    {
-                        eLastStepValue = MeleeStrategyStep.RegularAttack;
-                    }
-                }
-                if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None))
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
                 {
                     while (true)
                     {
@@ -438,29 +351,15 @@ namespace IsengardClient
 
         public IEnumerable<PotionsStrategyStep> GetPotionsSteps()
         {
-            if ((TypesWithStepsEnabled & CommandType.Potions) != CommandType.None)
+            if ((TypesWithStepsEnabled & CommandType.Potions) != CommandType.None && PotionsSteps != null)
             {
-                bool haveAnySteps = false;
                 PotionsStrategyStep eLastStepValue = PotionsStrategyStep.GenericHeal;
-                if (PotionsSteps != null)
+                foreach (var nextStep in PotionsSteps)
                 {
-                    foreach (var nextStep in PotionsSteps)
-                    {
-                        foreach (var nextAction in nextStep.GetSteps())
-                        {
-                            haveAnySteps = true;
-                            eLastStepValue = nextAction;
-                            yield return nextAction;
-                        }
-                    }
+                    eLastStepValue = nextStep;
+                    yield return nextStep;
                 }
-                if (LastPotionsStep.HasValue)
-                {
-                    haveAnySteps = true;
-                    eLastStepValue = LastPotionsStep.Value;
-                    yield return eLastStepValue;
-                }
-                if (haveAnySteps && ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None))
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
                 {
                     while (true)
                     {
@@ -468,6 +367,52 @@ namespace IsengardClient
                     }
                 }
             }
+        }
+
+        private static bool GetMagicStrategyStepIsCombat(MagicStrategyStep step)
+        {
+            return GetStrategyStepIsCombatFromAttribute(typeof(MagicStrategyStep), step.ToString());
+        }
+
+        private static bool GetMeleeStrategyStepIsCombat(MeleeStrategyStep step)
+        {
+            return GetStrategyStepIsCombatFromAttribute(typeof(MeleeStrategyStep), step.ToString());
+        }
+
+        private static bool GetPotionsStrategyStepIsCombat(PotionsStrategyStep step)
+        {
+            return GetStrategyStepIsCombatFromAttribute(typeof(PotionsStrategyStep), step.ToString());
+        }
+
+        private static char GetMagicStrategyStepCharacter(MagicStrategyStep step)
+        {
+            return GetStrategyStepLetterFromAttribute(typeof(MagicStrategyStep), step.ToString());
+        }
+
+        private static char GetMeleeStrategyStepCharacter(MeleeStrategyStep step)
+        {
+            return GetStrategyStepLetterFromAttribute(typeof(MeleeStrategyStep), step.ToString());
+        }
+
+        private static char GetPotionsStrategyStepCharacter(PotionsStrategyStep step)
+        {
+            return GetStrategyStepLetterFromAttribute(typeof(PotionsStrategyStep), step.ToString());
+        }
+
+        private static bool GetStrategyStepIsCombatFromAttribute(Type t, string step)
+        {
+            var memberInfos = t.GetMember(step);
+            var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
+            object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(StrategyStepAttribute), false);
+            return ((StrategyStepAttribute)valueAttributes[0]).IsCombat;
+        }
+
+        private static char GetStrategyStepLetterFromAttribute(Type t, string step)
+        {
+            var memberInfos = t.GetMember(step);
+            var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
+            object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(StrategyStepAttribute), false);
+            return ((StrategyStepAttribute)valueAttributes[0]).Letter;
         }
 
         public static List<Strategy> GetDefaultStrategies()
@@ -494,9 +439,9 @@ namespace IsengardClient
 
             s = new Strategy();
             s.AutogenerateName = true;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastMagicStep = MagicStrategyStep.GenericHeal;
-            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
+            s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.GenericHeal };
+            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
             s.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
@@ -508,9 +453,9 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
+            s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.OffensiveSpellAuto };
+            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
@@ -521,13 +466,13 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.MagicSteps = new List<AMagicStrategyStep>()
+            s.MagicSteps = new List<MagicStrategyStep>()
             {
-                SingleMagicStrategyStep.MagicStepStun,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.OffensiveSpellAuto
             };
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
+            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
@@ -539,16 +484,16 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.MagicSteps = new List<AMagicStrategyStep>()
+            s.MagicSteps = new List<MagicStrategyStep>()
             {
-                        SingleMagicStrategyStep.MagicStepStun,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepStun,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.OffensiveSpellAuto,
+                MagicStrategyStep.OffensiveSpellAuto,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.OffensiveSpellAuto
             };
-            s.LastMagicStep = MagicStrategyStep.OffensiveSpellAuto;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
+            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
@@ -560,18 +505,19 @@ namespace IsengardClient
             s = new Strategy();
             s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.MagicSteps = new List<AMagicStrategyStep>()
+            s.MagicSteps = new List<MagicStrategyStep>()
             {
-                        SingleMagicStrategyStep.MagicStepStun,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepStun,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
-                        SingleMagicStrategyStep.MagicStepOffensiveSpellAuto,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.OffensiveSpellAuto,
+                MagicStrategyStep.OffensiveSpellAuto,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.Stun,
+                MagicStrategyStep.OffensiveSpellAuto,
+                MagicStrategyStep.OffensiveSpellAuto,
             };
             s.FinalMagicAction = FinalStepAction.Flee;
-            s.LastMeleeStep = MeleeStrategyStep.RegularAttack;
-            s.LastPotionsStep = PotionsStrategyStep.GenericHeal;
+            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
+            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
             s.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
@@ -612,517 +558,6 @@ namespace IsengardClient
                     }
                 }
             }
-        }
-    }
-
-    internal abstract class AMagicStrategyStep
-    {
-        public int RepeatCount { get; set; }
-
-        public IEnumerable<MagicStrategyStep> GetSteps()
-        {
-            for (int i = 0; i < RepeatCount; i++)
-            {
-                foreach (var nextStep in GetBaseSteps())
-                {
-                    yield return nextStep;
-                }
-            }
-        }
-
-        internal abstract AMagicStrategyStep Clone();
-
-        internal abstract IEnumerable<MagicStrategyStep> GetBaseSteps();
-        internal abstract bool IsCombat();
-    }
-
-    internal class SingleMagicStrategyStep : AMagicStrategyStep
-    {
-        public static SingleMagicStrategyStep MagicStepStun = new SingleMagicStrategyStep(MagicStrategyStep.Stun, 'S');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellAuto = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellAuto, 'C');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel1 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel1, '1');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel2 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel2, '2');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel3 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel3, '3');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel4 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel4, '4');
-        public static SingleMagicStrategyStep MagicStepOffensiveSpellLevel5 = new SingleMagicStrategyStep(MagicStrategyStep.OffensiveSpellLevel5, '5');
-        public static SingleMagicStrategyStep MagicStepVigor = new SingleMagicStrategyStep(MagicStrategyStep.Vigor, 'V');
-        public static SingleMagicStrategyStep MagicStepMend = new SingleMagicStrategyStep(MagicStrategyStep.MendWounds, 'M');
-        public static SingleMagicStrategyStep MagicStepGenericHeal = new SingleMagicStrategyStep(MagicStrategyStep.GenericHeal, 'H');
-        public static SingleMagicStrategyStep MagicStepCurePoison = new SingleMagicStrategyStep(MagicStrategyStep.CurePoison, 'P');
-
-        public char Letter { get; set; }
-
-        private SingleMagicStrategyStep(MagicStrategyStep step, char Letter)
-        {
-            Action = step;
-            RepeatCount = 1;
-            this.Letter = Letter;
-        }
-
-        internal override AMagicStrategyStep Clone()
-        {
-            return this; //singleton object, doesn't need to be cloned
-        }
-
-        public override string ToString()
-        {
-            return this.Letter.ToString();
-        }
-
-        public static bool IsCombatStep(MagicStrategyStep step)
-        {
-            bool ret;
-            switch (step)
-            {
-                case MagicStrategyStep.Stun:
-                case MagicStrategyStep.OffensiveSpellAuto:
-                case MagicStrategyStep.OffensiveSpellLevel1:
-                case MagicStrategyStep.OffensiveSpellLevel2:
-                case MagicStrategyStep.OffensiveSpellLevel3:
-                case MagicStrategyStep.OffensiveSpellLevel4:
-                case MagicStrategyStep.OffensiveSpellLevel5:
-                    ret = true;
-                    break;
-                case MagicStrategyStep.Vigor:
-                case MagicStrategyStep.MendWounds:
-                case MagicStrategyStep.CurePoison:
-                case MagicStrategyStep.GenericHeal:
-                    ret = false;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public static SingleMagicStrategyStep GetStrategyStep(MagicStrategyStep step)
-        {
-            SingleMagicStrategyStep ret;
-            switch (step)
-            {
-                case MagicStrategyStep.Stun:
-                    ret = MagicStepStun;
-                    break;
-                case MagicStrategyStep.OffensiveSpellAuto:
-                    ret = MagicStepOffensiveSpellAuto;
-                    break;
-                case MagicStrategyStep.OffensiveSpellLevel1:
-                    ret = MagicStepOffensiveSpellLevel1;
-                    break;
-                case MagicStrategyStep.OffensiveSpellLevel2:
-                    ret = MagicStepOffensiveSpellLevel2;
-                    break;
-                case MagicStrategyStep.OffensiveSpellLevel3:
-                    ret = MagicStepOffensiveSpellLevel3;
-                    break;
-                case MagicStrategyStep.OffensiveSpellLevel4:
-                    ret = MagicStepOffensiveSpellLevel4;
-                    break;
-                case MagicStrategyStep.OffensiveSpellLevel5:
-                    ret = MagicStepOffensiveSpellLevel5;
-                    break;
-                case MagicStrategyStep.Vigor:
-                    ret = MagicStepVigor;
-                    break;
-                case MagicStrategyStep.MendWounds:
-                    ret = MagicStepMend;
-                    break;
-                case MagicStrategyStep.GenericHeal:
-                    ret = MagicStepGenericHeal;
-                    break;
-                case MagicStrategyStep.CurePoison:
-                    ret = MagicStepCurePoison;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public MagicStrategyStep Action { get; set; }
-
-        internal override IEnumerable<MagicStrategyStep> GetBaseSteps()
-        {
-            yield return Action;
-        }
-        internal override bool IsCombat()
-        {
-            return IsCombatStep(this.Action);
-        }
-    }
-
-    internal class MultipleMagicStrategyStep : AMagicStrategyStep
-    {
-        public List<AMagicStrategyStep> SubSteps { get; private set; }
-
-        public MultipleMagicStrategyStep()
-        {
-            this.SubSteps = new List<AMagicStrategyStep>();
-        }
-
-        public override string ToString()
-        {
-            StringBuilder ret = new StringBuilder();
-            ret.Append("(");
-            foreach (var next in this.SubSteps)
-            {
-                ret.Append(next.ToString());
-            }
-            ret.Append(")");
-            if (RepeatCount > 1)
-            {
-                ret.Append("*");
-                ret.Append(this.RepeatCount.ToString());
-            }
-            return ret.ToString();
-        }
-
-        internal override IEnumerable<MagicStrategyStep> GetBaseSteps()
-        {
-            foreach (var nextStep in SubSteps)
-            {
-                foreach (var nextAction in nextStep.GetBaseSteps())
-                {
-                    yield return nextAction;
-                }
-            }
-        }
-
-        internal override AMagicStrategyStep Clone()
-        {
-            MultipleMagicStrategyStep ret = new MultipleMagicStrategyStep();
-            foreach (var next in this.SubSteps)
-            {
-                ret.SubSteps.Add(next.Clone());
-            }
-            return ret;
-        }
-
-        internal override bool IsCombat()
-        {
-            bool ret = false;
-            foreach (var next in SubSteps)
-            {
-                if (next.IsCombat())
-                {
-                    ret = true;
-                    break;
-                }
-            }
-            return ret;
-        }
-    }
-
-    internal abstract class AMeleeStrategyStep
-    {
-        public int RepeatCount { get; set; }
-
-        public IEnumerable<MeleeStrategyStep> GetSteps()
-        {
-            for (int i = 0; i < RepeatCount; i++)
-            {
-                foreach (var nextStep in GetBaseSteps())
-                {
-                    yield return nextStep;
-                }
-            }
-        }
-
-        internal abstract IEnumerable<MeleeStrategyStep> GetBaseSteps();
-
-        internal abstract AMeleeStrategyStep Clone();
-        internal abstract bool IsCombat();
-    }
-
-    internal class SingleMeleeStrategyStep : AMeleeStrategyStep
-    {
-        public static SingleMeleeStrategyStep MeleeStepRegularAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.RegularAttack, 'A');
-        public static SingleMeleeStrategyStep MeleeStepPowerAttack = new SingleMeleeStrategyStep(MeleeStrategyStep.PowerAttack, 'P');
-
-        public char Letter { get; set; }
-
-        private SingleMeleeStrategyStep(MeleeStrategyStep step, char Letter)
-        {
-            Action = step;
-            RepeatCount = 1;
-            this.Letter = Letter;
-        }
-
-        public MeleeStrategyStep Action { get; set; }
-
-        public static bool IsCombatStep(MeleeStrategyStep step)
-        {
-            bool ret;
-            switch (step)
-            {
-                case MeleeStrategyStep.PowerAttack:
-                case MeleeStrategyStep.RegularAttack:
-                    ret = true;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public static SingleMeleeStrategyStep GetStrategyStep(MeleeStrategyStep step)
-        {
-            SingleMeleeStrategyStep ret;
-            switch (step)
-            {
-                case MeleeStrategyStep.RegularAttack:
-                    ret = MeleeStepRegularAttack;
-                    break;
-                case MeleeStrategyStep.PowerAttack:
-                    ret = MeleeStepPowerAttack;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public override string ToString()
-        {
-            return this.Letter.ToString();
-        }
-
-        internal override IEnumerable<MeleeStrategyStep> GetBaseSteps()
-        {
-            yield return Action;
-        }
-
-        internal override AMeleeStrategyStep Clone()
-        {
-            return this; //singleton object, doesn't need to be cloned
-        }
-
-        internal override bool IsCombat()
-        {
-            return IsCombatStep(this.Action);
-        }
-    }
-
-    internal class MultipleMeleeStrategyStep : AMeleeStrategyStep
-    {
-        public List<AMeleeStrategyStep> SubSteps { get; private set; }
-
-        public MultipleMeleeStrategyStep()
-        {
-            this.SubSteps = new List<AMeleeStrategyStep>();
-        }
-
-        public override string ToString()
-        {
-            StringBuilder ret = new StringBuilder();
-            ret.Append("(");
-            foreach (var next in this.SubSteps)
-            {
-                ret.Append(next.ToString());
-            }
-            ret.Append(")");
-            if (RepeatCount > 1)
-            {
-                ret.Append("*");
-                ret.Append(this.RepeatCount.ToString());
-            }
-            return ret.ToString();
-        }
-
-        internal override IEnumerable<MeleeStrategyStep> GetBaseSteps()
-        {
-            foreach (var nextStep in SubSteps)
-            {
-                foreach (var nextAction in nextStep.GetBaseSteps())
-                {
-                    yield return nextAction;
-                }
-            }
-        }
-
-        internal override AMeleeStrategyStep Clone()
-        {
-            MultipleMeleeStrategyStep ret = new MultipleMeleeStrategyStep();
-            foreach (var next in this.SubSteps)
-            {
-                ret.SubSteps.Add(next.Clone());
-            }
-            return ret;
-        }
-
-        internal override bool IsCombat()
-        {
-            bool ret = false;
-            foreach (var next in SubSteps)
-            {
-                if (next.IsCombat())
-                {
-                    ret = true;
-                    break;
-                }
-            }
-            return ret;
-        }
-    }
-
-    internal abstract class APotionsStrategyStep
-    {
-        public int RepeatCount { get; set; }
-
-        public IEnumerable<PotionsStrategyStep> GetSteps()
-        {
-            for (int i = 0; i < RepeatCount; i++)
-            {
-                foreach (var nextStep in GetBaseSteps())
-                {
-                    yield return nextStep;
-                }
-            }
-        }
-
-        internal abstract IEnumerable<PotionsStrategyStep> GetBaseSteps();
-
-        internal abstract APotionsStrategyStep Clone();
-        internal abstract bool IsCombat();
-    }
-
-    internal class SinglePotionsStrategyStep : APotionsStrategyStep
-    {
-        public static SinglePotionsStrategyStep PotionsStepVigor = new SinglePotionsStrategyStep(PotionsStrategyStep.Vigor, 'v');
-        public static SinglePotionsStrategyStep PotionsStepMendWounds = new SinglePotionsStrategyStep(PotionsStrategyStep.MendWounds, 'm');
-        public static SinglePotionsStrategyStep PotionsStepGenericHeal = new SinglePotionsStrategyStep(PotionsStrategyStep.GenericHeal, 'h');
-        public static SinglePotionsStrategyStep PotionsStepCurePoison = new SinglePotionsStrategyStep(PotionsStrategyStep.CurePoison, 'p');
-
-        public PotionsStrategyStep Action { get; set; }
-
-        public char Letter { get; set; }
-
-        private SinglePotionsStrategyStep(PotionsStrategyStep step, char Letter)
-        {
-            Action = step;
-            RepeatCount = 1;
-            this.Letter = Letter;
-        }
-
-        public static bool IsCombatStep(PotionsStrategyStep step)
-        {
-            bool ret;
-            switch (step)
-            {
-                case PotionsStrategyStep.Vigor:
-                case PotionsStrategyStep.MendWounds:
-                case PotionsStrategyStep.CurePoison:
-                case PotionsStrategyStep.GenericHeal:
-                    ret = false;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public static SinglePotionsStrategyStep GetStrategyStep(PotionsStrategyStep step)
-        {
-            SinglePotionsStrategyStep ret;
-            switch (step)
-            {
-                case PotionsStrategyStep.Vigor:
-                    ret = PotionsStepVigor;
-                    break;
-                case PotionsStrategyStep.MendWounds:
-                    ret = PotionsStepMendWounds;
-                    break;
-                case PotionsStrategyStep.GenericHeal:
-                    ret = PotionsStepGenericHeal;
-                    break;
-                case PotionsStrategyStep.CurePoison:
-                    ret = PotionsStepCurePoison;
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return ret;
-        }
-
-        public override string ToString()
-        {
-            return this.Letter.ToString();
-        }
-
-        internal override IEnumerable<PotionsStrategyStep> GetBaseSteps()
-        {
-            yield return Action;
-        }
-
-        internal override APotionsStrategyStep Clone()
-        {
-            return this; //singleton object, doesn't need to be cloned
-        }
-        internal override bool IsCombat()
-        {
-            return IsCombatStep(this.Action);
-        }
-    }
-
-    internal class MultiplePotionsStrategyStep : APotionsStrategyStep
-    {
-        public List<APotionsStrategyStep> SubSteps { get; private set; }
-
-        public MultiplePotionsStrategyStep()
-        {
-            this.SubSteps = new List<APotionsStrategyStep>();
-        }
-
-        public override string ToString()
-        {
-            StringBuilder ret = new StringBuilder();
-            ret.Append("(");
-            foreach (var next in this.SubSteps)
-            {
-                ret.Append(next.ToString());
-            }
-            ret.Append(")");
-            if (RepeatCount > 1)
-            {
-                ret.Append("*");
-                ret.Append(this.RepeatCount.ToString());
-            }
-            return ret.ToString();
-        }
-
-        internal override IEnumerable<PotionsStrategyStep> GetBaseSteps()
-        {
-            foreach (var nextStep in SubSteps)
-            {
-                foreach (var nextAction in nextStep.GetBaseSteps())
-                {
-                    yield return nextAction;
-                }
-            }
-        }
-
-        internal override APotionsStrategyStep Clone()
-        {
-            MultiplePotionsStrategyStep ret = new MultiplePotionsStrategyStep();
-            foreach (var next in this.SubSteps)
-            {
-                ret.SubSteps.Add(next.Clone());
-            }
-            return ret;
-        }
-
-        internal override bool IsCombat()
-        {
-            bool ret = false;
-            foreach (var next in SubSteps)
-            {
-                if (next.IsCombat())
-                {
-                    ret = true;
-                    break;
-                }
-            }
-            return ret;
         }
     }
 }

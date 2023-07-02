@@ -220,4 +220,15 @@ namespace IsengardClient
     internal class JunkAttribute : Attribute
     {
     }
+
+    internal class StrategyStepAttribute : Attribute
+    {
+        public char Letter { get; set; }
+        public bool IsCombat { get; set; }
+        public StrategyStepAttribute(char Letter, bool IsCombat)
+        {
+            this.Letter = Letter;
+            this.IsCombat = IsCombat;
+        }
+    }
 }
