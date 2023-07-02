@@ -607,7 +607,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oBeneathBridge] = new System.Windows.Point(-0.5, 4.5);
             AddBidirectionalExits(boatswain, oBeneathBridge, BidirectionalExitType.SouthwestNortheast);
 
-            Room oBridge = AddRoom("Bridge", "Bridge of the Celduin Express");
+            Room oBridge = AddRoom("Capt. Felagund", "Bridge of the Celduin Express");
             oBridge.AddPermanentMobs(MobTypeEnum.CaptainFelagund);
             Exit e = AddExit(oBeneathBridge, oBridge, "hatchway");
             e.KeyType = ItemTypeEnum.BridgeKey;
@@ -1893,6 +1893,11 @@ namespace IsengardClient
             AddExit(breeStreets[8, 3], oHagbardsFineWeapons, "shop");
             AddExit(oHagbardsFineWeapons, breeStreets[8, 3], "south");
             breeStreetsGraph.Rooms[oHagbardsFineWeapons] = new System.Windows.Point(8, 6.5);
+
+            Room oBreeParkAndRecreation = AddRoom("Park and Recreation", "Bree Park and Recreation");
+            AddExit(breeStreets[0, 4], oBreeParkAndRecreation, "park");
+            AddExit(oBreeParkAndRecreation, breeStreets[0, 4], "west");
+            breeStreetsGraph.Rooms[oBreeParkAndRecreation] = new System.Windows.Point(1, 6);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }

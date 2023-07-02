@@ -237,11 +237,14 @@ namespace IsengardClient
             }
             else if (tsi == tsmiRemove)
             {
-                parentTreeNodes.Remove(selectedNode);
-                parentLocationNodes.Remove(currentLoc);
-                if (currentLoc.Parent != null && parentLocationNodes.Count == 0)
+                if (MessageBox.Show("Are you sure you want to remove this node?", "Remove Node", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
-                    currentLoc.Parent.Children = null;
+                    parentTreeNodes.Remove(selectedNode);
+                    parentLocationNodes.Remove(currentLoc);
+                    if (currentLoc.Parent != null && parentLocationNodes.Count == 0)
+                    {
+                        currentLoc.Parent.Children = null;
+                    }
                 }
             }
             else if (tsi == tsmiMoveUp)

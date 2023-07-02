@@ -1247,6 +1247,7 @@
         [SingularName("scribe")]
         [PluralName("scribes")]
         [Alignment(AlignmentType.DullRed)]
+        [Experience(10)]
         Scribe,
 
         [SingularName("seasoned veteran")]
@@ -1480,6 +1481,7 @@
         [SingularName("vagrant")]
         [PluralName("vagrants")]
         [Alignment(AlignmentType.DullBlue)]
+        [Experience(6)]
         Vagrant,
 
         [SingularName("vampire bat")]

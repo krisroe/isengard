@@ -3298,7 +3298,7 @@ StartProcessRoom:
                 }
                 else if (remainder.EndsWith(" pulverizes"))
                 {
-                    matches = true; //CSRTODO: 26-27
+                    matches = true; //CSRTODO: 26-31
                 }
                 else if (remainder.EndsWith(" devestates"))
                 {

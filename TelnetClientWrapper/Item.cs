@@ -912,6 +912,7 @@ namespace IsengardClient
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
         [Scroll(SpellsEnum.vigor)]
+        [Weight(1)]
         GreyScroll,
 
         [SingularName("gypsy cape")]
@@ -1564,6 +1565,12 @@ namespace IsengardClient
         [PluralName("sprite bracelets")]
         [EquipmentType(EquipmentType.Unknown)]
         SpriteBracelet,
+
+        [SingularName("spruce-top guitar")]
+        [PluralName("spruce-top guitars")]
+        [Weight(17)]
+        [SellGoldRange(123, 123)]
+        SpruceTopGuitar,
 
         [SingularName("spyglass")]
         [PluralName("spyglasses")]
