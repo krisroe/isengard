@@ -3393,7 +3393,9 @@ namespace IsengardClient
             imladrisGraph.Rooms[oImladrisCircle8] = new System.Windows.Point(5, 9);
 
             Room oRearAlley = AddRoom("Rear Alley", "Rear Alley");
-            AddBidirectionalExits(oImladrisCircle10, oRearAlley, BidirectionalExitType.WestEast);
+            e = AddExit(oImladrisCircle10, oRearAlley, "east");
+            e.Hidden = true;
+            AddExit(oRearAlley, oImladrisCircle10, "west");
             AddBidirectionalExits(oRearAlley, oImladrisAlley5, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oRearAlley] = new System.Windows.Point(5, 7);
 

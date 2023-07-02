@@ -249,6 +249,7 @@
         [SingularName("cutthroat")]
         [PluralName("cutthroats")]
         [Experience(500)]
+        [Alignment(AlignmentType.Red)]
         Cutthroat,
 
         [SingularName("Dale Purves")]
@@ -528,6 +529,8 @@
 
         [SingularName("gray elf")]
         [PluralName("gray elves")]
+        [Alignment(AlignmentType.DullBlue)]
+        [Experience(75)]
         GrayElf,
 
         [SingularName("green slime")]
@@ -539,6 +542,7 @@
         [SingularName("Gregory Hiester")]
         //CSRTODO: no plural?
         [Experience(1200)]
+        [Alignment(AlignmentType.Grey)]
         GregoryHiester,
 
         [SingularName("grey knight")]
