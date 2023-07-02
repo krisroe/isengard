@@ -213,8 +213,8 @@ namespace IsengardClient
                         }
                         else
                         {
-                            parentTreeNodes.Insert(iCurrentIndex - 1, newNodeInfo);
-                            parentLocationNodes.Insert(iCurrentIndex - 1, newLoc);
+                            parentTreeNodes.Insert(iCurrentIndex + 1, newNodeInfo);
+                            parentLocationNodes.Insert(iCurrentIndex + 1, newLoc);
                         }
                         newLoc.Parent = currentLoc.Parent;
                         if (!isTopLevel)

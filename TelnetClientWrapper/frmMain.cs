@@ -3130,6 +3130,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
                 new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
                 new ConstantOutputSequence("That isn't here.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
+                new ConstantOutputSequence("You may not take that. You have already fulfilled that quest.", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence("You can't carry anymore.", OnCannotCarryAnymore, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence("You can't take that!", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItem, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
