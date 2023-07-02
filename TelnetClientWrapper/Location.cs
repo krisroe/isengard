@@ -29,7 +29,7 @@ namespace IsengardClient
             DisplayName = copied.DisplayName;
             Expanded = copied.Expanded;
         }
-        public string GetDisplayName()
+        public override string ToString()
         {
             string ret = this.DisplayName;
             if (string.IsNullOrEmpty(ret))
@@ -38,7 +38,6 @@ namespace IsengardClient
             }
             return ret;
         }
-
         public Room FindRoom(IsengardMap fullMap)
         {
             Room associatedRoom = null;

@@ -173,7 +173,7 @@ namespace IsengardClient
                 }
                 else
                 {
-                    errorMessages.Add("Location parent ID not found for " + ln.GetDisplayName());
+                    errorMessages.Add("Location parent ID not found for " + ln.ToString());
                 }
             }
             
