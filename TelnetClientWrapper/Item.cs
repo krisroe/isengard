@@ -1097,8 +1097,8 @@ namespace IsengardClient
 
         [SingularName("lollipop")]
         [PluralName("lollipops")]
+        [Potion(SpellsEnum.curedisease)] //per wiki
         [Weight(1)]
-        //CSRTODO: potion?
         Lollipop,
 
         [SingularName("long bow")]

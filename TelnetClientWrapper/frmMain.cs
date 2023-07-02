@@ -4325,7 +4325,7 @@ BeforeHazy:
                                     }
                                     else
                                     {
-                                        return;
+                                        anythingFailed = true;
                                     }
                                 }
                             }

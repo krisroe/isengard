@@ -1302,6 +1302,7 @@ namespace IsengardClient
             e.Hidden = true;
             e.MustOpen = true;
             e.MinimumLevel = 4;
+            AddExit(breeSewers[0, 10], breeStreets[0, 10], "up");
             AddMapBoundaryPoint(breeStreets[0, 10], breeSewers[0, 10], MapType.BreeStreets, MapType.BreeSewers);
             breeStreets[1, 10] = AddRoom("Ormenel", "Ormenel Street"); //2x11
             Room oToZoo = breeStreets[2, 10] = AddRoom("Ormenel", "Ormenel Street"); //3x11
