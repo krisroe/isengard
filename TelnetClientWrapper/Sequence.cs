@@ -2610,6 +2610,10 @@ StartProcessRoom:
                 {
                     result = MovementResult.TotalFailure;
                 }
+                else if (firstLine == "Your guild allegiance prevents you from using that exit.")
+                {
+                    result = MovementResult.TotalFailure;
+                }
                 else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
                 {
                     result = MovementResult.TotalFailure;
