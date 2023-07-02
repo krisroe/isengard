@@ -265,6 +265,10 @@
         [PluralName("dancing bears")]
         DancingBear,
 
+        [SingularName("Deathbringer")]
+        //CSRTODO: no plural
+        Deathbringer,
+
         [SingularName("decaying sailor")]
         [PluralName("decaying sailors")]
         DecayingSailor,
@@ -812,6 +816,10 @@
         [PluralName("laborers")]
         [Alignment(AlignmentType.DullBlue)]
         Laborer,
+
+        [SingularName("Lady Gwyneth the Chaste")]
+        //CSRTODO: no plural
+        LadyGwynethTheChaste,
 
         [SingularName("lady in waiting")]
         //CSRTODO: plural?
@@ -1556,6 +1564,10 @@
         [SingularName("wildman")]
         [PluralName("wildmen")]
         Wildman,
+
+        [SingularName("William Tasker")]
+        //CSRTODO: no plural
+        WilliamTasker,
 
         [SingularName("Wizard of the First Order")]
         //CSRTODO: no plural?
