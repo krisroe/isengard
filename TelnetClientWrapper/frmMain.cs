@@ -8555,6 +8555,12 @@ BeforeHazy:
                     tsmi.Text = "read";
                     ctxInventoryOrEquipmentItem.Items.Add(tsmi);
                 }
+                else if (iclass == ItemClass.Usable)
+                {
+                    tsmi = new ToolStripMenuItem();
+                    tsmi.Text = "use";
+                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                }
                 switch (iclass)
                 {
                     case ItemClass.Equipment:

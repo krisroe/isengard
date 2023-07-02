@@ -76,19 +76,23 @@ namespace IsengardClient
                     eSpell = ((PotionAttribute)valueAttributes[0]).Spell;
                     eItemClass = ItemClass.Potion;
                 }
-
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ScrollAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
                     eSpell = ((ScrollAttribute)valueAttributes[0]).Spell;
                     eItemClass = ItemClass.Scroll;
                 }
-
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WandAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
                     eSpell = ((WandAttribute)valueAttributes[0]).Spell;
                     eItemClass = ItemClass.Wand;
+                }
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(UseAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    eSpell = ((UseAttribute)valueAttributes[0]).Spell;
+                    eItemClass = ItemClass.Usable;
                 }
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
@@ -266,6 +270,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.Wand;
             }
+            else if (ic == ItemClass.Usable)
+            {
+                yield return DynamicDataItemClass.Usable;
+            }
             yield return DynamicDataItemClass.Item;
         }
     }
@@ -293,6 +301,7 @@ namespace IsengardClient
         Potion,
         Scroll,
         Wand,
+        Usable,
         Bag,
         Key,
         Coins,
@@ -320,6 +329,7 @@ namespace IsengardClient
         Potion,
         Scroll,
         Wand,
+        Usable,
         BagClass,
         Key,
         Coins,
@@ -1029,9 +1039,9 @@ namespace IsengardClient
         [PluralName("lanterns")]
         Lantern,
 
-        //wiki says cure blindness but can't be drunk so isn't a potion
         [SingularName("large egg")]
         [PluralName("large eggs")]
+        [Use(SpellsEnum.curemalady)]
         [Weight(3)]
         [SellGoldRange(49, 49)]
         LargeEgg,

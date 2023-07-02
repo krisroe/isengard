@@ -165,6 +165,15 @@ namespace IsengardClient
         }
     }
 
+    internal class UseAttribute : Attribute
+    {
+        public SpellsEnum Spell { get; set; }
+        public UseAttribute(SpellsEnum Spell)
+        {
+            this.Spell = Spell;
+        }
+    }
+
     #endregion
 
     internal class SpellInformationAttribute : Attribute
