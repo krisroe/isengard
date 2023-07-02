@@ -4436,7 +4436,7 @@ StartTickRoomProcessing:
                                     if (didWithInherit.KeepCount == -1)
                                         iCountToDrop = iInventoryCount;
                                     else if (iInventoryCount > didWithInherit.KeepCount)
-                                        iCountToDrop = didWithInherit.KeepCount - iInventoryCount;
+                                        iCountToDrop = iInventoryCount - didWithInherit.KeepCount;
                                 }
                                 for (int i = 0; i < iCountToDrop; i++)
                                 {
