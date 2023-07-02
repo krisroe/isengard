@@ -7508,7 +7508,7 @@ BeforeHazy:
                 }
                 else if (sid.UpperSellRange > 0)
                 {
-                    sText = sText + " " + sid.UpperSellRange + " gold";
+                    sText = sText + " $" + sid.UpperSellRange;
                 }
             }
             TreeNode ret = new TreeNode(sText);
