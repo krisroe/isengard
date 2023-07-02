@@ -7489,29 +7489,7 @@ BeforeHazy:
 
         private TreeNode GetItemsNode(ItemEntity item)
         {
-            StaticItemData sid = ItemEntity.StaticItemData[item.ItemType.Value];
-            ItemClass eItemClass = sid.ItemClass;
-            string sText = sid.SingularName;
-            if (eItemClass == ItemClass.Coins)
-            {
-                sText = item.Count + " " + sText;
-            }
-            if (eItemClass != ItemClass.Coins && eItemClass != ItemClass.Money)
-            {
-                if (sid.Weight > 0)
-                {
-                    sText = sText + " " + sid.Weight + " lbs";
-                }
-                if (sid.Junk)
-                {
-                    sText = sText + " junk";
-                }
-                else if (sid.UpperSellRange > 0)
-                {
-                    sText = sText + " $" + sid.UpperSellRange;
-                }
-            }
-            TreeNode ret = new TreeNode(sText);
+            TreeNode ret = new TreeNode(item.GetItemString());
             ret.Tag = item;
             return ret;
         }

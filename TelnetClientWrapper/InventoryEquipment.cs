@@ -9,7 +9,7 @@
         }
         public override string ToString()
         {
-            return ItemEntity.StaticItemData[Item.ItemType.Value].SingularName;
+            return this.Item.GetItemString();
         }
     }
 

@@ -162,6 +162,40 @@ namespace IsengardClient
                 yield return s;
             }
         }
+
+        /// <summary>
+        /// retrieves the display for an item (for display of room items or inventory).
+        /// Item type is assumed to have a value
+        /// </summary>
+        /// <param name="itemType">item type</param>
+        /// <param name="count">count, relevant for coins items</param>
+        /// <returns>text for the item</returns>
+        internal string GetItemString()
+        {
+            StaticItemData sid = ItemEntity.StaticItemData[this.ItemType.Value];
+            ItemClass eItemClass = sid.ItemClass;
+            string sText = sid.SingularName;
+            if (eItemClass == ItemClass.Coins)
+            {
+                sText = this.Count + " " + sText;
+            }
+            if (eItemClass != ItemClass.Coins && eItemClass != ItemClass.Money)
+            {
+                if (sid.Weight > 0)
+                {
+                    sText = sText + " #" + sid.Weight.ToString();
+                }
+                if (sid.Junk)
+                {
+                    sText = sText + " junk";
+                }
+                else if (sid.UpperSellRange > 0)
+                {
+                    sText = sText + " $" + sid.UpperSellRange;
+                }
+            }
+            return sText;
+        }
     }
 
     internal class UnknownItemEntity : ItemEntity
