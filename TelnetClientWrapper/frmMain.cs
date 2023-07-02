@@ -897,7 +897,6 @@ namespace IsengardClient
                 else
                 {
                     _finishedQuit = true;
-                    SaveSettings();
                     this.Close();
                 }
             }
@@ -1184,55 +1183,22 @@ namespace IsengardClient
             return Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName, "Isengard.sqlite");
         }
 
-        private SQLiteConnection GetSqliteConnection()
-        {
-            SQLiteConnectionStringBuilder connsb = new SQLiteConnectionStringBuilder()
-            {
-                DataSource = GetDatabasePath(),
-                Version = 3
-            };
-            return new SQLiteConnection(connsb.ToString());
-        }
-
         private void OnInitialLogin(InitialLoginInfo initialLoginInfo)
         {
             string localDatabase = GetDatabasePath();
             bool newDatabase = !File.Exists(localDatabase);
             if (newDatabase) SQLiteConnection.CreateFile(localDatabase);
-            using (SQLiteConnection conn = GetSqliteConnection())
-            using (SQLiteCommand cmd = conn.CreateCommand())
+            using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(localDatabase))
             {
                 conn.Open();
                 if (newDatabase) //generate database schema
                 {
-                    cmd.CommandText = "CREATE TABLE Users (UserID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, TickCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))";
-                    cmd.ExecuteNonQuery();
+                    IsengardSettingData.CreateNewDatabaseSchema(conn);
                 }
-                cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
-                cmd.Parameters.AddWithValue("@UserName", _username);
-                object oResult = cmd.ExecuteScalar();
-                int iUserID;
-                if (oResult == null || oResult == DBNull.Value)
-                {
-                    cmd.CommandText = "INSERT INTO Users (UserName) VALUES (@UserName)";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "SELECT last_insert_rowid()";
-                    iUserID = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                else
-                {
-                    iUserID = Convert.ToInt32(oResult);
-                }
-                _userid = iUserID;
+                _userid = IsengardSettingData.GetUserID(conn, _username);
 
                 List<string> errorMessages = new List<string>();
-                _settingsData = new IsengardSettingData(cmd, iUserID, errorMessages);
+                _settingsData = new IsengardSettingData(conn, _userid, errorMessages);
 
                 if (errorMessages.Count > 0)
                 {
@@ -1267,28 +1233,6 @@ namespace IsengardClient
         private void AfterLoadSettings()
         {
             _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
-        }
-
-        private void SaveSettings()
-        {
-            if (_settingsData != null)
-            {
-                List<string> errorMessages = new List<string>();
-                try
-                {
-                    using (SQLiteConnection conn = GetSqliteConnection())
-                    {
-                        _settingsData.SaveSettings(conn, _userid);
-                    }
-                }
-                finally
-                {
-                    if (errorMessages.Count > 0)
-                    {
-                        MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()));
-                    }
-                }
-            }
         }
 
         private void ProcessInitialLogin(FeedLineParameters flp)
@@ -3590,7 +3534,6 @@ namespace IsengardClient
         {
             if (_finishedQuit)
             {
-                SaveSettings();
                 this.Close();
             }
             else
@@ -4522,6 +4465,7 @@ StartTickRoomProcessing:
                         {
                             if (SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone))
                             {
+                                itemsToSellOrJunk.Clear();
                                 if (anythingCouldNotBePickedUpFromTickRoom)
                                 {
                                     goto StartTickRoomProcessing;
@@ -6911,7 +6855,6 @@ StartTickRoomProcessing:
             int autompforthistick = _automp;
             if (_finishedQuit)
             {
-                SaveSettings();
                 this.Close();
                 return;
             }
@@ -7885,6 +7828,29 @@ StartTickRoomProcessing:
                     btnQuit_Click(null, null);
                 }
                 e.Cancel = true;
+            }
+        }
+
+        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (_settingsData != null)
+            {
+                List<string> errorMessages = new List<string>();
+                try
+                {
+                    using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(GetDatabasePath()))
+                    {
+                        conn.Open();
+                        _settingsData.SaveSettings(conn, _userid);
+                    }
+                }
+                finally
+                {
+                    if (errorMessages.Count > 0)
+                    {
+                        MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()));
+                    }
+                }
             }
         }
 

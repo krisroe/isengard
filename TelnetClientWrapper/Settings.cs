@@ -77,110 +77,111 @@ namespace IsengardClient
                 Locations.Add(new LocationNode(next, null));
             }
         }
-        public IsengardSettingData(SQLiteCommand cmd, int UserID, List<string> errorMessages) : this()
+        public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages) : this()
         {
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@UserID", UserID);
-            cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            using (SQLiteCommand cmd = conn.CreateCommand())
             {
-                while (reader.Read())
+                cmd.Parameters.AddWithValue("@UserID", UserID);
+                cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
-                    HandleSetting(reader["SettingName"].ToString(), reader["SettingValue"].ToString(), errorMessages);
-                }
-            }
-            ValidateSettings();
-
-            cmd.CommandText = "SELECT Key,KeepCount,TickCount,OverflowAction FROM DynamicItemData WHERE UserID = @UserID";
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    string key = reader["Key"].ToString();
-                    ItemTypeEnum itemType;
-                    DynamicDataItemClass itemClass = DynamicDataItemClass.Item;
-                    bool isItemType = false;
-                    bool isItemClass = false;
-                    if (Enum.TryParse(key, out itemType))
+                    while (reader.Read())
                     {
-                        isItemType = true;
+                        HandleSetting(reader["SettingName"].ToString(), reader["SettingValue"].ToString(), errorMessages);
                     }
-                    else if (Enum.TryParse(key, out itemClass))
+                }
+                ValidateSettings();
+
+                cmd.CommandText = "SELECT Key,KeepCount,TickCount,OverflowAction FROM DynamicItemData WHERE UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
                     {
-                        isItemClass = true;
+                        string key = reader["Key"].ToString();
+                        ItemTypeEnum itemType;
+                        DynamicDataItemClass itemClass = DynamicDataItemClass.Item;
+                        bool isItemType = false;
+                        bool isItemClass = false;
+                        if (Enum.TryParse(key, out itemType))
+                        {
+                            isItemType = true;
+                        }
+                        else if (Enum.TryParse(key, out itemClass))
+                        {
+                            isItemClass = true;
+                        }
+                        else
+                        {
+                            errorMessages.Add("Invalid dynamic data key for dynamic data: " + key);
+                            continue;
+                        }
+
+                        DynamicItemData did = new DynamicItemData();
+                        object oData = reader["KeepCount"];
+                        did.KeepCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
+                        oData = reader["TickCount"];
+                        did.TickCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
+                        oData = reader["OverflowAction"];
+                        did.OverflowAction = oData == DBNull.Value ? ItemInventoryOverflowAction.None : (ItemInventoryOverflowAction)Convert.ToInt32(oData);
+
+                        if (isItemType)
+                        {
+                            DynamicItemData[itemType] = did;
+                        }
+                        else if (isItemClass)
+                        {
+                            DynamicItemClassData[itemClass] = did;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                    }
+                }
+
+                List<LocationNode> locationFlatList = new List<LocationNode>();
+                Dictionary<int, LocationNode> locationMapping = new Dictionary<int, LocationNode>();
+                cmd.CommandText = "SELECT ID,DisplayName,Room,Expanded,ParentID FROM LocationNodes WHERE UserID = @UserID ORDER BY OrderValue";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int iID = Convert.ToInt32(reader["ID"]);
+                        object oData = reader["DisplayName"];
+                        string sDisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
+                        oData = reader["Room"];
+                        string sRoom = oData == DBNull.Value ? string.Empty : oData.ToString();
+                        bool expanded = Convert.ToInt32(reader["Expanded"]) != 0;
+                        oData = reader["ParentID"];
+                        int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
+                        LocationNode ln = new LocationNode();
+                        ln.ID = iID;
+                        ln.DisplayName = sDisplayName;
+                        ln.Room = sRoom;
+                        ln.Expanded = expanded;
+                        ln.ParentID = iParentID;
+                        locationMapping[iID] = ln;
+                        locationFlatList.Add(ln);
+                    }
+                }
+                foreach (LocationNode ln in locationFlatList)
+                {
+                    if (ln.ParentID == 0)
+                    {
+                        Locations.Add(ln);
+                    }
+                    else if (locationMapping.TryGetValue(ln.ParentID, out LocationNode parent))
+                    {
+                        if (parent.Children == null) parent.Children = new List<LocationNode>();
+                        parent.Children.Add(ln);
+                        ln.Parent = parent;
                     }
                     else
                     {
-                        errorMessages.Add("Invalid dynamic data key for dynamic data: " + key);
-                        continue;
-                    }
-
-                    DynamicItemData did = new DynamicItemData();
-                    object oData = reader["KeepCount"];
-                    did.KeepCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
-                    oData = reader["TickCount"];
-                    did.TickCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
-                    oData = reader["OverflowAction"];
-                    did.OverflowAction = oData == DBNull.Value ? ItemInventoryOverflowAction.None : (ItemInventoryOverflowAction)Convert.ToInt32(oData);
-
-                    if (isItemType)
-                    {
-                        DynamicItemData[itemType] = did;
-                    }
-                    else if (isItemClass)
-                    {
-                        DynamicItemClassData[itemClass] = did;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
+                        errorMessages.Add("Location parent ID not found for " + ln.ToString());
                     }
                 }
             }
-
-            List<LocationNode> locationFlatList = new List<LocationNode>();
-            Dictionary<int, LocationNode> locationMapping = new Dictionary<int, LocationNode>();
-            cmd.CommandText = "SELECT ID,DisplayName,Room,Expanded,ParentID FROM LocationNodes WHERE UserID = @UserID ORDER BY OrderValue";
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    int iID = Convert.ToInt32(reader["ID"]);
-                    object oData = reader["DisplayName"];
-                    string sDisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
-                    oData = reader["Room"];
-                    string sRoom = oData == DBNull.Value ? string.Empty : oData.ToString();
-                    bool expanded = Convert.ToInt32(reader["Expanded"]) != 0;
-                    oData = reader["ParentID"];
-                    int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
-                    LocationNode ln = new LocationNode();
-                    ln.ID = iID;
-                    ln.DisplayName = sDisplayName;
-                    ln.Room = sRoom;
-                    ln.Expanded = expanded;
-                    ln.ParentID = iParentID;
-                    locationMapping[iID] = ln;
-                    locationFlatList.Add(ln);
-                }
-            }
-            foreach (LocationNode ln in locationFlatList)
-            {
-                if (ln.ParentID == 0)
-                {
-                    Locations.Add(ln);
-                }
-                else if (locationMapping.TryGetValue(ln.ParentID, out LocationNode parent))
-                {
-                    if (parent.Children == null) parent.Children = new List<LocationNode>();
-                    parent.Children.Add(ln);
-                    ln.Parent = parent;
-                }
-                else
-                {
-                    errorMessages.Add("Location parent ID not found for " + ln.ToString());
-                }
-            }
-            
         }
 
         public IsengardSettingData(string Input, List<string> errorMessages, bool IsFile) : this()
@@ -305,7 +306,6 @@ namespace IsengardClient
             newSettings["AutoEscapeActive"] = AutoEscapeActive.ToString();
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
-                conn.Open();
                 cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -828,6 +828,54 @@ namespace IsengardClient
             writer.WriteAttributeString("name", Name);
             writer.WriteAttributeString("value", Value);
             writer.WriteEndElement();
+        }
+
+        public static void CreateNewDatabaseSchema(SQLiteConnection conn)
+        {
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "CREATE TABLE Users (UserID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, TickCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))";
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static SQLiteConnection GetSqliteConnection(string databasePath)
+        {
+            SQLiteConnectionStringBuilder connsb = new SQLiteConnectionStringBuilder()
+            {
+                DataSource = databasePath,
+                Version = 3
+            };
+            return new SQLiteConnection(connsb.ToString());
+        }
+
+        public static int GetUserID(SQLiteConnection conn, string userName)
+        {
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
+                cmd.Parameters.AddWithValue("@UserName", userName);
+                object oResult = cmd.ExecuteScalar();
+                int iUserID;
+                if (oResult == null || oResult == DBNull.Value)
+                {
+                    cmd.CommandText = "INSERT INTO Users (UserName) VALUES (@UserName)";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "SELECT last_insert_rowid()";
+                    iUserID = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+                else
+                {
+                    iUserID = Convert.ToInt32(oResult);
+                }
+                return iUserID;
+            }
         }
     }
 }

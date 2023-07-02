@@ -912,6 +912,7 @@ namespace IsengardClient
         [SingularName("glimmering blade")]
         [PluralName("glimmering blades")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(15)]
         GlimmeringBlade,
 
         [SingularName("glitter")]
@@ -1567,6 +1568,7 @@ namespace IsengardClient
 
         [SingularName("Silver-blue scale")]
         [PluralName("Silver-blue scales")]
+        [Weight(4)]
         SilverBlueScale,
 
         [SingularName("silver dagger")]
@@ -1703,6 +1705,7 @@ namespace IsengardClient
         [SingularName("steel-chain armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(18)]
+        [SellGoldRange(569, 569)]
         SteelChainArmor,
 
         [SingularName("stilleto")]
