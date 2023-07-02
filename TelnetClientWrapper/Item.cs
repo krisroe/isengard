@@ -1137,6 +1137,12 @@ namespace IsengardClient
         [SellGoldRange(742, 742)]
         MaskOfDarkness,
 
+        [SingularName("mask of distortion")]
+        [EquipmentType(EquipmentType.Face)]
+        [Weight(3)]
+        [SellGoldRange(308, 308)]
+        MaskOfDistortion,
+
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
         [EquipmentType(EquipmentType.Head)]
@@ -1283,6 +1289,13 @@ namespace IsengardClient
         [PluralName("platinum pieces")]
         [Coins]
         PlatinumPieces,
+
+        [SingularName("platinum ring")]
+        [PluralName("platinum rings")]
+        [EquipmentType(EquipmentType.Finger)]
+        [Weight(1)]
+        [SellGoldRange(247, 247)]
+        PlatinumRing,
 
         [SingularName("port manifest")]
         [PluralName("port manifests")]

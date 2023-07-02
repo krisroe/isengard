@@ -1037,6 +1037,13 @@
         [PluralName("naked hobbits")]
         NakedHobbit,
 
+        //trades goblin blade for platinum ring
+        //trades sprite sword for ?
+        //trades diamond for mask of distortion
+        [SingularName("Nathalin the Trader")]
+        //CSRTODO: no plural
+        NathalinTheTrader,
+
         [SingularName("Naugrim")]
         //CSRTODO: no plural
         [Experience(205)]

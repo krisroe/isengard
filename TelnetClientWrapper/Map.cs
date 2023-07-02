@@ -2851,6 +2851,11 @@ namespace IsengardClient
             AddExit(oDeepForest, oGreatEastRoad9, "north");
             breeToImladrisGraph.Rooms[oDeepForest] = new System.Windows.Point(12, 5);
 
+            Room oNathalin = AddRoom("Nathalin", "Trading Post");
+            oNathalin.AddPermanentMobs(MobTypeEnum.NathalinTheTrader);
+            AddBidirectionalExitsWithOut(oDeepForest, oNathalin, "tree");
+            breeToImladrisGraph.Rooms[oNathalin] = new System.Windows.Point(13, 5);
+
             Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");
             AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oBrethilForest] = new System.Windows.Point(12, 6);
