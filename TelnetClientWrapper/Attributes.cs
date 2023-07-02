@@ -113,6 +113,15 @@ namespace IsengardClient
         }
     }
 
+    internal class ArmorClassAttribute : Attribute
+    {
+        public double ArmorClass { get; set; }
+        public ArmorClassAttribute(double ArmorClass)
+        {
+            this.ArmorClass = ArmorClass;
+        }
+    }
+
     internal class MoneyAttribute : Attribute
     {
     }

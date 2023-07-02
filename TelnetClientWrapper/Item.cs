@@ -105,10 +105,10 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Key;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                {
-                    sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
-                }
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ArmorClassAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.ArmorClass = ((ArmorClassAttribute)valueAttributes[0]).ArmorClass;
+
                 bool isJunk = false;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(JunkAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) isJunk = true;
@@ -185,6 +185,10 @@ namespace IsengardClient
                 {
                     sText = sText + " #" + sid.Weight.ToString();
                 }
+                if (sid.ArmorClass > 0)
+                {
+                    sText = sText + " " + sid.ArmorClass.ToString("N1") + "ac";
+                }
                 if (sid.Junk)
                 {
                     sText = sText + " junk";
@@ -218,6 +222,7 @@ namespace IsengardClient
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
         public int Weight { get; set; }
+        public double ArmorClass { get; set; }
         public bool Junk { get; set; }
         public int LowerSellRange { get; set; }
         public int UpperSellRange { get; set; }
@@ -502,11 +507,13 @@ namespace IsengardClient
         [SingularName("adamantine scale mail leggings")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(7)]
+        [ArmorClass(0.4)]
         AdamantineScaleMailLeggings,
 
         [SingularName("adamantine scale mail sleeves")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(8)]
+        [ArmorClass(0.4)]
         AdamantineScaleMailSleeves,
 
         [SingularName("Ahrot's magic string")]
@@ -531,6 +538,7 @@ namespace IsengardClient
         //CSRTODO: plural
         [Weight(5)]
         [EquipmentType(EquipmentType.Torso)]
+        [ArmorClass(0.2)]
         AnimalHides,
 
         [SingularName("aquamarine potion")]
@@ -623,6 +631,7 @@ namespace IsengardClient
         [PluralName("bone armors")] //verified 6/21/23
         [EquipmentType(EquipmentType.Torso)]
         [Weight(10)]
+        [ArmorClass(0.7)]
         [SellGoldRange(247, 247)]
         BoneArmor,
 
@@ -746,6 +755,7 @@ namespace IsengardClient
         [PluralName("cloth hats")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
+        [ArmorClass(0.1)]
         [Junk]
         ClothHat,
 
@@ -897,6 +907,7 @@ namespace IsengardClient
         [PluralName("elven cured leather hoods")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
+        [ArmorClass(0.8)]
         ElvenCuredLeatherHood,
 
         [SingularName("elven leather whip")]
@@ -1070,6 +1081,7 @@ namespace IsengardClient
         [SingularName("grey cloak")]
         [PluralName("grey cloaks")]
         [EquipmentType(EquipmentType.Neck)]
+        [ArmorClass(0.1)]
         GreyCloak,
 
         [SingularName("grey rune")]
@@ -1486,6 +1498,7 @@ namespace IsengardClient
         [PluralName("pot helms")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(7)]
+        [ArmorClass(0.3)]
         PotHelm,
 
         [SingularName("pot of gold")]
@@ -1633,6 +1646,7 @@ namespace IsengardClient
         [PluralName("signet rings")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
+        [ArmorClass(0.1)]
         [SellGoldRange(272, 272)]
         SignetRing,
 
@@ -1645,6 +1659,7 @@ namespace IsengardClient
         [PluralName("silk vests")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(1)]
+        [ArmorClass(0.1)]
         [Junk]
         SilkVest,
 
@@ -1728,6 +1743,7 @@ namespace IsengardClient
         [PluralName("small wooden shields")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
+        [ArmorClass(0.2)]
         SmallWoodenShield,
 
         [SingularName("speckled potion")]

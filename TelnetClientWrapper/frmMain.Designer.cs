@@ -169,6 +169,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -637,6 +638,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblPawnShop);
             this.pnlMain.Controls.Add(this.cboPawnShop);
@@ -907,7 +909,7 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(538, 75);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(538, 98);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
             this.lblAutoEscapeValue.Size = new System.Drawing.Size(108, 18);
             this.lblAutoEscapeValue.TabIndex = 134;
@@ -1745,6 +1747,16 @@
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // lblArmorClassValue
+            // 
+            this.lblArmorClassValue.BackColor = System.Drawing.Color.DarkKhaki;
+            this.lblArmorClassValue.Location = new System.Drawing.Point(538, 76);
+            this.lblArmorClassValue.Name = "lblArmorClassValue";
+            this.lblArmorClassValue.Size = new System.Drawing.Size(108, 18);
+            this.lblArmorClassValue.TabIndex = 152;
+            this.lblArmorClassValue.Text = "Value";
+            this.lblArmorClassValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1942,6 +1954,7 @@
         private System.Windows.Forms.ToolStripButton tsbReloadMap;
         private System.Windows.Forms.ContextMenuStrip ctxMessages;
         private System.Windows.Forms.ToolStripMenuItem tsmiCopyMessages;
+        private System.Windows.Forms.Label lblArmorClassValue;
     }
 }
 

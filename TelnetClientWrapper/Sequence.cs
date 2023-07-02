@@ -537,14 +537,14 @@ namespace IsengardClient
 
     internal class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -560,16 +560,16 @@ namespace IsengardClient
                 int iIndex;
                 ClassType? foundClass = null;
 
-                //first line is the player name, title, and level. Parse out the level.
+                //first line is the player name, title, and level. Parse out the level and class.
                 string sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine == null || sNextLine.Length < 17) return;
-                string[] playerWords = sNextLine.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                if (playerWords.Length < 4) return;
-                if (playerWords[0] != _username) return;
-                if (playerWords[1] != "the") return;
-                for (int i = 2; i < playerWords.Length; i++)
+                string[] words = sNextLine.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length < 4) return;
+                if (words[0] != _username) return;
+                if (words[1] != "the") return;
+                for (int i = 2; i < words.Length; i++)
                 {
-                    switch (playerWords[i])
+                    switch (words[i])
                     {
                         case "Mage":
                             foundClass = ClassType.Mage;
@@ -599,8 +599,8 @@ namespace IsengardClient
                     }
                 }
                 if (!foundClass.HasValue) return;
-                if (playerWords[playerWords.Length - 2] != "(lvl") return;
-                string sLastWord = playerWords[playerWords.Length - 1];
+                if (words[words.Length - 2] != "(lvl") return;
+                string sLastWord = words[words.Length - 1];
                 if (!sLastWord.EndsWith(")")) return;
                 if (sLastWord == ")") return;
                 sLastWord = sLastWord.Substring(0, sLastWord.Length - 1);
@@ -623,35 +623,75 @@ namespace IsengardClient
                     }
                 }
 
-                //third line is
-                //<space><space>[3 character HP]<slash><3 character max HP> Hit Points<space><space>
-                //<space><space>[3 character MP]<slash><3 character max MP> 
+                //third line contains hit points, magic points, and armor class
                 sNextLine = Lines[iNextLineIndex++];
-                if (sNextLine == null || sNextLine.Length < 32) return;
-                iIndex = 0;
-                if (sNextLine[iIndex++] != ' ') return;
-                if (sNextLine[iIndex++] != ' ') return;
-                string sCurrentHitPoints = sNextLine.Substring(iIndex, 3).Trim();
-                iIndex += 3;
-                if (!int.TryParse(sCurrentHitPoints, out _)) return;
-                if (sNextLine[iIndex++] != '/') return;
-                string sTotalHitPoints = sNextLine.Substring(iIndex, 3).Trim();
-                iIndex += 3;
+                words = sNextLine.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                StringBuilder sb = new StringBuilder();
+                string hpText = string.Empty;
+                string mpText = string.Empty;
+                bool foundHit = false;
+                bool foundMagic = false;
+                bool foundAC = false;
+                double armorClass = 0;
+                string armorClassText = string.Empty;
+                bool foundArmorClass = false;
+                foreach (string nextWord in words)
+                {
+                    if (!foundHit && nextWord == "Hit")
+                    {
+                        foundHit = true;
+                        hpText = sb.ToString();
+                        sb.Clear();
+                    }
+                    else if (!foundHit)
+                    {
+                        sb.Append(nextWord);
+                    }
+                    else if (!foundMagic && nextWord == "Magic")
+                    {
+                        foundMagic = true;
+                        mpText = sb.ToString();
+                        sb.Clear();
+                    }
+                    else if (!foundMagic && nextWord != "Points")
+                    {
+                        sb.Append(nextWord);
+                    }
+                    else if (foundAC && !foundArmorClass)
+                    {
+                        if (!double.TryParse(nextWord, out armorClass))
+                        {
+                            return;
+                        }
+                        armorClassText = nextWord;
+                        foundArmorClass = true;
+                    }
+                    else if (!foundAC && nextWord == "AC:")
+                    {
+                        foundAC = true;
+                    }
+                    else if (nextWord != "Points")
+                    {
+                        return;
+                    }
+                }
+                if (!foundHit || !foundMagic || !foundAC || !foundArmorClass)
+                {
+                    return;
+                }
+                if (!hpText.Contains("/")) return;
+                if (!mpText.Contains("/")) return;
+                string[] hpmpValues;
+                hpmpValues = hpText.Split(new char[] { '/' });
+                if (hpmpValues.Length != 2) return;
+                if (!int.TryParse(hpmpValues[0], out _)) return;
                 int iTotalHP;
-                if (!int.TryParse(sTotalHitPoints, out iTotalHP)) return;
-                string sMiddleString = " Hit Points    ";
-                int iMiddleStringLen = sMiddleString.Length;
-                if (sNextLine.Substring(iIndex, iMiddleStringLen) != sMiddleString) return;
-                iIndex += iMiddleStringLen;
-                string sCurrentMagicPoints = sNextLine.Substring(iIndex, 3).Trim();
-                iIndex += 3;
-                if (!int.TryParse(sCurrentMagicPoints, out _)) return;
-                if (sNextLine[iIndex++] != '/') return;
-                string sTotalMagicPoints = sNextLine.Substring(iIndex, 3).Trim();
-                iIndex += 3;
+                if (!int.TryParse(hpmpValues[1], out iTotalHP)) return;
+                hpmpValues = mpText.Split(new char[] { '/' });
+                if (hpmpValues.Length != 2) return;
+                if (!int.TryParse(hpmpValues[0], out _)) return;
                 int iTotalMP;
-                if (!int.TryParse(sTotalMagicPoints, out iTotalMP)) return;
-                if (sNextLine[iIndex++] != ' ') return;
+                if (!int.TryParse(hpmpValues[1], out iTotalMP)) return;
 
                 sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine == null) return;
@@ -744,7 +784,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, iGold, iTNL, cooldowns, spells, poisoned);
+                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, poisoned);
                 flParams.FinishedProcessing = true;
             }
         }

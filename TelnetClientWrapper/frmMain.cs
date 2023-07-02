@@ -84,6 +84,12 @@ namespace IsengardClient
         private bool _enteredPassword;
         private int _totalhp = 0;
         private int _totalmp = 0;
+        private double _armorClass = 0;
+        private double _armorClassUI = 0;
+        private string _armorClassText = string.Empty;
+        private string _armorClassTextUI = string.Empty;
+        private double _armorClassCalculated = 0;
+        private double _armorClassCalculatedUI = 0;
         private int _gold = -1;
         private int _goldUI = -1;
         private int _tnl = -1;
@@ -926,7 +932,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -978,6 +984,40 @@ namespace IsengardClient
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
+            _armorClass = armorClass;
+            _armorClassText = armorClassText;
+
+            bool hasProtection;
+            lock (_spellsCastLock)
+            {
+                hasProtection = _spellsCast.Contains("protection");
+            }
+            lock (_entityLock)
+            {
+                bool calculatedArmorClassSuccessful = true;
+                double calculatedArmorClass = hasProtection ? 1 : 0;
+                for (int i = 0; i < (int)EquipmentSlot.Count; i++)
+                {
+                    if (i != (int)EquipmentSlot.Held && i != (int)EquipmentSlot.Weapon1 && i != (int)EquipmentSlot.Weapon2)
+                    {
+                        ItemTypeEnum? nextEquipment = _currentEntityInfo.Equipment[i];
+                        if (nextEquipment.HasValue)
+                        {
+                            StaticItemData sid = ItemEntity.StaticItemData[nextEquipment.Value];
+                            if (sid.ArmorClass > 0)
+                            {
+                                calculatedArmorClass += sid.ArmorClass;
+                            }
+                            else //unknown
+                            {
+                                calculatedArmorClassSuccessful = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                _armorClassCalculated = calculatedArmorClassSuccessful ? calculatedArmorClass : -1;
+            }
 
             _gold = gold;
             _tnl = tnl;
@@ -5457,7 +5497,7 @@ StartTickRoomProcessing:
                 bool hasBless;
                 lock (_spellsCastLock)
                 {
-                    hasBless = _spellsCast != null && _spellsCast.Contains("bless");
+                    hasBless = _spellsCast.Contains("bless");
                 }
                 automp = _automp;
                 if (automp >= 8 && !hasBless)
@@ -5490,7 +5530,7 @@ StartTickRoomProcessing:
                 bool hasProtection;
                 lock (_spellsCastLock)
                 {
-                    hasProtection = _spellsCast != null && _spellsCast.Contains("protection");
+                    hasProtection = _spellsCast.Contains("protection");
                 }
                 automp = _automp;
                 if (automp >= 8 && !hasProtection)
@@ -7138,6 +7178,29 @@ StartTickRoomProcessing:
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
             }
 
+            double dArmorClass = _armorClass;
+            string sArmorClassText = _armorClassText;
+            double dArmorClassCalculated = _armorClassCalculated;
+            if (dArmorClass != _armorClassUI || dArmorClassCalculated != _armorClassCalculatedUI && sArmorClassText != _armorClassTextUI)
+            {
+                bool isExact = sArmorClassText.Contains(".");
+                if (isExact)
+                {
+                    lblArmorClassValue.Text = "AC: " + sArmorClassText;
+                }
+                else if (dArmorClassCalculated != -1)
+                {
+                    lblArmorClassValue.Text = "AC: " + sArmorClassText + " (" + dArmorClass.ToString("N1") + ")";
+                }
+                else
+                {
+                    lblArmorClassValue.Text = "AC: " + sArmorClassText;
+                }
+                _armorClassUI = dArmorClass;
+                _armorClassCalculatedUI = dArmorClassCalculated;
+                _armorClassTextUI = sArmorClassText;
+            }
+
             int iGold = _gold;
             if (iGold != _goldUI)
             {
@@ -8081,16 +8144,8 @@ StartTickRoomProcessing:
             bool flying, levitating;
             lock (_spellsCastLock)
             {
-                if (_spellsCast == null)
-                {
-                    flying = false;
-                    levitating = false;
-                }
-                else
-                {
-                    flying = _spellsCast.Contains("fly");
-                    levitating = _spellsCast.Contains("levitation");
-                }
+                flying = _spellsCast.Contains("fly");
+                levitating = _spellsCast.Contains("levitation");
             }
             return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
         }

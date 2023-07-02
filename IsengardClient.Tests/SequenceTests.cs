@@ -218,15 +218,19 @@ namespace IsengardClient.Tests
             int iLevel = -1;
             int iMaxHP = -1;
             int iMaxMP = -1;
+            double armorClass = -1;
+            string sArmorClassText = null;
             int iGold = -1;
             int iTNL = -1;
             bool? poisoned = null;
-            Action<FeedLineParameters, ClassType, int, int, int, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, ct, l, hp, mp, g, tnl, cs, ss, p) =>
+            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, p) =>
             {
                 iLevel = l;
                 classType = ct;
                 iMaxHP = hp;
                 iMaxMP = mp;
+                armorClass = ac;
+                sArmorClassText = actext;
                 iGold = g;
                 iTNL = tnl;
                 cooldowns = cs;
@@ -240,12 +244,14 @@ namespace IsengardClient.Tests
             FeedLineParameters flp = new FeedLineParameters(input);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            armorClass = -1;
+            sArmorClassText = null;
             classType = null;
             poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
             input.Add(" *Poisoned*");
-            input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 0");
+            input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 2");
             input.Add("    Gold:  376933  To Next Level:    24115 Exp         0 GP");
             input.Add("Skills: (power) attack [2:15], ");
             input.Add("  manashield [0:00]");
@@ -259,6 +265,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 12);
             Assert.AreEqual(iMaxHP, 59);
             Assert.AreEqual(iMaxMP, 61);
+            Assert.AreEqual(armorClass, 2);
+            Assert.AreEqual(sArmorClassText, "2");
             Assert.AreEqual(iGold, 376933);
             Assert.AreEqual(iTNL, 24115);
             Assert.IsNotNull(cooldowns);
@@ -277,12 +285,14 @@ namespace IsengardClient.Tests
             Assert.IsTrue(poisoned);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            armorClass = -1;
+            sArmorClassText = null;
             classType = null;
             poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 1)");
             input.Add(string.Empty);
-            input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 0");
+            input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 3.3");
             input.Add("    Gold:  376933  To Next Level:        0 Exp         0 GP");
             input.Add("Skills: (power) attack [0:00], ");
             input.Add("  manashield [0:45]");
@@ -296,6 +306,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 1);
             Assert.IsTrue(iMaxHP == 159);
             Assert.IsTrue(iMaxMP == 261);
+            Assert.AreEqual(armorClass, 3.3);
+            Assert.AreEqual(sArmorClassText, "3.3");
             Assert.IsTrue(iTNL == 0);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
@@ -313,12 +325,14 @@ namespace IsengardClient.Tests
             Assert.IsTrue(spells[1] == "protection");
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
+            armorClass = -1;
+            sArmorClassText = null;
             classType = null;
             poisoned = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 62)");
             input.Add(string.Empty);
-            input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 0");
+            input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 2.0");
             input.Add("    Gold:  376933  To Next Level:       14 Exp         0 GP");
             input.Add("Skills: (power) attack [12:13], manashield [ACTIVE].");
             input.Add("Spells cast: bless");
@@ -332,6 +346,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 62);
             Assert.IsTrue(iMaxHP == 9);
             Assert.IsTrue(iMaxMP == 9);
+            Assert.AreEqual(armorClass, 2);
+            Assert.AreEqual(sArmorClassText, "2.0");
             Assert.IsTrue(iTNL == 14);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
