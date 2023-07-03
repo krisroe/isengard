@@ -3424,6 +3424,14 @@ namespace IsengardClient
             AddBidirectionalExits(oImladrisTownCircle, oImladrisMainStreet6, BidirectionalExitType.WestEast);
             imladrisGraph.Rooms[oImladrisMainStreet6] = new System.Windows.Point(8, 5);
 
+            Room oJewelry = AddRoom("Jewelry", "Zarlow's Fine Jewelry");
+            AddBidirectionalExits(oJewelry, oImladrisMainStreet6, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oJewelry] = new System.Windows.Point(8, 4.5);
+
+            Room oPostOffice = AddRoom("Post Office", "Imladris Post Office");
+            AddBidirectionalExits(oImladrisMainStreet6, oPostOffice, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oPostOffice] = new System.Windows.Point(8, 5.5);
+
             oEastGateOfImladrisInside = AddRoom("East Gate Inside", "East Gate of Imladris");
             AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
