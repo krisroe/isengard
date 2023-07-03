@@ -20,7 +20,6 @@ namespace IsengardClient
             CurrentRoom = currentRoom;
             _graphInputs = gi;
             _forRoomSelection = forRoomSelection;
-            btnSet.Visible = !forRoomSelection;
 
             PopulateTree();
         }
@@ -69,25 +68,6 @@ namespace IsengardClient
             return ret;
         }
 
-        private void btnSet_Click(object sender, EventArgs e)
-        {
-            Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
-            if (r != null)
-            {
-                CurrentRoom = r;
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            }
-        }
-
-        private void treeLocations_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            Room nodeRoom = null;
-            TreeNode tn = treeLocations.SelectedNode;
-            if (tn != null) nodeRoom = ((LocationNode)tn.Tag).FindRoom(_fullMap);
-            btnSet.Enabled = nodeRoom != null && nodeRoom != CurrentRoom;
-        }
-
         private TreeNode DisplayNodeForm(LocationNode startingPoint)
         {
             TreeNode ret = null;
@@ -120,21 +100,17 @@ namespace IsengardClient
             return ret;
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
-        {
-            TreeNode newNode = DisplayNodeForm(null);
-            if (newNode != null)
-            {
-                treeLocations.Nodes.Add(newNode);
-            }
-        }
-
         private void ctxTree_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ToolStripItem tsi = e.ClickedItem;
             TreeNode selectedNode = treeLocations.SelectedNode;
-            LocationNode currentLoc = (LocationNode)selectedNode.Tag;
-            TreeNode parentNode = selectedNode.Parent;
+            LocationNode currentLoc = null;
+            TreeNode parentNode = null;
+            if (selectedNode != null)
+            {
+                currentLoc = (LocationNode)selectedNode.Tag;
+                parentNode = selectedNode.Parent;
+            }
             TreeNodeCollection parentTreeNodes = parentNode == null ? treeLocations.Nodes : selectedNode.Parent.Nodes;
             List<LocationNode> parentLocationNodes = parentNode == null ? _settingsData.Locations : currentLoc.Parent.Children;
             int iCurrentIndex = parentTreeNodes.IndexOf(selectedNode);
@@ -148,12 +124,19 @@ namespace IsengardClient
                     LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
                     if (tsi == tsmiAddChild)
                     {
-                        selectedNode.Nodes.Add(newNodeInfo);
-                        if (currentLoc.Children == null) currentLoc.Children = new List<LocationNode>();
-                        currentLoc.Children.Add(newLoc);
-                        newLoc.ParentID = currentLoc.ID;
-                        newLoc.Parent = currentLoc;
-                        selectedNode.Expand();
+                        if (selectedNode == null) //add top level node
+                        {
+                            treeLocations.Nodes.Add(newNodeInfo);
+                        }
+                        else //add sub node to the current node
+                        {
+                            selectedNode.Nodes.Add(newNodeInfo);
+                            if (currentLoc.Children == null) currentLoc.Children = new List<LocationNode>();
+                            currentLoc.Children.Add(newLoc);
+                            newLoc.ParentID = currentLoc.ID;
+                            newLoc.Parent = currentLoc;
+                            selectedNode.Expand();
+                        }
                     }
                     else if (tsi == tsmiAddSiblingBefore)
                     {
@@ -232,23 +215,36 @@ namespace IsengardClient
                 }
                 treeLocations.SelectedNode = selectedNode;
             }
+            else if (tsi == tsmiSetAsCurrentLocation)
+            {
+                CurrentRoom = currentLoc.FindRoom(_fullMap);
+            }
         }
 
         private void ctxTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode selectedNode = treeLocations.SelectedNode;
             bool haveNode = selectedNode != null;
+            bool showSetCurrentLocation = false;
             if (haveNode)
             {
                 TreeNodeCollection parentCollection = selectedNode.Parent == null ? treeLocations.Nodes : selectedNode.Parent.Nodes;
                 int iIndex = parentCollection.IndexOf(selectedNode);
                 tsmiMoveDown.Enabled = iIndex < parentCollection.Count - 1;
                 tsmiMoveUp.Enabled = iIndex > 0;
+                if (!_forRoomSelection)
+                {
+                    Room r = ((LocationNode)selectedNode.Tag).FindRoom(_fullMap);
+                    showSetCurrentLocation = r != null && r != CurrentRoom;
+                }
             }
-            else
-            {
-                e.Cancel = true;
-            }
+            tsmiAddSiblingAfter.Visible = haveNode;
+            tsmiAddSiblingBefore.Visible = haveNode;
+            tsmiEdit.Visible = haveNode;
+            tsmiMoveDown.Visible = haveNode;
+            tsmiMoveUp.Visible = haveNode;
+            tsmiRemove.Visible = haveNode;
+            tsmiSetAsCurrentLocation.Visible = showSetCurrentLocation;
         }
 
         private void frmLocations_FormClosed(object sender, FormClosedEventArgs e)

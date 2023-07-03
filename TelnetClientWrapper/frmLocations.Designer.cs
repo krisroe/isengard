@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btnSet = new System.Windows.Forms.Button();
             this.treeLocations = new System.Windows.Forms.TreeView();
             this.ctxTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiAddChild = new System.Windows.Forms.ToolStripMenuItem();
@@ -39,32 +38,19 @@
             this.tsmiRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnAdd = new System.Windows.Forms.Button();
+            this.tsmiSetAsCurrentLocation = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxTree.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // btnSet
-            // 
-            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSet.Enabled = false;
-            this.btnSet.Location = new System.Drawing.Point(285, 680);
-            this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(75, 23);
-            this.btnSet.TabIndex = 1;
-            this.btnSet.Text = "Set";
-            this.btnSet.UseVisualStyleBackColor = true;
-            this.btnSet.Click += new System.EventHandler(this.btnSet_Click);
             // 
             // treeLocations
             // 
             this.treeLocations.ContextMenuStrip = this.ctxTree;
-            this.treeLocations.Dock = System.Windows.Forms.DockStyle.Top;
+            this.treeLocations.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeLocations.HideSelection = false;
             this.treeLocations.Location = new System.Drawing.Point(0, 0);
             this.treeLocations.Name = "treeLocations";
-            this.treeLocations.Size = new System.Drawing.Size(372, 674);
+            this.treeLocations.Size = new System.Drawing.Size(372, 715);
             this.treeLocations.TabIndex = 64;
-            this.treeLocations.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeLocations_AfterSelect);
             this.treeLocations.DoubleClick += new System.EventHandler(this.treeLocations_DoubleClick);
             // 
             // ctxTree
@@ -76,73 +62,67 @@
             this.tsmiEdit,
             this.tsmiRemove,
             this.tsmiMoveUp,
-            this.tsmiMoveDown});
+            this.tsmiMoveDown,
+            this.tsmiSetAsCurrentLocation});
             this.ctxTree.Name = "ctxTree";
-            this.ctxTree.Size = new System.Drawing.Size(173, 158);
+            this.ctxTree.Size = new System.Drawing.Size(197, 202);
             this.ctxTree.Opening += new System.ComponentModel.CancelEventHandler(this.ctxTree_Opening);
             this.ctxTree.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxTree_ItemClicked);
             // 
             // tsmiAddChild
             // 
             this.tsmiAddChild.Name = "tsmiAddChild";
-            this.tsmiAddChild.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddChild.Size = new System.Drawing.Size(196, 22);
             this.tsmiAddChild.Text = "Add Child";
             // 
             // tsmiAddSiblingBefore
             // 
             this.tsmiAddSiblingBefore.Name = "tsmiAddSiblingBefore";
-            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(196, 22);
             this.tsmiAddSiblingBefore.Text = "Add Sibling Before";
             // 
             // tsmiAddSiblingAfter
             // 
             this.tsmiAddSiblingAfter.Name = "tsmiAddSiblingAfter";
-            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(196, 22);
             this.tsmiAddSiblingAfter.Text = "Add Sibling After";
             // 
             // tsmiEdit
             // 
             this.tsmiEdit.Name = "tsmiEdit";
-            this.tsmiEdit.Size = new System.Drawing.Size(172, 22);
+            this.tsmiEdit.Size = new System.Drawing.Size(196, 22);
             this.tsmiEdit.Text = "Edit";
             // 
             // tsmiRemove
             // 
             this.tsmiRemove.Name = "tsmiRemove";
-            this.tsmiRemove.Size = new System.Drawing.Size(172, 22);
+            this.tsmiRemove.Size = new System.Drawing.Size(196, 22);
             this.tsmiRemove.Text = "Remove";
             // 
             // tsmiMoveUp
             // 
             this.tsmiMoveUp.Name = "tsmiMoveUp";
-            this.tsmiMoveUp.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveUp.Size = new System.Drawing.Size(196, 22);
             this.tsmiMoveUp.Text = "Move Up";
             // 
             // tsmiMoveDown
             // 
             this.tsmiMoveDown.Name = "tsmiMoveDown";
-            this.tsmiMoveDown.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveDown.Size = new System.Drawing.Size(196, 22);
             this.tsmiMoveDown.Text = "Move Down";
             // 
-            // btnAdd
+            // tsmiSetAsCurrentLocation
             // 
-            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Location = new System.Drawing.Point(12, 680);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 23);
-            this.btnAdd.TabIndex = 65;
-            this.btnAdd.Text = "Add";
-            this.btnAdd.UseVisualStyleBackColor = true;
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            this.tsmiSetAsCurrentLocation.Name = "tsmiSetAsCurrentLocation";
+            this.tsmiSetAsCurrentLocation.Size = new System.Drawing.Size(196, 22);
+            this.tsmiSetAsCurrentLocation.Text = "Set as Current Location";
             // 
             // frmLocations
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(372, 715);
-            this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.treeLocations);
-            this.Controls.Add(this.btnSet);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -156,9 +136,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.TreeView treeLocations;
-        private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.ContextMenuStrip ctxTree;
         private System.Windows.Forms.ToolStripMenuItem tsmiAddChild;
         private System.Windows.Forms.ToolStripMenuItem tsmiAddSiblingBefore;
@@ -167,5 +145,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiRemove;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveUp;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSetAsCurrentLocation;
     }
 }

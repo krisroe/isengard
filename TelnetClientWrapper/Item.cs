@@ -1015,7 +1015,9 @@ namespace IsengardClient
 
         [SingularName("giant stylus")]
         [PluralName("giant styluses")] //CSRTODO: correct plural
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Polearm)]
+        [Weight(3)]
+        [SellGoldRange(2783)]
         GiantStylus,
 
         [SingularName("Girion's key")]
