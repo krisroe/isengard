@@ -735,6 +735,14 @@ namespace IsengardClient
         SellOrJunk = 2,
     }
 
+    internal enum SellableEnum
+    {
+        Unknown,
+        Sellable,
+        NotSellable,
+        Junk,
+    }
+
     internal enum AfterKillMonsterAction
     {
         ContinueCombat = 0,

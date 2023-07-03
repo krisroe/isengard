@@ -3348,7 +3348,7 @@ StartProcessRoom:
                 }
                 else if (remainder.EndsWith(" maims"))
                 {
-                    matches = true; //CSRTODO: 22-23
+                    matches = true; //CSRTODO: 22-24
                 }
                 else if (remainder.EndsWith(" pulverizes"))
                 {

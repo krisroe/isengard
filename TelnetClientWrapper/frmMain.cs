@@ -3131,6 +3131,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You can't take that!", OnCannotPickUpItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItem, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
                 new ConstantOutputSequence("The shopkeep says, \"I won't buy that crap from you.\"", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
+                new ConstantOutputSequence("The shopkeep won't buy that from you.", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
                 new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
                 new ConstantOutputSequence("You can't.  It's cursed!", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
             };
@@ -4639,7 +4640,7 @@ StartTickRoomProcessing:
                     }
 
                     StaticItemData sid = ItemEntity.StaticItemData[itemType];
-                    bool trySell = sid.UpperSellRange > 0 || (!sid.Junk && sid.UpperSellRange == 0);
+                    bool trySell = sid.SellGold > 0 || sid.Sellable == SellableEnum.Unknown;
                     if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms) == CommandResult.CommandSuccessful)
                     {
                         somethingDone = true;
@@ -4647,7 +4648,7 @@ StartTickRoomProcessing:
                         continue;
                     }
 
-                    if (sid.Junk)
+                    if (sid.Sellable == SellableEnum.Junk)
                     {
                         if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms) == CommandResult.CommandSuccessful)
                         {
@@ -4753,20 +4754,13 @@ StartTickRoomProcessing:
                 if (commandType == BackgroundCommandType.SellItem)
                 {
                     int goldDifference = _gold - beforeGold;
-                    if (goldDifference > 0 && (sid.LowerSellRange == 0 || sid.UpperSellRange == 0 || goldDifference < sid.LowerSellRange || goldDifference > sid.UpperSellRange))
+                    if (goldDifference > 0 && (sid.SellGold == 0 || sid.SellGold != goldDifference))
                     {
                         broadcastMessages = new List<string>()
                         {
                             "Sold " + itemType.ToString() + " for " + goldDifference
                         };
-                        if (sid.LowerSellRange == 0 || goldDifference < sid.LowerSellRange)
-                        {
-                            sid.LowerSellRange = goldDifference;
-                        }
-                        if (sid.UpperSellRange == 0 || goldDifference > sid.UpperSellRange)
-                        {
-                            sid.UpperSellRange = goldDifference;
-                        }
+                        if (sid.SellGold == 0) sid.SellGold = goldDifference;
                     }
                 }
                 if (checkWeight)

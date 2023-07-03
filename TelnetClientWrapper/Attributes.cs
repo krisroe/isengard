@@ -219,22 +219,19 @@ namespace IsengardClient
         }
     }
 
-    internal class SellGoldRangeAttribute : Attribute
+    internal class SellableAttribute : Attribute
     {
-        public int LowerRange { get; set; }
-        public int UpperRange { get; set; }
-        public SellGoldRangeAttribute(int SingleValue) : this(SingleValue, SingleValue)
+        public int Gold { get; set; }
+        public SellableEnum Sellable { get; set; }
+        public SellableAttribute(int Gold)
         {
+            Sellable = SellableEnum.Sellable;
+            this.Gold = Gold;
         }
-        public SellGoldRangeAttribute(int LowerRange, int UpperRange)
+        public SellableAttribute(SellableEnum Sellable)
         {
-            this.LowerRange = LowerRange;
-            this.UpperRange = UpperRange;
+            this.Sellable = Sellable;
         }
-    }
-
-    internal class JunkAttribute : Attribute
-    {
     }
 
     internal class StrategyStepAttribute : Attribute

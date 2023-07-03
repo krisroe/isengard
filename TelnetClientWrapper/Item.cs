@@ -104,19 +104,12 @@ namespace IsengardClient
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DisallowedClassesAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.DisallowedClasses = ((DisallowedClassesAttribute)valueAttributes[0]).Classes;
 
-                bool isJunk = false;
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(JunkAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) isJunk = true;
-                sid.Junk = isJunk;
-                if (!isJunk)
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellableAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
                 {
-                    valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellGoldRangeAttribute), false);
-                    if (valueAttributes != null && valueAttributes.Length > 0)
-                    {
-                        SellGoldRangeAttribute sgra = (SellGoldRangeAttribute)valueAttributes[0];
-                        sid.LowerSellRange = sgra.LowerRange;
-                        sid.UpperSellRange = sgra.UpperRange;
-                    }
+                    SellableAttribute attr = (SellableAttribute)valueAttributes[0];
+                    sid.Sellable = attr.Sellable;
+                    sid.SellGold = attr.Gold;
                 }
 
                 bool hasSingular = !string.IsNullOrEmpty(sid.SingularName);
@@ -184,13 +177,13 @@ namespace IsengardClient
                 {
                     sText = sText + " " + sid.ArmorClass.ToString("N1") + "ac";
                 }
-                if (sid.Junk)
+                if (sid.Sellable == SellableEnum.Junk)
                 {
                     sText = sText + " junk";
                 }
-                else if (sid.UpperSellRange > 0)
+                else if (sid.SellGold != 0)
                 {
-                    sText = sText + " $" + sid.UpperSellRange;
+                    sText = sText + " $" + sid.SellGold;
                 }
             }
             return sText;
@@ -218,9 +211,8 @@ namespace IsengardClient
         public string PluralName { get; set; }
         public int Weight { get; set; }
         public double ArmorClass { get; set; }
-        public bool Junk { get; set; }
-        public int LowerSellRange { get; set; }
-        public int UpperSellRange { get; set; }
+        public SellableEnum Sellable { get; set; }
+        public int SellGold { get; set; }
         public ClassTypeFlags DisallowedClasses { get; set; }
     }
 
@@ -496,7 +488,7 @@ namespace IsengardClient
         [PluralName("adamantine darts")]
         [WeaponType(WeaponType.Unknown)]
         [Weight(3)]
-        [SellGoldRange(81, 81)]
+        [Sellable(81)]
         AdamantineDart,
 
         [SingularName("adamantine scale mail armor")]
@@ -553,7 +545,7 @@ namespace IsengardClient
         [PluralName("assassin's daggers")]
         [WeaponType(WeaponType.Stab)]
         [Weight(3)]
-        [SellGoldRange(3168)]
+        [Sellable(3168)]
         AssassinsDagger,
 
         [SingularName("assassin's mask")]
@@ -580,13 +572,13 @@ namespace IsengardClient
         [PluralName("beastmaster's whips")]
         [WeaponType(WeaponType.Missile)]
         [Weight(2)]
-        [SellGoldRange(3093, 3093)]
+        [Sellable(3093)]
         BeastmastersWhip,
 
         [SingularName("bec de corbin")]
         [PluralName("bec de corbins")]
         [WeaponType(WeaponType.Polearm)]
-        [SellGoldRange(99, 99)]
+        [Sellable(99)]
         BecDeCorbin,
 
         [SingularName("black bag")]
@@ -644,14 +636,14 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Torso)]
         [Weight(10)]
         [ArmorClass(0.7)]
-        [SellGoldRange(247, 247)]
+        [Sellable(247)]
         BoneArmor,
 
         [SingularName("bone shield")]
         [PluralName("bone shields")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
-        [SellGoldRange(24, 24)]
+        [Sellable(24)]
         BoneShield,
 
         [SingularName("book of knowledge")]
@@ -729,7 +721,7 @@ namespace IsengardClient
         [PluralName("cat o' nine tailses")] //verified 7/3/23
         [WeaponType(WeaponType.Slash)]
         [Weight(12)]
-        [SellGoldRange(396, 396)]
+        [Sellable(396)]
         CatONineTails,
 
         [SingularName("chain mail armor")]
@@ -768,7 +760,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
         [ArmorClass(0.1)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         ClothHat,
 
         [SingularName("cloth pants")]
@@ -795,7 +787,7 @@ namespace IsengardClient
         [PluralName("crossbows")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
-        [SellGoldRange(207, 207)]
+        [Sellable(207)]
         Crossbow,
 
         [SingularName("crystal amulet")]
@@ -843,14 +835,14 @@ namespace IsengardClient
         [SingularName("diamond")]
         [PluralName("diamonds")]
         [Weight(1)]
-        [SellGoldRange(371, 371)]
+        [Sellable(371)]
         Diamond,
 
         [SingularName("diamond laurel ring")]
         [PluralName("diamond laurel rings")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(2)]
-        [SellGoldRange(148, 148)]
+        [Sellable(148)]
         DiamondLaurelRing,
 
         [SingularName("dildo")]
@@ -861,7 +853,7 @@ namespace IsengardClient
         [PluralName("dirks")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
-        [SellGoldRange(163, 163)]
+        [Sellable(163)]
         Dirk,
 
         [SingularName("double bladed axe")]
@@ -882,7 +874,7 @@ namespace IsengardClient
         [SingularSelection("dwarven mithril gaiter")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(4)]
-        [SellGoldRange(742)]
+        [Sellable(742)]
         DwarvenMithrilGaiters,
 
         [SingularName("ear lobe plug")]
@@ -906,12 +898,12 @@ namespace IsengardClient
         [SingularName("elven chain mail")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Unknown)]
-        [SellGoldRange(185, 185)]
+        [Sellable(185)]
         ElvenChainMail,
 
         [SingularName("elven chain mail gloves")]
         [EquipmentType(EquipmentType.Hands)]
-        [SellGoldRange(86, 86)]
+        [Sellable(86)]
         ElvenChainMailGloves,
 
         [SingularName("elven cured leather gloves")]
@@ -929,20 +921,20 @@ namespace IsengardClient
         [PluralName("elven leather whips")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
-        [SellGoldRange(148, 148)]
+        [Sellable(148)]
         ElvenLeatherWhip,
 
         [SingularName("emerald")]
         [PluralName("emeralds")]
         [Weight(1)]
-        [SellGoldRange(432)]
+        [Sellable(432)]
         Emerald,
 
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
         [EquipmentType(EquipmentType.Neck)]
         [Weight(4)]
-        [SellGoldRange(495)]
+        [Sellable(495)]
         EmeraldCollar,
 
         [SingularName("engagement ring")]
@@ -950,7 +942,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
         [ArmorClass(0.1)]
-        [SellGoldRange(198, 198)]
+        [Sellable(198)]
         EngagementRing,
 
         [SingularName("epee sword")]
@@ -971,7 +963,7 @@ namespace IsengardClient
         [PluralName("flint blades")]
         [WeaponType(WeaponType.Slash)]
         [Weight(6)]
-        [SellGoldRange(224, 224)]
+        [Sellable(224)]
         FlintBlade,
 
         [SingularName("furry sack")]
@@ -1002,7 +994,7 @@ namespace IsengardClient
         [PluralName("gaudy scepters")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(3)]
-        [SellGoldRange(1212)]
+        [Sellable(1212)]
         GaudyScepter,
 
         [SingularName("gawdy ear hoop")]
@@ -1010,14 +1002,14 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Ears)]
         [Weight(2)]
         [ArmorClass(0.2)]
-        [SellGoldRange(99, 99)]
+        [Sellable(99)]
         GawdyEarHoop,
 
         [SingularName("giant stylus")]
         [PluralName("giant styluses")] //CSRTODO: correct plural
         [WeaponType(WeaponType.Polearm)]
         [Weight(3)]
-        [SellGoldRange(2783)]
+        [Sellable(2783)]
         GiantStylus,
 
         [SingularName("Girion's key")]
@@ -1055,7 +1047,7 @@ namespace IsengardClient
         [PluralName("goblin blades")]
         [WeaponType(WeaponType.Unknown)]
         [Weight(5)]
-        [SellGoldRange(116, 116)]
+        [Sellable(116)]
         GoblinBlade,
 
         [SingularName("godentag")]
@@ -1072,7 +1064,7 @@ namespace IsengardClient
         [PluralName("golden daggers")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
-        [SellGoldRange(278, 278)]
+        [Sellable(278)]
         GoldenDagger,
 
         [SingularName("golden mask of the gods")]
@@ -1084,7 +1076,7 @@ namespace IsengardClient
         [PluralName("gold swords")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
-        [SellGoldRange(1267, 1267)]
+        [Sellable(1267)]
         GoldSword,
 
         [SingularName("grate key")]
@@ -1124,20 +1116,20 @@ namespace IsengardClient
         [PluralName("gypsy battle crescents")]
         [WeaponType(WeaponType.Slash)]
         [Weight(3)]
-        [SellGoldRange(965, 965)]
+        [Sellable(965)]
         GypsyBattleCrescent,
 
         [SingularName("gypsy cape")]
         [PluralName("gypsy capes")]
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(2)]
-        [SellGoldRange(148, 148)]
+        [Sellable(148)]
         GypsyCape,
 
         [SingularName("gypsy crown")]
         [PluralName("gypsy crowns")]
         [EquipmentType(EquipmentType.Unknown)]
-        [SellGoldRange(247, 247)]
+        [Sellable(247)]
         [Weight(7)]
         GypsyCrown,
 
@@ -1149,7 +1141,7 @@ namespace IsengardClient
         [SingularName("half-giant chain mail gloves")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(10)]
-        [SellGoldRange(123, 123)]
+        [Sellable(123)]
         HalfGiantChainMailGloves,
 
         [SingularName("hand axe")]
@@ -1166,6 +1158,7 @@ namespace IsengardClient
         [PluralName("hazy potions")]
         [Potion(SpellsEnum.wordofrecall)]
         [Weight(5)]
+        [Sellable(SellableEnum.NotSellable)]
         HazyPotion,
 
         [SingularName("head of lettuce")]
@@ -1211,7 +1204,7 @@ namespace IsengardClient
         [PluralName("iron spears")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(3)]
-        [SellGoldRange(203, 203)]
+        [Sellable(203)]
         IronSpear,
 
         [SingularName("juggling pin")]
@@ -1249,7 +1242,7 @@ namespace IsengardClient
         [PluralName("lancettes")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
-        [SellGoldRange(59, 59)]
+        [Sellable(59)]
         Lancette,
 
         [SingularName("lantern")]
@@ -1260,7 +1253,7 @@ namespace IsengardClient
         [PluralName("large eggs")]
         [Use(SpellsEnum.curemalady)]
         [Weight(3)]
-        [SellGoldRange(49, 49)]
+        [Sellable(49)]
         LargeEgg,
 
         [SingularName("large metal shield")]
@@ -1273,7 +1266,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Shield)]
         [Weight(7)]
         [ArmorClass(0.3)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         LargeWoodenShield,
 
         [SingularName("lead hammer")]
@@ -1352,7 +1345,7 @@ namespace IsengardClient
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
         [Weight(12)]
-        [SellGoldRange(49, 49)]
+        [Sellable(49)]
         MarbleChessSet,
 
         [SingularName("mask of darkness")]
@@ -1360,20 +1353,20 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
         [ArmorClass(0.6)]
-        [SellGoldRange(742, 742)]
+        [Sellable(742)]
         MaskOfDarkness,
 
         [SingularName("mask of distortion")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
-        [SellGoldRange(308, 308)]
+        [Sellable(308)]
         MaskOfDistortion,
 
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(5)]
-        [SellGoldRange(49, 49)]
+        [Sellable(49)]
         MetalHelmet,
 
         [SingularName("metal mask")]
@@ -1389,20 +1382,20 @@ namespace IsengardClient
         [SingularName("mithril chain armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(18)]
-        [SellGoldRange(6187)]
+        [Sellable(6187)]
         MithrilChainArmor,
 
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(5)]
-        [SellGoldRange(2376, 2376)]
+        [Sellable(2376)]
         MithrilJoStick,
 
         [SingularName("mithril lamella leggings")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(5)]
-        [SellGoldRange(3217)]
+        [Sellable(3217)]
         MithrilLamellaLeggings,
 
         [SingularName("mithron blade")]
@@ -1420,7 +1413,7 @@ namespace IsengardClient
         [PluralName("mithron hoods")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(5)]
-        [SellGoldRange(247, 247)]
+        [Sellable(247)]
         [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
         MithronHood,
 
@@ -1438,6 +1431,7 @@ namespace IsengardClient
         [PluralName("MOM tattoos")]
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(1)]
+        [Sellable(1237)]
         MOMTattoo,
 
         [SingularName("morning star")]
@@ -1482,7 +1476,7 @@ namespace IsengardClient
         [PluralName("ork blades")]
         [WeaponType(WeaponType.Slash)]
         [Weight(5)]
-        [SellGoldRange(841)]
+        [Sellable(841)]
         OrkBlade,
 
         [SingularName("out of order sign")]
@@ -1529,7 +1523,7 @@ namespace IsengardClient
         [PluralName("platinum rings")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
-        [SellGoldRange(247, 247)]
+        [Sellable(247)]
         PlatinumRing,
 
         [SingularName("port manifest")]
@@ -1611,14 +1605,14 @@ namespace IsengardClient
         [SingularName("ribbed plate gloves")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(4)]
-        [SellGoldRange(123, 123)]
+        [Sellable(123)]
         RibbedPlateGloves,
 
         [SingularName("ribbed plate hood")]
         [PluralName("ribbed plate hoods")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(6)]
-        [SellGoldRange(371, 371)]
+        [Sellable(371)]
         RibbedPlateHood,
 
         [SingularName("ribbed plate shield")]
@@ -1639,14 +1633,14 @@ namespace IsengardClient
         [SingularName("rod of the dead")]
         //CSRTODO: plural
         [Wand(SpellsEnum.removecurse)] //spell per wiki
-        [SellGoldRange(24, 24)]
+        [Sellable(24)]
         RodOfTheDead,
 
         [SingularName("rogue's mask")]
         [PluralName("rogue's masks")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(1)]
-        [SellGoldRange(297, 297)]
+        [Sellable(297)]
         RoguesMask,
 
         [SingularName("ruby")]
@@ -1670,7 +1664,7 @@ namespace IsengardClient
         [SingularName("sapphire")]
         [PluralName("sapphires")]
         [Weight(1)]
-        [SellGoldRange(179, 179)]
+        [Sellable(179)]
         Sapphire,
 
         [SingularName("scythe")]
@@ -1691,7 +1685,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
         [ArmorClass(0.1)]
-        [SellGoldRange(272, 272)]
+        [Sellable(272)]
         SignetRing,
 
         [SingularName("silima blade")]
@@ -1704,7 +1698,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Torso)]
         [Weight(1)]
         [ArmorClass(0.1)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         SilkVest,
 
         [SingularName("silver arm-bands")]
@@ -1719,7 +1713,7 @@ namespace IsengardClient
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
         [WeaponType(WeaponType.Stab)]
-        [SellGoldRange(67, 67)]
+        [Sellable(67)]
         SilverDagger,
 
         [SingularName("silver key")]
@@ -1742,7 +1736,7 @@ namespace IsengardClient
         [PluralName("slaying swords")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
-        [SellGoldRange(562)]
+        [Sellable(562)]
         SlayingSword,
 
         [SingularName("sling")]
@@ -1766,7 +1760,7 @@ namespace IsengardClient
         [PluralName("small knifes")] //verified 6/21/23
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         SmallKnife,
 
         [SingularName("small metal shield")]
@@ -1798,13 +1792,13 @@ namespace IsengardClient
         [SingularName("sprite boots")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(3)]
-        [SellGoldRange(198, 198)]
+        [Sellable(198)]
         SpriteBoots,
 
         [SingularName("sprite leather armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(7)]
-        [SellGoldRange(185, 185)]
+        [Sellable(185)]
         SpriteLeatherArmor,
 
         [SingularName("sprite leather boots")]
@@ -1814,13 +1808,13 @@ namespace IsengardClient
         [SingularName("sprite leather leggings")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(3)]
-        [SellGoldRange(185, 185)]
+        [Sellable(185)]
         SpriteLeatherLeggings,
 
         [SingularName("splint mail")]
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(15)]
-        [SellGoldRange(3093, 3093)]
+        [Sellable(3093)]
         SplintMail,
 
         [SingularName("sprite bracelet")]
@@ -1831,7 +1825,7 @@ namespace IsengardClient
         [SingularName("spruce-top guitar")]
         [PluralName("spruce-top guitars")]
         [Weight(17)]
-        [SellGoldRange(123, 123)]
+        [Sellable(123)]
         SpruceTopGuitar,
 
         [SingularName("spyglass")]
@@ -1846,7 +1840,7 @@ namespace IsengardClient
         [SingularName("steel-chain armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(18)]
-        [SellGoldRange(569, 569)]
+        [Sellable(569)]
         SteelChainArmor,
 
         [SingularName("stilleto")]
@@ -1889,7 +1883,7 @@ namespace IsengardClient
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
-        [SellGoldRange(1237)]
+        [Sellable(1237)]
         TattooOfAWench,
 
         [SingularName("taupe scroll")]
@@ -1900,7 +1894,7 @@ namespace IsengardClient
         [SingularName("T-bone")]
         [PluralName("T-bones")]
         [Weight(4)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         TBone,
 
         [SingularName("throwing axe")]
@@ -1921,13 +1915,13 @@ namespace IsengardClient
         [SingularName("topaz")]
         //CSRTODO: plural
         [Weight(3)]
-        [SellGoldRange(308, 308)]
+        [Sellable(308)]
         Topaz,
 
         [SingularName("torch")]
         [PluralName("torchs")] //verified 6/21/23
         [Weight(1)]
-        [Junk]
+        [Sellable(SellableEnum.Junk)]
         Torch,
 
         [SingularName("town map")]
@@ -1978,14 +1972,14 @@ namespace IsengardClient
         [PluralName("voulges")]
         [WeaponType(WeaponType.Slash)]
         [Weight(1)]
-        [SellGoldRange(173, 173)]
+        [Sellable(173)]
         Voulge,
 
         [SingularName("wagonmaster's whip")]
         [PluralName("wagonmaster's whips")]
         [WeaponType(WeaponType.Missile)]
         [Weight(3)]
-        [SellGoldRange(1262)]
+        [Sellable(1262)]
         WagonmastersWhip,
 
         [SingularName("warhammer")]
