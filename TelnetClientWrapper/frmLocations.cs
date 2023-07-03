@@ -69,12 +69,6 @@ namespace IsengardClient
             return ret;
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
-        }
-
         private void btnSet_Click(object sender, EventArgs e)
         {
             Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);

@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.btnSet = new System.Windows.Forms.Button();
-            this.btnClose = new System.Windows.Forms.Button();
             this.treeLocations = new System.Windows.Forms.TreeView();
             this.ctxTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiAddChild = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,24 +47,13 @@
             // 
             this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.Enabled = false;
-            this.btnSet.Location = new System.Drawing.Point(204, 680);
+            this.btnSet.Location = new System.Drawing.Point(285, 680);
             this.btnSet.Name = "btnSet";
             this.btnSet.Size = new System.Drawing.Size(75, 23);
             this.btnSet.TabIndex = 1;
             this.btnSet.Text = "Set";
             this.btnSet.UseVisualStyleBackColor = true;
             this.btnSet.Click += new System.EventHandler(this.btnSet_Click);
-            // 
-            // btnClose
-            // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.Location = new System.Drawing.Point(285, 680);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 2;
-            this.btnClose.Text = "Close";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // treeLocations
             // 
@@ -154,7 +142,6 @@
             this.ClientSize = new System.Drawing.Size(372, 715);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.treeLocations);
-            this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnSet);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -170,7 +157,6 @@
 
         #endregion
         private System.Windows.Forms.Button btnSet;
-        private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.TreeView treeLocations;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.ContextMenuStrip ctxTree;

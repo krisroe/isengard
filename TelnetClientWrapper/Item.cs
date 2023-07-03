@@ -1906,6 +1906,12 @@ namespace IsengardClient
         [Weight(1)]
         ToiletPaper,
 
+        [SingularName("topaz")]
+        //CSRTODO: plural
+        [Weight(3)]
+        [SellGoldRange(308, 308)]
+        Topaz,
+
         [SingularName("torch")]
         [PluralName("torchs")] //verified 6/21/23
         [Weight(1)]
