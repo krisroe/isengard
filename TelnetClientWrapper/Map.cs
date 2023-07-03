@@ -340,8 +340,7 @@ namespace IsengardClient
 
             Room dalePurves = AddRoom("Dale Purves", "Dale's Beach");
             dalePurves.AddPermanentMobs(MobTypeEnum.DalePurves);
-            Exit e = AddExit(marinersAnchor, dalePurves, "back door");
-            e.Hidden = true;
+            AddExit(marinersAnchor, dalePurves, "back door");
             AddExit(dalePurves, marinersAnchor, "east");
             tharbadWestGraph.Rooms[dalePurves] = new System.Windows.Point(3, 6);
 
@@ -424,7 +423,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oCrookedPath] = new System.Windows.Point(1, 4);
 
             Room oNorthShoreGrotto = AddRoom("North Shore Grotto", "North Shore Grotto");
-            e = AddExit(oNorthShore, oNorthShoreGrotto, "west");
+            Exit e = AddExit(oNorthShore, oNorthShoreGrotto, "west");
             e.IsTrapExit = true;
             AddExit(oNorthShoreGrotto, oCrookedPath, "southwest");
             tharbadWestGraph.Rooms[oNorthShoreGrotto] = new System.Windows.Point(3, 3);
@@ -4779,13 +4778,13 @@ namespace IsengardClient
 
             Room oLimbo = AddRoom("Limbo", "Limbo");
             oLimbo.Intangible = true;
-            Exit e = AddExit(oLimbo, treeOfLife, "green");
+            Exit e = AddExit(oLimbo, treeOfLife, "green door");
             e.MustOpen = true;
             intangibleGraph.Rooms[oLimbo] = new System.Windows.Point(1, 2);
 
             Room oDarkTunnel = AddRoom("Dark Tunnel", "Dark Tunnel");
             oDarkTunnel.Intangible = true;
-            e = AddExit(oLimbo, oDarkTunnel, "blue");
+            e = AddExit(oLimbo, oDarkTunnel, "blue door");
             e.MustOpen = true;
             e.MinimumLevel = 4;
             AddExit(oDarkTunnel, healingHand, "light");
@@ -4795,7 +4794,7 @@ namespace IsengardClient
 
             Room oFluffyCloudsAboveNindamos = AddRoom("Fluffy Clouds", "Fluffy clouds above Nindamos");
             oFluffyCloudsAboveNindamos.Intangible = false;
-            e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white");
+            e = AddExit(oLimbo, oFluffyCloudsAboveNindamos, "white door");
             e.MustOpen = true;
             AddExit(oFluffyCloudsAboveNindamos, nindamosVillageCenter, "green");
             intangibleGraph.Rooms[oFluffyCloudsAboveNindamos] = new System.Windows.Point(2, 1);

@@ -933,6 +933,7 @@ namespace IsengardClient
         [PluralName("engagement rings")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
+        [ArmorClass(0.1)]
         [SellGoldRange(198, 198)]
         EngagementRing,
 
@@ -991,6 +992,7 @@ namespace IsengardClient
         [PluralName("gawdy ear hoops")]
         [EquipmentType(EquipmentType.Ears)]
         [Weight(2)]
+        [ArmorClass(0.2)]
         [SellGoldRange(99, 99)]
         GawdyEarHoop,
 
@@ -1243,6 +1245,7 @@ namespace IsengardClient
         [SingularName("large wooden shield")]
         [PluralName("large wooden shields")]
         [Weight(7)]
+        [ArmorClass(0.3)]
         [Junk]
         LargeWoodenShield,
 
@@ -1325,6 +1328,7 @@ namespace IsengardClient
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
+        [ArmorClass(0.6)]
         [SellGoldRange(742, 742)]
         MaskOfDarkness,
 

@@ -1329,7 +1329,11 @@ namespace IsengardClient
                     }
                     else if (!string.IsNullOrWhiteSpace(nextLine))
                     {
-                        return;
+                        //wearing equipment can trigger additional messages so skip additional messages in that case
+                        if (eAction != ItemManagementAction.Equip)
+                        {
+                            return;
+                        }
                     }
                     if (!string.IsNullOrEmpty(objectText))
                     {

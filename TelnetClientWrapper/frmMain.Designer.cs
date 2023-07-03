@@ -70,6 +70,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
             this.lblPawnShop = new System.Windows.Forms.Label();
             this.cboPawnShop = new System.Windows.Forms.ComboBox();
@@ -169,7 +170,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -696,6 +696,16 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // lblArmorClassValue
+            // 
+            this.lblArmorClassValue.BackColor = System.Drawing.Color.DarkKhaki;
+            this.lblArmorClassValue.Location = new System.Drawing.Point(538, 76);
+            this.lblArmorClassValue.Name = "lblArmorClassValue";
+            this.lblArmorClassValue.Size = new System.Drawing.Size(108, 18);
+            this.lblArmorClassValue.TabIndex = 152;
+            this.lblArmorClassValue.Text = "Value";
+            this.lblArmorClassValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnGoToPawnShop
             // 
@@ -1746,16 +1756,6 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
-            // 
-            // lblArmorClassValue
-            // 
-            this.lblArmorClassValue.BackColor = System.Drawing.Color.DarkKhaki;
-            this.lblArmorClassValue.Location = new System.Drawing.Point(538, 76);
-            this.lblArmorClassValue.Name = "lblArmorClassValue";
-            this.lblArmorClassValue.Size = new System.Drawing.Size(108, 18);
-            this.lblArmorClassValue.TabIndex = 152;
-            this.lblArmorClassValue.Text = "Value";
-            this.lblArmorClassValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // frmMain
             // 

@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 namespace IsengardClient
 {
@@ -19,6 +18,24 @@ namespace IsengardClient
         {
             InitializeComponent();
 
+            tsmiAddOffensiveAuto.Tag = MagicStrategyStep.OffensiveSpellAuto;
+            tsmiAddOffensiveLevel1.Tag = MagicStrategyStep.OffensiveSpellLevel1;
+            tsmiAddOffensiveLevel2.Tag = MagicStrategyStep.OffensiveSpellLevel2;
+            tsmiAddOffensiveLevel3.Tag = MagicStrategyStep.OffensiveSpellLevel3;
+            tsmiAddOffensiveLevel4.Tag = MagicStrategyStep.OffensiveSpellLevel4;
+            tsmiAddOffensiveLevel5.Tag = MagicStrategyStep.OffensiveSpellLevel5;
+            tsmiAddStun.Tag = MagicStrategyStep.Stun;
+            tsmiMagicAddVigor.Tag = MagicStrategyStep.Vigor;
+            tsmiMagicAddMendWounds.Tag = MagicStrategyStep.MendWounds;
+            tsmiMagicAddGenericHeal.Tag = MagicStrategyStep.GenericHeal;
+            tsmiMagicAddCurePoison.Tag = MagicStrategyStep.CurePoison;
+            tsmiAddRegularAttack.Tag = MeleeStrategyStep.RegularAttack;
+            tsmiAddPowerAttack.Tag = MeleeStrategyStep.PowerAttack;
+            tsmiPotionsAddVigor.Tag = PotionsStrategyStep.Vigor;
+            tsmiPotionsAddMendWounds.Tag = PotionsStrategyStep.MendWounds;
+            tsmiPotionsAddGenericHeal.Tag = PotionsStrategyStep.GenericHeal;
+            tsmiPotionsAddCurePoison.Tag = PotionsStrategyStep.CurePoison;
+
             cboOnKillMonster.SelectedIndex = (int)AfterKillMonsterAction.StopCombat;
 
             foreach (var nextFinalAction in Enum.GetValues(typeof(FinalStepAction)))
@@ -27,6 +44,10 @@ namespace IsengardClient
                 cboMeleeFinalAction.Items.Add(nextFinalAction.ToString());
                 cboPotionsFinalAction.Items.Add(nextFinalAction.ToString());
             }
+
+            chkMagicLastStepIndefinite.Enabled = false;
+            chkMeleeRepeatLastStepIndefinitely.Enabled = false;
+            chkPotionsRepeatLastStepIndefinitely.Enabled = false;
         }
 
         public frmStrategy(Strategy s) : this()
@@ -41,10 +62,6 @@ namespace IsengardClient
             RefreshAutoSpellLevelUI();
 
             if (s.ManaPool > 0) txtManaPool.Text = s.ManaPool.ToString();
-
-            chkMagicLastStepIndefinite.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None;
-            chkMeleeRepeatLastStepIndefinitely.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None;
-            chkPotionsRepeatLastStepIndefinitely.Checked = (s.TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None;
 
             cboMagicFinalAction.SelectedItem = s.FinalMagicAction.ToString();
             cboMeleeFinalAction.SelectedItem = s.FinalMeleeAction.ToString();
@@ -63,27 +80,40 @@ namespace IsengardClient
             if (s.PotionsVigorOnlyWhenDownXHP > 0) txtPotionsVigorWhenDownXHP.Text = s.PotionsVigorOnlyWhenDownXHP.ToString();
             if (s.PotionsMendOnlyWhenDownXHP > 0) txtPotionsMendWhenDownXHP.Text = s.PotionsMendOnlyWhenDownXHP.ToString();
 
-            if (s.MagicSteps != null)
+            bool hasSteps;
+            
+            hasSteps = s.MagicSteps != null;
+            if (hasSteps)
             {
                 foreach (var nextStep in s.MagicSteps)
                 {
                     lstMagicSteps.Items.Add(nextStep);
                 }
             }
-            if (s.MeleeSteps != null)
+            chkMagicLastStepIndefinite.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None;
+            chkMagicLastStepIndefinite.Enabled = hasSteps;
+
+            hasSteps = s.MeleeSteps != null;
+            if (hasSteps)
             {
                 foreach (var nextStep in s.MeleeSteps)
                 {
                     lstMeleeSteps.Items.Add(nextStep);
                 }
             }
-            if (s.PotionsSteps != null)
+            chkMeleeRepeatLastStepIndefinitely.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None;
+            chkMeleeRepeatLastStepIndefinitely.Enabled = hasSteps;
+
+            hasSteps = s.PotionsSteps != null;
+            if (hasSteps)
             {
                 foreach (var nextStep in s.PotionsSteps)
                 {
                     lstPotionsSteps.Items.Add(nextStep);
                 }
             }
+            chkPotionsRepeatLastStepIndefinitely.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None;
+            chkPotionsRepeatLastStepIndefinitely.Enabled = hasSteps;
         }
 
         private void chkAutogenerateName_CheckedChanged(object sender, EventArgs e)
@@ -294,6 +324,91 @@ namespace IsengardClient
                 _currentAutoSpellLevelMaximum = -1;
             }
             RefreshAutoSpellLevelUI();
+        }
+
+        private void ctxMagicSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            HandleStepsContextMenuOpening(lstMagicSteps, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown);
+        }
+
+        private void ctxMeleeSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            HandleStepsContextMenuOpening(lstMeleeSteps, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown);
+        }
+
+        private void ctxPotionsSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            HandleStepsContextMenuOpening(lstPotionsSteps, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown);
+        }
+
+        private void HandleStepsContextMenuOpening(ListBox lst, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown)
+        {
+            int iSelectedIndex = lst.SelectedIndex;
+            bool hasSelectedItem = iSelectedIndex >= 0;
+            remove.Enabled = hasSelectedItem;
+            moveUp.Enabled = hasSelectedItem && iSelectedIndex > 0;
+            moveDown.Enabled = hasSelectedItem && iSelectedIndex < lst.Items.Count - 1;
+        }
+
+        private void ctxMagicSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            HandleContextMenuItemClicked(e, lstMagicSteps, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown, chkMagicLastStepIndefinite);
+        }
+
+        private void ctxMeleeSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            HandleContextMenuItemClicked(e, lstMeleeSteps, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown,chkMeleeRepeatLastStepIndefinitely);
+        }
+
+        private void ctxPotionsSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            HandleContextMenuItemClicked(e, lstPotionsSteps, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown, chkPotionsRepeatLastStepIndefinitely);
+        }
+
+        private void HandleContextMenuItemClicked(ToolStripItemClickedEventArgs e, ListBox lst, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown, CheckBox repeatLastStepIndefinitely)
+        {
+            ToolStripItem clickedItem = e.ClickedItem;
+            object selectedItem = lst.SelectedItem;
+            int iSelectedIndex = lst.SelectedIndex;
+            if (clickedItem == remove || clickedItem == moveUp || clickedItem == moveDown)
+            {
+                lst.Items.RemoveAt(iSelectedIndex);
+                if (clickedItem == moveUp)
+                {
+                    lst.Items.Insert(iSelectedIndex - 1, selectedItem);
+                }
+                else if (clickedItem == moveDown)
+                {
+                    if (iSelectedIndex == lst.Items.Count - 1)
+                        lst.Items.Add(selectedItem);
+                    else
+                        lst.Items.Insert(iSelectedIndex + 1, selectedItem);
+                }
+                else //remove
+                {
+                    if (lst.Items.Count == 0)
+                    {
+                        repeatLastStepIndefinitely.Checked = false;
+                        repeatLastStepIndefinitely.Enabled = false;
+                    }
+                }
+            }
+        }
+
+        private void tsmiMagicAdd_Click(object sender, EventArgs e)
+        {
+            lstMagicSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
+            chkMagicLastStepIndefinite.Enabled = true;
+        }
+        private void tsmiMeleeAdd_Click(object sender, EventArgs e)
+        {
+            lstMeleeSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
+            chkMeleeRepeatLastStepIndefinitely.Enabled = true;
+        }
+        private void tsmiPotionsAdd_Click(object sender, EventArgs e)
+        {
+            lstPotionsSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
+            chkPotionsRepeatLastStepIndefinitely.Enabled = true;
         }
     }
 }

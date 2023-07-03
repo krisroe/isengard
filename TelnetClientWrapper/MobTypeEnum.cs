@@ -257,6 +257,7 @@
         [SingularName("Dale Purves")]
         //CSRTODO: no plural?
         [Experience(800)]
+        [Alignment(AlignmentType.Blue)]
         DalePurves,
 
         [SingularName("damaged skeleton")]
@@ -568,6 +569,7 @@
 
         [SingularName("grizzly bear")]
         [PluralName("grizzly bears")]
+        [Experience(40)]
         GrizzlyBear,
 
         [SingularName("groundskeeper")]
@@ -1404,6 +1406,10 @@
         [SingularName("stoker")]
         [PluralName("stokers")]
         Stoker,
+
+        [SingularName("street busker")]
+        [PluralName("street buskers")]
+        StreetBusker,
 
         [SingularName("strumpet")]
         [PluralName("strumpets")]

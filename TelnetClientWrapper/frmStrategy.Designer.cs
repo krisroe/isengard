@@ -50,6 +50,21 @@
             this.lblManaPool = new System.Windows.Forms.Label();
             this.lstMagicSteps = new System.Windows.Forms.ListBox();
             this.ctxMagicSteps = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiMagicAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddStun = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveAuto = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveLevel1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveLevel2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveLevel3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveLevel4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddOffensiveLevel5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicAddVigor = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicAddMendWounds = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicAddGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicAddCurePoison = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.grpMelee = new System.Windows.Forms.GroupBox();
             this.txtMeleeOnlyWhenStunnedForXMS = new System.Windows.Forms.TextBox();
             this.lblMeleeOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
@@ -59,6 +74,12 @@
             this.chkMeleeRepeatLastStepIndefinitely = new System.Windows.Forms.CheckBox();
             this.lstMeleeSteps = new System.Windows.Forms.ListBox();
             this.ctxMeleeSteps = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiMeleeAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddRegularAttack = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddPowerAttack = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMeleeRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMeleeMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMeleeMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.grpPotions = new System.Windows.Forms.GroupBox();
             this.txtPotionsOnlyWhenStunnedForXMS = new System.Windows.Forms.TextBox();
             this.lblPotionsOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
@@ -72,6 +93,14 @@
             this.chkPotionsRepeatLastStepIndefinitely = new System.Windows.Forms.CheckBox();
             this.lstPotionsSteps = new System.Windows.Forms.ListBox();
             this.ctxPotionsSteps = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiPotionsAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsAddVigor = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsAddMendWounds = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsAddGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsAddCurePoison = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.chkAutogenerateName = new System.Windows.Forms.CheckBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.lblName = new System.Windows.Forms.Label();
@@ -81,8 +110,11 @@
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.grpMagic.SuspendLayout();
             this.ctxAutoSpellLevels.SuspendLayout();
+            this.ctxMagicSteps.SuspendLayout();
             this.grpMelee.SuspendLayout();
+            this.ctxMeleeSteps.SuspendLayout();
             this.grpPotions.SuspendLayout();
+            this.ctxPotionsSteps.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpMagic
@@ -128,7 +160,7 @@
             // chkMagicEnabled
             // 
             this.chkMagicEnabled.AutoSize = true;
-            this.chkMagicEnabled.Location = new System.Drawing.Point(43, 342);
+            this.chkMagicEnabled.Location = new System.Drawing.Point(43, 247);
             this.chkMagicEnabled.Name = "chkMagicEnabled";
             this.chkMagicEnabled.Size = new System.Drawing.Size(71, 17);
             this.chkMagicEnabled.TabIndex = 145;
@@ -137,7 +169,7 @@
             // 
             // txtMagicMendWhenDownXHP
             // 
-            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(130, 317);
+            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(128, 336);
             this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
             this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtMagicMendWhenDownXHP.TabIndex = 142;
@@ -145,7 +177,7 @@
             // lblMagicMendWhenDownXHP
             // 
             this.lblMagicMendWhenDownXHP.AutoSize = true;
-            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(4, 321);
+            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(2, 340);
             this.lblMagicMendWhenDownXHP.Name = "lblMagicMendWhenDownXHP";
             this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(123, 13);
             this.lblMagicMendWhenDownXHP.TabIndex = 141;
@@ -153,7 +185,7 @@
             // 
             // txtMagicVigorWhenDownXHP
             // 
-            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(130, 292);
+            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(128, 311);
             this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
             this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtMagicVigorWhenDownXHP.TabIndex = 140;
@@ -161,7 +193,7 @@
             // lblMagicVigorWhenDownXHP
             // 
             this.lblMagicVigorWhenDownXHP.AutoSize = true;
-            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(4, 296);
+            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(2, 315);
             this.lblMagicVigorWhenDownXHP.Name = "lblMagicVigorWhenDownXHP";
             this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(120, 13);
             this.lblMagicVigorWhenDownXHP.TabIndex = 139;
@@ -172,7 +204,7 @@
             this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
             this.lblAutoSpellLevels.ContextMenuStrip = this.ctxAutoSpellLevels;
             this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(6, 274);
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(4, 293);
             this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
             this.lblAutoSpellLevels.Size = new System.Drawing.Size(218, 15);
             this.lblAutoSpellLevels.TabIndex = 138;
@@ -241,7 +273,7 @@
             // 
             // txtManaPool
             // 
-            this.txtManaPool.Location = new System.Drawing.Point(70, 251);
+            this.txtManaPool.Location = new System.Drawing.Point(68, 270);
             this.txtManaPool.Name = "txtManaPool";
             this.txtManaPool.Size = new System.Drawing.Size(134, 20);
             this.txtManaPool.TabIndex = 9;
@@ -259,7 +291,7 @@
             // lblManaPool
             // 
             this.lblManaPool.AutoSize = true;
-            this.lblManaPool.Location = new System.Drawing.Point(4, 255);
+            this.lblManaPool.Location = new System.Drawing.Point(2, 274);
             this.lblManaPool.Name = "lblManaPool";
             this.lblManaPool.Size = new System.Drawing.Size(60, 13);
             this.lblManaPool.TabIndex = 8;
@@ -278,8 +310,128 @@
             // ctxMagicSteps
             // 
             this.ctxMagicSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxMagicSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiMagicAdd,
+            this.tsmiMagicRemove,
+            this.tsmiMagicMoveUp,
+            this.tsmiMagicMoveDown});
             this.ctxMagicSteps.Name = "ctxMagicSteps";
-            this.ctxMagicSteps.Size = new System.Drawing.Size(61, 4);
+            this.ctxMagicSteps.Size = new System.Drawing.Size(139, 92);
+            this.ctxMagicSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMagicSteps_Opening);
+            this.ctxMagicSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMagicSteps_ItemClicked);
+            // 
+            // tsmiMagicAdd
+            // 
+            this.tsmiMagicAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAddStun,
+            this.tsmiAddOffensiveAuto,
+            this.tsmiAddOffensiveLevel1,
+            this.tsmiAddOffensiveLevel2,
+            this.tsmiAddOffensiveLevel3,
+            this.tsmiAddOffensiveLevel4,
+            this.tsmiAddOffensiveLevel5,
+            this.tsmiMagicAddVigor,
+            this.tsmiMagicAddMendWounds,
+            this.tsmiMagicAddGenericHeal,
+            this.tsmiMagicAddCurePoison});
+            this.tsmiMagicAdd.Name = "tsmiMagicAdd";
+            this.tsmiMagicAdd.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMagicAdd.Text = "Add";
+            // 
+            // tsmiAddStun
+            // 
+            this.tsmiAddStun.Name = "tsmiAddStun";
+            this.tsmiAddStun.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddStun.Text = "Stun";
+            this.tsmiAddStun.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveAuto
+            // 
+            this.tsmiAddOffensiveAuto.Name = "tsmiAddOffensiveAuto";
+            this.tsmiAddOffensiveAuto.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveAuto.Text = "Offensive Spell Auto";
+            this.tsmiAddOffensiveAuto.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveLevel1
+            // 
+            this.tsmiAddOffensiveLevel1.Name = "tsmiAddOffensiveLevel1";
+            this.tsmiAddOffensiveLevel1.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveLevel1.Text = "Offensive Spell Level 1";
+            this.tsmiAddOffensiveLevel1.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveLevel2
+            // 
+            this.tsmiAddOffensiveLevel2.Name = "tsmiAddOffensiveLevel2";
+            this.tsmiAddOffensiveLevel2.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveLevel2.Text = "Offensive Spell Level 2";
+            this.tsmiAddOffensiveLevel2.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveLevel3
+            // 
+            this.tsmiAddOffensiveLevel3.Name = "tsmiAddOffensiveLevel3";
+            this.tsmiAddOffensiveLevel3.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveLevel3.Text = "Offensive Spell Level 3";
+            this.tsmiAddOffensiveLevel3.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveLevel4
+            // 
+            this.tsmiAddOffensiveLevel4.Name = "tsmiAddOffensiveLevel4";
+            this.tsmiAddOffensiveLevel4.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveLevel4.Text = "Offensive Spell Level 4";
+            this.tsmiAddOffensiveLevel4.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddOffensiveLevel5
+            // 
+            this.tsmiAddOffensiveLevel5.Name = "tsmiAddOffensiveLevel5";
+            this.tsmiAddOffensiveLevel5.Size = new System.Drawing.Size(191, 22);
+            this.tsmiAddOffensiveLevel5.Text = "Offensive Spell Level 5";
+            this.tsmiAddOffensiveLevel5.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicAddVigor
+            // 
+            this.tsmiMagicAddVigor.Name = "tsmiMagicAddVigor";
+            this.tsmiMagicAddVigor.Size = new System.Drawing.Size(191, 22);
+            this.tsmiMagicAddVigor.Text = "Vigor";
+            this.tsmiMagicAddVigor.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicAddMendWounds
+            // 
+            this.tsmiMagicAddMendWounds.Name = "tsmiMagicAddMendWounds";
+            this.tsmiMagicAddMendWounds.Size = new System.Drawing.Size(191, 22);
+            this.tsmiMagicAddMendWounds.Text = "Mend-Wounds";
+            this.tsmiMagicAddMendWounds.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicAddGenericHeal
+            // 
+            this.tsmiMagicAddGenericHeal.Name = "tsmiMagicAddGenericHeal";
+            this.tsmiMagicAddGenericHeal.Size = new System.Drawing.Size(191, 22);
+            this.tsmiMagicAddGenericHeal.Text = "Generic Heal";
+            this.tsmiMagicAddGenericHeal.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicAddCurePoison
+            // 
+            this.tsmiMagicAddCurePoison.Name = "tsmiMagicAddCurePoison";
+            this.tsmiMagicAddCurePoison.Size = new System.Drawing.Size(191, 22);
+            this.tsmiMagicAddCurePoison.Text = "Cure-Poison";
+            this.tsmiMagicAddCurePoison.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicRemove
+            // 
+            this.tsmiMagicRemove.Name = "tsmiMagicRemove";
+            this.tsmiMagicRemove.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMagicRemove.Text = "Remove";
+            // 
+            // tsmiMagicMoveUp
+            // 
+            this.tsmiMagicMoveUp.Name = "tsmiMagicMoveUp";
+            this.tsmiMagicMoveUp.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMagicMoveUp.Text = "Move Up";
+            // 
+            // tsmiMagicMoveDown
+            // 
+            this.tsmiMagicMoveDown.Name = "tsmiMagicMoveDown";
+            this.tsmiMagicMoveDown.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMagicMoveDown.Text = "Move Down";
             // 
             // grpMelee
             // 
@@ -292,7 +444,7 @@
             this.grpMelee.Controls.Add(this.lstMeleeSteps);
             this.grpMelee.Location = new System.Drawing.Point(266, 10);
             this.grpMelee.Name = "grpMelee";
-            this.grpMelee.Size = new System.Drawing.Size(230, 281);
+            this.grpMelee.Size = new System.Drawing.Size(230, 272);
             this.grpMelee.TabIndex = 1;
             this.grpMelee.TabStop = false;
             this.grpMelee.Text = "Melee";
@@ -317,7 +469,7 @@
             // chkMeleeEnabled
             // 
             this.chkMeleeEnabled.AutoSize = true;
-            this.chkMeleeEnabled.Location = new System.Drawing.Point(50, 254);
+            this.chkMeleeEnabled.Location = new System.Drawing.Point(50, 247);
             this.chkMeleeEnabled.Name = "chkMeleeEnabled";
             this.chkMeleeEnabled.Size = new System.Drawing.Size(71, 17);
             this.chkMeleeEnabled.TabIndex = 147;
@@ -349,7 +501,7 @@
             // chkMeleeRepeatLastStepIndefinitely
             // 
             this.chkMeleeRepeatLastStepIndefinitely.AutoSize = true;
-            this.chkMeleeRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 183);
+            this.chkMeleeRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 181);
             this.chkMeleeRepeatLastStepIndefinitely.Name = "chkMeleeRepeatLastStepIndefinitely";
             this.chkMeleeRepeatLastStepIndefinitely.Size = new System.Drawing.Size(161, 17);
             this.chkMeleeRepeatLastStepIndefinitely.TabIndex = 3;
@@ -369,8 +521,56 @@
             // ctxMeleeSteps
             // 
             this.ctxMeleeSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxMeleeSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiMeleeAdd,
+            this.tsmiMeleeRemove,
+            this.tsmiMeleeMoveUp,
+            this.tsmiMeleeMoveDown});
             this.ctxMeleeSteps.Name = "ctxMeleeSteps";
-            this.ctxMeleeSteps.Size = new System.Drawing.Size(61, 4);
+            this.ctxMeleeSteps.Size = new System.Drawing.Size(139, 92);
+            this.ctxMeleeSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMeleeSteps_Opening);
+            this.ctxMeleeSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMeleeSteps_ItemClicked);
+            // 
+            // tsmiMeleeAdd
+            // 
+            this.tsmiMeleeAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAddRegularAttack,
+            this.tsmiAddPowerAttack});
+            this.tsmiMeleeAdd.Name = "tsmiMeleeAdd";
+            this.tsmiMeleeAdd.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMeleeAdd.Text = "Add";
+            // 
+            // tsmiAddRegularAttack
+            // 
+            this.tsmiAddRegularAttack.Name = "tsmiAddRegularAttack";
+            this.tsmiAddRegularAttack.Size = new System.Drawing.Size(180, 22);
+            this.tsmiAddRegularAttack.Text = "Regular Attack";
+            this.tsmiAddRegularAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
+            // 
+            // tsmiAddPowerAttack
+            // 
+            this.tsmiAddPowerAttack.Name = "tsmiAddPowerAttack";
+            this.tsmiAddPowerAttack.Size = new System.Drawing.Size(180, 22);
+            this.tsmiAddPowerAttack.Text = "Power Attack";
+            this.tsmiAddPowerAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
+            // 
+            // tsmiMeleeRemove
+            // 
+            this.tsmiMeleeRemove.Name = "tsmiMeleeRemove";
+            this.tsmiMeleeRemove.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMeleeRemove.Text = "Remove";
+            // 
+            // tsmiMeleeMoveUp
+            // 
+            this.tsmiMeleeMoveUp.Name = "tsmiMeleeMoveUp";
+            this.tsmiMeleeMoveUp.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMeleeMoveUp.Text = "Move Up";
+            // 
+            // tsmiMeleeMoveDown
+            // 
+            this.tsmiMeleeMoveDown.Name = "tsmiMeleeMoveDown";
+            this.tsmiMeleeMoveDown.Size = new System.Drawing.Size(138, 22);
+            this.tsmiMeleeMoveDown.Text = "Move Down";
             // 
             // grpPotions
             // 
@@ -394,7 +594,7 @@
             // 
             // txtPotionsOnlyWhenStunnedForXMS
             // 
-            this.txtPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(146, 231);
+            this.txtPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(146, 228);
             this.txtPotionsOnlyWhenStunnedForXMS.Name = "txtPotionsOnlyWhenStunnedForXMS";
             this.txtPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(62, 20);
             this.txtPotionsOnlyWhenStunnedForXMS.TabIndex = 151;
@@ -402,7 +602,7 @@
             // lblPotionsOnlyWhenStunnedForXMS
             // 
             this.lblPotionsOnlyWhenStunnedForXMS.AutoSize = true;
-            this.lblPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(8, 233);
+            this.lblPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(8, 230);
             this.lblPotionsOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPotionsOnlyWhenStunnedForXMS.Name = "lblPotionsOnlyWhenStunnedForXMS";
             this.lblPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(142, 13);
@@ -412,7 +612,7 @@
             // chkPotionsEnabled
             // 
             this.chkPotionsEnabled.AutoSize = true;
-            this.chkPotionsEnabled.Location = new System.Drawing.Point(50, 306);
+            this.chkPotionsEnabled.Location = new System.Drawing.Point(50, 247);
             this.chkPotionsEnabled.Name = "chkPotionsEnabled";
             this.chkPotionsEnabled.Size = new System.Drawing.Size(71, 17);
             this.chkPotionsEnabled.TabIndex = 149;
@@ -421,7 +621,7 @@
             // 
             // txtPotionsMendWhenDownXHP
             // 
-            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(137, 279);
+            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(137, 299);
             this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
             this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtPotionsMendWhenDownXHP.TabIndex = 146;
@@ -429,7 +629,7 @@
             // lblPotionsMendWhenDownXHP
             // 
             this.lblPotionsMendWhenDownXHP.AutoSize = true;
-            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(11, 283);
+            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(11, 303);
             this.lblPotionsMendWhenDownXHP.Name = "lblPotionsMendWhenDownXHP";
             this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(123, 13);
             this.lblPotionsMendWhenDownXHP.TabIndex = 145;
@@ -437,7 +637,7 @@
             // 
             // txtPotionsVigorWhenDownXHP
             // 
-            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(137, 254);
+            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(137, 274);
             this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
             this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtPotionsVigorWhenDownXHP.TabIndex = 144;
@@ -445,7 +645,7 @@
             // lblPotionsVigorWhenDownXHP
             // 
             this.lblPotionsVigorWhenDownXHP.AutoSize = true;
-            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(11, 258);
+            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(11, 278);
             this.lblPotionsVigorWhenDownXHP.Name = "lblPotionsVigorWhenDownXHP";
             this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(120, 13);
             this.lblPotionsVigorWhenDownXHP.TabIndex = 143;
@@ -476,7 +676,7 @@
             // chkPotionsRepeatLastStepIndefinitely
             // 
             this.chkPotionsRepeatLastStepIndefinitely.AutoSize = true;
-            this.chkPotionsRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 183);
+            this.chkPotionsRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 180);
             this.chkPotionsRepeatLastStepIndefinitely.Name = "chkPotionsRepeatLastStepIndefinitely";
             this.chkPotionsRepeatLastStepIndefinitely.Size = new System.Drawing.Size(161, 17);
             this.chkPotionsRepeatLastStepIndefinitely.TabIndex = 4;
@@ -496,8 +696,72 @@
             // ctxPotionsSteps
             // 
             this.ctxPotionsSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxPotionsSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiPotionsAdd,
+            this.tsmiPotionsRemove,
+            this.tsmiPotionsMoveUp,
+            this.tsmiPotionsMoveDown});
             this.ctxPotionsSteps.Name = "ctxPotionsSteps";
-            this.ctxPotionsSteps.Size = new System.Drawing.Size(61, 4);
+            this.ctxPotionsSteps.Size = new System.Drawing.Size(181, 114);
+            this.ctxPotionsSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPotionsSteps_Opening);
+            this.ctxPotionsSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxPotionsSteps_ItemClicked);
+            // 
+            // tsmiPotionsAdd
+            // 
+            this.tsmiPotionsAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiPotionsAddVigor,
+            this.tsmiPotionsAddMendWounds,
+            this.tsmiPotionsAddGenericHeal,
+            this.tsmiPotionsAddCurePoison});
+            this.tsmiPotionsAdd.Name = "tsmiPotionsAdd";
+            this.tsmiPotionsAdd.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsAdd.Text = "Add";
+            // 
+            // tsmiPotionsAddVigor
+            // 
+            this.tsmiPotionsAddVigor.Name = "tsmiPotionsAddVigor";
+            this.tsmiPotionsAddVigor.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsAddVigor.Text = "Vigor";
+            this.tsmiPotionsAddVigor.Click += new System.EventHandler(this.tsmiPotionsAdd_Click);
+            // 
+            // tsmiPotionsAddMendWounds
+            // 
+            this.tsmiPotionsAddMendWounds.Name = "tsmiPotionsAddMendWounds";
+            this.tsmiPotionsAddMendWounds.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsAddMendWounds.Text = "Mend-Wounds";
+            this.tsmiPotionsAddMendWounds.Click += new System.EventHandler(this.tsmiPotionsAdd_Click);
+            // 
+            // tsmiPotionsAddGenericHeal
+            // 
+            this.tsmiPotionsAddGenericHeal.Name = "tsmiPotionsAddGenericHeal";
+            this.tsmiPotionsAddGenericHeal.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsAddGenericHeal.Text = "Generic Heal";
+            this.tsmiPotionsAddGenericHeal.Click += new System.EventHandler(this.tsmiPotionsAdd_Click);
+            // 
+            // tsmiPotionsAddCurePoison
+            // 
+            this.tsmiPotionsAddCurePoison.Name = "tsmiPotionsAddCurePoison";
+            this.tsmiPotionsAddCurePoison.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsAddCurePoison.Text = "Cure-Poison";
+            this.tsmiPotionsAddCurePoison.Click += new System.EventHandler(this.tsmiPotionsAdd_Click);
+            // 
+            // tsmiPotionsRemove
+            // 
+            this.tsmiPotionsRemove.Name = "tsmiPotionsRemove";
+            this.tsmiPotionsRemove.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsRemove.Text = "Remove";
+            // 
+            // tsmiPotionsMoveUp
+            // 
+            this.tsmiPotionsMoveUp.Name = "tsmiPotionsMoveUp";
+            this.tsmiPotionsMoveUp.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsMoveUp.Text = "Move Up";
+            // 
+            // tsmiPotionsMoveDown
+            // 
+            this.tsmiPotionsMoveDown.Name = "tsmiPotionsMoveDown";
+            this.tsmiPotionsMoveDown.Size = new System.Drawing.Size(180, 22);
+            this.tsmiPotionsMoveDown.Text = "Move Down";
             // 
             // chkAutogenerateName
             // 
@@ -597,10 +861,13 @@
             this.grpMagic.ResumeLayout(false);
             this.grpMagic.PerformLayout();
             this.ctxAutoSpellLevels.ResumeLayout(false);
+            this.ctxMagicSteps.ResumeLayout(false);
             this.grpMelee.ResumeLayout(false);
             this.grpMelee.PerformLayout();
+            this.ctxMeleeSteps.ResumeLayout(false);
             this.grpPotions.ResumeLayout(false);
             this.grpPotions.PerformLayout();
+            this.ctxPotionsSteps.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -658,5 +925,34 @@
         private System.Windows.Forms.Label lblMeleeOnlyWhenStunnedForXMS;
         private System.Windows.Forms.TextBox txtPotionsOnlyWhenStunnedForXMS;
         private System.Windows.Forms.Label lblPotionsOnlyWhenStunnedForXMS;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicAdd;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicRemove;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicMoveDown;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddStun;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveAuto;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveLevel1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveLevel2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveLevel3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveLevel4;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddOffensiveLevel5;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicAddVigor;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicAddMendWounds;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicAddGenericHeal;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicAddCurePoison;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMeleeAdd;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddRegularAttack;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddPowerAttack;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMeleeRemove;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMeleeMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMeleeMoveDown;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAdd;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsRemove;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsMoveDown;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddVigor;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddMendWounds;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddGenericHeal;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddCurePoison;
     }
 }
