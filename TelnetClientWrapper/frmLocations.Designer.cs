@@ -55,6 +55,7 @@
             // 
             // ctxTree
             // 
+            this.ctxTree.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiAddChild,
             this.tsmiAddSiblingBefore,
@@ -65,56 +66,56 @@
             this.tsmiMoveDown,
             this.tsmiSetAsCurrentLocation});
             this.ctxTree.Name = "ctxTree";
-            this.ctxTree.Size = new System.Drawing.Size(197, 202);
+            this.ctxTree.Size = new System.Drawing.Size(231, 196);
             this.ctxTree.Opening += new System.ComponentModel.CancelEventHandler(this.ctxTree_Opening);
             this.ctxTree.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxTree_ItemClicked);
             // 
             // tsmiAddChild
             // 
             this.tsmiAddChild.Name = "tsmiAddChild";
-            this.tsmiAddChild.Size = new System.Drawing.Size(196, 22);
+            this.tsmiAddChild.Size = new System.Drawing.Size(230, 24);
             this.tsmiAddChild.Text = "Add Child";
             // 
             // tsmiAddSiblingBefore
             // 
             this.tsmiAddSiblingBefore.Name = "tsmiAddSiblingBefore";
-            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(196, 22);
+            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(230, 24);
             this.tsmiAddSiblingBefore.Text = "Add Sibling Before";
             // 
             // tsmiAddSiblingAfter
             // 
             this.tsmiAddSiblingAfter.Name = "tsmiAddSiblingAfter";
-            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(196, 22);
+            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(230, 24);
             this.tsmiAddSiblingAfter.Text = "Add Sibling After";
             // 
             // tsmiEdit
             // 
             this.tsmiEdit.Name = "tsmiEdit";
-            this.tsmiEdit.Size = new System.Drawing.Size(196, 22);
+            this.tsmiEdit.Size = new System.Drawing.Size(230, 24);
             this.tsmiEdit.Text = "Edit";
             // 
             // tsmiRemove
             // 
             this.tsmiRemove.Name = "tsmiRemove";
-            this.tsmiRemove.Size = new System.Drawing.Size(196, 22);
+            this.tsmiRemove.Size = new System.Drawing.Size(230, 24);
             this.tsmiRemove.Text = "Remove";
             // 
             // tsmiMoveUp
             // 
             this.tsmiMoveUp.Name = "tsmiMoveUp";
-            this.tsmiMoveUp.Size = new System.Drawing.Size(196, 22);
+            this.tsmiMoveUp.Size = new System.Drawing.Size(230, 24);
             this.tsmiMoveUp.Text = "Move Up";
             // 
             // tsmiMoveDown
             // 
             this.tsmiMoveDown.Name = "tsmiMoveDown";
-            this.tsmiMoveDown.Size = new System.Drawing.Size(196, 22);
+            this.tsmiMoveDown.Size = new System.Drawing.Size(230, 24);
             this.tsmiMoveDown.Text = "Move Down";
             // 
             // tsmiSetAsCurrentLocation
             // 
             this.tsmiSetAsCurrentLocation.Name = "tsmiSetAsCurrentLocation";
-            this.tsmiSetAsCurrentLocation.Size = new System.Drawing.Size(196, 22);
+            this.tsmiSetAsCurrentLocation.Size = new System.Drawing.Size(230, 24);
             this.tsmiSetAsCurrentLocation.Text = "Set as Current Location";
             // 
             // frmLocations
@@ -123,10 +124,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(372, 715);
             this.Controls.Add(this.treeLocations);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmLocations";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Locations";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmLocations_FormClosed);

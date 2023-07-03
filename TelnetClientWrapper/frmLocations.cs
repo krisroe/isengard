@@ -20,8 +20,18 @@ namespace IsengardClient
             CurrentRoom = currentRoom;
             _graphInputs = gi;
             _forRoomSelection = forRoomSelection;
-
+            SetFormTitle();
             PopulateTree();
+        }
+
+        private void SetFormTitle()
+        {
+            string sText;
+            if (CurrentRoom == null)
+                sText = "Locations (None)";
+            else
+                sText = "Locations (" + CurrentRoom.Name + ")";
+            this.Text = sText;
         }
 
         public Room CurrentRoom
@@ -218,6 +228,7 @@ namespace IsengardClient
             else if (tsi == tsmiSetAsCurrentLocation)
             {
                 CurrentRoom = currentLoc.FindRoom(_fullMap);
+                SetFormTitle();
             }
         }
 
