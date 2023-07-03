@@ -551,7 +551,7 @@ namespace IsengardClient
 
         [SingularName("assassin's dagger")]
         [PluralName("assassin's daggers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
         [Weight(3)]
         [SellGoldRange(3168)]
         AssassinsDagger,
@@ -935,6 +935,7 @@ namespace IsengardClient
         [SingularName("emerald")]
         [PluralName("emeralds")]
         [Weight(1)]
+        [SellGoldRange(432)]
         Emerald,
 
         [SingularName("emerald collar")]
@@ -1885,6 +1886,7 @@ namespace IsengardClient
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
+        [SellGoldRange(1237)]
         TattooOfAWench,
 
         [SingularName("taupe scroll")]
