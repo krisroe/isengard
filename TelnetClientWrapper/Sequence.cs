@@ -2046,6 +2046,10 @@ StartProcessRoom:
             //check the first line matches the pattern "You cast a X spell on <something> for Y damage."
             string nextLine = Lines[0];
             if (!nextLine.StartsWith(YOU_CAST_A_PREFIX)) return;
+
+            int lineIndex = 0;
+            nextLine = StringProcessing.PullFullMessageWithLineContinuations(Lines, ref lineIndex);
+
             int iLineLength = nextLine.Length;
             int startLength = YOU_CAST_A_PREFIX.Length;
             int iStartingPartIndex = nextLine.IndexOf(" ", startLength);
@@ -2081,7 +2085,7 @@ StartProcessRoom:
             List<ItemEntity> items = new List<ItemEntity>();
             int iExperience;
             MobTypeEnum? mobType;
-            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(flParams, 1, out iExperience, out mobType, items);
+            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(flParams, lineIndex, out iExperience, out mobType, items);
             flParams.FinishedProcessing = true;
             _onSatisfied(damage, monsterKilled, mobType, iExperience, items, flParams);
         }
@@ -3685,6 +3689,29 @@ StartProcessRoom:
                 }
             }
             return ret;
+        }
+
+        public static string PullFullMessageWithLineContinuations(List<string> Lines, ref int LineIndex)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Lines[LineIndex].Trim());
+            int LineCount = Lines.Count;
+            while (true)
+            {
+                LineIndex++;
+                if (LineIndex == LineCount) break;
+                string sNextLine = Lines[LineIndex];
+                if (sNextLine.StartsWith("  "))
+                {
+                    sb.Append(" ");
+                    sb.Append(sNextLine.Trim());
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return sb.ToString();
         }
     }
 }

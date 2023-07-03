@@ -702,6 +702,16 @@ namespace IsengardClient.Tests
             Assert.IsTrue(success);
             Assert.AreEqual(damage.Value, 2);
             Assert.AreEqual(killed.Value, true);
+
+            success = false;
+            damage = null;
+            killed = null;
+            mobType = null;
+            flParams.Lines = new List<string>() { "You cast a shatterstone spell on The burned remains of Nimrodel for 40", "  damage." };
+            cseq.FeedLine(flParams);
+            Assert.IsTrue(success);
+            Assert.AreEqual(damage.Value, 40);
+            Assert.AreEqual(killed.Value, false);
         }
 
         [TestMethod]

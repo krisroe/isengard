@@ -765,6 +765,17 @@ namespace IsengardClient
         Rogue,
         Warrior,
     }
+    internal enum ClassTypeFlags
+    {
+        None = 0,
+        Mage = 1,
+        Priest = 2,
+        Bard = 4,
+        Monk = 8,
+        Hunter = 16,
+        Rogue = 32,
+        Warrior = 64,
+    }
 
     internal enum VertexSelectionRequirement
     {

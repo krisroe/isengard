@@ -240,4 +240,13 @@ namespace IsengardClient
             this.IsCombat = IsCombat;
         }
     }
+
+    internal class DisallowedClassesAttribute : Attribute
+    {
+        public ClassTypeFlags Classes { get; set; }
+        public DisallowedClassesAttribute(ClassTypeFlags Classes)
+        {
+            this.Classes = Classes;
+        }
+    }
 }

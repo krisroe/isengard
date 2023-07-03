@@ -108,6 +108,8 @@ namespace IsengardClient
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ArmorClassAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.ArmorClass = ((ArmorClassAttribute)valueAttributes[0]).ArmorClass;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DisallowedClassesAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.DisallowedClasses = ((DisallowedClassesAttribute)valueAttributes[0]).Classes;
 
                 bool isJunk = false;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(JunkAttribute), false);
@@ -226,6 +228,7 @@ namespace IsengardClient
         public bool Junk { get; set; }
         public int LowerSellRange { get; set; }
         public int UpperSellRange { get; set; }
+        public ClassTypeFlags DisallowedClasses { get; set; }
     }
 
     internal class DynamicItemDataWithInheritance : DynamicItemData
@@ -1394,6 +1397,7 @@ namespace IsengardClient
         [SingularName("mithron shield")]
         [PluralName("mithron shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         MithronShield,
 
         [SingularName("molten iron key")]
@@ -1435,6 +1439,7 @@ namespace IsengardClient
         [SingularName("orange potion")]
         [PluralName("orange potions")]
         [Potion(SpellsEnum.knowaura)]
+        [Weight(1)]
         OrangePotion,
 
         [SingularName("orc's sword")]
