@@ -1247,6 +1247,7 @@ namespace IsengardClient
 
         [SingularName("large wooden shield")]
         [PluralName("large wooden shields")]
+        [EquipmentType(EquipmentType.Shield)]
         [Weight(7)]
         [ArmorClass(0.3)]
         [Junk]
