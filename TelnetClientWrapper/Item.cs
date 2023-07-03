@@ -1267,7 +1267,8 @@ namespace IsengardClient
         LeatherBoots,
 
         [SingularName("leather cap")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Head)]
+        [Weight(2)]
         LeatherCap,
 
         [SingularName("leather gloves")]

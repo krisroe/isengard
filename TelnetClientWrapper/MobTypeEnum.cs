@@ -223,6 +223,10 @@
         [PluralName("citizens")]
         Citizen,
 
+        [SingularName("clockwork dragon")]
+        [PluralName("clockwork dragons")]
+        ClockworkDragon,
+
         [SingularName("cook")]
         [PluralName("cooks")]
         Cook,
@@ -1090,6 +1094,10 @@
         [Experience(450)]
         NumenoreanWarder,
 
+        [SingularName("nutcracker")]
+        [PluralName("nutcrackers")]
+        Nutcracker,
+
         [SingularName("nymph")]
         [PluralName("nymphs")]
         Nymph,
@@ -1451,6 +1459,10 @@
         [SingularName("tourist")]
         [PluralName("tourists")]
         Tourist,
+
+        [SingularName("toy soldier")]
+        [PluralName("toy soldiers")]
+        ToySoldier,
 
         [SingularName("The Town Crier")]
         //CSRTODO: no plural?

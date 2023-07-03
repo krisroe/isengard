@@ -1899,6 +1899,12 @@ namespace IsengardClient
             AddExit(oBreeParkAndRecreation, breeStreets[0, 4], "west");
             breeStreetsGraph.Rooms[oBreeParkAndRecreation] = new System.Windows.Point(1, 6);
 
+            Room oKandyAndToyShoppe = AddRoom("Kandy/Toy Shop", "The Kandy and Toy Shoppe");
+            e = AddExit(breeStreets[3, 6], oKandyAndToyShoppe, "shoppe");
+            e.MaximumLevel = 6;
+            AddExit(oKandyAndToyShoppe, breeStreets[3, 6], "east");
+            breeStreetsGraph.Rooms[oKandyAndToyShoppe] = new System.Windows.Point(2, 4);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
@@ -2833,7 +2839,9 @@ namespace IsengardClient
             e = AddExit(oGreatEastRoad10, oDarkFootpath, "north");
             e.Hidden = true;
             AddExit(oDarkFootpath, oGreatEastRoad10, "south");
-            AddBidirectionalExits(oNorthBrethilForest2, oDarkFootpath, BidirectionalExitType.WestEast);
+            AddExit(oNorthBrethilForest2, oDarkFootpath, "east");
+            e = AddExit(oDarkFootpath, oNorthBrethilForest2, "west");
+            e.Hidden = true;
             breeToImladrisGraph.Rooms[oDarkFootpath] = new System.Windows.Point(13, 2);
 
             Room oNorthBrethilForest3 = AddRoom("Brethil Forest", "North Brethil Forest");
