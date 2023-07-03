@@ -4699,6 +4699,10 @@ namespace IsengardClient
             AddBidirectionalExits(oNorthShantyTown, oShantyTownDump, BidirectionalExitType.SouthwestNortheast);
             oShantyTownGraph.Rooms[oShantyTownDump] = new System.Windows.Point(1, 3);
 
+            Room oGarbagePit = AddRoom("Garbage Pit", "Garbage Pit");
+            AddBidirectionalExitsWithOut(oShantyTownDump, oGarbagePit, "garbage");
+            oShantyTownGraph.Rooms[oGarbagePit] = new System.Windows.Point(0, 3);
+
             Room oShantyTownWest = AddRoom("Shanty Town", "Shanty Town West");
             AddBidirectionalExits(oShantyTownDump, oShantyTownWest, BidirectionalExitType.NorthSouth);
             oShantyTownGraph.Rooms[oShantyTownWest] = new System.Windows.Point(1, 4);
@@ -4737,6 +4741,10 @@ namespace IsengardClient
             oNaugrim.AddPermanentMobs(MobTypeEnum.Naugrim);
             AddBidirectionalExitsWithOut(oNorthShantyTown, oNaugrim, "cask");
             oShantyTownGraph.Rooms[oNaugrim] = new System.Windows.Point(1, 1);
+
+            Room oNaugrimsWineCellar = AddRoom("Wine Cellar", "Naugrim's Wine Cellar");
+            AddBidirectionalExitsWithOut(oNaugrim, oNaugrimsWineCellar, "cellar");
+            oShantyTownGraph.Rooms[oNaugrimsWineCellar] = new System.Windows.Point(0, 1);
 
             Room oHogoth = AddRoom("Hogoth", "Hogoth's Home");
             oHogoth.AddPermanentMobs(MobTypeEnum.Hogoth);
