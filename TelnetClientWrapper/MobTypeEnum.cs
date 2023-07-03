@@ -1267,6 +1267,10 @@
         [PluralName("scallywags")]
         Scallywag,
 
+        [SingularName("scarecrow")]
+        [PluralName("scarecrows")]
+        Scarecrow,
+
         [SingularName("scholar")]
         [PluralName("scholars")]
         [Alignment(AlignmentType.Grey)]
