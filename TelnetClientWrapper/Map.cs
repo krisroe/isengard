@@ -1846,16 +1846,16 @@ namespace IsengardClient
 
             accursedGuildHall = AddRoom("Accursed Guild", "Accursed Guild Hall");
             AddBidirectionalExitsWithOut(oHallOfGuilds, accursedGuildHall, "accursed");
-            breeStreetsGraph.Rooms[accursedGuildHall] = new System.Windows.Point(7, -1);
+            breeStreetsGraph.Rooms[accursedGuildHall] = new System.Windows.Point(6, -1);
 
             Room oDeathbringer = AddRoom("Deathbringer", "Chamber of the Accursed");
             oDeathbringer.AddPermanentMobs(MobTypeEnum.Deathbringer);
             AddBidirectionalSameNameExit(accursedGuildHall, oDeathbringer, "curtain");
-            breeStreetsGraph.Rooms[oDeathbringer] = new System.Windows.Point(6, -1);
+            breeStreetsGraph.Rooms[oDeathbringer] = new System.Windows.Point(5, -1);
 
             Room oItemsOfDeath = AddRoom("Death Items", "Items of Death");
             AddBidirectionalExitsWithOut(accursedGuildHall, oItemsOfDeath, "desk");
-            breeStreetsGraph.Rooms[oItemsOfDeath] = new System.Windows.Point(7, -2);
+            breeStreetsGraph.Rooms[oItemsOfDeath] = new System.Windows.Point(5, -0.5);
 
             crusaderGuildHall = AddRoom("Crusader Guild", "Crusader's Guild");
             AddBidirectionalExitsWithOut(oHallOfGuilds, crusaderGuildHall, "crusader");
@@ -1863,7 +1863,7 @@ namespace IsengardClient
 
             Room oLadyGwyneth = AddRoom("Lady Gwyneth", "Guardian of the Crusader's Guild");
             AddBidirectionalExitsWithOut(crusaderGuildHall, oLadyGwyneth, "door");
-            breeStreetsGraph.Rooms[oLadyGwyneth] = new System.Windows.Point(8, -2);
+            breeStreetsGraph.Rooms[oLadyGwyneth] = new System.Windows.Point(7, -1);
 
             thievesGuildHall = AddRoom("Thieves Guild", "Thieves Guild");
             AddBidirectionalExitsWithOut(oHallOfGuilds, thievesGuildHall, "thief");
@@ -1876,7 +1876,7 @@ namespace IsengardClient
             Room oHonestBobsDiscountWares = AddRoom("Discount Wares", "Honest Bob's Discount Wares");
             AddExit(thievesGuildHall, oHonestBobsDiscountWares, "counter");
             AddExit(oHonestBobsDiscountWares, thievesGuildHall, "hall");
-            breeStreetsGraph.Rooms[oHonestBobsDiscountWares] = new System.Windows.Point(9, -2);
+            breeStreetsGraph.Rooms[oHonestBobsDiscountWares] = new System.Windows.Point(10, -0.5);
 
             Room oSmithy = AddRoom("Smithy", "U'tral Smiths Inc.");
             AddExit(oToSmithy, oSmithy, "smithy");
@@ -4865,6 +4865,7 @@ namespace IsengardClient
             e.MustOpen = true;
             intangibleGraph.Rooms[oGuildedTunnel] = new System.Windows.Point(-1, 0);
             intangibleGraph.Rooms[accursedGuildHall] = new System.Windows.Point(-2, 0);
+            breeStreetsGraph.Rooms[oGuildedTunnel] = new System.Windows.Point(6, -2);
             AddMapBoundaryPoint(oGuildedTunnel, accursedGuildHall, MapType.Intangible, MapType.BreeStreets);
             AddExit(oGuildedTunnel, accursedGuildHall, "accursed guild");
 
@@ -4876,6 +4877,7 @@ namespace IsengardClient
             AddBidirectionalExits(oGuildedTunnel3, oGuildedTunnel2, BidirectionalExitType.NorthSouth);
             intangibleGraph.Rooms[oGuildedTunnel3] = new System.Windows.Point(-1, -2);
             intangibleGraph.Rooms[crusaderGuildHall] = new System.Windows.Point(-2, -2);
+            breeStreetsGraph.Rooms[oGuildedTunnel3] = new System.Windows.Point(8, -2);
             AddMapBoundaryPoint(oGuildedTunnel3, crusaderGuildHall, MapType.Intangible, MapType.BreeStreets);
             AddExit(oGuildedTunnel3, crusaderGuildHall, "crusader guild");
 
@@ -4895,6 +4897,7 @@ namespace IsengardClient
             AddBidirectionalExits(oGuildStreet4, oGuildStreet3, BidirectionalExitType.NorthSouth);
             intangibleGraph.Rooms[oGuildStreet4] = new System.Windows.Point(-1, -6);
             intangibleGraph.Rooms[thiefGuildHall] = new System.Windows.Point(-2, -6);
+            breeStreetsGraph.Rooms[oGuildStreet4] = new System.Windows.Point(9, -2);
             AddMapBoundaryPoint(oGuildStreet4, thiefGuildHall, MapType.Intangible, MapType.BreeStreets);
             AddExit(oGuildStreet4, thiefGuildHall, "thieves guild");
 
