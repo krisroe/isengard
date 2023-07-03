@@ -705,6 +705,7 @@ namespace IsengardClient
                 "resist-magic",
                 "resist-water",
                 "resist-wind",
+                "restore",
                 "revive",
                 "rogue",
                 "rumble",

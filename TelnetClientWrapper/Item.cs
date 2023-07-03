@@ -95,15 +95,8 @@ namespace IsengardClient
                     eItemClass = ItemClass.Usable;
                 }
 
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MoneyAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Money;
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CoinsAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Coins;
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(BagAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Bag;
-                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(KeyAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ItemClass.Key;
-
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ItemClassAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) eItemClass = ((ItemClassAttribute)valueAttributes[0]).ItemClass;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(WeightAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.Weight = ((WeightAttribute)valueAttributes[0]).Pounds;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ArmorClassAttribute), false);
@@ -398,6 +391,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.Usable;
             }
+            else if (ic == ItemClass.Fixed)
+            {
+                yield return DynamicDataItemClass.Fixed;
+            }
             yield return DynamicDataItemClass.Item;
         }
     }
@@ -437,6 +434,7 @@ namespace IsengardClient
         Key,
         Coins,
         Money,
+        Fixed,
         Other,
     }
 
@@ -476,6 +474,7 @@ namespace IsengardClient
         Usable,
         BagClass,
         Key,
+        Fixed,
         Coins,
         Money,
 
@@ -562,6 +561,12 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Face)]
         AssassinsMask,
 
+        //cannot be interacted with at all
+        [SingularName("A statuette of Balthazar")]
+        //CSRTODO: no plural?
+        [ItemClass(ItemClass.Fixed)]
+        AStatuetteOfBalthazar,
+
         [SingularName("bag")]
         [PluralName("bags")]
         [Weight(1)]
@@ -609,7 +614,7 @@ namespace IsengardClient
 
         [SingularName("black iron key")]
         [PluralName("black iron keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         BlackIronKey,
 
         [SingularName("black vestments")]
@@ -629,7 +634,7 @@ namespace IsengardClient
 
         [SingularName("boiler key")]
         [PluralName("boiler keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         BoilerKey,
 
         [SingularName("bone armor")]
@@ -683,7 +688,7 @@ namespace IsengardClient
 
         [SingularName("bridge key")]
         [PluralName("bridge keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         BridgeKey,
 
         [SingularName("broad sword")]
@@ -715,7 +720,7 @@ namespace IsengardClient
 
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         CarvedIvoryKey,
 
         [SingularName("cat o' nine tails")]
@@ -776,7 +781,7 @@ namespace IsengardClient
 
         [SingularName("copper pieces")]
         [PluralName("copper pieces")]
-        [Coins]
+        [ItemClass(ItemClass.Coins)]
         CopperPieces,
 
         [SingularName("copper ring")]
@@ -866,7 +871,7 @@ namespace IsengardClient
 
         [SingularName("dungeon key")]
         [PluralName("dungeon keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         DungeonKey,
 
         [SingularName("dwarven mithril gaiters")]
@@ -980,11 +985,12 @@ namespace IsengardClient
 
         [SingularName("gate key")]
         [PluralName("gate keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         GateKey,
 
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
+        [ItemClass(ItemClass.Fixed)]
         GateWarning,
 
         [SingularName("gaudy scepter")]
@@ -1009,7 +1015,7 @@ namespace IsengardClient
 
         [SingularName("Girion's key")]
         [PluralName("Girion's keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         GirionsKey,
 
         [SingularName("glimmering blade")]
@@ -1051,7 +1057,7 @@ namespace IsengardClient
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
-        [Coins]
+        [ItemClass(ItemClass.Coins)]
         GoldCoins,
 
         [SingularName("golden dagger")]
@@ -1075,7 +1081,7 @@ namespace IsengardClient
 
         [SingularName("grate key")]
         [PluralName("grate keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         GrateKey,
 
         [SingularName("green potion")]
@@ -1177,12 +1183,13 @@ namespace IsengardClient
 
         [SingularName("information kiosk")]
         [PluralName("information kiosks")]
+        [ItemClass(ItemClass.Fixed)]
         InformationKiosk,
 
         //mage training level 13
         [SingularName("invisible key")]
         [PluralName("invisible keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         InvisibleKey,
 
         [SingularName("iron ring")]
@@ -1204,7 +1211,7 @@ namespace IsengardClient
 
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         [Weight(3)]
         KasnarsRedKey,
 
@@ -1215,7 +1222,7 @@ namespace IsengardClient
 
         [SingularName("key of the elements")]
         //CSRTODO: plural?
-        [Key]
+        [ItemClass(ItemClass.Key)]
         KeyOfTheElements,
 
         [SingularName("khopesh sword")]
@@ -1225,7 +1232,7 @@ namespace IsengardClient
 
         [SingularName("knapsack")]
         [PluralName("knapsacks")]
-        [Bag]
+        [ItemClass(ItemClass.Bag)]
         Knapsack,
 
         [SingularName("lancette")]
@@ -1318,7 +1325,7 @@ namespace IsengardClient
         LongSword,
 
         [SingularName("lunch money")]
-        [Money]
+        [ItemClass(ItemClass.Money)]
         //CSRTODO: plural?
         LunchMoney,
 
@@ -1413,7 +1420,7 @@ namespace IsengardClient
 
         [SingularName("molten iron key")]
         [PluralName("molten iron keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         MoltenIronKey,
 
         [SingularName("MOM tattoo")]
@@ -1432,8 +1439,10 @@ namespace IsengardClient
         //CSRTODO: plural
         Nunchukus,
 
+        //CSRTODO: where does this live?
         [SingularName("old wooden sign")]
         [PluralName("old wooden signs")]
+        [ItemClass(ItemClass.Fixed)]
         OldWoodenSign,
 
         [SingularName("onyx amulet")]
@@ -1467,6 +1476,7 @@ namespace IsengardClient
 
         [SingularName("out of order sign")]
         [PluralName("out of order signs")]
+        [ItemClass(ItemClass.Fixed)]
         OutOfOrderSign,
 
         [SingularName("parched scroll")]
@@ -1501,7 +1511,7 @@ namespace IsengardClient
 
         [SingularName("platinum pieces")]
         [PluralName("platinum pieces")]
-        [Coins]
+        [ItemClass(ItemClass.Coins)]
         PlatinumPieces,
 
         [SingularName("platinum ring")]
@@ -1513,6 +1523,7 @@ namespace IsengardClient
 
         [SingularName("port manifest")]
         [PluralName("port manifests")]
+        [ItemClass(ItemClass.Fixed)]
         PortManifest,
 
         [SingularName("pot helm")]
@@ -1524,7 +1535,7 @@ namespace IsengardClient
 
         [SingularName("pot of gold")]
         [PluralName("pots of gold")]
-        [Money]
+        [ItemClass(ItemClass.Money)]
         PotOfGold,
 
         [SingularName("pure white cape")]
@@ -1548,7 +1559,7 @@ namespace IsengardClient
         [SingularName("quartz stone")]
         [PluralName("quartz stones")]
         [Weight(5)]
-        //CSRTODO: wand?
+        [Wand(SpellsEnum.restore)] //CSRTODO: is this correct?
         QuartzStone,
 
         [SingularName("rake")]
@@ -1558,6 +1569,7 @@ namespace IsengardClient
 
         [SingularName("rakshasan eviscerator")]
         [PluralName("rakshasan eviscerators")]
+        [WeaponType(WeaponType.Unknown)]
         RakshasanEviscerator,
 
         [SingularName("red bubbly potion")]
@@ -1632,7 +1644,7 @@ namespace IsengardClient
 
         [SingularName("rusty key")]
         [PluralName("rusty key")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         RustyKey,
 
         [SingularName("sack of potatoes")]
@@ -1701,7 +1713,7 @@ namespace IsengardClient
 
         [SingularName("silver key")]
         [PluralName("silver keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         SilverKey,
 
         [SingularName("silver scimitar")]
@@ -1735,7 +1747,7 @@ namespace IsengardClient
 
         [SingularName("small bag")]
         [PluralName("small bags")]
-        [Bag]
+        [ItemClass(ItemClass.Bag)]
         [Weight(2)]
         SmallBag,
 
@@ -1757,7 +1769,7 @@ namespace IsengardClient
 
         [SingularName("small silver chest")]
         [PluralName("small silver chests")]
-        [Money]
+        [ItemClass(ItemClass.Money)]
         SmallSilverChest,
 
         [SingularName("small wooden shield")]
@@ -1820,11 +1832,6 @@ namespace IsengardClient
         [WeaponType(WeaponType.Polearm)]
         StaffOfForce,
 
-        //cannot be interacted with at all
-        [SingularName("A statuette of Balthazar")]
-        //CSRTODO: no plural?
-        StatuetteOfBalthazar,
-
         [SingularName("steel-chain armor")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(18)]
@@ -1843,11 +1850,12 @@ namespace IsengardClient
 
         [SingularName("stone key")]
         [PluralName("stone keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         StoneKey,
 
         [SingularName("storage sign")]
         [PluralName("storage signs")]
+        [ItemClass(ItemClass.Fixed)]
         StorageSign,
 
         [SingularName("sundorian tassle")]
@@ -1910,7 +1918,7 @@ namespace IsengardClient
 
         [SingularName("training key")]
         [PluralName("training keys")]
-        [Key]
+        [ItemClass(ItemClass.Key)]
         TrainingKey,
 
         [SingularName("translucent armor")]
@@ -1980,6 +1988,7 @@ namespace IsengardClient
 
         [SingularName("welcome sign")]
         [PluralName("welcome signs")]
+        [ItemClass(ItemClass.Fixed)]
         WelcomeSign,
 
         [SingularName("white armor")]

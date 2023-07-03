@@ -499,7 +499,6 @@ namespace IsengardClient
         private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, RoomGraph nindamosGraph)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
-            RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
             oCelduinExpressSlip.AddPermanentMobs(MobTypeEnum.HarborMaster);
@@ -530,6 +529,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oHarbringerGangplank] = new System.Windows.Point(3, 8);
 
             Room oMithlondPort = AddRoom("Mithlond Port", "Mithlond Port");
+            oMithlondPort.AddPermanentItems(ItemTypeEnum.PortManifest);
             AddExit(oCelduinExpressSlip, oMithlondPort, "north");
             AddExit(oMithlondPort, oCelduinExpressSlip, "pier");
             mithlondGraph.Rooms[oMithlondPort] = new System.Windows.Point(2, 4);
@@ -1264,6 +1264,7 @@ namespace IsengardClient
             breeStreets[10, 6] = AddRoom("Crissaegrim", "Crissaegrim Road"); //11x7
             breeStreets[14, 6] = AddRoom("Brownhaven", "Brownhaven Road"); //15x7
             oWestGateInside = breeStreets[0, 7] = AddRoom("West Gate Inside", "West Gate of Bree"); //1x8
+            oWestGateInside.AddPermanentItems(ItemTypeEnum.GateWarning);
             breeSewers[0, 7] = AddRoom("Sewers West Gate", "Wain Road/Leviathan Way Sewer Main"); //1x8
             AddExit(breeSewers[0, 7], oWestGateInside, "up");
             breeStreets[1, 7] = AddRoom("Leviathan", "Leviathan Way"); //2x8
@@ -1273,6 +1274,7 @@ namespace IsengardClient
             breeStreets[4, 7] = AddRoom("Leviathan", "Leviathan Way"); //5x8
             oBreeTownSquare = breeStreets[5, 7] = AddRoom("Town Square", "Bree Town Square"); //6x8
             oBreeTownSquare.AddPermanentMobs(MobTypeEnum.TheTownCrier, MobTypeEnum.Scribe, MobTypeEnum.SmallSpider, MobTypeEnum.Vagrant);
+            oBreeTownSquare.AddPermanentItems(ItemTypeEnum.WelcomeSign);
             breeStreets[6, 7] = AddRoom("Leviathan", "Leviathan Way"); //7x8
             breeStreets[7, 7] = AddRoom("Leviathan/Main", "Leviathan Way/Main Street"); //8x8
             breeStreets[8, 7] = AddRoom("Leviathan", "Leviathan Way"); //9x8
@@ -1282,6 +1284,7 @@ namespace IsengardClient
             Room oLeviathanPoorAlley = breeStreets[12, 7] = AddRoom("Leviathan", "Leviathan Way"); //13x8
             Room oToGrantsStables = breeStreets[13, 7] = AddRoom("Leviathan", "Leviathan Way"); //14x8
             breeEastGateInside = breeStreets[14, 7] = AddRoom("East Gate Inside", "Bree's East Gate"); //15x8
+            breeEastGateInside.AddPermanentItems(ItemTypeEnum.GateWarning);
             breeStreets[0, 8] = AddRoom("Wain", "Wain Road North"); //1x9
             breeSewers[0, 8] = AddRoom("Sewers Wain", "Wain Road Sewer Main"); //1x9
             breeStreets[3, 8] = AddRoom("High", "North High Street"); //4x9
@@ -1362,8 +1365,22 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oBreeRealEstateOffice, oIxell, "door");
             breeStreetsGraph.Rooms[oIxell] = new System.Windows.Point(11, 0.6);
 
+            Room oApartmentComplex = AddRoom("Apartment Complex", "Kista Hills Apartment Complex Entrance");
+            AddBidirectionalExitsWithOut(oIxell, oApartmentComplex, "apartments");
+            breeStreetsGraph.Rooms[oApartmentComplex] = new System.Windows.Point(12, 0.6);
+
+            Room oApartmentComplexHallway = AddRoom("Hallway", "Kista Hills Apartment Complex Hallway");
+            oApartmentComplexHallway.AddPermanentItems(ItemTypeEnum.StorageSign);
+            AddBidirectionalExitsWithOut(oApartmentComplex, oApartmentComplexHallway, "hallway");
+            breeStreetsGraph.Rooms[oApartmentComplexHallway] = new System.Windows.Point(13, 0.6);
+
+            Room oApartmentComplexPlaza = AddRoom("Plaza", "Kista Hills Apartment Complex Plaza");
+            oApartmentComplexPlaza.AddPermanentItems(ItemTypeEnum.StorageSign);
+            AddBidirectionalExitsWithOut(oApartmentComplex, oApartmentComplexPlaza, "plaza");
+            breeStreetsGraph.Rooms[oApartmentComplexPlaza] = new System.Windows.Point(12, 1.6);
+
             oConstructionSite = AddRoom("Construction Site", "Construction Site");
-            AddExit(oIxell, oConstructionSite, "back");
+            AddExit(oIxell, oConstructionSite, "back door");
             AddExit(oConstructionSite, oIxell, "hoist");
             breeStreetsGraph.Rooms[oConstructionSite] = new System.Windows.Point(11, 0.9);
 
@@ -1738,6 +1755,7 @@ namespace IsengardClient
             breeStreetsGraph.Rooms[oGrandBallroom] = new System.Windows.Point(4, 3.5);
 
             Room oCityHall = AddRoom("City Hall", "Bree City Hall");
+            oCityHall.AddPermanentItems(ItemTypeEnum.InformationKiosk, ItemTypeEnum.TownMap);
             AddExit(breeStreets[4, 7], oCityHall, "hall");
             AddExit(oCityHall, breeStreets[4, 7], "south");
             breeStreetsGraph.Rooms[oCityHall] = new System.Windows.Point(4, 2.5);
@@ -2297,6 +2315,7 @@ namespace IsengardClient
 
             Room oShirriff = breeSewers[7, 3];
             oShirriff.AddPermanentMobs(MobTypeEnum.Shirriff, MobTypeEnum.Shirriff);
+            oShirriff.AddPermanentItems(ItemTypeEnum.PotHelm, ItemTypeEnum.Torch);
 
             Room oValveChamber = AddRoom("Valve Chamber", "Valve chamber");
             e = AddExit(breeSewers[7, 3], oValveChamber, "valve");
@@ -2924,6 +2943,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oGrainSilo] = new System.Windows.Point(2, 9);
 
             oOuthouse = AddRoom("Outhouse", "Outhouse");
+            oOuthouse.AddPermanentItems(ItemTypeEnum.OutOfOrderSign);
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oOuthouse] = new System.Windows.Point(5, 8);
 
@@ -4782,6 +4802,7 @@ namespace IsengardClient
             intangibleGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(2, 0);
 
             Room treeOfLife = AddRoom("Tree of Life", "The Tree of Life");
+            treeOfLife.AddPermanentItems(ItemTypeEnum.BookOfKnowledge);
             treeOfLife.Intangible = true;
             AddExit(treeOfLife, oBreeTownSquare, "down");
             intangibleGraph.Rooms[treeOfLife] = new System.Windows.Point(0, 1);
@@ -4861,6 +4882,7 @@ namespace IsengardClient
 
             nindamosVillageCenter = AddRoom("Village Center", "Nindamos Village Center");
             nindamosVillageCenter.AddPermanentMobs(MobTypeEnum.MaxTheVegetableVendor);
+            nindamosVillageCenter.AddPermanentItems(ItemTypeEnum.BoxOfStrawberries, ItemTypeEnum.BundleOfWheat, ItemTypeEnum.SackOfPotatoes);
             nindamosGraph.Rooms[nindamosVillageCenter] = new System.Windows.Point(8, 4);
 
             Room oSandstoneNorth1 = AddRoom("Sandstone", "Sandstone Road North");

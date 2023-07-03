@@ -47,6 +47,7 @@ namespace IsengardClient
         public BoatEmbarkOrDisembark? BoatLocationType { get; set; }
         public List<MobTypeEnum> PermanentMobs { get; set; }
         public List<MobTypeEnum> NonPermanentMobs { get; set; }
+        public List<ItemTypeEnum> PermanentItems { get; set; }
 
         public void AddPermanentMobs(params MobTypeEnum[] mobs)
         {
@@ -63,6 +64,15 @@ namespace IsengardClient
             foreach (MobTypeEnum nextMob in mobs)
             {
                 NonPermanentMobs.Add(nextMob);
+            }
+        }
+
+        public void AddPermanentItems(params ItemTypeEnum[] items)
+        {
+            if (PermanentItems == null) PermanentItems = new List<ItemTypeEnum>();
+            foreach (ItemTypeEnum nextItem in items)
+            {
+                PermanentItems.Add(nextItem);
             }
         }
 

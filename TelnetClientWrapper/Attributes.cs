@@ -122,17 +122,24 @@ namespace IsengardClient
         }
     }
 
-    internal class MoneyAttribute : Attribute
+    internal class ItemClassAttribute : Attribute
     {
-    }
-    internal class CoinsAttribute : Attribute
-    {
-    }
-    internal class BagAttribute : Attribute
-    {
-    }
-    internal class KeyAttribute : Attribute
-    {
+        public ItemClass ItemClass;
+        public ItemClassAttribute(ItemClass ItemClass)
+        {
+            if (ItemClass == ItemClass.Money ||
+                ItemClass == ItemClass.Coins ||
+                ItemClass == ItemClass.Bag ||
+                ItemClass == ItemClass.Key ||
+                ItemClass == ItemClass.Fixed)
+            {
+                this.ItemClass = ItemClass;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 
     /// <summary>
