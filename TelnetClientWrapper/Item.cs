@@ -495,6 +495,7 @@ namespace IsengardClient
     {
         [SingularName("adamantine dart")]
         [PluralName("adamantine darts")]
+        [WeaponType(WeaponType.Unknown)]
         [Weight(3)]
         [SellGoldRange(81, 81)]
         AdamantineDart,
@@ -551,6 +552,7 @@ namespace IsengardClient
 
         [SingularName("assassin's dagger")]
         [PluralName("assassin's daggers")]
+        [WeaponType(WeaponType.Unknown)]
         [Weight(3)]
         [SellGoldRange(3168)]
         AssassinsDagger,
@@ -779,6 +781,7 @@ namespace IsengardClient
 
         [SingularName("copper ring")]
         [PluralName("copper rings")]
+        [EquipmentType(EquipmentType.Finger)]
         CopperRing,
 
         [SingularName("crossbow")]
@@ -1001,6 +1004,7 @@ namespace IsengardClient
 
         [SingularName("giant stylus")]
         [PluralName("giant styluses")] //CSRTODO: correct plural
+        [WeaponType(WeaponType.Unknown)]
         GiantStylus,
 
         [SingularName("Girion's key")]
@@ -1015,7 +1019,7 @@ namespace IsengardClient
         GlimmeringBlade,
 
         [SingularName("glitter")]
-        //CSRTODO: wand?
+        [Wand(SpellsEnum.stun)] //CSRTODO: is this correct?
         //CSRTODO: glitter (does not use some)
         Glitter,
 
@@ -1035,6 +1039,7 @@ namespace IsengardClient
 
         [SingularName("goblin blade")]
         [PluralName("goblin blades")]
+        [WeaponType(WeaponType.Unknown)]
         [Weight(5)]
         [SellGoldRange(116, 116)]
         GoblinBlade,
@@ -1126,6 +1131,7 @@ namespace IsengardClient
         Halberd,
 
         [SingularName("half-giant chain mail gloves")]
+        [EquipmentType(EquipmentType.Hands)]
         [Weight(10)]
         [SellGoldRange(123, 123)]
         HalfGiantChainMailGloves,
@@ -1281,10 +1287,12 @@ namespace IsengardClient
         LeatherPouch,
 
         [SingularName("leather sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
         [Weight(3)]
         LeatherSleeves,
 
         [SingularName("light leather armor")]
+        [EquipmentType(EquipmentType.Torso)]
         LightLeatherArmor,
 
         [SingularName("little brown jug")]
@@ -1310,6 +1318,7 @@ namespace IsengardClient
         LongSword,
 
         [SingularName("lunch money")]
+        [Money]
         //CSRTODO: plural?
         LunchMoney,
 
@@ -1446,6 +1455,7 @@ namespace IsengardClient
 
         [SingularName("orc's sword")]
         [PluralName("orc's swords")]
+        [WeaponType(WeaponType.Unknown)]
         OrcsSword,
 
         [SingularName("ork blade")]
@@ -1759,7 +1769,7 @@ namespace IsengardClient
 
         [SingularName("speckled potion")]
         [PluralName("speckled potions")]
-        //CSRTODO: stun potion???
+        [Potion(SpellsEnum.unknown)] //stun? "You feel dizzy."
         SpeckledPotion,
 
         [SingularName("sprite boots")]
@@ -1917,11 +1927,12 @@ namespace IsengardClient
 
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]
+        [Scroll(SpellsEnum.protection)]
         VerdantGreenScroll,
 
         [SingularName("viscous potion")]
         [PluralName("viscous potions")]
-        //CSRTODO: what is this?
+        [Potion(SpellsEnum.unknown)] //CSRTODO: what is this, causes small amount of damage
         ViscousPotion,
 
         [SingularName("volcanic boots")]

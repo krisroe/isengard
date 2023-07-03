@@ -988,5 +988,7 @@ namespace IsengardClient
 
         [SpellInformation(SpellProficiency.Sorcery, 6, "resist-magic")]
         resistmagic,
+
+        unknown,
     }
 }
