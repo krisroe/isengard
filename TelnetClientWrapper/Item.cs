@@ -1416,12 +1416,13 @@ namespace IsengardClient
         [PluralName("mithron hoods")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(5)]
+        [SellGoldRange(247, 247)]
+        [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
         MithronHood,
 
         [SingularName("mithron shield")]
         [PluralName("mithron shields")]
         [EquipmentType(EquipmentType.Shield)]
-        [DisallowedClasses(ClassTypeFlags.Mage)]
         MithronShield,
 
         [SingularName("molten iron key")]
