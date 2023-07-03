@@ -4123,6 +4123,7 @@ namespace IsengardClient
             esgarothGraph.Rooms[briarLane] = new System.Windows.Point(3, 5);
 
             Room parthTowers = AddRoom("Parth Towers", "Entrance to the Parth Towers");
+            parthTowers.AddPermanentItems(ItemTypeEnum.BlackRune, ItemTypeEnum.BlueRune, ItemTypeEnum.GreenRune, ItemTypeEnum.GreyRune);
             AddBidirectionalExits(parthTowers, briarLane, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[parthTowers] = new System.Windows.Point(3, 4.5);
             //CSRTODO: drawbridge

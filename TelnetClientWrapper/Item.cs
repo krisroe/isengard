@@ -605,6 +605,7 @@ namespace IsengardClient
 
         [SingularName("black rune")]
         [PluralName("black runes")]
+        [ItemClass(ItemClass.Fixed)]
         BlackRune,
 
         [SingularName("black scroll")]
@@ -630,6 +631,7 @@ namespace IsengardClient
 
         [SingularName("blue rune")]
         [PluralName("blue runes")]
+        [ItemClass(ItemClass.Fixed)]
         BlueRune,
 
         [SingularName("boiler key")]
@@ -724,7 +726,7 @@ namespace IsengardClient
         CarvedIvoryKey,
 
         [SingularName("cat o' nine tails")]
-        [PluralName("cat o' nine tailses")] //CSRTODO: correct plural?
+        [PluralName("cat o' nine tailses")] //verified 7/3/23
         [WeaponType(WeaponType.Slash)]
         [Weight(12)]
         [SellGoldRange(396, 396)]
@@ -798,6 +800,7 @@ namespace IsengardClient
 
         [SingularName("crystal amulet")]
         [PluralName("crystal amulets")]
+        [EquipmentType(EquipmentType.Unknown)]
         CrystalAmulet,
 
         [SingularName("cutlass")]
@@ -845,6 +848,7 @@ namespace IsengardClient
 
         [SingularName("diamond laurel ring")]
         [PluralName("diamond laurel rings")]
+        [EquipmentType(EquipmentType.Finger)]
         [Weight(2)]
         [SellGoldRange(148, 148)]
         DiamondLaurelRing,
@@ -1092,6 +1096,7 @@ namespace IsengardClient
 
         [SingularName("green rune")]
         [PluralName("green runes")]
+        [ItemClass(ItemClass.Fixed)]
         GreenRune,
 
         [SingularName("grey cloak")]
@@ -1102,6 +1107,7 @@ namespace IsengardClient
 
         [SingularName("grey rune")]
         [PluralName("grey runes")]
+        [ItemClass(ItemClass.Fixed)]
         GreyRune,
 
         [SingularName("grey scroll")]
