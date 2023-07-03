@@ -15,10 +15,10 @@ namespace IsengardClient
         private VertexControl _currentVertexControl;
         private IsengardMap _fullMap;
         private bool _forVertexSelection;
-        private GraphInputs _graphInputs;
+        private Func<GraphInputs> _graphInputs;
         private VertexSelectionRequirement _selectionRequirement;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, GraphInputs graphInputs, VertexSelectionRequirement selectionRequirement)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, Func<GraphInputs> graphInputs, VertexSelectionRequirement selectionRequirement)
         {
             InitializeComponent();
 
@@ -56,6 +56,7 @@ namespace IsengardClient
 
         private void cboGraph_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            GraphInputs actualInputs = _graphInputs();
             RoomGraph rg = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
             RoomBidirectionalGraph rbg = new RoomBidirectionalGraph();
             rbg.ComputedPositions = rg.Rooms;
@@ -78,7 +79,7 @@ namespace IsengardClient
                             rbg.AddVertex(targetRoom);
                             addedRooms.Add(targetRoom);
                         }
-                        nextExit.ShowAsRedOnGraph = nextExit.GetCost(_graphInputs) == int.MaxValue;
+                        nextExit.ShowAsRedOnGraph = nextExit.GetCost(actualInputs) == int.MaxValue;
                         rbg.AddEdge(nextExit);
                     }
                 }
@@ -177,7 +178,7 @@ namespace IsengardClient
             Room selectedRoom = (Room)_currentVertexControl.Vertex;
             if (_selectionRequirement == VertexSelectionRequirement.ValidPathFromCurrentLocation)
             {
-                SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs);
+                SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, selectedRoom, _graphInputs());
                 if (SelectedPath == null)
                 {
                     MessageBox.Show("No path to target room found.", "Select Room", MessageBoxButton.OK);

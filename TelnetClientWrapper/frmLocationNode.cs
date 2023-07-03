@@ -8,9 +8,9 @@ namespace IsengardClient
         private Room _currentRoom;
         private IsengardMap _fullMap;
         private Room _selectedRoom;
-        private GraphInputs _gi;
+        private Func<GraphInputs> _gi;
 
-        public frmLocationNode(LocationNode input, Room currentRoom, IsengardMap fullMap, GraphInputs gi)
+        public frmLocationNode(LocationNode input, Room currentRoom, IsengardMap fullMap, Func<GraphInputs> gi)
         {
             InitializeComponent();
 

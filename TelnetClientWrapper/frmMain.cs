@@ -8200,8 +8200,7 @@ StartTickRoomProcessing:
         private void btnGraph_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
-            GraphInputs gi = GetGraphInputs();
-            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, gi, VertexSelectionRequirement.ValidPathFromCurrentLocation);
+            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, GetGraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;
@@ -8227,8 +8226,7 @@ StartTickRoomProcessing:
         private void btnLocations_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
-            GraphInputs gi = GetGraphInputs();
-            frmLocations frm = new frmLocations(_gameMap, _settingsData, originalCurrentRoom, false, gi);
+            frmLocations frm = new frmLocations(_gameMap, _settingsData, originalCurrentRoom, false, GetGraphInputs);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;

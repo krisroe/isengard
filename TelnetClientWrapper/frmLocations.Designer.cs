@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btnGo = new System.Windows.Forms.Button();
             this.btnSet = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.treeLocations = new System.Windows.Forms.TreeView();
@@ -45,23 +44,11 @@
             this.ctxTree.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnGo
-            // 
-            this.btnGo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGo.Enabled = false;
-            this.btnGo.Location = new System.Drawing.Point(204, 680);
-            this.btnGo.Name = "btnGo";
-            this.btnGo.Size = new System.Drawing.Size(75, 23);
-            this.btnGo.TabIndex = 0;
-            this.btnGo.Text = "Go";
-            this.btnGo.UseVisualStyleBackColor = true;
-            this.btnGo.Click += new System.EventHandler(this.btnGo_Click);
-            // 
             // btnSet
             // 
             this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.Enabled = false;
-            this.btnSet.Location = new System.Drawing.Point(123, 680);
+            this.btnSet.Location = new System.Drawing.Point(204, 680);
             this.btnSet.Name = "btnSet";
             this.btnSet.Size = new System.Drawing.Size(75, 23);
             this.btnSet.TabIndex = 1;
@@ -169,7 +156,6 @@
             this.Controls.Add(this.treeLocations);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnSet);
-            this.Controls.Add(this.btnGo);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -183,8 +169,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnGo;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.TreeView treeLocations;

@@ -8,10 +8,10 @@ namespace IsengardClient
     {
         private IsengardMap _fullMap;
         private IsengardSettingData _settingsData;
-        private GraphInputs _graphInputs;
+        private Func<GraphInputs> _graphInputs;
         private bool _forRoomSelection;
 
-        public frmLocations(IsengardMap fullMap, IsengardSettingData settingsData, Room currentRoom, bool forRoomSelection, GraphInputs gi)
+        public frmLocations(IsengardMap fullMap, IsengardSettingData settingsData, Room currentRoom, bool forRoomSelection, Func<GraphInputs> gi)
         {
             InitializeComponent();
 
@@ -20,12 +20,7 @@ namespace IsengardClient
             CurrentRoom = currentRoom;
             _graphInputs = gi;
             _forRoomSelection = forRoomSelection;
-
-            if (forRoomSelection)
-            {
-                btnSet.Visible = false;
-                btnGo.Text = "Select";
-            }
+            btnSet.Visible = !forRoomSelection;
 
             PopulateTree();
         }
@@ -91,40 +86,12 @@ namespace IsengardClient
             }
         }
 
-        private void btnGo_Click(object sender, EventArgs e)
-        {
-            Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
-            if (r != null)
-            {
-                if (!_forRoomSelection)
-                {
-                    SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, r, _graphInputs);
-                    if (SelectedPath == null)
-                    {
-                        MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
-                        return;
-                    }
-                }
-                SelectedRoom = r;
-                this.DialogResult = DialogResult.OK;
-                Close();
-            }
-        }
-
         private void treeLocations_AfterSelect(object sender, TreeViewEventArgs e)
         {
             Room nodeRoom = null;
             TreeNode tn = treeLocations.SelectedNode;
             if (tn != null) nodeRoom = ((LocationNode)tn.Tag).FindRoom(_fullMap);
             btnSet.Enabled = nodeRoom != null && nodeRoom != CurrentRoom;
-            if (_forRoomSelection)
-            {
-                btnGo.Enabled = nodeRoom != null;
-            }
-            else //navigating to room
-            {
-                btnGo.Enabled = nodeRoom != null && CurrentRoom != null && nodeRoom != CurrentRoom;
-            }
         }
 
         private TreeNode DisplayNodeForm(LocationNode startingPoint)
@@ -319,7 +286,32 @@ namespace IsengardClient
 
         private void treeLocations_DoubleClick(object sender, EventArgs e)
         {
-            btnGo_Click(null, null);
+            Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
+            if (r != null)
+            {
+                if (!_forRoomSelection)
+                {
+                    if (CurrentRoom == null)
+                    {
+                        MessageBox.Show("No current room.");
+                        return;
+                    }
+                    if (r == CurrentRoom)
+                    {
+                        MessageBox.Show("Already at selected room.");
+                        return;
+                    }
+                    SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, r, _graphInputs());
+                    if (SelectedPath == null)
+                    {
+                        MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
+                        return;
+                    }
+                }
+                SelectedRoom = r;
+                this.DialogResult = DialogResult.OK;
+                Close();
+            }
         }
     }
 }

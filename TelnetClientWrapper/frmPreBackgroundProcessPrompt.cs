@@ -264,8 +264,7 @@ namespace IsengardClient
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            GraphInputs graphInputs = _GraphInputs();
-            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, graphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
+            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
             graphForm.ShowDialog();
             if (graphForm.SelectedRoom != null)
             {
@@ -279,8 +278,7 @@ namespace IsengardClient
 
         private void btnLocations_Click(object sender, EventArgs e)
         {
-            GraphInputs graphInputs = _GraphInputs();
-            frmLocations locationsForm = new frmLocations(_gameMap, _settingsData, _currentRoom, true, graphInputs);
+            frmLocations locationsForm = new frmLocations(_gameMap, _settingsData, _currentRoom, true, _GraphInputs);
             locationsForm.ShowDialog();
             if (locationsForm.SelectedRoom != null)
             {
