@@ -4401,6 +4401,7 @@ StartTickRoomProcessing:
                         bool anythingCouldNotBePickedUpFromTickRoom = false;
                         bool anythingFailedForTickRoom = false;
 
+                        //process inventory for items to drop in the tick room or sell/junk
                         HashSet<ItemTypeEnum> tickItemsProcessedForDropping = new HashSet<ItemTypeEnum>();
                         foreach (ItemEntity ie in itemsToTick)
                         {
@@ -4408,14 +4409,43 @@ StartTickRoomProcessing:
                             if (!tickItemsProcessedForDropping.Contains(itemType))
                             {
                                 DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
-                                int iCountToDrop = 0;
+                                int iCountToGetRidOfFromInventory = 0;
+                                int iTickRoomCount;
                                 lock (_entityLock)
                                 {
                                     int iInventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
                                     if (didWithInherit.KeepCount == -1)
-                                        iCountToDrop = iInventoryCount;
+                                        iCountToGetRidOfFromInventory = iInventoryCount;
                                     else if (iInventoryCount > didWithInherit.KeepCount)
-                                        iCountToDrop = iInventoryCount - didWithInherit.KeepCount;
+                                        iCountToGetRidOfFromInventory = iInventoryCount - didWithInherit.KeepCount;
+                                    iTickRoomCount = _currentEntityInfo.GetTotalRoomItemsCount(itemType);
+                                }
+                                int iCountToDisposeOf = 0;
+                                int iCountToDrop = 0;
+                                if (didWithInherit.TickCount == -1)
+                                {
+                                    iCountToDisposeOf = iCountToGetRidOfFromInventory;
+                                }
+                                else if (didWithInherit.TickCount == int.MaxValue || iTickRoomCount >= didWithInherit.TickCount)
+                                {
+                                    iCountToDrop = iCountToGetRidOfFromInventory;
+                                }
+                                else
+                                {
+                                    int iTickRoomFree = didWithInherit.TickCount - iTickRoomCount;
+                                    if (iTickRoomFree >= iCountToGetRidOfFromInventory)
+                                    {
+                                        iCountToDrop = iCountToGetRidOfFromInventory;
+                                    }
+                                    else
+                                    {
+                                        iCountToDrop = iTickRoomFree;
+                                        iCountToDisposeOf = iCountToGetRidOfFromInventory - iCountToDrop;
+                                    }
+                                }
+                                for (int i = 0; i < iCountToDisposeOf; i++)
+                                {
+                                    itemsToSellOrJunk.Add(ie);
                                 }
                                 for (int i = 0; i < iCountToDrop; i++)
                                 {
@@ -4444,6 +4474,14 @@ StartTickRoomProcessing:
                                 }
                                 tickItemsProcessedForDropping.Add(itemType);
                             }
+                        }
+
+                        //sell/junk anything from the inventory that should be sold or junked
+                        if (itemsToSellOrJunk.Count > 0)
+                        {
+                            if (!SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone)) return;
+                            itemsToSellOrJunk.Clear();
+                            goto StartTickRoomProcessing;
                         }
 
                         weightFailed = int.MaxValue;
