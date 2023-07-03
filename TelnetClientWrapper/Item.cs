@@ -1030,8 +1030,9 @@ namespace IsengardClient
         GlimmeringBlade,
 
         [SingularName("glitter")]
-        [Wand(SpellsEnum.stun)] //CSRTODO: is this correct?
-        //CSRTODO: glitter (does not use some)
+        //CSRTODO: glitter plural? (does not use some)
+        [Wand(SpellsEnum.stun)]
+        [Weight(1)]
         Glitter,
 
         [SingularName("glowing pendant")]
