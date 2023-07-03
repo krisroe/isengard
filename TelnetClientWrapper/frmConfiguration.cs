@@ -242,8 +242,6 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            IsengardSettings sets = IsengardSettings.Default;
-
             string sWeapon = txtCurrentWeaponValue.Text;
             if (string.IsNullOrEmpty(sWeapon))
             {
@@ -259,9 +257,6 @@ namespace IsengardClient
                 }
                 Weapon = weapon;
             }
-
-            //CSRTODO: save changes to strategies
-
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -580,8 +575,15 @@ namespace IsengardClient
 
         private void tsmiAddStrategy_Click(object sender, EventArgs e)
         {
-            //CSRTODO: implement me!
-            MessageBox.Show("Not currently implemented");
+            Strategy s = new Strategy();
+            frmStrategy frm = new frmStrategy(s);
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                s = frm.NewStrategy;
+                lstStrategies.Items.Add(s);
+                _strategies.Add(s);
+                ChangedStrategies = true;
+            }
         }
 
         private void tsmiEditStrategy_Click(object sender, EventArgs e)
@@ -606,25 +608,27 @@ namespace IsengardClient
             ChangedStrategies = true;
         }
 
-        private void MoveStrategyUp(int iIndex)
+        private void MoveStrategyUp(int iIndex, int iIndexToSelect)
         {
-            Strategy s = (Strategy)lstStrategies.SelectedItem;
+            Strategy s = (Strategy)lstStrategies.Items[iIndex];
             lstStrategies.Items.RemoveAt(iIndex);
             lstStrategies.Items.Insert(iIndex - 1, s);
             _strategies.RemoveAt(iIndex);
             _strategies.Insert(iIndex - 1, s);
-            lstStrategies.SelectedIndex = iIndex - 1;
+            lstStrategies.SelectedIndex = iIndexToSelect;
             ChangedStrategies = true;
         }
 
         private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
         {
-            MoveStrategyUp(lstStrategies.SelectedIndex);
+            int iIndex = lstStrategies.SelectedIndex;
+            MoveStrategyUp(iIndex, iIndex - 1);
         }
 
         private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
         {
-            MoveStrategyUp(lstStrategies.SelectedIndex + 1);
+            int iIndex = lstStrategies.SelectedIndex + 1;
+            MoveStrategyUp(iIndex, iIndex);
         }
 
         private void ctxPreferredAlignment_Opening(object sender, CancelEventArgs e)
