@@ -3888,7 +3888,7 @@ namespace IsengardClient
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency, sMobTarget);
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency, sMobTarget, _settingsData);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -4032,7 +4032,7 @@ namespace IsengardClient
                                 if (nextPotionsStep.HasValue && allowBasedOnStun &&
                                     (!dtNextPotionsCommand.HasValue || dtUtcNow > dtNextPotionsCommand.Value))
                                 {
-                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _currentEntityInfo, _entityLock, _autohp, _totalhp);
+                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _currentEntityInfo, _entityLock, _autohp, _totalhp, _settingsData);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
                                     {
                                         nextPotionsStep = null;
@@ -4865,18 +4865,18 @@ StartTickRoomProcessing:
             return true;
         }
 
-        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP)
+        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP, IsengardSettingData settings)
         {
             command = null;
             lock (entityLockObject)
             {
-                bool supportsMend = Strategy != null && Strategy.PotionsMendOnlyWhenDownXHP > 0;
-                bool supportsVigor = Strategy != null && Strategy.PotionsVigorOnlyWhenDownXHP > 0;
+                bool supportsMend = settings.PotionsMendOnlyWhenDownXHP > 0;
+                bool supportsVigor = settings.PotionsVigorOnlyWhenDownXHP > 0;
                 if (nextPotionsStep == PotionsStrategyStep.Vigor && !supportsVigor) return PotionsCommandChoiceResult.Fail;
                 if (nextPotionsStep == PotionsStrategyStep.MendWounds && !supportsMend) return PotionsCommandChoiceResult.Fail;
                 if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !supportsVigor && !supportsMend) return PotionsCommandChoiceResult.Fail;
-                bool canMend = supportsMend && currentHP + Strategy.PotionsMendOnlyWhenDownXHP <= totalHP;
-                bool canVigor = supportsVigor && currentHP + Strategy.PotionsVigorOnlyWhenDownXHP <= totalHP;
+                bool canMend = supportsMend && currentHP + settings.PotionsMendOnlyWhenDownXHP <= totalHP;
+                bool canVigor = supportsVigor && currentHP + settings.PotionsVigorOnlyWhenDownXHP <= totalHP;
                 if (nextPotionsStep == PotionsStrategyStep.Vigor && !canVigor) return PotionsCommandChoiceResult.Skip;
                 if (nextPotionsStep == PotionsStrategyStep.MendWounds && !canMend) return PotionsCommandChoiceResult.Skip;
                 if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !canVigor && !canMend) return PotionsCommandChoiceResult.Skip;
@@ -5218,7 +5218,7 @@ StartTickRoomProcessing:
             command = sAttackType + " " + mobTarget;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency, string mobTarget)
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency, string mobTarget, IsengardSettingData settingsData)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -5241,8 +5241,8 @@ StartTickRoomProcessing:
             {
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy != null && Strategy.MagicMendOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.MagicMendOnlyWhenDownXHP <= totalHP;
+                    if (settingsData.MagicMendOnlyWhenDownXHP > 0)
+                        doCast = currentHP + settingsData.MagicMendOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;
                     if (doCast)
@@ -5252,8 +5252,8 @@ StartTickRoomProcessing:
                 }
                 if (nextMagicStep == MagicStrategyStep.GenericHeal || nextMagicStep == MagicStrategyStep.MendWounds)
                 {
-                    if (Strategy != null && Strategy.MagicVigorOnlyWhenDownXHP > 0)
-                        doCast = currentHP + Strategy.MagicVigorOnlyWhenDownXHP <= totalHP;
+                    if (settingsData.MagicVigorOnlyWhenDownXHP > 0)
+                        doCast = currentHP + settingsData.MagicVigorOnlyWhenDownXHP <= totalHP;
                     else
                         doCast = currentHP < totalHP;
                     if (doCast)
@@ -8302,17 +8302,6 @@ StartTickRoomProcessing:
             frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                clone.QueryMonsterStatus = frm.QueryMonsterStatus;
-                clone.VerboseMode = frm.VerboseOutput;
-                clone.RemoveAllOnStartup = frm.RemoveAllOnStartup;
-                clone.DisplayStunLength = frm.DisplayStunLength;
-                clone.FullColor = frm.FullColor;
-                clone.EmptyColor = frm.EmptyColor;
-                clone.Realm = frm.Realm;
-                clone.PreferredAlignment = frm.PreferredAlignment;
-                clone.AutoSpellLevelMin = frm.AutoSpellLevelMinimum;
-                clone.AutoSpellLevelMax = frm.AutoSpellLevelMaximum;
-                clone.Weapon = frm.Weapon;
                 _weapon = frm.CurrentWeapon;
 
                 bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;

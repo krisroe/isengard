@@ -59,6 +59,11 @@ namespace IsengardClient
             chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
             chkDisplayStunLength.Checked = settingsData.DisplayStunLength;
 
+            txtMagicVigorWhenDownXHP.Text = settingsData.MagicVigorOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.MagicVigorOnlyWhenDownXHP.ToString();
+            txtMagicMendWhenDownXHP.Text = settingsData.MagicMendOnlyWhenDownXHP <= 0 ? string.Empty :  settingsData.MagicMendOnlyWhenDownXHP.ToString();
+            txtPotionsVigorWhenDownXHP.Text = settingsData.PotionsVigorOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.PotionsVigorOnlyWhenDownXHP.ToString();
+            txtPotionsMendWhenDownXHP.Text = settingsData.PotionsMendOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.PotionsMendOnlyWhenDownXHP.ToString();
+
             _fullColor = settingsData.FullColor;
             SetColorUI(lblFullColorValue, _fullColor);
             _emptyColor = settingsData.EmptyColor;
@@ -154,90 +159,10 @@ namespace IsengardClient
             foregroundColor = Color.FromArgb(iForegroundR, iForegroundG, iForegroundB);
         }
 
-        internal AlignmentType PreferredAlignment
-        {
-            get
-            {
-                return _preferredAlignment;
-            }
-        }
-
         internal ItemTypeEnum? Weapon
         {
             get;
             set;
-        }
-
-        internal bool QueryMonsterStatus
-        {
-            get
-            {
-                return chkQueryMonsterStatus.Checked;
-            }
-        }
-
-        public bool VerboseOutput
-        {
-            get
-            {
-                return chkVerboseOutput.Checked;
-            }
-        }
-
-        public bool RemoveAllOnStartup
-        {
-            get
-            {
-                return chkRemoveAllOnStartup.Checked;
-            }
-        }
-
-        public bool DisplayStunLength
-        {
-            get
-            {
-                return chkDisplayStunLength.Checked;
-            }
-        }
-
-        public Color FullColor
-        {
-            get
-            {
-                return _fullColor;
-            }
-        }
-
-        public Color EmptyColor
-        {
-            get
-            {
-                return _emptyColor;
-            }
-        }
-
-        public RealmType Realm
-        {
-            get
-            {
-                return _currentRealm;
-            }
-        }
-
-        public int AutoSpellLevelMinimum
-        {
-            get
-            {
-                return _currentAutoSpellLevelMinimum;
-            }
-        }
-
-        public int AutoSpellLevelMaximum
-        {
-            get
-            {
-                return _currentAutoSpellLevelMaximum;
-            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -257,6 +182,74 @@ namespace IsengardClient
                 }
                 Weapon = weapon;
             }
+
+            string sWhenDownXHP;
+            int iMagicVigorWhenDownXHP, iMagicMendWhenDownXHP, iPotionsVigorWhenDownXHP, iPotionsMendWhenDownXHP;
+
+            sWhenDownXHP = txtMagicVigorWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sWhenDownXHP))
+            {
+                iMagicVigorWhenDownXHP = 0;
+            }
+            else if (!int.TryParse(sWhenDownXHP, out iMagicVigorWhenDownXHP) || iMagicVigorWhenDownXHP <= 0)
+            {
+                MessageBox.Show("Invalid magic vigor when down X HP");
+                txtMagicVigorWhenDownXHP.Focus();
+                return;
+            }
+
+            sWhenDownXHP = txtMagicMendWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sWhenDownXHP))
+            {
+                iMagicMendWhenDownXHP = 0;
+            }
+            else if (!int.TryParse(sWhenDownXHP, out iMagicMendWhenDownXHP) || iMagicMendWhenDownXHP <= 0)
+            {
+                MessageBox.Show("Invalid magic mend when down X HP");
+                txtMagicMendWhenDownXHP.Focus();
+                return;
+            }
+
+            sWhenDownXHP = txtPotionsVigorWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sWhenDownXHP))
+            {
+                iPotionsVigorWhenDownXHP = 0;
+            }
+            else if (!int.TryParse(sWhenDownXHP, out iPotionsVigorWhenDownXHP) || iPotionsVigorWhenDownXHP <= 0)
+            {
+                MessageBox.Show("Invalid potions vigor when down X HP");
+                txtPotionsVigorWhenDownXHP.Focus();
+                return;
+            }
+
+            sWhenDownXHP = txtPotionsMendWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sWhenDownXHP))
+            {
+                iPotionsMendWhenDownXHP = 0;
+            }
+            else if (!int.TryParse(sWhenDownXHP, out iPotionsMendWhenDownXHP) || iPotionsMendWhenDownXHP <= 0)
+            {
+                MessageBox.Show("Invalid potions mend when down X HP");
+                txtPotionsMendWhenDownXHP.Focus();
+                return;
+            }
+
+            _settings.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
+            _settings.VerboseMode = chkVerboseOutput.Checked;
+            _settings.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
+            _settings.DisplayStunLength = chkDisplayStunLength.Checked;
+            _settings.FullColor = _fullColor;
+            _settings.EmptyColor = _emptyColor;
+            _settings.Realm = _currentRealm;
+            _settings.PreferredAlignment = _preferredAlignment;
+            _settings.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
+            _settings.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
+            _settings.Weapon = Weapon;
+            _settings.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
+            _settings.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
+            _settings.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
+            _settings.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

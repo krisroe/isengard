@@ -75,11 +75,6 @@ namespace IsengardClient
             chkMeleeEnabled.Checked = (s.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             chkPotionsEnabled.Checked = (s.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
 
-            if (s.MagicVigorOnlyWhenDownXHP > 0) txtMagicVigorWhenDownXHP.Text = s.MagicVigorOnlyWhenDownXHP.ToString();
-            if (s.MagicMendOnlyWhenDownXHP > 0) txtMagicMendWhenDownXHP.Text = s.MagicMendOnlyWhenDownXHP.ToString();
-            if (s.PotionsVigorOnlyWhenDownXHP > 0) txtPotionsVigorWhenDownXHP.Text = s.PotionsVigorOnlyWhenDownXHP.ToString();
-            if (s.PotionsMendOnlyWhenDownXHP > 0) txtPotionsMendWhenDownXHP.Text = s.PotionsMendOnlyWhenDownXHP.ToString();
-
             bool hasSteps;
             
             hasSteps = s.MagicSteps != null;
@@ -146,30 +141,6 @@ namespace IsengardClient
                 MessageBox.Show("Invalid mana pool", "Strategy");
                 txtManaPool.Focus();
             }
-            sInt = txtMagicVigorWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt) && !int.TryParse(sInt, out _))
-            {
-                MessageBox.Show("Invalid magic vigor when down X HP", "Strategy");
-                txtMagicVigorWhenDownXHP.Focus();
-            }
-            sInt = txtMagicMendWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt) && !int.TryParse(sInt, out _))
-            {
-                MessageBox.Show("Invalid magic mend when down X HP", "Strategy");
-                txtMagicMendWhenDownXHP.Focus();
-            }
-            sInt = txtPotionsVigorWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt) && !int.TryParse(sInt, out _))
-            {
-                MessageBox.Show("Invalid potions vigor when down X HP", "Strategy");
-                txtPotionsVigorWhenDownXHP.Focus();
-            }
-            sInt = txtPotionsMendWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt) && !int.TryParse(sInt, out _))
-            {
-                MessageBox.Show("Invalid potions mend when down X HP", "Strategy");
-                txtPotionsMendWhenDownXHP.Focus();
-            }
             sInt = txtMagicOnlyWhenStunnedForXMS.Text;
             if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
             {
@@ -230,14 +201,6 @@ namespace IsengardClient
 
             sInt = txtManaPool.Text;
             if (!string.IsNullOrEmpty(sInt)) NewStrategy.ManaPool = int.Parse(sInt);
-            sInt = txtMagicVigorWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt)) NewStrategy.MagicVigorOnlyWhenDownXHP = int.Parse(sInt);
-            sInt = txtMagicMendWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt)) NewStrategy.MagicMendOnlyWhenDownXHP = int.Parse(sInt);
-            sInt = txtPotionsVigorWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt)) NewStrategy.PotionsVigorOnlyWhenDownXHP = int.Parse(sInt);
-            sInt = txtPotionsMendWhenDownXHP.Text;
-            if (!string.IsNullOrEmpty(sInt)) NewStrategy.PotionsMendOnlyWhenDownXHP = int.Parse(sInt);
 
             CommandType ct;
 

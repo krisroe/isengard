@@ -22,6 +22,10 @@ namespace IsengardClient
         public bool AutoEscapeActive { get; set; }
         public bool RemoveAllOnStartup { get; set; }
         public bool DisplayStunLength { get; set; }
+        public int MagicVigorOnlyWhenDownXHP { get; set; }
+        public int MagicMendOnlyWhenDownXHP { get; set; }
+        public int PotionsVigorOnlyWhenDownXHP { get; set; }
+        public int PotionsMendOnlyWhenDownXHP { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         public Dictionary<DynamicDataItemClass, DynamicItemData> DynamicItemClassData { get; set; }
         public List<LocationNode> Locations { get; set; }
@@ -41,6 +45,10 @@ namespace IsengardClient
             AutoEscapeThreshold = 0;
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
+            MagicVigorOnlyWhenDownXHP = 6;
+            MagicMendOnlyWhenDownXHP = 12;
+            PotionsVigorOnlyWhenDownXHP = 6;
+            PotionsMendOnlyWhenDownXHP = 12;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
             Locations = new List<LocationNode>();
@@ -61,6 +69,10 @@ namespace IsengardClient
             AutoEscapeActive = copied.AutoEscapeActive;
             RemoveAllOnStartup = copied.RemoveAllOnStartup;
             DisplayStunLength = copied.DisplayStunLength;
+            MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
+            MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;
+            PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
+            PotionsMendOnlyWhenDownXHP = copied.PotionsMendOnlyWhenDownXHP;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             foreach (var next in copied.DynamicItemData)
             {
@@ -700,6 +712,30 @@ namespace IsengardClient
                     else
                         errorMessages.Add("Invalid AutoEscapeActive: " + sValue);
                     break;
+                case "MagicVigorOnlyWhenDownXHP":
+                    if (int.TryParse(sValue, out iValue))
+                        MagicVigorOnlyWhenDownXHP = Math.Max(iValue, 0);
+                    else
+                        errorMessages.Add("Invalid MagicVigorOnlyWhenDownXHP: " + sValue);
+                    break;
+                case "MagicMendOnlyWhenDownXHP":
+                    if (int.TryParse(sValue, out iValue))
+                        MagicMendOnlyWhenDownXHP = Math.Max(iValue, 0);
+                    else
+                        errorMessages.Add("Invalid MagicMendOnlyWhenDownXHP: " + sValue);
+                    break;
+                case "PotionsVigorOnlyWhenDownXHP":
+                    if (int.TryParse(sValue, out iValue))
+                        PotionsVigorOnlyWhenDownXHP = Math.Max(iValue, 0);
+                    else
+                        errorMessages.Add("Invalid PotionsVigorOnlyWhenDownXHP: " + sValue);
+                    break;
+                case "PotionsMendOnlyWhenDownXHP":
+                    if (int.TryParse(sValue, out iValue))
+                        PotionsMendOnlyWhenDownXHP = Math.Max(iValue, 0);
+                    else
+                        errorMessages.Add("Invalid PotionsMendOnlyWhenDownXHP: " + sValue);
+                    break;
                 default:
                     errorMessages.Add("Invalid setting name: " + sName);
                     break;
@@ -723,6 +759,10 @@ namespace IsengardClient
             WriteSetting(writer, "AutoEscapeThreshold", AutoEscapeThreshold.ToString());
             WriteSetting(writer, "AutoEscapeType", AutoEscapeType.ToString());
             WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
+            WriteSetting(writer, "MagicVigorOnlyWhenDownXHP", MagicVigorOnlyWhenDownXHP.ToString());
+            WriteSetting(writer, "MagicMendOnlyWhenDownXHP", MagicMendOnlyWhenDownXHP.ToString());
+            WriteSetting(writer, "PotionsVigorOnlyWhenDownXHP", PotionsVigorOnlyWhenDownXHP.ToString());
+            WriteSetting(writer, "PotionsMendOnlyWhenDownXHP", PotionsMendOnlyWhenDownXHP.ToString());
             writer.WriteEndElement();
 
             List<KeyValuePair<ItemTypeEnum, DynamicItemData>> didItemList = new List<KeyValuePair<ItemTypeEnum, DynamicItemData>>();
