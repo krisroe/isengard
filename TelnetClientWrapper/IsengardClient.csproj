@@ -111,11 +111,11 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmPreBackgroundProcessPrompt.cs">
+    <Compile Include="frmPermRun.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmPreBackgroundProcessPrompt.Designer.cs">
-      <DependentUpon>frmPreBackgroundProcessPrompt.cs</DependentUpon>
+    <Compile Include="frmPermRun.Designer.cs">
+      <DependentUpon>frmPermRun.cs</DependentUpon>
     </Compile>
     <Compile Include="frmStrategy.cs">
       <SubType>Form</SubType>
@@ -164,8 +164,8 @@
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmPreBackgroundProcessPrompt.resx">
-      <DependentUpon>frmPreBackgroundProcessPrompt.cs</DependentUpon>
+    <EmbeddedResource Include="frmPermRun.resx">
+      <DependentUpon>frmPermRun.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmStrategy.resx">
       <DependentUpon>frmStrategy.cs</DependentUpon>

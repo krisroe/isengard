@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 namespace IsengardClient
 {
-    internal partial class frmPreBackgroundProcessPrompt : Form
+    internal partial class frmPermRun : Form
     {
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
@@ -43,7 +43,7 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPreBackgroundProcessPrompt(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo)
         {
             InitializeComponent();
 

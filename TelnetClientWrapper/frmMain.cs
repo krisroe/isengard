@@ -6890,7 +6890,7 @@ StartTickRoomProcessing:
             string sMobText;
             MobTypeEnum? eMobType;
             int iMobIndex;
-            using (frmPreBackgroundProcessPrompt frmSkills = new frmPreBackgroundProcessPrompt(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo))
+            using (frmPermRun frmSkills = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo))
             {
                 if (frmSkills.ShowDialog(this) != DialogResult.OK)
                 {

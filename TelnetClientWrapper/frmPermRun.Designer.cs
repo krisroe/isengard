@@ -1,6 +1,6 @@
 ﻿namespace IsengardClient
 {
-    partial class frmPreBackgroundProcessPrompt
+    partial class frmPermRun
     {
         /// <summary>
         /// Required designer variable.
@@ -99,7 +99,7 @@
             this.lblMob.AutoSize = true;
             this.lblMob.Location = new System.Drawing.Point(41, 42);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(31, 13);
+            this.lblMob.Size = new System.Drawing.Size(35, 15);
             this.lblMob.TabIndex = 4;
             this.lblMob.Text = "Mob:";
             // 
@@ -126,7 +126,7 @@
             this.lblRoom.AutoSize = true;
             this.lblRoom.Location = new System.Drawing.Point(41, 16);
             this.lblRoom.Name = "lblRoom";
-            this.lblRoom.Size = new System.Drawing.Size(38, 13);
+            this.lblRoom.Size = new System.Drawing.Size(44, 15);
             this.lblRoom.TabIndex = 6;
             this.lblRoom.Text = "Room:";
             // 
@@ -143,7 +143,7 @@
             // btnGraph
             // 
             this.btnGraph.Location = new System.Drawing.Point(365, 10);
-            this.btnGraph.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnGraph.Margin = new System.Windows.Forms.Padding(2);
             this.btnGraph.Name = "btnGraph";
             this.btnGraph.Size = new System.Drawing.Size(71, 26);
             this.btnGraph.TabIndex = 9;
@@ -154,7 +154,7 @@
             // btnLocations
             // 
             this.btnLocations.Location = new System.Drawing.Point(441, 10);
-            this.btnLocations.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnLocations.Margin = new System.Windows.Forms.Padding(2);
             this.btnLocations.Name = "btnLocations";
             this.btnLocations.Size = new System.Drawing.Size(71, 26);
             this.btnLocations.TabIndex = 10;
@@ -171,9 +171,9 @@
             this.grpStrategy.Controls.Add(this.chkMagic);
             this.grpStrategy.Controls.Add(this.btnEditStrategy);
             this.grpStrategy.Location = new System.Drawing.Point(374, 164);
-            this.grpStrategy.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpStrategy.Margin = new System.Windows.Forms.Padding(2);
             this.grpStrategy.Name = "grpStrategy";
-            this.grpStrategy.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpStrategy.Padding = new System.Windows.Forms.Padding(2);
             this.grpStrategy.Size = new System.Drawing.Size(221, 98);
             this.grpStrategy.TabIndex = 11;
             this.grpStrategy.TabStop = false;
@@ -189,7 +189,7 @@
             "Fight First Monster",
             "Fight First Same Monster"});
             this.cboOnKillMonster.Location = new System.Drawing.Point(92, 41);
-            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(126, 21);
             this.cboOnKillMonster.TabIndex = 148;
@@ -201,7 +201,7 @@
             this.lblOnKillMonster.Location = new System.Drawing.Point(8, 44);
             this.lblOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
-            this.lblOnKillMonster.Size = new System.Drawing.Size(79, 13);
+            this.lblOnKillMonster.Size = new System.Drawing.Size(92, 15);
             this.lblOnKillMonster.TabIndex = 147;
             this.lblOnKillMonster.Text = "On kill monster:";
             // 
@@ -209,9 +209,9 @@
             // 
             this.chkPotions.AutoSize = true;
             this.chkPotions.Location = new System.Drawing.Point(115, 17);
-            this.chkPotions.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkPotions.Margin = new System.Windows.Forms.Padding(2);
             this.chkPotions.Name = "chkPotions";
-            this.chkPotions.Size = new System.Drawing.Size(61, 17);
+            this.chkPotions.Size = new System.Drawing.Size(70, 19);
             this.chkPotions.TabIndex = 11;
             this.chkPotions.Text = "Potions";
             this.chkPotions.UseVisualStyleBackColor = true;
@@ -221,9 +221,9 @@
             // 
             this.chkMelee.AutoSize = true;
             this.chkMelee.Location = new System.Drawing.Point(62, 17);
-            this.chkMelee.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkMelee.Margin = new System.Windows.Forms.Padding(2);
             this.chkMelee.Name = "chkMelee";
-            this.chkMelee.Size = new System.Drawing.Size(55, 17);
+            this.chkMelee.Size = new System.Drawing.Size(64, 19);
             this.chkMelee.TabIndex = 10;
             this.chkMelee.Text = "Melee";
             this.chkMelee.UseVisualStyleBackColor = true;
@@ -233,9 +233,9 @@
             // 
             this.chkMagic.AutoSize = true;
             this.chkMagic.Location = new System.Drawing.Point(5, 17);
-            this.chkMagic.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkMagic.Margin = new System.Windows.Forms.Padding(2);
             this.chkMagic.Name = "chkMagic";
-            this.chkMagic.Size = new System.Drawing.Size(55, 17);
+            this.chkMagic.Size = new System.Drawing.Size(63, 19);
             this.chkMagic.TabIndex = 9;
             this.chkMagic.Text = "Magic";
             this.chkMagic.UseVisualStyleBackColor = true;
@@ -256,7 +256,7 @@
             this.lblPawnShoppe.AutoSize = true;
             this.lblPawnShoppe.Location = new System.Drawing.Point(12, 95);
             this.lblPawnShoppe.Name = "lblPawnShoppe";
-            this.lblPawnShoppe.Size = new System.Drawing.Size(63, 13);
+            this.lblPawnShoppe.Size = new System.Drawing.Size(71, 15);
             this.lblPawnShoppe.TabIndex = 12;
             this.lblPawnShoppe.Text = "Pawn shop:";
             // 
@@ -275,7 +275,7 @@
             this.lblTickRoom.AutoSize = true;
             this.lblTickRoom.Location = new System.Drawing.Point(13, 121);
             this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(57, 13);
+            this.lblTickRoom.Size = new System.Drawing.Size(64, 15);
             this.lblTickRoom.TabIndex = 14;
             this.lblTickRoom.Text = "Tick room:";
             // 
@@ -293,11 +293,11 @@
             this.lvlInventoryFlow.AutoSize = true;
             this.lvlInventoryFlow.Location = new System.Drawing.Point(26, 69);
             this.lvlInventoryFlow.Name = "lvlInventoryFlow";
-            this.lvlInventoryFlow.Size = new System.Drawing.Size(47, 13);
+            this.lvlInventoryFlow.Size = new System.Drawing.Size(50, 15);
             this.lvlInventoryFlow.TabIndex = 16;
             this.lvlInventoryFlow.Text = "Inv flow:";
             // 
-            // frmPreBackgroundProcessPrompt
+            // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -319,9 +319,9 @@
             this.Controls.Add(this.grpSkills);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Name = "frmPreBackgroundProcessPrompt";
+            this.Name = "frmPermRun";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Skills";
+            this.Text = "Perm Run";
             this.grpSkills.ResumeLayout(false);
             this.grpStrategy.ResumeLayout(false);
             this.grpStrategy.PerformLayout();

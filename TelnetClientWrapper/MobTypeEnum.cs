@@ -681,6 +681,7 @@
 
         [SingularName("hobbit")]
         [PluralName("hobbits")]
+        [Experience(7)]
         Hobbit,
 
         [SingularName("hobbit chef")]
