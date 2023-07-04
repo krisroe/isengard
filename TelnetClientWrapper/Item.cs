@@ -669,6 +669,8 @@ namespace IsengardClient
 
         [SingularName("box of strawberries")]
         //CSRTODO: plural?
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         BoxOfStrawberries,
 
         [SingularName("bracers of ogre-strength")]

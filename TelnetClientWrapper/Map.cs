@@ -1469,9 +1469,15 @@ namespace IsengardClient
             AddBidirectionalExits(oSergeantGrimgall, oGuardsRecRoom, BidirectionalExitType.NorthSouth);
             breeStreetsGraph.Rooms[oGuardsRecRoom] = new System.Windows.Point(6, 8.5);
 
-            Room oBreePawnShopWest = AddPawnShoppeRoom("Ixell's Antique Shop", "Ixell's Antique Shop", PawnShoppe.BreeSouthwest);
+            Room oBreePawnShopWest = AddPawnShoppeRoom("Pawn SW", "Ixell's Antique Shop", PawnShoppe.BreeSouthwest);
             AddBidirectionalExits(oBreePawnShopWest, oToPawnShopWest, BidirectionalExitType.WestEast);
             breeStreetsGraph.Rooms[oBreePawnShopWest] = new System.Windows.Point(2, 8);
+
+            Room oIxellsGeneralStore = AddRoom("General Store", "Ixell's General Store");
+            AddExit(breeStreets[1, 3], oIxellsGeneralStore, "store");
+            AddExit(oIxellsGeneralStore, breeStreets[1, 3], "north");
+            AddBidirectionalSameNameExit(oIxellsGeneralStore, oBreePawnShopWest, "door");
+            breeStreetsGraph.Rooms[oIxellsGeneralStore] = new System.Windows.Point(1, 8);
 
             Room oBreePawnShopEast = AddPawnShoppeRoom("Pawn Shop", "Pawn Shop", PawnShoppe.BreeNortheast);
             e = AddExit(oPoorAlley1, oBreePawnShopEast, "east");
