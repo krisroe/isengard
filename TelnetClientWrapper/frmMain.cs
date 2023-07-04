@@ -5002,6 +5002,9 @@ BeforeHazy:
                         if (_bw.CancellationPending) break;
                     }
                 }
+                if (_fleeing) break;
+                if (_hazying) break;
+                if (_bw.CancellationPending) break;
             }
             return true;
         }
