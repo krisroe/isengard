@@ -4968,8 +4968,8 @@ BeforeHazy:
                         if (!hasActiveSpell && _automp >= 8)
                         {
                             if (!CastLifeSpell(activeSpell, pms)) return false;
+                            castSomething = true;
                         }
-                        castSomething = true;
                     }
                     if ((activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
                     {
@@ -4981,8 +4981,8 @@ BeforeHazy:
                         if (!hasActiveSpell && _automp >= 8)
                         {
                             if (!CastLifeSpell(activeSpell, pms)) return false;
+                            castSomething = true;
                         }
-                        castSomething = true;
                     }
                     if (_autohp < _totalhp && _automp >= 2)
                     {
