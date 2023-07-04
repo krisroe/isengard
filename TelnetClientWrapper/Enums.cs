@@ -792,6 +792,13 @@ namespace IsengardClient
         UnambiguousRoomBackendOrDisplayName,
     }
 
+    internal enum DisconnectedAction
+    {
+        Reconnect,
+        Quit,
+        Logout,
+    }
+
     internal enum SpellsEnum
     {
         [SpellInformation(SpellProficiency.Earth, 1)]

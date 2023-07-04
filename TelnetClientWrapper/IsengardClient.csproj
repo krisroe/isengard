@@ -78,6 +78,12 @@
     <Compile Include="frmConfiguration.Designer.cs">
       <DependentUpon>frmConfiguration.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmDisconnected.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDisconnected.Designer.cs">
+      <DependentUpon>frmDisconnected.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmGraph.xaml.cs">
       <DependentUpon>frmGraph.xaml</DependentUpon>
     </Compile>
@@ -142,6 +148,9 @@
     <Compile Include="UIShared.cs" />
     <EmbeddedResource Include="frmConfiguration.resx">
       <DependentUpon>frmConfiguration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDisconnected.resx">
+      <DependentUpon>frmDisconnected.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmLocationNode.resx">
       <DependentUpon>frmLocationNode.cs</DependentUpon>

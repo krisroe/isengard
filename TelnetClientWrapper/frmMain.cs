@@ -883,13 +883,26 @@ namespace IsengardClient
         {
             if (!_backgroundCommandType.HasValue || _backgroundCommandType != BackgroundCommandType.Quit)
             {
-                if (MessageBox.Show("Disconnected. Reconnect?", "Disconnected", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                DisconnectedAction action;
+                bool saveSettings;
+                using (frmDisconnected frm = new frmDisconnected(_settingsData != null && _settingsData.SaveSettingsOnQuit))
+                {
+                    frm.ShowDialog(this);
+                    action = frm.Action;
+                    saveSettings = frm.SaveSettings;
+                }
+                if (saveSettings)
+                {
+                    SaveSettings();
+                }
+                if (action == DisconnectedAction.Reconnect)
                 {
                     DoConnect();
                 }
                 else
                 {
-                    this.Close();
+                    Logout = action == DisconnectedAction.Logout;
+                    Close();
                 }
             }
         }
