@@ -23,8 +23,6 @@ namespace IsengardClient
 
         private int _currentAutoSpellLevelMinimum;
         private int _currentAutoSpellLevelMaximum;
-        internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
-        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 5;
 
         public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive)
         {
@@ -328,7 +326,7 @@ namespace IsengardClient
         private void tsmiSetCurrentMinimumAutoSpellLevel_Click(object sender, EventArgs e)
         {
             string level = Interaction.InputBox("Level:", "Enter Level", _currentAutoSpellLevelMinimum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
+            if (int.TryParse(level, out int iLevel) && iLevel >= IsengardSettingData.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= IsengardSettingData.AUTO_SPELL_LEVEL_MAXIMUM)
             {
                 _currentAutoSpellLevelMinimum = iLevel;
                 if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)
@@ -342,7 +340,7 @@ namespace IsengardClient
         private void tsmiSetCurrentMaximumAutoSpellLevel_Click(object sender, EventArgs e)
         {
             string level = Interaction.InputBox("Level:", "Enter Level", _currentAutoSpellLevelMaximum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= AUTO_SPELL_LEVEL_MINIMUM && iLevel <= AUTO_SPELL_LEVEL_MAXIMUM)
+            if (int.TryParse(level, out int iLevel) && iLevel >= IsengardSettingData.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= IsengardSettingData.AUTO_SPELL_LEVEL_MAXIMUM)
             {
                 _currentAutoSpellLevelMaximum = iLevel;
                 if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)

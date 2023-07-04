@@ -3783,7 +3783,7 @@ namespace IsengardClient
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
                             onMonsterKilledAction = strategy.AfterKillMonsterAction;
-                            if (strategy.AutoSpellLevelMin != -1 && strategy.AutoSpellLevelMax != -1)
+                            if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
                             {
                                 usedAutoSpellMin = strategy.AutoSpellLevelMin;
                                 usedAutoSpellMax = strategy.AutoSpellLevelMax;

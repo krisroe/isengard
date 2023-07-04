@@ -10,6 +10,8 @@ namespace IsengardClient
         public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";
         public const string CAST_CUREPOISON_SPELL = "cast cure-poison";
 
+        public int ID { get; set; }
+        public bool IsValid { get; set; }
         public string Name { get; set; }
         public bool AutogenerateName { get; set; }
         public AfterKillMonsterAction AfterKillMonsterAction { get; set; }
@@ -36,8 +38,8 @@ namespace IsengardClient
         {
             this.AutogenerateName = true;
             this.TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
-            this.AutoSpellLevelMax = -1;
-            this.AutoSpellLevelMin = -1;
+            this.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            this.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
         }
 
         public Strategy(string Name)
