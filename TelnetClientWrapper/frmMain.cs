@@ -6924,6 +6924,7 @@ BeforeHazy:
             int iMobIndex;
             bool fullBeforeStarting;
             bool fullAfterFinishing;
+            Room targetRoom;
             using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, eActiveSpellsToPrompt))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
@@ -6941,6 +6942,7 @@ BeforeHazy:
                 inventoryFlow = frm.InventoryFlow;
                 fullBeforeStarting = frm.FullBeforeStarting;
                 fullAfterFinishing = frm.FullAfterFinishing;
+                targetRoom = frm.TargetRoom;
             }
 
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
@@ -6963,6 +6965,7 @@ BeforeHazy:
             bwp.TickRoom = healingRoom;
             bwp.PawnShop = pawnShoppe;
             bwp.InventoryProcessWorkflow = inventoryFlow;
+            bwp.TargetRoom = targetRoom;
             RunBackgroundProcess(bwp);
         }
 
