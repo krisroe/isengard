@@ -1102,6 +1102,7 @@ namespace IsengardClient
         [PluralName("green potions")]
         [Potion(SpellsEnum.curepoison)]
         [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         GreenPotion,
 
         [SingularName("green rune")]
@@ -1206,6 +1207,7 @@ namespace IsengardClient
         [PluralName("ice blue potions")]
         [Potion(SpellsEnum.fly)]
         [Weight(2)]
+        [Sellable(SellableEnum.NotSellable)]
         IceBluePotion,
 
         [SingularName("information kiosk")]
@@ -1340,6 +1342,7 @@ namespace IsengardClient
         [PluralName("lollipops")]
         [Potion(SpellsEnum.curedisease)] //per wiki
         [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         Lollipop,
 
         [SingularName("long bow")]
