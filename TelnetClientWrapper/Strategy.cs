@@ -400,11 +400,10 @@ namespace IsengardClient
             return ((StrategyStepAttribute)valueAttributes[0]).Letter;
         }
 
-        public static List<Strategy> GetDefaultStrategies()
+        public static IEnumerable<Strategy> GetDefaultStrategies()
         {
             int stunWaitMS = 250;
 
-            List<Strategy> allStrategies = new List<Strategy>();
             Strategy s;
 
             s = new Strategy();
@@ -414,7 +413,7 @@ namespace IsengardClient
             s.FinalPotionsAction = FinalStepAction.FinishCombat;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesWithStepsEnabled = CommandType.None;
-            allStrategies.Add(s);
+            yield return s;
 
             s = new Strategy();
             s.AutogenerateName = true;
@@ -423,7 +422,7 @@ namespace IsengardClient
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
+            yield return s;
 
             s = new Strategy();
             s.AutogenerateName = true;
@@ -434,7 +433,7 @@ namespace IsengardClient
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
+            yield return s;
 
             s = new Strategy();
             s.AutogenerateName = true;
@@ -450,7 +449,7 @@ namespace IsengardClient
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
+            yield return s;
 
             s = new Strategy();
             s.AutogenerateName = true;
@@ -469,7 +468,7 @@ namespace IsengardClient
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
+            yield return s;
 
             s = new Strategy();
             s.AutogenerateName = true;
@@ -491,9 +490,7 @@ namespace IsengardClient
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
             s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            allStrategies.Add(s);
-
-            return allStrategies;
+            yield return s;
         }
 
         public static void GetMinMaxOffensiveSpellLevels(Strategy strategy, int currentMinLevel, int currentMaxLevel, List<string> knownSpells, List<string> realmSpells, out int? calculatedMinLevel, out int? calculatedMaxLevel)

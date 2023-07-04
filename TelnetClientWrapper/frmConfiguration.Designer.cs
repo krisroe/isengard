@@ -71,14 +71,22 @@
             this.tsmiRemoveStrategy = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveStrategyUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveStrategyDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRestoreDefaultStrategies = new System.Windows.Forms.ToolStripMenuItem();
             this.chkRemoveAllOnStartup = new System.Windows.Forms.CheckBox();
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
             this.pnlSettings = new System.Windows.Forms.Panel();
+            this.chkSaveSettingsOnQuit = new System.Windows.Forms.CheckBox();
+            this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
             this.chkDisplayStunLength = new System.Windows.Forms.CheckBox();
+            this.lblMagicMendWhenDownXHP = new System.Windows.Forms.Label();
             this.btnSelectEmptyColor = new System.Windows.Forms.Button();
+            this.txtMagicVigorWhenDownXHP = new System.Windows.Forms.TextBox();
+            this.lblMagicVigorWhenDownXHP = new System.Windows.Forms.Label();
             this.btnSelectFullColor = new System.Windows.Forms.Button();
+            this.txtPotionsMendWhenDownXHP = new System.Windows.Forms.TextBox();
+            this.lblPotionsMendWhenDownXHP = new System.Windows.Forms.Label();
+            this.txtPotionsVigorWhenDownXHP = new System.Windows.Forms.TextBox();
+            this.lblPotionsVigorWhenDownXHP = new System.Windows.Forms.Label();
             this.tabStrategies = new System.Windows.Forms.TabPage();
             this.tabDynamicItemData = new System.Windows.Forms.TabPage();
             this.lvItems = new System.Windows.Forms.ListView();
@@ -93,14 +101,6 @@
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
-            this.lblMagicMendWhenDownXHP = new System.Windows.Forms.Label();
-            this.txtMagicVigorWhenDownXHP = new System.Windows.Forms.TextBox();
-            this.lblMagicVigorWhenDownXHP = new System.Windows.Forms.Label();
-            this.txtPotionsMendWhenDownXHP = new System.Windows.Forms.TextBox();
-            this.lblPotionsMendWhenDownXHP = new System.Windows.Forms.Label();
-            this.txtPotionsVigorWhenDownXHP = new System.Windows.Forms.TextBox();
-            this.lblPotionsVigorWhenDownXHP = new System.Windows.Forms.Label();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -440,53 +440,45 @@
             this.tsmiEditStrategy,
             this.tsmiRemoveStrategy,
             this.tsmiMoveStrategyUp,
-            this.tsmiMoveStrategyDown,
-            this.tsmiRestoreDefaultStrategies});
+            this.tsmiMoveStrategyDown});
             this.ctxStrategies.Name = "ctxStrategies";
-            this.ctxStrategies.Size = new System.Drawing.Size(188, 148);
+            this.ctxStrategies.Size = new System.Drawing.Size(211, 152);
             this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
             // 
             // tsmiAddStrategy
             // 
             this.tsmiAddStrategy.Name = "tsmiAddStrategy";
-            this.tsmiAddStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiAddStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiAddStrategy.Text = "Add";
             this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
             // 
             // tsmiEditStrategy
             // 
             this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiEditStrategy.Text = "Edit";
             this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
             // 
             // tsmiRemoveStrategy
             // 
             this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
-            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(187, 24);
+            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(210, 24);
             this.tsmiRemoveStrategy.Text = "Remove";
             this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
             // 
             // tsmiMoveStrategyUp
             // 
             this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
-            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(187, 24);
+            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveStrategyUp.Text = "Move Up";
             this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
             // 
             // tsmiMoveStrategyDown
             // 
             this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
-            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(187, 24);
+            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveStrategyDown.Text = "Move Down";
             this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
-            // 
-            // tsmiRestoreDefaultStrategies
-            // 
-            this.tsmiRestoreDefaultStrategies.Name = "tsmiRestoreDefaultStrategies";
-            this.tsmiRestoreDefaultStrategies.Size = new System.Drawing.Size(187, 24);
-            this.tsmiRestoreDefaultStrategies.Text = "Restore Defaults";
-            this.tsmiRestoreDefaultStrategies.Click += new System.EventHandler(this.tsmiRestoreDefaultStrategies_Click);
             // 
             // chkRemoveAllOnStartup
             // 
@@ -525,6 +517,7 @@
             // 
             // pnlSettings
             // 
+            this.pnlSettings.Controls.Add(this.chkSaveSettingsOnQuit);
             this.pnlSettings.Controls.Add(this.txtMagicMendWhenDownXHP);
             this.pnlSettings.Controls.Add(this.chkDisplayStunLength);
             this.pnlSettings.Controls.Add(this.lblMagicMendWhenDownXHP);
@@ -557,6 +550,23 @@
             this.pnlSettings.Size = new System.Drawing.Size(812, 370);
             this.pnlSettings.TabIndex = 150;
             // 
+            // chkSaveSettingsOnQuit
+            // 
+            this.chkSaveSettingsOnQuit.AutoSize = true;
+            this.chkSaveSettingsOnQuit.Location = new System.Drawing.Point(358, 121);
+            this.chkSaveSettingsOnQuit.Name = "chkSaveSettingsOnQuit";
+            this.chkSaveSettingsOnQuit.Size = new System.Drawing.Size(148, 19);
+            this.chkSaveSettingsOnQuit.TabIndex = 157;
+            this.chkSaveSettingsOnQuit.Text = "Save settings on quit?";
+            this.chkSaveSettingsOnQuit.UseVisualStyleBackColor = true;
+            // 
+            // txtMagicMendWhenDownXHP
+            // 
+            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(203, 210);
+            this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
+            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtMagicMendWhenDownXHP.TabIndex = 152;
+            // 
             // chkDisplayStunLength
             // 
             this.chkDisplayStunLength.AutoSize = true;
@@ -566,6 +576,15 @@
             this.chkDisplayStunLength.TabIndex = 149;
             this.chkDisplayStunLength.Text = "Display stun length?";
             this.chkDisplayStunLength.UseVisualStyleBackColor = true;
+            // 
+            // lblMagicMendWhenDownXHP
+            // 
+            this.lblMagicMendWhenDownXHP.AutoSize = true;
+            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(13, 213);
+            this.lblMagicMendWhenDownXHP.Name = "lblMagicMendWhenDownXHP";
+            this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(179, 15);
+            this.lblMagicMendWhenDownXHP.TabIndex = 151;
+            this.lblMagicMendWhenDownXHP.Text = "Magic: Mend when down X HP:";
             // 
             // btnSelectEmptyColor
             // 
@@ -577,6 +596,22 @@
             this.btnSelectEmptyColor.UseVisualStyleBackColor = true;
             this.btnSelectEmptyColor.Click += new System.EventHandler(this.btnSelectEmptyColor_Click);
             // 
+            // txtMagicVigorWhenDownXHP
+            // 
+            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(203, 185);
+            this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
+            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtMagicVigorWhenDownXHP.TabIndex = 150;
+            // 
+            // lblMagicVigorWhenDownXHP
+            // 
+            this.lblMagicVigorWhenDownXHP.AutoSize = true;
+            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(13, 189);
+            this.lblMagicVigorWhenDownXHP.Name = "lblMagicVigorWhenDownXHP";
+            this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(175, 15);
+            this.lblMagicVigorWhenDownXHP.TabIndex = 149;
+            this.lblMagicVigorWhenDownXHP.Text = "Magic: Vigor when down X HP:";
+            // 
             // btnSelectFullColor
             // 
             this.btnSelectFullColor.Location = new System.Drawing.Point(283, 99);
@@ -586,6 +621,38 @@
             this.btnSelectFullColor.Text = "Select";
             this.btnSelectFullColor.UseVisualStyleBackColor = true;
             this.btnSelectFullColor.Click += new System.EventHandler(this.btnSelectFullColor_Click);
+            // 
+            // txtPotionsMendWhenDownXHP
+            // 
+            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(203, 262);
+            this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
+            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtPotionsMendWhenDownXHP.TabIndex = 156;
+            // 
+            // lblPotionsMendWhenDownXHP
+            // 
+            this.lblPotionsMendWhenDownXHP.AutoSize = true;
+            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(13, 265);
+            this.lblPotionsMendWhenDownXHP.Name = "lblPotionsMendWhenDownXHP";
+            this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(186, 15);
+            this.lblPotionsMendWhenDownXHP.TabIndex = 155;
+            this.lblPotionsMendWhenDownXHP.Text = "Potions: Mend when down X HP:";
+            // 
+            // txtPotionsVigorWhenDownXHP
+            // 
+            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(203, 237);
+            this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
+            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtPotionsVigorWhenDownXHP.TabIndex = 154;
+            // 
+            // lblPotionsVigorWhenDownXHP
+            // 
+            this.lblPotionsVigorWhenDownXHP.AutoSize = true;
+            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(13, 240);
+            this.lblPotionsVigorWhenDownXHP.Name = "lblPotionsVigorWhenDownXHP";
+            this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(182, 15);
+            this.lblPotionsVigorWhenDownXHP.TabIndex = 153;
+            this.lblPotionsVigorWhenDownXHP.Text = "Potions: Vigor when down X HP:";
             // 
             // tabStrategies
             // 
@@ -732,70 +799,6 @@
             this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
-            // txtMagicMendWhenDownXHP
-            // 
-            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(203, 210);
-            this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
-            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
-            this.txtMagicMendWhenDownXHP.TabIndex = 152;
-            // 
-            // lblMagicMendWhenDownXHP
-            // 
-            this.lblMagicMendWhenDownXHP.AutoSize = true;
-            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(13, 213);
-            this.lblMagicMendWhenDownXHP.Name = "lblMagicMendWhenDownXHP";
-            this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(179, 15);
-            this.lblMagicMendWhenDownXHP.TabIndex = 151;
-            this.lblMagicMendWhenDownXHP.Text = "Magic: Mend when down X HP:";
-            // 
-            // txtMagicVigorWhenDownXHP
-            // 
-            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(203, 185);
-            this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
-            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
-            this.txtMagicVigorWhenDownXHP.TabIndex = 150;
-            // 
-            // lblMagicVigorWhenDownXHP
-            // 
-            this.lblMagicVigorWhenDownXHP.AutoSize = true;
-            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(13, 189);
-            this.lblMagicVigorWhenDownXHP.Name = "lblMagicVigorWhenDownXHP";
-            this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(175, 15);
-            this.lblMagicVigorWhenDownXHP.TabIndex = 149;
-            this.lblMagicVigorWhenDownXHP.Text = "Magic: Vigor when down X HP:";
-            // 
-            // txtPotionsMendWhenDownXHP
-            // 
-            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(203, 262);
-            this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
-            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
-            this.txtPotionsMendWhenDownXHP.TabIndex = 156;
-            // 
-            // lblPotionsMendWhenDownXHP
-            // 
-            this.lblPotionsMendWhenDownXHP.AutoSize = true;
-            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(13, 265);
-            this.lblPotionsMendWhenDownXHP.Name = "lblPotionsMendWhenDownXHP";
-            this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(186, 15);
-            this.lblPotionsMendWhenDownXHP.TabIndex = 155;
-            this.lblPotionsMendWhenDownXHP.Text = "Potions: Mend when down X HP:";
-            // 
-            // txtPotionsVigorWhenDownXHP
-            // 
-            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(203, 237);
-            this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
-            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
-            this.txtPotionsVigorWhenDownXHP.TabIndex = 154;
-            // 
-            // lblPotionsVigorWhenDownXHP
-            // 
-            this.lblPotionsVigorWhenDownXHP.AutoSize = true;
-            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(13, 240);
-            this.lblPotionsVigorWhenDownXHP.Name = "lblPotionsVigorWhenDownXHP";
-            this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(182, 15);
-            this.lblPotionsVigorWhenDownXHP.TabIndex = 153;
-            this.lblPotionsVigorWhenDownXHP.Text = "Potions: Vigor when down X HP:";
-            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -869,7 +872,6 @@
         private System.Windows.Forms.CheckBox chkRemoveAllOnStartup;
         private System.Windows.Forms.ToolStripSeparator sepAutoEscape1;
         private System.Windows.Forms.ToolStripSeparator sepAutoEscape2;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaultStrategies;
         private System.Windows.Forms.TabControl tcConfiguration;
         private System.Windows.Forms.TabPage tabConfiguration;
         private System.Windows.Forms.Button btnSelectEmptyColor;
@@ -898,5 +900,6 @@
         private System.Windows.Forms.Label lblPotionsMendWhenDownXHP;
         private System.Windows.Forms.TextBox txtPotionsVigorWhenDownXHP;
         private System.Windows.Forms.Label lblPotionsVigorWhenDownXHP;
+        private System.Windows.Forms.CheckBox chkSaveSettingsOnQuit;
     }
 }

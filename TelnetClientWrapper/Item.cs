@@ -1433,6 +1433,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(1)]
         [Sellable(1237)]
+        [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
         MOMTattoo,
 
         [SingularName("morning star")]
@@ -1537,6 +1538,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Head)]
         [Weight(7)]
         [ArmorClass(0.3)]
+        [Sellable(23)]
         PotHelm,
 
         [SingularName("pot of gold")]
@@ -1885,6 +1887,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [Sellable(1237)]
+        [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
         TattooOfAWench,
 
         [SingularName("taupe scroll")]

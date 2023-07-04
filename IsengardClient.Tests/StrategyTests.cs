@@ -12,7 +12,7 @@ namespace IsengardClient.Tests
         {
             Strategy strategy;
 
-            List<Strategy> defaultStrategies = Strategy.GetDefaultStrategies();
+            List<Strategy> defaultStrategies = new List<Strategy>(Strategy.GetDefaultStrategies());
 
             int iIndex = 0;
 

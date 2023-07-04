@@ -58,7 +58,6 @@ namespace IsengardClient
 
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
-        private bool _finishedQuit;
 
         private object _spellsCastLock = new object();
         private List<string> _spellsCast = new List<string>();
@@ -76,7 +75,6 @@ namespace IsengardClient
         private List<SkillCooldown> _cooldowns = new List<SkillCooldown>();
 
         private string _username;
-        private int _userid;
         private string _password;
         private bool _promptedUserName;
         private bool _promptedPassword;
@@ -206,12 +204,22 @@ namespace IsengardClient
             BackgroundCommandType.OffensiveSpell
         };
 
-        private List<Strategy> _strategies;
+        public bool Logout { get; set; }
+
+        private const int CP_NOCLOSE_BUTTON = 0x200;
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams myCp = base.CreateParams;
+                myCp.ClassStyle = myCp.ClassStyle | CP_NOCLOSE_BUTTON;
+                return myCp;
+            }
+        }
 
         internal frmMain(string userName, string password)
         {
             InitializeComponent();
-
             this.MinimumSize = this.Size;
 
             cboTickRoom.Items.Add(string.Empty);
@@ -226,8 +234,6 @@ namespace IsengardClient
                 cboPawnShop.Items.Add(nextPawnShop);
             }
             cboPawnShop.SelectedIndex = 0;
-
-            _strategies = Strategy.GetDefaultStrategies();
 
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
 
@@ -255,8 +261,6 @@ namespace IsengardClient
             }
             _username = sb.ToString();
             _password = password;
-
-            RefreshStrategyButtons();
 
             _bw = new BackgroundWorker();
             _bw.WorkerSupportsCancellation = true;
@@ -299,24 +303,6 @@ namespace IsengardClient
                 }
                 _gameMap = newMap;
                 _currentEntityInfo.CurrentRoom = newRoom;
-            }
-        }
-
-        private void RefreshStrategyButtons()
-        {
-            flpOneClickStrategies.Controls.Clear();
-            int iOneClickTabIndex = 0;
-            foreach (Strategy oStrategy in _strategies)
-            {
-                Button btnOneClick = new Button();
-                btnOneClick.AutoSize = true;
-                btnOneClick.TabIndex = iOneClickTabIndex++;
-                btnOneClick.Tag = oStrategy;
-                btnOneClick.Text = oStrategy.ToString();
-                btnOneClick.UseVisualStyleBackColor = true;
-                btnOneClick.Click += btnOneClick_Click;
-                btnOneClick.ContextMenuStrip = ctxStrategy;
-                flpOneClickStrategies.Controls.Add(btnOneClick);
             }
         }
 
@@ -879,7 +865,6 @@ namespace IsengardClient
                 _refreshSpellsCast = true;
             }
             ClearConsole();
-            _finishedQuit = false;
             _currentStatusLastComputed = null;
             _promptedUserName = false;
             _promptedPassword = false;
@@ -896,7 +881,7 @@ namespace IsengardClient
 
         private void _bwNetwork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!_finishedQuit)
+            if (!_backgroundCommandType.HasValue || _backgroundCommandType != BackgroundCommandType.Quit)
             {
                 if (MessageBox.Show("Disconnected. Reconnect?", "Disconnected", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
@@ -904,7 +889,6 @@ namespace IsengardClient
                 }
                 else
                 {
-                    _finishedQuit = true;
                     this.Close();
                 }
             }
@@ -1237,21 +1221,13 @@ namespace IsengardClient
                 {
                     IsengardSettingData.CreateNewDatabaseSchema(conn);
                 }
-                _userid = IsengardSettingData.GetUserID(conn, _username);
-
-                List<string> errorMessages = new List<string>();
-                _settingsData = new IsengardSettingData(conn, _userid, errorMessages);
-
-                if (errorMessages.Count > 0)
-                {
-                    lock (_broadcastMessagesLock)
-                    {
-                        _broadcastMessages.AddRange(errorMessages);
-                    }
-                }
+                int userID = IsengardSettingData.GetUserID(conn, _username, false);
+                if (userID == 0)
+                    _settingsData = IsengardSettingData.GetDefaultSettings();
+                else
+                    _settingsData = LoadSettingsForUser(conn, userID);
             }
-
-            AfterLoadSettings();
+            Invoke(new Action(AfterLoadSettings));
 
             if (_settingsData.RemoveAllOnStartup)
                 _initializationSteps = InitializationStep.None;
@@ -1275,6 +1251,22 @@ namespace IsengardClient
         private void AfterLoadSettings()
         {
             _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
+            tsmiQuitWithoutSaving.Visible = _settingsData.SaveSettingsOnQuit;
+
+            flpOneClickStrategies.Controls.Clear();
+            int iOneClickTabIndex = 0;
+            foreach (Strategy oStrategy in _settingsData.Strategies)
+            {
+                Button btnOneClick = new Button();
+                btnOneClick.AutoSize = true;
+                btnOneClick.TabIndex = iOneClickTabIndex++;
+                btnOneClick.Tag = oStrategy;
+                btnOneClick.Text = oStrategy.ToString();
+                btnOneClick.UseVisualStyleBackColor = true;
+                btnOneClick.Click += btnOneClick_Click;
+                btnOneClick.ContextMenuStrip = ctxStrategy;
+                flpOneClickStrategies.Controls.Add(btnOneClick);
+            }
         }
 
         private void ProcessInitialLogin(FeedLineParameters flp)
@@ -2929,7 +2921,10 @@ namespace IsengardClient
                         }
                         else if (oist == OutputItemSequenceType.Goodbye)
                         {
-                            _finishedQuit = true;
+                            if (_backgroundCommandType == BackgroundCommandType.Quit)
+                            {
+                                _commandResult = CommandResult.CommandSuccessful;
+                            }
                         }
                         else if (oist == OutputItemSequenceType.HPMPStatus)
                         {
@@ -3575,13 +3570,18 @@ namespace IsengardClient
 
         private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (_finishedQuit)
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp.SingleCommandType.HasValue && bwp.SingleCommandType.Value == BackgroundCommandType.Quit && bwp.SingleCommandResult == CommandResult.CommandSuccessful)
             {
+                if (bwp.SaveSettingsOnQuit)
+                {
+                    SaveSettings();
+                }
+                this.Logout = bwp.LogoutOnQuit;
                 this.Close();
             }
             else
             {
-                BackgroundWorkerParameters bwp = _currentBackgroundParameters;
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
@@ -3678,18 +3678,29 @@ namespace IsengardClient
                 if (pms.SingleCommandType.HasValue)
                 {
                     BackgroundCommandType cmdType = pms.SingleCommandType.Value;
+                    CommandResult commandResult;
                     if (cmdType == BackgroundCommandType.Look)
                     {
-                        RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, null, false);
+                        commandResult = RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, null, false);
                     }
-                    else if (cmdType == BackgroundCommandType.Search)
+                    else
                     {
-                        RunSingleCommand(BackgroundCommandType.Search, "search", pms, null, false);
+                        bool success;
+                        if (cmdType == BackgroundCommandType.Search)
+                        {
+                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, null, false);
+                        }
+                        else if (cmdType == BackgroundCommandType.Quit)
+                        {
+                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        commandResult = success ? CommandResult.CommandSuccessful : CommandResult.CommandUnsuccessfulThisTime;
                     }
-                    else if (cmdType == BackgroundCommandType.Quit)
-                    {
-                        RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false);
-                    }
+                    pms.SingleCommandResult = commandResult;
                     return;
                 }
 
@@ -6178,17 +6189,24 @@ StartTickRoomProcessing:
             {
                 tsb.Enabled = enabled;
             }
+            foreach (ToolStripDropDownButton tsddb in GetToolStripDropdownsToDisableForBackgroundProcess())
+            {
+                tsddb.Enabled = enabled;
+            }
             btnAbort.Enabled = running;
             EnableDisableActionButtons(bwp);
         }
 
         private IEnumerable<ToolStripButton> GetToolStripButtonsToDisableForBackgroundProcess()
         {
-            yield return tsbExport;
-            yield return tsbImport;
             yield return tsbReloadMap;
             yield return tsbQuit;
-            yield return tsbConfiguration;
+            yield return tsbLogout;
+        }
+
+        private IEnumerable<ToolStripDropDownButton> GetToolStripDropdownsToDisableForBackgroundProcess()
+        {
+            yield return tsddbSettings;
         }
 
         private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()
@@ -6745,6 +6763,9 @@ StartTickRoomProcessing:
             public bool EnsureBlessed { get; set; }
             public bool EnsureProtected { get; set; }
             public BackgroundCommandType? SingleCommandType { get; set; }
+            public CommandResult SingleCommandResult { get; set; }
+            public bool SaveSettingsOnQuit { get; set; }
+            public bool LogoutOnQuit { get; set; }
             public bool MonsterKilled { get; set; }
             public MobTypeEnum? MonsterKilledType { get; set; }
             public bool AtDestination { get; set; }
@@ -6927,11 +6948,6 @@ StartTickRoomProcessing:
             InitializationStep initStep = _initializationSteps;
             int autohpforthistick = _autohp;
             int autompforthistick = _automp;
-            if (_finishedQuit)
-            {
-                this.Close();
-                return;
-            }
 
             List<string> textToAdd = new List<string>();
             lock (_consoleTextLock)
@@ -7850,105 +7866,164 @@ StartTickRoomProcessing:
             if (e.KeyChar == (char)Keys.Return)
             {
                 string sCommand = txtOneOffCommand.Text;
-
-                string sCommandLower = sCommand.ToLower().Trim();
-                bool isMovement = sCommandLower == "nw" ||
-                                  sCommandLower == "northwest" ||
-                                  sCommandLower == "n" ||
-                                  sCommandLower == "north" ||
-                                  sCommandLower == "ne" ||
-                                  sCommandLower == "northeast" ||
-                                  sCommandLower == "w" ||
-                                  sCommandLower == "west" ||
-                                  sCommandLower == "e" ||
-                                  sCommandLower == "east" ||
-                                  sCommandLower == "sw" ||
-                                  sCommandLower == "southwest" ||
-                                  sCommandLower == "s" ||
-                                  sCommandLower == "south" ||
-                                  sCommandLower == "se" ||
-                                  sCommandLower == "southeast" ||
-                                  sCommandLower == "u" ||
-                                  sCommandLower == "up" ||
-                                  sCommandLower == "d" ||
-                                  sCommandLower == "down" ||
-                                  sCommandLower == "out" ||
-                                  sCommandLower.StartsWith("go ");
-                bool isLook = sCommandLower == "look";
-                if (isMovement || isLook)
+                string[] words = sCommand.ToLower().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length == 0)
                 {
-                    if (_currentBackgroundParameters == null)
-                    {
-                        if (isLook)
-                        {
-                            RunSingleBackgroundCommand(BackgroundCommandType.Look);
-                        }
-                        else
-                        {
-                            if (sCommandLower.StartsWith("go "))
-                            {
-                                sCommandLower = sCommandLower.Substring("go ".Length).Trim();
-                                if (string.IsNullOrEmpty(sCommandLower))
-                                {
-                                    MessageBox.Show("Invalid go command.");
-                                    return;
-                                }
-                            }
-                            DoSingleMove(sCommandLower);
-                        }
-                    }
-                    else if (isLook)
-                    {
-                        MessageBox.Show("Cannot run look command manually when background process running.");
-                        return;
-                    }
-                    else if (isMovement)
-                    {
-                        MessageBox.Show("Cannot run movement command manually when background process running.");
-                        return;
-                    }
+                    SendCommand(string.Empty, InputEchoType.On);
                 }
                 else
                 {
-                    SendCommand(txtOneOffCommand.Text, InputEchoType.On);
+                    string sFirstWord = words[0];
+                    string sMovementCommand = GetOneWordExitCommand(sFirstWord);
+                    bool isMovement = !string.IsNullOrEmpty(sMovementCommand) || (sFirstWord == "go" && words.Length > 1);
+                    bool isLook = sFirstWord == "look" && words.Length == 1;
+                    if (isMovement || isLook)
+                    {
+                        if (_currentBackgroundParameters == null)
+                        {
+                            if (isLook)
+                            {
+                                RunSingleBackgroundCommand(BackgroundCommandType.Look);
+                            }
+                            else if (isMovement)
+                            {
+                                string sCommandLower = sMovementCommand;
+                                if (string.IsNullOrEmpty(sCommandLower))
+                                {
+                                    sCommandLower = words[1];
+                                }
+                                DoSingleMove(sCommandLower);
+                            }
+                        }
+                        else if (isLook)
+                        {
+                            MessageBox.Show("Cannot run look command manually when background process running.");
+                            return;
+                        }
+                        else if (isMovement)
+                        {
+                            MessageBox.Show("Cannot run movement command manually when background process running.");
+                            return;
+                        }
+                    }
+                    else if (sFirstWord == "quit")
+                    {
+                        TryQuit(_settingsData != null && _settingsData.SaveSettingsOnQuit, false);
+                    }
+                    else
+                    {
+                        SendCommand(txtOneOffCommand.Text, InputEchoType.On);
+                    }
+                    txtOneOffCommand.SelectAll();
                 }
-                txtOneOffCommand.SelectAll();
             }
         }
 
-        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        private static string GetOneWordExitCommand(string input)
         {
-            if (!_finishedQuit)
+            string ret = null;
+            switch (input)
             {
-                if (MessageBox.Show(this, "Are you sure you want to quit?", "Isengard", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                {
-                    btnQuit_Click(null, null);
-                }
-                e.Cancel = true;
+                case "nw":
+                case "northw":
+                case "northwe":
+                case "northwes":
+                case "northwest":
+                    ret = "northwest";
+                    break;
+                case "n":
+                case "north":
+                    ret = "north";
+                    break;
+                case "ne":
+                case "northe":
+                case "northea":
+                case "northeas":
+                case "northeast":
+                    ret = "northeast";
+                    break;
+                case "w":
+                case "wes":
+                case "west":
+                    ret = "west";
+                    break;
+                case "e":
+                case "eas":
+                case "east":
+                    ret = "east";
+                    break;
+                case "sw":
+                case "southw":
+                case "southwe":
+                case "southwes":
+                case "southwest":
+                    ret = "southwest";
+                    break;
+                case "s":
+                case "south":
+                    ret = "south";
+                    break;
+                case "se":
+                case "southe":
+                case "southea":
+                case "southeas":
+                case "southeast":
+                    ret = "southeast";
+                    break;
+                case "u":
+                case "up":
+                    ret = "up";
+                    break;
+                case "d":
+                case "dow":
+                case "down":
+                    ret = "down";
+                    break;
+                case "ou":
+                case "out":
+                    ret = "out";
+                    break;
+            }
+            return ret;
+        }
+
+        private void TryQuit(bool SaveSettingsOnQuit, bool LogoutOnQuit)
+        {
+            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            if (bwp != null)
+            {
+                MessageBox.Show("Cannot quit when background process running.");
+            }
+            else
+            {
+                bwp = new BackgroundWorkerParameters();
+                bwp.SingleCommandType = BackgroundCommandType.Quit;
+                bwp.SaveSettingsOnQuit = SaveSettingsOnQuit;
+                bwp.LogoutOnQuit = LogoutOnQuit;
+                RunBackgroundProcess(bwp);
             }
         }
 
-        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        private bool SaveSettings()
         {
-            if (_settingsData != null)
+            List<string> errorMessages = new List<string>();
+            try
             {
-                List<string> errorMessages = new List<string>();
-                try
+                using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(GetDatabasePath()))
                 {
-                    using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(GetDatabasePath()))
-                    {
-                        conn.Open();
-                        _settingsData.SaveSettings(conn, _userid);
-                    }
-                }
-                finally
-                {
-                    if (errorMessages.Count > 0)
-                    {
-                        MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()));
-                    }
+                    conn.Open();
+                    int userID = IsengardSettingData.GetUserID(conn, _username, true);
+                    _settingsData.SaveSettings(conn, userID);
                 }
             }
+            finally
+            {
+                if (errorMessages.Count > 0)
+                {
+                    MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()));
+                }
+            }
+            return errorMessages.Count == 0;
         }
 
         private void txtEmoteText_TextChanged(object sender, EventArgs e)
@@ -8053,17 +8128,6 @@ StartTickRoomProcessing:
             else
             {
                 bwp.DoScore = true;
-            }
-        }
-
-        private void btnQuit_Click(object sender, EventArgs e)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp == null)
-            {
-                bwp = new BackgroundWorkerParameters();
-                bwp.SingleCommandType = BackgroundCommandType.Quit;
-                RunBackgroundProcess(bwp);
             }
         }
 
@@ -8285,45 +8349,6 @@ StartTickRoomProcessing:
         private bool GetVerboseMode()
         {
             return _settingsData == null ? true : _settingsData.VerboseMode;
-        }
-
-        private void tsbConfiguration_Click(object sender, EventArgs e)
-        {
-            bool autoEscapeActive;
-            int autoEscapeThreshold;
-            AutoEscapeType autoEscapeType;
-            lock (_escapeLock)
-            {
-                autoEscapeActive = _settingsData.AutoEscapeActive;
-                autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
-                autoEscapeType = _settingsData.AutoEscapeType;
-            }
-            IsengardSettingData clone = new IsengardSettingData(_settingsData);
-            frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _strategies);
-            if (frm.ShowDialog(this) == DialogResult.OK)
-            {
-                _weapon = frm.CurrentWeapon;
-
-                bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
-                int newAutoEscapeThreshold = frm.CurrentAutoEscapeThreshold;
-                AutoEscapeType newAutoEscapeType = frm.CurrentAutoEscapeType;
-                lock (_escapeLock)
-                {
-                    if (autoEscapeActive != newAutoEscapeActive)
-                    {
-                        clone.AutoEscapeActive = newAutoEscapeActive;
-                    }
-                    clone.AutoEscapeThreshold = newAutoEscapeThreshold;
-                    clone.AutoEscapeType = newAutoEscapeType;
-                    _settingsData = clone;
-                }
-
-                if (frm.ChangedStrategies)
-                {
-                    _strategies = frm.Strategies;
-                    RefreshStrategyButtons();
-                }
-            }
         }
 
         private void btnHeal_Click(object sender, EventArgs e)
@@ -8847,7 +8872,55 @@ StartTickRoomProcessing:
             public bool IsInventory;
         }
 
-        private void tsbExport_Click(object sender, EventArgs e)
+        private void tsbReloadMap_Click(object sender, EventArgs e)
+        {
+            ReloadMap();
+            MessageBox.Show("Reloaded!");
+        }
+
+        private void ctxMessages_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, lstMessages.SelectedItems.OfType<string>()));
+        }
+
+        private void ctxMessages_Opening(object sender, CancelEventArgs e)
+        {
+            e.Cancel = lstMessages.SelectedItems.Count == 0;
+        }
+
+        private void tsmiEditSettings_Click(object sender, EventArgs e)
+        {
+            bool autoEscapeActive;
+            int autoEscapeThreshold;
+            AutoEscapeType autoEscapeType;
+            lock (_escapeLock)
+            {
+                autoEscapeActive = _settingsData.AutoEscapeActive;
+                autoEscapeThreshold = _settingsData.AutoEscapeThreshold;
+                autoEscapeType = _settingsData.AutoEscapeType;
+            }
+            IsengardSettingData clone = new IsengardSettingData(_settingsData);
+            frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive);
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;
+                int newAutoEscapeThreshold = frm.CurrentAutoEscapeThreshold;
+                AutoEscapeType newAutoEscapeType = frm.CurrentAutoEscapeType;
+                lock (_escapeLock)
+                {
+                    if (autoEscapeActive != newAutoEscapeActive)
+                    {
+                        clone.AutoEscapeActive = newAutoEscapeActive;
+                    }
+                    clone.AutoEscapeThreshold = newAutoEscapeThreshold;
+                    clone.AutoEscapeType = newAutoEscapeType;
+                    _settingsData = clone;
+                }
+                AfterLoadSettings();
+            }
+        }
+
+        private void tsmiExportXML_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
@@ -8866,7 +8939,7 @@ StartTickRoomProcessing:
             }
         }
 
-        private void tsbImport_Click(object sender, EventArgs e)
+        private void tsmiImportXML_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -8900,20 +8973,79 @@ StartTickRoomProcessing:
             }
         }
 
-        private void tsbReloadMap_Click(object sender, EventArgs e)
+        private void tsmiSaveSettings_Click(object sender, EventArgs e)
         {
-            ReloadMap();
-            MessageBox.Show("Reloaded!");
+            if (_settingsData == null)
+            {
+                MessageBox.Show("Settings were never loaded and thus cannot be saved.");
+            }
+            else
+            {
+                if (SaveSettings())
+                {
+                    MessageBox.Show("Settings Saved!");
+                }
+            }
         }
 
-        private void ctxMessages_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void tsmiImportFromPlayer_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(string.Join(Environment.NewLine, lstMessages.SelectedItems.OfType<string>()));
+            string player = Interaction.InputBox("Player name:", "Enter Player Name", string.Empty);
+            if (!string.IsNullOrEmpty(player))
+            {
+                string localDatabase = GetDatabasePath();
+                using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(localDatabase))
+                {
+                    conn.Open();
+                    int userID = IsengardSettingData.GetUserID(conn, player, false);
+                    if (userID == 0)
+                    {
+                        MessageBox.Show("That user does not have settings.");
+                        return;
+                    }
+                    IsengardSettingData settingsData = LoadSettingsForUser(conn, userID);
+                    settingsData.ScrubIDs();
+                    _settingsData = settingsData;
+                    AfterLoadSettings();
+                    MessageBox.Show("Settings loaded!");
+                }
+            }
         }
 
-        private void ctxMessages_Opening(object sender, CancelEventArgs e)
+        private IsengardSettingData LoadSettingsForUser(SQLiteConnection conn, int UserID)
         {
-            e.Cancel = lstMessages.SelectedItems.Count == 0;
+            List<string> errorMessages = new List<string>();
+            IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages);
+            if (errorMessages.Count > 0)
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.AddRange(errorMessages);
+                }
+            }
+            return ret;
+        }
+
+        private void tsmiQuitWithoutSaving_Click(object sender, EventArgs e)
+        {
+            TryQuit(false, false);
+        }
+
+        private void tsmiRestoreDefaults_Click(object sender, EventArgs e)
+        {
+            _settingsData = IsengardSettingData.GetDefaultSettings();
+            AfterLoadSettings();
+            MessageBox.Show("Defaults restored!");
+        }
+
+        private void tsbQuit_Click(object sender, EventArgs e)
+        {
+            TryQuit(_settingsData != null && _settingsData.SaveSettingsOnQuit, false);
+        }
+
+        private void tsbLogout_Click(object sender, EventArgs e)
+        {
+            TryQuit(_settingsData != null && _settingsData.SaveSettingsOnQuit, true);
         }
     }
 }

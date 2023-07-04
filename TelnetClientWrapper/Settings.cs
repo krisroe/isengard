@@ -26,9 +26,11 @@ namespace IsengardClient
         public int MagicMendOnlyWhenDownXHP { get; set; }
         public int PotionsVigorOnlyWhenDownXHP { get; set; }
         public int PotionsMendOnlyWhenDownXHP { get; set; }
+        public bool SaveSettingsOnQuit { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         public Dictionary<DynamicDataItemClass, DynamicItemData> DynamicItemClassData { get; set; }
         public List<LocationNode> Locations { get; set; }
+        public List<Strategy> Strategies { get; set; }
         public IsengardSettingData()
         {
             Weapon = null;
@@ -49,6 +51,8 @@ namespace IsengardClient
             MagicMendOnlyWhenDownXHP = 12;
             PotionsVigorOnlyWhenDownXHP = 6;
             PotionsMendOnlyWhenDownXHP = 12;
+            SaveSettingsOnQuit = true;
+            Strategies = new List<Strategy>();
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
             Locations = new List<LocationNode>();
@@ -73,6 +77,7 @@ namespace IsengardClient
             MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;
             PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
             PotionsMendOnlyWhenDownXHP = copied.PotionsMendOnlyWhenDownXHP;
+            SaveSettingsOnQuit = copied.SaveSettingsOnQuit;
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             foreach (var next in copied.DynamicItemData)
             {
@@ -246,6 +251,12 @@ namespace IsengardClient
             }
             ValidateSettings();
         }
+        public static IsengardSettingData GetDefaultSettings()
+        {
+            IsengardSettingData ret = new IsengardSettingData();
+            ret.Strategies.AddRange(Strategy.GetDefaultStrategies());
+            return ret;
+        }
 
         private void HandleLocations(XmlElement elem, List<string> errorMessages, List<LocationNode> locations)
         {
@@ -316,6 +327,11 @@ namespace IsengardClient
             newSettings["AutoEscapeThreshold"] = AutoEscapeThreshold.ToString();
             newSettings["AutoEscapeType"] = AutoEscapeType.ToString();
             newSettings["AutoEscapeActive"] = AutoEscapeActive.ToString();
+            newSettings["MagicVigorOnlyWhenDownXHP"] = MagicVigorOnlyWhenDownXHP.ToString();
+            newSettings["MagicMendOnlyWhenDownXHP"] = MagicMendOnlyWhenDownXHP.ToString();
+            newSettings["PotionsVigorOnlyWhenDownXHP"] = PotionsVigorOnlyWhenDownXHP.ToString();
+            newSettings["PotionsMendOnlyWhenDownXHP"] = PotionsMendOnlyWhenDownXHP.ToString();
+            newSettings["SaveSettingsOnQuit"] = SaveSettingsOnQuit.ToString();
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
@@ -694,6 +710,12 @@ namespace IsengardClient
                     else
                         errorMessages.Add("Invalid DisplayStunLength: " + sValue);
                     break;
+                case "SaveSettingsOnQuit":
+                    if (bool.TryParse(sValue, out bValue))
+                        SaveSettingsOnQuit = bValue;
+                    else
+                        errorMessages.Add("Invalid SaveSettingsOnQuit: " + sValue);
+                    break;
                 case "AutoEscapeThreshold":
                     if (int.TryParse(sValue, out iValue))
                         AutoEscapeThreshold = iValue;
@@ -756,6 +778,7 @@ namespace IsengardClient
             WriteSetting(writer, "AutoSpellLevelMin", AutoSpellLevelMin.ToString());
             WriteSetting(writer, "AutoSpellLevelMax", AutoSpellLevelMax.ToString());
             WriteSetting(writer, "RemoveAllOnStartup", RemoveAllOnStartup.ToString());
+            WriteSetting(writer, "SaveSettingsOnQuit", SaveSettingsOnQuit.ToString());
             WriteSetting(writer, "AutoEscapeThreshold", AutoEscapeThreshold.ToString());
             WriteSetting(writer, "AutoEscapeType", AutoEscapeType.ToString());
             WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
@@ -895,26 +918,38 @@ namespace IsengardClient
             return new SQLiteConnection(connsb.ToString());
         }
 
-        public static int GetUserID(SQLiteConnection conn, string userName)
+        public static int GetUserID(SQLiteConnection conn, string userName, bool autoCreate)
         {
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = "SELECT UserID FROM Users WHERE UserName = @UserName";
                 cmd.Parameters.AddWithValue("@UserName", userName);
                 object oResult = cmd.ExecuteScalar();
-                int iUserID;
+                int iUserID = 0;
                 if (oResult == null || oResult == DBNull.Value)
                 {
-                    cmd.CommandText = "INSERT INTO Users (UserName) VALUES (@UserName)";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "SELECT last_insert_rowid()";
-                    iUserID = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (autoCreate)
+                    {
+                        cmd.CommandText = "INSERT INTO Users (UserName) VALUES (@UserName)";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "SELECT last_insert_rowid()";
+                        iUserID = Convert.ToInt32(cmd.ExecuteScalar());
+                    }
                 }
                 else
                 {
                     iUserID = Convert.ToInt32(oResult);
                 }
                 return iUserID;
+            }
+        }
+
+        public void ScrubIDs()
+        {
+            foreach (LocationNode nextLocation in EnumerateLocations())
+            {
+                nextLocation.ID = 0;
+                nextLocation.ParentID = 0;
             }
         }
     }

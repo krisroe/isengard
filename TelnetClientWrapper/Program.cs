@@ -31,18 +31,33 @@ namespace IsengardClient
             Application.SetCompatibleTextRenderingDefault(false);
 
             string password;
-            string userName;
-            using (frmLogin loginForm = new frmLogin(IsengardSettings.Default.UserName))
+            string userName = IsengardSettings.Default.UserName;
+            while (true)
             {
-                if (loginForm.ShowDialog() != DialogResult.OK)
+                using (frmLogin loginForm = new frmLogin(userName))
                 {
-                    return;
+                    if (loginForm.ShowDialog() != DialogResult.OK)
+                    {
+                        return;
+                    }
+                    userName = loginForm.UserName;
+                    password = loginForm.Password;
                 }
-                userName = loginForm.UserName;
-                password = loginForm.Password;
+                bool logout;
+                using (frmMain frm = new frmMain(userName, password))
+                {
+                    frm.ShowDialog();
+                    logout = frm.Logout;
+                }
+                if (logout)
+                {
+                    userName = string.Empty;
+                }
+                else
+                {
+                    break;
+                }
             }
-
-            Application.Run(new frmMain(userName, password));
         }
     }
 }

@@ -3155,6 +3155,10 @@ StartProcessRoom:
                     {
                         nextMsg = new InformationalMessages(InformationalMessageType.EnemyTriesToCircleYou);
                     }
+                    if (nextMsg == null && sLine.EndsWith(" activates sanctuary."))
+                    {
+                        nextMsg = new InformationalMessages(InformationalMessageType.EnemyActivatesSanctuary);
+                    }
 
                     if (nextMsg == null)
                     {
@@ -3398,7 +3402,8 @@ StartProcessRoom:
                 InformationalMessageType msgType = nextMessage.MessageType;
                 if (msgType == InformationalMessageType.EnemyAttacksYou ||
                     msgType == InformationalMessageType.EnemyCirclesYou ||
-                    msgType == InformationalMessageType.EnemyTriesToCircleYou)
+                    msgType == InformationalMessageType.EnemyTriesToCircleYou ||
+                    msgType == InformationalMessageType.EnemyActivatesSanctuary)
                 {
                     _onSatisfied(flParams);
                     break;

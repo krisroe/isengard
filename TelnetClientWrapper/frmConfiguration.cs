@@ -10,7 +10,6 @@ namespace IsengardClient
     internal partial class frmConfiguration : Form
     {
         private IsengardSettingData _settings;
-        private List<Strategy> _strategies;
 
         private int _currentAutoEscapeThreshold;
         private AutoEscapeType _currentAutoEscapeType;
@@ -27,7 +26,7 @@ namespace IsengardClient
         internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
         internal const int AUTO_SPELL_LEVEL_MAXIMUM = 5;
 
-        public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, List<Strategy> strategies)
+        public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive)
         {
             InitializeComponent();
 
@@ -58,6 +57,7 @@ namespace IsengardClient
             chkVerboseOutput.Checked = settingsData.VerboseMode;
             chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
             chkDisplayStunLength.Checked = settingsData.DisplayStunLength;
+            chkSaveSettingsOnQuit.Checked = settingsData.SaveSettingsOnQuit;
 
             txtMagicVigorWhenDownXHP.Text = settingsData.MagicVigorOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.MagicVigorOnlyWhenDownXHP.ToString();
             txtMagicMendWhenDownXHP.Text = settingsData.MagicMendOnlyWhenDownXHP <= 0 ? string.Empty :  settingsData.MagicMendOnlyWhenDownXHP.ToString();
@@ -69,14 +69,10 @@ namespace IsengardClient
             _emptyColor = settingsData.EmptyColor;
             SetColorUI(lblEmptyColorValue, _emptyColor);
 
-            //clone the strategies passed in
-            _strategies = new List<Strategy>();
-            foreach (Strategy s in strategies)
+            foreach (Strategy s in settingsData.Strategies)
             {
-                _strategies.Add(new Strategy(s));
+                lstStrategies.Items.Add(s);
             }
-
-            RefreshStrategyList();
 
             foreach (DynamicDataItemClass nextItemClass in Enum.GetValues(typeof(DynamicDataItemClass)))
             {
@@ -121,25 +117,6 @@ namespace IsengardClient
             lvi.SubItems[1].Text = listInfo.KeepCountText;
             lvi.SubItems[2].Text = listInfo.TickCountText;
             lvi.SubItems[3].Text = listInfo.OverflowActionText;
-        }
-
-        private void RefreshStrategyList()
-        {
-            lstStrategies.Items.Clear();
-            foreach (Strategy s in _strategies)
-            {
-                lstStrategies.Items.Add(s);
-            }
-        }
-
-        public bool ChangedStrategies { get; set; }
-
-        public List<Strategy> Strategies
-        {
-            get
-            {
-                return _strategies;
-            }
         }
 
         private void SetColorUI(Label lbl, Color c)
@@ -238,6 +215,7 @@ namespace IsengardClient
             _settings.VerboseMode = chkVerboseOutput.Checked;
             _settings.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
             _settings.DisplayStunLength = chkDisplayStunLength.Checked;
+            _settings.SaveSettingsOnQuit = chkSaveSettingsOnQuit.Checked;
             _settings.FullColor = _fullColor;
             _settings.EmptyColor = _emptyColor;
             _settings.Realm = _currentRealm;
@@ -507,14 +485,6 @@ namespace IsengardClient
 
         #endregion
 
-        public string CurrentWeapon
-        {
-            get
-            {
-                return txtCurrentWeaponValue.Text ?? string.Empty;
-            }
-        }
-
         private void btnSelectFullColor_Click(object sender, EventArgs e)
         {
             Color? selected = PromptColor(_fullColor);
@@ -574,8 +544,7 @@ namespace IsengardClient
             {
                 s = frm.NewStrategy;
                 lstStrategies.Items.Add(s);
-                _strategies.Add(s);
-                ChangedStrategies = true;
+                _settings.Strategies.Add(s);
             }
         }
 
@@ -587,18 +556,16 @@ namespace IsengardClient
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 s = frm.NewStrategy;
-                _strategies[index] = s;
+                _settings.Strategies[index] = s;
                 lstStrategies.Items[index] = s;
-                ChangedStrategies = true;
             }
         }
 
         private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
         {
             int iIndex = lstStrategies.SelectedIndex;
-            _strategies.RemoveAt(iIndex);
+            _settings.Strategies.RemoveAt(iIndex);
             lstStrategies.Items.RemoveAt(iIndex);
-            ChangedStrategies = true;
         }
 
         private void MoveStrategyUp(int iIndex, int iIndexToSelect)
@@ -606,10 +573,9 @@ namespace IsengardClient
             Strategy s = (Strategy)lstStrategies.Items[iIndex];
             lstStrategies.Items.RemoveAt(iIndex);
             lstStrategies.Items.Insert(iIndex - 1, s);
-            _strategies.RemoveAt(iIndex);
-            _strategies.Insert(iIndex - 1, s);
+            _settings.Strategies.RemoveAt(iIndex);
+            _settings.Strategies.Insert(iIndex - 1, s);
             lstStrategies.SelectedIndex = iIndexToSelect;
-            ChangedStrategies = true;
         }
 
         private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
@@ -628,17 +594,6 @@ namespace IsengardClient
         {
             tsmiPreferredAlignmentGood.Checked = _preferredAlignment == AlignmentType.Blue;
             tsmiPreferredAlignmentEvil.Checked = _preferredAlignment == AlignmentType.Red;
-        }
-
-        private void tsmiRestoreDefaultStrategies_Click(object sender, EventArgs e)
-        {
-            _strategies = new List<Strategy>();
-            foreach (Strategy s in Strategy.GetDefaultStrategies())
-            {
-                _strategies.Add(new Strategy(s));
-            }
-            RefreshStrategyList();
-            ChangedStrategies = true;
         }
 
         private void lvItems_SelectedIndexChanged(object sender, EventArgs e)

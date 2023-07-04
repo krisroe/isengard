@@ -538,6 +538,7 @@ namespace IsengardClient
         EnemyAttacksYou,
         EnemyCirclesYou,
         EnemyTriesToCircleYou,
+        EnemyActivatesSanctuary,
         FallDamage,
         MobArrived,
         MobWanderedAway,

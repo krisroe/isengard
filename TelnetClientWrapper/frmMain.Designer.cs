@@ -156,11 +156,17 @@
             this.tsbSpells = new System.Windows.Forms.ToolStripButton();
             this.tsbScore = new System.Windows.Forms.ToolStripButton();
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
-            this.tsbConfiguration = new System.Windows.Forms.ToolStripButton();
-            this.tsbExport = new System.Windows.Forms.ToolStripButton();
-            this.tsbImport = new System.Windows.Forms.ToolStripButton();
+            this.tsddbSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsmiEditSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiExportXML = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiImportXML = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSaveSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiImportFromPlayer = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiQuitWithoutSaving = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRestoreDefaults = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbReloadMap = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
+            this.tsbLogout = new System.Windows.Forms.ToolStripButton();
             this.ctxStrategy = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
             this.tmr = new System.Windows.Forms.Timer(this.components);
@@ -227,7 +233,7 @@
             this.lblMob.Location = new System.Drawing.Point(13, 22);
             this.lblMob.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMob.Name = "lblMob";
-            this.lblMob.Size = new System.Drawing.Size(31, 13);
+            this.lblMob.Size = new System.Drawing.Size(35, 15);
             this.lblMob.TabIndex = 3;
             this.lblMob.Text = "Mob:";
             this.lblMob.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -316,7 +322,7 @@
             this.txtOneOffCommand.Location = new System.Drawing.Point(0, 0);
             this.txtOneOffCommand.Margin = new System.Windows.Forms.Padding(0);
             this.txtOneOffCommand.Name = "txtOneOffCommand";
-            this.txtOneOffCommand.Size = new System.Drawing.Size(204, 26);
+            this.txtOneOffCommand.Size = new System.Drawing.Size(204, 30);
             this.txtOneOffCommand.TabIndex = 29;
             this.txtOneOffCommand.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtOneOffCommand_KeyPress);
             // 
@@ -380,7 +386,7 @@
             this.lblWeapon.Location = new System.Drawing.Point(13, 44);
             this.lblWeapon.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(51, 13);
+            this.lblWeapon.Size = new System.Drawing.Size(56, 15);
             this.lblWeapon.TabIndex = 41;
             this.lblWeapon.Text = "Weapon:";
             this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -420,7 +426,7 @@
             this.chkSetOn.Location = new System.Drawing.Point(200, 17);
             this.chkSetOn.Margin = new System.Windows.Forms.Padding(2);
             this.chkSetOn.Name = "chkSetOn";
-            this.chkSetOn.Size = new System.Drawing.Size(46, 17);
+            this.chkSetOn.Size = new System.Drawing.Size(52, 19);
             this.chkSetOn.TabIndex = 47;
             this.chkSetOn.Text = "On?";
             this.chkSetOn.UseVisualStyleBackColor = true;
@@ -441,7 +447,7 @@
             this.lblWand.Location = new System.Drawing.Point(14, 66);
             this.lblWand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWand.Name = "lblWand";
-            this.lblWand.Size = new System.Drawing.Size(39, 13);
+            this.lblWand.Size = new System.Drawing.Size(42, 15);
             this.lblWand.TabIndex = 48;
             this.lblWand.Text = "Wand:";
             this.lblWand.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -508,7 +514,7 @@
             this.lblPotion.Location = new System.Drawing.Point(14, 88);
             this.lblPotion.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPotion.Name = "lblPotion";
-            this.lblPotion.Size = new System.Drawing.Size(40, 13);
+            this.lblPotion.Size = new System.Drawing.Size(45, 15);
             this.lblPotion.TabIndex = 67;
             this.lblPotion.Text = "Potion:";
             this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -620,7 +626,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(947, 662);
+            this.tcMain.Size = new System.Drawing.Size(947, 660);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -631,7 +637,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(939, 636);
+            this.tabMain.Size = new System.Drawing.Size(939, 634);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -726,7 +732,7 @@
             this.lblPawnShop.Location = new System.Drawing.Point(14, 136);
             this.lblPawnShop.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPawnShop.Name = "lblPawnShop";
-            this.lblPawnShop.Size = new System.Drawing.Size(49, 13);
+            this.lblPawnShop.Size = new System.Drawing.Size(54, 15);
             this.lblPawnShop.TabIndex = 150;
             this.lblPawnShop.Text = "Pawn at:";
             this.lblPawnShop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -834,7 +840,7 @@
             this.lblTickRoom.Location = new System.Drawing.Point(14, 110);
             this.lblTickRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(43, 13);
+            this.lblTickRoom.Size = new System.Drawing.Size(45, 15);
             this.lblTickRoom.TabIndex = 144;
             this.lblTickRoom.Text = "Tick at:";
             this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -938,51 +944,51 @@
             this.tsmiAutoEscapeFlee,
             this.tsmiAutoEscapeHazy});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(157, 126);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(182, 136);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiAutoEscapeIsActive
             // 
             this.tsmiAutoEscapeIsActive.Name = "tsmiAutoEscapeIsActive";
-            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(156, 22);
+            this.tsmiAutoEscapeIsActive.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeIsActive.Text = "Is Active?";
             this.tsmiAutoEscapeIsActive.Click += new System.EventHandler(this.tsmiToggleAutoEscapeActive_Click);
             // 
             // tsmiAutoEscapeSeparator1
             // 
             this.tsmiAutoEscapeSeparator1.Name = "tsmiAutoEscapeSeparator1";
-            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(153, 6);
+            this.tsmiAutoEscapeSeparator1.Size = new System.Drawing.Size(178, 6);
             // 
             // tsmiSetAutoEscapeThreshold
             // 
             this.tsmiSetAutoEscapeThreshold.Name = "tsmiSetAutoEscapeThreshold";
-            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(156, 22);
+            this.tsmiSetAutoEscapeThreshold.Size = new System.Drawing.Size(181, 24);
             this.tsmiSetAutoEscapeThreshold.Text = "Set Threshold";
             this.tsmiSetAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetAutoEscapeThreshold_Click);
             // 
             // tsmiClearAutoEscapeThreshold
             // 
             this.tsmiClearAutoEscapeThreshold.Name = "tsmiClearAutoEscapeThreshold";
-            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(156, 22);
+            this.tsmiClearAutoEscapeThreshold.Size = new System.Drawing.Size(181, 24);
             this.tsmiClearAutoEscapeThreshold.Text = "Clear Threshold";
             this.tsmiClearAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearAutoEscapeThreshold_Click);
             // 
             // tsmiAutoEscapeSeparator2
             // 
             this.tsmiAutoEscapeSeparator2.Name = "tsmiAutoEscapeSeparator2";
-            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(153, 6);
+            this.tsmiAutoEscapeSeparator2.Size = new System.Drawing.Size(178, 6);
             // 
             // tsmiAutoEscapeFlee
             // 
             this.tsmiAutoEscapeFlee.Name = "tsmiAutoEscapeFlee";
-            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(156, 22);
+            this.tsmiAutoEscapeFlee.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeFlee.Text = "Flee";
             this.tsmiAutoEscapeFlee.Click += new System.EventHandler(this.tsmiAutoEscapeFlee_Click);
             // 
             // tsmiAutoEscapeHazy
             // 
             this.tsmiAutoEscapeHazy.Name = "tsmiAutoEscapeHazy";
-            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(156, 22);
+            this.tsmiAutoEscapeHazy.Size = new System.Drawing.Size(181, 24);
             this.tsmiAutoEscapeHazy.Text = "Hazy";
             this.tsmiAutoEscapeHazy.Click += new System.EventHandler(this.tsmiAutoEscapeHazy_Click);
             // 
@@ -1035,7 +1041,7 @@
             this.lblMana.Location = new System.Drawing.Point(36, 36);
             this.lblMana.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblMana.Name = "lblMana";
-            this.lblMana.Size = new System.Drawing.Size(37, 13);
+            this.lblMana.Size = new System.Drawing.Size(42, 15);
             this.lblMana.TabIndex = 92;
             this.lblMana.Text = "Mana:";
             this.lblMana.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1046,7 +1052,7 @@
             this.lblHitpoints.Location = new System.Drawing.Point(36, 17);
             this.lblHitpoints.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblHitpoints.Name = "lblHitpoints";
-            this.lblHitpoints.Size = new System.Drawing.Size(51, 13);
+            this.lblHitpoints.Size = new System.Drawing.Size(58, 15);
             this.lblHitpoints.TabIndex = 100;
             this.lblHitpoints.Text = "Hitpoints:";
             this.lblHitpoints.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1079,14 +1085,14 @@
             this.ctxMessages.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiCopyMessages});
             this.ctxMessages.Name = "ctxMessages";
-            this.ctxMessages.Size = new System.Drawing.Size(103, 26);
+            this.ctxMessages.Size = new System.Drawing.Size(113, 28);
             this.ctxMessages.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMessages_Opening);
             this.ctxMessages.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMessages_ItemClicked);
             // 
             // tsmiCopyMessages
             // 
             this.tsmiCopyMessages.Name = "tsmiCopyMessages";
-            this.tsmiCopyMessages.Size = new System.Drawing.Size(102, 22);
+            this.tsmiCopyMessages.Size = new System.Drawing.Size(112, 24);
             this.tsmiCopyMessages.Text = "Copy";
             // 
             // grpMob
@@ -1115,7 +1121,7 @@
             this.lblMobStatus.AutoSize = true;
             this.lblMobStatus.Location = new System.Drawing.Point(41, 37);
             this.lblMobStatus.Name = "lblMobStatus";
-            this.lblMobStatus.Size = new System.Drawing.Size(40, 13);
+            this.lblMobStatus.Size = new System.Drawing.Size(44, 15);
             this.lblMobStatus.TabIndex = 2;
             this.lblMobStatus.Text = "Status:";
             // 
@@ -1132,7 +1138,7 @@
             this.lblMobDamage.AutoSize = true;
             this.lblMobDamage.Location = new System.Drawing.Point(41, 12);
             this.lblMobDamage.Name = "lblMobDamage";
-            this.lblMobDamage.Size = new System.Drawing.Size(50, 13);
+            this.lblMobDamage.Size = new System.Drawing.Size(58, 15);
             this.lblMobDamage.TabIndex = 0;
             this.lblMobDamage.Text = "Damage:";
             // 
@@ -1311,7 +1317,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(939, 636);
+            this.tabAncillary.Size = new System.Drawing.Size(939, 634);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1326,7 +1332,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(935, 632);
+            this.pnlAncillary.Size = new System.Drawing.Size(935, 630);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1335,7 +1341,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 22);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(939, 636);
+            this.tabEmotes.Size = new System.Drawing.Size(939, 634);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1354,7 +1360,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(939, 636);
+            this.pnlEmotes.Size = new System.Drawing.Size(939, 634);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1375,7 +1381,7 @@
             this.chkShowEmotesWithoutTarget.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkShowEmotesWithoutTarget.Location = new System.Drawing.Point(284, 34);
             this.chkShowEmotesWithoutTarget.Name = "chkShowEmotesWithoutTarget";
-            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(162, 17);
+            this.chkShowEmotesWithoutTarget.Size = new System.Drawing.Size(185, 19);
             this.chkShowEmotesWithoutTarget.TabIndex = 14;
             this.chkShowEmotesWithoutTarget.Text = "Show Emotes without Target";
             this.chkShowEmotesWithoutTarget.UseVisualStyleBackColor = true;
@@ -1387,7 +1393,7 @@
             this.lblEmoteTarget.Location = new System.Drawing.Point(12, 35);
             this.lblEmoteTarget.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblEmoteTarget.Name = "lblEmoteTarget";
-            this.lblEmoteTarget.Size = new System.Drawing.Size(41, 13);
+            this.lblEmoteTarget.Size = new System.Drawing.Size(45, 15);
             this.lblEmoteTarget.TabIndex = 12;
             this.lblEmoteTarget.Text = "Target:";
             // 
@@ -1406,7 +1412,7 @@
             this.lblCommandText.Location = new System.Drawing.Point(12, 13);
             this.lblCommandText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCommandText.Name = "lblCommandText";
-            this.lblCommandText.Size = new System.Drawing.Size(77, 13);
+            this.lblCommandText.Size = new System.Drawing.Size(90, 15);
             this.lblCommandText.TabIndex = 8;
             this.lblCommandText.Text = "Command text:";
             // 
@@ -1434,7 +1440,7 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, -211);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -213);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
@@ -1457,7 +1463,7 @@
             this.tabHelp.Controls.Add(this.grpHelp);
             this.tabHelp.Location = new System.Drawing.Point(4, 22);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(939, 636);
+            this.tabHelp.Size = new System.Drawing.Size(939, 634);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1468,7 +1474,7 @@
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(939, 636);
+            this.grpHelp.Size = new System.Drawing.Size(939, 634);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1478,7 +1484,7 @@
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpHelp.Location = new System.Drawing.Point(3, 16);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(933, 617);
+            this.flpHelp.Size = new System.Drawing.Size(933, 615);
             this.flpHelp.TabIndex = 0;
             // 
             // pnlOverallLeft
@@ -1496,9 +1502,9 @@
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 25);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(947, 662);
+            this.pnlTabControl.Size = new System.Drawing.Size(947, 660);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1514,14 +1520,13 @@
             this.tsbSpells,
             this.tsbScore,
             this.tsbTime,
-            this.tsbConfiguration,
-            this.tsbExport,
-            this.tsbImport,
+            this.tsddbSettings,
             this.tsbReloadMap,
-            this.tsbQuit});
+            this.tsbQuit,
+            this.tsbLogout});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(947, 25);
+            this.tsTopMenu.Size = new System.Drawing.Size(947, 27);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1531,7 +1536,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(74, 22);
+            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1542,7 +1547,7 @@
             this.tsbInventoryAndEquipment.Image = ((System.Drawing.Image)(resources.GetObject("tsbInventoryAndEquipment.Image")));
             this.tsbInventoryAndEquipment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInventoryAndEquipment.Name = "tsbInventoryAndEquipment";
-            this.tsbInventoryAndEquipment.Size = new System.Drawing.Size(127, 22);
+            this.tsbInventoryAndEquipment.Size = new System.Drawing.Size(156, 24);
             this.tsbInventoryAndEquipment.Text = "Inventory+Equipment";
             this.tsbInventoryAndEquipment.Click += new System.EventHandler(this.tsbInventoryAndEquipment_Click);
             // 
@@ -1552,7 +1557,7 @@
             this.tsbRemoveAll.Image = ((System.Drawing.Image)(resources.GetObject("tsbRemoveAll.Image")));
             this.tsbRemoveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRemoveAll.Name = "tsbRemoveAll";
-            this.tsbRemoveAll.Size = new System.Drawing.Size(71, 22);
+            this.tsbRemoveAll.Size = new System.Drawing.Size(89, 24);
             this.tsbRemoveAll.Tag = "remove all";
             this.tsbRemoveAll.Text = "Remove All";
             this.tsbRemoveAll.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1563,7 +1568,7 @@
             this.tsbWearAll.Image = ((System.Drawing.Image)(resources.GetObject("tsbWearAll.Image")));
             this.tsbWearAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWearAll.Name = "tsbWearAll";
-            this.tsbWearAll.Size = new System.Drawing.Size(55, 22);
+            this.tsbWearAll.Size = new System.Drawing.Size(69, 24);
             this.tsbWearAll.Tag = "wear all";
             this.tsbWearAll.Text = "Wear All";
             this.tsbWearAll.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1574,7 +1579,7 @@
             this.tsbWho.Image = ((System.Drawing.Image)(resources.GetObject("tsbWho.Image")));
             this.tsbWho.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWho.Name = "tsbWho";
-            this.tsbWho.Size = new System.Drawing.Size(36, 22);
+            this.tsbWho.Size = new System.Drawing.Size(44, 24);
             this.tsbWho.Tag = "who";
             this.tsbWho.Text = "Who";
             this.tsbWho.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1585,7 +1590,7 @@
             this.tsbUptime.Image = ((System.Drawing.Image)(resources.GetObject("tsbUptime.Image")));
             this.tsbUptime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbUptime.Name = "tsbUptime";
-            this.tsbUptime.Size = new System.Drawing.Size(50, 22);
+            this.tsbUptime.Size = new System.Drawing.Size(62, 24);
             this.tsbUptime.Tag = "uptime";
             this.tsbUptime.Text = "Uptime";
             this.tsbUptime.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1596,7 +1601,7 @@
             this.tsbSpells.Image = ((System.Drawing.Image)(resources.GetObject("tsbSpells.Image")));
             this.tsbSpells.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbSpells.Name = "tsbSpells";
-            this.tsbSpells.Size = new System.Drawing.Size(41, 22);
+            this.tsbSpells.Size = new System.Drawing.Size(52, 24);
             this.tsbSpells.Tag = "spells";
             this.tsbSpells.Text = "Spells";
             this.tsbSpells.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1607,7 +1612,7 @@
             this.tsbScore.Image = ((System.Drawing.Image)(resources.GetObject("tsbScore.Image")));
             this.tsbScore.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbScore.Name = "tsbScore";
-            this.tsbScore.Size = new System.Drawing.Size(40, 22);
+            this.tsbScore.Size = new System.Drawing.Size(50, 24);
             this.tsbScore.Tag = "";
             this.tsbScore.Text = "Score";
             this.tsbScore.Click += new System.EventHandler(this.btnScore_Click);
@@ -1618,40 +1623,76 @@
             this.tsbTime.Image = ((System.Drawing.Image)(resources.GetObject("tsbTime.Image")));
             this.tsbTime.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbTime.Name = "tsbTime";
-            this.tsbTime.Size = new System.Drawing.Size(37, 22);
+            this.tsbTime.Size = new System.Drawing.Size(46, 24);
             this.tsbTime.Tag = "time";
             this.tsbTime.Text = "Time";
             this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
             // 
-            // tsbConfiguration
+            // tsddbSettings
             // 
-            this.tsbConfiguration.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbConfiguration.Image = ((System.Drawing.Image)(resources.GetObject("tsbConfiguration.Image")));
-            this.tsbConfiguration.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbConfiguration.Name = "tsbConfiguration";
-            this.tsbConfiguration.Size = new System.Drawing.Size(85, 22);
-            this.tsbConfiguration.Text = "Configuration";
-            this.tsbConfiguration.Click += new System.EventHandler(this.tsbConfiguration_Click);
+            this.tsddbSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsddbSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiEditSettings,
+            this.tsmiExportXML,
+            this.tsmiImportXML,
+            this.tsmiSaveSettings,
+            this.tsmiImportFromPlayer,
+            this.tsmiQuitWithoutSaving,
+            this.tsmiRestoreDefaults});
+            this.tsddbSettings.Image = ((System.Drawing.Image)(resources.GetObject("tsddbSettings.Image")));
+            this.tsddbSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbSettings.Name = "tsddbSettings";
+            this.tsddbSettings.Size = new System.Drawing.Size(76, 24);
+            this.tsddbSettings.Text = "Settings";
             // 
-            // tsbExport
+            // tsmiEditSettings
             // 
-            this.tsbExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbExport.Image = ((System.Drawing.Image)(resources.GetObject("tsbExport.Image")));
-            this.tsbExport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbExport.Name = "tsbExport";
-            this.tsbExport.Size = new System.Drawing.Size(45, 22);
-            this.tsbExport.Text = "Export";
-            this.tsbExport.Click += new System.EventHandler(this.tsbExport_Click);
+            this.tsmiEditSettings.Name = "tsmiEditSettings";
+            this.tsmiEditSettings.Size = new System.Drawing.Size(222, 26);
+            this.tsmiEditSettings.Text = "Edit";
+            this.tsmiEditSettings.Click += new System.EventHandler(this.tsmiEditSettings_Click);
             // 
-            // tsbImport
+            // tsmiExportXML
             // 
-            this.tsbImport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsbImport.Image = ((System.Drawing.Image)(resources.GetObject("tsbImport.Image")));
-            this.tsbImport.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImport.Name = "tsbImport";
-            this.tsbImport.Size = new System.Drawing.Size(47, 22);
-            this.tsbImport.Text = "Import";
-            this.tsbImport.Click += new System.EventHandler(this.tsbImport_Click);
+            this.tsmiExportXML.Name = "tsmiExportXML";
+            this.tsmiExportXML.Size = new System.Drawing.Size(222, 26);
+            this.tsmiExportXML.Text = "Export XML";
+            this.tsmiExportXML.Click += new System.EventHandler(this.tsmiExportXML_Click);
+            // 
+            // tsmiImportXML
+            // 
+            this.tsmiImportXML.Name = "tsmiImportXML";
+            this.tsmiImportXML.Size = new System.Drawing.Size(222, 26);
+            this.tsmiImportXML.Text = "Import XML";
+            this.tsmiImportXML.Click += new System.EventHandler(this.tsmiImportXML_Click);
+            // 
+            // tsmiSaveSettings
+            // 
+            this.tsmiSaveSettings.Name = "tsmiSaveSettings";
+            this.tsmiSaveSettings.Size = new System.Drawing.Size(222, 26);
+            this.tsmiSaveSettings.Text = "Save Settings";
+            this.tsmiSaveSettings.Click += new System.EventHandler(this.tsmiSaveSettings_Click);
+            // 
+            // tsmiImportFromPlayer
+            // 
+            this.tsmiImportFromPlayer.Name = "tsmiImportFromPlayer";
+            this.tsmiImportFromPlayer.Size = new System.Drawing.Size(222, 26);
+            this.tsmiImportFromPlayer.Text = "Import from Player";
+            this.tsmiImportFromPlayer.Click += new System.EventHandler(this.tsmiImportFromPlayer_Click);
+            // 
+            // tsmiQuitWithoutSaving
+            // 
+            this.tsmiQuitWithoutSaving.Name = "tsmiQuitWithoutSaving";
+            this.tsmiQuitWithoutSaving.Size = new System.Drawing.Size(222, 26);
+            this.tsmiQuitWithoutSaving.Text = "Quit without Saving";
+            this.tsmiQuitWithoutSaving.Click += new System.EventHandler(this.tsmiQuitWithoutSaving_Click);
+            // 
+            // tsmiRestoreDefaults
+            // 
+            this.tsmiRestoreDefaults.Name = "tsmiRestoreDefaults";
+            this.tsmiRestoreDefaults.Size = new System.Drawing.Size(222, 26);
+            this.tsmiRestoreDefaults.Text = "Restore Defaults";
+            this.tsmiRestoreDefaults.Click += new System.EventHandler(this.tsmiRestoreDefaults_Click);
             // 
             // tsbReloadMap
             // 
@@ -1659,7 +1700,7 @@
             this.tsbReloadMap.Image = ((System.Drawing.Image)(resources.GetObject("tsbReloadMap.Image")));
             this.tsbReloadMap.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbReloadMap.Name = "tsbReloadMap";
-            this.tsbReloadMap.Size = new System.Drawing.Size(74, 22);
+            this.tsbReloadMap.Size = new System.Drawing.Size(94, 24);
             this.tsbReloadMap.Text = "Reload Map";
             this.tsbReloadMap.Click += new System.EventHandler(this.tsbReloadMap_Click);
             // 
@@ -1669,9 +1710,19 @@
             this.tsbQuit.Image = ((System.Drawing.Image)(resources.GetObject("tsbQuit.Image")));
             this.tsbQuit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbQuit.Name = "tsbQuit";
-            this.tsbQuit.Size = new System.Drawing.Size(34, 22);
+            this.tsbQuit.Size = new System.Drawing.Size(41, 24);
             this.tsbQuit.Text = "Quit";
-            this.tsbQuit.Click += new System.EventHandler(this.btnQuit_Click);
+            this.tsbQuit.Click += new System.EventHandler(this.tsbQuit_Click);
+            // 
+            // tsbLogout
+            // 
+            this.tsbLogout.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbLogout.Image = ((System.Drawing.Image)(resources.GetObject("tsbLogout.Image")));
+            this.tsbLogout.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLogout.Name = "tsbLogout";
+            this.tsbLogout.Size = new System.Drawing.Size(60, 24);
+            this.tsbLogout.Text = "Logout";
+            this.tsbLogout.Click += new System.EventHandler(this.tsbLogout_Click);
             // 
             // ctxStrategy
             // 
@@ -1679,13 +1730,13 @@
             this.ctxStrategy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiEditStrategy});
             this.ctxStrategy.Name = "ctxStrategy";
-            this.ctxStrategy.Size = new System.Drawing.Size(95, 26);
+            this.ctxStrategy.Size = new System.Drawing.Size(105, 28);
             this.ctxStrategy.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxStrategy_ItemClicked);
             // 
             // tsmiEditStrategy
             // 
             this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(94, 22);
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(104, 24);
             this.tsmiEditStrategy.Text = "Edit";
             // 
             // tmr
@@ -1739,13 +1790,13 @@
             this.ctxConsole.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiClearConsole});
             this.ctxConsole.Name = "ctxConsole";
-            this.ctxConsole.Size = new System.Drawing.Size(102, 26);
+            this.ctxConsole.Size = new System.Drawing.Size(113, 28);
             this.ctxConsole.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxConsole_ItemClicked);
             // 
             // tsmiClearConsole
             // 
             this.tsmiClearConsole.Name = "tsmiClearConsole";
-            this.tsmiClearConsole.Size = new System.Drawing.Size(101, 22);
+            this.tsmiClearConsole.Size = new System.Drawing.Size(112, 24);
             this.tsmiClearConsole.Text = "Clear";
             // 
             // pnlCommand
@@ -1770,8 +1821,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Isengard";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMain_FormClosed);
             this.grpOneClickStrategies.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
@@ -1915,7 +1964,6 @@
         private System.Windows.Forms.Label lblTime;
         private System.Windows.Forms.Label lblManaValue;
         private System.Windows.Forms.Label lblHitpointsValue;
-        private System.Windows.Forms.ToolStripButton tsbConfiguration;
         private System.Windows.Forms.Label lblAutoEscapeValue;
         private System.Windows.Forms.ContextMenuStrip ctxAutoEscape;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoEscapeThreshold;
@@ -1946,8 +1994,6 @@
         private System.Windows.Forms.ToolStripButton tsbWearAll;
         private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
         private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
-        private System.Windows.Forms.ToolStripButton tsbExport;
-        private System.Windows.Forms.ToolStripButton tsbImport;
         private System.Windows.Forms.Button btnGoToPawnShop;
         private System.Windows.Forms.Label lblPawnShop;
         private System.Windows.Forms.ComboBox cboPawnShop;
@@ -1955,6 +2001,15 @@
         private System.Windows.Forms.ContextMenuStrip ctxMessages;
         private System.Windows.Forms.ToolStripMenuItem tsmiCopyMessages;
         private System.Windows.Forms.Label lblArmorClassValue;
+        private System.Windows.Forms.ToolStripDropDownButton tsddbSettings;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEditSettings;
+        private System.Windows.Forms.ToolStripMenuItem tsmiExportXML;
+        private System.Windows.Forms.ToolStripMenuItem tsmiImportXML;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSaveSettings;
+        private System.Windows.Forms.ToolStripMenuItem tsmiImportFromPlayer;
+        private System.Windows.Forms.ToolStripMenuItem tsmiQuitWithoutSaving;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
+        private System.Windows.Forms.ToolStripButton tsbLogout;
     }
 }
 
