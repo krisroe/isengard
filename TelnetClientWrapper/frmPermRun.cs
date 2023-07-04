@@ -168,8 +168,7 @@ namespace IsengardClient
                         chk.Tag = nextSpell;
                         chk.Text = nextSpell.ToString();
                         chk.UseVisualStyleBackColor = true;
-                        flpSkills.Controls.Add(chk);
-
+                        flpActiveSpells.Controls.Add(chk);
                     }
                 }
             }
