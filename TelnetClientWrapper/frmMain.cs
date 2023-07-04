@@ -3721,11 +3721,41 @@ namespace IsengardClient
                 bool backgroundCommandSuccess;
                 CommandResult backgroundCommandResult;
 
-                if (!PerformBackgroundHeal(pms.HealHitpoints, pms.EnsureBlessed, pms.EnsureProtected, pms.CureIfPoisoned, pms, false))
+                if (pms.FullBeforeStarting || pms.CureIfPoisoned)
                 {
-                    return;
+                    //cure-poison if needed
+                    _poisoned = false;
+                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful) return;
+                    bool healPoison = _poisoned;
+                    if (pms.CureIfPoisoned && !healPoison) //display a message if a standalone curepoison was attempted
+                    {
+                        AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
+                        return;
+                    }
+                    if (healPoison && (_automp < 4 || !CastLifeSpell("cure-poison", pms))) return;
+                    if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
+
+                    if (pms.FullBeforeStarting && !IsFull(pms.ActiveSpells))
+                    {
+                        if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
+                        if (!GetFullInBackground(pms)) return;
+                    }
                 }
 
+                if (pms.TargetRoom != null)
+                {
+                    if (!NavigateToTargetRoom(pms)) return;
+                }
+                else if (pms.Exits != null && pms.Exits.Count > 0)
+                {
+                    if (!TraverseExitsAlreadyInBackground(pms.Exits, pms)) return;
+                }
+                pms.AtDestination = true;
+
+                //verify the mob is present and attackable before activating skills
+                if (!AttackIsGoodToGo(pms)) return;
+                
                 //Activate skills
                 if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
                 {
@@ -3739,12 +3769,6 @@ namespace IsengardClient
                     backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
                     if (!backgroundCommandSuccess) return;
                 }
-
-                if (pms.Exits != null && pms.Exits.Count > 0 && !TraverseExitsAlreadyInBackground(pms.Exits, pms))
-                {
-                    return;
-                }
-                pms.AtDestination = true;
 
                 bool hasInitialQueuedMagicStep;
                 bool hasInitialQueuedMeleeStep;
@@ -4272,10 +4296,7 @@ BeforeHazy:
                 InventoryProcessWorkflow eInvProcess = pms.InventoryProcessWorkflow;
                 if (eInvProcess != InventoryProcessWorkflow.NoProcessing && (eInvProcess == InventoryProcessWorkflow.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcess == InventoryProcessWorkflow.ProcessMonsterDrops)) && !pms.Fled && !pms.Hazied)
                 {
-                    List<Exit> nextRoute;
                     Room monsterRoom = _currentEntityInfo.CurrentRoom;
-                    Room currentRoom = monsterRoom;
-                    Room targetRoom;
                     List<ItemEntity> itemsToProcess = new List<ItemEntity>();
                     lock (_entityLock)
                     {
@@ -4410,17 +4431,9 @@ BeforeHazy:
                             return;
                         }
 
-StartTickRoomProcessing:
+                    StartTickRoomProcessing:
 
-                        //navigate to the tick room
-                        currentRoom = _currentEntityInfo.CurrentRoom;
-                        targetRoom = _gameMap.HealingRooms[pms.TickRoom.Value];
-                        if (currentRoom != targetRoom)
-                        {
-                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
-                            if (nextRoute == null) return;
-                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        }
+                        if (!NavigateToTickRoom(pms)) return;
 
                         bool anythingCouldNotBePickedUpFromTickRoom = false;
                         bool anythingFailedForTickRoom = false;
@@ -4589,13 +4602,8 @@ StartTickRoomProcessing:
 
                     if (anythingCouldNotBePickedUpFromSourceRoom)
                     {
-                        currentRoom = _currentEntityInfo.CurrentRoom;
-                        if (currentRoom != monsterRoom)
-                        {
-                            nextRoute = CalculateRouteExits(currentRoom, monsterRoom, true);
-                            if (nextRoute == null) return;
-                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        }
+                        if (!NavigateToTargetRoom(pms)) return;
+                        pms.AtDestination = true;
                         if (somethingDone)
                         {
                             goto NextItemCycle;
@@ -4605,22 +4613,12 @@ StartTickRoomProcessing:
                             return;
                         }
                     }
+                }
 
-                    if (pms.TickRoom.HasValue)
-                    {
-                        currentRoom = _currentEntityInfo.CurrentRoom;
-                        targetRoom = _gameMap.HealingRooms[pms.TickRoom.Value];
-                        if (currentRoom != targetRoom)
-                        {
-                            nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
-                            if (nextRoute == null) return;
-                            if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return;
-                        }
-                        if (!PerformBackgroundHeal(true, true, true, true, pms, true))
-                        {
-                            return;
-                        }
-                    }
+                if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.ActiveSpells))
+                {
+                    if (!NavigateToTickRoom(pms)) return;
+                    if (!GetFullInBackground(pms)) return;
                 }
 
                 if (!pms.Fled && !pms.Hazied)
@@ -4670,6 +4668,56 @@ StartTickRoomProcessing:
                     _newConsoleText.Add(ex.ToString());
                 }
             }
+        }
+
+        private bool NavigateToTargetRoom(BackgroundWorkerParameters pms)
+        {
+            return NavigateToSpecificRoom(pms.TargetRoom, pms);
+        }
+
+        private bool NavigateToTickRoom(BackgroundWorkerParameters pms)
+        {
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.TickRoom.Value], pms);
+        }
+
+        private bool NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms)
+        {
+            Room currentRoom = _currentEntityInfo.CurrentRoom;
+            if (currentRoom != r)
+            {
+                var nextRoute = CalculateRouteExits(currentRoom, r, true);
+                if (nextRoute == null) return false;
+                if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return false;
+            }
+            pms.AtDestination = r == pms.TargetRoom;
+            return true;
+        }
+
+        private bool IsFull(ActiveSpells activeSpells)
+        {
+            if (_autohp < _totalhp) return false;
+            if (_automp < _totalmp) return false;
+            if (activeSpells != ActiveSpells.None)
+            {
+                lock (_spellsCastLock)
+                {
+                    if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                    {
+                        if (!_spellsCast.Contains("bless"))
+                        {
+                            return false;
+                        }
+                    }
+                    if ((activeSpells & ActiveSpells.Protection) != ActiveSpells.Protection)
+                    {
+                        if (!_spellsCast.Contains("protection"))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
         }
 
         private bool SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
@@ -4738,35 +4786,49 @@ StartTickRoomProcessing:
             return success;
         }
 
+        private bool AttackIsGoodToGo(BackgroundWorkerParameters pms)
+        {
+            bool ret;
+            if (pms.MobType.HasValue)
+                ret = !string.IsNullOrEmpty(GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false));
+            else if (!string.IsNullOrEmpty(pms.MobText))
+                ret = true; //there's no way of verifying from mob text, so just say ok
+            else //not attacking anything
+                ret = false;
+            return ret;
+        }
+
         private string GetMobTarget(bool forLook)
         {
             string sMobTextForTarget;
             if (_currentlyFightingMobType.HasValue)
+                sMobTextForTarget = GetMobTargetFromMobType(_currentlyFightingMobType.Value, _currentlyFightingMobCounter, forLook);
+            else
+                sMobTextForTarget = _mob;
+            return sMobTextForTarget;
+        }
+
+        private string GetMobTargetFromMobType(MobTypeEnum eMobType, int mobTypeIndex, bool forLook)
+        {
+            string ret;
+            StaticMobData smd = MobEntity.StaticMobData[eMobType];
+            if (smd.Visibility == MobVisibility.Visible)
             {
-                MobTypeEnum eMobType = _currentlyFightingMobType.Value;
-                StaticMobData smd = MobEntity.StaticMobData[eMobType];
-                if (smd.Visibility == MobVisibility.Visible)
+                lock (_entityLock)
                 {
-                    lock (_entityLock)
-                    {
-                        sMobTextForTarget = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, eMobType, _currentlyFightingMobCounter, false, forLook);
-                    }
-                }
-                else
-                {
-                    List<MobTypeEnum> tempList = new List<MobTypeEnum>();
-                    for (int i = 0; i < _currentlyFightingMobCounter; i++)
-                    {
-                        tempList.Add(eMobType);
-                    }
-                    sMobTextForTarget = _currentEntityInfo.PickMobTextFromMobCounter(tempList, MobLocationType.PickFromList, eMobType, tempList.Count, false, false);
+                    ret = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, eMobType, mobTypeIndex, false, forLook);
                 }
             }
             else
             {
-                sMobTextForTarget = _mob;
+                List<MobTypeEnum> tempList = new List<MobTypeEnum>();
+                for (int i = 0; i < mobTypeIndex; i++)
+                {
+                    tempList.Add(eMobType);
+                }
+                ret = _currentEntityInfo.PickMobTextFromMobCounter(tempList, MobLocationType.PickFromList, eMobType, tempList.Count, false, forLook);
             }
-            return sMobTextForTarget;
+            return ret;
         }
 
         /// <summary>
@@ -4862,32 +4924,83 @@ StartTickRoomProcessing:
             return ret;
         }
 
-        private bool PerformBackgroundHeal(bool healHP, bool ensureBlessed, bool ensureProtected, bool cureIfPoisoned, BackgroundWorkerParameters pms, bool waitIfOutOfMana)
+        /// <summary>
+        /// gets full hitpoints in a background process, optionally with cure-poison
+        /// This is used when traversing exits after a trap room is encountered.
+        /// </summary>
+        /// <param name="pms">background worker parameters</param>
+        /// <param name="needCurePoison">whether cure-poison is needed</param>
+        /// <returns>true if cure-poison was successfully cast if needed and hitpoints got to maximum</returns>
+        private bool GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
         {
-            bool healPoison = false;
-            if (cureIfPoisoned)
+            if (needCurePoison && (_automp < 4 || !CastLifeSpell("cure-poison", pms))) return false;
+            while (_autohp < _totalhp && _automp >= 2)
             {
-                _poisoned = false;
-                CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
-                if (backgroundCommandResult != CommandResult.CommandSuccessful)
-                {
-                    return false;
-                }
-                if (_poisoned)
-                {
-                    healPoison = true;
-                }
-                else if (!healHP && !ensureBlessed && !ensureProtected) //display a message if a standalone curepoison was attempted
-                {
-                    AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
-                }
+                if (!CastLifeSpell("vigor", pms)) return false;
             }
-            if (healHP || healPoison || ensureBlessed || ensureProtected)
+            return true;
+        }
+
+        /// <summary>
+        /// gets full in a background process
+        /// </summary>
+        /// <param name="pms">background parameters</param>
+        /// <returns>true if successfully got to full, false otherwise</returns>
+        private bool GetFullInBackground(BackgroundWorkerParameters pms)
+        {
+            int iTickHP = 5; //CSRTODO: these are despug numbers
+            int iTickMP = 7;
+            ActiveSpells activeSpells = pms.ActiveSpells;
+            bool hasActiveSpell;
+            string activeSpell;
+            while (!IsFull(pms.ActiveSpells))
             {
-                _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                if (!DoBackgroundHeal(healHP, ensureBlessed, ensureProtected, healPoison, pms, waitIfOutOfMana))
+                bool castSomething = false;
+                if ((_autohp + iTickHP > _totalhp) || (_automp + iTickMP > _totalmp)) //wait until almost full before casting spells
                 {
-                    return false;
+                    if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                    {
+                        activeSpell = "bless";
+                        lock (_spellsCastLock)
+                        {
+                            hasActiveSpell = _spellsCast.Contains(activeSpell);
+                        }
+                        if (!hasActiveSpell && _automp >= 8)
+                        {
+                            if (!CastLifeSpell(activeSpell, pms)) return false;
+                        }
+                        castSomething = true;
+                    }
+                    if ((activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
+                    {
+                        activeSpell = "protection";
+                        lock (_spellsCastLock)
+                        {
+                            hasActiveSpell = _spellsCast.Contains(activeSpell);
+                        }
+                        if (!hasActiveSpell && _automp >= 8)
+                        {
+                            if (!CastLifeSpell(activeSpell, pms)) return false;
+                        }
+                        castSomething = true;
+                    }
+                    if (_autohp < _totalhp && _automp >= 2)
+                    {
+                        if (!CastLifeSpell("vigor", pms)) return false;
+                        castSomething = true;
+                    }
+                }
+                if (!castSomething)
+                {
+                    int waitInterval = 5000;
+                    while (waitInterval > 0)
+                    {
+                        Thread.Sleep(50);
+                        waitInterval -= 50;
+                        if (_fleeing) break;
+                        if (_hazying) break;
+                        if (_bw.CancellationPending) break;
+                    }
                 }
             }
             return true;
@@ -5118,7 +5231,7 @@ StartTickRoomProcessing:
                         }
                         else if (_lastCommandMovementResult == MovementResult.FallFailure)
                         {
-                            if (!DoBackgroundHeal(true, false, false, needCurepoison, pms, false)) return false;
+                            if (!GetFullHitpoints(pms, needCurepoison)) return false;
                             SendCommand("stand", InputEchoType.On);
                             keepTryingMovement = true;
                         }
@@ -5147,7 +5260,7 @@ StartTickRoomProcessing:
                         }
                         if (doHealingLogic)
                         {
-                            if (!DoBackgroundHeal(needHeal, false, false, needCurepoison, pms, false)) return false;
+                            if (!GetFullHitpoints(pms, needCurepoison)) return false;
                             needHeal = false;
                             needCurepoison = false;
                         }
@@ -5503,122 +5616,6 @@ StartTickRoomProcessing:
                     ret = false;
             }
             return ret;
-        }
-
-        private bool DoBackgroundHeal(bool healHP, bool doBless, bool doProtection, bool doCurePoison, BackgroundWorkerParameters pms, bool waitIfOutOfMana)
-        {
-            int waitInterval;
-            int autohp;
-            int automp = _automp;
-            if (doCurePoison && (automp < 4 || !CastLifeSpell("cure-poison", pms)))
-            {
-                return false;
-            }
-            if (healHP)
-            {
-                while (true)
-                {
-                    autohp = _autohp;
-                    automp = _automp;
-                    if (autohp >= _totalhp) break;
-                    if (automp < 2) break; //out of mana for vigor cast
-                    if (!CastLifeSpell("vigor", pms))
-                    {
-                        if (waitIfOutOfMana)
-                        {
-                            waitInterval = 5000;
-                            while (waitInterval > 0)
-                            {
-                                Thread.Sleep(50);
-                                waitInterval -= 50;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
-                            }
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    if (_fleeing) break;
-                    if (_hazying) break;
-                    if (_bw.CancellationPending) break;
-                    autohp = _autohp;
-                    if (autohp >= _totalhp) break;
-                }
-                //stop background processing if failed to get to max hitpoints
-                autohp = _autohp;
-                if (autohp < _totalhp) return false;
-            }
-
-            //cast bless if has enough mana and not currently blessed
-            if (doBless)
-            {
-                bool hasBless;
-                lock (_spellsCastLock)
-                {
-                    hasBless = _spellsCast.Contains("bless");
-                }
-                automp = _automp;
-                if (automp >= 8 && !hasBless)
-                {
-                    if (!CastLifeSpell("bless", pms))
-                    {
-                        if (waitIfOutOfMana)
-                        {
-                            waitInterval = 5000;
-                            while (waitInterval > 0)
-                            {
-                                Thread.Sleep(50);
-                                waitInterval -= 50;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
-                            }
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            //cast protection if has enough mana and not curently protected
-            if (doProtection)
-            {
-                bool hasProtection;
-                lock (_spellsCastLock)
-                {
-                    hasProtection = _spellsCast.Contains("protection");
-                }
-                automp = _automp;
-                if (automp >= 8 && !hasProtection)
-                {
-                    if (!CastLifeSpell("protection", pms))
-                    {
-                        if (waitIfOutOfMana)
-                        {
-                            waitInterval = 5000;
-                            while (waitInterval > 0)
-                            {
-                                Thread.Sleep(50);
-                                waitInterval -= 50;
-                                if (_fleeing) break;
-                                if (_hazying) break;
-                                if (_bw.CancellationPending) break;
-                            }
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            return true;
         }
 
         private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
@@ -6253,7 +6250,6 @@ StartTickRoomProcessing:
             yield return btnDn;
             yield return btnOut;
             yield return btnOtherSingleMove;
-            yield return btnHeal;
             yield return btnSearch;
             yield return btnHide;
             yield return btnSet;
@@ -6740,7 +6736,14 @@ StartTickRoomProcessing:
 
         private class BackgroundWorkerParameters
         {
+            /// <summary>
+            /// exits to traverse in the background
+            /// </summary>
             public List<Exit> Exits { get; set; }
+            /// <summary>
+            /// target room if not passing a specific set of exits
+            /// </summary>
+            public Room TargetRoom { get; set; }
             public bool Cancelled { get; set; }
             public Strategy Strategy { get; set; }
             public string QueuedCommand { get; set; }
@@ -6748,7 +6751,14 @@ StartTickRoomProcessing:
             public MeleeStrategyStep? QueuedMeleeStep { get; set; }
             public PotionsStrategyStep? QueuedPotionsStep { get; set; }
             public int ManaPool { get; set; }
+            /// <summary>
+            /// skills to use in this background process
+            /// </summary>
             public PromptedSkills UsedSkills { get; set; }
+            /// <summary>
+            /// spells to ensure are active before starting
+            /// </summary>
+            public ActiveSpells ActiveSpells { get; set; }
             public bool Hazy { get; set; }
             public bool Hazied { get; set; }
             public bool Flee { get; set; }
@@ -6775,10 +6785,18 @@ StartTickRoomProcessing:
                 return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
             }
             public bool Foreground { get; set; }
-            public bool HealHitpoints { get; set; }
+            /// <summary>
+            /// whether to get full before starting
+            /// </summary>
+            public bool FullBeforeStarting { get; set; }
+            /// <summary>
+            /// whether to get full after finishing
+            /// </summary>
+            public bool FullAfterFinishing { get; set; }
+            /// <summary>
+            /// whether to cure poison if needed. This is used by the standalone cure-poison option.
+            /// </summary>
             public bool CureIfPoisoned { get; set; }
-            public bool EnsureBlessed { get; set; }
-            public bool EnsureProtected { get; set; }
             public BackgroundCommandType? SingleCommandType { get; set; }
             public CommandResult SingleCommandResult { get; set; }
             public bool SaveSettingsOnQuit { get; set; }
@@ -6846,8 +6864,7 @@ StartTickRoomProcessing:
                 }
             }
             PromptedSkills activatedSkills = PromptedSkills.None;
-            string targetRoomMob;
-            List<Exit> preExits = null;
+            ActiveSpells activeSpells = ActiveSpells.None;
             HealingRoom? healingRoom = null;
             PawnShoppe? pawnShoppe = null;
             InventoryProcessWorkflow inventoryFlow;
@@ -6878,6 +6895,21 @@ StartTickRoomProcessing:
                     }
                 }
             }
+            ActiveSpells eActiveSpellsToPrompt = ActiveSpells.None;
+            lock (_spellsKnownLock)
+            {
+                if (_lifeProficiency > 0)
+                {
+                    if (_spellsKnown.Contains("bless"))
+                    {
+                        eActiveSpellsToPrompt |= ActiveSpells.Bless;
+                    }
+                    if (_spellsKnown.Contains("protection"))
+                    {
+                        eActiveSpellsToPrompt |= ActiveSpells.Protection;
+                    }
+                }
+            }
 
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
@@ -6890,28 +6922,34 @@ StartTickRoomProcessing:
             string sMobText;
             MobTypeEnum? eMobType;
             int iMobIndex;
-            using (frmPermRun frmSkills = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo))
+            bool fullBeforeStarting;
+            bool fullAfterFinishing;
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, eActiveSpellsToPrompt))
             {
-                if (frmSkills.ShowDialog(this) != DialogResult.OK)
+                if (frm.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
                 }
-                preExits = frmSkills.SelectedPath;
-                activatedSkills = frmSkills.SelectedSkills;
-                sMobText = frmSkills.MobText;
-                eMobType = frmSkills.MobType;
-                iMobIndex = frmSkills.MobIndex;
-                strategy = frmSkills.Strategy;
-                healingRoom = frmSkills.HealingRoom;
-                pawnShoppe = frmSkills.PawnShop;
-                inventoryFlow = frmSkills.InventoryFlow;
+                activatedSkills = frm.SelectedSkills;
+                activeSpells = frm.SelectedSpells;
+                sMobText = frm.MobText;
+                eMobType = frm.MobType;
+                iMobIndex = frm.MobIndex;
+                strategy = frm.SelectedStrategy;
+                healingRoom = frm.HealingRoom;
+                pawnShoppe = frm.PawnShop;
+                inventoryFlow = frm.InventoryFlow;
+                fullBeforeStarting = frm.FullBeforeStarting;
+                fullAfterFinishing = frm.FullAfterFinishing;
             }
 
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
             bwp.Strategy = strategy;
             if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
-            bwp.Exits = preExits;
             bwp.UsedSkills = activatedSkills;
+            bwp.ActiveSpells = activeSpells;
+            bwp.FullBeforeStarting = fullBeforeStarting;
+            bwp.FullAfterFinishing = fullAfterFinishing;
             if (eMobType.HasValue)
             {
                 bwp.MobType = eMobType;
@@ -8156,10 +8194,9 @@ StartTickRoomProcessing:
             if (clickedItem.Text == "Edit")
             {
                 Strategy s = (Strategy)sourceButton.Tag;
-                frmStrategy frm = new frmStrategy(new Strategy(s));
+                frmStrategy frm = new frmStrategy(s);
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    s = frm.NewStrategy;
                     sourceButton.Tag = s;
                     sourceButton.Text = s.ToString();
                 }
@@ -8366,20 +8403,6 @@ StartTickRoomProcessing:
         private bool GetVerboseMode()
         {
             return _settingsData == null ? true : _settingsData.VerboseMode;
-        }
-
-        private void btnHeal_Click(object sender, EventArgs e)
-        {
-            BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp == null)
-            {
-                bwp = new BackgroundWorkerParameters();
-                bwp.HealHitpoints = true;
-                bwp.EnsureBlessed = true;
-                bwp.EnsureProtected = true;
-                bwp.CureIfPoisoned = true;
-                RunBackgroundProcess(bwp);
-            }
         }
 
         private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)

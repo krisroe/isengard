@@ -12,9 +12,8 @@ namespace IsengardClient
         private CheckBox _chkPowerAttack;
         private CurrentEntityInfo _currentEntityInfo;
 
-        public List<Exit> SelectedPath { get; set; }
+        public Strategy SelectedStrategy { get; set; }
 
-        public Strategy Strategy { get; set; }
         public HealingRoom? HealingRoom
         {
             get
@@ -38,12 +37,36 @@ namespace IsengardClient
             }
         }
 
+        public bool FullBeforeStarting
+        {
+            get
+            {
+                return chkFullBeforeStarting.Checked;
+            }
+        }
+
+        public bool FullAfterFinishing
+        {
+            get
+            {
+                return chkFullAfterFinishing.Checked;
+            }
+        }
+
+        public Room TargetRoom
+        {
+            get
+            {
+                return (Room)cboRoom.SelectedItem;
+            }
+        }
+
         public bool IsCombatStrategy { get; set; }
         public string MobText { get; set; }
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, ActiveSpells activeSpellsToPromptFor)
         {
             InitializeComponent();
 
@@ -85,9 +108,6 @@ namespace IsengardClient
             _currentRoom = currentRoom;
             _currentEntityInfo = currentEntityInfo;
 
-            Strategy = new Strategy(strategy);
-            RefreshUIFromStrategy();
-
             if (currentRoom == null)
             {
                 cboRoom.Enabled = false;
@@ -124,35 +144,75 @@ namespace IsengardClient
                         chk.AutoSize = true;
                         if (nextSkill == PromptedSkills.PowerAttack)
                         {
-                            chk.Checked = chk.Visible = Strategy.IsCombatStrategy(CommandType.Melee);
+                            chk.Checked = chk.Visible = strategy.IsCombatStrategy(CommandType.Melee, strategy.TypesWithStepsEnabled);
                             _chkPowerAttack = chk;
                         }
                         chk.Margin = new Padding(4);
                         chk.Tag = nextSkill;
                         chk.Text = nextSkill.ToString();
                         chk.UseVisualStyleBackColor = true;
-                        flp.Controls.Add(chk);
+                        flpSkills.Controls.Add(chk);
+                    }
+                }
+            }
+            foreach (ActiveSpells nextSpell in Enum.GetValues(typeof(ActiveSpells)))
+            {
+                if (nextSpell != ActiveSpells.None)
+                {
+                    if ((activeSpellsToPromptFor & nextSpell) == nextSpell)
+                    {
+                        CheckBox chk = new CheckBox();
+                        chk.AutoSize = true;
+                        chk.Checked = true;
+                        chk.Margin = new Padding(4);
+                        chk.Tag = nextSpell;
+                        chk.Text = nextSpell.ToString();
+                        chk.UseVisualStyleBackColor = true;
+                        flpSkills.Controls.Add(chk);
+
                     }
                 }
             }
 
-            btnEditStrategy.Visible = Strategy != null;
+            foreach (Strategy s in settingsData.Strategies)
+            {
+                cboStrategy.Items.Add(s);
+            }
+            cboStrategy.SelectedItem = strategy;
+            RefreshUIFromStrategy();
         }
 
         private void RefreshUIFromStrategy()
         {
-            bool showMob = Strategy.IsCombatStrategy(CommandType.All);
-            lblMob.Visible = showMob;
-            cboMob.Visible = showMob;
+            Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
             chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
             cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
-            grpStrategy.Text = "Strategy (" + Strategy.ToString() + ")";
+            RefreshUIFromEffectiveStrategy();
+        }
+
+        private void RefreshUIFromEffectiveStrategy()
+        {
+            CommandType eCombatTypes = GetSelectedCombatTypes();
+            Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
+            bool showMob = Strategy.IsCombatStrategy(CommandType.All, eCombatTypes);
+            lblMob.Visible = showMob;
+            cboMob.Visible = showMob;
+            grpStrategyModifications.Text = "Strategy (" + Strategy.GetToStringForCommandTypes(eCombatTypes) + ")";
             if (_chkPowerAttack != null)
             {
-                _chkPowerAttack.Visible = Strategy.IsCombatStrategy(CommandType.Melee);
+                _chkPowerAttack.Visible = Strategy.IsCombatStrategy(CommandType.Melee, eCombatTypes);
             }
+        }
+
+        private CommandType GetSelectedCombatTypes()
+        {
+            CommandType eCombatTypes = CommandType.None;
+            if (chkMagic.Checked) eCombatTypes |= CommandType.Magic;
+            if (chkMelee.Checked) eCombatTypes |= CommandType.Melee;
+            if (chkPotions.Checked) eCombatTypes |= CommandType.Potions;
+            return eCombatTypes;
         }
 
         private string GetInputMobText()
@@ -170,7 +230,7 @@ namespace IsengardClient
             get
             {
                 PromptedSkills ret = PromptedSkills.None;
-                foreach (CheckBox nextSkillCheckbox in flp.Controls)
+                foreach (CheckBox nextSkillCheckbox in flpSkills.Controls)
                 {
                     if (nextSkillCheckbox.Checked)
                     {
@@ -181,9 +241,30 @@ namespace IsengardClient
             }
         }
 
+        public ActiveSpells SelectedSpells
+        {
+            get
+            {
+                ActiveSpells ret = ActiveSpells.None;
+                foreach (CheckBox nextSpellCheckbox in flpActiveSpells.Controls)
+                {
+                    if (nextSpellCheckbox.Checked)
+                    {
+                        ret |= (ActiveSpells)nextSpellCheckbox.Tag;
+                    }
+                }
+                return ret;
+            }
+        }
+
+
         private void btnOK_Click(object sender, EventArgs e)
         {
-            IsCombatStrategy = Strategy.IsCombatStrategy(CommandType.All);
+            Strategy selectedStrategy = new Strategy((Strategy)cboStrategy.SelectedItem);
+            selectedStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+            selectedStrategy.TypesWithStepsEnabled = GetSelectedCombatTypes();
+
+            IsCombatStrategy = selectedStrategy.IsCombatStrategy(CommandType.All, selectedStrategy.TypesWithStepsEnabled);
             if (IsCombatStrategy)
             {
                 if (MobEntity.GetMobInfo(GetInputMobText(), out string mobText, out MobTypeEnum? mobType, out int mobIndex))
@@ -199,6 +280,8 @@ namespace IsengardClient
                 }
             }
 
+            SelectedStrategy = selectedStrategy;
+
             InventoryProcessWorkflow ipw = (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
             if (ipw != InventoryProcessWorkflow.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
             {
@@ -210,12 +293,16 @@ namespace IsengardClient
 
             GraphInputs graphInputs = _GraphInputs();
 
-            //verify the selected room is still reachable
+            //verify the target room is reachable
             Room targetRoom = cboRoom.SelectedItem as Room;
+            if (targetRoom == null)
+            {
+                MessageBox.Show("No target room selected.");
+                return;
+            }
             if (targetRoom != null && targetRoom != _currentRoom)
             {
-                SelectedPath = MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs);
-                if (SelectedPath == null)
+                if (MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs) == null)
                 {
                     MessageBox.Show("Cannot find path to selected room.");
                     return;
@@ -292,11 +379,21 @@ namespace IsengardClient
 
         private void btnEditStrategy_Click(object sender, EventArgs e)
         {
-            frmStrategy frm = new frmStrategy(Strategy);
-            if (frm.ShowDialog(this) == DialogResult.OK)
+            Strategy chosenStrategy = (Strategy)cboStrategy.SelectedItem;
+            bool isBaseStrategy = _settingsData.Strategies.Contains(chosenStrategy);
+            if (isBaseStrategy) chosenStrategy = new Strategy(chosenStrategy);
+            using (frmStrategy frm = new frmStrategy(chosenStrategy))
             {
-                Strategy = frm.NewStrategy;
-                RefreshUIFromStrategy();
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (isBaseStrategy)
+                    {
+                        chosenStrategy.Name = $"Modified ({chosenStrategy})";
+                        cboStrategy.Items.Add(chosenStrategy);
+                    }
+                    cboStrategy.SelectedItem = chosenStrategy;
+                    RefreshUIFromStrategy();
+                }
             }
         }
 
@@ -357,46 +454,17 @@ namespace IsengardClient
 
         private void chkMagic_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkMagic.Checked)
-            {
-                Strategy.TypesWithStepsEnabled |= CommandType.Magic;
-            }
-            else
-            {
-                Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
-            }
-            RefreshUIFromStrategy();
+            RefreshUIFromEffectiveStrategy();
         }
 
         private void chkMelee_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkMelee.Checked)
-            {
-                Strategy.TypesWithStepsEnabled |= CommandType.Melee;
-            }
-            else
-            {
-                Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
-            }
-            RefreshUIFromStrategy();
+            RefreshUIFromEffectiveStrategy();
         }
 
         private void chkPotions_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkPotions.Checked)
-            {
-                Strategy.TypesWithStepsEnabled |= CommandType.Potions;
-            }
-            else
-            {
-                Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;
-            }
-            RefreshUIFromStrategy();
-        }
-
-        private void cboOnKillMonster_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+            RefreshUIFromEffectiveStrategy();
         }
 
         private void cboPawnShoppe_SelectedIndexChanged(object sender, EventArgs e)

@@ -37,6 +37,14 @@ namespace IsengardClient
         Fireshield = 4,
     }
 
+    [Flags]
+    internal enum ActiveSpells
+    {
+        None = 0,
+        Bless = 1,
+        Protection = 2,
+    }
+
     /// <summary>
     /// result of a single command
     /// </summary>

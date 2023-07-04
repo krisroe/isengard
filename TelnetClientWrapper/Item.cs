@@ -703,6 +703,12 @@ namespace IsengardClient
         [PluralName("buckets")]
         Bucket,
 
+        //mage training level 14
+        [SingularName("bugbear key")]
+        [PluralName("bugbear keys")]
+        [ItemClass(ItemClass.Key)]
+        BugbearKey,
+
         [SingularName("bundle of wheat")]
         [PluralName("bundle of wheats")] //verified 6/14/2023
         BundleOfWheat,
@@ -782,6 +788,12 @@ namespace IsengardClient
         [PluralName("copper rings")]
         [EquipmentType(EquipmentType.Finger)]
         CopperRing,
+
+        [SingularName("criminal records book")]
+        [PluralName("criminal records books")]
+        [Weight(20)]
+        [Sellable(1237)]
+        CriminalRecordsBook,
 
         [SingularName("crossbow")]
         [PluralName("crossbows")]
@@ -1069,7 +1081,7 @@ namespace IsengardClient
 
         [SingularName("golden mask of the gods")]
         //CSRTODO: plural?
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Face)]
         GoldenMaskOfTheGods,
 
         [SingularName("gold sword")]
@@ -1138,6 +1150,12 @@ namespace IsengardClient
         [WeaponType(WeaponType.Polearm)]
         Halberd,
 
+        [SingularName("half giant chain mail armor")]
+        [EquipmentType(EquipmentType.Torso)]
+        [Weight(24)]
+        [Sellable(371)]
+        HalfGiantChainMailArmor,
+
         [SingularName("half-giant chain mail gloves")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(10)]
@@ -1164,6 +1182,10 @@ namespace IsengardClient
         [SingularName("head of lettuce")]
         //CSRTODO: plural?
         HeadOfLettuce,
+
+        [SingularName("herbal stimulant")]
+        [PluralName("herbal stimulants")]
+        HerbalStimulant,
 
         [SingularName("hood of the high priest")]
         //CSRTODO: plural
@@ -1467,6 +1489,7 @@ namespace IsengardClient
         [PluralName("orange potions")]
         [Potion(SpellsEnum.knowaura)]
         [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         OrangePotion,
 
         [SingularName("orc's sword")]
@@ -1590,11 +1613,14 @@ namespace IsengardClient
         [PluralName("reddish-orange potions")]
         [Potion(SpellsEnum.mend)]
         [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         ReddishOrangePotion,
 
         [SingularName("red potion")]
         [PluralName("red potions")]
         [Potion(SpellsEnum.endurefire)]
+        [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         RedPotion,
 
         [SingularName("repair kit")]
@@ -1603,6 +1629,8 @@ namespace IsengardClient
 
         [SingularName("ribbed plate boots")]
         [EquipmentType(EquipmentType.Feet)]
+        [Weight(4)]
+        [Sellable(185)]
         RibbedPlateBoots,
 
         [SingularName("ribbed plate gloves")]
@@ -1630,6 +1658,7 @@ namespace IsengardClient
         [SingularName("ring of invisibility")]
         [PluralName("rings of invisibility")]
         [Weight(1)]
+        [Sellable(247)]
         RingOfInvisibility,
 
         //mages cannot use
@@ -1951,6 +1980,10 @@ namespace IsengardClient
         [SingularName("translucent sleeves")]
         [EquipmentType(EquipmentType.Arms)]
         TranslucentSleeves,
+
+        [SingularName("vanishing cream")]
+        [PluralName("vanishing creams")]
+        VanishingCream,
 
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]

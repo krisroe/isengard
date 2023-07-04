@@ -540,7 +540,6 @@ namespace IsengardClient
             frmStrategy frm = new frmStrategy(s);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                s = frm.NewStrategy;
                 lstStrategies.Items.Add(s);
                 _settings.Strategies.Add(s);
             }
@@ -553,8 +552,6 @@ namespace IsengardClient
             frmStrategy frm = new frmStrategy(s);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                s = frm.NewStrategy;
-                _settings.Strategies[index] = s;
                 lstStrategies.Items[index] = s;
             }
         }

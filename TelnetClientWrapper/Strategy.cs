@@ -87,107 +87,114 @@ namespace IsengardClient
             string ret;
             if (AutogenerateName)
             {
-                StringBuilder sb;
-                List<string> parts = new List<string>();
-                bool supportsSteps = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
-                bool hasSteps = MagicSteps != null;
-                if (supportsSteps && hasSteps)
-                {
-                    sb = new StringBuilder();
-                    if (hasSteps)
-                    {
-                        foreach (var next in MagicSteps)
-                        {
-                            sb.Append(GetMagicStrategyStepCharacter(next));
-                        }
-                    }
-                    if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
-                    {
-                        sb.Append("*");
-                    }
-                    if (FinalMagicAction == FinalStepAction.Flee)
-                    {
-                        sb.Append("F");
-                    }
-                    else if (FinalMagicAction == FinalStepAction.Hazy)
-                    {
-                        sb.Append("w");
-                    }
-                    else if (FinalMagicAction == FinalStepAction.FinishCombat)
-                    {
-                        sb.Append("X");
-                    }
-                    parts.Add(sb.ToString());
-                }
-                supportsSteps = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
-                hasSteps = MeleeSteps != null;
-                if (supportsSteps && hasSteps)
-                {
-                    sb = new StringBuilder();
-                    if (hasSteps)
-                    {
-                        foreach (var next in MeleeSteps)
-                        {
-                            sb.Append(GetMeleeStrategyStepCharacter(next));
-                        }
-                    }
-                    if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
-                    {
-                        sb.Append("*");
-                    }
-                    if (FinalMeleeAction == FinalStepAction.Flee)
-                    {
-                        sb.Append("F");
-                    }
-                    else if (FinalMeleeAction == FinalStepAction.Hazy)
-                    {
-                        sb.Append("w");
-                    }
-                    else if (FinalMeleeAction == FinalStepAction.FinishCombat)
-                    {
-                        sb.Append("X");
-                    }
-                    parts.Add(sb.ToString());
-                }
-                supportsSteps = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-                hasSteps = PotionsSteps != null;
-                if (supportsSteps && hasSteps)
-                {
-                    sb = new StringBuilder();
-                    if (hasSteps)
-                    {
-                        foreach (var next in PotionsSteps)
-                        {
-                            sb.Append(GetPotionsStrategyStepCharacter(next));
-                        }
-                    }
-                    if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
-                    {
-                        sb.Append("*");
-                    }
-                    if (FinalPotionsAction == FinalStepAction.Flee)
-                    {
-                        sb.Append("F");
-                    }
-                    else if (FinalPotionsAction == FinalStepAction.Hazy)
-                    {
-                        sb.Append("w");
-                    }
-                    else if (FinalPotionsAction == FinalStepAction.FinishCombat)
-                    {
-                        sb.Append("X");
-                    }
-                    parts.Add(sb.ToString());
-                }
-                if (parts.Count == 0)
-                    ret = "No Steps";
-                else
-                    ret = string.Join("+", parts.ToArray());
+                ret = GetToStringForCommandTypes(TypesWithStepsEnabled);
             }
             else
             {
                 ret = Name ?? string.Empty;
             }
+            return ret;
+        }
+
+        public string GetToStringForCommandTypes(CommandType Types)
+        {
+            StringBuilder sb;
+            List<string> parts = new List<string>();
+            bool supportsSteps = (Types & CommandType.Magic) != CommandType.None;
+            bool hasSteps = MagicSteps != null;
+            if (supportsSteps && hasSteps)
+            {
+                sb = new StringBuilder();
+                if (hasSteps)
+                {
+                    foreach (var next in MagicSteps)
+                    {
+                        sb.Append(GetMagicStrategyStepCharacter(next));
+                    }
+                }
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
+                {
+                    sb.Append("*");
+                }
+                if (FinalMagicAction == FinalStepAction.Flee)
+                {
+                    sb.Append("F");
+                }
+                else if (FinalMagicAction == FinalStepAction.Hazy)
+                {
+                    sb.Append("w");
+                }
+                else if (FinalMagicAction == FinalStepAction.FinishCombat)
+                {
+                    sb.Append("X");
+                }
+                parts.Add(sb.ToString());
+            }
+            supportsSteps = (Types & CommandType.Melee) != CommandType.None;
+            hasSteps = MeleeSteps != null;
+            if (supportsSteps && hasSteps)
+            {
+                sb = new StringBuilder();
+                if (hasSteps)
+                {
+                    foreach (var next in MeleeSteps)
+                    {
+                        sb.Append(GetMeleeStrategyStepCharacter(next));
+                    }
+                }
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
+                {
+                    sb.Append("*");
+                }
+                if (FinalMeleeAction == FinalStepAction.Flee)
+                {
+                    sb.Append("F");
+                }
+                else if (FinalMeleeAction == FinalStepAction.Hazy)
+                {
+                    sb.Append("w");
+                }
+                else if (FinalMeleeAction == FinalStepAction.FinishCombat)
+                {
+                    sb.Append("X");
+                }
+                parts.Add(sb.ToString());
+            }
+            supportsSteps = (Types & CommandType.Potions) != CommandType.None;
+            hasSteps = PotionsSteps != null;
+            if (supportsSteps && hasSteps)
+            {
+                sb = new StringBuilder();
+                if (hasSteps)
+                {
+                    foreach (var next in PotionsSteps)
+                    {
+                        sb.Append(GetPotionsStrategyStepCharacter(next));
+                    }
+                }
+                if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
+                {
+                    sb.Append("*");
+                }
+                if (FinalPotionsAction == FinalStepAction.Flee)
+                {
+                    sb.Append("F");
+                }
+                else if (FinalPotionsAction == FinalStepAction.Hazy)
+                {
+                    sb.Append("w");
+                }
+                else if (FinalPotionsAction == FinalStepAction.FinishCombat)
+                {
+                    sb.Append("X");
+                }
+                parts.Add(sb.ToString());
+            }
+            string ret;
+            if (parts.Count == 0)
+                ret = "No Steps";
+            else
+                ret = string.Join("+", parts.ToArray());
             return ret;
         }
 
@@ -210,16 +217,17 @@ namespace IsengardClient
         /// whether the strategy involves combat
         /// </summary>
         /// <param name="types">which command types to check</param>
+        /// <param name="CombatTypesToConsiderEnabled">which combat types to consider enabled</param>
         /// <returns>true if a combat strategy, false otherwise</returns>
-        public bool IsCombatStrategy(CommandType types)
+        public bool IsCombatStrategy(CommandType types, CommandType CombatTypesToConsiderEnabled)
         {
             bool ret = false;
             bool checkMagic = (types & CommandType.Magic) != CommandType.None;
             bool checkMelee = (types & CommandType.Melee) != CommandType.None;
             bool checkPotions = (types & CommandType.Potions) != CommandType.None;
-            bool magicEnabled = (TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
-            bool meleeEnabled = (TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
-            bool potionsEnabled = (TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            bool magicEnabled = (CombatTypesToConsiderEnabled & CommandType.Magic) != CommandType.None;
+            bool meleeEnabled = (CombatTypesToConsiderEnabled & CommandType.Melee) != CommandType.None;
+            bool potionsEnabled = (CombatTypesToConsiderEnabled & CommandType.Potions) != CommandType.None;
             if (MagicSteps != null && magicEnabled && checkMagic)
             {
                 foreach (var nextStep in MagicSteps)

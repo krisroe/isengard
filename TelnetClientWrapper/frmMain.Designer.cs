@@ -89,7 +89,6 @@
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
-            this.btnHeal = new System.Windows.Forms.Button();
             this.lblAutoEscapeValue = new System.Windows.Forms.Label();
             this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiAutoEscapeIsActive = new System.Windows.Forms.ToolStripMenuItem();
@@ -659,7 +658,6 @@
             this.pnlMain.Controls.Add(this.btnLocations);
             this.pnlMain.Controls.Add(this.btnIncrementWand);
             this.pnlMain.Controls.Add(this.grpSkillCooldowns);
-            this.pnlMain.Controls.Add(this.btnHeal);
             this.pnlMain.Controls.Add(this.lblAutoEscapeValue);
             this.pnlMain.Controls.Add(this.lblTime);
             this.pnlMain.Controls.Add(this.grpCurrentPlayer);
@@ -909,16 +907,6 @@
             this.grpSkillCooldowns.TabIndex = 138;
             this.grpSkillCooldowns.TabStop = false;
             this.grpSkillCooldowns.Text = "Skill Cooldowns";
-            // 
-            // btnHeal
-            // 
-            this.btnHeal.Location = new System.Drawing.Point(832, 597);
-            this.btnHeal.Name = "btnHeal";
-            this.btnHeal.Size = new System.Drawing.Size(77, 28);
-            this.btnHeal.TabIndex = 136;
-            this.btnHeal.Text = "Heal";
-            this.btnHeal.UseVisualStyleBackColor = true;
-            this.btnHeal.Click += new System.EventHandler(this.btnHeal_Click);
             // 
             // lblAutoEscapeValue
             // 
@@ -1969,7 +1957,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSetAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiAutoEscapeIsActive;
-        private System.Windows.Forms.Button btnHeal;
         private System.Windows.Forms.Label lblToNextLevelValue;
         private System.Windows.Forms.GroupBox grpSkillCooldowns;
         private System.Windows.Forms.Button btnIncrementWand;
