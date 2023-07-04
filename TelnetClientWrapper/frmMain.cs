@@ -4450,9 +4450,13 @@ StartTickRoomProcessing:
                                 {
                                     iCountToDisposeOf = iCountToGetRidOfFromInventory;
                                 }
-                                else if (didWithInherit.TickCount == int.MaxValue || iTickRoomCount >= didWithInherit.TickCount)
+                                else if (didWithInherit.TickCount == int.MaxValue)
                                 {
                                     iCountToDrop = iCountToGetRidOfFromInventory;
+                                }
+                                else if (iTickRoomCount >= didWithInherit.TickCount)
+                                {
+                                    iCountToDisposeOf = iCountToGetRidOfFromInventory;
                                 }
                                 else
                                 {

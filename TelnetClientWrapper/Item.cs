@@ -1746,6 +1746,7 @@ namespace IsengardClient
         [PluralName("slings")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
+        [Sellable(SellableEnum.Junk)]
         Sling,
 
         [SingularName("small ash bow")]
@@ -1757,6 +1758,7 @@ namespace IsengardClient
         [PluralName("small bags")]
         [ItemClass(ItemClass.Bag)]
         [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
         SmallBag,
 
         [SingularName("small knife")]
@@ -1785,6 +1787,7 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
         [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         SmallWoodenShield,
 
         [SingularName("speckled potion")]
