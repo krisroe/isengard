@@ -3765,10 +3765,11 @@ namespace IsengardClient
 
                     if (pms.FullBeforeStarting)
                     {
-                        //navigate to the tick room even if already full for consistent timing
-                        if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
-                        if (!GetFullInBackground(pms)) return;
-
+                        if (!IsFull(pms.ActiveSpells))
+                        {
+                            if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
+                            if (!GetFullInBackground(pms)) return;
+                        }
                         pms.PermRunStart = DateTime.UtcNow;
                     }
                 }
