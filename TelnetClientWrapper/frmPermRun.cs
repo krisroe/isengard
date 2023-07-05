@@ -67,9 +67,11 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, ActiveSpells activeSpellsToPromptFor)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, ActiveSpells activeSpellsToPromptFor, bool fullBeforeStarting)
         {
             InitializeComponent();
+
+            chkFullBeforeStarting.Checked = fullBeforeStarting;
 
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))

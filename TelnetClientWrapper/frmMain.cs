@@ -276,6 +276,26 @@ namespace IsengardClient
             DoConnect();
         }
 
+        //CSRTODO: this is player-specific
+        /// <summary>
+        /// retrieves healing room tick mp
+        /// </summary>
+        /// <returns>healing room tick MP</returns>
+        public int GetHealingRoomTickMP()
+        {
+            return 7;
+        }
+
+        //CSRTODO: this is player-specific
+        /// <summary>
+        /// retrieves healing room tick hp
+        /// </summary>
+        /// <returns>healing room tick HP</returns>
+        public int GetHealingRoomTickHP()
+        {
+            return 5;
+        }
+
         private void ReloadMap()
         {
             List<string> errorMessages = new List<string>();
@@ -4988,8 +5008,8 @@ BeforeHazy:
         /// <returns>true if successfully got to full, false otherwise</returns>
         private bool GetFullInBackground(BackgroundWorkerParameters pms, bool forStart)
         {
-            int iTickHP = 5; //CSRTODO: these are despug numbers
-            int iTickMP = 7;
+            int iTickHP = GetHealingRoomTickHP();
+            int iTickMP = GetHealingRoomTickMP();
             ActiveSpells activeSpells = pms.ActiveSpells;
             bool hasActiveSpell;
             string activeSpell;
@@ -7013,13 +7033,15 @@ BeforeHazy:
             else
                 inventoryFlow = InventoryProcessWorkflow.ProcessMonsterDrops;
 
+            bool defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
+
             string sMobText;
             MobTypeEnum? eMobType;
             int iMobIndex;
             bool fullBeforeStarting;
             bool fullAfterFinishing;
             Room targetRoom;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, eActiveSpellsToPrompt))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, eActiveSpellsToPrompt, defaultFullBeforeStarting))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
