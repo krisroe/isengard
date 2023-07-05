@@ -969,7 +969,8 @@ namespace IsengardClient
             tharbadGraph.Rooms[marketTrinkets] = new System.Windows.Point(6, 5);
 
             Room oEntranceToGypsyEncampment = AddRoom("Gypsy Encampment", "Entrance to Gypsy Encampment");
-            AddExit(oMasterJeweler, oEntranceToGypsyEncampment, "row");
+            e = AddExit(oMasterJeweler, oEntranceToGypsyEncampment, "row");
+            e.MaximumLevel = 13;
             AddExit(oEntranceToGypsyEncampment, oMasterJeweler, "market");
             tharbadGraph.Rooms[oEntranceToGypsyEncampment] = new System.Windows.Point(7, 6);
 
@@ -977,6 +978,7 @@ namespace IsengardClient
             AddBidirectionalExits(oEntranceToGypsyEncampment, oGypsyRow1, BidirectionalExitType.WestEast);
             e = AddExit(alley, oGypsyRow1, "north");
             e.Hidden = true;
+            e.MaximumLevel = 13;
             e = AddExit(oGypsyRow1, alley, "south");
             e.Hidden = true;
             tharbadGraph.Rooms[oGypsyRow1] = new System.Windows.Point(8, 6);
