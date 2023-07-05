@@ -286,7 +286,7 @@ namespace IsengardClient
         /// <returns>healing room tick HP</returns>
         public int GetHealingRoomTickHP()
         {
-            return 5;
+            return 6;
         }
 
         private void ReloadMap()
