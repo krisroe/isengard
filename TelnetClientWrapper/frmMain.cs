@@ -3742,11 +3742,11 @@ namespace IsengardClient
                         bool success;
                         if (cmdType == BackgroundCommandType.Search)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, null, false);
+                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, null, false) == CommandResult.CommandSuccessful;
                         }
                         else if (cmdType == BackgroundCommandType.Quit)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false);
+                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false) == CommandResult.CommandSuccessful;
                         }
                         else
                         {
@@ -3759,8 +3759,7 @@ namespace IsengardClient
                 }
 
                 Strategy strategy = pms.Strategy;
-                bool backgroundCommandSuccess;
-                CommandResult backgroundCommandResult;
+                CommandResult backgroundCommandResult = CommandResult.CommandSuccessful;
 
                 if (pms.FullBeforeStarting || pms.CureIfPoisoned)
                 {
@@ -3774,35 +3773,81 @@ namespace IsengardClient
                         AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
                         return;
                     }
-                    if (healPoison && (_automp < 4 || !CastSpellOnSelf("cure-poison", pms))) return;
+                    if (!_fleeing && !_hazying && healPoison)
+                    {
+                        SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
+                        if (_automp < sia.Mana)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            backgroundCommandResult = CastSpellOnSelf("cure-poison", pms);
+                            if (backgroundCommandResult != CommandResult.CommandSuccessful && backgroundCommandResult != CommandResult.CommandEscaped)
+                            {
+                                return;
+                            }
+                        }
+                    }
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (pms.FullBeforeStarting)
+                    if (!_fleeing && !_hazying && pms.FullBeforeStarting && !IsFull(pms.SpellsToCast))
                     {
-                        if (!IsFull(pms.SpellsToCast))
+                        if (!pms.TickRoom.HasValue)
                         {
-                            if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
-                            if (!GetFullInBackground(pms, true)) return;
+                            return;
+                        }
+                        backgroundCommandResult = NavigateToTickRoom(pms, true);
+                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                        {
+                            return;
+                        }
+                        if (!_hazying && !_fleeing)
+                        {
+                            backgroundCommandResult = GetFullInBackground(pms, true);
+                            if (backgroundCommandResult != CommandResult.CommandSuccessful && backgroundCommandResult != CommandResult.CommandEscaped)
+                            {
+                                return;
+                            }
                         }
                     }
                 }
-                if (pms.IsForPermRun())
+                if (!_fleeing && !_hazying && pms.IsForPermRun())
                 {
                     pms.PermRunStart = DateTime.UtcNow;
                 }
 
-                if (pms.TargetRoom != null)
+                if (!_fleeing && !_hazying)
                 {
-                    if (!NavigateToTargetRoom(pms)) return;
+                    bool moved = true;
+                    if (pms.TargetRoom != null)
+                    {
+                        backgroundCommandResult = NavigateToTargetRoom(pms, true);
+                    }
+                    else if (pms.Exits != null && pms.Exits.Count > 0)
+                    {
+                        backgroundCommandResult = TraverseExitsAlreadyInBackground(pms.Exits, pms, true);
+                    }
+                    else
+                    {
+                        moved = false;
+                    }
+                    if (moved)
+                    {
+                        if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                        {
+                            pms.AtDestination = true;
+                        }
+                        else if (backgroundCommandResult != CommandResult.CommandEscaped)
+                        {
+                            return;
+                        }
+                    }
                 }
-                else if (pms.Exits != null && pms.Exits.Count > 0)
-                {
-                    if (!TraverseExitsAlreadyInBackground(pms.Exits, pms)) return;
-                }
-                pms.AtDestination = true;
 
                 //verify the mob is present and attackable before activating skills
-                if (pms.IsForPermRun() && !AttackIsGoodToGo(pms))
+                if (_bw.CancellationPending) return;
+                if (!_hazying && !_fleeing && pms.IsForPermRun() && !AttackIsGoodToGo(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
@@ -3837,26 +3882,35 @@ namespace IsengardClient
                     }
                     foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
                     {
+                        if (_hazying || _fleeing) break;
+                        if (_bw.CancellationPending) return;
                         if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
                         {
-                            if (!DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms))
+                            backgroundCommandResult = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms);
+                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
                             }
                         }
                     }
                 }
-                if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
+                if (!_hazying && !_fleeing && ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield))
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
-                    if (!backgroundCommandSuccess) return;
+                    backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
+                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                    {
+                        return;
+                    }
                 }
-                if ((pms.UsedSkills & PromptedSkills.Fireshield) == PromptedSkills.Fireshield)
+                if (!_hazying && !_fleeing && ((pms.UsedSkills & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                    backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
-                    if (!backgroundCommandSuccess) return;
+                    backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
+                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                    {
+                        return;
+                    }
                 }
 
                 bool hasInitialQueuedMagicStep;
@@ -4049,8 +4103,15 @@ namespace IsengardClient
                                     }
                                     else if (result == MagicCommandChoiceResult.Cast)
                                     {
-                                        if (!RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage))
+                                        backgroundCommandResult = RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage);
+                                        if (backgroundCommandResult == CommandResult.CommandEscaped)
+                                        {
+                                            break; //break out of combat
+                                        }
+                                        else if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                        {
                                             return;
+                                        }
                                     }
                                 }
 
@@ -4114,8 +4175,15 @@ namespace IsengardClient
 
                                     GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
                                     WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
-                                    if (!RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage))
+                                    backgroundCommandResult = RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage);
+                                    if (backgroundCommandResult == CommandResult.CommandEscaped)
+                                    {
+                                        break; //break out of combat
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                    {
                                         return;
+                                    }
                                 }
 
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
@@ -4193,8 +4261,15 @@ namespace IsengardClient
                                     }
                                     else
                                     {
-                                        if (!RunBackgroundPotionsStep(BackgroundCommandType.DrinkNonHazyPotion, command, pms, potionsSteps, ref potionsStepsFinished, ref nextPotionsStep, ref dtNextPotionsCommand))
+                                        backgroundCommandResult = RunBackgroundPotionsStep(BackgroundCommandType.DrinkNonHazyPotion, command, pms, potionsSteps, ref potionsStepsFinished, ref nextPotionsStep, ref dtNextPotionsCommand);
+                                        if (backgroundCommandResult == CommandResult.CommandEscaped)
+                                        {
+                                            break; //break out of combat
+                                        }
+                                        else if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                        {
                                             return;
+                                        }
                                     }
                                 }
 
@@ -4230,7 +4305,11 @@ namespace IsengardClient
                                 {
                                     string sMobTextForLook = GetMobTarget(true);
                                     backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + sMobTextForLook, pms, AbortIfFleeingOrHazying, true);
-                                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                    if (backgroundCommandResult == CommandResult.CommandEscaped)
+                                    {
+                                        break; //break out of combat
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
                                     {
                                         return;
                                     }
@@ -4295,8 +4374,12 @@ namespace IsengardClient
 
                             if (canFlee)
                             {
-                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying, false);
-                                if (backgroundCommandSuccess)
+                                backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Flee, "flee", pms, AbortIfHazying, false);
+                                if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                {
+                                    return;
+                                }
+                                else if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                 {
                                     pms.Fled = true;
                                 }
@@ -4321,7 +4404,12 @@ namespace IsengardClient
                                     {
                                         nextCommand = sExitWord;
                                     }
-                                    if (RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfHazying, false))
+                                    backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfHazying, false);
+                                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                                    {
+                                        return;
+                                    }
+                                    else if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                     {
                                         _fleeing = false; //won't get a flee room transition in this case so clear the fleeing flag directly
                                         pms.Fled = true;
@@ -4346,10 +4434,7 @@ BeforeHazy:
                         //perform hazy logic
                         if (_hazying && (onMonsterKilledAction != AfterKillMonsterAction.StopCombat || !_monsterKilled))
                         {
-                            _backgroundProcessPhase = BackgroundProcessPhase.Hazy;
-
-                            backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.DrinkHazy, "drink hazy", pms, null, false);
-                            if (backgroundCommandSuccess)
+                            if (TryDrinkHazy(pms) == CommandResult.CommandSuccessful)
                             {
                                 pms.Hazied = true;
                             }
@@ -4384,11 +4469,38 @@ BeforeHazy:
 
                 if (!pms.Fled && !pms.Hazied)
                 {
-                    if (!DoInventoryManagement(pms)) return;
-                    if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
+                    backgroundCommandResult = DoInventoryManagement(pms);
+                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
                     {
-                        if (!NavigateToTickRoom(pms)) return;
-                        if (!GetFullInBackground(pms, false)) return;
+                        return;
+                    }
+                    if (!_hazying && pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
+                    {
+                        backgroundCommandResult = NavigateToTickRoom(pms, false);
+                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                        {
+                            return;
+                        }
+                        if (!_hazying)
+                        {
+                            backgroundCommandResult = GetFullInBackground(pms, false);
+                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                            {
+                                return;
+                            }
+                        }
+                    }
+
+                    if (_hazying)
+                    {
+                        if (TryDrinkHazy(pms) == CommandResult.CommandSuccessful)
+                        {
+                            pms.Hazied = true;
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
 
                     bool runScore = pms.DoScore;
@@ -4442,7 +4554,13 @@ BeforeHazy:
             }
         }
 
-        private bool DoInventoryManagement(BackgroundWorkerParameters pms)
+        private CommandResult TryDrinkHazy(BackgroundWorkerParameters pms)
+        {
+            _backgroundProcessPhase = BackgroundProcessPhase.Hazy;
+            return RunSingleCommand(BackgroundCommandType.DrinkHazy, "drink hazy", pms, null, false);
+        }
+
+        private CommandResult DoInventoryManagement(BackgroundWorkerParameters pms)
         {
             InventoryProcessWorkflow eInvProcess = pms.InventoryProcessWorkflow;
             CommandResult backgroundCommandResult;
@@ -4520,6 +4638,10 @@ BeforeHazy:
                                         }
                                         anythingCouldNotBePickedUpFromSourceRoom = true;
                                     }
+                                    else if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandEscaped)
+                                    {
+                                        return backgroundCommandResult;
+                                    }
                                     else
                                     {
                                         anythingFailedForSourceRoom = true;
@@ -4540,7 +4662,7 @@ BeforeHazy:
                 }
                 foreach (ItemEntity nextItem in monsterItemsToRemove) itemsToProcess.Remove(nextItem);
                 foreach (ItemEntity nextItem in itemsPickedUp) itemsToProcess.Remove(nextItem);
-                if (anythingFailedForSourceRoom) return false;
+                if (anythingFailedForSourceRoom) return CommandResult.CommandUnsuccessfulAlways;
 
                 List<ItemEntity> itemsToTick = new List<ItemEntity>();
                 List<ItemEntity> itemsToSellOrJunk = new List<ItemEntity>();
@@ -4565,13 +4687,17 @@ BeforeHazy:
                         else //don't know what to do with the item
                         {
                             AddConsoleMessage("Don't know what to do with " + itemType);
-                            return false;
+                            return CommandResult.CommandUnsuccessfulAlways;
                         }
                     }
                 }
 
                 //sell/junk anything that was picked up and should immediately be sold or junked
-                if (!SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone)) return false;
+                backgroundCommandResult = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResult;
+                }
                 itemsToSellOrJunk.Clear();
 
                 if (itemsToTick.Count > 0)
@@ -4579,12 +4705,16 @@ BeforeHazy:
                     if (!pms.TickRoom.HasValue)
                     {
                         AddConsoleMessage("No tick room specified.");
-                        return false;
+                        return CommandResult.CommandUnsuccessfulAlways;
                     }
 
                 StartTickRoomProcessing:
 
-                    if (!NavigateToTickRoom(pms)) return false;
+                    backgroundCommandResult = NavigateToTickRoom(pms, false);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResult;
+                    }
 
                     bool anythingCouldNotBePickedUpFromTickRoom = false;
                     bool anythingFailedForTickRoom = false;
@@ -4654,14 +4784,22 @@ BeforeHazy:
                                 }
                                 if (remove)
                                 {
-                                    if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, itemType, sItemText, pms) != CommandResult.CommandSuccessful) return false;
+                                    backgroundCommandResult = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, itemType, sItemText, pms);
+                                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                                    {
+                                        return backgroundCommandResult;
+                                    }
                                     lock (_entityLock)
                                     {
                                         sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
-                                        if (string.IsNullOrEmpty(sItemText)) return false;
+                                        if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
                                     }
                                 }
-                                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms) != CommandResult.CommandSuccessful) return false;
+                                backgroundCommandResult = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms);
+                                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                                {
+                                    return backgroundCommandResult;
+                                }
                                 somethingDone = true;
                             }
                             tickItemsProcessedForDropping.Add(itemType);
@@ -4671,7 +4809,11 @@ BeforeHazy:
                     //sell/junk anything from the inventory that should be sold or junked
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        if (!SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone)) return false;
+                        backgroundCommandResult = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                        {
+                            return backgroundCommandResult;
+                        }
                         itemsToSellOrJunk.Clear();
                         goto StartTickRoomProcessing;
                     }
@@ -4732,28 +4874,30 @@ BeforeHazy:
                             tickItemsProcessed.Add(itemType);
                         }
                     }
-                    if (anythingFailedForTickRoom) return false;
+                    if (anythingFailedForTickRoom) return CommandResult.CommandUnsuccessfulAlways;
 
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        if (SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone))
+                        backgroundCommandResult = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
                         {
-                            itemsToSellOrJunk.Clear();
-                            if (anythingCouldNotBePickedUpFromTickRoom)
-                            {
-                                goto StartTickRoomProcessing;
-                            }
+                            return backgroundCommandResult;
                         }
-                        else
+                        itemsToSellOrJunk.Clear();
+                        if (anythingCouldNotBePickedUpFromTickRoom)
                         {
-                            return false;
+                            goto StartTickRoomProcessing;
                         }
                     }
                 }
 
                 if (anythingCouldNotBePickedUpFromSourceRoom)
                 {
-                    if (!NavigateToTargetRoom(pms)) return false;
+                    backgroundCommandResult = NavigateToTargetRoom(pms, false);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResult;
+                    }
                     pms.AtDestination = true;
                     if (somethingDone)
                     {
@@ -4761,21 +4905,28 @@ BeforeHazy:
                     }
                     else
                     {
-                        return false;
+                        return CommandResult.CommandUnsuccessfulAlways;
                     }
                 }
             }
-            return true;
+            CommandResult ret;
+            if (_bw.CancellationPending)
+                ret = CommandResult.CommandAborted;
+            if (_hazying)
+                ret = CommandResult.CommandEscaped;
+            else
+                ret = CommandResult.CommandSuccessful;
+            return ret;
         }
 
-        private bool DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms)
+        private CommandResult DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms)
         {
             string sItemText;
             bool removeHeldPotion = false;
             ItemTypeEnum? potItem;
             lock (_entityLock)
             {
-                if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return false;
+                if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return CommandResult.CommandUnsuccessfulAlways;
                 ItemLocationType ilt = inInventory.Value ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, potItem.Value, 1, false, ilt == ItemLocationType.Equipment);
                 if (string.IsNullOrEmpty(sItemText) && ilt == ItemLocationType.Equipment)
@@ -4788,39 +4939,44 @@ BeforeHazy:
                 lock (_entityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
-                    if (string.IsNullOrEmpty(sItemText)) return false;
+                    if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
                 }
-                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms) != CommandResult.CommandSuccessful) return false;
+                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms) != CommandResult.CommandSuccessful) return CommandResult.CommandUnsuccessfulAlways;
                 lock (_entityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
                 }
-                if (string.IsNullOrEmpty(sItemText)) return false;
+                if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
             }
             return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, AbortIfFleeingOrHazying, false);
         }
 
-        private bool NavigateToTargetRoom(BackgroundWorkerParameters pms)
+        private CommandResult NavigateToTargetRoom(BackgroundWorkerParameters pms, bool allowFlee)
         {
-            return NavigateToSpecificRoom(pms.TargetRoom, pms);
+            return NavigateToSpecificRoom(pms.TargetRoom, pms, allowFlee);
         }
 
-        private bool NavigateToTickRoom(BackgroundWorkerParameters pms)
+        private CommandResult NavigateToTickRoom(BackgroundWorkerParameters pms, bool allowFlee)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.TickRoom.Value], pms);
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.TickRoom.Value], pms, allowFlee);
         }
 
-        private bool NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms)
+        private CommandResult NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool allowFlee)
         {
             Room currentRoom = _currentEntityInfo.CurrentRoom;
+            CommandResult backgroundCommandResult;
             if (currentRoom != r)
             {
                 var nextRoute = CalculateRouteExits(currentRoom, r, true);
-                if (nextRoute == null) return false;
-                if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return false;
+                if (nextRoute == null) return CommandResult.CommandUnsuccessfulAlways;
+                backgroundCommandResult = TraverseExitsAlreadyInBackground(nextRoute, pms, allowFlee);
+            }
+            else
+            {
+                backgroundCommandResult = CommandResult.CommandSuccessful;
             }
             pms.AtDestination = r == pms.TargetRoom;
-            return true;
+            return backgroundCommandResult;
         }
 
         private bool IsFull(WorkflowSpells castWorkflowSpells)
@@ -4850,23 +5006,28 @@ BeforeHazy:
             return ret;
         }
 
-        private bool SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
+        private CommandResult SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
         {
+            CommandResult backgroundCommandResult;
             bool success = true;
             if (items.Count > 0)
             {
                 if (!pms.PawnShop.HasValue)
                 {
                     AddConsoleMessage("No pawn shop available.");
-                    return false;
+                    return CommandResult.CommandUnsuccessfulAlways;
                 }
                 Room currentRoom = _currentEntityInfo.CurrentRoom;
                 Room targetRoom = _gameMap.PawnShoppes[pms.PawnShop.Value];
                 if (currentRoom != targetRoom)
                 {
                     List<Exit> nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
-                    if (nextRoute == null) return false;
-                    if (!TraverseExitsAlreadyInBackground(nextRoute, pms)) return false;
+                    if (nextRoute == null) return CommandResult.CommandUnsuccessfulAlways;
+                    backgroundCommandResult = TraverseExitsAlreadyInBackground(nextRoute, pms, false);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResult;
+                    }
                 }
                 foreach (ItemEntity nextItem in items)
                 {
@@ -4913,7 +5074,14 @@ BeforeHazy:
                     }
                 }
             }
-            return success;
+            CommandResult ret;
+            if (_bw.CancellationPending)
+                ret = CommandResult.CommandAborted;
+            else if (_hazying)
+                ret = CommandResult.CommandEscaped;
+            else
+                ret = CommandResult.CommandSuccessful;
+            return ret;
         }
 
         private bool AttackIsGoodToGo(BackgroundWorkerParameters pms)
@@ -4971,6 +5139,7 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResult TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms)
         {
+            CommandResult backgroundCommandResult;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
             bool checkWeight = sid.Weight == 0;
             int beforeWeight = 0;
@@ -4978,9 +5147,10 @@ BeforeHazy:
             int beforeGold = _gold;
             if (checkWeight)
             {
-                if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true) != CommandResult.CommandSuccessful)
+                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true);
+                if (backgroundCommandResult != CommandResult.CommandSuccessful)
                 {
-                    return CommandResult.CommandUnsuccessfulAlways;
+                    return backgroundCommandResult;
                 }
                 lock (_entityLock)
                 {
@@ -5061,37 +5231,55 @@ BeforeHazy:
         /// <param name="pms">background worker parameters</param>
         /// <param name="needCurePoison">whether cure-poison is needed</param>
         /// <returns>true if cure-poison was successfully cast if needed and hitpoints got to maximum</returns>
-        private bool GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
+        private CommandResult GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
         {
+            CommandResult nextCommandResult;
             if (needCurePoison)
             {
                 SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
                 if ((pms.SpellsToPotion & WorkflowSpells.CurePoison) != WorkflowSpells.None)
                 {
-                    if (DrinkPotionForSpell(siaCurePoison, pms))
+                    nextCommandResult = DrinkPotionForSpell(siaCurePoison, pms);
+                    if (nextCommandResult == CommandResult.CommandSuccessful)
                     {
                         needCurePoison = false;
+                    }
+                    else if (nextCommandResult == CommandResult.CommandAborted || nextCommandResult == CommandResult.CommandTimeout || nextCommandResult == CommandResult.CommandEscaped)
+                    {
+                        return nextCommandResult;
                     }
                 }
                 if (needCurePoison && ((pms.SpellsToCast & WorkflowSpells.CurePoison) != WorkflowSpells.None))
                 {
-                    if (_automp >= siaCurePoison.Mana && CastSpellOnSelf("cure-poison", pms))
+                    if (_automp >= siaCurePoison.Mana)
                     {
-                        needCurePoison = false;
+                        nextCommandResult = CastSpellOnSelf("cure-poison", pms);
+                        if (nextCommandResult == CommandResult.CommandSuccessful)
+                        {
+                            needCurePoison = false;
+                        }
+                        else if (nextCommandResult == CommandResult.CommandAborted || nextCommandResult == CommandResult.CommandTimeout || nextCommandResult == CommandResult.CommandEscaped)
+                        {
+                            return nextCommandResult;
+                        }
                     }
                 }
                 if (needCurePoison)
                 {
                     AddConsoleMessage("Unable to cure poison.");
-                    return false;
+                    return CommandResult.CommandUnsuccessfulAlways;
                 }
             }
             SpellInformationAttribute siaVigor = SpellsStatic.SpellsByEnum[SpellsEnum.vigor];
             while (_autohp < _totalhp && _automp >= siaVigor.Mana)
             {
-                if (!CastSpellOnSelf("vigor", pms)) return false;
+                nextCommandResult = CastSpellOnSelf("vigor", pms);
+                if (nextCommandResult != CommandResult.CommandSuccessful)
+                {
+                    return nextCommandResult;
+                }
             }
-            return true;
+            return CommandResult.CommandSuccessful;
         }
 
         /// <summary>
@@ -5100,12 +5288,13 @@ BeforeHazy:
         /// <param name="pms">background parameters</param>
         /// <param name="forStart">true for before starting the perm run, false for after finishing the perm run</param>
         /// <returns>true if successfully got to full, false otherwise</returns>
-        private bool GetFullInBackground(BackgroundWorkerParameters pms, bool forStart)
+        private CommandResult GetFullInBackground(BackgroundWorkerParameters pms, bool forStart)
         {
             int iTickHP = GetHealingRoomTickHP();
             int iTickMP = GetHealingRoomTickMP();
             WorkflowSpells spellsToCast = pms.SpellsToCast;
             spellsToCast &= ~WorkflowSpells.CurePoison;
+            CommandResult backgroundCommandResult;
             while (!IsFull(spellsToCast))
             {
                 int automp = _automp;
@@ -5116,7 +5305,11 @@ BeforeHazy:
                 bool castSomething = false;
                 if (numTicksForFullHP > numTicksForFullMP)
                 {
-                    if (!CastSpellOnSelf("vigor", pms)) return false;
+                    backgroundCommandResult = CastSpellOnSelf("vigor", pms);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResult;
+                    }
                     castSomething = true;
                 }
                 else
@@ -5128,7 +5321,7 @@ BeforeHazy:
                             //after the workflow, at full hp and less than one tick of mp left. Even though not technically full, the user can
                             //make a decision whether to do something at slightly less than full mp, so stop the fulling
                             //at this point.
-                            return true;
+                            return CommandResult.CommandSuccessful;
                         }
                         else if (autohp + iTickHP > _totalhp)
                         {
@@ -5145,7 +5338,11 @@ BeforeHazy:
                                     }
                                     if (!hasSpellActive && _automp >= sia.Mana)
                                     {
-                                        if (!CastSpellOnSelf(spellName, pms)) return false;
+                                        backgroundCommandResult = CastSpellOnSelf(spellName, pms);
+                                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                                        {
+                                            return backgroundCommandResult;
+                                        }
                                         castSomething = true;
                                         spellsToCast &= ~nextSpell;
                                         break;
@@ -5163,18 +5360,16 @@ BeforeHazy:
                     {
                         Thread.Sleep(50);
                         waitInterval -= 50;
-                        if (_fleeing) break;
-                        if (_hazying) break;
-                        if (_bw.CancellationPending) break;
+                        if (_fleeing || _hazying) return CommandResult.CommandEscaped;
+                        if (_bw.CancellationPending) return CommandResult.CommandAborted;
                         RunQueuedCommandWhenBackgroundProcessRunning(pms);
                     }
                 }
-                if (_fleeing) break;
-                if (_hazying) break;
-                if (_bw.CancellationPending) break;
+                if (_fleeing || _hazying) return CommandResult.CommandEscaped;
+                if (_bw.CancellationPending) return CommandResult.CommandAborted;
                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
             }
-            return true;
+            return CommandResult.CommandSuccessful;
         }
 
         public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP, IsengardSettingData settings)
@@ -5229,8 +5424,13 @@ BeforeHazy:
             return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
         }
 
-        private bool TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms)
+        private CommandResult TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms, bool allowFlee)
         {
+            Func<bool> abortLogic;
+            if (allowFlee)
+                abortLogic = AbortIfFleeingOrHazying;
+            else
+                abortLogic = AbortIfHazying;
             Exit previousExit = null;
             _backgroundProcessPhase = BackgroundProcessPhase.Movement;
             List<Exit> exitList = new List<Exit>(exits);
@@ -5238,14 +5438,13 @@ BeforeHazy:
             bool needHeal = false;
             bool needCurepoison = false;
             CommandResult backgroundCommandResult;
-            bool backgroundCommandSuccess;
             while (exitList.Count > 0)
             {
                 Exit nextExit = exitList[0];
                 if (previousExit != null && previousExit == nextExit)
                 {
                     AddConsoleMessage("Movement recalculation produced the same path.");
-                    return false;
+                    return CommandResult.CommandUnsuccessfulAlways;
                 }
                 Room nextExitTarget = nextExit.Target;
                 string exitText = nextExit.ExitText;
@@ -5262,7 +5461,7 @@ BeforeHazy:
                         {
                             if (presenceType == ExitPresenceType.Periodic)
                             {
-                                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfFleeingOrHazying, false);
+                                backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, abortLogic, false);
                                 if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                 {
                                     if (_currentEntityInfo.CurrentObviousExits.Contains(exitText))
@@ -5276,14 +5475,14 @@ BeforeHazy:
                                 }
                                 else //look is not supposed to fail (but could be aborted)
                                 {
-                                    return false;
+                                    return backgroundCommandResult;
                                 }
                             }
                             else if (presenceType == ExitPresenceType.RequiresSearch)
                             {
                                 _foundSearchedExits = null;
-                                backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying, false);
-                                if (backgroundCommandSuccess)
+                                backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Search, "search", pms, abortLogic, false);
+                                if (backgroundCommandResult == CommandResult.CommandSuccessful)
                                 {
                                     if (_foundSearchedExits.Contains(exitText))
                                     {
@@ -5292,7 +5491,7 @@ BeforeHazy:
                                 }
                                 else
                                 {
-                                    return false;
+                                    return backgroundCommandResult;
                                 }
                             }
                             else
@@ -5308,34 +5507,41 @@ BeforeHazy:
                     {
                         while (!_currentBackgroundExitMessageReceived)
                         {
-                            if (_fleeing) break;
-                            if (_hazying) break;
-                            if (_bw.CancellationPending) break;
+                            if (allowFlee && _fleeing) return CommandResult.CommandEscaped;
+                            if (_hazying) return CommandResult.CommandEscaped;
+                            if (_bw.CancellationPending) return CommandResult.CommandAborted;
                             Thread.Sleep(50);
                             RunQueuedCommandWhenBackgroundProcessRunning(pms);
                         }
                     }
 
-                    if (_fleeing) break;
-                    if (_hazying) break;
-                    if (_bw.CancellationPending) break;
+                    if (allowFlee && _fleeing) return CommandResult.CommandEscaped;
+                    if (_hazying) return CommandResult.CommandEscaped;
+                    if (_bw.CancellationPending) return CommandResult.CommandAborted;
 
                     if ((nextExit.KeyType.HasValue || nextExit.IsUnknownKnockableKeyType) && !nextExit.RequiresKey())
                     {
-                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, AbortIfFleeingOrHazying, false);
-                        if (!backgroundCommandSuccess) return false;
+                        backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, abortLogic, false);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                        {
+                            return backgroundCommandResult;
+                        }
                     }
 
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
                     {
-                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying, false);
-                        if (!backgroundCommandSuccess) return false;
+                        backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying, false);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                        {
+                            return backgroundCommandResult;
+                        }
                     }
                     bool useGo;
                     string sExitWord = GetExitWord(nextExit, out useGo);
-                    if (!PreOpenDoorExit(nextExit, sExitWord, pms))
+                    backgroundCommandResult = PreOpenDoorExit(nextExit, sExitWord, pms);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
                     {
-                        return false;
+                        return backgroundCommandResult;
                     }
                     string nextCommand;
                     if (useGo)
@@ -5351,8 +5557,8 @@ BeforeHazy:
                     bool keepTryingMovement = true;
                     while (keepTryingMovement)
                     {
-                        backgroundCommandSuccess = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, AbortIfFleeingOrHazying, false);
-                        if (backgroundCommandSuccess) //successfully traversed the exit to the new room
+                        backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, null, false);
+                        if (backgroundCommandResult == CommandResult.CommandSuccessful) //successfully traversed the exit to the new room
                         {
                             exitList.RemoveAt(0);
                             keepTryingMovement = false;
@@ -5379,7 +5585,7 @@ BeforeHazy:
                             }
                             else //couldn't recalculate a new route
                             {
-                                return false;
+                                return CommandResult.CommandUnsuccessfulAlways;
                             }
                             keepTryingMovement = false;
                         }
@@ -5390,26 +5596,30 @@ BeforeHazy:
                         }
                         else if (_lastCommandMovementResult == MovementResult.ClosedDoorFailure)
                         {
-                            bool openSuccess = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying, false);
-                            if (openSuccess)
+                            backgroundCommandResult = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying, false);
+                            if (backgroundCommandResult == CommandResult.CommandSuccessful)
                             {
                                 keepTryingMovement = true;
                             }
-                            else //couldn't open the door
+                            else
                             {
-                                return false;
+                                return backgroundCommandResult;
                             }
                         }
                         else if (_lastCommandMovementResult == MovementResult.FallFailure)
                         {
-                            if (!GetFullHitpoints(pms, needCurepoison)) return false;
+                            backgroundCommandResult = GetFullHitpoints(pms, needCurepoison);
+                            if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                            {
+                                return backgroundCommandResult;
+                            }
                             SendCommand("stand", InputEchoType.On);
                             keepTryingMovement = true;
                         }
                         else //total failure, abort the background process
                         {
                             keepTryingMovement = false;
-                            return false;
+                            return CommandResult.CommandUnsuccessfulAlways;
                         }
                     }
                     if (needHeal || needCurepoison)
@@ -5431,7 +5641,11 @@ BeforeHazy:
                         }
                         if (doHealingLogic)
                         {
-                            if (!GetFullHitpoints(pms, needCurepoison)) return false;
+                            backgroundCommandResult = GetFullHitpoints(pms, needCurepoison);
+                            if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                            {
+                                return backgroundCommandResult;
+                            }
                             needHeal = false;
                             needCurepoison = false;
                         }
@@ -5443,7 +5657,14 @@ BeforeHazy:
                     _foundSearchedExits = null;
                 }
             }
-            return true;
+            CommandResult ret;
+            if (_bw.CancellationPending)
+                ret = CommandResult.CommandAborted;
+            else if (_hazying || _fleeing)
+                ret = CommandResult.CommandEscaped;
+            else
+                ret = CommandResult.CommandSuccessful;
+            return ret;
         }
 
         private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, CurrentEntityInfo inventoryEquipment, bool canVigor, bool canMend)
@@ -5789,12 +6010,12 @@ BeforeHazy:
             return ret;
         }
 
-        private bool RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
+        private CommandResult RunBackgroundMeleeStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<MeleeStrategyStep> meleeSteps, ref bool meleeStepsFinished, ref MeleeStrategyStep? nextMeleeStep, ref DateTime? dtNextMeleeCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying, false);
-            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandEscaped)
             {
-                return false;
+                //do nothing
             }
             else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
             {
@@ -5840,15 +6061,15 @@ BeforeHazy:
             {
                 throw new InvalidOperationException();
             }
-            return true;
+            return backgroundCommandResult;
         }
 
-        private bool RunBackgroundPotionsStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<PotionsStrategyStep> potionsSteps, ref bool potionsStepsFinished, ref PotionsStrategyStep? nextPotionsStep, ref DateTime? dtNextPotionsCommand)
+        private CommandResult RunBackgroundPotionsStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, IEnumerator<PotionsStrategyStep> potionsSteps, ref bool potionsStepsFinished, ref PotionsStrategyStep? nextPotionsStep, ref DateTime? dtNextPotionsCommand)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying, false);
-            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandEscaped)
             {
-                return false;
+                //do nothing
             }
             else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
             {
@@ -5890,15 +6111,15 @@ BeforeHazy:
             {
                 throw new InvalidOperationException();
             }
-            return true;
+            return backgroundCommandResult;
         }
 
-        private bool RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
+        private CommandResult RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
         {
             CommandResult backgroundCommandResult = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying, false);
-            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandEscaped)
             {
-                return false;
+                //do nothing
             }
             else if (backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
             {
@@ -5953,7 +6174,7 @@ BeforeHazy:
             {
                 throw new InvalidOperationException();
             }
-            return true;
+            return backgroundCommandResult;
         }
 
         private void CheckForQueuedMagicStep(BackgroundWorkerParameters pms, ref MagicStrategyStep? nextMagicStep)
@@ -6096,21 +6317,21 @@ BeforeHazy:
             return ret;
         }
 
-        private bool PreOpenDoorExit(Exit exit, string exitWord, BackgroundWorkerParameters pms)
+        private CommandResult PreOpenDoorExit(Exit exit, string exitWord, BackgroundWorkerParameters pms)
         {
-            bool ret;
+            CommandResult ret;
             if (exit.MustOpen)
             {
                 ret = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitWord, pms, AbortIfFleeingOrHazying, false);
             }
             else //not a door exit
             {
-                ret = true;
+                ret = CommandResult.CommandSuccessful;
             }
             return ret;
         }
 
-        private bool CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp)
+        private CommandResult CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp)
         {
             BackgroundCommandType bct;
             switch (spellName)
@@ -6267,9 +6488,14 @@ BeforeHazy:
                     bool doSleep = true;
                     if (allowAbort)
                     {
-                        if (_bw.CancellationPending || (abortLogic != null && abortLogic()))
+                        if (_bw.CancellationPending)
                         {
                             currentResult = CommandResult.CommandAborted;
+                            doSleep = false;
+                        }
+                        else if (abortLogic != null && abortLogic())
+                        {
+                            currentResult = CommandResult.CommandEscaped;
                             doSleep = false;
                         }
                         else if (DateTime.UtcNow >= utcTimeoutPoint)
@@ -6314,26 +6540,35 @@ BeforeHazy:
             }
         }
 
-        private bool RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden)
+        /// <summary>
+        /// runs a single command, repeating the attempt if waiting is needed or the command is unreliable
+        /// </summary>
+        /// <param name="commandType">command type</param>
+        /// <param name="command">command to run</param>
+        /// <param name="pms">background worker parameters</param>
+        /// <param name="abortLogic">abort logic</param>
+        /// <param name="hidden">whether the output of the command should be hidden</param>
+        /// <returns>result of the operation</returns>
+        private CommandResult RunSingleCommand(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden)
         {
             int currentAttempts = 0;
-            bool commandSucceeded = false;
             _backgroundCommandType = commandType;
             try
             {
                 CommandResult? result = null;
                 bool allowAbort = commandType != BackgroundCommandType.Movement;
-                while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND && !commandSucceeded)
+                while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND)
                 {
-                    if (_bw.CancellationPending) break;
-                    if (abortLogic != null && abortLogic()) break;
+                    if (_bw.CancellationPending) return CommandResult.CommandAborted;
+                    if (abortLogic != null && abortLogic()) return CommandResult.CommandEscaped;
+                    currentAttempts++;
                     result = RunSingleCommandForCommandResult(command, pms, abortLogic, hidden, allowAbort);
                     if (result.HasValue)
                     {
                         CommandResult resultValue = result.Value;
-                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted || resultValue == CommandResult.CommandTimeout)
+                        if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted || resultValue == CommandResult.CommandTimeout || resultValue == CommandResult.CommandEscaped)
                         {
-                            break;
+                            return resultValue;
                         }
                         else if (resultValue == CommandResult.CommandMustWait)
                         {
@@ -6349,7 +6584,8 @@ BeforeHazy:
                         }
                     }
                 }
-                return result.GetValueOrDefault(CommandResult.CommandUnsuccessfulAlways) == CommandResult.CommandSuccessful;
+                //if we got here we failed for all attempts, so it's reasonable to say it always fails here
+                return CommandResult.CommandUnsuccessfulAlways;
             }
             finally
             {

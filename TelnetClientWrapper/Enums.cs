@@ -71,6 +71,11 @@ namespace IsengardClient
         /// no response was processed from the server within the timeout interval
         /// </summary>
         CommandTimeout,
+
+        /// <summary>
+        /// background process was stopped because an escape is being attempted
+        /// </summary>
+        CommandEscaped,
     }
 
     internal enum BackgroundCommandType
