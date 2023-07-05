@@ -4917,7 +4917,7 @@ BeforeHazy:
                 if (commandType == BackgroundCommandType.SellItem)
                 {
                     int goldDifference = _gold - beforeGold;
-                    if (goldDifference > 0 && (sid.SellGold == 0 || sid.SellGold != goldDifference))
+                    if (goldDifference > 0 && (sid.SellGold == 0 || goldDifference > sid.SellGold))
                     {
                         broadcastMessages = new List<string>()
                         {
@@ -4990,8 +4990,18 @@ BeforeHazy:
             string activeSpell;
             while (!IsFull(pms.ActiveSpells))
             {
+                int automp = _automp;
+                int autohp = _autohp;
+                int numTicksForFullMP = (_totalmp - automp - 1) / iTickMP + 1;
+                int numTicksForFullHP = (_totalhp - autohp - 1) / iTickHP + 1;
+
                 bool castSomething = false;
-                if ((_autohp + iTickHP > _totalhp) && (_automp + iTickMP > _totalmp)) //wait until almost full before casting spells
+                if (numTicksForFullHP > numTicksForFullMP)
+                {
+                    if (!CastLifeSpell("vigor", pms)) return false;
+                    castSomething = true;
+                }
+                else if ((autohp + iTickHP > _totalhp) && (automp + iTickMP > _totalmp)) //wait until almost full before casting spells
                 {
                     if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
                     {
@@ -5000,29 +5010,24 @@ BeforeHazy:
                         {
                             hasActiveSpell = _spellsCast.Contains(activeSpell);
                         }
-                        if (!hasActiveSpell && _automp >= 8)
+                        if (!hasActiveSpell && automp >= 8)
                         {
                             if (!CastLifeSpell(activeSpell, pms)) return false;
                             castSomething = true;
                         }
                     }
-                    if ((activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
+                    if (!castSomething && (activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
                     {
                         activeSpell = "protection";
                         lock (_spellsCastLock)
                         {
                             hasActiveSpell = _spellsCast.Contains(activeSpell);
                         }
-                        if (!hasActiveSpell && _automp >= 8)
+                        if (!hasActiveSpell && automp >= 8)
                         {
                             if (!CastLifeSpell(activeSpell, pms)) return false;
                             castSomething = true;
                         }
-                    }
-                    if (_autohp < _totalhp && _automp >= 2)
-                    {
-                        if (!CastLifeSpell("vigor", pms)) return false;
-                        castSomething = true;
                     }
                 }
                 if (!castSomething)
@@ -5035,11 +5040,13 @@ BeforeHazy:
                         if (_fleeing) break;
                         if (_hazying) break;
                         if (_bw.CancellationPending) break;
+                        RunQueuedCommandWhenBackgroundProcessRunning(pms);
                     }
                 }
                 if (_fleeing) break;
                 if (_hazying) break;
                 if (_bw.CancellationPending) break;
+                RunQueuedCommandWhenBackgroundProcessRunning(pms);
             }
             return true;
         }
