@@ -1165,6 +1165,17 @@ namespace IsengardClient
         [Sellable(123)]
         HalfGiantChainMailGloves,
 
+        [SingularName("half-giant chain mail hood")]
+        [PluralName("half-giant chain mail hoods")]
+        [Weight(13)]
+        [Sellable(185)]
+        HalfGiantChainMailHood,
+
+        [SingularName("half-giant chain mail leggings")]
+        [Weight(15)]
+        [Sellable(185)]
+        HalfGiantChainMailLeggings,
+
         [SingularName("hand axe")]
         [PluralName("hand axes")]
         [WeaponType(WeaponType.Slash)]
