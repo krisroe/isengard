@@ -11,6 +11,7 @@ namespace IsengardClient
         private Room _currentRoom;
         private CheckBox _chkPowerAttack;
         private CurrentEntityInfo _currentEntityInfo;
+        private AutoSpellLevelOverrides _autoSpellLevelInfo;
 
         public Strategy SelectedStrategy { get; set; }
 
@@ -173,6 +174,7 @@ namespace IsengardClient
                 }
             }
 
+            _autoSpellLevelInfo = new AutoSpellLevelOverrides(strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue);
             foreach (Strategy s in settingsData.Strategies)
             {
                 cboStrategy.Items.Add(s);
@@ -188,6 +190,9 @@ namespace IsengardClient
             chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
             cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
+            _autoSpellLevelInfo.Minimum = Strategy.AutoSpellLevelMin;
+            _autoSpellLevelInfo.Maximum = Strategy.AutoSpellLevelMax;
+            _autoSpellLevelInfo.RefreshAutoSpellLevelUI();
             RefreshUIFromEffectiveStrategy();
         }
 
@@ -262,6 +267,8 @@ namespace IsengardClient
             Strategy selectedStrategy = new Strategy((Strategy)cboStrategy.SelectedItem);
             selectedStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
             selectedStrategy.TypesWithStepsEnabled = GetSelectedCombatTypes();
+            selectedStrategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum;
+            selectedStrategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum;
 
             IsCombatStrategy = selectedStrategy.IsCombatStrategy(CommandType.All, selectedStrategy.TypesWithStepsEnabled);
             if (IsCombatStrategy)

@@ -57,13 +57,15 @@
             this.chkFullAfterFinishing = new System.Windows.Forms.CheckBox();
             this.lblStrategy = new System.Windows.Forms.Label();
             this.cboStrategy = new System.Windows.Forms.ComboBox();
+            this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
+            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.grpStrategyModifications.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(676, 391);
+            this.btnOK.Location = new System.Drawing.Point(676, 407);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(140, 43);
@@ -76,7 +78,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(827, 391);
+            this.btnCancel.Location = new System.Drawing.Point(827, 407);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(140, 43);
@@ -165,6 +167,8 @@
             // 
             // grpStrategyModifications
             // 
+            this.grpStrategyModifications.Controls.Add(this.lblAutoSpellLevels);
+            this.grpStrategyModifications.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
             this.grpStrategyModifications.Controls.Add(this.cboOnKillMonster);
             this.grpStrategyModifications.Controls.Add(this.lblOnKillMonster);
             this.grpStrategyModifications.Controls.Add(this.chkPotions);
@@ -172,7 +176,7 @@
             this.grpStrategyModifications.Controls.Add(this.chkMagic);
             this.grpStrategyModifications.Location = new System.Drawing.Point(122, 280);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
-            this.grpStrategyModifications.Size = new System.Drawing.Size(528, 118);
+            this.grpStrategyModifications.Size = new System.Drawing.Size(528, 129);
             this.grpStrategyModifications.TabIndex = 11;
             this.grpStrategyModifications.TabStop = false;
             this.grpStrategyModifications.Text = "Strategy Modifications";
@@ -186,7 +190,7 @@
             "Stop Combat",
             "Fight First Monster",
             "Fight First Same Monster"});
-            this.cboOnKillMonster.Location = new System.Drawing.Point(173, 75);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(172, 60);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
             this.cboOnKillMonster.TabIndex = 148;
@@ -194,7 +198,7 @@
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(15, 80);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(14, 65);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(121, 19);
             this.lblOnKillMonster.TabIndex = 147;
@@ -279,7 +283,7 @@
             // 
             this.cboInventoryFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboInventoryFlow.FormattingEnabled = true;
-            this.cboInventoryFlow.Location = new System.Drawing.Point(122, 405);
+            this.cboInventoryFlow.Location = new System.Drawing.Point(122, 416);
             this.cboInventoryFlow.Margin = new System.Windows.Forms.Padding(4);
             this.cboInventoryFlow.Name = "cboInventoryFlow";
             this.cboInventoryFlow.Size = new System.Drawing.Size(522, 27);
@@ -288,7 +292,7 @@
             // lvlInventoryFlow
             // 
             this.lvlInventoryFlow.AutoSize = true;
-            this.lvlInventoryFlow.Location = new System.Drawing.Point(17, 411);
+            this.lvlInventoryFlow.Location = new System.Drawing.Point(17, 422);
             this.lvlInventoryFlow.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lvlInventoryFlow.Name = "lvlInventoryFlow";
             this.lvlInventoryFlow.Size = new System.Drawing.Size(68, 19);
@@ -364,11 +368,31 @@
             this.cboStrategy.Size = new System.Drawing.Size(528, 27);
             this.cboStrategy.TabIndex = 24;
             // 
+            // lblCurrentAutoSpellLevelsValue
+            // 
+            this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
+            this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
+            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(172, 90);
+            this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
+            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(234, 27);
+            this.lblCurrentAutoSpellLevelsValue.TabIndex = 149;
+            this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
+            this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblAutoSpellLevels
+            // 
+            this.lblAutoSpellLevels.AutoSize = true;
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(14, 94);
+            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
+            this.lblAutoSpellLevels.Size = new System.Drawing.Size(160, 24);
+            this.lblAutoSpellLevels.TabIndex = 150;
+            this.lblAutoSpellLevels.Text = "Auto spell levels:";
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(981, 448);
+            this.ClientSize = new System.Drawing.Size(981, 464);
             this.ControlBox = false;
             this.Controls.Add(this.cboStrategy);
             this.Controls.Add(this.lblStrategy);
@@ -436,5 +460,7 @@
         private System.Windows.Forms.CheckBox chkFullAfterFinishing;
         private System.Windows.Forms.Label lblStrategy;
         private System.Windows.Forms.ComboBox cboStrategy;
+        private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
+        private System.Windows.Forms.Label lblAutoSpellLevels;
     }
 }

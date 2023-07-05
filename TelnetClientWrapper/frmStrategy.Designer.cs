@@ -34,11 +34,6 @@
             this.lblMagicOnlyWhenStunnedForXMS = new System.Windows.Forms.Label();
             this.chkMagicEnabled = new System.Windows.Forms.CheckBox();
             this.lblAutoSpellLevels = new System.Windows.Forms.Label();
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetCurrentMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiInheritAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
             this.lblMagicFinalAction = new System.Windows.Forms.Label();
             this.cboMagicFinalAction = new System.Windows.Forms.ComboBox();
             this.txtManaPool = new System.Windows.Forms.TextBox();
@@ -101,7 +96,6 @@
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.grpMagic.SuspendLayout();
-            this.ctxAutoSpellLevels.SuspendLayout();
             this.ctxMagicSteps.SuspendLayout();
             this.grpMelee.SuspendLayout();
             this.ctxMeleeSteps.SuspendLayout();
@@ -158,7 +152,6 @@
             // lblAutoSpellLevels
             // 
             this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
-            this.lblAutoSpellLevels.ContextMenuStrip = this.ctxAutoSpellLevels;
             this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
             this.lblAutoSpellLevels.Location = new System.Drawing.Point(4, 293);
             this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
@@ -166,44 +159,6 @@
             this.lblAutoSpellLevels.TabIndex = 138;
             this.lblAutoSpellLevels.Text = "AutoSpell lvls";
             this.lblAutoSpellLevels.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // ctxAutoSpellLevels
-            // 
-            this.ctxAutoSpellLevels.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetCurrentMinimumAutoSpellLevel,
-            this.tsmiSetCurrentMaximumAutoSpellLevel,
-            this.sepAutoSpellLevels1,
-            this.tsmiInheritAutoSpellLevels});
-            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 82);
-            this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
-            // 
-            // tsmiSetCurrentMinimumAutoSpellLevel
-            // 
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
-            // 
-            // tsmiSetCurrentMaximumAutoSpellLevel
-            // 
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
-            // 
-            // sepAutoSpellLevels1
-            // 
-            this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
-            this.sepAutoSpellLevels1.Size = new System.Drawing.Size(218, 6);
-            // 
-            // tsmiInheritAutoSpellLevels
-            // 
-            this.tsmiInheritAutoSpellLevels.Name = "tsmiInheritAutoSpellLevels";
-            this.tsmiInheritAutoSpellLevels.Size = new System.Drawing.Size(221, 24);
-            this.tsmiInheritAutoSpellLevels.Text = "Inherit?";
-            this.tsmiInheritAutoSpellLevels.Click += new System.EventHandler(this.tsmiInheritAutoSpellLevels_Click);
             // 
             // lblMagicFinalAction
             // 
@@ -780,7 +735,6 @@
             this.Text = "Strategy";
             this.grpMagic.ResumeLayout(false);
             this.grpMagic.PerformLayout();
-            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ctxMagicSteps.ResumeLayout(false);
             this.grpMelee.ResumeLayout(false);
             this.grpMelee.PerformLayout();
@@ -826,11 +780,6 @@
         private System.Windows.Forms.CheckBox chkPotionsEnabled;
         private System.Windows.Forms.Label lblOnKillMonster;
         private System.Windows.Forms.ComboBox cboOnKillMonster;
-        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiInheritAutoSpellLevels;
         private System.Windows.Forms.TextBox txtMagicOnlyWhenStunnedForXMS;
         private System.Windows.Forms.Label lblMagicOnlyWhenStunnedForXMS;
         private System.Windows.Forms.TextBox txtMeleeOnlyWhenStunnedForXMS;
