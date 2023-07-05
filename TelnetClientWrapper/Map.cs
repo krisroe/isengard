@@ -2329,6 +2329,7 @@ namespace IsengardClient
 
             Room oEugeneTheExecutioner = AddRoom("Eugene the Executioner", "Torture Room");
             oEugeneTheExecutioner.AddPermanentMobs(MobTypeEnum.EugeneTheExecutioner);
+            oEugeneTheExecutioner.AddPermanentItems(ItemTypeEnum.CarvedIvoryKey);
             oEugeneTheExecutioner.DamageType = RoomDamageType.Fire;
             AddExit(oEugenesDungeon, oEugeneTheExecutioner, "up");
             oEugeneTheExecutioner.IsTrapRoom = true;

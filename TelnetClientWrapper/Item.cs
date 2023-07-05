@@ -1176,6 +1176,12 @@ namespace IsengardClient
         [Sellable(185)]
         HalfGiantChainMailLeggings,
 
+        [SingularName("half-giant chain mail sleeves")]
+        [Weight(15)]
+        [Sellable(185)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        HalfGiantChainMailSleeves,
+
         [SingularName("hand axe")]
         [PluralName("hand axes")]
         [WeaponType(WeaponType.Slash)]
@@ -1910,6 +1916,13 @@ namespace IsengardClient
         [Weight(18)]
         [Sellable(569)]
         SteelChainArmor,
+
+        [SingularName("steel reinforced shield")]
+        [PluralName("steel reinforced shields")]
+        [Weight(8)]
+        [Sellable(202)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        SteelReinforcedShield,
 
         [SingularName("stilleto")]
         //CSRTODO: plural?
