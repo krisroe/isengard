@@ -3768,7 +3768,7 @@ namespace IsengardClient
                         if (!IsFull(pms.ActiveSpells))
                         {
                             if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
-                            if (!GetFullInBackground(pms)) return;
+                            if (!GetFullInBackground(pms, true)) return;
                         }
                         pms.PermRunStart = DateTime.UtcNow;
                     }
@@ -4653,7 +4653,7 @@ BeforeHazy:
                 if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.ActiveSpells))
                 {
                     if (!NavigateToTickRoom(pms)) return;
-                    if (!GetFullInBackground(pms)) return;
+                    if (!GetFullInBackground(pms, false)) return;
                 }
 
                 if (!pms.Fled && !pms.Hazied)
@@ -4984,8 +4984,9 @@ BeforeHazy:
         /// gets full in a background process
         /// </summary>
         /// <param name="pms">background parameters</param>
+        /// <param name="forStart">true for before starting the perm run, false for after finishing the perm run</param>
         /// <returns>true if successfully got to full, false otherwise</returns>
-        private bool GetFullInBackground(BackgroundWorkerParameters pms)
+        private bool GetFullInBackground(BackgroundWorkerParameters pms, bool forStart)
         {
             int iTickHP = 5; //CSRTODO: these are despug numbers
             int iTickMP = 7;
@@ -5005,32 +5006,45 @@ BeforeHazy:
                     if (!CastLifeSpell("vigor", pms)) return false;
                     castSomething = true;
                 }
-                else if ((autohp + iTickHP > _totalhp) && (automp + iTickMP > _totalmp)) //wait until almost full before casting spells
+                else
                 {
-                    if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                    if (automp + iTickMP > _totalmp) //wait until almost full mp before casting spells
                     {
-                        activeSpell = "bless";
-                        lock (_spellsCastLock)
+                        if (!forStart && autohp >= _totalhp)
                         {
-                            hasActiveSpell = _spellsCast.Contains(activeSpell);
+                            //after the workflow, at full hp and less than one tick of mp left. Even though not technically full, the user can
+                            //make a decision whether to do something at slightly less than full mp, so stop the fulling
+                            //at this point.
+                            return true;
                         }
-                        if (!hasActiveSpell && automp >= 8)
+                        else if (autohp + iTickHP > _totalhp)
                         {
-                            if (!CastLifeSpell(activeSpell, pms)) return false;
-                            castSomething = true;
-                        }
-                    }
-                    if (!castSomething && (activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
-                    {
-                        activeSpell = "protection";
-                        lock (_spellsCastLock)
-                        {
-                            hasActiveSpell = _spellsCast.Contains(activeSpell);
-                        }
-                        if (!hasActiveSpell && automp >= 8)
-                        {
-                            if (!CastLifeSpell(activeSpell, pms)) return false;
-                            castSomething = true;
+                            if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                            {
+                                activeSpell = "bless";
+                                lock (_spellsCastLock)
+                                {
+                                    hasActiveSpell = _spellsCast.Contains(activeSpell);
+                                }
+                                if (!hasActiveSpell && automp >= 8)
+                                {
+                                    if (!CastLifeSpell(activeSpell, pms)) return false;
+                                    castSomething = true;
+                                }
+                            }
+                            if (!castSomething && (activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
+                            {
+                                activeSpell = "protection";
+                                lock (_spellsCastLock)
+                                {
+                                    hasActiveSpell = _spellsCast.Contains(activeSpell);
+                                }
+                                if (!hasActiveSpell && automp >= 8)
+                                {
+                                    if (!CastLifeSpell(activeSpell, pms)) return false;
+                                    castSomething = true;
+                                }
+                            }
                         }
                     }
                 }
