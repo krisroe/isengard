@@ -90,6 +90,8 @@ namespace IsengardClient
         private double _armorClassCalculatedUI = 0;
         private int _gold = -1;
         private int _goldUI = -1;
+        private int _experience = -1;
+        private int _experienceUI = -1;
         private int _tnl = -1;
         private int _tnlUI = -1;
         private bool _poisoned;
@@ -853,6 +855,8 @@ namespace IsengardClient
             _currentPlayerHeaderUI = null;
             _gold = -1;
             _goldUI = -1;
+            _experience = -1;
+            _experienceUI = -1;
             _tnl = -1;
             _tnlUI = -1;
             lock (_skillsLock)
@@ -907,7 +911,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnInformation(FeedLineParameters flParams, int earth, int wind, int fire, int water, int divination, int arcana, int life, int sorcery)
+        private void OnInformation(FeedLineParameters flParams, int earth, int wind, int fire, int water, int divination, int arcana, int life, int sorcery, int experience, int tnl)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Information) == InitializationStep.None;
@@ -920,6 +924,8 @@ namespace IsengardClient
             _arcanaProficiency = arcana;
             _lifeProficiency = life;
             _sorceryProficiency = sorcery;
+            _experience = experience;
+            _tnl = tnl;
 
             if (forInit)
             {
@@ -2034,6 +2040,7 @@ namespace IsengardClient
             {
                 ChangeSkillActive(SkillWithCooldownType.PowerAttack, false);
             }
+            _experience += experience;
             _tnl = Math.Max(0, _tnl - experience);
             if (fumbled)
             {
@@ -2078,6 +2085,7 @@ namespace IsengardClient
 
         private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
+            _experience += experience;
             _tnl = Math.Max(0, _tnl - experience);
             bool hasMonsterItems = monsterItems.Count > 0;
             lock (_entityLock)
@@ -3595,6 +3603,25 @@ namespace IsengardClient
             }
             else
             {
+                TimeSpan permRunTime;
+                if (bwp.Success && bwp.PermRunStart != DateTime.MinValue)
+                {
+                    permRunTime = DateTime.UtcNow - bwp.PermRunStart;
+                    int goldDiff = _gold - bwp.BeforeGold;
+                    int xpDiff = _experience - bwp.BeforeExperience;
+                    double seconds = permRunTime.TotalSeconds;
+                    List<string> messages = new List<string>();
+                    messages.Add("Perm run complete in " + seconds.ToString("N1") + " seconds.");
+                    if (goldDiff > 0)
+                    {
+                        messages.Add("Gold: " + goldDiff + " (" + (goldDiff / seconds * 60).ToString("N1") + " per minute)");
+                    }
+                    if (xpDiff > 0)
+                    {
+                        messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
+                    }
+                    AddConsoleMessage(messages);
+                }
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
@@ -3736,10 +3763,13 @@ namespace IsengardClient
                     if (healPoison && (_automp < 4 || !CastLifeSpell("cure-poison", pms))) return;
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (pms.FullBeforeStarting && !IsFull(pms.ActiveSpells))
+                    if (pms.FullBeforeStarting)
                     {
+                        //navigate to the tick room even if already full for consistent timing
                         if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
                         if (!GetFullInBackground(pms)) return;
+
+                        pms.PermRunStart = DateTime.UtcNow;
                     }
                 }
 
@@ -3754,7 +3784,11 @@ namespace IsengardClient
                 pms.AtDestination = true;
 
                 //verify the mob is present and attackable before activating skills
-                if (!AttackIsGoodToGo(pms)) return;
+                if (!AttackIsGoodToGo(pms))
+                {
+                    AddConsoleMessage("Target mob not present.");
+                    return;
+                }
                 
                 //Activate skills
                 if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
@@ -6812,6 +6846,18 @@ BeforeHazy:
             public HealingRoom? TickRoom { get; set; }
             public bool Success { get; set; }
             public InventoryProcessWorkflow InventoryProcessWorkflow { get; set; }
+            /// <summary>
+            /// when the perm run started
+            /// </summary>
+            public DateTime PermRunStart { get; set; }
+            /// <summary>
+            /// experience before starting the perm run
+            /// </summary>
+            public int BeforeExperience { get; set; }
+            /// <summary>
+            /// gold before starting the perm run
+            /// </summary>
+            public int BeforeGold { get; set; }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -6969,6 +7015,8 @@ BeforeHazy:
             bwp.PawnShop = pawnShoppe;
             bwp.InventoryProcessWorkflow = inventoryFlow;
             bwp.TargetRoom = targetRoom;
+            bwp.BeforeGold = _gold;
+            bwp.BeforeExperience = _experience;
             RunBackgroundProcess(bwp);
         }
 
@@ -7318,10 +7366,17 @@ BeforeHazy:
                 _goldUI = iGold;
             }
             int iTNL = _tnl;
-            if (iTNL != _tnlUI)
+            int iExperience = _experience;
+            if (iTNL != _tnlUI || iExperience != _experienceUI)
             {
-                lblToNextLevelValue.Text = "TNL: " + iTNL.ToString();
+                string tnlText;
+                if (_tnl > 0)
+                    tnlText = "TNL: " + iTNL.ToString();
+                else
+                    tnlText = "XP: " + _experience + " TNL: 0";
+                lblToNextLevelValue.Text = tnlText;
                 _tnlUI = iTNL;
+                _experienceUI = iExperience;
             }
 
             if (haveSettings)

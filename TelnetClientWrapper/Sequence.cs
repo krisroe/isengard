@@ -439,8 +439,8 @@ namespace IsengardClient
 
     internal class InformationOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, int, int, int, int, int> _onSatisfied;
-        public InformationOutputSequence(Action<FeedLineParameters, int, int, int, int, int, int, int, int> onSatisfied)
+        public Action<FeedLineParameters, int, int, int, int, int, int, int, int, int, int> _onSatisfied;
+        public InformationOutputSequence(Action<FeedLineParameters, int, int, int, int, int, int, int, int, int, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -454,9 +454,12 @@ namespace IsengardClient
             int iArcana = 0;
             int iLife = 0;
             int iSorcery = 0;
-            bool foundFirstLine = false;
-            bool foundSecondLine = false;
+            int iExperience = 0;
+            int iTNL = 0;
+            bool foundFirstProficienciesLine = false;
+            bool foundSecondProficienciesLine = false;
             bool foundHeader = false;
+            bool foundExperience = false;
             List<string> Lines = Parameters.Lines;
             if (Lines.Count > 0)
             {
@@ -467,7 +470,20 @@ namespace IsengardClient
                         if (foundHeader)
                         {
                             string[] sSplit = s.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-                            if (sSplit.Length == 8)
+                            int numPieces = sSplit.Length;
+                            if (numPieces == 6)
+                            {
+                                if (sSplit[0] == "Experience:" &&
+                                    sSplit[2] == "To" &&
+                                    sSplit[3] == "next" &&
+                                    sSplit[4] == "level:" &&
+                                    int.TryParse(sSplit[1], out iExperience) &&
+                                    int.TryParse(sSplit[5], out iTNL))
+                                {
+                                    foundExperience = true;
+                                }
+                            }
+                            else if (foundExperience && numPieces == 8)
                             {
                                 if (sSplit[1].EndsWith("%") && sSplit[3].EndsWith("%") && sSplit[5].EndsWith("%") && sSplit[7].EndsWith("%") &&
                                     sSplit[1].Length > 1 && sSplit[3].Length > 1 && sSplit[5].Length > 1 && sSplit[7].Length > 1)
@@ -486,13 +502,13 @@ namespace IsengardClient
                                         {
                                             return;
                                         }
-                                        else if (foundFirstLine)
+                                        else if (foundFirstProficienciesLine)
                                         {
                                             return;
                                         }
                                         else
                                         {
-                                            foundFirstLine = true;
+                                            foundFirstProficienciesLine = true;
                                         }
                                     }
                                     else if (sSplit[0] == "Divination:" && sSplit[2] == "Arcana:" && sSplit[4] == "Life:" && sSplit[6] == "Sorcery:")
@@ -505,13 +521,13 @@ namespace IsengardClient
                                         {
                                             return;
                                         }
-                                        else if (foundSecondLine)
+                                        else if (foundSecondProficienciesLine)
                                         {
                                             return;
                                         }
                                         else
                                         {
-                                            foundSecondLine = true;
+                                            foundSecondProficienciesLine = true;
                                         }
                                     }
                                 }
@@ -527,9 +543,9 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (foundFirstLine && foundSecondLine)
+                if (foundFirstProficienciesLine && foundSecondProficienciesLine && foundExperience)
                 {
-                    _onSatisfied(Parameters, iEarth, iWind, iFire, iWater, iDivination, iArcana, iLife, iSorcery);
+                    _onSatisfied(Parameters, iEarth, iWind, iFire, iWater, iDivination, iArcana, iLife, iSorcery, iExperience, iTNL);
                 }
             }
         }
