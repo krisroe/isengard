@@ -1957,7 +1957,7 @@ namespace IsengardClient
         SwirlyPotion,
 
         [SingularName("tattoo of a snake")]
-        //CSRTODO: plural?
+        [PluralName("tattoo of a snake")] //verified 7/5/23
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(1)]
         TattooOfASnake,
