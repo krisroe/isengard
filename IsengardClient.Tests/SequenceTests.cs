@@ -207,6 +207,21 @@ namespace IsengardClient.Tests
             seq.FeedLine(flp);
             Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.WeaponIsBroken);
             Assert.IsTrue(flp.InfoMessages[0].Item.ItemType.Value == ItemTypeEnum.ClawGauntlet);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Frodo Baggins wounds you for 13 damage!", "### The Celduin Express is ready for boarding in Bree." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EnemyAttacksYou);
+            Assert.IsTrue(flp.InfoMessages[1].MessageType == InformationalMessageType.CelduinExpressInBree);
+
+            flp.InfoMessages = new List<InformationalMessages>();
+            broadcasts = addedPlayers = removedPlayers = null;
+            flp.Lines = new List<string>() { "Your fireshield inflicts 36 damage to your attacker and dissipates!", "Dale Purves maims you for 11 damage!", "### Cleetus just logged off." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.FireshieldInflictsDamageAndDissipates);
+            Assert.IsTrue(flp.InfoMessages[1].MessageType == InformationalMessageType.EnemyAttacksYou);
+            Assert.IsTrue(flp.Lines.Count == 2);
         }
 
         [TestMethod]
