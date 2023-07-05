@@ -3784,8 +3784,11 @@ namespace IsengardClient
                             if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
                             if (!GetFullInBackground(pms, true)) return;
                         }
-                        pms.PermRunStart = DateTime.UtcNow;
                     }
+                }
+                if (pms.IsForPermRun())
+                {
+                    pms.PermRunStart = DateTime.UtcNow;
                 }
 
                 if (pms.TargetRoom != null)
@@ -3799,7 +3802,7 @@ namespace IsengardClient
                 pms.AtDestination = true;
 
                 //verify the mob is present and attackable before activating skills
-                if (pms.IsForPermRun() && pms.HasTargetMob() && !AttackIsGoodToGo(pms))
+                if (pms.IsForPermRun() && !AttackIsGoodToGo(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
@@ -6999,12 +7002,7 @@ BeforeHazy:
 
             public bool IsForPermRun()
             {
-                return this.TargetRoom != null;
-            }
-
-            public bool HasTargetMob()
-            {
-                return this.MobType.HasValue || !string.IsNullOrEmpty(this.MobText);
+                return this.TargetRoom != null && (this.MobType.HasValue || !string.IsNullOrEmpty(this.MobText));
             }
         }
 
