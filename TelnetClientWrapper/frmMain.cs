@@ -4991,7 +4991,7 @@ BeforeHazy:
             while (!IsFull(pms.ActiveSpells))
             {
                 bool castSomething = false;
-                if ((_autohp + iTickHP > _totalhp) || (_automp + iTickMP > _totalmp)) //wait until almost full before casting spells
+                if ((_autohp + iTickHP > _totalhp) && (_automp + iTickMP > _totalmp)) //wait until almost full before casting spells
                 {
                     if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
                     {
