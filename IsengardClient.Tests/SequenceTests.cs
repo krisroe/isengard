@@ -214,6 +214,8 @@ namespace IsengardClient.Tests
             seq.FeedLine(flp);
             Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.EnemyAttacksYou);
             Assert.IsTrue(flp.InfoMessages[1].MessageType == InformationalMessageType.CelduinExpressInBree);
+            Assert.IsFalse(flp.SuppressEcho);
+            Assert.IsFalse(flp.FinishedProcessing);
 
             flp.InfoMessages = new List<InformationalMessages>();
             broadcasts = addedPlayers = removedPlayers = null;
@@ -222,6 +224,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(flp.InfoMessages[0].MessageType == InformationalMessageType.FireshieldInflictsDamageAndDissipates);
             Assert.IsTrue(flp.InfoMessages[1].MessageType == InformationalMessageType.EnemyAttacksYou);
             Assert.IsTrue(flp.Lines.Count == 2);
+            Assert.IsFalse(flp.SuppressEcho);
+            Assert.IsFalse(flp.FinishedProcessing);
         }
 
         [TestMethod]
