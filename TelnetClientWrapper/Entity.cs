@@ -1497,6 +1497,59 @@ namespace IsengardClient
             }
             return iCount;
         }
+
+        /// <summary>
+        /// enumerates inventory and equipment items, assumes the entity lock
+        /// </summary>
+        /// <returns>inventory and equipment items</returns>
+        public IEnumerable<ItemTypeEnum> EnumerateInventoryAndEquipmentItems()
+        {
+            foreach (ItemTypeEnum next in InventoryItems)
+            {
+                yield return next;
+            }
+            foreach (ItemTypeEnum? next in Equipment)
+            {
+                if (next.HasValue)
+                {
+                    yield return next.Value;
+                }
+            }
+        }
+
+        public bool HasPotionForSpell(SpellsEnum spell, out ItemTypeEnum? foundItem, out bool? inInventory)
+        {
+            bool ret = false;
+            foundItem = null;
+            inInventory = null;
+
+            foreach (ItemTypeEnum next in InventoryItems)
+            {
+                StaticItemData sid = ItemEntity.StaticItemData[next];
+                if (sid.ItemClass == ItemClass.Potion && sid.Spell.Value == spell)
+                {
+                    foundItem = next;
+                    inInventory = true;
+                    ret = true;
+                }
+            }
+
+            foreach (ItemTypeEnum? next in Equipment)
+            {
+                if (next.HasValue)
+                {
+                    StaticItemData sid = ItemEntity.StaticItemData[next.Value];
+                    if (sid.ItemClass == ItemClass.Potion && sid.Spell.Value == spell)
+                    {
+                        foundItem = next.Value;
+                        inInventory = false;
+                        ret = true;
+                    }
+                }
+            }
+
+            return ret;
+        }
     }
     internal class EntityChangeEntry
     {

@@ -67,7 +67,7 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, ActiveSpells activeSpellsToPromptFor, bool fullBeforeStarting)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
 
@@ -158,20 +158,17 @@ namespace IsengardClient
                     }
                 }
             }
-            foreach (ActiveSpells nextSpell in Enum.GetValues(typeof(ActiveSpells)))
+            foreach (WorkflowSpells nextSpell in Enum.GetValues(typeof(WorkflowSpells)))
             {
-                if (nextSpell != ActiveSpells.None)
+                if (nextSpell != WorkflowSpells.None)
                 {
-                    if ((activeSpellsToPromptFor & nextSpell) == nextSpell)
+                    if ((spellsCastOptions & nextSpell) == nextSpell)
                     {
-                        CheckBox chk = new CheckBox();
-                        chk.AutoSize = true;
-                        chk.Checked = true;
-                        chk.Margin = new Padding(4);
-                        chk.Tag = nextSpell;
-                        chk.Text = nextSpell.ToString();
-                        chk.UseVisualStyleBackColor = true;
-                        flpActiveSpells.Controls.Add(chk);
+                        AddSpellCheckbox(flpSpellsCast, nextSpell, nextSpell == WorkflowSpells.Bless || nextSpell == WorkflowSpells.Protection || nextSpell == WorkflowSpells.CurePoison);
+                    }
+                    if ((spellsPotionsOptions & nextSpell) == nextSpell)
+                    {
+                        AddSpellCheckbox(flpSpellsPotions, nextSpell, false);
                     }
                 }
             }
@@ -183,6 +180,18 @@ namespace IsengardClient
             }
             cboStrategy.SelectedItem = strategy;
             RefreshUIFromStrategy();
+        }
+
+        private void AddSpellCheckbox(FlowLayoutPanel flp, WorkflowSpells spell, bool isChecked)
+        {
+            CheckBox chk = new CheckBox();
+            chk.AutoSize = true;
+            chk.Checked = isChecked;
+            chk.Margin = new Padding(4);
+            chk.Tag = spell;
+            chk.Text = spell.ToString();
+            chk.UseVisualStyleBackColor = true;
+            flp.Controls.Add(chk);
         }
 
         private void RefreshUIFromStrategy()
@@ -247,20 +256,33 @@ namespace IsengardClient
             }
         }
 
-        public ActiveSpells SelectedSpells
+        public WorkflowSpells SelectedCastSpells
         {
             get
             {
-                ActiveSpells ret = ActiveSpells.None;
-                foreach (CheckBox nextSpellCheckbox in flpActiveSpells.Controls)
-                {
-                    if (nextSpellCheckbox.Checked)
-                    {
-                        ret |= (ActiveSpells)nextSpellCheckbox.Tag;
-                    }
-                }
-                return ret;
+                return GetSelectedSpells(flpSpellsCast);
             }
+        }
+
+        public WorkflowSpells SelectedPotionsSpells
+        {
+            get
+            {
+                return GetSelectedSpells(flpSpellsPotions);
+            }
+        }
+
+        private WorkflowSpells GetSelectedSpells(FlowLayoutPanel flp)
+        {
+            WorkflowSpells ret = WorkflowSpells.None;
+            foreach (CheckBox nextSpellCheckbox in flp.Controls)
+            {
+                if (nextSpellCheckbox.Checked)
+                {
+                    ret |= (WorkflowSpells)nextSpellCheckbox.Tag;
+                }
+            }
+            return ret;
         }
 
 

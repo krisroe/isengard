@@ -194,19 +194,52 @@ namespace IsengardClient
 
     internal class SpellInformationAttribute : Attribute
     {
+        public SpellsEnum SpellType { get; set; }
+        public WorkflowSpells? WorkflowSpellType { get; set; }
         public SpellProficiency Proficiency { get; set; }
+        public int Mana { get; set; }
         public int Tier { get; set; }
         public string SpellName { get; set; }
 
-        public SpellInformationAttribute(SpellProficiency Proficiency, int Tier)
+        public SpellInformationAttribute(SpellProficiency Proficiency, int Mana, int Tier)
         {
             this.Proficiency = Proficiency;
+            this.Mana = Mana;
             this.Tier = Tier;
         }
 
-        public SpellInformationAttribute(SpellProficiency Proficiency, int Tier, string SpellName) : this(Proficiency, Tier)
+        public SpellInformationAttribute(SpellProficiency Proficiency, int Mana, int Tier, string SpellName) : this(Proficiency, Mana, Tier)
         {
             this.SpellName = SpellName;
+        }
+
+        public int GetMinimumProficiencyForTier()
+        {
+            int ret;
+            switch (Tier)
+            {
+                case 1:
+                    ret = 5;
+                    break;
+                case 2:
+                    ret = 15;
+                    break;
+                case 3:
+                    ret = 35;
+                    break;
+                case 4:
+                    ret = 50;
+                    break;
+                case 5:
+                    ret = 70;
+                    break;
+                case 6:
+                    ret = 85;
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            return ret;
         }
     }
 

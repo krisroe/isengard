@@ -176,14 +176,7 @@ namespace IsengardClient
         private MobTypeEnum? _monsterKilledType;
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
 
-        private int _earthProficiency;
-        private int _windProficiency;
-        private int _fireProficiency;
-        private int _waterProficiency;
-        private int _divinationProficiency;
-        private int _arcanaProficiency;
-        private int _lifeProficiency;
-        private int _sorceryProficiency;
+        private Dictionary<SpellProficiency, int> _userSpellProficiencies = new Dictionary<SpellProficiency, int>();
 
         /// <summary>
         /// number of times to try to attempt a background command before giving up
@@ -936,14 +929,14 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Information) == InitializationStep.None;
 
-            _earthProficiency = earth;
-            _windProficiency = wind;
-            _fireProficiency = fire;
-            _waterProficiency = water;
-            _divinationProficiency = divination;
-            _arcanaProficiency = arcana;
-            _lifeProficiency = life;
-            _sorceryProficiency = sorcery;
+            _userSpellProficiencies[SpellProficiency.Earth] = earth;
+            _userSpellProficiencies[SpellProficiency.Wind] = wind;
+            _userSpellProficiencies[SpellProficiency.Fire] = fire;
+            _userSpellProficiencies[SpellProficiency.Water] = water;
+            _userSpellProficiencies[SpellProficiency.Divination] = divination;
+            _userSpellProficiencies[SpellProficiency.Arcana] = arcana;
+            _userSpellProficiencies[SpellProficiency.Life] = life;
+            _userSpellProficiencies[SpellProficiency.Sorcery] = sorcery;
             _experience = experience;
             _tnl = tnl;
 
@@ -3780,12 +3773,12 @@ namespace IsengardClient
                         AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
                         return;
                     }
-                    if (healPoison && (_automp < 4 || !CastLifeSpell("cure-poison", pms))) return;
+                    if (healPoison && (_automp < 4 || !CastSpellOnSelf("cure-poison", pms))) return;
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
                     if (pms.FullBeforeStarting)
                     {
-                        if (!IsFull(pms.ActiveSpells))
+                        if (!IsFull(pms.SpellsToCast))
                         {
                             if (pms.TickRoom.HasValue && !NavigateToTickRoom(pms)) return;
                             if (!GetFullInBackground(pms, true)) return;
@@ -3805,13 +3798,50 @@ namespace IsengardClient
                 pms.AtDestination = true;
 
                 //verify the mob is present and attackable before activating skills
-                if (pms.IsForPermRun() && !AttackIsGoodToGo(pms))
+                if (pms.IsForPermRun() && pms.HasTargetMob() && !AttackIsGoodToGo(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
                 }
-                
-                //Activate skills
+
+                WorkflowSpells spellsToPot = pms.SpellsToPotion;
+                spellsToPot &= ~WorkflowSpells.CurePoison;
+                if (spellsToPot != WorkflowSpells.None)
+                {
+                    List<string> spellsCast = new List<string>();
+                    lock (_spellsCastLock)
+                    {
+                        spellsCast.AddRange(_spellsCast);
+                    }
+                    lock (_entityLock) //validate spells are either active or have a potion for them
+                    {
+                        foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                        {
+                            if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
+                            {
+                                SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextPotSpell];
+                                if (spellsCast.Contains(sia.SpellName))
+                                {
+                                    spellsToPot &= ~nextPotSpell;
+                                }
+                                else
+                                {
+                                    if (!_currentEntityInfo.HasPotionForSpell(sia.SpellType, out _, out _)) return;
+                                }
+                            }
+                        }
+                    }
+                    foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                    {
+                        if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
+                        {
+                            if (!DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
                 if ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield)
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
@@ -3886,16 +3916,16 @@ namespace IsengardClient
                         switch (_settingsData.Realm)
                         {
                             case RealmType.Earth:
-                                realmProficiency = _earthProficiency;
+                                realmProficiency = _userSpellProficiencies[SpellProficiency.Earth];
                                 break;
                             case RealmType.Wind:
-                                realmProficiency = _windProficiency;
+                                realmProficiency = _userSpellProficiencies[SpellProficiency.Wind];
                                 break;
                             case RealmType.Fire:
-                                realmProficiency = _fireProficiency;
+                                realmProficiency = _userSpellProficiencies[SpellProficiency.Fire];
                                 break;
                             case RealmType.Water:
-                                realmProficiency = _waterProficiency;
+                                realmProficiency = _userSpellProficiencies[SpellProficiency.Water];
                                 break;
                         }
                         List<string> knownSpells;
@@ -4670,7 +4700,7 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.ActiveSpells))
+                if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
                 {
                     if (!NavigateToTickRoom(pms)) return;
                     if (!GetFullInBackground(pms, false)) return;
@@ -4729,6 +4759,38 @@ BeforeHazy:
             }
         }
 
+        private bool DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms)
+        {
+            string sItemText;
+            bool removeHeldPotion = false;
+            ItemTypeEnum? potItem;
+            lock (_entityLock)
+            {
+                if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return false;
+                ItemLocationType ilt = inInventory.Value ? ItemLocationType.Inventory : ItemLocationType.Equipment;
+                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, potItem.Value, 1, false, ilt == ItemLocationType.Equipment);
+                if (string.IsNullOrEmpty(sItemText) && ilt == ItemLocationType.Equipment)
+                {
+                    removeHeldPotion = true;
+                }
+            }
+            if (removeHeldPotion)
+            {
+                lock (_entityLock)
+                {
+                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
+                    if (string.IsNullOrEmpty(sItemText)) return false;
+                }
+                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms) != CommandResult.CommandSuccessful) return false;
+                lock (_entityLock)
+                {
+                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
+                }
+                if (string.IsNullOrEmpty(sItemText)) return false;
+            }
+            return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, AbortIfFleeingOrHazying, false);
+        }
+
         private bool NavigateToTargetRoom(BackgroundWorkerParameters pms)
         {
             return NavigateToSpecificRoom(pms.TargetRoom, pms);
@@ -4752,31 +4814,31 @@ BeforeHazy:
             return true;
         }
 
-        private bool IsFull(ActiveSpells activeSpells)
+        private bool IsFull(WorkflowSpells castWorkflowSpells)
         {
             if (_autohp < _totalhp) return false;
             if (_automp < _totalmp) return false;
-            if (activeSpells != ActiveSpells.None)
+            castWorkflowSpells &= ~WorkflowSpells.CurePoison;
+            bool ret = true;
+            if (castWorkflowSpells != WorkflowSpells.None)
             {
                 lock (_spellsCastLock)
                 {
-                    if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                    foreach (WorkflowSpells nextWorkflowSpell in Enum.GetValues(typeof(WorkflowSpells)))
                     {
-                        if (!_spellsCast.Contains("bless"))
+                        if ((nextWorkflowSpell & castWorkflowSpells) != WorkflowSpells.None)
                         {
-                            return false;
-                        }
-                    }
-                    if ((activeSpells & ActiveSpells.Protection) != ActiveSpells.Protection)
-                    {
-                        if (!_spellsCast.Contains("protection"))
-                        {
-                            return false;
+                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextWorkflowSpell];
+                            if (!_spellsCast.Contains(sia.SpellName))
+                            {
+                                ret = false;
+                                break;
+                            }
                         }
                     }
                 }
             }
-            return true;
+            return ret;
         }
 
         private bool SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
@@ -4992,10 +5054,33 @@ BeforeHazy:
         /// <returns>true if cure-poison was successfully cast if needed and hitpoints got to maximum</returns>
         private bool GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
         {
-            if (needCurePoison && (_automp < 4 || !CastLifeSpell("cure-poison", pms))) return false;
-            while (_autohp < _totalhp && _automp >= 2)
+            if (needCurePoison)
             {
-                if (!CastLifeSpell("vigor", pms)) return false;
+                SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
+                if ((pms.SpellsToPotion & WorkflowSpells.CurePoison) != WorkflowSpells.None)
+                {
+                    if (DrinkPotionForSpell(siaCurePoison, pms))
+                    {
+                        needCurePoison = false;
+                    }
+                }
+                if (needCurePoison && ((pms.SpellsToCast & WorkflowSpells.CurePoison) != WorkflowSpells.None))
+                {
+                    if (_automp >= siaCurePoison.Mana && CastSpellOnSelf("cure-poison", pms))
+                    {
+                        needCurePoison = false;
+                    }
+                }
+                if (needCurePoison)
+                {
+                    AddConsoleMessage("Unable to cure poison.");
+                    return false;
+                }
+            }
+            SpellInformationAttribute siaVigor = SpellsStatic.SpellsByEnum[SpellsEnum.vigor];
+            while (_autohp < _totalhp && _automp >= siaVigor.Mana)
+            {
+                if (!CastSpellOnSelf("vigor", pms)) return false;
             }
             return true;
         }
@@ -5010,10 +5095,9 @@ BeforeHazy:
         {
             int iTickHP = GetHealingRoomTickHP();
             int iTickMP = GetHealingRoomTickMP();
-            ActiveSpells activeSpells = pms.ActiveSpells;
-            bool hasActiveSpell;
-            string activeSpell;
-            while (!IsFull(pms.ActiveSpells))
+            WorkflowSpells spellsToCast = pms.SpellsToCast;
+            spellsToCast &= ~WorkflowSpells.CurePoison;
+            while (!IsFull(spellsToCast))
             {
                 int automp = _automp;
                 int autohp = _autohp;
@@ -5023,7 +5107,7 @@ BeforeHazy:
                 bool castSomething = false;
                 if (numTicksForFullHP > numTicksForFullMP)
                 {
-                    if (!CastLifeSpell("vigor", pms)) return false;
+                    if (!CastSpellOnSelf("vigor", pms)) return false;
                     castSomething = true;
                 }
                 else
@@ -5039,30 +5123,24 @@ BeforeHazy:
                         }
                         else if (autohp + iTickHP > _totalhp)
                         {
-                            if ((activeSpells & ActiveSpells.Bless) != ActiveSpells.None)
+                            foreach (WorkflowSpells nextSpell in Enum.GetValues(typeof(WorkflowSpells)))
                             {
-                                activeSpell = "bless";
-                                lock (_spellsCastLock)
+                                if ((nextSpell & spellsToCast) != WorkflowSpells.None)
                                 {
-                                    hasActiveSpell = _spellsCast.Contains(activeSpell);
-                                }
-                                if (!hasActiveSpell && automp >= 8)
-                                {
-                                    if (!CastLifeSpell(activeSpell, pms)) return false;
-                                    castSomething = true;
-                                }
-                            }
-                            if (!castSomething && (activeSpells & ActiveSpells.Protection) != ActiveSpells.None)
-                            {
-                                activeSpell = "protection";
-                                lock (_spellsCastLock)
-                                {
-                                    hasActiveSpell = _spellsCast.Contains(activeSpell);
-                                }
-                                if (!hasActiveSpell && automp >= 8)
-                                {
-                                    if (!CastLifeSpell(activeSpell, pms)) return false;
-                                    castSomething = true;
+                                    SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextSpell];
+                                    string spellName = sia.SpellName;
+                                    bool hasSpellActive;
+                                    lock (_spellsCastLock)
+                                    {
+                                        hasSpellActive = _spellsCast.Contains(spellName);
+                                    }
+                                    if (!hasSpellActive && _automp >= sia.Mana)
+                                    {
+                                        if (!CastSpellOnSelf(spellName, pms)) return false;
+                                        castSomething = true;
+                                        spellsToCast &= ~nextSpell;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -6023,7 +6101,7 @@ BeforeHazy:
             return ret;
         }
 
-        private bool CastLifeSpell(string spellName, BackgroundWorkerParameters bwp)
+        private bool CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp)
         {
             BackgroundCommandType bct;
             switch (spellName)
@@ -6841,9 +6919,13 @@ BeforeHazy:
             /// </summary>
             public PromptedSkills UsedSkills { get; set; }
             /// <summary>
-            /// spells to ensure are active before starting
+            /// spells that can be cast during the workflow
             /// </summary>
-            public ActiveSpells ActiveSpells { get; set; }
+            public WorkflowSpells SpellsToCast { get; set; }
+            /// <summary>
+            /// spells that can be potioned during the workflow
+            /// </summary>
+            public WorkflowSpells SpellsToPotion { get; set; }
             public bool Hazy { get; set; }
             public bool Hazied { get; set; }
             public bool Flee { get; set; }
@@ -6910,6 +6992,11 @@ BeforeHazy:
             public bool IsForPermRun()
             {
                 return this.TargetRoom != null;
+            }
+
+            public bool HasTargetMob()
+            {
+                return this.MobType.HasValue || !string.IsNullOrEmpty(this.MobText);
             }
         }
 
@@ -6978,7 +7065,8 @@ BeforeHazy:
                 }
             }
             PromptedSkills activatedSkills = PromptedSkills.None;
-            ActiveSpells activeSpells = ActiveSpells.None;
+            WorkflowSpells workflowSpellsCast = WorkflowSpells.None;
+            WorkflowSpells workflowSpellsPotions = WorkflowSpells.None;
             HealingRoom? healingRoom = null;
             PawnShoppe? pawnShoppe = null;
             InventoryProcessWorkflow inventoryFlow;
@@ -7009,18 +7097,28 @@ BeforeHazy:
                     }
                 }
             }
-            ActiveSpells eActiveSpellsToPrompt = ActiveSpells.None;
             lock (_spellsKnownLock)
             {
-                if (_lifeProficiency > 0)
+                foreach (WorkflowSpells wfSpell in Enum.GetValues(typeof(WorkflowSpells)))
                 {
-                    if (_spellsKnown.Contains("bless"))
+                    if (wfSpell != WorkflowSpells.None)
                     {
-                        eActiveSpellsToPrompt |= ActiveSpells.Bless;
+                        SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
+                        if (_spellsKnown.Contains(sia.SpellName) && _userSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier())
+                        {
+                            workflowSpellsCast |= wfSpell;
+                        }
                     }
-                    if (_spellsKnown.Contains("protection"))
+                }
+            }
+            lock (_entityLock)
+            {
+                foreach (ItemTypeEnum next in _currentEntityInfo.EnumerateInventoryAndEquipmentItems())
+                {
+                    StaticItemData sid = ItemEntity.StaticItemData[next];
+                    if (sid.ItemClass == ItemClass.Potion && SpellsStatic.SpellsByEnum.TryGetValue(sid.Spell.Value, out SpellInformationAttribute sia) && sia.WorkflowSpellType.HasValue)
                     {
-                        eActiveSpellsToPrompt |= ActiveSpells.Protection;
+                        workflowSpellsPotions |= sia.WorkflowSpellType.Value;
                     }
                 }
             }
@@ -7034,6 +7132,25 @@ BeforeHazy:
                 inventoryFlow = InventoryProcessWorkflow.ProcessMonsterDrops;
 
             bool defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
+            if (!defaultFullBeforeStarting)
+            {
+                WorkflowSpells alwaysOnSpells = _settingsData.AlwaysOnSpells;
+                foreach (WorkflowSpells next in Enum.GetValues(typeof(WorkflowSpells)))
+                {
+                    if ((next & alwaysOnSpells) != WorkflowSpells.None)
+                    {
+                        SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[next];
+                        lock (_spellsCastLock)
+                        {
+                            if (!_spellsCast.Contains(sia.SpellName))
+                            {
+                                defaultFullBeforeStarting = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
             string sMobText;
             MobTypeEnum? eMobType;
@@ -7041,14 +7158,15 @@ BeforeHazy:
             bool fullBeforeStarting;
             bool fullAfterFinishing;
             Room targetRoom;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, eActiveSpellsToPrompt, defaultFullBeforeStarting))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, defaultFullBeforeStarting, workflowSpellsCast, workflowSpellsPotions))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
                 }
                 activatedSkills = frm.SelectedSkills;
-                activeSpells = frm.SelectedSpells;
+                workflowSpellsCast = frm.SelectedCastSpells;
+                workflowSpellsPotions = frm.SelectedPotionsSpells;
                 sMobText = frm.MobText;
                 eMobType = frm.MobType;
                 iMobIndex = frm.MobIndex;
@@ -7065,7 +7183,8 @@ BeforeHazy:
             bwp.Strategy = strategy;
             if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
             bwp.UsedSkills = activatedSkills;
-            bwp.ActiveSpells = activeSpells;
+            bwp.SpellsToCast = workflowSpellsCast;
+            bwp.SpellsToPotion = workflowSpellsPotions;
             bwp.FullBeforeStarting = fullBeforeStarting;
             bwp.FullAfterFinishing = fullAfterFinishing;
             if (eMobType.HasValue)

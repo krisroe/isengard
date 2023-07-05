@@ -1233,6 +1233,13 @@ namespace IsengardClient
         [Sellable(203)]
         IronSpear,
 
+        [SingularName("jewelled armlets")]
+        //CSRTODO: plural
+        [EquipmentType(EquipmentType.Arms)]
+        [Weight(2)]
+        [Sellable(122)]
+        JewelledArmlets,
+
         [SingularName("juggling pin")]
         [PluralName("juggling pins")]
         [WeaponType(WeaponType.Blunt)]
@@ -1263,6 +1270,13 @@ namespace IsengardClient
         [PluralName("knapsacks")]
         [ItemClass(ItemClass.Bag)]
         Knapsack,
+
+        [SingularName("lance")]
+        [PluralName("lances")]
+        [WeaponType(WeaponType.Polearm)]
+        [Weight(1)]
+        [Sellable(188)]
+        Lance,
 
         [SingularName("lancette")]
         [PluralName("lancettes")]
@@ -1448,6 +1462,8 @@ namespace IsengardClient
         [SingularName("mithron shield")]
         [PluralName("mithron shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [Weight(8)]
+        [Sellable(185)]
         MithronShield,
 
         [SingularName("molten iron key")]
@@ -1885,7 +1901,9 @@ namespace IsengardClient
 
         [SingularName("stilleto")]
         //CSRTODO: plural?
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [Sellable(164)]
         Stilleto,
 
         [SingularName("stone hammer")]

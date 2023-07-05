@@ -1750,5 +1750,13 @@ namespace IsengardClient
                 s.ID = 0;
             }
         }
+
+        public WorkflowSpells AlwaysOnSpells
+        {
+            get
+            {
+                return WorkflowSpells.Bless | WorkflowSpells.Protection;
+            }
+        }
     }
 }

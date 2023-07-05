@@ -144,6 +144,7 @@
     <Compile Include="RoomGraph.cs" />
     <Compile Include="Sequence.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Spells.cs" />
     <Compile Include="Strategy.cs" />
     <Compile Include="UIShared.cs" />
     <EmbeddedResource Include="frmConfiguration.resx">
