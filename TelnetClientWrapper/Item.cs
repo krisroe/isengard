@@ -1846,6 +1846,7 @@ namespace IsengardClient
         SpeckledPotion,
 
         [SingularName("sprite boots")]
+        [PluralName("sprite bootses")] //verified 7/5/23
         [EquipmentType(EquipmentType.Feet)]
         [Weight(3)]
         [Sellable(198)]
