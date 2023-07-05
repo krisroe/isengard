@@ -1330,6 +1330,7 @@ namespace IsengardClient
 
         private void OnRoomTransition(FeedLineParameters flParams, RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType)
         {
+            Exit currentBackgroundExit = _currentBackgroundExit;
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
             List<string> obviousExits = roomTransitionInfo.ObviousExits;
@@ -1428,9 +1429,9 @@ namespace IsengardClient
             }
             else if (fromBackgroundMove)
             {
-                if (newRoom == null && _currentBackgroundExit.Target != null)
+                if (newRoom == null && currentBackgroundExit?.Target != null)
                 {
-                    Room targetRoom = _currentBackgroundExit.Target;
+                    Room targetRoom = currentBackgroundExit.Target;
                     if (string.Equals(targetRoom.BackendName, sRoomName))
                     {
                         newRoom = targetRoom;
@@ -6219,7 +6220,8 @@ BeforeHazy:
             _backgroundCommandType = commandType;
             try
             {
-                return RunSingleCommandForCommandResult(command, pms, abortLogic, hidden);
+                bool allowAbort = commandType != BackgroundCommandType.Movement;
+                return RunSingleCommandForCommandResult(command, pms, abortLogic, hidden, allowAbort);
             }
             finally
             {
@@ -6232,7 +6234,7 @@ BeforeHazy:
             return GetVerboseMode() ? InputEchoType.On : InputEchoType.Off;
         }
 
-        private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden)
+        private CommandResult RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden, bool allowAbort)
         {
             DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
             _commandResult = null;
@@ -6254,16 +6256,22 @@ BeforeHazy:
                 while (!currentResult.HasValue)
                 {
                     RunQueuedCommandWhenBackgroundProcessRunning(pms);
-                    if (_bw.CancellationPending || (abortLogic != null && abortLogic()))
+                    bool doSleep = true;
+                    if (allowAbort)
                     {
-                        currentResult = CommandResult.CommandAborted;
+                        if (_bw.CancellationPending || (abortLogic != null && abortLogic()))
+                        {
+                            currentResult = CommandResult.CommandAborted;
+                            doSleep = false;
+                        }
+                        else if (DateTime.UtcNow >= utcTimeoutPoint)
+                        {
+                            AddConsoleMessage("Command timeout occurred for " + command);
+                            currentResult = CommandResult.CommandTimeout;
+                            doSleep = false;
+                        }
                     }
-                    else if (DateTime.UtcNow >= utcTimeoutPoint)
-                    {
-                        AddConsoleMessage("Command timeout occurred for " + command);
-                        currentResult = CommandResult.CommandTimeout;
-                    }
-                    else
+                    if (doSleep)
                     {
                         Thread.Sleep(50);
                         currentResult = _commandResult;
@@ -6306,11 +6314,12 @@ BeforeHazy:
             try
             {
                 CommandResult? result = null;
+                bool allowAbort = commandType != BackgroundCommandType.Movement;
                 while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND && !commandSucceeded)
                 {
                     if (_bw.CancellationPending) break;
                     if (abortLogic != null && abortLogic()) break;
-                    result = RunSingleCommandForCommandResult(command, pms, abortLogic, hidden);
+                    result = RunSingleCommandForCommandResult(command, pms, abortLogic, hidden, allowAbort);
                     if (result.HasValue)
                     {
                         CommandResult resultValue = result.Value;
@@ -6370,7 +6379,6 @@ BeforeHazy:
                 tsddb.Enabled = enabled;
             }
             btnAbort.Enabled = running;
-            btnComplete.Enabled = running && bwp.IsForPermRun();
             EnableDisableActionButtons(bwp);
         }
 
@@ -7002,21 +7010,9 @@ BeforeHazy:
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
-            DoAbort();
-        }
-
-        private void btnComplete_Click(object sender, EventArgs e)
-        {
-            _currentBackgroundParameters.Success = true;
-            DoAbort();
-        }
-
-        private void DoAbort()
-        {
             _currentBackgroundParameters.Cancelled = true;
             _bw.CancelAsync();
             btnAbort.Enabled = false;
-            btnComplete.Enabled = false;
         }
 
         private void btnSet_Click(object sender, EventArgs e)

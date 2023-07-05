@@ -175,7 +175,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.btnComplete = new System.Windows.Forms.Button();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -644,7 +643,6 @@
             // 
             // pnlMain
             // 
-            this.pnlMain.Controls.Add(this.btnComplete);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblPawnShop);
@@ -1307,7 +1305,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(2);
-            this.tabAncillary.Size = new System.Drawing.Size(939, 634);
+            this.tabAncillary.Size = new System.Drawing.Size(939, 828);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1322,7 +1320,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(2, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(935, 630);
+            this.pnlAncillary.Size = new System.Drawing.Size(935, 824);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1331,7 +1329,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 22);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(939, 634);
+            this.tabEmotes.Size = new System.Drawing.Size(939, 828);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1350,7 +1348,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(939, 634);
+            this.pnlEmotes.Size = new System.Drawing.Size(939, 828);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1430,7 +1428,7 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, -213);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -19);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(2);
@@ -1453,7 +1451,7 @@
             this.tabHelp.Controls.Add(this.grpHelp);
             this.tabHelp.Location = new System.Drawing.Point(4, 22);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(939, 634);
+            this.tabHelp.Size = new System.Drawing.Size(939, 828);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1464,7 +1462,7 @@
             this.grpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpHelp.Location = new System.Drawing.Point(0, 0);
             this.grpHelp.Name = "grpHelp";
-            this.grpHelp.Size = new System.Drawing.Size(939, 634);
+            this.grpHelp.Size = new System.Drawing.Size(939, 828);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1474,7 +1472,7 @@
             this.flpHelp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpHelp.Location = new System.Drawing.Point(3, 16);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(933, 615);
+            this.flpHelp.Size = new System.Drawing.Size(933, 809);
             this.flpHelp.TabIndex = 0;
             // 
             // pnlOverallLeft
@@ -1798,18 +1796,6 @@
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
             // 
-            // btnComplete
-            // 
-            this.btnComplete.Enabled = false;
-            this.btnComplete.Location = new System.Drawing.Point(830, 628);
-            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
-            this.btnComplete.Name = "btnComplete";
-            this.btnComplete.Size = new System.Drawing.Size(80, 28);
-            this.btnComplete.TabIndex = 153;
-            this.btnComplete.Text = "Complete";
-            this.btnComplete.UseVisualStyleBackColor = true;
-            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2011,7 +1997,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiQuitWithoutSaving;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
-        private System.Windows.Forms.Button btnComplete;
     }
 }
 

@@ -1472,7 +1472,7 @@ namespace IsengardClient
         MoltenIronKey,
 
         [SingularName("MOM tattoo")]
-        [PluralName("MOM tattoos")]
+        [PluralName("MOM tattoo")] //verified 7/5/23
         [EquipmentType(EquipmentType.Unknown)]
         [Weight(1)]
         [Sellable(1237)]
