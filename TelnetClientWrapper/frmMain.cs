@@ -4704,14 +4704,14 @@ BeforeHazy:
                     }
                 }
 
-                if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
-                {
-                    if (!NavigateToTickRoom(pms)) return;
-                    if (!GetFullInBackground(pms, false)) return;
-                }
-
                 if (!pms.Fled && !pms.Hazied)
                 {
+                    if (pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
+                    {
+                        if (!NavigateToTickRoom(pms)) return;
+                        if (!GetFullInBackground(pms, false)) return;
+                    }
+
                     bool runScore = pms.DoScore;
                     if (!runScore)
                     {

@@ -3695,6 +3695,7 @@ namespace IsengardClient
 
             Room oIorlas = AddRoom("Iorlas", "Hermit's Shack");
             oIorlas.AddPermanentMobs(MobTypeEnum.IorlasTheHermit);
+            oIorlas.AddPermanentItems(ItemTypeEnum.LittleBrownJug);
             AddExit(oIorlasThreshold, oIorlas, "shack");
             AddExit(oIorlas, oIorlasThreshold, "door");
             eastOfImladrisGraph.Rooms[oIorlas] = new System.Windows.Point(2, 3);
