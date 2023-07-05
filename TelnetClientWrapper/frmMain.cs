@@ -4685,7 +4685,11 @@ BeforeHazy:
                     }
                 }
 
-                pms.Success = !pms.Fled && !pms.Hazied && (!hasCombat || pms.MonsterKilled);
+                //determine success. if the user indicated success using the complete button don't question that
+                if (!pms.Success)
+                {
+                    pms.Success = !pms.Fled && !pms.Hazied && (!hasCombat || pms.MonsterKilled);
+                }
             }
             catch (Exception ex)
             {
@@ -6253,6 +6257,7 @@ BeforeHazy:
                 tsddb.Enabled = enabled;
             }
             btnAbort.Enabled = running;
+            btnComplete.Enabled = running && bwp.IsForPermRun();
             EnableDisableActionButtons(bwp);
         }
 
@@ -6866,13 +6871,30 @@ BeforeHazy:
             /// gold before starting the perm run
             /// </summary>
             public int BeforeGold { get; set; }
+
+            public bool IsForPermRun()
+            {
+                return this.TargetRoom != null;
+            }
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
+            DoAbort();
+        }
+
+        private void btnComplete_Click(object sender, EventArgs e)
+        {
+            _currentBackgroundParameters.Success = true;
+            DoAbort();
+        }
+
+        private void DoAbort()
+        {
             _currentBackgroundParameters.Cancelled = true;
             _bw.CancelAsync();
             btnAbort.Enabled = false;
+            btnComplete.Enabled = false;
         }
 
         private void btnSet_Click(object sender, EventArgs e)

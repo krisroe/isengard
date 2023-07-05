@@ -175,6 +175,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.btnComplete = new System.Windows.Forms.Button();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -328,7 +329,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(747, 597);
+            this.btnAbort.Location = new System.Drawing.Point(746, 628);
             this.btnAbort.Margin = new System.Windows.Forms.Padding(2);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(80, 28);
@@ -625,7 +626,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(947, 660);
+            this.tcMain.Size = new System.Drawing.Size(947, 854);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -636,13 +637,14 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(2);
-            this.tabMain.Size = new System.Drawing.Size(939, 634);
+            this.tabMain.Size = new System.Drawing.Size(939, 828);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnComplete);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblPawnShop);
@@ -1091,14 +1093,14 @@
             this.grpMob.Controls.Add(this.lblMobDamage);
             this.grpMob.Location = new System.Drawing.Point(747, 531);
             this.grpMob.Name = "grpMob";
-            this.grpMob.Size = new System.Drawing.Size(191, 60);
+            this.grpMob.Size = new System.Drawing.Size(191, 74);
             this.grpMob.TabIndex = 120;
             this.grpMob.TabStop = false;
             this.grpMob.Text = "Mob";
             // 
             // txtMobStatus
             // 
-            this.txtMobStatus.Location = new System.Drawing.Point(96, 34);
+            this.txtMobStatus.Location = new System.Drawing.Point(98, 44);
             this.txtMobStatus.Name = "txtMobStatus";
             this.txtMobStatus.ReadOnly = true;
             this.txtMobStatus.Size = new System.Drawing.Size(86, 20);
@@ -1107,7 +1109,7 @@
             // lblMobStatus
             // 
             this.lblMobStatus.AutoSize = true;
-            this.lblMobStatus.Location = new System.Drawing.Point(41, 37);
+            this.lblMobStatus.Location = new System.Drawing.Point(37, 47);
             this.lblMobStatus.Name = "lblMobStatus";
             this.lblMobStatus.Size = new System.Drawing.Size(44, 15);
             this.lblMobStatus.TabIndex = 2;
@@ -1115,7 +1117,7 @@
             // 
             // txtMobDamage
             // 
-            this.txtMobDamage.Location = new System.Drawing.Point(96, 9);
+            this.txtMobDamage.Location = new System.Drawing.Point(98, 19);
             this.txtMobDamage.Name = "txtMobDamage";
             this.txtMobDamage.ReadOnly = true;
             this.txtMobDamage.Size = new System.Drawing.Size(86, 20);
@@ -1124,7 +1126,7 @@
             // lblMobDamage
             // 
             this.lblMobDamage.AutoSize = true;
-            this.lblMobDamage.Location = new System.Drawing.Point(41, 12);
+            this.lblMobDamage.Location = new System.Drawing.Point(37, 22);
             this.lblMobDamage.Name = "lblMobDamage";
             this.lblMobDamage.Size = new System.Drawing.Size(58, 15);
             this.lblMobDamage.TabIndex = 0;
@@ -1483,7 +1485,7 @@
             this.pnlOverallLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlOverallLeft.Margin = new System.Windows.Forms.Padding(2);
             this.pnlOverallLeft.Name = "pnlOverallLeft";
-            this.pnlOverallLeft.Size = new System.Drawing.Size(947, 687);
+            this.pnlOverallLeft.Size = new System.Drawing.Size(947, 881);
             this.pnlOverallLeft.TabIndex = 0;
             // 
             // pnlTabControl
@@ -1492,7 +1494,7 @@
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(947, 660);
+            this.pnlTabControl.Size = new System.Drawing.Size(947, 854);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1742,7 +1744,7 @@
             this.grpConsole.Margin = new System.Windows.Forms.Padding(2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(2);
-            this.grpConsole.Size = new System.Drawing.Size(208, 687);
+            this.grpConsole.Size = new System.Drawing.Size(208, 881);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1753,7 +1755,7 @@
             this.pnlConsoleHolder.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlConsoleHolder.Location = new System.Drawing.Point(2, 15);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(204, 620);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(204, 814);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1768,7 +1770,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(204, 620);
+            this.rtbConsole.Size = new System.Drawing.Size(204, 814);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1791,16 +1793,28 @@
             // 
             this.pnlCommand.Controls.Add(this.txtOneOffCommand);
             this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCommand.Location = new System.Drawing.Point(2, 635);
+            this.pnlCommand.Location = new System.Drawing.Point(2, 829);
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
+            // 
+            // btnComplete
+            // 
+            this.btnComplete.Enabled = false;
+            this.btnComplete.Location = new System.Drawing.Point(830, 628);
+            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
+            this.btnComplete.Name = "btnComplete";
+            this.btnComplete.Size = new System.Drawing.Size(80, 28);
+            this.btnComplete.TabIndex = 153;
+            this.btnComplete.Text = "Complete";
+            this.btnComplete.UseVisualStyleBackColor = true;
+            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1155, 687);
+            this.ClientSize = new System.Drawing.Size(1155, 881);
             this.Controls.Add(this.grpConsole);
             this.Controls.Add(this.pnlOverallLeft);
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -1997,6 +2011,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiQuitWithoutSaving;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
+        private System.Windows.Forms.Button btnComplete;
     }
 }
 
