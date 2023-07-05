@@ -9076,21 +9076,22 @@ BeforeHazy:
             string sActionTransferBetweenInventoryAndEquipment;
             ItemClass iclass = sid.ItemClass;
             ToolStripMenuItem tsmi;
+
+            if (isInventory && r != null && r.PawnShoppe.HasValue)
+            {
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = "sell";
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
+            if (iclass == ItemClass.Potion)
+            {
+                tsmi = new ToolStripMenuItem();
+                tsmi.Text = "drink";
+                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+            }
             if (isInventory)
             {
-                if (r != null && r.PawnShoppe.HasValue)
-                {
-                    tsmi = new ToolStripMenuItem();
-                    tsmi.Text = "sell";
-                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
-                }
-                if (iclass == ItemClass.Potion)
-                {
-                    tsmi = new ToolStripMenuItem();
-                    tsmi.Text = "drink";
-                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
-                }
-                else if (iclass == ItemClass.Scroll)
+                if (iclass == ItemClass.Scroll)
                 {
                     tsmi = new ToolStripMenuItem();
                     tsmi.Text = "read";

@@ -1298,6 +1298,7 @@ namespace IsengardClient
                              nextLine == "Yuck!" || //viscous potion
                              nextLine == "Nothing happens." || //lollipop when not diseased?
                              nextLine == "MMMMMM!!!!    GOOD!" || //lollipop
+                             nextLine == "You feel the poison subside." || //green potion
                              nextLine.EndsWith(" hit points removed."))
                     {
                         continue; //skipped

@@ -1305,6 +1305,7 @@ namespace IsengardClient
                             if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
                                 break;
                         }
+                        if (iDuplicateCounter == iCounter) break;
                     }
                     isDuplicate = iDuplicateCounter == iCounter;
 
@@ -1321,6 +1322,7 @@ namespace IsengardClient
                                     if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
                                         break;
                                 }
+                                if (iDuplicateCounter == iCounter) break;
                             }
                         }
                         isDuplicate = iDuplicateCounter == iCounter;
@@ -1337,6 +1339,7 @@ namespace IsengardClient
                                 if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
                                     break;
                             }
+                            if (iDuplicateCounter == iCounter) break;
                         }
                         isDuplicate = iDuplicateCounter == iCounter;
                     }
@@ -1425,6 +1428,7 @@ namespace IsengardClient
                                 if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
                                     break;
                             }
+                            if (iDuplicateCounter == iCounter) break;
                         }
                         isDuplicate = iDuplicateCounter == iCounter;
 
@@ -1442,6 +1446,7 @@ namespace IsengardClient
                                         if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
                                             break;
                                     }
+                                    if (iDuplicateCounter == iCounter) break;
                                 }
                             }
                             isDuplicate = iDuplicateCounter == iCounter;
