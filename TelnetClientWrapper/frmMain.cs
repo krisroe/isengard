@@ -3785,7 +3785,7 @@ namespace IsengardClient
                 pms.AtDestination = true;
 
                 //verify the mob is present and attackable before activating skills
-                if (!AttackIsGoodToGo(pms))
+                if (pms.IsForPermRun() && !AttackIsGoodToGo(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
@@ -5036,6 +5036,7 @@ BeforeHazy:
                 }
                 if (!castSomething)
                 {
+                    RunPollTickIfNecessary(_autohp, _automp, DateTime.UtcNow);
                     int waitInterval = 5000;
                     while (waitInterval > 0)
                     {
@@ -7791,20 +7792,7 @@ BeforeHazy:
             EnableDisableActionButtons(bwp);
             if (bwp == null) //processing that only happens when a background process is not running
             {
-                //check for poll tick if the first status update has completed and not at full HP+MP
-                if (_currentStatusLastComputed.HasValue && (autohpforthistick == HP_OR_MP_UNKNOWN || autohpforthistick < _totalhp || autompforthistick == HP_OR_MP_UNKNOWN || autompforthistick < _totalmp))
-                {
-                    bool runPollTick = (dtUTCNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
-                    if (runPollTick && _lastPollTick.HasValue)
-                    {
-                        runPollTick = (dtUTCNow - _lastPollTick.Value).TotalSeconds >= 5;
-                    }
-                    if (runPollTick)
-                    {
-                        _lastPollTick = dtUTCNow;
-                        SendCommand(string.Empty, InputEchoType.On);
-                    }
-                }
+                RunPollTickIfNecessary(autohpforthistick, autompforthistick, dtUTCNow);
 
                 bool hazying, fleeing;
                 lock (_escapeLock)
@@ -7815,6 +7803,29 @@ BeforeHazy:
                 if (hazying || fleeing)
                 {
                     StartEscapeBackgroundProcess(hazying, fleeing);
+                }
+            }
+        }
+
+        /// <summary>
+        /// runs a poll tick if necessary if the first status update has completed and not at full HP+MP
+        /// and the last status update happened at least 5 seconds ago
+        /// and the last poll tick happened at least 5 seconds ago
+        /// </summary>
+        private void RunPollTickIfNecessary(int autohp, int automp, DateTime dtUTCNow)
+        {
+            //check for poll tick if the first status update has completed and not at full HP+MP
+            if (_currentStatusLastComputed.HasValue && (autohp == HP_OR_MP_UNKNOWN || autohp < _totalhp || automp == HP_OR_MP_UNKNOWN || automp < _totalmp))
+            {
+                bool runPollTick = (dtUTCNow - _currentStatusLastComputed.Value).TotalSeconds >= 5;
+                if (runPollTick && _lastPollTick.HasValue)
+                {
+                    runPollTick = (dtUTCNow - _lastPollTick.Value).TotalSeconds >= 5;
+                }
+                if (runPollTick)
+                {
+                    _lastPollTick = dtUTCNow;
+                    SendCommand(string.Empty, InputEchoType.On);
                 }
             }
         }
