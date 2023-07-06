@@ -1198,17 +1198,13 @@ namespace IsengardClient
                 _currentEntityInfo.InventoryItems.Clear();
                 foreach (ItemEntity nextItemEntity in items)
                 {
-                    if (nextItemEntity.ItemType.HasValue)
+                    for (int i = 0; i < nextItemEntity.Count; i++)
                     {
-                        ItemTypeEnum nextItemValue = nextItemEntity.ItemType.Value;
-                        for (int i = 0; i < nextItemEntity.Count; i++)
-                        {
-                            _currentEntityInfo.InventoryItems.Add(nextItemValue);
-                            EntityChangeEntry entry = new EntityChangeEntry();
-                            entry.Item = nextItemEntity;
-                            entry.InventoryAction = true;
-                            changes.Changes.Add(entry);
-                        }
+                        _currentEntityInfo.InventoryItems.Add(nextItemEntity);
+                        EntityChangeEntry entry = new EntityChangeEntry();
+                        entry.Item = nextItemEntity;
+                        entry.InventoryAction = true;
+                        changes.Changes.Add(entry);
                     }
                 }
                 _currentEntityInfo.CurrentEntityChanges.Add(changes);
@@ -2827,7 +2823,7 @@ namespace IsengardClient
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
                                         changeEntry.EquipmentAction = true;
                                         _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
-                                        iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, false, changeEntry);
+                                        iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, false, changeEntry);
                                         addChange = true;
                                         break;
                                     }
@@ -2841,7 +2837,7 @@ namespace IsengardClient
                                         _currentEntityInfo.Equipment[iSlotIndex] = null;
                                         if (changeType == EntityChangeType.UnequipItem)
                                         {
-                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, true, changeEntry);
+                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, true, changeEntry);
                                         }
                                         addChange = true;
                                         break;
@@ -2860,7 +2856,7 @@ namespace IsengardClient
                         {
                             //add/remove from inventory
                             bool isAddToInventory = changeType == EntityChangeType.PickUpItem || changeType == EntityChangeType.MagicallySentItem;
-                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItem, isAddToInventory, changeEntry);
+                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, isAddToInventory, changeEntry);
                             if (changeType == EntityChangeType.PickUpItem) //remove from room items
                             {
                                 addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
@@ -5414,12 +5410,15 @@ BeforeHazy:
                 //check inventory for potions
                 foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
                 {
-                    ItemTypeEnum itemType = inventoryEquipment.InventoryItems[inventoryIndex];
-                    string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemType, inventoryIndex, false);
-                    if (!string.IsNullOrEmpty(sText))
+                    ItemEntity itemEntity = inventoryEquipment.InventoryItems[inventoryIndex];
+                    if (itemEntity.ItemType.HasValue)
                     {
-                        command = "drink " + sText;
-                        break;
+                        string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemEntity.ItemType.Value, inventoryIndex, false);
+                        if (!string.IsNullOrEmpty(sText))
+                        {
+                            command = "drink " + sText;
+                            break;
+                        }
                     }
                 }
 
@@ -5694,17 +5693,20 @@ BeforeHazy:
         {
             int iIndex = 0;
             List<int> savedIndexes = new List<int>();
-            foreach (ItemTypeEnum nextItem in inventoryEquipment.InventoryItems)
+            foreach (ItemEntity nextItemEntity in inventoryEquipment.InventoryItems)
             {
-                StaticItemData sid = ItemEntity.StaticItemData[nextItem];
-                ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
-                if (potionValidity == ValidPotionType.Primary)
+                if (nextItemEntity.ItemType.HasValue)
                 {
-                    yield return iIndex;
-                }
-                else if (potionValidity == ValidPotionType.Secondary)
-                {
-                    savedIndexes.Add(iIndex);
+                    StaticItemData sid = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value];
+                    ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
+                    if (potionValidity == ValidPotionType.Primary)
+                    {
+                        yield return iIndex;
+                    }
+                    else if (potionValidity == ValidPotionType.Secondary)
+                    {
+                        savedIndexes.Add(iIndex);
+                    }
                 }
                 iIndex++;
             }
@@ -5990,7 +5992,7 @@ BeforeHazy:
                 string sWieldCommand = null;
                 lock (_entityLock)
                 {
-                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryItems.Contains(weaponItemValue))
+                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryContainsItemType(weaponItemValue))
                     {
                         string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false, false);
                         if (!string.IsNullOrEmpty(sWeaponText))

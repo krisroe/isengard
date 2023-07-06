@@ -770,23 +770,40 @@ namespace IsengardClient
             return effectChange;
         }
 
-        public bool AddOrRemoveEntityItemFromInventory(CurrentEntityInfo inventoryEquipment, ItemTypeEnum nextItem, bool isAdd, EntityChangeEntry changeInfo)
+        public bool AddOrRemoveEntityItemFromInventory(CurrentEntityInfo inventoryEquipment, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
         {
-            List<ItemTypeEnum> itemList = inventoryEquipment.InventoryItems;
-            int foundIndex = itemList.LastIndexOf(nextItem);
+            List<ItemEntity> itemList = inventoryEquipment.InventoryItems;
+            int foundIndex = -1;
+            for (int i = itemList.Count - 1; i >= 0; i--)
+            {
+                ItemEntity nextIE = itemList[i];
+                if (nextIE.ItemType.HasValue == nextItemEntity.ItemType.HasValue)
+                {
+                    bool matches;
+                    if (nextIE.ItemType.HasValue)
+                        matches = nextIE.ItemType.Value == nextItemEntity.ItemType.Value;
+                    else
+                        matches = ((UnknownItemEntity)nextIE).Name == ((UnknownItemEntity)nextItemEntity).Name;
+                    if (matches)
+                    {
+                        foundIndex = i;
+                        break;
+                    }
+                }
+            }
             int changeIndex;
             bool effectChange = false;
             if (isAdd)
             {
-                changeIndex = inventoryEquipment.FindNewInventoryItemInsertionPoint(nextItem);
+                changeIndex = inventoryEquipment.FindNewInventoryItemInsertionPoint(nextItemEntity);
                 effectChange = true;
                 if (changeIndex == -1)
                 {
-                    itemList.Add(nextItem);
+                    itemList.Add(nextItemEntity);
                 }
                 else
                 {
-                    itemList.Insert(changeIndex, nextItem);
+                    itemList.Insert(changeIndex, nextItemEntity);
                 }
             }
             else
@@ -815,7 +832,7 @@ namespace IsengardClient
         public List<EntityChange> CurrentEntityChanges { get; set; }
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
         public List<ItemEntity> CurrentRoomItems { get; set; }
-        public List<ItemTypeEnum> InventoryItems { get; set; }
+        public List<ItemEntity> InventoryItems { get; set; }
         public int? TotalInventoryWeight { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
         public List<string> CurrentObviousExits { get; set; }
@@ -835,7 +852,7 @@ namespace IsengardClient
             CurrentEntityChanges = new List<EntityChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
             CurrentRoomItems = new List<ItemEntity>();
-            InventoryItems = new List<ItemTypeEnum>();
+            InventoryItems = new List<ItemEntity>();
             Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
             CurrentObviousExits = new List<string>();
             ObviousExitsTNExpanded = true;
@@ -1066,16 +1083,24 @@ namespace IsengardClient
             return iFoundIndex;
         }
 
-        public int FindNewInventoryItemInsertionPoint(ItemTypeEnum newItem)
+        public int FindNewInventoryItemInsertionPoint(ItemEntity newItem)
         {
-            string sSingular = ItemEntity.StaticItemData[newItem].SingularName;
+            string sSingular;
+            if (newItem.ItemType.HasValue)
+                sSingular = ItemEntity.StaticItemData[newItem.ItemType.Value].SingularName;
+            else
+                sSingular = ((UnknownItemEntity)newItem).Name;
             bool isCapitalized = char.IsUpper(sSingular[0]);
             int i = 0;
             int iFoundIndex = -1;
-            List<ItemTypeEnum> itemList = InventoryItems;
-            foreach (ItemTypeEnum nextItem in itemList)
+            List<ItemEntity> itemList = InventoryItems;
+            foreach (ItemEntity nextItem in itemList)
             {
-                string sNextSingular = ItemEntity.StaticItemData[nextItem].SingularName;
+                string sNextSingular;
+                if (nextItem.ItemType.HasValue)
+                    sNextSingular = ItemEntity.StaticItemData[nextItem.ItemType.Value].SingularName;
+                else
+                    sNextSingular = ((UnknownItemEntity)nextItem).Name;
                 bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
                 bool isBefore = false;
                 if (isCapitalized != nextIsCapitalized)
@@ -1219,7 +1244,7 @@ namespace IsengardClient
             {
                 for (int i = reverseOrder ? InventoryItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < InventoryItems.Count; i += iIncrement)
                 {
-                    if (InventoryItems[i] == itemType)
+                    if (InventoryItems[i].ItemType == itemType)
                     {
                         iCounter++;
                         if (itemCounter == iCounter)
@@ -1316,15 +1341,18 @@ namespace IsengardClient
                 if (validateAgainstOtherSources)
                 {
                     iDuplicateCounter = 0;
-                    foreach (ItemTypeEnum nextItem in InventoryItems)
+                    foreach (ItemEntity nextItemEntity in InventoryItems)
                     {
-                        sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                        foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                        if (nextItemEntity.ItemType.HasValue)
                         {
-                            if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
-                                break;
+                            sSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
+                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            {
+                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                    break;
+                            }
+                            if (iDuplicateCounter == iCounter) break;
                         }
-                        if (iDuplicateCounter == iCounter) break;
                     }
                     isDuplicate = iDuplicateCounter == iCounter;
 
@@ -1393,7 +1421,7 @@ namespace IsengardClient
                     ItemTypeEnum? eItem;
                     if (locationType == ItemLocationType.Inventory)
                     {
-                        eItem = InventoryItems[i];
+                        eItem = InventoryItems[i].ItemType;
                     }
                     else if (locationType == ItemLocationType.Equipment)
                     {
@@ -1442,15 +1470,18 @@ namespace IsengardClient
                     {
                         //validate for a duplicate in inventory
                         iDuplicateCounter = 0;
-                        foreach (ItemTypeEnum nextItem in InventoryItems)
+                        foreach (ItemEntity nextItemEntity in InventoryItems)
                         {
-                            sSingular = ItemEntity.StaticItemData[nextItem].SingularName;
-                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            if (nextItemEntity.ItemType.HasValue)
                             {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
-                                    break;
+                                sSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                        break;
+                                }
+                                if (iDuplicateCounter == iCounter) break;
                             }
-                            if (iDuplicateCounter == iCounter) break;
                         }
                         isDuplicate = iDuplicateCounter == iCounter;
 
@@ -1496,15 +1527,29 @@ namespace IsengardClient
         public int GetTotalInventoryCount(ItemTypeEnum itemType)
         {
             int iCount = 0;
-            foreach (ItemTypeEnum nextItemType in InventoryItems)
+            foreach (ItemEntity nextItemEntity in InventoryItems)
             {
-                if (itemType == nextItemType) iCount++;
+                if (itemType == nextItemEntity.ItemType) iCount++;
             }
             foreach (ItemTypeEnum? nextItemType in Equipment)
             {
                 if (nextItemType == itemType) iCount++;
             }
             return iCount;
+        }
+
+        public bool InventoryContainsItemType(ItemTypeEnum itemType)
+        {
+            bool ret = false;
+            foreach (ItemEntity ie in InventoryItems)
+            {
+                if (itemType == ie.ItemType)
+                {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
         }
 
         /// <summary>
@@ -1531,9 +1576,12 @@ namespace IsengardClient
         /// <returns>inventory and equipment items</returns>
         public IEnumerable<ItemTypeEnum> EnumerateInventoryAndEquipmentItems()
         {
-            foreach (ItemTypeEnum next in InventoryItems)
+            foreach (ItemEntity next in InventoryItems)
             {
-                yield return next;
+                if (next.ItemType.HasValue)
+                {
+                    yield return next.ItemType.Value;
+                }
             }
             foreach (ItemTypeEnum? next in Equipment)
             {
@@ -1550,14 +1598,17 @@ namespace IsengardClient
             foundItem = null;
             inInventory = null;
 
-            foreach (ItemTypeEnum next in InventoryItems)
+            foreach (ItemEntity next in InventoryItems)
             {
-                StaticItemData sid = ItemEntity.StaticItemData[next];
-                if (sid.ItemClass == ItemClass.Potion && sid.Spell.Value == spell)
+                if (next.ItemType.HasValue)
                 {
-                    foundItem = next;
-                    inInventory = true;
-                    ret = true;
+                    StaticItemData sid = ItemEntity.StaticItemData[next.ItemType.Value];
+                    if (sid.ItemClass == ItemClass.Potion && sid.Spell.Value == spell)
+                    {
+                        foundItem = next.ItemType.Value;
+                        inInventory = true;
+                        ret = true;
+                    }
                 }
             }
 
