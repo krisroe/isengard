@@ -901,7 +901,7 @@ namespace IsengardClient
         [ItemClass(ItemClass.Key)]
         DungeonKey,
 
-        [SingularName("dwarven mithril gaiters")]
+        [SingularName("dwarven mithril gaiters")] //CSRTODO: plural
         [SingularSelection("dwarven mithril gaiter")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(4)]
@@ -2018,6 +2018,7 @@ namespace IsengardClient
         [PluralName("tattoo of a snake")] //verified 7/5/23
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
+        [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/6/23
         TattooOfASnake,
 
         [SingularName("tattoo of a wench")]
