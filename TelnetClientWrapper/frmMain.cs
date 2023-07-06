@@ -8114,15 +8114,16 @@ BeforeHazy:
                             bool removedUnknownEntity = false;
                             foreach (var nextChange in nextEntityChange.Changes)
                             {
-                                TreeNode parent;
-                                int iIndex;
-                                if (nextChange.Item != null)
+                                TreeNode parent = null;
+                                int iIndex = -1;
+                                bool effectChange = true;
+                                if (nextChange.RoomItemIndex >= 0 && nextChange.RoomItemAction.HasValue && !nextChange.RoomItemAction.Value)
                                 {
                                     removedItem = true;
                                     parent = tnObviousItems;
                                     iIndex = nextChange.RoomItemIndex;
                                 }
-                                else if (nextChange.UnknownTypeEntity != null)
+                                else if (nextChange.RoomUnknownEntityIndex >= 0 && nextChange.RoomUnknownEntityAction.HasValue && !nextChange.RoomUnknownEntityAction.Value)
                                 {
                                     removedUnknownEntity = true;
                                     parent = tnUnknownEntities;
@@ -8130,9 +8131,12 @@ BeforeHazy:
                                 }
                                 else
                                 {
-                                    throw new InvalidOperationException();
+                                    effectChange = false;
                                 }
-                                parent.Nodes.RemoveAt(iIndex);
+                                if (effectChange)
+                                {
+                                    parent.Nodes.RemoveAt(iIndex);
+                                }
                             }
                             if (removedItem && tnObviousItems.Nodes.Count == 0)
                             {

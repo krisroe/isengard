@@ -729,52 +729,71 @@ namespace IsengardClient
             }
             bool isCoins = sid != null && sid.ItemClass == ItemClass.Coins;
             List<ItemEntity> itemList = entityInfo.CurrentRoomItems;
-            int foundIndex = -1;
+            int foundRoomItemsIndex = -1;
+            int foundUnknownItemsIndex = -1;
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
+                bool matches = false;
                 ItemEntity nextIt = itemList[i];
                 if (nextIt.ItemType.HasValue)
                 {
-                    bool matches = specifiedItemType == nextIt.ItemType.Value;
+                    matches = specifiedItemType == nextIt.ItemType.Value;
                     if (matches && isCoins)
                     {
                         matches = nextItemEntity.Count == nextIt.Count;
                     }
-                    if (matches)
+                }
+                else if (nextItemEntity is UnknownItemEntity)
+                {
+                    matches = ((UnknownItemEntity)nextItemEntity).Name == ((UnknownItemEntity)nextIt).Name;
+                }
+                if (matches)
+                {
+                    foundRoomItemsIndex = i;
+                    break;
+                }
+            }
+            if (foundRoomItemsIndex == -1 && !isAdd && nextItemEntity is UnknownItemEntity)
+            {
+                UnknownItemEntity uie = (UnknownItemEntity)nextItemEntity;
+                for (int i = entityInfo.CurrentUnknownEntities.Count - 1; i >= 0; i--)
+                {
+                    UnknownTypeEntity ute = entityInfo.CurrentUnknownEntities[i];
+                    if (ute.Name == uie.Name)
                     {
-                        foundIndex = i;
+                        foundUnknownItemsIndex = i;
                         break;
                     }
                 }
             }
-            int changeIndex;
-            bool effectChange = false;
+            bool effectChange = true;
             if (isAdd)
             {
-                changeIndex = entityInfo.FindNewRoomItemInsertionPoint(nextItemEntity);
-                effectChange = true;
-                if (changeIndex == -1)
-                {
+                changeInfo.RoomItemIndex = entityInfo.FindNewRoomItemInsertionPoint(nextItemEntity);
+                changeInfo.RoomItemAction = true;
+                if (changeInfo.RoomItemIndex == -1)
                     itemList.Add(nextItemEntity);
-                }
                 else
-                {
-                    itemList.Insert(changeIndex, nextItemEntity);
-                }
+                    itemList.Insert(changeInfo.RoomItemIndex, nextItemEntity);
             }
             else
             {
-                changeIndex = foundIndex;
-                if (foundIndex >= 0)
+                if (foundRoomItemsIndex >= 0)
                 {
-                    itemList.RemoveAt(foundIndex);
-                    effectChange = true;
+                    itemList.RemoveAt(foundRoomItemsIndex);
+                    changeInfo.RoomItemIndex = foundRoomItemsIndex;
+                    changeInfo.RoomItemAction = false;
                 }
-            }
-            if (effectChange)
-            {
-                changeInfo.RoomItemIndex = changeIndex;
-                changeInfo.RoomItemAction = isAdd;
+                else if (foundUnknownItemsIndex >= 0)
+                {
+                    entityInfo.CurrentUnknownEntities.RemoveAt(foundUnknownItemsIndex);
+                    changeInfo.RoomUnknownEntityIndex = foundUnknownItemsIndex;
+                    changeInfo.RoomUnknownEntityAction = false;
+                }
+                else
+                {
+                    effectChange = false;
+                }
             }
             return effectChange;
         }
@@ -873,6 +892,7 @@ namespace IsengardClient
             ObviousItemsTNExpanded = true;
             OtherExitsTNExpanded = true;
             PermMobsTNExpanded = true;
+            UnknownEntitiesExpanded = true;
 
             tnObviousMobs = new TreeNode("Obvious Mobs");
             tnObviousMobs.Name = "tnObviousMobs";
