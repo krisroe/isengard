@@ -9293,6 +9293,9 @@ BeforeHazy:
                 tsmi.Text = "drink";
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
+            tsmi = new ToolStripMenuItem();
+            tsmi.Text = "look";
+            ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             if (isInventory)
             {
                 if (iclass == ItemClass.Scroll)
@@ -9346,6 +9349,7 @@ BeforeHazy:
             SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)ctxInventoryOrEquipmentItem.Tag;
             ItemTypeEnum eItemType = sioei.ItemType;
             ToolStripMenuItem tsmi = (ToolStripMenuItem)e.ClickedItem;
+            string command = tsmi.Text;
             if (tsmi.Text == "Set Weapon")
             {
                 _settingsData.Weapon = eItemType;
@@ -9356,11 +9360,15 @@ BeforeHazy:
                 ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 lock (_entityLock)
                 {
-                    bool validateAgainstOtherSources = ilt == ItemLocationType.Equipment;
+                    bool validateAgainstOtherSources;
+                    if (ilt == ItemLocationType.Equipment)
+                        validateAgainstOtherSources = command != "remove";
+                    else
+                        validateAgainstOtherSources = false;
                     string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
                     if (!string.IsNullOrEmpty(sText))
                     {
-                        SendCommand(e.ClickedItem.Text + " " + sText, InputEchoType.On);
+                        SendCommand(command + " " + sText, InputEchoType.On);
                     }
                 }
             }
