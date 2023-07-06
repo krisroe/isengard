@@ -1604,8 +1604,7 @@ namespace IsengardClient
                         }
                     }
 
-                    List<ItemEntity> currentRoomItems = _currentEntityInfo.CurrentRoomItems;
-                    currentRoomItems.Clear();
+                    _currentEntityInfo.CurrentRoomItems.Clear();
                     List<ItemEntity> items = roomTransitionInfo.Items;
                     if (items != null)
                     {
@@ -1614,9 +1613,9 @@ namespace IsengardClient
                             ItemTypeEnum? itemType = nextItem.ItemType;
                             if (itemType.HasValue)
                             {
-                                foreach (ItemEntity nextSplitEntity in InventoryEquipmentManagementSequence.SplitItemEntity(nextItem, false, null))
+                                foreach (ItemEntity nextSplitEntity in ItemEntity.SplitItemEntity(nextItem, false, null))
                                 {
-                                    currentRoomItems.Add(nextSplitEntity);
+                                    _currentEntityInfo.CurrentRoomItems.Add(nextSplitEntity);
                                     EntityChangeEntry changeEntry = new EntityChangeEntry();
                                     changeEntry.Item = nextSplitEntity;
                                     changeEntry.RoomItemAction = true;
@@ -1626,6 +1625,25 @@ namespace IsengardClient
                             }
                         }
                     }
+
+                    _currentEntityInfo.CurrentUnknownEntities.Clear();
+                    List<UnknownTypeEntity> unknownEntities = roomTransitionInfo.UnknownEntities;
+                    if (unknownEntities != null)
+                    {
+                        foreach (var nextUnknownEntity in unknownEntities)
+                        {
+                            foreach (UnknownTypeEntity nextSplitEntity in UnknownTypeEntity.SplitUnknownTypeEntity(nextUnknownEntity, false, null))
+                            {
+                                _currentEntityInfo.CurrentUnknownEntities.Add(nextUnknownEntity);
+                                EntityChangeEntry changeEntry = new EntityChangeEntry();
+                                changeEntry.UnknownTypeEntity = nextSplitEntity;
+                                changeEntry.RoomUnknownEntityAction = true;
+                                changeEntry.RoomUnknownEntityIndex = -1;
+                                rc.Changes.Add(changeEntry);
+                            }
+                        }
+                    }
+
                     _currentEntityInfo.CurrentEntityChanges.Add(rc);
                     _currentEntityInfo.CurrentRoom = newRoom;
 
@@ -7850,6 +7868,7 @@ BeforeHazy:
                     TreeNode tnObviousExits = _currentEntityInfo.tnObviousExits;
                     TreeNode tnOtherExits = _currentEntityInfo.tnOtherExits;
                     TreeNode tnPermanentMobs = _currentEntityInfo.tnPermanentMobs;
+                    TreeNode tnUnknownEntities = _currentEntityInfo.tnUnknownEntities;
                     foreach (EntityChange nextEntityChange in changes)
                     {
                         EntityChangeType rcType = nextEntityChange.ChangeType;
@@ -7862,6 +7881,7 @@ BeforeHazy:
                             tnObviousExits.Nodes.Clear();
                             tnOtherExits.Nodes.Clear();
                             tnPermanentMobs.Nodes.Clear();
+                            tnUnknownEntities.Nodes.Clear();
                             foreach (var nextEntry in nextEntityChange.Changes)
                             {
                                 if (nextEntry.MobType.HasValue)
@@ -7871,6 +7891,10 @@ BeforeHazy:
                                 else if (nextEntry.Item != null)
                                 {
                                     tnObviousItems.Nodes.Add(GetItemsNode(nextEntry.Item));
+                                }
+                                else if (nextEntry.UnknownTypeEntity != null)
+                                {
+                                    tnUnknownEntities.Nodes.Add(GetUnknownEntitiesNode(nextEntry.UnknownTypeEntity));
                                 }
                             }
                             if (tnObviousMobs.Nodes.Count > 0)
@@ -7887,6 +7911,14 @@ BeforeHazy:
                                 if (firstTimeThrough || _currentEntityInfo.ObviousItemsTNExpanded)
                                 {
                                     tnObviousItems.Expand();
+                                }
+                            }
+                            if (tnUnknownEntities.Nodes.Count > 0)
+                            {
+                                treeCurrentRoom.Nodes.Add(tnUnknownEntities);
+                                if (firstTimeThrough || _currentEntityInfo.UnknownEntitiesExpanded)
+                                {
+                                    tnUnknownEntities.Expand();
                                 }
                             }
                             foreach (string s in nextEntityChange.Exits)
@@ -8036,39 +8068,79 @@ BeforeHazy:
                         }
                         else if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.CreateRoomItems)
                         {
-                            bool hasNodes = tnObviousItems.Nodes.Count > 0;
+                            bool hasItemNodes = tnObviousItems.Nodes.Count > 0;
+                            bool hasUnknownEntityNodes = tnUnknownEntities.Nodes.Count > 0;
+                            bool addedItem = false;
+                            bool addedUnknownEntity = false;
                             foreach (var nextChange in nextEntityChange.Changes)
                             {
+                                TreeNode inserted, parent;
+                                int iIndex;
                                 if (nextChange.Item != null)
                                 {
-                                    TreeNode inserted = GetItemsNode(nextChange.Item);
-                                    if (nextChange.RoomItemIndex == -1)
-                                    {
-                                        tnObviousItems.Nodes.Add(inserted);
-                                    }
-                                    else
-                                    {
-                                        tnObviousItems.Nodes.Insert(nextChange.RoomItemIndex, inserted);
-                                    }
+                                    inserted = GetItemsNode(nextChange.Item);
+                                    iIndex = nextChange.RoomItemIndex;
+                                    addedItem = true;
+                                    parent = tnObviousItems;
                                 }
+                                else if (nextChange.UnknownTypeEntity != null)
+                                {
+                                    inserted = GetUnknownEntitiesNode(nextChange.UnknownTypeEntity);
+                                    iIndex = nextChange.RoomUnknownEntityIndex;
+                                    addedUnknownEntity = true;
+                                    parent = tnUnknownEntities;
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException();
+                                }
+                                if (iIndex == -1)
+                                    parent.Nodes.Add(inserted);
+                                else
+                                    parent.Nodes.Insert(iIndex, inserted);
                             }
-                            if (!hasNodes)
+                            if (!hasItemNodes && addedItem)
                             {
                                 InsertTopLevelTreeNode(tnObviousItems);
+                            }
+                            if (!hasUnknownEntityNodes && addedUnknownEntity)
+                            {
+                                InsertTopLevelTreeNode(tnUnknownEntities);
                             }
                         }
                         else if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.RemoveRoomItems)
                         {
+                            bool removedItem = false;
+                            bool removedUnknownEntity = false;
                             foreach (var nextChange in nextEntityChange.Changes)
                             {
+                                TreeNode parent;
+                                int iIndex;
                                 if (nextChange.Item != null)
                                 {
-                                    tnObviousItems.Nodes.RemoveAt(nextChange.RoomItemIndex);
+                                    removedItem = true;
+                                    parent = tnObviousItems;
+                                    iIndex = nextChange.RoomItemIndex;
                                 }
+                                else if (nextChange.UnknownTypeEntity != null)
+                                {
+                                    removedUnknownEntity = true;
+                                    parent = tnUnknownEntities;
+                                    iIndex = nextChange.RoomUnknownEntityIndex;
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException();
+                                }
+                                parent.Nodes.RemoveAt(iIndex);
                             }
-                            if (tnObviousItems.Nodes.Count == 0)
+                            if (removedItem && tnObviousItems.Nodes.Count == 0)
                             {
                                 treeCurrentRoom.Nodes.Remove(tnObviousItems);
+                            }
+                            if (removedUnknownEntity && tnUnknownEntities.Nodes.Count == 0)
+                            {
+                                treeCurrentRoom.Nodes.Remove(tnUnknownEntities);
                             }
                         }
 
@@ -8249,6 +8321,13 @@ BeforeHazy:
         {
             TreeNode ret = new TreeNode(item.GetItemString());
             ret.Tag = item;
+            return ret;
+        }
+
+        private TreeNode GetUnknownEntitiesNode(UnknownTypeEntity ute)
+        {
+            TreeNode ret = new TreeNode(ute.Name);
+            ret.Tag = ute;
             return ret;
         }
 
@@ -9220,9 +9299,9 @@ BeforeHazy:
             ctxInventoryOrEquipmentItem.Items.Clear();
             ListBox lst = (ListBox)ctxInventoryOrEquipmentItem.SourceControl;
             bool isInventory = lst == lstInventory;
-            StaticItemData sid;
+            StaticItemData sid = null;
             int iCounter = 0;
-            ItemTypeEnum itemType;
+            ItemTypeEnum itemType = ItemTypeEnum.GoldCoins;
             Room r;
             lock (_entityLock)
             {
@@ -9232,20 +9311,22 @@ BeforeHazy:
                     e.Cancel = true;
                     return;
                 }
-                if (isInventory)
+                ItemEntity ie = isInventory ? ((ItemInInventoryList)oObj).Item : ((ItemInEquipmentList)oObj).Item;
+                if (ie.ItemType.HasValue)
                 {
-                    itemType = ((ItemInInventoryList)oObj).Item.ItemType.Value;
+                    itemType = ie.ItemType.Value;
+                    sid = ItemEntity.StaticItemData[itemType];
                 }
-                else
+                else //unknown item cannot be acted on since selection text cannot be constructed
                 {
-                    itemType = ((ItemInEquipmentList)oObj).Item.ItemType.Value;
+                    e.Cancel = true;
+                    return;
                 }
-                sid = ItemEntity.StaticItemData[itemType];
                 if (isInventory)
                 {
                     foreach (ItemInInventoryList nextEntry in lstInventory.Items)
                     {
-                        if (nextEntry.Item.ItemType.Value == itemType)
+                        if (nextEntry.Item.ItemType.HasValue && nextEntry.Item.ItemType == itemType)
                         {
                             iCounter++;
                         }

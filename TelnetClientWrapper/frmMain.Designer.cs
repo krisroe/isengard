@@ -70,6 +70,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnComplete = new System.Windows.Forms.Button();
             this.btnFerry = new System.Windows.Forms.Button();
             this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
@@ -176,7 +177,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.btnComplete = new System.Windows.Forms.Button();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -704,6 +704,18 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnComplete
+            // 
+            this.btnComplete.Enabled = false;
+            this.btnComplete.Location = new System.Drawing.Point(830, 628);
+            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
+            this.btnComplete.Name = "btnComplete";
+            this.btnComplete.Size = new System.Drawing.Size(80, 28);
+            this.btnComplete.TabIndex = 153;
+            this.btnComplete.Text = "Complete";
+            this.btnComplete.UseVisualStyleBackColor = true;
+            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
             // 
             // btnFerry
             // 
@@ -1811,18 +1823,6 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
-            // 
-            // btnComplete
-            // 
-            this.btnComplete.Enabled = false;
-            this.btnComplete.Location = new System.Drawing.Point(830, 628);
-            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
-            this.btnComplete.Name = "btnComplete";
-            this.btnComplete.Size = new System.Drawing.Size(80, 28);
-            this.btnComplete.TabIndex = 153;
-            this.btnComplete.Text = "Complete";
-            this.btnComplete.UseVisualStyleBackColor = true;
-            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
             // 
             // frmMain
             // 

@@ -196,6 +196,78 @@ namespace IsengardClient
             }
             return sText;
         }
+
+        public static IEnumerable<ItemEntity> SplitItemEntity(ItemEntity input, bool expectSingleItem, List<string> errorMessages)
+        {
+            if (input.ItemType.HasValue)
+            {
+                ItemTypeEnum eItemType = input.ItemType.Value;
+                StaticItemData sid = StaticItemData[eItemType];
+                int iEntityCount = input.Count;
+                int iSplitCount;
+                if (sid.ItemClass == ItemClass.Coins)
+                {
+                    iEntityCount = input.SetCount;
+                    iSplitCount = input.Count;
+                }
+                else
+                {
+                    iSplitCount = 1;
+                    if (iEntityCount != 1 && expectSingleItem)
+                    {
+                        errorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + input.Count);
+                    }
+                }
+                if (iEntityCount == 1)
+                {
+                    yield return input;
+                }
+                else
+                {
+                    for (int i = 0; i < iEntityCount; i++)
+                    {
+                        yield return new ItemEntity(eItemType, iSplitCount, 1);
+                    }
+                }
+            }
+            else
+            {
+                yield return input;
+            }
+        }
+
+        public static void ProcessAndSplitItemEntity(ItemEntity ie, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectSingleItem)
+        {
+            if (ie != null)
+            {
+                if (itemList == null) itemList = new List<ItemEntity>();
+                if (ie is UnknownItemEntity)
+                {
+                    flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                    itemList.Add(ie);
+                }
+                else
+                {
+                    foreach (ItemEntity nextIE in ItemEntity.SplitItemEntity(ie, expectSingleItem, flp.ErrorMessages))
+                    {
+                        itemList.Add(nextIE);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// retrieves an item entity from an object text. A single item is expected.
+        /// </summary>
+        /// <param name="ObjectText">object text</param>
+        /// <param name="itemList">list of items, created if null</param>
+        /// <param name="flp">feed line parameters</param>
+        /// <param name="expectCapitalized">whether to expect the first word to be capitalized</param>
+        public static void GetItemEntityFromObjectText(string ObjectText, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectCapitalized)
+        {
+            ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
+            ProcessAndSplitItemEntity(ie, ref itemList, flp, true);
+        }
     }
 
     internal class UnknownItemEntity : ItemEntity

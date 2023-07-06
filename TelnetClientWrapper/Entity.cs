@@ -687,7 +687,16 @@ namespace IsengardClient
             this.Count = count;
             this.PossibleTypes = possibleTypes;
         }
+
+        public static IEnumerable<UnknownTypeEntity> SplitUnknownTypeEntity(UnknownTypeEntity input, bool expectSingleItem, List<string> errorMessages)
+        {
+            for (int i = 0; i < input.Count; i++)
+            {
+                yield return input;
+            }
+        }
     }
+
 
     internal class EntityChange
     {
@@ -832,6 +841,7 @@ namespace IsengardClient
         public List<EntityChange> CurrentEntityChanges { get; set; }
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
         public List<ItemEntity> CurrentRoomItems { get; set; }
+        public List<UnknownTypeEntity> CurrentUnknownEntities { get; set; }
         public List<ItemEntity> InventoryItems { get; set; }
         public int? TotalInventoryWeight { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
@@ -846,12 +856,15 @@ namespace IsengardClient
         public bool OtherExitsTNExpanded { get; set; }
         public TreeNode tnPermanentMobs { get; set; }
         public bool PermMobsTNExpanded { get; set; }
+        public TreeNode tnUnknownEntities { get; set; }
+        public bool UnknownEntitiesExpanded { get; set; }
 
         public CurrentEntityInfo()
         {
             CurrentEntityChanges = new List<EntityChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
             CurrentRoomItems = new List<ItemEntity>();
+            CurrentUnknownEntities = new List<UnknownTypeEntity>();
             InventoryItems = new List<ItemEntity>();
             Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
             CurrentObviousExits = new List<string>();
@@ -876,6 +889,9 @@ namespace IsengardClient
             tnPermanentMobs = new TreeNode("Permanent Mobs");
             tnPermanentMobs.Name = "tnPermanentMobs";
             tnPermanentMobs.Text = "Permanent Mobs";
+            tnUnknownEntities = new TreeNode("Unknown Entities");
+            tnUnknownEntities.Name = "tnUnknownEntities";
+            tnUnknownEntities.Text = "Unknown Entities";
         }
 
         public bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)
@@ -900,6 +916,10 @@ namespace IsengardClient
             else if (topLevelTreeNode == tnPermanentMobs)
             {
                 ret = PermMobsTNExpanded;
+            }
+            else if (topLevelTreeNode == tnUnknownEntities)
+            {
+                ret = UnknownEntitiesExpanded;
             }
             return ret;
         }
@@ -926,6 +946,10 @@ namespace IsengardClient
             else if (topLevelTreeNode == tnPermanentMobs)
             {
                 i = 5;
+            }
+            else if (topLevelTreeNode == tnUnknownEntities)
+            {
+                i = 6;
             }
             return i;
         }
@@ -980,6 +1004,10 @@ namespace IsengardClient
             else if (node == tnPermanentMobs)
             {
                 PermMobsTNExpanded = expanded;
+            }
+            else if (node == tnUnknownEntities)
+            {
+                UnknownEntitiesExpanded = expanded;
             }
         }
 
@@ -1632,6 +1660,10 @@ namespace IsengardClient
     internal class EntityChangeEntry
     {
         /// <summary>
+        /// unknown type entity
+        /// </summary>
+        public UnknownTypeEntity UnknownTypeEntity { get; set; }
+        /// <summary>
         /// type of item being updated
         /// </summary>
         public ItemEntity Item { get; set; }
@@ -1671,5 +1703,13 @@ namespace IsengardClient
         /// true to add to the room mobs, false to remove from room mobs, null for no action
         /// </summary>
         public bool? RoomMobAction { get; set; }
+        /// <summary>
+        /// true to add to unknown room entities, false to remove from unknown room entities, null for no action
+        /// </summary>
+        public bool? RoomUnknownEntityAction { get; set; }
+        /// <summary>
+        /// room unknown entity index to add/remove at
+        /// </summary>
+        public int RoomUnknownEntityIndex { get; set; }
     }
 }

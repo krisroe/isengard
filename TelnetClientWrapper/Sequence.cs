@@ -1352,7 +1352,7 @@ namespace IsengardClient
                     }
                     if (!string.IsNullOrEmpty(objectText))
                     {
-                        GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
+                        ItemEntity.GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
                     }
                 }
                 if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)
@@ -1377,79 +1377,6 @@ namespace IsengardClient
                 }
             }
             return ret;
-        }
-
-
-        public static void ProcessAndSplitItemEntity(ItemEntity ie, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectSingleItem)
-        {
-            if (ie != null)
-            {
-                if (itemList == null) itemList = new List<ItemEntity>();
-                if (ie is UnknownItemEntity)
-                {
-                    flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                    itemList.Add(ie);
-                }
-                else
-                {
-                    foreach (ItemEntity nextIE in SplitItemEntity(ie, expectSingleItem, flp.ErrorMessages))
-                    {
-                        itemList.Add(nextIE);
-                    }
-                }
-            }
-        }
-
-        public static IEnumerable<ItemEntity> SplitItemEntity(ItemEntity input, bool expectSingleItem, List<string> errorMessages)
-        {
-            if (input.ItemType.HasValue)
-            {
-                ItemTypeEnum eItemType = input.ItemType.Value;
-                StaticItemData sid = ItemEntity.StaticItemData[eItemType];
-                int iEntityCount = input.Count;
-                int iSplitCount;
-                if (sid.ItemClass == ItemClass.Coins)
-                {
-                    iEntityCount = input.SetCount;
-                    iSplitCount = input.Count;
-                }
-                else
-                {
-                    iSplitCount = 1;
-                    if (iEntityCount != 1 && expectSingleItem)
-                    {
-                        errorMessages.Add("Unexpected item count for " + eItemType.ToString() + ": " + input.Count);
-                    }
-                }
-                if (iEntityCount == 1)
-                {
-                    yield return input;
-                }
-                else
-                {
-                    for (int i = 0; i < iEntityCount; i++)
-                    {
-                        yield return new ItemEntity(eItemType, iSplitCount, 1);
-                    }
-                }
-            }
-            else
-            {
-                yield return input;
-            }
-        }
-
-        /// <summary>
-        /// retrieves an item entity from an object text. A single item is expected.
-        /// </summary>
-        /// <param name="ObjectText">object text</param>
-        /// <param name="itemList">list of items, created if null</param>
-        /// <param name="flp">feed line parameters</param>
-        /// <param name="expectCapitalized">whether to expect the first word to be capitalized</param>
-        public static void GetItemEntityFromObjectText(string ObjectText, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectCapitalized)
-        {
-            ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
-            ProcessAndSplitItemEntity(ie, ref itemList, flp, true);
         }
     }
 
@@ -1484,7 +1411,7 @@ namespace IsengardClient
         public List<PlayerEntity> Players { get; set; }
         public List<ItemEntity> Items { get; set; }
         public List<MobEntity> Mobs { get; set; }
-        public List<Entity> UnknownEntities { get; set; }
+        public List<UnknownTypeEntity> UnknownEntities { get; set; }
         public bool DrankHazy { get; set; }
     }
 
@@ -1646,7 +1573,7 @@ namespace IsengardClient
                 return false;
             }
 
-            List<Entity> unknownEntities = new List<Entity>();
+            List<UnknownTypeEntity> unknownEntities = new List<UnknownTypeEntity>();
             List<ItemEntity> items = new List<ItemEntity>();
             List<MobEntity> mobs = new List<MobEntity>();
             List<PlayerEntity> players = new List<PlayerEntity>();
@@ -1691,7 +1618,7 @@ namespace IsengardClient
                     EntityType foundTypeValue = foundType.Value;
                     if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList2, flParams.ErrorMessages, EntityTypeFlags.Mob);
+                        LoadMobs(mobs, null, roomList2, flParams.ErrorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
@@ -1758,7 +1685,7 @@ namespace IsengardClient
                     }
                     else if (foundTypeValue == EntityType.Mob)
                     {
-                        LoadMobs(mobs, roomList1, flParams.ErrorMessages, EntityTypeFlags.Mob);
+                        LoadMobs(mobs, null, roomList1, flParams.ErrorMessages, EntityTypeFlags.Mob);
                     }
                     else if (foundTypeValue == EntityType.Item)
                     {
@@ -1778,7 +1705,7 @@ namespace IsengardClient
                     possibleTypes &= ~EntityTypeFlags.Player;
                     if (mobs.Count == 0)
                     {
-                        LoadMobs(mobs, roomList1, flParams.ErrorMessages, possibleTypes);
+                        LoadMobs(mobs, unknownEntities, roomList1, flParams.ErrorMessages, possibleTypes);
                     }
                     else
                     {
@@ -1792,7 +1719,7 @@ namespace IsengardClient
                             }
                             else
                             {
-                                unknownEntities.Add(e);
+                                unknownEntities.Add((UnknownTypeEntity)e);
                             }
                         }
                     }
@@ -1900,7 +1827,7 @@ StartProcessRoom:
                 items.Add(e);
             }
         }
-        private static void LoadMobs(List<MobEntity> mobs, List<string> mobNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
+        private static void LoadMobs(List<MobEntity> mobs, List<UnknownTypeEntity> unknownEntities, List<string> mobNames, List<string> errorMessages, EntityTypeFlags possibleEntityTypes)
         {
             foreach (string next in mobNames)
             {
@@ -1908,6 +1835,10 @@ StartProcessRoom:
                 if (CheckForValidMob(next, e, errorMessages, possibleEntityTypes))
                 {
                     mobs.Add((MobEntity)e);
+                }
+                else if (e is UnknownTypeEntity && unknownEntities != null)
+                {
+                    unknownEntities.Add((UnknownTypeEntity)e);
                 }
             }
         }
@@ -2276,7 +2207,7 @@ StartProcessRoom:
                         RoomTransitionSequence.LoadMustBeItems(itemsFirstPass, itemsString, flParams.ErrorMessages);
                         foreach (ItemEntity next in itemsFirstPass)
                         {
-                            InventoryEquipmentManagementSequence.ProcessAndSplitItemEntity(next, ref items, flParams, false);
+                            ItemEntity.ProcessAndSplitItemEntity(next, ref items, flParams, false);
                         }
                     }
                 }
@@ -3525,7 +3456,7 @@ StartProcessRoom:
                         if (suffixIndex > 0)
                         {
                             string objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
-                            InventoryEquipmentManagementSequence.GetItemEntityFromObjectText(objectText, ref consumedItems, flParams, true);
+                            ItemEntity.GetItemEntityFromObjectText(objectText, ref consumedItems, flParams, true);
                         }
                     }
                     else if (!string.IsNullOrWhiteSpace(nextLine) &&
