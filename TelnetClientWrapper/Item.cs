@@ -937,8 +937,25 @@ namespace IsengardClient
         [Sellable(86)]
         ElvenChainMailGloves,
 
-        [SingularName("elven cured leather gloves")]
+        [SingularName("elven cured leather armor")] //collective plural verified 7/6/23
+        [EquipmentType(EquipmentType.Torso)]
+        [Weight(1)]
+        [ArmorClass(1.2)]
+        [Sellable(247)]
+        ElvenCuredLeatherArmor,
+
+        [SingularName("elven cured leather boots")] //collective plural verified 7/6/23
+        [EquipmentType(EquipmentType.Feet)]
+        [Weight(1)]
+        [ArmorClass(0.4)]
+        [Sellable(61)]
+        ElvenCuredLeatherBoots,
+
+        [SingularName("elven cured leather gloves")] //collective plural verified 7/6/23
         [EquipmentType(EquipmentType.Hands)]
+        [Weight(1)]
+        [ArmorClass(0.4)]
+        [Sellable(61)]
         ElvenCuredLeatherGloves,
 
         [SingularName("elven cured leather hood")]
@@ -946,7 +963,22 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
         [ArmorClass(0.8)]
+        [Sellable(185)]
         ElvenCuredLeatherHood,
+
+        [SingularName("elven cured leather leggings")] //collective plural verified 7/6/23
+        [EquipmentType(EquipmentType.Legs)]
+        [Weight(1)]
+        [ArmorClass(0.4)]
+        [Sellable(123)]
+        ElvenCuredLeatherLeggings,
+
+        [SingularName("elven cured leather sleeves")] //collective plural verified 7/6/23
+        [EquipmentType(EquipmentType.Arms)]
+        [Weight(1)]
+        [ArmorClass(0.4)]
+        [Sellable(123)]
+        ElvenCuredLeatherSleeves,
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]

@@ -9,6 +9,31 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestEntityCreation()
         {
+            try
+            {
+                TestEntityCreationPrivate();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.ToString());
+            }
+        }
+
+        [TestMethod]
+        public void TestRoomProcessing()
+        {
+            try
+            {
+                TestRoomProcessingPrivate();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.ToString());
+            }
+        }
+
+        private void TestEntityCreationPrivate()
+        {
             List<string> errorMessages = new List<string>();
             ItemEntity item;
             MobEntity mob;
@@ -110,8 +135,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(mob.MobType == MobTypeEnum.Vagrant);
         }
 
-        [TestMethod]
-        public void TestRoomProcessing()
+        private void TestRoomProcessingPrivate()
         {
             RoomTransitionInfo oRTI = null;
             int? iDamage = null;
