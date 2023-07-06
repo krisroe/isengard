@@ -176,6 +176,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.btnComplete = new System.Windows.Forms.Button();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -644,6 +645,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnComplete);
             this.pnlMain.Controls.Add(this.btnFerry);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
@@ -1810,6 +1812,18 @@
             this.pnlCommand.Size = new System.Drawing.Size(204, 50);
             this.pnlCommand.TabIndex = 30;
             // 
+            // btnComplete
+            // 
+            this.btnComplete.Enabled = false;
+            this.btnComplete.Location = new System.Drawing.Point(830, 628);
+            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
+            this.btnComplete.Name = "btnComplete";
+            this.btnComplete.Size = new System.Drawing.Size(80, 28);
+            this.btnComplete.TabIndex = 153;
+            this.btnComplete.Text = "Complete";
+            this.btnComplete.UseVisualStyleBackColor = true;
+            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2012,6 +2026,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
         private System.Windows.Forms.Button btnFerry;
+        private System.Windows.Forms.Button btnComplete;
     }
 }
 

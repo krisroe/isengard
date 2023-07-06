@@ -6646,6 +6646,7 @@ BeforeHazy:
                 tsddb.Enabled = enabled;
             }
             btnAbort.Enabled = running;
+            btnComplete.Enabled = running && bwp.IsForPermRun();
             EnableDisableActionButtons(bwp);
         }
 
@@ -7174,9 +7175,25 @@ BeforeHazy:
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
+            DoAbort();
+        }
+
+        /// <summary>
+        /// handles manually completing a perm run. The intent of the button is for when the fulling finishes, but the logic doesn't
+        /// pick up on it for a few seconds, so the player can finish it a few seconds early.
+        /// </summary>
+        private void btnComplete_Click(object sender, EventArgs e)
+        {
+            _currentBackgroundParameters.Success = true;
+            DoAbort();
+        }
+
+        private void DoAbort()
+        {
             _currentBackgroundParameters.Cancelled = true;
             _bw.CancelAsync();
             btnAbort.Enabled = false;
+            btnComplete.Enabled = false;
         }
 
         private void btnSet_Click(object sender, EventArgs e)
