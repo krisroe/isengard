@@ -1103,6 +1103,13 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Face)]
         GoldenMaskOfTheGods,
 
+        [SingularName("gold ring")]
+        [PluralName("gold rings")]
+        [EquipmentType(EquipmentType.Unknown)] //when worn, shocks and drops
+        [Weight(2)]
+        [Sellable(123)]
+        GoldRing,
+
         [SingularName("gold sword")]
         [PluralName("gold swords")]
         [WeaponType(WeaponType.Stab)]

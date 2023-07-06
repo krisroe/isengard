@@ -1265,18 +1265,22 @@ namespace IsengardClient
                         if (objectLen <= 0) return;
                         objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
                     }
-                    else if (nextLine.EndsWith(" disintegrates."))
+                    else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " disintegrates.", ref objectText))
                     {
                         if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem)
                         {
                             return;
                         }
                         eAction = ItemManagementAction.ConsumeItem;
-                        int suffixIndex = nextLine.IndexOf(" disintegrates.");
-                        if (suffixIndex > 0)
+                        expectCapitalized = true;
+                    }
+                    else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " shocks you and you drop it.", ref objectText))
+                    {
+                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
                         {
-                            objectText = nextLine.Substring(0, lineLength - " disintegrates.".Length);
+                            return;
                         }
+                        eAction = ItemManagementAction.DropItem;
                         expectCapitalized = true;
                     }
                     else if (nextLine == "Substance consumed.")
@@ -1358,6 +1362,23 @@ namespace IsengardClient
                 }
             }
         }
+
+        private static bool GetObjectTextForMessageWithSpecificSuffix(string nextLine, string suffix, ref string objectText)
+        {
+            bool ret = false;
+            if (nextLine.EndsWith(suffix))
+            {
+                int lineLength = nextLine.Length;
+                int suffixIndex = nextLine.IndexOf(suffix);
+                if (suffixIndex > 0)
+                {
+                    objectText = nextLine.Substring(0, lineLength - suffix.Length);
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
 
         public static void ProcessAndSplitItemEntity(ItemEntity ie, ref List<ItemEntity> itemList, FeedLineParameters flp, bool expectSingleItem)
         {

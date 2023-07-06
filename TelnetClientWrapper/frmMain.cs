@@ -5378,7 +5378,7 @@ BeforeHazy:
                 if (!castSomething)
                 {
                     RunPollTickIfNecessary(_autohp, _automp, DateTime.UtcNow);
-                    int waitInterval = 5000;
+                    int waitInterval = numTicksForFullMP <= 2 && numTicksForFullHP <= 1 ? 500 : 5000;
                     while (waitInterval > 0)
                     {
                         Thread.Sleep(50);
