@@ -1811,7 +1811,12 @@ namespace IsengardClient
             AddExit(breeStreets[0, 9], oTempleOfLolth, "temple");
             AddExit(oTempleOfLolth, breeStreets[0, 9], "west");
             breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(0.67, 1);
-            //CSRTODO: underground temple (not straightforward return)
+
+            Room oUndergroundTemple = AddRoom("Underground Temple", "Underground Temple of Lolth");
+            e = AddExit(oTempleOfLolth, oUndergroundTemple, "underground temple");
+            e.Hidden = true;
+            breeStreetsGraph.Rooms[oUndergroundTemple] = new System.Windows.Point(0.67, 0.75);
+            //CSRTODO: more hidden rooms from here
 
             Room oReadyRoom = AddRoom("Ready Room", "Ready Room");
             AddExit(oToArena, oReadyRoom, "arena");
