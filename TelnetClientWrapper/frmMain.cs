@@ -6442,18 +6442,21 @@ BeforeHazy:
 
         private void RunQueuedCommandWhenBackgroundProcessRunning(BackgroundWorkerParameters pms)
         {
-            string sQueuedCommand;
+            List<string> queuedCommands = null;
             lock (_queuedCommandLock)
             {
-                sQueuedCommand = pms.QueuedCommand;
-                if (sQueuedCommand != null)
+                if (pms.QueuedCommands.Count > 0)
                 {
-                    pms.QueuedCommand = null;
+                    queuedCommands = new List<string>(pms.QueuedCommands);
                 }
+                pms.QueuedCommands.Clear();
             }
-            if (!string.IsNullOrEmpty(sQueuedCommand))
+            if (queuedCommands != null)
             {
-                SendCommand(sQueuedCommand, InputEchoType.On);
+                foreach (string next in queuedCommands)
+                {
+                    SendCommand(next, InputEchoType.On);
+                }
             }
         }
 
@@ -7156,7 +7159,7 @@ BeforeHazy:
             {
                 lock (_queuedCommandLock)
                 {
-                    _currentBackgroundParameters.QueuedCommand = command;
+                    _currentBackgroundParameters.QueuedCommands.Add(command);
                 }
             }
             else

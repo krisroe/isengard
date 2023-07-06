@@ -4,6 +4,10 @@ namespace IsengardClient
 {
     internal class BackgroundWorkerParameters
     {
+        public BackgroundWorkerParameters()
+        {
+            QueuedCommands = new List<string>();
+        }
         /// <summary>
         /// exits to traverse in the background
         /// </summary>
@@ -22,7 +26,7 @@ namespace IsengardClient
         public InventoryManagementWorkflow InventoryManagementFlow { get; set; }
         public bool Cancelled { get; set; }
         public Strategy Strategy { get; set; }
-        public string QueuedCommand { get; set; }
+        public List<string> QueuedCommands { get; set; }
         public MagicStrategyStep? QueuedMagicStep { get; set; }
         public MeleeStrategyStep? QueuedMeleeStep { get; set; }
         public PotionsStrategyStep? QueuedPotionsStep { get; set; }
