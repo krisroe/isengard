@@ -311,6 +311,10 @@
         [Alignment(AlignmentType.DullRed)]
         DroolieTheTroll,
 
+        [SingularName("drow elf")]
+        [PluralName("drow elfs")] //verified 7/5/23
+        DrowElf,
+
         [SingularName("drunk")]
         [PluralName("drunks")]
         [Alignment(AlignmentType.DullRed)]
