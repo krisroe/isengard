@@ -4464,21 +4464,21 @@ BeforeHazy:
                 if (!pms.Fled && !pms.Hazied)
                 {
                     backgroundCommandResult = DoInventoryManagement(pms);
-                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
                     {
                         return;
                     }
                     if (!_hazying && pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
                     {
                         backgroundCommandResult = NavigateToTickRoom(pms, false);
-                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
                         {
                             return;
                         }
                         if (!_hazying)
                         {
                             backgroundCommandResult = GetFullInBackground(pms, false);
-                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout)
+                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
                             }
@@ -7317,26 +7317,34 @@ BeforeHazy:
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
 
+            bool defaultFullAfterFinishing;
+            bool defaultFullBeforeStarting;
             if (strategy.TypesWithStepsEnabled == CommandType.None)
-                inventoryFlow = InventoryProcessInputType.ProcessAllItemsInRoom;
-            else
-                inventoryFlow = InventoryProcessInputType.ProcessMonsterDrops;
-
-            bool defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
-            if (!defaultFullBeforeStarting)
             {
-                WorkflowSpells alwaysOnSpells = _settingsData.AlwaysOnSpells;
-                foreach (WorkflowSpells next in Enum.GetValues(typeof(WorkflowSpells)))
+                defaultFullBeforeStarting = false;
+                defaultFullAfterFinishing = false;
+                inventoryFlow = InventoryProcessInputType.ProcessAllItemsInRoom;
+            }
+            else
+            {
+                defaultFullAfterFinishing = true;
+                inventoryFlow = InventoryProcessInputType.ProcessMonsterDrops;
+                defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
+                if (!defaultFullBeforeStarting)
                 {
-                    if ((next & alwaysOnSpells) != WorkflowSpells.None)
+                    WorkflowSpells alwaysOnSpells = _settingsData.AlwaysOnSpells;
+                    foreach (WorkflowSpells next in Enum.GetValues(typeof(WorkflowSpells)))
                     {
-                        SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[next];
-                        lock (_spellsCastLock)
+                        if ((next & alwaysOnSpells) != WorkflowSpells.None)
                         {
-                            if (!_spellsCast.Contains(sia.SpellName))
+                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[next];
+                            lock (_spellsCastLock)
                             {
-                                defaultFullBeforeStarting = true;
-                                break;
+                                if (!_spellsCast.Contains(sia.SpellName))
+                                {
+                                    defaultFullBeforeStarting = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -7349,7 +7357,7 @@ BeforeHazy:
             bool fullBeforeStarting;
             bool fullAfterFinishing;
             Room targetRoom;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, defaultFullBeforeStarting, workflowSpellsCast, workflowSpellsPotions))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, defaultFullBeforeStarting, defaultFullAfterFinishing, workflowSpellsCast, workflowSpellsPotions))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
