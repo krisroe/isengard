@@ -6678,8 +6678,7 @@ BeforeHazy:
             {
                 yield return btn;
             }
-            yield return btnGraph;
-            yield return btnLocations;
+            yield return btnFerry;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -8814,7 +8813,8 @@ BeforeHazy:
         private void btnGraph_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
-            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, GetGraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
+            bool readOnly = _currentBackgroundParameters != null;
+            frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, GetGraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, readOnly);
             if (frm.ShowDialog().GetValueOrDefault(false))
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;
@@ -8840,7 +8840,8 @@ BeforeHazy:
         private void btnLocations_Click(object sender, EventArgs e)
         {
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
-            frmLocations frm = new frmLocations(_gameMap, _settingsData, originalCurrentRoom, false, GetGraphInputs);
+            bool readOnly = _currentBackgroundParameters != null;
+            frmLocations frm = new frmLocations(_gameMap, _settingsData, originalCurrentRoom, false, GetGraphInputs, readOnly);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 Room newCurrentRoom = _currentEntityInfo.CurrentRoom;

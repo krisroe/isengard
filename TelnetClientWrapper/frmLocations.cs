@@ -10,13 +10,15 @@ namespace IsengardClient
         private IsengardSettingData _settingsData;
         private Func<GraphInputs> _graphInputs;
         private bool _forRoomSelection;
+        private bool _readOnly;
 
-        public frmLocations(IsengardMap fullMap, IsengardSettingData settingsData, Room currentRoom, bool forRoomSelection, Func<GraphInputs> gi)
+        public frmLocations(IsengardMap fullMap, IsengardSettingData settingsData, Room currentRoom, bool forRoomSelection, Func<GraphInputs> gi, bool readOnly)
         {
             InitializeComponent();
 
             _fullMap = fullMap;
             _settingsData = settingsData;
+            _readOnly = readOnly;
             CurrentRoom = currentRoom;
             _graphInputs = gi;
             _forRoomSelection = forRoomSelection;
@@ -243,7 +245,7 @@ namespace IsengardClient
                 int iIndex = parentCollection.IndexOf(selectedNode);
                 tsmiMoveDown.Enabled = iIndex < parentCollection.Count - 1;
                 tsmiMoveUp.Enabled = iIndex > 0;
-                if (!_forRoomSelection)
+                if (!_readOnly && !_forRoomSelection)
                 {
                     Room r = ((LocationNode)selectedNode.Tag).FindRoom(_fullMap);
                     showSetCurrentLocation = r != null && r != CurrentRoom;
@@ -287,31 +289,34 @@ namespace IsengardClient
 
         private void treeLocations_DoubleClick(object sender, EventArgs e)
         {
-            Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
-            if (r != null)
+            if (!_readOnly)
             {
-                if (!_forRoomSelection)
+                Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
+                if (r != null)
                 {
-                    if (CurrentRoom == null)
+                    if (!_forRoomSelection)
                     {
-                        MessageBox.Show("No current room.");
-                        return;
+                        if (CurrentRoom == null)
+                        {
+                            MessageBox.Show("No current room.");
+                            return;
+                        }
+                        if (r == CurrentRoom)
+                        {
+                            MessageBox.Show("Already at selected room.");
+                            return;
+                        }
+                        SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, r, _graphInputs());
+                        if (SelectedPath == null)
+                        {
+                            MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
+                            return;
+                        }
                     }
-                    if (r == CurrentRoom)
-                    {
-                        MessageBox.Show("Already at selected room.");
-                        return;
-                    }
-                    SelectedPath = MapComputation.ComputeLowestCostPath(this.CurrentRoom, r, _graphInputs());
-                    if (SelectedPath == null)
-                    {
-                        MessageBox.Show("No path to target room found.", "Go to Room", MessageBoxButtons.OK);
-                        return;
-                    }
+                    SelectedRoom = r;
+                    this.DialogResult = DialogResult.OK;
+                    Close();
                 }
-                SelectedRoom = r;
-                this.DialogResult = DialogResult.OK;
-                Close();
             }
         }
     }

@@ -75,7 +75,7 @@ namespace IsengardClient
         private void btnSelect_Click(object sender, EventArgs e)
         {
             Room starterRoom = _selectedRoom ?? _currentRoom;
-            frmGraph fg = new frmGraph(_fullMap, starterRoom, true, _gi, VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName);
+            frmGraph fg = new frmGraph(_fullMap, starterRoom, true, _gi, VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName, false);
             if (fg.ShowDialog().GetValueOrDefault(false))
             {
                 _selectedRoom = fg.SelectedRoom;

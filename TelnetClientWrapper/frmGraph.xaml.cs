@@ -17,13 +17,15 @@ namespace IsengardClient
         private bool _forVertexSelection;
         private Func<GraphInputs> _graphInputs;
         private VertexSelectionRequirement _selectionRequirement;
+        private bool _readOnly;
 
-        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, Func<GraphInputs> graphInputs, VertexSelectionRequirement selectionRequirement)
+        internal frmGraph(IsengardMap fullMap, Room currentRoom, bool forVertexSelection, Func<GraphInputs> graphInputs, VertexSelectionRequirement selectionRequirement, bool readOnly)
         {
             InitializeComponent();
 
             _graphInputs = graphInputs;
             _fullMap = fullMap;
+            _readOnly = readOnly;
             graphLayout.LayoutAlgorithmType = string.Empty;
             graphLayout.LayoutAlgorithmFactory = new RoomLayoutAlgorithmFactory();
             CurrentRoom = currentRoom;
@@ -119,7 +121,7 @@ namespace IsengardClient
                 Room oRoom = (Room)vc.Vertex;
                 ContextMenu ctx = new ContextMenu();
                 MenuItem mnu;
-                if (CurrentRoom != oRoom)
+                if (!_readOnly && CurrentRoom != oRoom)
                 {
                     if (_forVertexSelection || CurrentRoom != null)
                     {

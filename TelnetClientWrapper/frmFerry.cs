@@ -103,14 +103,14 @@ namespace IsengardClient
 
         private void DisplayLocations(bool isSource)
         {
-            frmLocations locationsForm = new frmLocations(_gameMap, _settings, _currentRoom, true, _GraphInputs);
+            frmLocations locationsForm = new frmLocations(_gameMap, _settings, _currentRoom, true, _GraphInputs, false);
             locationsForm.ShowDialog();
             EnsureRoomSelectedInDropdown(isSource ? cboSourceRoom : cboTargetRoom, locationsForm.SelectedRoom);
         }
 
         private void DisplayGraph(bool isSource)
         {
-            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation);
+            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, false);
             graphForm.ShowDialog();
             EnsureRoomSelectedInDropdown(isSource ? cboSourceRoom : cboTargetRoom, graphForm.SelectedRoom);
         }
