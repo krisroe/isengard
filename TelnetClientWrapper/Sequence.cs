@@ -1208,10 +1208,7 @@ namespace IsengardClient
                             {
                                 flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
                             }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
+                            itemsManaged.Add(ie);
                         }
                     }
                 }
@@ -1234,10 +1231,7 @@ namespace IsengardClient
                             {
                                 flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
                             }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
+                            itemsManaged.Add(ie);
                         }
                     }
                 }

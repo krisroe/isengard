@@ -160,30 +160,38 @@ namespace IsengardClient
         /// <returns>text for the item</returns>
         internal string GetItemString()
         {
-            StaticItemData sid = ItemEntity.StaticItemData[this.ItemType.Value];
-            ItemClass eItemClass = sid.ItemClass;
-            string sText = sid.SingularName;
-            if (eItemClass == ItemClass.Coins)
+            string sText;
+            if (this is UnknownItemEntity)
             {
-                sText = this.Count + " " + sText;
+                sText = ((UnknownItemEntity)this).Name;
             }
-            if (eItemClass != ItemClass.Coins && eItemClass != ItemClass.Money)
+            else
             {
-                if (sid.Weight > 0)
+                StaticItemData sid = StaticItemData[this.ItemType.Value];
+                ItemClass eItemClass = sid.ItemClass;
+                sText = sid.SingularName;
+                if (eItemClass == ItemClass.Coins)
                 {
-                    sText = sText + " #" + sid.Weight.ToString();
+                    sText = this.Count + " " + sText;
                 }
-                if (sid.ArmorClass > 0)
+                if (eItemClass != ItemClass.Coins && eItemClass != ItemClass.Money)
                 {
-                    sText = sText + " " + sid.ArmorClass.ToString("N1") + "ac";
-                }
-                if (sid.Sellable == SellableEnum.Junk)
-                {
-                    sText = sText + " junk";
-                }
-                else if (sid.SellGold != 0)
-                {
-                    sText = sText + " $" + sid.SellGold;
+                    if (sid.Weight > 0)
+                    {
+                        sText = sText + " #" + sid.Weight.ToString();
+                    }
+                    if (sid.ArmorClass > 0)
+                    {
+                        sText = sText + " " + sid.ArmorClass.ToString("N1") + "ac";
+                    }
+                    if (sid.Sellable == SellableEnum.Junk)
+                    {
+                        sText = sText + " junk";
+                    }
+                    else if (sid.SellGold != 0)
+                    {
+                        sText = sText + " $" + sid.SellGold;
+                    }
                 }
             }
             return sText;
@@ -1994,10 +2002,10 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Torso)]
         TigerSharkLeatherArmor,
 
-        [SingularName("toilet paper")]
-        //CSRTODO: collective plural?
+        [SingularName("toilet paper")] //verified collective 7/5/23
         [Wand(SpellsEnum.stun)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         ToiletPaper,
 
         [SingularName("topaz")]

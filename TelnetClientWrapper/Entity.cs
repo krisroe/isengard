@@ -712,23 +712,30 @@ namespace IsengardClient
 
         public bool AddOrRemoveEntityItemFromRoomItems(CurrentEntityInfo entityInfo, ItemEntity nextItemEntity, bool isAdd, EntityChangeEntry changeInfo)
         {
-            ItemTypeEnum itemTypeValue = nextItemEntity.ItemType.Value;
-            StaticItemData sid = ItemEntity.StaticItemData[itemTypeValue];
-            bool isCoins = sid.ItemClass == ItemClass.Coins;
+            ItemTypeEnum? specifiedItemType = nextItemEntity.ItemType;
+            StaticItemData sid = null;
+            if (specifiedItemType.HasValue)
+            {
+                sid = ItemEntity.StaticItemData[specifiedItemType.Value];
+            }
+            bool isCoins = sid != null && sid.ItemClass == ItemClass.Coins;
             List<ItemEntity> itemList = entityInfo.CurrentRoomItems;
             int foundIndex = -1;
             for (int i = itemList.Count - 1; i >= 0; i--)
             {
                 ItemEntity nextIt = itemList[i];
-                bool matches = itemTypeValue == nextIt.ItemType.Value;
-                if (matches && isCoins)
+                if (nextIt.ItemType.HasValue)
                 {
-                    matches = nextItemEntity.Count == nextIt.Count;
-                }
-                if (matches)
-                {
-                    foundIndex = i;
-                    break;
+                    bool matches = specifiedItemType == nextIt.ItemType.Value;
+                    if (matches && isCoins)
+                    {
+                        matches = nextItemEntity.Count == nextIt.Count;
+                    }
+                    if (matches)
+                    {
+                        foundIndex = i;
+                        break;
+                    }
                 }
             }
             int changeIndex;
@@ -1005,45 +1012,56 @@ namespace IsengardClient
             return iRet;
         }
 
+        /// <summary>
+        /// finds the insertion point for a new room item. Unknown items are placed at the end of the list.
+        /// </summary>
+        /// <param name="newItemEntity">item to add</param>
+        /// <returns>insertion point for the item</returns>
         public int FindNewRoomItemInsertionPoint(ItemEntity newItemEntity)
         {
-            StaticItemData newSID = ItemEntity.StaticItemData[newItemEntity.ItemType.Value];
-            string sSingular = newSID.SingularName;
-            bool isCapitalized = char.IsUpper(sSingular[0]);
-            int i = 0;
             int iFoundIndex = -1;
-            List<ItemEntity> itemList = CurrentRoomItems;
-            foreach (ItemEntity nextItemEntity in itemList)
+            if (newItemEntity.ItemType.HasValue)
             {
-                StaticItemData nextSID = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value];
-                bool isBefore = false;
-                if ((nextSID.ItemClass == ItemClass.Coins) != (newSID.ItemClass == ItemClass.Coins))
+                StaticItemData newSID = ItemEntity.StaticItemData[newItemEntity.ItemType.Value];
+                string sSingular = newSID.SingularName;
+                bool isCapitalized = char.IsUpper(sSingular[0]);
+                int i = 0;
+                List<ItemEntity> itemList = CurrentRoomItems;
+                foreach (ItemEntity nextItemEntity in itemList)
                 {
-                    isBefore = newSID.ItemClass == ItemClass.Coins;
-                }
-                else if (nextItemEntity.ItemType.Value == newItemEntity.ItemType.Value)
-                {
-                    isBefore = newItemEntity.Count < nextItemEntity.Count;
-                }
-                else
-                {
-                    string sNextSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
-                    bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
-                    if (isCapitalized != nextIsCapitalized)
+                    if (nextItemEntity.ItemType.HasValue)
                     {
-                        isBefore = isCapitalized;
+                        StaticItemData nextSID = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value];
+                        bool isBefore = false;
+                        if ((nextSID.ItemClass == ItemClass.Coins) != (newSID.ItemClass == ItemClass.Coins))
+                        {
+                            isBefore = newSID.ItemClass == ItemClass.Coins;
+                        }
+                        else if (nextItemEntity.ItemType.Value == newItemEntity.ItemType.Value)
+                        {
+                            isBefore = newItemEntity.Count < nextItemEntity.Count;
+                        }
+                        else
+                        {
+                            string sNextSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
+                            bool nextIsCapitalized = char.IsUpper(sNextSingular[0]);
+                            if (isCapitalized != nextIsCapitalized)
+                            {
+                                isBefore = isCapitalized;
+                            }
+                            else
+                            {
+                                isBefore = sSingular.CompareTo(sNextSingular) < 0;
+                            }
+                        }
+                        if (isBefore)
+                        {
+                            iFoundIndex = i;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        isBefore = sSingular.CompareTo(sNextSingular) < 0;
-                    }
+                    i++;
                 }
-                if (isBefore)
-                {
-                    iFoundIndex = i;
-                    break;
-                }
-                i++;
             }
             return iFoundIndex;
         }
@@ -1231,7 +1249,8 @@ namespace IsengardClient
             {
                 for (int i = reverseOrder ? CurrentRoomItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < CurrentRoomItems.Count; i += iIncrement)
                 {
-                    if (CurrentRoomItems[i].ItemType.Value == itemType)
+                    ItemTypeEnum? it = CurrentRoomItems[i].ItemType;
+                    if (it.HasValue && it.Value == itemType)
                     {
                         iCounter++;
                         if (itemCounter == iCounter)
@@ -1333,13 +1352,16 @@ namespace IsengardClient
                         iDuplicateCounter = 0;
                         foreach (ItemEntity nextItem in CurrentRoomItems)
                         {
-                            sSingular = ItemEntity.StaticItemData[nextItem.ItemType.Value].SingularName;
-                            foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                            if (nextItem.ItemType.HasValue)
                             {
-                                if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
-                                    break;
+                                sSingular = ItemEntity.StaticItemData[nextItem.ItemType.Value].SingularName;
+                                foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
+                                {
+                                    if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
+                                        break;
+                                }
+                                if (iDuplicateCounter == iCounter) break;
                             }
-                            if (iDuplicateCounter == iCounter) break;
                         }
                         isDuplicate = iDuplicateCounter == iCounter;
                     }
