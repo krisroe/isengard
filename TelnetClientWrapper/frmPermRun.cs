@@ -30,11 +30,11 @@ namespace IsengardClient
             }
         }
 
-        public InventoryProcessWorkflow InventoryFlow
+        public InventoryProcessInputType InventoryFlow
         {
             get
             {
-                return (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
+                return (InventoryProcessInputType)cboInventoryFlow.SelectedItem;
             }
         }
 
@@ -67,7 +67,7 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessWorkflow invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessInputType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
 
@@ -100,9 +100,9 @@ namespace IsengardClient
                 cboPawnShoppe.SelectedIndex = 0;
             }
 
-            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.NoProcessing);
-            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.ProcessMonsterDrops);
-            cboInventoryFlow.Items.Add(InventoryProcessWorkflow.ProcessAllItemsInRoom);
+            cboInventoryFlow.Items.Add(InventoryProcessInputType.NoProcessing);
+            cboInventoryFlow.Items.Add(InventoryProcessInputType.ProcessMonsterDrops);
+            cboInventoryFlow.Items.Add(InventoryProcessInputType.ProcessAllItemsInRoom);
             cboInventoryFlow.SelectedItem = invWorkflow;
 
             _GraphInputs = GetGraphInputs;
@@ -312,8 +312,8 @@ namespace IsengardClient
 
             SelectedStrategy = selectedStrategy;
 
-            InventoryProcessWorkflow ipw = (InventoryProcessWorkflow)cboInventoryFlow.SelectedItem;
-            if (ipw != InventoryProcessWorkflow.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
+            InventoryProcessInputType ipw = (InventoryProcessInputType)cboInventoryFlow.SelectedItem;
+            if (ipw != InventoryProcessInputType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
             {
                 if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
                 {
@@ -330,7 +330,7 @@ namespace IsengardClient
                 MessageBox.Show("No target room selected.");
                 return;
             }
-            if (targetRoom != null && targetRoom != _currentRoom)
+            if (targetRoom != _currentRoom)
             {
                 if (MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs) == null)
                 {
@@ -342,7 +342,7 @@ namespace IsengardClient
             if (cboTickRoom.SelectedIndex > 0)
             {
                 Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
-                if (targetRoom != null && targetRoom != healingRoom)
+                if (targetRoom != healingRoom)
                 {
                     if (MapComputation.ComputeLowestCostPath(targetRoom, healingRoom, graphInputs) == null)
                     {
@@ -360,7 +360,7 @@ namespace IsengardClient
             if (cboPawnShoppe.SelectedIndex > 0)
             {
                 Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedItem];
-                if (targetRoom != null && targetRoom != pawnShop)
+                if (targetRoom != pawnShop)
                 {
                     if (MapComputation.ComputeLowestCostPath(targetRoom, pawnShop, graphInputs) == null)
                     {

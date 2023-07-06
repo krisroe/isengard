@@ -583,6 +583,8 @@ namespace IsengardClient
 
         [SingularName("black bag")]
         [PluralName("black bags")]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         BlackBag,
 
         [SingularName("black cape")]
@@ -1304,6 +1306,8 @@ namespace IsengardClient
 
         [SingularName("lantern")]
         [PluralName("lanterns")]
+        [Weight(4)]
+        [Sellable(SellableEnum.Junk)]
         Lantern,
 
         [SingularName("large egg")]

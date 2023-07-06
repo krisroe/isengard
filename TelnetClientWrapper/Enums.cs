@@ -202,11 +202,17 @@ namespace IsengardClient
         PickFromList,
     }
 
-    internal enum InventoryProcessWorkflow
+    internal enum InventoryProcessInputType
     {
         NoProcessing = 0,
         ProcessMonsterDrops = 1,
         ProcessAllItemsInRoom = 2,
+    }
+
+    internal enum InventoryManagementWorkflow
+    {
+        ManageSourceItems = 0,
+        Ferry = 1,
     }
 
     internal enum MobVisibility

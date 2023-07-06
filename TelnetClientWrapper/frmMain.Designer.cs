@@ -70,6 +70,7 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnFerry = new System.Windows.Forms.Button();
             this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
             this.lblPawnShop = new System.Windows.Forms.Label();
@@ -643,6 +644,7 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnFerry);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblPawnShop);
@@ -700,6 +702,18 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
+            // 
+            // btnFerry
+            // 
+            this.btnFerry.Location = new System.Drawing.Point(367, 135);
+            this.btnFerry.Margin = new System.Windows.Forms.Padding(2);
+            this.btnFerry.Name = "btnFerry";
+            this.btnFerry.Size = new System.Drawing.Size(79, 28);
+            this.btnFerry.TabIndex = 153;
+            this.btnFerry.Tag = "hide";
+            this.btnFerry.Text = "Ferry";
+            this.btnFerry.UseVisualStyleBackColor = true;
+            this.btnFerry.Click += new System.EventHandler(this.btnFerry_Click);
             // 
             // lblArmorClassValue
             // 
@@ -1997,6 +2011,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiQuitWithoutSaving;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
+        private System.Windows.Forms.Button btnFerry;
     }
 }
 

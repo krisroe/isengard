@@ -149,7 +149,7 @@
             // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(670, 206);
+            this.btnGraph.Location = new System.Drawing.Point(809, 206);
             this.btnGraph.Name = "btnGraph";
             this.btnGraph.Size = new System.Drawing.Size(133, 38);
             this.btnGraph.TabIndex = 9;
@@ -159,7 +159,7 @@
             // 
             // btnLocations
             // 
-            this.btnLocations.Location = new System.Drawing.Point(813, 206);
+            this.btnLocations.Location = new System.Drawing.Point(670, 206);
             this.btnLocations.Name = "btnLocations";
             this.btnLocations.Size = new System.Drawing.Size(133, 38);
             this.btnLocations.TabIndex = 10;
