@@ -1516,7 +1516,7 @@ namespace IsengardClient
 
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoo")] //verified 7/5/23
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [Sellable(1237)]
         [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
@@ -1984,7 +1984,7 @@ namespace IsengardClient
 
         [SingularName("tattoo of a snake")]
         [PluralName("tattoo of a snake")] //verified 7/5/23
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         TattooOfASnake,
 

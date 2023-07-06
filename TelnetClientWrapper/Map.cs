@@ -1423,7 +1423,148 @@ namespace IsengardClient
             oIgor.AddPermanentMobs(MobTypeEnum.IgorTheBouncer);
             AddExit(oIgor, oToBlindPigPubAndUniversity, "east");
             AddExit(oToBlindPigPubAndUniversity, oIgor, "pub");
-            breeStreetsGraph.Rooms[oIgor] = new System.Windows.Point(2, 6);
+            breeStreetsGraph.Rooms[oIgor] = new System.Windows.Point(2, 5.5);
+
+            Room oUniversityEntrance = AddRoom("University", "University of Bree");
+            AddExit(oToBlindPigPubAndUniversity, oUniversityEntrance, "university");
+            AddExit(oUniversityEntrance, oToBlindPigPubAndUniversity, "west");
+            breeStreetsGraph.Rooms[breeStreets[3, 4]] = new System.Windows.Point(3, 5.5);
+            breeStreetsGraph.Rooms[oUniversityEntrance] = new System.Windows.Point(3.5, 5.5);
+
+            Room oTulkasBookstore = AddRoom("Tulkas Bookstore", "Tulkas Memorial Bookstore");
+            AddBidirectionalExits(oUniversityEntrance, oTulkasBookstore, BidirectionalExitType.SoutheastNorthwest);
+            breeStreetsGraph.Rooms[oTulkasBookstore] = new System.Windows.Point(3.75, 6.5);
+
+            Room oTulkasLibrary = AddRoom("Tulkas Library", "Tulkas Memorial Library");
+            oTulkasLibrary.AddPermanentMobs(MobTypeEnum.VeristriaTheLibrarian);
+            AddBidirectionalExits(oTulkasBookstore, oTulkasLibrary, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oTulkasLibrary] = new System.Windows.Point(4.75, 6.5);
+
+            Room oFoyer = AddRoom("Foyer", "Foyer of the Iluvatar Research Building");
+            e = AddExit(oUniversityEntrance, oFoyer, "east");
+            e.MaximumLevel = 12;
+            AddExit(oFoyer, oUniversityEntrance, "west");
+            breeStreetsGraph.Rooms[oFoyer] = new System.Windows.Point(4.25, 5.5);
+
+            Room oInstructionalHall = AddRoom("Instruction", "Iluvatar Memorial Instructional Hall");
+            AddBidirectionalExits(oFoyer, oInstructionalHall, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oInstructionalHall] = new System.Windows.Point(4.25, 5.75);
+
+            Room oPhrenologyOffice = AddRoom("Phrenology Office", "Department of Molecular Phrenology Office");
+            e = AddExit(oInstructionalHall, oPhrenologyOffice, "office");
+            e.RequiresDay = true;
+            AddExit(oPhrenologyOffice, oInstructionalHall, "north");
+            breeStreetsGraph.Rooms[oPhrenologyOffice] = new System.Windows.Point(4.25, 6);
+            //CSRTODO: locked door
+
+            Room oInstructionHall2 = AddRoom("Instruction", "Iluvatar Memorial Instructional Hall");
+            AddBidirectionalExits(oInstructionalHall, oInstructionHall2, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oInstructionHall2] = new System.Windows.Point(5, 5.75);
+
+            Room oInstructionHall3 = AddRoom("Instruction", "Iluvatar Memorial Instructional Hall");
+            AddExit(oInstructionHall2, oInstructionHall3, "east");
+            e = AddExit(oInstructionHall3, oInstructionHall2, "west");
+            e.MaximumLevel = 9;
+            breeStreetsGraph.Rooms[oInstructionHall3] = new System.Windows.Point(5.75, 5.75);
+
+            Room oPhrenology = AddRoom("Phrenology", "Molecular Phrenology Classroom");
+            AddExit(oInstructionHall2, oPhrenology, "north");
+            AddExit(oPhrenology, oInstructionHall2, "door");
+            breeStreetsGraph.Rooms[oPhrenology] = new System.Windows.Point(5, 5.5);
+
+            Room oResearchHall = AddRoom("Research", "Iluvatar Memorial Research Hall");
+            AddBidirectionalExits(oResearchHall, oFoyer, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oResearchHall] = new System.Windows.Point(4.25, 5);
+
+            Room oErech = AddRoom("Erech", "Erech's Laboratory");
+            oErech.AddPermanentMobs(MobTypeEnum.Erech);
+            AddExit(oResearchHall, oErech, "north");
+            AddExit(oErech, oResearchHall, "door");
+            breeStreetsGraph.Rooms[oErech] = new System.Windows.Point(4.25, 4.75);
+
+            Room oResearchHall2 = AddRoom("Research", "Iluvatar Memorial Research Hall");
+            AddBidirectionalExits(oResearchHall, oResearchHall2, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oResearchHall2] = new System.Windows.Point(5, 5);
+
+            Room oMysticalSciences = AddRoom("Mystic Science", "Department of Mystical Sciences Office");
+            e = AddExit(oResearchHall2, oMysticalSciences, "office");
+            e.RequiresDay = true;
+            AddExit(oMysticalSciences, oResearchHall2, "north");
+            breeStreetsGraph.Rooms[oMysticalSciences] = new System.Windows.Point(5, 5.25);
+            //CSRTODO: locked door
+
+            Room oResearchHall3 = AddRoom("Research", "Iluvatar Memorial Research Hall");
+            AddBidirectionalExits(oResearchHall2, oResearchHall3, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oResearchHall3] = new System.Windows.Point(5.75, 5);
+
+            Room oPhrenologyLaboratory = AddRoom("Lab", "Molecular Phrenology Laboratory");
+            AddExit(oResearchHall3, oPhrenologyLaboratory, "north");
+            AddExit(oPhrenologyLaboratory, oResearchHall3, "door");
+            breeStreetsGraph.Rooms[oPhrenologyLaboratory] = new System.Windows.Point(5.75, 4.75);
+
+            Room oMysticalScienceLab = AddRoom("Lab", "Mystical Sciences Laboratory");
+            AddExit(oResearchHall3, oMysticalScienceLab, "south");
+            AddExit(oMysticalScienceLab, oResearchHall3, "door");
+            breeStreetsGraph.Rooms[oMysticalScienceLab] = new System.Windows.Point(5.75, 5.25);
+
+            Room oCampusWalkSouth = AddRoom("Walk", "Campus Walk South");
+            AddBidirectionalExits(oInstructionHall3, oCampusWalkSouth, BidirectionalExitType.WestEast);
+            AddExit(breeStreets[5, 3], oCampusWalkSouth, "university");
+            AddExit(oCampusWalkSouth, breeStreets[5, 3], "south");
+            breeStreetsGraph.Rooms[oCampusWalkSouth] = new System.Windows.Point(6.25, 5.75);
+
+            Room oCampusWalkSouth2 = AddRoom("Walk", "Campus Walk South");
+            AddBidirectionalExits(oCampusWalkSouth2, oCampusWalkSouth, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oCampusWalkSouth2] = new System.Windows.Point(6.25, 5.5);
+
+            Room oFinancialAidOffice = AddRoom("Aid", "Financial Aid Office");
+            AddBidirectionalExits(oCampusWalkSouth2, oFinancialAidOffice, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oFinancialAidOffice] = new System.Windows.Point(6.6, 5.5);
+
+            Room oCampusWalkSouth3 = AddRoom("Walk", "Campus Walk South");
+            AddBidirectionalExits(oCampusWalkSouth3, oCampusWalkSouth2, BidirectionalExitType.NorthSouth);
+            AddExit(oResearchHall3, oCampusWalkSouth3, "east");
+            e = AddExit(oCampusWalkSouth3, oResearchHall3, "west");
+            e.MaximumLevel = 12;
+            breeStreetsGraph.Rooms[oCampusWalkSouth3] = new System.Windows.Point(6.25, 5);
+
+            Room oUniversityQuad = AddRoom("Quad", "University Quad");
+            AddBidirectionalExits(oUniversityQuad, oCampusWalkSouth3, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oUniversityQuad] = new System.Windows.Point(6.25, 4.75);
+
+            Room oCampusWalkEast = AddRoom("Walk", "Campus Walk East");
+            AddBidirectionalExits(oUniversityQuad, oCampusWalkEast, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oCampusWalkEast, breeStreets[7, 5], BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oCampusWalkEast] = new System.Windows.Point(6.6, 4.75);
+            breeStreetsGraph.Rooms[breeStreets[7, 5]] = new System.Windows.Point(7, 4.75);
+            breeStreetsGraph.Rooms[oBigPapa] = new System.Windows.Point(8, 4.75);
+
+            Room oCampusWalkNorth1 = AddRoom("Walk", "Campus Walk North");
+            AddExit(oCampusWalkNorth1, oUniversityQuad, "south");
+            e = AddExit(oUniversityQuad, oCampusWalkNorth1, "north");
+            e.MaximumLevel = 7;
+            breeStreetsGraph.Rooms[oCampusWalkNorth1] = new System.Windows.Point(6.25, 4.5);
+
+            Room oCampusWalkNorth2 = AddRoom("Walk", "Campus Walk North");
+            AddBidirectionalExits(oCampusWalkNorth2, oCampusWalkNorth1, BidirectionalExitType.NorthSouth);
+            breeStreetsGraph.Rooms[oCampusWalkNorth2] = new System.Windows.Point(6.25, 4.25);
+
+            Room oLuistrin = AddRoom("Luistrin", "Halfast Hall");
+            oLuistrin.AddPermanentMobs(MobTypeEnum.LuistrinTheArchitect);
+            AddExit(oLuistrin, oCampusWalkNorth2, "out");
+            AddExit(oCampusWalkNorth2, oLuistrin, "west");
+            breeStreetsGraph.Rooms[oLuistrin] = new System.Windows.Point(5.5, 4.25);
+
+            Room oHalfastHall = AddRoom("Halfast Hall", "Halfast Hall");
+            AddBidirectionalExits(oHalfastHall, oLuistrin, BidirectionalExitType.WestEast);
+            breeStreetsGraph.Rooms[oHalfastHall] = new System.Windows.Point(4.75, 4.25);
+
+            Room oToHalfastHall = AddRoom("Halfast Steps", "Steps to Halfast Hall");
+            AddBidirectionalExits(oToHalfastHall, oHalfastHall, BidirectionalExitType.WestEast);
+            e = AddExit(oUniversityEntrance, oToHalfastHall, "northeast");
+            e.MaximumLevel = 7;
+            AddExit(oToHalfastHall, oUniversityEntrance, "southwest");
+            breeStreetsGraph.Rooms[oToHalfastHall] = new System.Windows.Point(4, 4.25);
 
             Room oSnarlingMutt = AddRoom("Snarling Mutt", "Snar Slystone's Apothecary and Curio Shoppe");
             oSnarlingMutt.AddPermanentMobs(MobTypeEnum.SnarlingMutt);
@@ -1747,7 +1888,8 @@ namespace IsengardClient
             e = AddExit(breeStreets[7, 4], oMonkTraining, "monastary");
             e.RequiredClass = ClassType.Monk;
             AddExit(oMonkTraining, breeStreets[7, 4], "east");
-            breeStreetsGraph.Rooms[oMonkTraining] = new System.Windows.Point(6, 6);
+            breeStreetsGraph.Rooms[oMonkTraining] = new System.Windows.Point(6, 6.75);
+            breeStreetsGraph.Rooms[breeStreets[7, 4]] = new System.Windows.Point(7, 6.75);
 
             Room oOldClassRoom = AddRoom("Old Classroom", "Old Classroom");
             AddExit(oBreeTownSquare, oOldClassRoom, "school");
@@ -1957,6 +2099,13 @@ namespace IsengardClient
             e.MaximumLevel = 6;
             AddExit(oKandyAndToyShoppe, breeStreets[3, 6], "east");
             breeStreetsGraph.Rooms[oKandyAndToyShoppe] = new System.Windows.Point(2, 4);
+            
+            Room oBardConservatory = AddRoom("Bard Conservatory", "Bard Conservatory");
+            oBardConservatory.AddPermanentMobs(MobTypeEnum.AgedBard);
+            e = AddExit(breeStreets[4, 3], oBardConservatory, "conservatory");
+            e.RequiredClass = ClassType.Bard;
+            AddExit(oBardConservatory, breeStreets[4, 3], "north");
+            breeStreetsGraph.Rooms[oBardConservatory] = new System.Windows.Point(4, 8);
 
             AddHauntedMansion(oHauntedMansionEntrance);
         }

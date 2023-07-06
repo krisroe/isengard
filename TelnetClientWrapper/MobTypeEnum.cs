@@ -6,6 +6,14 @@
         [PluralName("accusers")]
         Accuser,
 
+        [SingularName("advisor")]
+        [PluralName("advisors")]
+        Advisor,
+
+        [SingularName("aged bard")]
+        [PluralName("aged bards")]
+        AgedBard,
+
         [SingularName("aged monk")]
         [PluralName("aged monks")]
         AgedMonk,
@@ -35,6 +43,10 @@
         [SingularName("archer")]
         [PluralName("archers")]
         Archer,
+
+        [SingularName("architectural student")]
+        [PluralName("architectural students")]
+        ArchitecturalStudent,
 
         [SingularName("aristocrat")]
         [PluralName("aristocrats")]
@@ -174,6 +186,10 @@
         [SingularName("cabin boy")]
         [PluralName("cabin boys")]
         CabinBoy,
+
+        [SingularName("campus officer")]
+        [PluralName("campus officers")]
+        CampusOfficer,
 
         [SingularName("Captain Felagund")]
         //CSRTODO: no plural
@@ -383,6 +399,10 @@
         [Alignment(AlignmentType.DullBlue)]
         ElvenGuard,
 
+        [SingularName("Erech")]
+        //CSRTODO: no plural
+        Erech,
+
         [SingularName("evil sorcerer")]
         [PluralName("evil sorcerers")]
         [Experience(210)]
@@ -538,6 +558,10 @@
         [Experience(350)]
         [Alignment(AlignmentType.DullRed)]
         Graddy,
+
+        [SingularName("graduate student")]
+        [PluralName("graduate students")]
+        GraduateStudent,
 
         [SingularName("Granite Knucklebuster")]
         [PluralName("Granite Knucklebusters")] //verified 6/28/23
@@ -838,6 +862,10 @@
         [Alignment(AlignmentType.DullBlue)]
         Laborer,
 
+        [SingularName("lab technician")]
+        [PluralName("lab technicians")]
+        LabTechnician,
+
         [SingularName("Lady Gwyneth the Chaste")]
         //CSRTODO: no plural
         LadyGwynethTheChaste,
@@ -886,6 +914,10 @@
         //CSRTODO: no plural
         LordDeArnse,
 
+        [SingularName("Luistrin the Architect")]
+        //CSRTODO: no plural
+        LuistrinTheArchitect,
+
         [SingularName("lumberjack")]
         [PluralName("lumberjacks")]
         Lumberjack,
@@ -907,6 +939,10 @@
         [SingularName("madman")]
         [PluralName("madmen")]
         Madman,
+
+        [SingularName("mad scientist")]
+        [PluralName("mad scientists")]
+        MadScientist,
 
         [SingularName("Magor the Instructor")]
         //CSRTODO: no plural
@@ -1181,6 +1217,10 @@
         [Alignment(AlignmentType.DullRed)]
         Peasant,
 
+        [SingularName("phrenologist")]
+        [PluralName("phrenologists")]
+        Phrenologist,
+
         [SingularName("pilgrim")]
         [PluralName("pilgrims")]
         Pilgrim,
@@ -1250,6 +1290,14 @@
         [PluralName("raving lunatics")]
         RavingLunatic,
 
+        [SingularName("registrar")]
+        [PluralName("registrars")]
+        Registrar,
+
+        [SingularName("researcher")]
+        [PluralName("researchers")]
+        Researcher,
+
         [SingularName("Rex")]
         //CSRTODO: no plural
         Rex,
@@ -1297,6 +1345,10 @@
         [PluralName("seasoned veterans")]
         [Alignment(AlignmentType.Red)]
         SeasonedVeteran,
+
+        [SingularName("secretary")]
+        //CSRTODO: plural?
+        Secretary,
 
         [SingularName("Sergeant Grimgall")]
         //CSRTODO: no plural?
@@ -1546,6 +1598,10 @@
         [SingularName("vendor")]
         [PluralName("vendors")]
         Vendor,
+
+        [SingularName("Veristria the Librarian")]
+        //CSRTODO: no plural
+        VeristriaTheLibrarian,
 
         [SingularName("village woman")]
         [PluralName("village women")]
