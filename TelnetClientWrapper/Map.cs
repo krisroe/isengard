@@ -35,7 +35,7 @@ namespace IsengardClient
                 var memberInfos = t.GetMember(nextMapType.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
                 object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(MapTypeDisplayNameAttribute), false);
-                RoomGraph rg = new RoomGraph(((MapTypeDisplayNameAttribute)valueAttributes[0]).Name);
+                RoomGraph rg = new RoomGraph(nextMapType, ((MapTypeDisplayNameAttribute)valueAttributes[0]).Name);
                 rg.ScalingFactor = 100;
                 _graphs[nextMapType] = rg;
             }

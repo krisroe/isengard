@@ -58,29 +58,35 @@ namespace IsengardClient
         {
             GraphInputs actualInputs = _graphInputs();
             RoomGraph rg = (RoomGraph)((ComboBoxItem)cboGraphs.SelectedItem).Tag;
+            MapType mt = rg.MapType;
             RoomBidirectionalGraph rbg = new RoomBidirectionalGraph();
             rbg.ComputedPositions = rg.Rooms;
             HashSet<Room> addedRooms = new HashSet<Room>();
             foreach (KeyValuePair<Room, Point> next in rg.Rooms)
             {
                 Room nextRoom = next.Key;
+                MapType nextMapType = _fullMap.RoomsToMaps[nextRoom];
                 foreach (Exit nextExit in nextRoom.Exits)
                 {
                     Room targetRoom = nextExit.Target;
-                    if (rg.Rooms.ContainsKey(targetRoom))
+                    MapType nextTargetMapType = _fullMap.RoomsToMaps[targetRoom];
+                    if (nextMapType == mt || nextTargetMapType == mt) //don't show an exit if between rooms not on the specified map
                     {
-                        if (!addedRooms.Contains(nextRoom))
+                        if (rg.Rooms.ContainsKey(targetRoom))
                         {
-                            rbg.AddVertex(nextRoom);
-                            addedRooms.Add(nextRoom);
+                            if (!addedRooms.Contains(nextRoom))
+                            {
+                                rbg.AddVertex(nextRoom);
+                                addedRooms.Add(nextRoom);
+                            }
+                            if (!addedRooms.Contains(targetRoom))
+                            {
+                                rbg.AddVertex(targetRoom);
+                                addedRooms.Add(targetRoom);
+                            }
+                            nextExit.ShowAsRedOnGraph = nextExit.GetCost(actualInputs) == int.MaxValue;
+                            rbg.AddEdge(nextExit);
                         }
-                        if (!addedRooms.Contains(targetRoom))
-                        {
-                            rbg.AddVertex(targetRoom);
-                            addedRooms.Add(targetRoom);
-                        }
-                        nextExit.ShowAsRedOnGraph = nextExit.GetCost(actualInputs) == int.MaxValue;
-                        rbg.AddEdge(nextExit);
                     }
                 }
             }
