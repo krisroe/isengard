@@ -537,6 +537,13 @@ namespace IsengardClient
         [Weight(4)]
         AncientLyre,
 
+        [SingularName("Ancient Shield of Adalphi")]
+        //CSRTODO: plural?
+        [Weight(5)]
+        [ArmorClass(0.2)]
+        [Sellable(61)]
+        AncientShieldOfAdalphi,
+
         [SingularName("animal hides")]
         //CSRTODO: plural
         [Weight(5)]
