@@ -34,7 +34,7 @@ namespace IsengardClient
                 DataGridViewRow r = dgvPermRuns.SelectedRows[0];
                 int iIndex = r.Index;
                 showMoveDown = iIndex > 0;
-                showMoveUp = iIndex < dgvPermRuns.RowCount;
+                showMoveUp = iIndex < dgvPermRuns.RowCount - 1;
             }
             tsmiMoveUp.Visible = showMoveUp;
             tsmiMoveDown.Visible = showMoveDown;
@@ -65,6 +65,8 @@ namespace IsengardClient
             pr.SpellsToCast = castableSpells & (WorkflowSpells.Bless | WorkflowSpells.Protection | WorkflowSpells.CurePoison);
             pr.SpellsToPotion = WorkflowSpells.None;
             pr.SkillsToRun = PromptedSkills.PowerAttack;
+            pr.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            pr.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             WorkflowSpells spellsToPotion = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
             using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, false))
             {

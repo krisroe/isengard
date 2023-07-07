@@ -45,11 +45,10 @@ namespace IsengardClient
         private int _settingsAutoSpellLevelMinimum;
         private int _settingsAutoSpellLevelMaximum;
         private Label _lblAutoSpellLevels;
-        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
-        private System.Windows.Forms.ToolStripMenuItem tsmiToggleOverrideAutoSpellLevels;
+        private ContextMenuStrip ctxAutoSpellLevels;
+        private ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
+        private ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
+        private ToolStripMenuItem tsmiClearOverrideAutoSpellLevels;
 
         public AutoSpellLevelOverrides(int permRunMin, int permRunMax, int strategyMin, int strategyMax, int settingsMin, int settingsMax, Label lblAutoSpellLevels, AutoSpellLevelOverridesLevel level)
         {
@@ -60,16 +59,15 @@ namespace IsengardClient
             _settingsAutoSpellLevelMinimum = settingsMin;
             _settingsAutoSpellLevelMaximum = settingsMax;
             _lblAutoSpellLevels = lblAutoSpellLevels;
-            level = _level;
+            _level = level;
 
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip();
-            this.tsmiSetCurrentMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
+            this.ctxAutoSpellLevels = new ContextMenuStrip();
+            this.tsmiSetCurrentMinimumAutoSpellLevel = new ToolStripMenuItem();
+            this.tsmiSetCurrentMaximumAutoSpellLevel = new ToolStripMenuItem();
 
             if (_level != AutoSpellLevelOverridesLevel.Settings)
             {
-                this.sepAutoSpellLevels1 = new System.Windows.Forms.ToolStripSeparator();
-                this.tsmiToggleOverrideAutoSpellLevels = new System.Windows.Forms.ToolStripMenuItem();
+                this.tsmiClearOverrideAutoSpellLevels = new ToolStripMenuItem();
             }
 
             // 
@@ -77,52 +75,32 @@ namespace IsengardClient
             // 
             this.ctxAutoSpellLevels.ImageScalingSize = new System.Drawing.Size(20, 20);
 
-            if (_level == AutoSpellLevelOverridesLevel.Settings)
+            this.ctxAutoSpellLevels.Items.Add(tsmiSetCurrentMinimumAutoSpellLevel);
+            this.ctxAutoSpellLevels.Items.Add(tsmiSetCurrentMaximumAutoSpellLevel);
+            if (_level != AutoSpellLevelOverridesLevel.Settings)
             {
-                this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                    this.tsmiSetCurrentMinimumAutoSpellLevel,
-                    this.tsmiSetCurrentMaximumAutoSpellLevel});
-            }
-            else
-            {
-                this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                    this.tsmiSetCurrentMinimumAutoSpellLevel,
-                    this.tsmiSetCurrentMaximumAutoSpellLevel,
-                    this.sepAutoSpellLevels1,
-                    this.tsmiToggleOverrideAutoSpellLevels});
+                this.ctxAutoSpellLevels.Items.Add(tsmiClearOverrideAutoSpellLevels);
             }
             this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 82);
+            this.ctxAutoSpellLevels.Size = new Size(222, 82);
             this.ctxAutoSpellLevels.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoSpellLevels_Opening);
-            // 
-            // tsmiSetCurrentMinimumAutoSpellLevel
-            // 
+
             this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new Size(221, 24);
             this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
             this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
-            // 
-            // tsmiSetCurrentMaximumAutoSpellLevel
-            // 
+
             this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
+            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new Size(221, 24);
             this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
             this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
 
             if (_level != AutoSpellLevelOverridesLevel.Settings)
             {
-                // 
-                // sepAutoSpellLevels1
-                // 
-                this.sepAutoSpellLevels1.Name = "sepAutoSpellLevels1";
-                this.sepAutoSpellLevels1.Size = new System.Drawing.Size(218, 6);
-                // 
-                // tsmiInheritAutoSpellLevels
-                // 
-                this.tsmiToggleOverrideAutoSpellLevels.Name = "tsmiInheritAutoSpellLevels";
-                this.tsmiToggleOverrideAutoSpellLevels.Size = new System.Drawing.Size(221, 24);
-                this.tsmiToggleOverrideAutoSpellLevels.Text = "Inherit?";
-                this.tsmiToggleOverrideAutoSpellLevels.Click += new System.EventHandler(this.tsmiToggleOverrideAutoSpellLevels_Click);
+                this.tsmiClearOverrideAutoSpellLevels.Name = "tsmiClearOverrideAutoSpellLevels";
+                this.tsmiClearOverrideAutoSpellLevels.Size = new Size(221, 24);
+                this.tsmiClearOverrideAutoSpellLevels.Text = "Clear Override";
+                this.tsmiClearOverrideAutoSpellLevels.Click += new EventHandler(this.tsmiToggleOverrideAutoSpellLevels_Click);
             }
 
             lblAutoSpellLevels.ContextMenuStrip = ctxAutoSpellLevels;
@@ -133,27 +111,8 @@ namespace IsengardClient
         {
             if (_level != AutoSpellLevelOverridesLevel.Settings)
             {
-                int iMin, iMax;
-                if (_level == AutoSpellLevelOverridesLevel.Strategy)
-                {
-                    iMin = _strategyAutoSpellLevelMinimum;
-                    iMax = _strategyAutoSpellLevelMaximum;
-                }
-                else if (_level == AutoSpellLevelOverridesLevel.PermRun)
-                {
-                    iMin = _permRunAutoSpellLevelMinimum;
-                    iMax = _permRunAutoSpellLevelMaximum;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
-                string sText;
-                if (iMin == IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET || iMax == IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
-                    sText = "Override";
-                else
-                    sText = "Remove Override";
-                tsmiToggleOverrideAutoSpellLevels.Text = sText;
+                GetCurrentValues(out int iMin, out int iMax);
+                tsmiClearOverrideAutoSpellLevels.Visible = iMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && iMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             }
         }
 

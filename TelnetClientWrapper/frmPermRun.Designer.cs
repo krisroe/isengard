@@ -42,10 +42,10 @@
             this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
-            this.lblOnKillMonster = new System.Windows.Forms.Label();
-            this.chkPotions = new System.Windows.Forms.CheckBox();
             this.ctxToggleStrategyModificationOverride = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiToggleEnabled = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblOnKillMonster = new System.Windows.Forms.Label();
+            this.chkPotions = new System.Windows.Forms.CheckBox();
             this.chkMelee = new System.Windows.Forms.CheckBox();
             this.chkMagic = new System.Windows.Forms.CheckBox();
             this.cboPawnShoppe = new System.Windows.Forms.ComboBox();
@@ -65,8 +65,10 @@
             this.lblSpellsPotions = new System.Windows.Forms.Label();
             this.lblDisplayName = new System.Windows.Forms.Label();
             this.txtDisplayName = new System.Windows.Forms.TextBox();
+            this.pnlStrategyModifications = new System.Windows.Forms.Panel();
             this.grpStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
+            this.pnlStrategyModifications.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
@@ -163,13 +165,7 @@
             // 
             // grpStrategyModifications
             // 
-            this.grpStrategyModifications.Controls.Add(this.lblAutoSpellLevels);
-            this.grpStrategyModifications.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
-            this.grpStrategyModifications.Controls.Add(this.cboOnKillMonster);
-            this.grpStrategyModifications.Controls.Add(this.lblOnKillMonster);
-            this.grpStrategyModifications.Controls.Add(this.chkPotions);
-            this.grpStrategyModifications.Controls.Add(this.chkMelee);
-            this.grpStrategyModifications.Controls.Add(this.chkMagic);
+            this.grpStrategyModifications.Controls.Add(this.pnlStrategyModifications);
             this.grpStrategyModifications.Location = new System.Drawing.Point(121, 404);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
             this.grpStrategyModifications.Size = new System.Drawing.Size(528, 129);
@@ -180,7 +176,7 @@
             // lblAutoSpellLevels
             // 
             this.lblAutoSpellLevels.AutoSize = true;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(14, 94);
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(7, 66);
             this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
             this.lblAutoSpellLevels.Size = new System.Drawing.Size(128, 19);
             this.lblAutoSpellLevels.TabIndex = 150;
@@ -190,7 +186,7 @@
             // 
             this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(172, 90);
+            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(165, 62);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
             this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(234, 27);
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 149;
@@ -202,15 +198,31 @@
             this.cboOnKillMonster.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboOnKillMonster.FormattingEnabled = true;
-            this.cboOnKillMonster.Location = new System.Drawing.Point(172, 60);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(165, 32);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
             this.cboOnKillMonster.TabIndex = 148;
             // 
+            // ctxToggleStrategyModificationOverride
+            // 
+            this.ctxToggleStrategyModificationOverride.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxToggleStrategyModificationOverride.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiToggleEnabled});
+            this.ctxToggleStrategyModificationOverride.Name = "ctxCombatType";
+            this.ctxToggleStrategyModificationOverride.Size = new System.Drawing.Size(125, 28);
+            this.ctxToggleStrategyModificationOverride.Opening += new System.ComponentModel.CancelEventHandler(this.ctxToggleStrategyModificationOverride_Opening);
+            // 
+            // tsmiToggleEnabled
+            // 
+            this.tsmiToggleEnabled.Name = "tsmiToggleEnabled";
+            this.tsmiToggleEnabled.Size = new System.Drawing.Size(124, 24);
+            this.tsmiToggleEnabled.Text = "Toggle";
+            this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
+            // 
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(14, 65);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(7, 37);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(121, 19);
             this.lblOnKillMonster.TabIndex = 147;
@@ -220,7 +232,7 @@
             // 
             this.chkPotions.AutoSize = true;
             this.chkPotions.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkPotions.Location = new System.Drawing.Point(215, 31);
+            this.chkPotions.Location = new System.Drawing.Point(208, 3);
             this.chkPotions.Name = "chkPotions";
             this.chkPotions.Size = new System.Drawing.Size(85, 23);
             this.chkPotions.TabIndex = 11;
@@ -228,27 +240,11 @@
             this.chkPotions.UseVisualStyleBackColor = true;
             this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
             // 
-            // ctxToggleStrategyModificationOverride
-            // 
-            this.ctxToggleStrategyModificationOverride.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxToggleStrategyModificationOverride.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiToggleEnabled});
-            this.ctxToggleStrategyModificationOverride.Name = "ctxCombatType";
-            this.ctxToggleStrategyModificationOverride.Size = new System.Drawing.Size(211, 56);
-            this.ctxToggleStrategyModificationOverride.Opening += new System.ComponentModel.CancelEventHandler(this.ctxToggleStrategyModificationOverride_Opening);
-            // 
-            // tsmiToggleEnabled
-            // 
-            this.tsmiToggleEnabled.Name = "tsmiToggleEnabled";
-            this.tsmiToggleEnabled.Size = new System.Drawing.Size(210, 24);
-            this.tsmiToggleEnabled.Text = "Toggle";
-            this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
-            // 
             // chkMelee
             // 
             this.chkMelee.AutoSize = true;
             this.chkMelee.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMelee.Location = new System.Drawing.Point(116, 31);
+            this.chkMelee.Location = new System.Drawing.Point(109, 3);
             this.chkMelee.Name = "chkMelee";
             this.chkMelee.Size = new System.Drawing.Size(74, 23);
             this.chkMelee.TabIndex = 10;
@@ -260,7 +256,7 @@
             // 
             this.chkMagic.AutoSize = true;
             this.chkMagic.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMagic.Location = new System.Drawing.Point(10, 31);
+            this.chkMagic.Location = new System.Drawing.Point(3, 3);
             this.chkMagic.Name = "chkMagic";
             this.chkMagic.Size = new System.Drawing.Size(75, 23);
             this.chkMagic.TabIndex = 9;
@@ -434,6 +430,22 @@
             this.txtDisplayName.Size = new System.Drawing.Size(528, 27);
             this.txtDisplayName.TabIndex = 28;
             // 
+            // pnlStrategyModifications
+            // 
+            this.pnlStrategyModifications.Controls.Add(this.chkMagic);
+            this.pnlStrategyModifications.Controls.Add(this.lblAutoSpellLevels);
+            this.pnlStrategyModifications.Controls.Add(this.chkMelee);
+            this.pnlStrategyModifications.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
+            this.pnlStrategyModifications.Controls.Add(this.chkPotions);
+            this.pnlStrategyModifications.Controls.Add(this.cboOnKillMonster);
+            this.pnlStrategyModifications.Controls.Add(this.lblOnKillMonster);
+            this.pnlStrategyModifications.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlStrategyModifications.Location = new System.Drawing.Point(4, 29);
+            this.pnlStrategyModifications.Name = "pnlStrategyModifications";
+            this.pnlStrategyModifications.Size = new System.Drawing.Size(653, 129);
+            this.pnlStrategyModifications.TabIndex = 151;
+            this.pnlStrategyModifications.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnlStrategyModifications_MouseUp);
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -473,8 +485,9 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Perm Run";
             this.grpStrategyModifications.ResumeLayout(false);
-            this.grpStrategyModifications.PerformLayout();
             this.ctxToggleStrategyModificationOverride.ResumeLayout(false);
+            this.pnlStrategyModifications.ResumeLayout(false);
+            this.pnlStrategyModifications.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -517,5 +530,6 @@
         private System.Windows.Forms.TextBox txtDisplayName;
         private System.Windows.Forms.ContextMenuStrip ctxToggleStrategyModificationOverride;
         private System.Windows.Forms.ToolStripMenuItem tsmiToggleEnabled;
+        private System.Windows.Forms.Panel pnlStrategyModifications;
     }
 }

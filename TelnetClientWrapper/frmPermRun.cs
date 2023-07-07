@@ -151,7 +151,7 @@ namespace IsengardClient
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
         }
 
         public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun)
@@ -226,32 +226,26 @@ namespace IsengardClient
             }
             _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, strategyAutoSpellLevelMin, strategyAutoSpellLevelMax, _settingsData.AutoSpellLevelMin, _settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.PermRun);
 
+            //populate tick room and pawn shop dropdowns
             cboTickRoom.Items.Add(string.Empty);
+            cboPawnShoppe.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
             {
                 cboTickRoom.Items.Add(nextHealingRoom);
             }
-            if (healingRoom.HasValue)
-            {
-                cboTickRoom.SelectedItem = healingRoom.Value;
-            }
-            else
-            {
-                cboTickRoom.SelectedIndex = 0;
-            }
-            cboPawnShoppe.Items.Add(string.Empty);
             foreach (var nextPawnShop in Enum.GetValues(typeof(PawnShoppe)))
             {
                 cboPawnShoppe.Items.Add(nextPawnShop);
             }
-            if (pawnShop.HasValue)
-            {
-                cboPawnShoppe.SelectedItem = pawnShop;
-            }
+
+            if (healingRoom.HasValue)
+                cboTickRoom.SelectedItem = healingRoom.Value;
             else
-            {
+                cboTickRoom.SelectedIndex = 0;
+            if (pawnShop.HasValue)
+                cboPawnShoppe.SelectedItem = pawnShop;
+            else
                 cboPawnShoppe.SelectedIndex = 0;
-            }
 
             cboInventoryFlow.Items.Add(ItemsToProcessType.NoProcessing);
             cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
@@ -795,44 +789,44 @@ namespace IsengardClient
             }
         }
 
+        private Control _rightClickControl;
+
         private void ctxToggleStrategyModificationOverride_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (_permRun == null)
+            if (_permRun == null || _forChangeAndRun)
             {
                 e.Cancel = true;
             }
             else
             {
-                Control ctl = ctxToggleStrategyModificationOverride.SourceControl;
-                tsmiToggleEnabled.Text = ctl.Enabled ? "Override" : "Remove Override";
+                tsmiToggleEnabled.Text = _rightClickControl.Enabled ? "Remove Override" : "Override";
             }
         }
 
         private void tsmiToggleEnabled_Click(object sender, EventArgs e)
         {
-            Control ctl = ctxToggleStrategyModificationOverride.SourceControl;
             if (tsmiToggleEnabled.Text == "Override")
             {
-                ctl.Enabled = true;
+                _rightClickControl.Enabled = true;
             }
             else
             {
-                ctl.Enabled = false;
+                _rightClickControl.Enabled = false;
                 Strategy s = cboStrategy.SelectedItem as Strategy;
                 bool haveStrategy = s != null;
-                if (ctl == chkMagic)
+                if (_rightClickControl == chkMagic)
                 {
                     chkMagic.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
                 }
-                else if (ctl == chkMelee)
+                else if (_rightClickControl == chkMelee)
                 {
                     chkMelee.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
                 }
-                else if (ctl == chkPotions)
+                else if (_rightClickControl == chkPotions)
                 {
                     chkPotions.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
                 }
-                else if (ctl == cboOnKillMonster)
+                else if (_rightClickControl == cboOnKillMonster)
                 {
                     cboOnKillMonster.SelectedIndex = (int)(haveStrategy ? s.AfterKillMonsterAction : IsengardClient.AfterKillMonsterAction.StopCombat);
                 }
@@ -881,6 +875,16 @@ namespace IsengardClient
                 {
                     cboStrategy.Items.RemoveAt(0);
                 }
+            }
+        }
+
+        private void pnlStrategyModifications_MouseUp(object sender, MouseEventArgs e)
+        {
+            Control ctl = pnlStrategyModifications.GetChildAtPoint(e.Location);
+            if (ctl != null && !ctl.Enabled && (ctl == chkMagic || ctl == chkMelee || ctl == chkPotions || ctl == cboOnKillMonster))
+            {
+                _rightClickControl = ctl;
+                ctl.ContextMenuStrip.Show(pnlStrategyModifications, e.Location);
             }
         }
     }

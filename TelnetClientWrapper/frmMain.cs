@@ -6746,6 +6746,7 @@ BeforeHazy:
                 yield return btn;
             }
             yield return btnFerry;
+            yield return btnPermRuns;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
