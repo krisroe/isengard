@@ -2420,8 +2420,7 @@ namespace IsengardClient
             oSewerOrcChamber.AddPermanentMobs(MobTypeEnum.SewerOrcGuard, MobTypeEnum.SewerOrcGuard);
             e = AddExit(oBoardedSewerTunnel2, oSewerOrcChamber, "busted board");
             e.Hidden = true;
-            e = AddExit(oSewerOrcChamber, oBoardedSewerTunnel2, "busted board");
-            e.Hidden = true;
+            AddExit(oSewerOrcChamber, oBoardedSewerTunnel2, "busted board");
             underBreeGraph.Rooms[oSewerOrcChamber] = new System.Windows.Point(10, 3);
 
             Room oSewerOrcLair = AddRoom("Sewer Orc Lair", "Sewer Orc Lair");

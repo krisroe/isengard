@@ -573,6 +573,9 @@ namespace IsengardClient
 
         [SingularName("adamantine scale mail armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(10)]
+        [Sellable(242)]
         AdamantineScaleMailArmor,
 
         [SingularName("adamantine scale mail gloves")]
@@ -1446,6 +1449,9 @@ namespace IsengardClient
         [SingularName("large metal shield")]
         [PluralName("large metal shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(12)]
+        [Sellable(48)]
         LargeMetalShield,
 
         [SingularName("large wooden shield")]
