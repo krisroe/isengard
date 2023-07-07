@@ -124,6 +124,12 @@
     <Compile Include="frmPermRun.Designer.cs">
       <DependentUpon>frmPermRun.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmPermRuns.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPermRuns.Designer.cs">
+      <DependentUpon>frmPermRuns.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmStrategy.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,6 +184,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmPermRun.resx">
       <DependentUpon>frmPermRun.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPermRuns.resx">
+      <DependentUpon>frmPermRuns.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmStrategy.resx">
       <DependentUpon>frmStrategy.cs</DependentUpon>

@@ -854,6 +854,12 @@ namespace IsengardClient
 
     internal class CurrentEntityInfo
     {
+        public Dictionary<SpellProficiency, int> UserSpellProficiencies { get; set; }
+        public object SkillsLock { get; set; }
+        public List<SkillCooldown> SkillsCooldowns { get; set; }
+        public object SpellsKnownLock { get; set; }
+        public List<string> SpellsKnown { get; set; }
+        public object EntityLock { get; set; }
         public bool UIProcessed { get; set; }
         public Room CurrentRoom { get; set; }
         public Room CurrentRoomUI { get; set; }
@@ -880,6 +886,12 @@ namespace IsengardClient
 
         public CurrentEntityInfo()
         {
+            UserSpellProficiencies = new Dictionary<SpellProficiency, int>();
+            SkillsLock = new object();
+            SkillsCooldowns = new List<SkillCooldown>();
+            SpellsKnownLock = new object();
+            SpellsKnown = new List<string>();
+            EntityLock = new object();
             CurrentEntityChanges = new List<EntityChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
             CurrentRoomItems = new List<ItemEntity>();
@@ -912,6 +924,63 @@ namespace IsengardClient
             tnUnknownEntities = new TreeNode("Unknown Entities");
             tnUnknownEntities.Name = "tnUnknownEntities";
             tnUnknownEntities.Text = "Unknown Entities";
+        }
+
+        public PromptedSkills GetAvailableSkills(bool getAllSkills)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+            PromptedSkills skills = PromptedSkills.None;
+            lock (SkillsLock)
+            {
+                foreach (SkillCooldown nextCooldown in SkillsCooldowns)
+                {
+                    SkillWithCooldownType sct = nextCooldown.SkillType;
+                    SkillCooldownStatus status = nextCooldown.Status;
+                    bool returnSkill = getAllSkills || (status == SkillCooldownStatus.Available || (status == SkillCooldownStatus.Waiting && utcNow >= nextCooldown.NextAvailable));
+                    if (returnSkill)
+                    {
+                        if (sct == SkillWithCooldownType.PowerAttack)
+                        {
+                            skills |= PromptedSkills.PowerAttack;
+                        }
+                        else if (sct == SkillWithCooldownType.Manashield)
+                        {
+                            skills |= PromptedSkills.Manashield;
+                        }
+                        else if (sct == SkillWithCooldownType.Fireshield)
+                        {
+                            skills |= PromptedSkills.Fireshield;
+                        }
+                    }
+                }
+            }
+            return skills;
+        }
+
+        public WorkflowSpells GetAvailableSpellsToCast(bool allSpells)
+        {
+            WorkflowSpells ret = WorkflowSpells.None;
+            lock (SpellsKnownLock)
+            {
+                foreach (WorkflowSpells wfSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                {
+                    if (wfSpell != WorkflowSpells.None)
+                    {
+                        bool include;
+                        if (allSpells)
+                        {
+                            include = true;
+                        }
+                        else
+                        {
+                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
+                            include = SpellsKnown.Contains(sia.SpellName) && UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
+                        }
+                        if (include) ret |= wfSpell;
+                    }
+                }
+            }
+            return ret;
         }
 
         public bool GetTopLevelTreeNodeExpanded(TreeNode topLevelTreeNode)

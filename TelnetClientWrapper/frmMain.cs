@@ -61,8 +61,6 @@ namespace IsengardClient
 
         private object _spellsCastLock = new object();
         private List<string> _spellsCast = new List<string>();
-        private object _spellsKnownLock = new object();
-        private List<string> _spellsKnown = new List<string>();
         private bool _refreshSpellsCast = false;
 
         /// <summary>
@@ -70,9 +68,6 @@ namespace IsengardClient
         /// are hidden from the who output when you cannot detect them.
         /// </summary>
         private HashSet<string> _players = null;
-
-        private object _skillsLock = new object();
-        private List<SkillCooldown> _cooldowns = new List<SkillCooldown>();
 
         private string _username;
         private string _password;
@@ -125,7 +120,6 @@ namespace IsengardClient
 
         private IsengardMap _gameMap;
 
-        private object _entityLock = new object();
         private CurrentEntityInfo _currentEntityInfo = new CurrentEntityInfo();
         private List<string> _foundSearchedExits;
         private bool _programmaticUI = false;
@@ -175,8 +169,6 @@ namespace IsengardClient
         private bool _monsterKilled;
         private MobTypeEnum? _monsterKilledType;
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
-
-        private Dictionary<SpellProficiency, int> _userSpellProficiencies = new Dictionary<SpellProficiency, int>();
 
         /// <summary>
         /// number of times to try to attempt a background command before giving up
@@ -300,7 +292,7 @@ namespace IsengardClient
                     _broadcastMessages.AddRange(errorMessages);
                 }
             }
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 Room r = _currentEntityInfo.CurrentRoom;
                 Room newRoom = null;
@@ -872,9 +864,9 @@ namespace IsengardClient
             _experienceUI = -1;
             _tnl = -1;
             _tnlUI = -1;
-            lock (_skillsLock)
+            lock (_currentEntityInfo.SkillsLock)
             {
-                _cooldowns.Clear();
+                _currentEntityInfo.SkillsCooldowns.Clear();
             }
             lock (_spellsCastLock)
             {
@@ -929,14 +921,14 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Information) == InitializationStep.None;
 
-            _userSpellProficiencies[SpellProficiency.Earth] = earth;
-            _userSpellProficiencies[SpellProficiency.Wind] = wind;
-            _userSpellProficiencies[SpellProficiency.Fire] = fire;
-            _userSpellProficiencies[SpellProficiency.Water] = water;
-            _userSpellProficiencies[SpellProficiency.Divination] = divination;
-            _userSpellProficiencies[SpellProficiency.Arcana] = arcana;
-            _userSpellProficiencies[SpellProficiency.Life] = life;
-            _userSpellProficiencies[SpellProficiency.Sorcery] = sorcery;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Earth] = earth;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Wind] = wind;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Fire] = fire;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Water] = water;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Divination] = divination;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Arcana] = arcana;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Life] = life;
+            _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Sorcery] = sorcery;
             _experience = experience;
             _tnl = tnl;
 
@@ -956,10 +948,10 @@ namespace IsengardClient
 
             bool suppressEcho = forInit;
 
-            lock (_skillsLock)
+            lock (_currentEntityInfo.SkillsLock)
             {
                 bool clear = false;
-                if (cooldowns.Count != _cooldowns.Count)
+                if (cooldowns.Count != _currentEntityInfo.SkillsCooldowns.Count)
                 {
                     clear = true;
                 }
@@ -967,7 +959,7 @@ namespace IsengardClient
                 {
                     for (int i = 0; i < cooldowns.Count; i++)
                     {
-                        if (cooldowns[i].SkillType != _cooldowns[i].SkillType)
+                        if (cooldowns[i].SkillType != _currentEntityInfo.SkillsCooldowns[i].SkillType)
                         {
                             clear = true;
                             break;
@@ -976,14 +968,14 @@ namespace IsengardClient
                 }
                 if (clear)
                 {
-                    _cooldowns.Clear();
-                    _cooldowns.AddRange(cooldowns);
+                    _currentEntityInfo.SkillsCooldowns.Clear();
+                    _currentEntityInfo.SkillsCooldowns.AddRange(cooldowns);
                 }
                 else //copy into the existing structures
                 {
                     for (int i = 0; i < cooldowns.Count; i++)
                     {
-                        SkillCooldown oExisting = _cooldowns[i];
+                        SkillCooldown oExisting = _currentEntityInfo.SkillsCooldowns[i];
                         SkillCooldown oNew = cooldowns[i];
                         oExisting.Status = oNew.Status;
                         oExisting.NextAvailable = oNew.NextAvailable;
@@ -1009,7 +1001,7 @@ namespace IsengardClient
             {
                 hasProtection = _spellsCast.Contains("protection");
             }
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 bool calculatedArmorClassSuccessful = true;
                 double calculatedArmorClass = hasProtection ? 1 : 0;
@@ -1062,9 +1054,9 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Spells) == InitializationStep.None;
 
-            lock (_spellsKnownLock)
+            lock (_currentEntityInfo.SpellsKnownLock)
             {
-                _spellsKnown = SpellsList;
+                _currentEntityInfo.SpellsKnown = SpellsList;
             }
 
             if (forInit)
@@ -1121,7 +1113,7 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Equipment) == InitializationStep.None;
 
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 EntityChange changes = new EntityChange();
                 changes.ChangeType = EntityChangeType.RefreshEquipment;
@@ -1191,7 +1183,7 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Inventory) == InitializationStep.None;
 
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 EntityChange changes = new EntityChange();
                 changes.ChangeType = EntityChangeType.RefreshInventory;
@@ -1476,7 +1468,7 @@ namespace IsengardClient
                 newRoom = previousRoom;
             }
 
-            lock (_entityLock) //update the room change list with the next room
+            lock (_currentEntityInfo.EntityLock) //update the room change list with the next room
             {
                 EntityChange rc;
                 if (rtType == RoomTransitionType.FleeWithDropWeapon)
@@ -1802,9 +1794,9 @@ namespace IsengardClient
 
         private void ChangeSkillActive(SkillWithCooldownType skill, bool active)
         {
-            lock (_skillsLock)
+            lock (_currentEntityInfo.SkillsLock)
             {
-                foreach (SkillCooldown nextCooldown in _cooldowns)
+                foreach (SkillCooldown nextCooldown in _currentEntityInfo.SkillsCooldowns)
                 {
                     if (nextCooldown.SkillType == skill)
                     {
@@ -2072,7 +2064,7 @@ namespace IsengardClient
             _tnl = Math.Max(0, _tnl - experience);
             if (fumbled)
             {
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
                     if (weaponIT.HasValue)
@@ -2081,7 +2073,7 @@ namespace IsengardClient
                     }
                 }
             }
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 bool hasMonsterItems = monsterItems.Count > 0;
                 if (flParams.IsFightingMob)
@@ -2116,7 +2108,7 @@ namespace IsengardClient
             _experience += experience;
             _tnl = Math.Max(0, _tnl - experience);
             bool hasMonsterItems = monsterItems.Count > 0;
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 if (flParams.IsFightingMob)
                 {
@@ -2330,7 +2322,7 @@ namespace IsengardClient
                         finishedProcessing = true;
                         break;
                     case InformationalMessageType.BullroarerInMithlond:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -2348,7 +2340,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerInNindamos:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -2366,7 +2358,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.BullroarerReadyForBoarding:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -2384,7 +2376,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             bool removeMessage = true;
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
@@ -2416,7 +2408,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftBree:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -2434,7 +2426,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressLeftMithlond:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
@@ -2462,7 +2454,7 @@ namespace IsengardClient
                         rc.ChangeType = EntityChangeType.AddMob;
                         MobTypeEnum nextMob = next.Mob;
                         List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             int index = currentRoomMobs.LastIndexOf(nextMob);
                             int iInsertionPoint;
@@ -2491,7 +2483,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.MobWanderedAway:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             RemoveMobs(next.Mob, next.MobCount);
                         }
@@ -2514,7 +2506,7 @@ namespace IsengardClient
                         AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.MagicallySentItem);
                         break;
                     case InformationalMessageType.MobPickedUpItem:
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             EntityChange ec = new EntityChange();
                             ec.ChangeType = EntityChangeType.RemoveRoomItems;
@@ -2661,7 +2653,7 @@ namespace IsengardClient
 
         private void HandleHarbringerStatusChange(bool inPort)
         {
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 Room currentRoom = _currentEntityInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
@@ -2812,7 +2804,7 @@ namespace IsengardClient
             }
             EntityChange iec = new EntityChange();
             iec.ChangeType = changeType;
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 foreach (ItemEntity nextItemEntity in items)
                 {
@@ -3660,7 +3652,7 @@ namespace IsengardClient
                             MobTypeEnum eMobValue = bwp.MonsterKilledType.Value;
                             List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                             string sFound = null;
-                            lock (_entityLock)
+                            lock (_currentEntityInfo.EntityLock)
                             {
                                 if (currentRoomMobs.IndexOf(eMobValue) >= 0) sFound = eMobValue.ToString();
                             }
@@ -3696,7 +3688,7 @@ namespace IsengardClient
                 {
                     string sText = null;
                     List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
-                    lock (_entityLock)
+                    lock (_currentEntityInfo.EntityLock)
                     {
                         if (currentRoomMobs.Count > 0)
                         {
@@ -3870,7 +3862,7 @@ namespace IsengardClient
                     {
                         spellsCast.AddRange(_spellsCast);
                     }
-                    lock (_entityLock) //validate spells are either active or have a potion for them
+                    lock (_currentEntityInfo.EntityLock) //validate spells are either active or have a potion for them
                     {
                         foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
                         {
@@ -3982,22 +3974,22 @@ namespace IsengardClient
                         switch (_settingsData.Realm)
                         {
                             case RealmType.Earth:
-                                realmProficiency = _userSpellProficiencies[SpellProficiency.Earth];
+                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Earth];
                                 break;
                             case RealmType.Wind:
-                                realmProficiency = _userSpellProficiencies[SpellProficiency.Wind];
+                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Wind];
                                 break;
                             case RealmType.Fire:
-                                realmProficiency = _userSpellProficiencies[SpellProficiency.Fire];
+                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Fire];
                                 break;
                             case RealmType.Water:
-                                realmProficiency = _userSpellProficiencies[SpellProficiency.Water];
+                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Water];
                                 break;
                         }
                         List<string> knownSpells;
-                        lock (_spellsKnownLock)
+                        lock (_currentEntityInfo.SpellsKnownLock)
                         {
-                            knownSpells = _spellsKnown;
+                            knownSpells = _currentEntityInfo.SpellsKnown;
                         }
                         int? calculatedMinLevel, calculatedMaxLevel;
                         Strategy.GetMinMaxOffensiveSpellLevels(strategy, usedAutoSpellMin, usedAutoSpellMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
@@ -4245,7 +4237,7 @@ namespace IsengardClient
                                 if (nextPotionsStep.HasValue && allowBasedOnStun &&
                                     (!dtNextPotionsCommand.HasValue || dtUtcNow > dtNextPotionsCommand.Value))
                                 {
-                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _currentEntityInfo, _entityLock, _autohp, _totalhp, _settingsData);
+                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _autohp, _totalhp, _settingsData);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
                                     {
                                         nextPotionsStep = null;
@@ -4514,9 +4506,9 @@ BeforeHazy:
                     bool runScore = pms.DoScore;
                     if (!runScore)
                     {
-                        lock (_skillsLock)
+                        lock (_currentEntityInfo.SkillsLock)
                         {
-                            foreach (SkillCooldown next in _cooldowns)
+                            foreach (SkillCooldown next in _currentEntityInfo.SkillsCooldowns)
                             {
                                 if (next.Status == SkillCooldownStatus.Inactive)
                                 {
@@ -4576,7 +4568,7 @@ BeforeHazy:
             if (eInvProcessInputs != ItemsToProcessType.NoProcessing && (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)))
             {
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom)
                     {
@@ -4627,7 +4619,7 @@ BeforeHazy:
                             if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
                             {
                                 string sItemText;
-                                lock (_entityLock)
+                                lock (_currentEntityInfo.EntityLock)
                                 {
                                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, 1, true, false);
                                 }
@@ -4693,7 +4685,7 @@ BeforeHazy:
                         {
                             DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
                             int inventoryCount;
-                            lock (_entityLock)
+                            lock (_currentEntityInfo.EntityLock)
                             {
                                 inventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
                             }
@@ -4757,7 +4749,7 @@ BeforeHazy:
                                 DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, itemType);
                                 int iCountToGetRidOfFromInventory = 0;
                                 int iTickRoomCount;
-                                lock (_entityLock)
+                                lock (_currentEntityInfo.EntityLock)
                                 {
                                     int iInventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
                                     if (didWithInherit.KeepCount == -1)
@@ -4802,7 +4794,7 @@ BeforeHazy:
                         {
                             string sItemText;
                             bool remove = false;
-                            lock (_entityLock)
+                            lock (_currentEntityInfo.EntityLock)
                             {
                                 sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
                                 if (string.IsNullOrEmpty(sItemText))
@@ -4818,7 +4810,7 @@ BeforeHazy:
                                 {
                                     return backgroundCommandResult;
                                 }
-                                lock (_entityLock)
+                                lock (_currentEntityInfo.EntityLock)
                                 {
                                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
                                     if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
@@ -4873,7 +4865,7 @@ BeforeHazy:
                                     if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
                                     {
                                         string sItemText;
-                                        lock (_entityLock)
+                                        lock (_currentEntityInfo.EntityLock)
                                         {
                                             sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, itemType, 1, true, false);
                                         }
@@ -4954,7 +4946,7 @@ BeforeHazy:
             string sItemText;
             bool removeHeldPotion = false;
             ItemTypeEnum? potItem;
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return CommandResult.CommandUnsuccessfulAlways;
                 ItemLocationType ilt = inInventory.Value ? ItemLocationType.Inventory : ItemLocationType.Equipment;
@@ -4966,13 +4958,13 @@ BeforeHazy:
             }
             if (removeHeldPotion)
             {
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
                     if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
                 }
                 if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms) != CommandResult.CommandSuccessful) return CommandResult.CommandUnsuccessfulAlways;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
                 }
@@ -5068,7 +5060,7 @@ BeforeHazy:
                 {
                     ItemTypeEnum itemType = nextItem.ItemType.Value;
                     string sItemText;
-                    lock (_entityLock)
+                    lock (_currentEntityInfo.EntityLock)
                     {
                         sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
                     }
@@ -5149,7 +5141,7 @@ BeforeHazy:
             StaticMobData smd = MobEntity.StaticMobData[eMobType];
             if (smd.Visibility == MobVisibility.Visible)
             {
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     ret = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, eMobType, mobTypeIndex, false, forLook);
                 }
@@ -5189,7 +5181,7 @@ BeforeHazy:
                 {
                     return backgroundCommandResult;
                 }
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     beforeWeight = _currentEntityInfo.TotalInventoryWeight.Value;
                 }
@@ -5234,7 +5226,7 @@ BeforeHazy:
                     {
                         return CommandResult.CommandUnsuccessfulAlways;
                     }
-                    lock (_entityLock)
+                    lock (_currentEntityInfo.EntityLock)
                     {
                         afterWeight = _currentEntityInfo.TotalInventoryWeight.Value;
                     }
@@ -5409,10 +5401,10 @@ BeforeHazy:
             return CommandResult.CommandSuccessful;
         }
 
-        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, CurrentEntityInfo inventoryEquipment, object entityLockObject, int currentHP, int totalHP, IsengardSettingData settings)
+        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, int currentHP, int totalHP, IsengardSettingData settings)
         {
             command = null;
-            lock (entityLockObject)
+            lock (_currentEntityInfo.EntityLock)
             {
                 bool supportsMend = settings.PotionsMendOnlyWhenDownXHP > 0;
                 bool supportsVigor = settings.PotionsVigorOnlyWhenDownXHP > 0;
@@ -5426,12 +5418,12 @@ BeforeHazy:
                 if (nextPotionsStep == PotionsStrategyStep.GenericHeal && !canVigor && !canMend) return PotionsCommandChoiceResult.Skip;
 
                 //check inventory for potions
-                foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, inventoryEquipment, canVigor, canMend))
+                foreach (int inventoryIndex in GetValidPotionsIndices(nextPotionsStep, _currentEntityInfo, canVigor, canMend))
                 {
-                    ItemEntity itemEntity = inventoryEquipment.InventoryItems[inventoryIndex];
+                    ItemEntity itemEntity = _currentEntityInfo.InventoryItems[inventoryIndex];
                     if (itemEntity.ItemType.HasValue)
                     {
-                        string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemEntity.ItemType.Value, inventoryIndex, false);
+                        string sText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Inventory, itemEntity.ItemType.Value, inventoryIndex, false);
                         if (!string.IsNullOrEmpty(sText))
                         {
                             command = "drink " + sText;
@@ -5444,7 +5436,7 @@ BeforeHazy:
                 if (!string.IsNullOrEmpty(command))
                 {
                     int iHeldSlot = (int)EquipmentSlot.Held;
-                    ItemTypeEnum? heldItem = inventoryEquipment.Equipment[iHeldSlot];
+                    ItemTypeEnum? heldItem = _currentEntityInfo.Equipment[iHeldSlot];
                     if (heldItem.HasValue)
                     {
                         ItemTypeEnum eHeldItem = heldItem.Value;
@@ -5452,7 +5444,7 @@ BeforeHazy:
                         ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
                         if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
                         {
-                            string sText = inventoryEquipment.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot, true);
+                            string sText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItem, iHeldSlot, true);
                             if (!string.IsNullOrEmpty(sText))
                             {
                                 command = "drink " + sText;
@@ -5667,7 +5659,7 @@ BeforeHazy:
                         bool doHealingLogic = !targetIsDamageRoom;
                         if (doHealingLogic)
                         {
-                            lock (_entityLock)
+                            lock (_currentEntityInfo.EntityLock)
                             {
                                 foreach (var nextMob in _currentEntityInfo.CurrentRoomMobs)
                                 {
@@ -5942,7 +5934,7 @@ BeforeHazy:
             {
                 bwp.MonsterKilled = true;
                 bwp.MonsterKilledType = _monsterKilledType;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     MobTypeEnum monsterType = MobTypeEnum.LittleMouse;
                     int index;
@@ -5982,7 +5974,7 @@ BeforeHazy:
             {
                 ItemTypeEnum weaponItemValue = weaponItem.Value;
                 string sWieldCommand = null;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
                     {
@@ -6008,7 +6000,7 @@ BeforeHazy:
             {
                 ItemTypeEnum weaponItemValue = weaponItem.Value;
                 string sWieldCommand = null;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryContainsItemType(weaponItemValue))
                     {
@@ -6738,9 +6730,9 @@ BeforeHazy:
             bool haveSettings = _settingsData != null;
             List<string> knownSpells;
             List<string> realmSpells = haveSettings ? CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm) : null;
-            lock (_spellsKnownLock)
+            lock (_currentEntityInfo.SpellsKnownLock)
             {
-                knownSpells = _spellsKnown;
+                knownSpells = _currentEntityInfo.SpellsKnown;
             }
             foreach (CommandButtonTag oTag in GetButtonsForEnablingDisabling())
             {
@@ -7278,53 +7270,15 @@ BeforeHazy:
                 }
             }
             PromptedSkills activatedSkills = PromptedSkills.None;
-            WorkflowSpells workflowSpellsCast = WorkflowSpells.None;
             WorkflowSpells workflowSpellsPotions = WorkflowSpells.None;
             HealingRoom? healingRoom = null;
             PawnShoppe? pawnShoppe = null;
             ItemsToProcessType inventoryFlow;
-            PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
 
-            lock (_skillsLock)
-            {
-                foreach (SkillCooldown nextCooldown in _cooldowns)
-                {
-                    SkillWithCooldownType sct = nextCooldown.SkillType;
-                    SkillCooldownStatus status = nextCooldown.Status;
-                    bool isAvailable = status == SkillCooldownStatus.Available || (status == SkillCooldownStatus.Waiting && utcNow >= nextCooldown.NextAvailable);
-                    if (isAvailable)
-                    {
-                        if (sct == SkillWithCooldownType.PowerAttack)
-                        {
-                            skills |= PromptedSkills.PowerAttack;
-                        }
-                        else if (sct == SkillWithCooldownType.Manashield)
-                        {
-                            skills |= PromptedSkills.Manashield;
-                        }
-                        else if (sct == SkillWithCooldownType.Fireshield)
-                        {
-                            skills |= PromptedSkills.Fireshield;
-                        }
-                    }
-                }
-            }
-            lock (_spellsKnownLock)
-            {
-                foreach (WorkflowSpells wfSpell in Enum.GetValues(typeof(WorkflowSpells)))
-                {
-                    if (wfSpell != WorkflowSpells.None)
-                    {
-                        SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
-                        if (_spellsKnown.Contains(sia.SpellName) && _userSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier())
-                        {
-                            workflowSpellsCast |= wfSpell;
-                        }
-                    }
-                }
-            }
-            lock (_entityLock)
+            PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(false);
+            WorkflowSpells workflowSpellsCast = _currentEntityInfo.GetAvailableSpellsToCast(false);
+            lock (_currentEntityInfo.EntityLock)
             {
                 foreach (ItemTypeEnum next in _currentEntityInfo.EnumerateInventoryAndEquipmentItems())
                 {
@@ -7560,9 +7514,9 @@ BeforeHazy:
 
                 //refresh cooldowns (active and timers)
                 List<SkillCooldown> cooldowns = new List<SkillCooldown>();
-                lock (_skillsLock)
+                lock (_currentEntityInfo.SkillsLock)
                 {
-                    cooldowns.AddRange(_cooldowns);
+                    cooldowns.AddRange(_currentEntityInfo.SkillsCooldowns);
                 }
                 if (cooldowns.Count > 0)
                 {
@@ -7819,7 +7773,7 @@ BeforeHazy:
 
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
 
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 Room oCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (oCurrentRoom != _currentEntityInfo.CurrentRoomUI)
@@ -8913,7 +8867,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             _currentEntityInfo.CurrentRoom = selectedRoom;
                         }
@@ -8940,7 +8894,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        lock (_entityLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             _currentEntityInfo.CurrentRoom = selectedRoom;
                         }
@@ -9190,7 +9144,7 @@ BeforeHazy:
             {
                 int counter = FindItemOrMobCounterInRoomUI(selectedNode, true);
                 ItemEntity ie = (ItemEntity)selectedNode.Tag;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, false, false);
                     if (string.IsNullOrEmpty(sItemText))
@@ -9219,7 +9173,7 @@ BeforeHazy:
                 int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
                 MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
                 MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.CurrentRoomMobs : MobLocationType.PickFromList;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     Room currentRoom = _currentEntityInfo.CurrentRoom;
                     string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(currentRoom.PermanentMobs, mtLocType, mt, counter, false, true);
@@ -9307,7 +9261,7 @@ BeforeHazy:
             int iCounter = 0;
             ItemTypeEnum itemType = ItemTypeEnum.GoldCoins;
             Room r;
-            lock (_entityLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 object oObj = lst.SelectedItem;
                 if (oObj == null)
@@ -9449,7 +9403,7 @@ BeforeHazy:
             else
             {
                 ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
-                lock (_entityLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     bool validateAgainstOtherSources;
                     if (ilt == ItemLocationType.Equipment)
@@ -9646,6 +9600,14 @@ BeforeHazy:
         private void tsbLogout_Click(object sender, EventArgs e)
         {
             TryQuit(_settingsData != null && _settingsData.SaveSettingsOnQuit, true);
+        }
+
+        private void btnPermRuns_Click(object sender, EventArgs e)
+        {
+            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs))
+            {
+                frm.ShowDialog(this);
+            }
         }
     }
 }

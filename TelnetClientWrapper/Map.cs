@@ -145,6 +145,26 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// retrieves the room text identifier. This is the backend name if unambiguous, and failing that the display name if unambiguous,
+        /// and failing that it returns blank.
+        /// </summary>
+        /// <param name="room">room to check</param>
+        /// <returns>identifier for the room, or blank if ambiguous</returns>
+        public string GetRoomTextIdentifier(Room room)
+        {
+            string ret = string.Empty;
+            if (UnambiguousRoomsByBackendName.TryGetValue(room.BackendName, out _))
+            {
+                ret = room.BackendName;
+            }
+            else if (UnambiguousRoomsByDisplayName.TryGetValue(room.Name, out _))
+            {
+                ret = room.Name;
+            }
+            return ret;
+        }
+
         public static IEnumerable<Exit> GetRoomExits(Room room, Func<Exit, bool> exitDiscriminator)
         {
             foreach (Exit nextExit in room.Exits)

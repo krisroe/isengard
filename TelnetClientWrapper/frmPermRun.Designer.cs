@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.flpSkills = new System.Windows.Forms.FlowLayoutPanel();
@@ -35,7 +36,6 @@
             this.cboMob = new System.Windows.Forms.ComboBox();
             this.cboRoom = new System.Windows.Forms.ComboBox();
             this.lblRoom = new System.Windows.Forms.Label();
-            this.btnEditStrategy = new System.Windows.Forms.Button();
             this.btnGraph = new System.Windows.Forms.Button();
             this.btnLocations = new System.Windows.Forms.Button();
             this.grpStrategyModifications = new System.Windows.Forms.GroupBox();
@@ -44,6 +44,8 @@
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.chkPotions = new System.Windows.Forms.CheckBox();
+            this.ctxCombatType = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiToggleEnabled = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMelee = new System.Windows.Forms.CheckBox();
             this.chkMagic = new System.Windows.Forms.CheckBox();
             this.cboPawnShoppe = new System.Windows.Forms.ComboBox();
@@ -61,13 +63,16 @@
             this.cboStrategy = new System.Windows.Forms.ComboBox();
             this.flpSpellsPotions = new System.Windows.Forms.FlowLayoutPanel();
             this.lblSpellsPotions = new System.Windows.Forms.Label();
+            this.lblDisplayName = new System.Windows.Forms.Label();
+            this.txtDisplayName = new System.Windows.Forms.TextBox();
             this.grpStrategyModifications.SuspendLayout();
+            this.ctxCombatType.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(676, 438);
+            this.btnOK.Location = new System.Drawing.Point(677, 528);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(140, 43);
@@ -80,7 +85,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(827, 438);
+            this.btnCancel.Location = new System.Drawing.Point(828, 528);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(140, 43);
@@ -90,7 +95,7 @@
             // 
             // flpSkills
             // 
-            this.flpSkills.Location = new System.Drawing.Point(122, 162);
+            this.flpSkills.Location = new System.Drawing.Point(122, 261);
             this.flpSkills.Margin = new System.Windows.Forms.Padding(4);
             this.flpSkills.Name = "flpSkills";
             this.flpSkills.Size = new System.Drawing.Size(846, 31);
@@ -99,7 +104,7 @@
             // lblMob
             // 
             this.lblMob.AutoSize = true;
-            this.lblMob.Location = new System.Drawing.Point(13, 251);
+            this.lblMob.Location = new System.Drawing.Point(12, 340);
             this.lblMob.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMob.Name = "lblMob";
             this.lblMob.Size = new System.Drawing.Size(45, 19);
@@ -109,7 +114,7 @@
             // cboMob
             // 
             this.cboMob.FormattingEnabled = true;
-            this.cboMob.Location = new System.Drawing.Point(122, 248);
+            this.cboMob.Location = new System.Drawing.Point(121, 337);
             this.cboMob.Margin = new System.Windows.Forms.Padding(4);
             this.cboMob.Name = "cboMob";
             this.cboMob.Size = new System.Drawing.Size(528, 27);
@@ -119,7 +124,7 @@
             // 
             this.cboRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboRoom.FormattingEnabled = true;
-            this.cboRoom.Location = new System.Drawing.Point(122, 213);
+            this.cboRoom.Location = new System.Drawing.Point(121, 302);
             this.cboRoom.Margin = new System.Windows.Forms.Padding(4);
             this.cboRoom.Name = "cboRoom";
             this.cboRoom.Size = new System.Drawing.Size(528, 27);
@@ -129,27 +134,16 @@
             // lblRoom
             // 
             this.lblRoom.AutoSize = true;
-            this.lblRoom.Location = new System.Drawing.Point(13, 216);
+            this.lblRoom.Location = new System.Drawing.Point(12, 305);
             this.lblRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblRoom.Name = "lblRoom";
             this.lblRoom.Size = new System.Drawing.Size(56, 19);
             this.lblRoom.TabIndex = 6;
             this.lblRoom.Text = "Room:";
             // 
-            // btnEditStrategy
-            // 
-            this.btnEditStrategy.Location = new System.Drawing.Point(670, 275);
-            this.btnEditStrategy.Margin = new System.Windows.Forms.Padding(4);
-            this.btnEditStrategy.Name = "btnEditStrategy";
-            this.btnEditStrategy.Size = new System.Drawing.Size(133, 38);
-            this.btnEditStrategy.TabIndex = 8;
-            this.btnEditStrategy.Text = "Edit";
-            this.btnEditStrategy.UseVisualStyleBackColor = true;
-            this.btnEditStrategy.Click += new System.EventHandler(this.btnEditStrategy_Click);
-            // 
             // btnGraph
             // 
-            this.btnGraph.Location = new System.Drawing.Point(809, 206);
+            this.btnGraph.Location = new System.Drawing.Point(808, 295);
             this.btnGraph.Name = "btnGraph";
             this.btnGraph.Size = new System.Drawing.Size(133, 38);
             this.btnGraph.TabIndex = 9;
@@ -159,7 +153,7 @@
             // 
             // btnLocations
             // 
-            this.btnLocations.Location = new System.Drawing.Point(670, 206);
+            this.btnLocations.Location = new System.Drawing.Point(669, 295);
             this.btnLocations.Name = "btnLocations";
             this.btnLocations.Size = new System.Drawing.Size(133, 38);
             this.btnLocations.TabIndex = 10;
@@ -176,7 +170,7 @@
             this.grpStrategyModifications.Controls.Add(this.chkPotions);
             this.grpStrategyModifications.Controls.Add(this.chkMelee);
             this.grpStrategyModifications.Controls.Add(this.chkMagic);
-            this.grpStrategyModifications.Location = new System.Drawing.Point(122, 315);
+            this.grpStrategyModifications.Location = new System.Drawing.Point(121, 404);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
             this.grpStrategyModifications.Size = new System.Drawing.Size(528, 129);
             this.grpStrategyModifications.TabIndex = 11;
@@ -207,11 +201,6 @@
             // 
             this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboOnKillMonster.FormattingEnabled = true;
-            this.cboOnKillMonster.Items.AddRange(new object[] {
-            "Continue Combat",
-            "Stop Combat",
-            "Fight First Monster",
-            "Fight First Same Monster"});
             this.cboOnKillMonster.Location = new System.Drawing.Point(172, 60);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
@@ -229,6 +218,7 @@
             // chkPotions
             // 
             this.chkPotions.AutoSize = true;
+            this.chkPotions.ContextMenuStrip = this.ctxCombatType;
             this.chkPotions.Location = new System.Drawing.Point(215, 31);
             this.chkPotions.Name = "chkPotions";
             this.chkPotions.Size = new System.Drawing.Size(85, 23);
@@ -237,9 +227,26 @@
             this.chkPotions.UseVisualStyleBackColor = true;
             this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
             // 
+            // ctxCombatType
+            // 
+            this.ctxCombatType.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxCombatType.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiToggleEnabled});
+            this.ctxCombatType.Name = "ctxCombatType";
+            this.ctxCombatType.Size = new System.Drawing.Size(125, 28);
+            this.ctxCombatType.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCombatType_Opening);
+            // 
+            // tsmiToggleEnabled
+            // 
+            this.tsmiToggleEnabled.Name = "tsmiToggleEnabled";
+            this.tsmiToggleEnabled.Size = new System.Drawing.Size(124, 24);
+            this.tsmiToggleEnabled.Text = "Toggle";
+            this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
+            // 
             // chkMelee
             // 
             this.chkMelee.AutoSize = true;
+            this.chkMelee.ContextMenuStrip = this.ctxCombatType;
             this.chkMelee.Location = new System.Drawing.Point(116, 31);
             this.chkMelee.Name = "chkMelee";
             this.chkMelee.Size = new System.Drawing.Size(74, 23);
@@ -251,6 +258,7 @@
             // chkMagic
             // 
             this.chkMagic.AutoSize = true;
+            this.chkMagic.ContextMenuStrip = this.ctxCombatType;
             this.chkMagic.Location = new System.Drawing.Point(10, 31);
             this.chkMagic.Name = "chkMagic";
             this.chkMagic.Size = new System.Drawing.Size(75, 23);
@@ -263,7 +271,7 @@
             // 
             this.cboPawnShoppe.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboPawnShoppe.FormattingEnabled = true;
-            this.cboPawnShoppe.Location = new System.Drawing.Point(128, 49);
+            this.cboPawnShoppe.Location = new System.Drawing.Point(129, 80);
             this.cboPawnShoppe.Margin = new System.Windows.Forms.Padding(4);
             this.cboPawnShoppe.Name = "cboPawnShoppe";
             this.cboPawnShoppe.Size = new System.Drawing.Size(528, 27);
@@ -273,7 +281,7 @@
             // lblPawnShoppe
             // 
             this.lblPawnShoppe.AutoSize = true;
-            this.lblPawnShoppe.Location = new System.Drawing.Point(12, 52);
+            this.lblPawnShoppe.Location = new System.Drawing.Point(13, 83);
             this.lblPawnShoppe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPawnShoppe.Name = "lblPawnShoppe";
             this.lblPawnShoppe.Size = new System.Drawing.Size(94, 19);
@@ -284,7 +292,7 @@
             // 
             this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTickRoom.FormattingEnabled = true;
-            this.cboTickRoom.Location = new System.Drawing.Point(128, 13);
+            this.cboTickRoom.Location = new System.Drawing.Point(129, 44);
             this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
             this.cboTickRoom.Name = "cboTickRoom";
             this.cboTickRoom.Size = new System.Drawing.Size(528, 27);
@@ -294,7 +302,7 @@
             // lblTickRoom
             // 
             this.lblTickRoom.AutoSize = true;
-            this.lblTickRoom.Location = new System.Drawing.Point(12, 16);
+            this.lblTickRoom.Location = new System.Drawing.Point(13, 47);
             this.lblTickRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTickRoom.Name = "lblTickRoom";
             this.lblTickRoom.Size = new System.Drawing.Size(85, 19);
@@ -305,7 +313,7 @@
             // 
             this.cboInventoryFlow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboInventoryFlow.FormattingEnabled = true;
-            this.cboInventoryFlow.Location = new System.Drawing.Point(122, 451);
+            this.cboInventoryFlow.Location = new System.Drawing.Point(121, 540);
             this.cboInventoryFlow.Margin = new System.Windows.Forms.Padding(4);
             this.cboInventoryFlow.Name = "cboInventoryFlow";
             this.cboInventoryFlow.Size = new System.Drawing.Size(522, 27);
@@ -314,7 +322,7 @@
             // lvlInventoryFlow
             // 
             this.lvlInventoryFlow.AutoSize = true;
-            this.lvlInventoryFlow.Location = new System.Drawing.Point(17, 457);
+            this.lvlInventoryFlow.Location = new System.Drawing.Point(16, 546);
             this.lvlInventoryFlow.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lvlInventoryFlow.Name = "lvlInventoryFlow";
             this.lvlInventoryFlow.Size = new System.Drawing.Size(68, 19);
@@ -326,7 +334,7 @@
             this.chkFullBeforeStarting.AutoSize = true;
             this.chkFullBeforeStarting.Checked = true;
             this.chkFullBeforeStarting.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkFullBeforeStarting.Location = new System.Drawing.Point(663, 17);
+            this.chkFullBeforeStarting.Location = new System.Drawing.Point(664, 48);
             this.chkFullBeforeStarting.Name = "chkFullBeforeStarting";
             this.chkFullBeforeStarting.Size = new System.Drawing.Size(175, 23);
             this.chkFullBeforeStarting.TabIndex = 18;
@@ -336,7 +344,7 @@
             // lblSpellsCast
             // 
             this.lblSpellsCast.AutoSize = true;
-            this.lblSpellsCast.Location = new System.Drawing.Point(13, 84);
+            this.lblSpellsCast.Location = new System.Drawing.Point(14, 115);
             this.lblSpellsCast.Name = "lblSpellsCast";
             this.lblSpellsCast.Size = new System.Drawing.Size(104, 19);
             this.lblSpellsCast.TabIndex = 19;
@@ -345,7 +353,7 @@
             // lblSkills
             // 
             this.lblSkills.AutoSize = true;
-            this.lblSkills.Location = new System.Drawing.Point(13, 162);
+            this.lblSkills.Location = new System.Drawing.Point(17, 261);
             this.lblSkills.Name = "lblSkills";
             this.lblSkills.Size = new System.Drawing.Size(51, 19);
             this.lblSkills.TabIndex = 20;
@@ -353,10 +361,10 @@
             // 
             // flpSpellsCast
             // 
-            this.flpSpellsCast.Location = new System.Drawing.Point(122, 84);
+            this.flpSpellsCast.Location = new System.Drawing.Point(123, 115);
             this.flpSpellsCast.Margin = new System.Windows.Forms.Padding(4);
             this.flpSpellsCast.Name = "flpSpellsCast";
-            this.flpSpellsCast.Size = new System.Drawing.Size(846, 31);
+            this.flpSpellsCast.Size = new System.Drawing.Size(846, 65);
             this.flpSpellsCast.TabIndex = 21;
             // 
             // chkFullAfterFinishing
@@ -364,7 +372,7 @@
             this.chkFullAfterFinishing.AutoSize = true;
             this.chkFullAfterFinishing.Checked = true;
             this.chkFullAfterFinishing.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkFullAfterFinishing.Location = new System.Drawing.Point(663, 48);
+            this.chkFullAfterFinishing.Location = new System.Drawing.Point(664, 79);
             this.chkFullAfterFinishing.Name = "chkFullAfterFinishing";
             this.chkFullAfterFinishing.Size = new System.Drawing.Size(169, 23);
             this.chkFullAfterFinishing.TabIndex = 22;
@@ -374,7 +382,7 @@
             // lblStrategy
             // 
             this.lblStrategy.AutoSize = true;
-            this.lblStrategy.Location = new System.Drawing.Point(12, 285);
+            this.lblStrategy.Location = new System.Drawing.Point(9, 374);
             this.lblStrategy.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblStrategy.Name = "lblStrategy";
             this.lblStrategy.Size = new System.Drawing.Size(75, 19);
@@ -385,42 +393,60 @@
             // 
             this.cboStrategy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboStrategy.FormattingEnabled = true;
-            this.cboStrategy.Location = new System.Drawing.Point(122, 282);
+            this.cboStrategy.Location = new System.Drawing.Point(121, 371);
             this.cboStrategy.Name = "cboStrategy";
             this.cboStrategy.Size = new System.Drawing.Size(528, 27);
             this.cboStrategy.TabIndex = 24;
             // 
             // flpSpellsPotions
             // 
-            this.flpSpellsPotions.Location = new System.Drawing.Point(122, 123);
+            this.flpSpellsPotions.Location = new System.Drawing.Point(123, 188);
             this.flpSpellsPotions.Margin = new System.Windows.Forms.Padding(4);
             this.flpSpellsPotions.Name = "flpSpellsPotions";
-            this.flpSpellsPotions.Size = new System.Drawing.Size(846, 31);
+            this.flpSpellsPotions.Size = new System.Drawing.Size(846, 65);
             this.flpSpellsPotions.TabIndex = 26;
             // 
             // lblSpellsPotions
             // 
             this.lblSpellsPotions.AutoSize = true;
-            this.lblSpellsPotions.Location = new System.Drawing.Point(13, 123);
+            this.lblSpellsPotions.Location = new System.Drawing.Point(13, 188);
             this.lblSpellsPotions.Name = "lblSpellsPotions";
             this.lblSpellsPotions.Size = new System.Drawing.Size(96, 19);
             this.lblSpellsPotions.TabIndex = 25;
             this.lblSpellsPotions.Text = "Spells (pot):";
             // 
+            // lblDisplayName
+            // 
+            this.lblDisplayName.AutoSize = true;
+            this.lblDisplayName.Location = new System.Drawing.Point(14, 12);
+            this.lblDisplayName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblDisplayName.Name = "lblDisplayName";
+            this.lblDisplayName.Size = new System.Drawing.Size(113, 19);
+            this.lblDisplayName.TabIndex = 27;
+            this.lblDisplayName.Text = "Display name:";
+            // 
+            // txtDisplayName
+            // 
+            this.txtDisplayName.Location = new System.Drawing.Point(129, 9);
+            this.txtDisplayName.Name = "txtDisplayName";
+            this.txtDisplayName.Size = new System.Drawing.Size(528, 27);
+            this.txtDisplayName.TabIndex = 28;
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(981, 495);
+            this.ClientSize = new System.Drawing.Size(981, 579);
             this.ControlBox = false;
             this.Controls.Add(this.flpSpellsPotions);
+            this.Controls.Add(this.txtDisplayName);
+            this.Controls.Add(this.lblDisplayName);
             this.Controls.Add(this.lblSpellsPotions);
             this.Controls.Add(this.cboStrategy);
             this.Controls.Add(this.lblStrategy);
             this.Controls.Add(this.chkFullAfterFinishing);
             this.Controls.Add(this.flpSpellsCast);
             this.Controls.Add(this.lblSkills);
-            this.Controls.Add(this.btnEditStrategy);
             this.Controls.Add(this.flpSkills);
             this.Controls.Add(this.lblSpellsCast);
             this.Controls.Add(this.chkFullBeforeStarting);
@@ -446,6 +472,7 @@
             this.Text = "Perm Run";
             this.grpStrategyModifications.ResumeLayout(false);
             this.grpStrategyModifications.PerformLayout();
+            this.ctxCombatType.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -459,7 +486,6 @@
         private System.Windows.Forms.ComboBox cboMob;
         private System.Windows.Forms.ComboBox cboRoom;
         private System.Windows.Forms.Label lblRoom;
-        private System.Windows.Forms.Button btnEditStrategy;
         private System.Windows.Forms.Button btnGraph;
         private System.Windows.Forms.Button btnLocations;
         private System.Windows.Forms.GroupBox grpStrategyModifications;
@@ -485,5 +511,9 @@
         private System.Windows.Forms.Label lblAutoSpellLevels;
         private System.Windows.Forms.FlowLayoutPanel flpSpellsPotions;
         private System.Windows.Forms.Label lblSpellsPotions;
+        private System.Windows.Forms.Label lblDisplayName;
+        private System.Windows.Forms.TextBox txtDisplayName;
+        private System.Windows.Forms.ContextMenuStrip ctxCombatType;
+        private System.Windows.Forms.ToolStripMenuItem tsmiToggleEnabled;
     }
 }

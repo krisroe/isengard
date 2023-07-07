@@ -1,0 +1,170 @@
+﻿namespace IsengardClient
+{
+    partial class frmPermRuns
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            this.dgvPermRuns = new System.Windows.Forms.DataGridView();
+            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.colChangeAndRun = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.btnRun = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.ctxPermRuns = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPermRuns)).BeginInit();
+            this.ctxPermRuns.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // dgvPermRuns
+            // 
+            this.dgvPermRuns.AllowUserToAddRows = false;
+            this.dgvPermRuns.AllowUserToDeleteRows = false;
+            this.dgvPermRuns.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPermRuns.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colName,
+            this.colEdit,
+            this.colChangeAndRun,
+            this.btnRun});
+            this.dgvPermRuns.ContextMenuStrip = this.ctxPermRuns;
+            this.dgvPermRuns.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvPermRuns.Location = new System.Drawing.Point(0, 0);
+            this.dgvPermRuns.Name = "dgvPermRuns";
+            this.dgvPermRuns.ReadOnly = true;
+            this.dgvPermRuns.RowHeadersVisible = false;
+            this.dgvPermRuns.RowHeadersWidth = 51;
+            this.dgvPermRuns.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvPermRuns.Size = new System.Drawing.Size(1505, 834);
+            this.dgvPermRuns.TabIndex = 0;
+            // 
+            // colName
+            // 
+            this.colName.HeaderText = "Name";
+            this.colName.MinimumWidth = 6;
+            this.colName.Name = "colName";
+            this.colName.ReadOnly = true;
+            this.colName.Width = 300;
+            // 
+            // colEdit
+            // 
+            this.colEdit.HeaderText = "Edit";
+            this.colEdit.MinimumWidth = 6;
+            this.colEdit.Name = "colEdit";
+            this.colEdit.ReadOnly = true;
+            this.colEdit.Width = 125;
+            // 
+            // colChangeAndRun
+            // 
+            this.colChangeAndRun.HeaderText = "Change+Run";
+            this.colChangeAndRun.MinimumWidth = 6;
+            this.colChangeAndRun.Name = "colChangeAndRun";
+            this.colChangeAndRun.ReadOnly = true;
+            this.colChangeAndRun.Width = 125;
+            // 
+            // btnRun
+            // 
+            this.btnRun.HeaderText = "Run";
+            this.btnRun.MinimumWidth = 6;
+            this.btnRun.Name = "btnRun";
+            this.btnRun.ReadOnly = true;
+            this.btnRun.Width = 125;
+            // 
+            // ctxPermRuns
+            // 
+            this.ctxPermRuns.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxPermRuns.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAdd,
+            this.tsmiRemove,
+            this.tsmiMoveUp,
+            this.tsmiMoveDown});
+            this.ctxPermRuns.Name = "ctxPermRuns";
+            this.ctxPermRuns.Size = new System.Drawing.Size(159, 100);
+            this.ctxPermRuns.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPermRuns_Opening);
+            // 
+            // tsmiAdd
+            // 
+            this.tsmiAdd.Name = "tsmiAdd";
+            this.tsmiAdd.Size = new System.Drawing.Size(158, 24);
+            this.tsmiAdd.Text = "Add";
+            this.tsmiAdd.Click += new System.EventHandler(this.tsmiAdd_Click);
+            // 
+            // tsmiRemove
+            // 
+            this.tsmiRemove.Name = "tsmiRemove";
+            this.tsmiRemove.Size = new System.Drawing.Size(158, 24);
+            this.tsmiRemove.Text = "Remove";
+            this.tsmiRemove.Click += new System.EventHandler(this.tsmiRemove_Click);
+            // 
+            // tsmiMoveUp
+            // 
+            this.tsmiMoveUp.Name = "tsmiMoveUp";
+            this.tsmiMoveUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveUp.Text = "Move Up";
+            this.tsmiMoveUp.Click += new System.EventHandler(this.tsmiMoveUp_Click);
+            // 
+            // tsmiMoveDown
+            // 
+            this.tsmiMoveDown.Name = "tsmiMoveDown";
+            this.tsmiMoveDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveDown.Text = "Move Down";
+            this.tsmiMoveDown.Click += new System.EventHandler(this.tsmiMoveDown_Click);
+            // 
+            // frmPermRuns
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1505, 834);
+            this.Controls.Add(this.dgvPermRuns);
+            this.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Name = "frmPermRuns";
+            this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Perm Runs";
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPermRuns)).EndInit();
+            this.ctxPermRuns.ResumeLayout(false);
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.DataGridView dgvPermRuns;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+        private System.Windows.Forms.DataGridViewButtonColumn colEdit;
+        private System.Windows.Forms.DataGridViewButtonColumn colChangeAndRun;
+        private System.Windows.Forms.DataGridViewButtonColumn btnRun;
+        private System.Windows.Forms.ContextMenuStrip ctxPermRuns;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAdd;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRemove;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
+    }
+}

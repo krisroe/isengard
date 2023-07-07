@@ -195,8 +195,8 @@ namespace IsengardClient
             }
             else if (_selectionRequirement == VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName)
             {
-                if (!_fullMap.UnambiguousRoomsByBackendName.TryGetValue(selectedRoom.BackendName, out _) &&
-                     _fullMap.UnambiguousRoomsByDisplayName[selectedRoom.Name] == null)
+                string sRoomTextIdentifier = _fullMap.GetRoomTextIdentifier(selectedRoom);
+                if (string.IsNullOrEmpty(sRoomTextIdentifier))
                 {
                     MessageBox.Show("Cannot select this room because the backend and display names are ambiguous.", "Select Room", MessageBoxButton.OK);
                     return;

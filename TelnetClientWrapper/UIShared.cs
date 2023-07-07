@@ -37,8 +37,8 @@ namespace IsengardClient
 
     internal class AutoSpellLevelOverrides
     {
-        private int _currentAutoSpellLevelMaximum;
-        private int _currentAutoSpellLevelMinimum;
+        private int? _currentAutoSpellLevelMaximum;
+        private int? _currentAutoSpellLevelMinimum;
         private Label _lblAutoSpellLevels;
         private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
@@ -46,7 +46,7 @@ namespace IsengardClient
         private System.Windows.Forms.ToolStripSeparator sepAutoSpellLevels1;
         private System.Windows.Forms.ToolStripMenuItem tsmiInheritAutoSpellLevels;
 
-        public AutoSpellLevelOverrides(int min, int max, Label lblAutoSpellLevels)
+        public AutoSpellLevelOverrides(int? min, int? max, Label lblAutoSpellLevels)
         {
             _currentAutoSpellLevelMinimum = min;
             _currentAutoSpellLevelMaximum = max;
@@ -102,7 +102,7 @@ namespace IsengardClient
             RefreshAutoSpellLevelUI();
         }
 
-        public int Minimum
+        public int? Minimum
         {
             get
             {
@@ -114,7 +114,7 @@ namespace IsengardClient
             }
         }
 
-        public int Maximum
+        public int? Maximum
         {
             get
             {

@@ -5,6 +5,7 @@ namespace IsengardClient
 {
     internal partial class frmPermRun : Form
     {
+        private PermRun _permRun;
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
         private IsengardSettingData _settingsData;
@@ -54,11 +55,96 @@ namespace IsengardClient
             }
         }
 
+        public string TargetRoomText
+        {
+            get;
+            set;
+        }
+
         public Room TargetRoom
         {
             get
             {
                 return (Room)cboRoom.SelectedItem;
+            }
+        }
+
+        public AfterKillMonsterAction? AfterKillMonsterAction
+        {
+            get
+            {
+                int iIndex = cboOnKillMonster.SelectedIndex;
+                if (_permRun != null)
+                {
+                    if (iIndex == 0)
+                        return null;
+                    else
+                        iIndex--;
+                }
+                return (AfterKillMonsterAction)iIndex;
+            }
+        }
+
+        public int? AutoSpellLevelMin
+        {
+            get
+            {
+                return _autoSpellLevelInfo.Minimum;
+            }
+        }
+
+        public int? AutoSpellLevelMax
+        {
+            get
+            {
+                return _autoSpellLevelInfo.Maximum;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                return txtDisplayName.Text;
+            }
+        }
+
+        public bool? UseMagicCombat
+        {
+            get
+            {
+                bool? ret;
+                if (chkMagic.Enabled)
+                    ret = chkMagic.Checked;
+                else
+                    ret = null;
+                return ret;
+            }
+        }
+
+        public bool? UseMeleeCombat
+        {
+            get
+            {
+                bool? ret;
+                if (chkMelee.Enabled)
+                    ret = chkMelee.Checked;
+                else
+                    ret = null;
+                return ret;
+            }
+        }
+
+        public bool? UsePotionsCombat
+        {
+            get
+            {
+                bool? ret;
+                if (chkPotions.Enabled)
+                    ret = chkPotions.Checked;
+                else
+                    ret = null;
+                return ret;
             }
         }
 
@@ -70,9 +156,65 @@ namespace IsengardClient
         public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
+            txtDisplayName.Enabled = false;
+            bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+            bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+            bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, useMagic, useMelee, usePotions);
+        }
 
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun)
+        {
+            InitializeComponent();
+            _permRun = permRun;
+            txtDisplayName.Text = permRun.DisplayName;
+            string sCurrentMob;
+            if (_permRun.MobType.HasValue)
+            {
+                sCurrentMob = _permRun.MobType.Value.ToString();
+            }
+            else
+            {
+                sCurrentMob = _permRun.MobText;
+            }
+            if (!string.IsNullOrEmpty(sCurrentMob) && _permRun.MobIndex > 1)
+            {
+                sCurrentMob += " " + _permRun.MobIndex.ToString();
+            }
+            sCurrentMob = sCurrentMob ?? string.Empty;
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.FullBeforeStarting, _permRun.FullAfterFinishing, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat);
+        }
+
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int? autoSpellLevelMin, int? autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat)
+        {
             chkFullBeforeStarting.Checked = fullBeforeStarting;
             chkFullAfterFinishing.Checked = fullAfterFinishing;
+
+            if (_permRun != null)
+            {
+                cboOnKillMonster.Items.Add(string.Empty);
+                chkMagic.Enabled = useMagicCombat.HasValue;
+                chkMagic.Checked = useMagicCombat.GetValueOrDefault(false);
+                chkMelee.Enabled = useMeleeCombat.HasValue;
+                chkMelee.Checked = useMeleeCombat.GetValueOrDefault(false);
+                chkPotions.Enabled = usePotionsCombat.HasValue;
+                chkPotions.Checked = usePotionsCombat.GetValueOrDefault(false);
+            }
+            else
+            {
+                chkMagic.Enabled = true;
+                chkMelee.Enabled = true;
+                chkPotions.Enabled = true;
+                chkMagic.Checked = useMagicCombat.Value;
+                chkMelee.Checked = useMeleeCombat.Value;
+                chkPotions.Checked = usePotionsCombat.Value;
+            }
+            foreach (Enum next in Enum.GetValues(typeof(AfterKillMonsterAction)))
+            {
+                cboOnKillMonster.Items.Add(next);
+            }
+
+            _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, lblCurrentAutoSpellLevelsValue);
 
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
@@ -112,22 +254,33 @@ namespace IsengardClient
             _currentRoom = currentRoom;
             _currentEntityInfo = currentEntityInfo;
 
-            if (currentRoom == null)
+            if (_permRun == null)
             {
-                cboRoom.Enabled = false;
+                if (currentRoom == null)
+                {
+                    cboRoom.Enabled = false;
+                }
+                else
+                {
+                    cboRoom.Items.Add(currentRoom);
+                    foreach (Exit nextEdge in currentRoom.Exits)
+                    {
+                        Room targetRoom = nextEdge.Target;
+                        if (currentRoom != targetRoom)
+                        {
+                            cboRoom.Items.Add(targetRoom);
+                        }
+                    }
+                    cboRoom.SelectedItem = currentRoom;
+                }
             }
             else
             {
-                cboRoom.Items.Add(currentRoom);
-                foreach (Exit nextEdge in currentRoom.Exits)
+                if (currentRoom != null)
                 {
-                    Room targetRoom = nextEdge.Target;
-                    if (currentRoom != targetRoom)
-                    {
-                        cboRoom.Items.Add(targetRoom);
-                    }
+                    cboRoom.Items.Add(currentRoom);
+                    cboRoom.SelectedItem = currentRoom;
                 }
-                cboRoom.SelectedItem = currentRoom;
             }
             if (cboMob.Items.Contains(currentMob))
             {
@@ -148,7 +301,8 @@ namespace IsengardClient
                         chk.AutoSize = true;
                         if (nextSkill == PromptedSkills.PowerAttack)
                         {
-                            chk.Checked = chk.Visible = strategy.IsCombatStrategy(CommandType.Melee, strategy.TypesWithStepsEnabled);
+                            bool showPowerAttack = strategy == null || strategy.IsCombatStrategy(CommandType.Melee, GetEffectiveCombatTypesEnabled(strategy));
+                            chk.Checked = chk.Visible = showPowerAttack;
                             _chkPowerAttack = chk;
                         }
                         chk.Margin = new Padding(4);
@@ -174,13 +328,23 @@ namespace IsengardClient
                 }
             }
 
-            _autoSpellLevelInfo = new AutoSpellLevelOverrides(strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue);
+            if (_permRun != null)
+            {
+                cboStrategy.Items.Add(string.Empty);
+            }
             foreach (Strategy s in settingsData.Strategies)
             {
                 cboStrategy.Items.Add(s);
             }
-            cboStrategy.SelectedItem = strategy;
-            RefreshUIFromStrategy();
+            if (_permRun == null)
+            {
+                cboStrategy.SelectedItem = strategy;
+                RefreshUIFromStrategy();
+            }
+            else if (_permRun.Strategy != null)
+            {
+                cboStrategy.SelectedItem = _permRun.Strategy;
+            }
         }
 
         private void AddSpellCheckbox(FlowLayoutPanel flp, WorkflowSpells spell, bool isChecked)
@@ -286,16 +450,46 @@ namespace IsengardClient
             return ret;
         }
 
+        private CommandType GetEffectiveCombatTypesEnabled(Strategy s)
+        {
+            CommandType typesWithStepsEnabled = s.TypesWithStepsEnabled;
+            if (_permRun != null)
+            {
+                if (chkMagic.Enabled)
+                {
+                    if (chkMagic.Checked)
+                        typesWithStepsEnabled |= CommandType.Magic;
+                    else
+                        typesWithStepsEnabled &= ~CommandType.Magic;
+                }
+                if (chkMelee.Enabled)
+                {
+                    if (chkMelee.Checked)
+                        typesWithStepsEnabled |= CommandType.Melee;
+                    else
+                        typesWithStepsEnabled &= ~CommandType.Melee;
+                }
+                if (chkPotions.Enabled)
+                {
+                    if (chkPotions.Checked)
+                        typesWithStepsEnabled |= CommandType.Potions;
+                    else
+                        typesWithStepsEnabled &= ~CommandType.Potions;
+                }
+            }
+            return typesWithStepsEnabled;
+        }
+
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            Strategy selectedStrategy = new Strategy((Strategy)cboStrategy.SelectedItem);
-            selectedStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-            selectedStrategy.TypesWithStepsEnabled = GetSelectedCombatTypes();
-            selectedStrategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum;
-            selectedStrategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum;
-
-            IsCombatStrategy = selectedStrategy.IsCombatStrategy(CommandType.All, selectedStrategy.TypesWithStepsEnabled);
+            if (_permRun != null && cboStrategy.SelectedIndex == 0)
+            {
+                MessageBox.Show("No strategy selected.", "Perm Run");
+                return;
+            }
+            Strategy strategySelectedInDropdown = (Strategy)cboStrategy.SelectedItem;
+            IsCombatStrategy = strategySelectedInDropdown.IsCombatStrategy(CommandType.All, GetEffectiveCombatTypesEnabled(strategySelectedInDropdown));
             if (IsCombatStrategy)
             {
                 if (MobEntity.GetMobInfo(GetInputMobText(), out string mobText, out MobTypeEnum? mobType, out int mobIndex))
@@ -310,69 +504,95 @@ namespace IsengardClient
                     return;
                 }
             }
-
-            SelectedStrategy = selectedStrategy;
-
-            ItemsToProcessType ipw = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
-            if (ipw != ItemsToProcessType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
+            else
             {
-                if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
-                {
-                    return;
-                }
+                MobText = string.Empty;
+                MobType = null;
+                MobIndex = 0;
             }
 
-            GraphInputs graphInputs = _GraphInputs();
-
-            //verify the target room is reachable
             Room targetRoom = cboRoom.SelectedItem as Room;
             if (targetRoom == null)
             {
                 MessageBox.Show("No target room selected.");
                 return;
             }
-            if (targetRoom != _currentRoom)
+
+            if (_permRun == null)
             {
-                if (MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs) == null)
+                Strategy selectedStrategy = new Strategy(strategySelectedInDropdown);
+                selectedStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+                selectedStrategy.TypesWithStepsEnabled = GetSelectedCombatTypes();
+                selectedStrategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum.Value;
+                selectedStrategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum.Value;
+
+                SelectedStrategy = selectedStrategy;
+
+                ItemsToProcessType ipw = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
+                if (ipw != ItemsToProcessType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
                 {
-                    MessageBox.Show("Cannot find path to selected room.");
+                    if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                    {
+                        return;
+                    }
+                }
+
+                GraphInputs graphInputs = _GraphInputs();
+
+                //verify the target room is reachable
+                if (targetRoom != _currentRoom)
+                {
+                    if (MapComputation.ComputeLowestCostPath(_currentRoom, (Room)cboRoom.SelectedItem, graphInputs) == null)
+                    {
+                        MessageBox.Show("Cannot find path to selected room.");
+                        return;
+                    }
+                }
+                //verify healing room is reachable
+                if (cboTickRoom.SelectedIndex > 0)
+                {
+                    Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
+                    if (targetRoom != healingRoom)
+                    {
+                        if (MapComputation.ComputeLowestCostPath(targetRoom, healingRoom, graphInputs) == null)
+                        {
+                            MessageBox.Show("Cannot find path from target room to tick room.");
+                            return;
+                        }
+                        if (MapComputation.ComputeLowestCostPath(healingRoom, targetRoom, graphInputs) == null)
+                        {
+                            MessageBox.Show("Cannot find path from tick room to healing room.");
+                            return;
+                        }
+                    }
+                }
+                //verify pawn shop is reachable
+                if (cboPawnShoppe.SelectedIndex > 0)
+                {
+                    Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedItem];
+                    if (targetRoom != pawnShop)
+                    {
+                        if (MapComputation.ComputeLowestCostPath(targetRoom, pawnShop, graphInputs) == null)
+                        {
+                            MessageBox.Show("Cannot find path from target room to pawn shop.");
+                            return;
+                        }
+                        if (MapComputation.ComputeLowestCostPath(pawnShop, targetRoom, graphInputs) == null)
+                        {
+                            MessageBox.Show("Cannot find path from pawn shop to target room.");
+                            return;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SelectedStrategy = strategySelectedInDropdown;
+                string sRoomTextIdentifier = _gameMap.GetRoomTextIdentifier(targetRoom);
+                if (string.IsNullOrEmpty(sRoomTextIdentifier))
+                {
+                    MessageBox.Show("Cannot use this room because the backend and display names are ambiguous.", "Perm Run");
                     return;
-                }
-            }
-            //verify healing room is reachable
-            if (cboTickRoom.SelectedIndex > 0)
-            {
-                Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
-                if (targetRoom != healingRoom)
-                {
-                    if (MapComputation.ComputeLowestCostPath(targetRoom, healingRoom, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path from target room to tick room.");
-                        return;
-                    }
-                    if (MapComputation.ComputeLowestCostPath(healingRoom, targetRoom, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path from tick room to healing room.");
-                        return;
-                    }
-                }
-            }
-            //verify pawn shop is reachable
-            if (cboPawnShoppe.SelectedIndex > 0)
-            {
-                Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedItem];
-                if (targetRoom != pawnShop)
-                {
-                    if (MapComputation.ComputeLowestCostPath(targetRoom, pawnShop, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path from target room to pawn shop.");
-                        return;
-                    }
-                    if (MapComputation.ComputeLowestCostPath(pawnShop, targetRoom, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path from pawn shop to target room.");
-                        return;
-                    }
                 }
             }
 
@@ -382,7 +602,8 @@ namespace IsengardClient
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, false);
+            VertexSelectionRequirement vsr = _permRun == null ? VertexSelectionRequirement.ValidPathFromCurrentLocation : VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName;
+            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, vsr, false);
             graphForm.ShowDialog();
             if (graphForm.SelectedRoom != null)
             {
@@ -405,26 +626,6 @@ namespace IsengardClient
                     cboRoom.Items.Add(locationsForm.SelectedRoom);
                 }
                 cboRoom.SelectedItem = locationsForm.SelectedRoom;
-            }
-        }
-
-        private void btnEditStrategy_Click(object sender, EventArgs e)
-        {
-            Strategy chosenStrategy = (Strategy)cboStrategy.SelectedItem;
-            bool isBaseStrategy = _settingsData.Strategies.Contains(chosenStrategy);
-            if (isBaseStrategy) chosenStrategy = new Strategy(chosenStrategy);
-            using (frmStrategy frm = new frmStrategy(chosenStrategy))
-            {
-                if (frm.ShowDialog(this) == DialogResult.OK)
-                {
-                    if (isBaseStrategy)
-                    {
-                        chosenStrategy.DisplayName = $"Modified ({chosenStrategy})";
-                        cboStrategy.Items.Add(chosenStrategy);
-                    }
-                    cboStrategy.SelectedItem = chosenStrategy;
-                    RefreshUIFromStrategy();
-                }
             }
         }
 
@@ -485,17 +686,26 @@ namespace IsengardClient
 
         private void chkMagic_CheckedChanged(object sender, EventArgs e)
         {
-            RefreshUIFromEffectiveStrategy();
+            if (_permRun == null)
+            {
+                RefreshUIFromEffectiveStrategy();
+            }
         }
 
         private void chkMelee_CheckedChanged(object sender, EventArgs e)
         {
-            RefreshUIFromEffectiveStrategy();
+            if (_permRun == null)
+            {
+                RefreshUIFromEffectiveStrategy();
+            }
         }
 
         private void chkPotions_CheckedChanged(object sender, EventArgs e)
         {
-            RefreshUIFromEffectiveStrategy();
+            if (_permRun == null)
+            {
+                RefreshUIFromEffectiveStrategy();
+            }
         }
 
         private void cboPawnShoppe_SelectedIndexChanged(object sender, EventArgs e)
@@ -519,6 +729,33 @@ namespace IsengardClient
                 {
                     cboPawnShoppe.SelectedItem = pawnShoppe;
                 }
+            }
+        }
+
+        private void ctxCombatType_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (_permRun == null)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                CheckBox chk = (CheckBox)ctxCombatType.SourceControl;
+                tsmiToggleEnabled.Text = chk.Enabled ? "Override" : "Remove Override";
+            }
+        }
+
+        private void tsmiToggleEnabled_Click(object sender, EventArgs e)
+        {
+            CheckBox chk = (CheckBox)ctxCombatType.SourceControl;
+            if (tsmiToggleEnabled.Text == "Override")
+            {
+                chk.Enabled = true;
+            }
+            else
+            {
+                chk.Enabled = false;
+                chk.Checked = false;
             }
         }
     }

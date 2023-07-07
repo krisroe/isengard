@@ -172,8 +172,8 @@ namespace IsengardClient
 
             Strategy.DisplayName = txtName.Text;
             Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-            Strategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum;
-            Strategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum;
+            Strategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum.Value;
+            Strategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum.Value;
 
             sInt = txtManaPool.Text;
             Strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
