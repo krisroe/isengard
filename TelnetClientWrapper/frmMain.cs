@@ -3750,15 +3750,15 @@ namespace IsengardClient
                     treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
 
-                if (bwp.Success)
+                if (bwp.Success && bwp.PermRun != null)
                 {
-                    if (bwp.TickRoom.HasValue)
+                    if (bwp.PermRun.TickRoom.HasValue)
                     {
-                        cboTickRoom.SelectedItem = bwp.TickRoom.Value;
+                        cboTickRoom.SelectedItem = bwp.PermRun.TickRoom.Value;
                     }
-                    if (bwp.PawnShop.HasValue && bwp.UsedPawnShoppe)
+                    if (bwp.PermRun.PawnShop.HasValue && bwp.UsedPawnShoppe)
                     {
-                        cboPawnShop.SelectedItem = bwp.PawnShop.Value;
+                        cboPawnShop.SelectedItem = bwp.PermRun.PawnShop.Value;
                     }
                 }
 
@@ -3805,7 +3805,7 @@ namespace IsengardClient
                 Strategy strategy = pms.Strategy;
                 CommandResult backgroundCommandResult = CommandResult.CommandSuccessful;
 
-                if (pms.FullBeforeStarting || pms.CureIfPoisoned)
+                if ((pms.PermRun != null && pms.PermRun.FullBeforeStarting) || pms.CureIfPoisoned)
                 {
                     //cure-poison if needed
                     _poisoned = false;
@@ -3835,9 +3835,9 @@ namespace IsengardClient
                     }
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (!_fleeing && !_hazying && pms.FullBeforeStarting && !IsFull(pms.SpellsToCast))
+                    if (!_fleeing && !_hazying && pms.PermRun != null && pms.PermRun.FullBeforeStarting && !IsFull(pms.PermRun.SpellsToCast))
                     {
-                        if (!pms.TickRoom.HasValue)
+                        if (!pms.PermRun.TickRoom.HasValue)
                         {
                             return;
                         }
@@ -3897,7 +3897,7 @@ namespace IsengardClient
                     return;
                 }
 
-                WorkflowSpells spellsToPot = pms.SpellsToPotion;
+                WorkflowSpells spellsToPot = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
                 spellsToPot &= ~WorkflowSpells.CurePoison;
                 if (spellsToPot != WorkflowSpells.None)
                 {
@@ -3938,7 +3938,8 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (!_hazying && !_fleeing && ((pms.UsedSkills & PromptedSkills.Manashield) == PromptedSkills.Manashield))
+                PromptedSkills skillsToRun = pms.PermRun == null ? PromptedSkills.None : pms.PermRun.SkillsToRun;
+                if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Manashield) == PromptedSkills.Manashield))
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                     backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
@@ -3947,7 +3948,7 @@ namespace IsengardClient
                         return;
                     }
                 }
-                if (!_hazying && !_fleeing && ((pms.UsedSkills & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
+                if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
                 {
                     _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                     backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
@@ -3993,7 +3994,7 @@ namespace IsengardClient
                         _currentlyFightingMobText = pms.MobText;
                         _currentlyFightingMobType = pms.MobType;
                         _currentlyFightingMobCounter = pms.MobType.HasValue ? pms.MobTypeCounter : pms.MobTextCounter;
-                        bool useManaPool = pms.ManaPool > 0;
+                        bool useManaPool = false;
                         AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
                         int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
                         int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
@@ -4003,6 +4004,7 @@ namespace IsengardClient
                         bool havePotionsStrategySteps = false;
                         if (strategy != null)
                         {
+                            useManaPool = strategy.ManaPool > 0;
                             haveMagicStrategySteps = strategy.HasAnyMagicSteps();
                             haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
                             havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
@@ -4046,7 +4048,7 @@ namespace IsengardClient
                         _monsterKilledItems.Clear();
                         if (useManaPool)
                         {
-                            _currentMana = pms.ManaPool;
+                            _currentMana = strategy.ManaPool;
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
@@ -4057,7 +4059,7 @@ namespace IsengardClient
                             if (useMelee)
                             {
                                 WieldWeapon(weaponItem);
-                                doPowerAttack = (pms.UsedSkills & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
+                                doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
                             IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
@@ -4518,7 +4520,7 @@ BeforeHazy:
                     {
                         return;
                     }
-                    if (!_hazying && pms.FullAfterFinishing && pms.TickRoom.HasValue && !IsFull(pms.SpellsToCast))
+                    if (!_hazying && pms.PermRun != null && pms.PermRun.FullAfterFinishing && pms.PermRun.TickRoom.HasValue && !IsFull(pms.PermRun.SpellsToCast))
                     {
                         backgroundCommandResult = NavigateToTickRoom(pms, false);
                         if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
@@ -4606,7 +4608,8 @@ BeforeHazy:
 
         private CommandResult DoInventoryManagement(BackgroundWorkerParameters pms)
         {
-            ItemsToProcessType eInvProcessInputs = pms.InventoryProcessInputType;
+            if (pms.PermRun == null) return CommandResult.CommandSuccessful;
+            ItemsToProcessType eInvProcessInputs = pms.PermRun.ItemsToProcessType;
             InventoryManagementWorkflow eInventoryWorkflow = pms.InventoryManagementFlow;
             CommandResult backgroundCommandResult;
             if (eInvProcessInputs != ItemsToProcessType.NoProcessing && (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)))
@@ -5022,9 +5025,15 @@ BeforeHazy:
             return NavigateToSpecificRoom(pms.TargetRoom, pms, allowFlee);
         }
 
+        /// <summary>
+        /// navigates to a tick room. assumed to be in the context of a perm run
+        /// </summary>
+        /// <param name="pms">background parameter</param>
+        /// <param name="allowFlee">whether flee is allowed</param>
+        /// <returns>result of the operation</returns>
         private CommandResult NavigateToTickRoom(BackgroundWorkerParameters pms, bool allowFlee)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.TickRoom.Value], pms, allowFlee);
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.PermRun.TickRoom.Value], pms, allowFlee);
         }
 
         private CommandResult NavigateToInventorySinkRoom(BackgroundWorkerParameters pms, bool allowFlee)
@@ -5083,13 +5092,13 @@ BeforeHazy:
             bool success = true;
             if (items.Count > 0)
             {
-                if (!pms.PawnShop.HasValue)
+                if (!pms.PermRun.PawnShop.HasValue)
                 {
                     AddConsoleMessage("No pawn shop available.");
                     return CommandResult.CommandUnsuccessfulAlways;
                 }
                 Room currentRoom = _currentEntityInfo.CurrentRoom;
-                Room targetRoom = _gameMap.PawnShoppes[pms.PawnShop.Value];
+                Room targetRoom = _gameMap.PawnShoppes[pms.PermRun.PawnShop.Value];
                 if (currentRoom != targetRoom)
                 {
                     List<Exit> nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
@@ -5307,10 +5316,12 @@ BeforeHazy:
         private CommandResult GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
         {
             CommandResult nextCommandResult;
+            WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
+            WorkflowSpells spellsToPotion = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
             if (needCurePoison)
             {
                 SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
-                if ((pms.SpellsToPotion & WorkflowSpells.CurePoison) != WorkflowSpells.None)
+                if ((spellsToPotion & WorkflowSpells.CurePoison) != WorkflowSpells.None)
                 {
                     nextCommandResult = DrinkPotionForSpell(siaCurePoison, pms);
                     if (nextCommandResult == CommandResult.CommandSuccessful)
@@ -5322,7 +5333,7 @@ BeforeHazy:
                         return nextCommandResult;
                     }
                 }
-                if (needCurePoison && ((pms.SpellsToCast & WorkflowSpells.CurePoison) != WorkflowSpells.None))
+                if (needCurePoison && ((spellsToCast & WorkflowSpells.CurePoison) != WorkflowSpells.None))
                 {
                     if (_automp >= siaCurePoison.Mana)
                     {
@@ -5365,7 +5376,7 @@ BeforeHazy:
         {
             int iTickHP = GetHealingRoomTickHP();
             int iTickMP = GetHealingRoomTickMP();
-            WorkflowSpells spellsToCast = pms.SpellsToCast;
+            WorkflowSpells spellsToCast = pms.PermRun.SpellsToCast;
             spellsToCast &= ~WorkflowSpells.CurePoison;
             CommandResult backgroundCommandResult;
             while (!IsFull(spellsToCast))
@@ -7313,10 +7324,7 @@ BeforeHazy:
                     return;
                 }
             }
-            PromptedSkills activatedSkills = PromptedSkills.None;
             WorkflowSpells workflowSpellsPotions = WorkflowSpells.None;
-            HealingRoom? healingRoom = null;
-            PawnShoppe? pawnShoppe = null;
             ItemsToProcessType inventoryFlow;
             DateTime utcNow = DateTime.UtcNow;
 
@@ -7370,64 +7378,17 @@ BeforeHazy:
                     }
                 }
             }
-
-            string sMobText;
-            MobTypeEnum? eMobType;
-            int iMobIndex;
-            bool fullBeforeStarting;
-            bool fullAfterFinishing;
-            Room targetRoom;
+            PermRun p;
             using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, defaultFullBeforeStarting, defaultFullAfterFinishing, workflowSpellsCast, workflowSpellsPotions))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
                 }
-                activatedSkills = frm.SelectedSkills;
-                workflowSpellsCast = frm.SelectedCastSpells;
-                workflowSpellsPotions = frm.SelectedPotionsSpells;
-                sMobText = frm.MobText;
-                eMobType = frm.MobType;
-                iMobIndex = frm.MobIndex;
-                strategy = frm.SelectedStrategy;
-                healingRoom = frm.HealingRoom;
-                pawnShoppe = frm.PawnShop;
-                inventoryFlow = frm.InventoryFlow;
-                fullBeforeStarting = frm.FullBeforeStarting;
-                fullAfterFinishing = frm.FullAfterFinishing;
-                targetRoom = frm.TargetRoom;
+                p = new PermRun();
+                frm.SaveFormDataToPermRun(p);
             }
-
-            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            bwp.Strategy = strategy;
-            if (strategy.ManaPool > 0) bwp.ManaPool = strategy.ManaPool;
-            bwp.UsedSkills = activatedSkills;
-            bwp.SpellsToCast = workflowSpellsCast;
-            bwp.SpellsToPotion = workflowSpellsPotions;
-            bwp.FullBeforeStarting = fullBeforeStarting;
-            bwp.FullAfterFinishing = fullAfterFinishing;
-            if (eMobType.HasValue)
-            {
-                bwp.MobType = eMobType;
-                bwp.MobTypeCounter = iMobIndex;
-            }
-            else
-            {
-                bwp.MobText = sMobText;
-                bwp.MobTextCounter = iMobIndex;
-            }
-            bwp.TickRoom = healingRoom;
-            if (healingRoom.HasValue)
-            {
-                bwp.InventorySinkRoom = _gameMap.HealingRooms[healingRoom.Value];
-            }
-            bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
-            bwp.PawnShop = pawnShoppe;
-            bwp.InventoryProcessInputType = inventoryFlow;
-            bwp.TargetRoom = targetRoom;
-            bwp.BeforeGold = _gold;
-            bwp.BeforeExperience = _experience;
-            RunBackgroundProcess(bwp);
+            DoPermRun(p);
         }
 
         internal class CommandButtonTag
@@ -9650,8 +9611,21 @@ BeforeHazy:
         {
             using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs))
             {
-                frm.ShowDialog(this);
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    DoPermRun(frm.PermRunToRun);
+                }
             }
+        }
+
+        private void DoPermRun(PermRun p)
+        {
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.SetPermRun(p, _gameMap);
+            bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
+            bwp.BeforeGold = _gold;
+            bwp.BeforeExperience = _experience;
+            RunBackgroundProcess(bwp);
         }
     }
 }

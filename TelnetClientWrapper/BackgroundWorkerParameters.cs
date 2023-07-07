@@ -30,19 +30,6 @@ namespace IsengardClient
         public MagicStrategyStep? QueuedMagicStep { get; set; }
         public MeleeStrategyStep? QueuedMeleeStep { get; set; }
         public PotionsStrategyStep? QueuedPotionsStep { get; set; }
-        public int ManaPool { get; set; }
-        /// <summary>
-        /// skills to use in this background process
-        /// </summary>
-        public PromptedSkills UsedSkills { get; set; }
-        /// <summary>
-        /// spells that can be cast during the workflow
-        /// </summary>
-        public WorkflowSpells SpellsToCast { get; set; }
-        /// <summary>
-        /// spells that can be potioned during the workflow
-        /// </summary>
-        public WorkflowSpells SpellsToPotion { get; set; }
         public bool Hazy { get; set; }
         public bool Hazied { get; set; }
         public bool Flee { get; set; }
@@ -70,14 +57,6 @@ namespace IsengardClient
         }
         public bool Foreground { get; set; }
         /// <summary>
-        /// whether to get full before starting
-        /// </summary>
-        public bool FullBeforeStarting { get; set; }
-        /// <summary>
-        /// whether to get full after finishing
-        /// </summary>
-        public bool FullAfterFinishing { get; set; }
-        /// <summary>
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.
         /// </summary>
         public bool CureIfPoisoned { get; set; }
@@ -88,11 +67,8 @@ namespace IsengardClient
         public bool MonsterKilled { get; set; }
         public MobTypeEnum? MonsterKilledType { get; set; }
         public bool AtDestination { get; set; }
-        public PawnShoppe? PawnShop { get; set; }
         public bool UsedPawnShoppe { get; set; }
-        public HealingRoom? TickRoom { get; set; }
         public bool Success { get; set; }
-        public ItemsToProcessType InventoryProcessInputType { get; set; }
         /// <summary>
         /// when the perm run started
         /// </summary>
@@ -105,10 +81,38 @@ namespace IsengardClient
         /// gold before starting the perm run
         /// </summary>
         public int BeforeGold { get; set; }
-
+        /// <summary>
+        /// perm run info
+        /// </summary>
+        public PermRun PermRun { get; set; }
+        /// <summary>
+        /// items to process in the inventory management flow
+        /// </summary>
+        public ItemsToProcessType InventoryProcessInputType { get; set; }
         public bool IsForPermRun()
         {
             return this.TargetRoom != null && (this.MobType.HasValue || !string.IsNullOrEmpty(this.MobText));
+        }
+        public void SetPermRun(PermRun p, IsengardMap gameMap)
+        {
+            PermRun = p;
+            Strategy = p.Strategy;
+            if (p.MobType.HasValue)
+            {
+                MobType = p.MobType;
+                MobTypeCounter = p.MobIndex;
+            }
+            else
+            {
+                MobText = p.MobText;
+                MobTextCounter = p.MobIndex;
+            }
+            if (p.TickRoom.HasValue)
+            {
+                InventorySinkRoom = gameMap.HealingRooms[p.TickRoom.Value];
+            }
+            InventoryProcessInputType = p.ItemsToProcessType;
+            TargetRoom = p.TargetRoomObject;
         }
     }
 }

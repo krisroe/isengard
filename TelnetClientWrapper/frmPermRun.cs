@@ -57,12 +57,6 @@ namespace IsengardClient
             }
         }
 
-        public string TargetRoomText
-        {
-            get;
-            set;
-        }
-
         public Room TargetRoom
         {
             get
@@ -385,21 +379,39 @@ namespace IsengardClient
         private void RefreshUIFromStrategy()
         {
             Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
+            bool isChecked;
             if (_permRun == null || _forChangeAndRun || !chkMagic.Enabled)
             {
-                chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+                if (Strategy == null)
+                    isChecked = false;
+                else
+                    isChecked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+                chkMagic.Checked = isChecked;
             }
             if (_permRun == null || _forChangeAndRun || !chkMelee.Enabled)
             {
-                chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+                if (Strategy == null)
+                    isChecked = false;
+                else
+                    isChecked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+                chkMelee.Checked = isChecked;
             }
             if (_permRun == null || _forChangeAndRun || !chkPotions.Enabled)
             {
-                chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+                if (Strategy == null)
+                    isChecked = false;
+                else
+                    isChecked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+                chkPotions.Checked = isChecked;
             }
             if (_permRun == null || _forChangeAndRun || !cboOnKillMonster.Enabled)
             {
-                cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
+                AfterKillMonsterAction action;
+                if (Strategy == null)
+                    action = IsengardClient.AfterKillMonsterAction.StopCombat;
+                else
+                    action = Strategy.AfterKillMonsterAction;
+                cboOnKillMonster.SelectedIndex = (int)action;
             }
             if (Strategy != null)
             {
@@ -783,7 +795,7 @@ namespace IsengardClient
             }
         }
 
-        private void ctxCombatType_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ctxToggleStrategyModificationOverride_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (_permRun == null)
             {
@@ -791,22 +803,43 @@ namespace IsengardClient
             }
             else
             {
-                CheckBox chk = (CheckBox)ctxCombatType.SourceControl;
-                tsmiToggleEnabled.Text = chk.Enabled ? "Override" : "Remove Override";
+                Control ctl = ctxToggleStrategyModificationOverride.SourceControl;
+                tsmiToggleEnabled.Text = ctl.Enabled ? "Override" : "Remove Override";
             }
         }
 
         private void tsmiToggleEnabled_Click(object sender, EventArgs e)
         {
-            CheckBox chk = (CheckBox)ctxCombatType.SourceControl;
+            Control ctl = ctxToggleStrategyModificationOverride.SourceControl;
             if (tsmiToggleEnabled.Text == "Override")
             {
-                chk.Enabled = true;
+                ctl.Enabled = true;
             }
             else
             {
-                chk.Enabled = false;
-                chk.Checked = false;
+                ctl.Enabled = false;
+                Strategy s = cboStrategy.SelectedItem as Strategy;
+                bool haveStrategy = s != null;
+                if (ctl == chkMagic)
+                {
+                    chkMagic.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
+                }
+                else if (ctl == chkMelee)
+                {
+                    chkMelee.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
+                }
+                else if (ctl == chkPotions)
+                {
+                    chkPotions.Checked = haveStrategy && ((s.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
+                }
+                else if (ctl == cboOnKillMonster)
+                {
+                    cboOnKillMonster.SelectedIndex = (int)(haveStrategy ? s.AfterKillMonsterAction : IsengardClient.AfterKillMonsterAction.StopCombat);
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
             }
         }
 
@@ -828,7 +861,7 @@ namespace IsengardClient
             pr.SpellsToPotion = SelectedPotionsSpells;
             pr.SkillsToRun = SelectedSkills;
             pr.Strategy = SelectedStrategy;
-            pr.TargetRoom = TargetRoomText;
+            pr.TargetRoom = _gameMap.GetRoomTextIdentifier(TargetRoom);
             pr.TargetRoomObject = TargetRoom;
             pr.UseMagicCombat = UseMagicCombat;
             pr.UseMeleeCombat = UseMeleeCombat;

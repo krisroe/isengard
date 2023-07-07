@@ -44,7 +44,7 @@
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.chkPotions = new System.Windows.Forms.CheckBox();
-            this.ctxCombatType = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ctxToggleStrategyModificationOverride = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiToggleEnabled = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMelee = new System.Windows.Forms.CheckBox();
             this.chkMagic = new System.Windows.Forms.CheckBox();
@@ -66,7 +66,7 @@
             this.lblDisplayName = new System.Windows.Forms.Label();
             this.txtDisplayName = new System.Windows.Forms.TextBox();
             this.grpStrategyModifications.SuspendLayout();
-            this.ctxCombatType.SuspendLayout();
+            this.ctxToggleStrategyModificationOverride.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
@@ -199,6 +199,7 @@
             // 
             // cboOnKillMonster
             // 
+            this.cboOnKillMonster.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboOnKillMonster.FormattingEnabled = true;
             this.cboOnKillMonster.Location = new System.Drawing.Point(172, 60);
@@ -218,7 +219,7 @@
             // chkPotions
             // 
             this.chkPotions.AutoSize = true;
-            this.chkPotions.ContextMenuStrip = this.ctxCombatType;
+            this.chkPotions.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.chkPotions.Location = new System.Drawing.Point(215, 31);
             this.chkPotions.Name = "chkPotions";
             this.chkPotions.Size = new System.Drawing.Size(85, 23);
@@ -227,26 +228,26 @@
             this.chkPotions.UseVisualStyleBackColor = true;
             this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
             // 
-            // ctxCombatType
+            // ctxToggleStrategyModificationOverride
             // 
-            this.ctxCombatType.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxCombatType.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ctxToggleStrategyModificationOverride.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxToggleStrategyModificationOverride.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiToggleEnabled});
-            this.ctxCombatType.Name = "ctxCombatType";
-            this.ctxCombatType.Size = new System.Drawing.Size(125, 28);
-            this.ctxCombatType.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCombatType_Opening);
+            this.ctxToggleStrategyModificationOverride.Name = "ctxCombatType";
+            this.ctxToggleStrategyModificationOverride.Size = new System.Drawing.Size(211, 56);
+            this.ctxToggleStrategyModificationOverride.Opening += new System.ComponentModel.CancelEventHandler(this.ctxToggleStrategyModificationOverride_Opening);
             // 
             // tsmiToggleEnabled
             // 
             this.tsmiToggleEnabled.Name = "tsmiToggleEnabled";
-            this.tsmiToggleEnabled.Size = new System.Drawing.Size(124, 24);
+            this.tsmiToggleEnabled.Size = new System.Drawing.Size(210, 24);
             this.tsmiToggleEnabled.Text = "Toggle";
             this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
             // 
             // chkMelee
             // 
             this.chkMelee.AutoSize = true;
-            this.chkMelee.ContextMenuStrip = this.ctxCombatType;
+            this.chkMelee.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.chkMelee.Location = new System.Drawing.Point(116, 31);
             this.chkMelee.Name = "chkMelee";
             this.chkMelee.Size = new System.Drawing.Size(74, 23);
@@ -258,7 +259,7 @@
             // chkMagic
             // 
             this.chkMagic.AutoSize = true;
-            this.chkMagic.ContextMenuStrip = this.ctxCombatType;
+            this.chkMagic.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.chkMagic.Location = new System.Drawing.Point(10, 31);
             this.chkMagic.Name = "chkMagic";
             this.chkMagic.Size = new System.Drawing.Size(75, 23);
@@ -473,7 +474,7 @@
             this.Text = "Perm Run";
             this.grpStrategyModifications.ResumeLayout(false);
             this.grpStrategyModifications.PerformLayout();
-            this.ctxCombatType.ResumeLayout(false);
+            this.ctxToggleStrategyModificationOverride.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -514,7 +515,7 @@
         private System.Windows.Forms.Label lblSpellsPotions;
         private System.Windows.Forms.Label lblDisplayName;
         private System.Windows.Forms.TextBox txtDisplayName;
-        private System.Windows.Forms.ContextMenuStrip ctxCombatType;
+        private System.Windows.Forms.ContextMenuStrip ctxToggleStrategyModificationOverride;
         private System.Windows.Forms.ToolStripMenuItem tsmiToggleEnabled;
     }
 }

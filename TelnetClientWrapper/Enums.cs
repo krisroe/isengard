@@ -687,8 +687,8 @@ namespace IsengardClient
         Neck,
         Waist,
         Head,
-        Hands, //CSRTODO: hands vs face?
-        Face,  //CSRTODO: hands vs face?
+        Face,
+        Hands,
         Finger,
         Ears,
         Holding,
@@ -716,8 +716,8 @@ namespace IsengardClient
         Neck = 4,
         Waist = 5,
         Head = 6,
-        Hands = 7, //CSRTODO: hands vs face
-        Face = 8, //CSRTODO: hands vs face
+        Face = 7,
+        Hands = 8,
         Finger1 = 9,
         Finger2 = 10,
         Ears = 11,
