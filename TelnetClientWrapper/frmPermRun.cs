@@ -876,6 +876,10 @@ namespace IsengardClient
                     cboStrategy.Items.RemoveAt(0);
                 }
             }
+            if (_initialized)
+            {
+                RefreshUIFromStrategy();
+            }
         }
 
         private void pnlStrategyModifications_MouseUp(object sender, MouseEventArgs e)
