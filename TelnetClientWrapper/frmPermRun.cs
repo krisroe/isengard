@@ -385,39 +385,53 @@ namespace IsengardClient
         private void RefreshUIFromStrategy()
         {
             Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
-            if (chkMagic.Enabled)
+            if (_permRun == null || _forChangeAndRun || !chkMagic.Enabled)
             {
                 chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             }
-            if (chkMelee.Enabled)
+            if (_permRun == null || _forChangeAndRun || !chkMelee.Enabled)
             {
                 chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             }
-            if (chkPotions.Enabled)
+            if (_permRun == null || _forChangeAndRun || !chkPotions.Enabled)
             {
                 chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
             }
-            if (cboOnKillMonster.Enabled)
+            if (_permRun == null || _forChangeAndRun || !cboOnKillMonster.Enabled)
             {
                 cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
             }
-            _autoSpellLevelInfo.StrategyMinimum = Strategy.AutoSpellLevelMin;
-            _autoSpellLevelInfo.StrategyMaximum = Strategy.AutoSpellLevelMax;
+            if (Strategy != null)
+            {
+                _autoSpellLevelInfo.StrategyMinimum = Strategy.AutoSpellLevelMin;
+                _autoSpellLevelInfo.StrategyMaximum = Strategy.AutoSpellLevelMax;
+            }
+            else
+            {
+                _autoSpellLevelInfo.StrategyMinimum = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+                _autoSpellLevelInfo.StrategyMaximum = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            }
             _autoSpellLevelInfo.RefreshAutoSpellLevelUI();
+
             RefreshUIFromEffectiveStrategy();
         }
 
         private void RefreshUIFromEffectiveStrategy()
         {
             CommandType eCombatTypes = GetSelectedCombatTypes();
-            Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
-            bool showMob = Strategy.IsCombatStrategy(CommandType.All, eCombatTypes);
+            bool showMob = eCombatTypes != CommandType.None;
             lblMob.Visible = showMob;
             cboMob.Visible = showMob;
-            grpStrategyModifications.Text = "Strategy (" + Strategy.GetToStringForCommandTypes(eCombatTypes) + ")";
+            Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
+            string grpStrategyText;
+            if (Strategy == null)
+                grpStrategyText = "No Strategy Selected";
+            else
+                grpStrategyText = "Strategy (" + Strategy.GetToStringForCommandTypes(eCombatTypes) + ")";
+            grpStrategyModifications.Text = grpStrategyText;
             if (_chkPowerAttack != null)
             {
-                _chkPowerAttack.Visible = Strategy.IsCombatStrategy(CommandType.Melee, eCombatTypes);
+                _chkPowerAttack.Visible = (eCombatTypes & CommandType.Melee) != CommandType.None;
             }
         }
 
@@ -723,7 +737,7 @@ namespace IsengardClient
 
         private void chkMagic_CheckedChanged(object sender, EventArgs e)
         {
-            if ((_permRun == null || _forChangeAndRun) && _initialized)
+            if (_initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -731,7 +745,7 @@ namespace IsengardClient
 
         private void chkMelee_CheckedChanged(object sender, EventArgs e)
         {
-            if ((_permRun == null || _forChangeAndRun) && _initialized)
+            if (_initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -739,7 +753,7 @@ namespace IsengardClient
 
         private void chkPotions_CheckedChanged(object sender, EventArgs e)
         {
-            if ((_permRun == null || _forChangeAndRun) && _initialized)
+            if (_initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -819,6 +833,22 @@ namespace IsengardClient
             pr.UseMagicCombat = UseMagicCombat;
             pr.UseMeleeCombat = UseMeleeCombat;
             pr.UsePotionsCombat = UsePotionsCombat;
+        }
+
+        /// <summary>
+        /// removes the blank strategy item once a strategy is selected
+        /// </summary>
+        private void cboStrategy_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Strategy s = cboStrategy.SelectedItem as Strategy;
+            if (s != null)
+            {
+                Strategy sFirst = cboStrategy.Items[0] as Strategy;
+                if (sFirst == null)
+                {
+                    cboStrategy.Items.RemoveAt(0);
+                }
+            }
         }
     }
 }

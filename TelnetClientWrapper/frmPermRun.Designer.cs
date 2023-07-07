@@ -397,6 +397,7 @@
             this.cboStrategy.Name = "cboStrategy";
             this.cboStrategy.Size = new System.Drawing.Size(528, 27);
             this.cboStrategy.TabIndex = 24;
+            this.cboStrategy.SelectedIndexChanged += new System.EventHandler(this.cboStrategy_SelectedIndexChanged);
             // 
             // flpSpellsPotions
             // 
