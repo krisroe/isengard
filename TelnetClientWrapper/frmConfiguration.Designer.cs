@@ -54,9 +54,6 @@
             this.tsmiPreferredAlignmentGood = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPreferredAlignmentEvil = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
-            this.ctxAutoSpellLevels = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSetCurrentMinimumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSetCurrentMaximumAutoSpellLevel = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentRealmValue = new System.Windows.Forms.Label();
             this.txtCurrentWeaponValue = new System.Windows.Forms.TextBox();
             this.lblCurrentAutoEscapeValue = new System.Windows.Forms.Label();
@@ -104,7 +101,6 @@
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
-            this.ctxAutoSpellLevels.SuspendLayout();
             this.ctxStrategies.SuspendLayout();
             this.tcConfiguration.SuspendLayout();
             this.tabConfiguration.SuspendLayout();
@@ -124,34 +120,34 @@
             this.tsmiCurrentRealmWater,
             this.tsmiCurrentRealmWind});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(116, 100);
+            this.ctxRealm.Size = new System.Drawing.Size(264, 160);
             this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiCurrentRealmEarth
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(210, 24);
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmFire
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(210, 24);
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWater
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(210, 24);
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWind
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(210, 24);
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -320,7 +316,6 @@
             // lblCurrentAutoSpellLevelsValue
             // 
             this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
-            this.lblCurrentAutoSpellLevelsValue.ContextMenuStrip = this.ctxAutoSpellLevels;
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
             this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(111, 76);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
@@ -328,29 +323,6 @@
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 144;
             this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
             this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // ctxAutoSpellLevels
-            // 
-            this.ctxAutoSpellLevels.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxAutoSpellLevels.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSetCurrentMinimumAutoSpellLevel,
-            this.tsmiSetCurrentMaximumAutoSpellLevel});
-            this.ctxAutoSpellLevels.Name = "ctxAutoSpellLevels";
-            this.ctxAutoSpellLevels.Size = new System.Drawing.Size(222, 52);
-            // 
-            // tsmiSetCurrentMinimumAutoSpellLevel
-            // 
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Name = "tsmiSetCurrentMinimumAutoSpellLevel";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Text = "Set Current Minimum";
-            this.tsmiSetCurrentMinimumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMinimumAutoSpellLevel_Click);
-            // 
-            // tsmiSetCurrentMaximumAutoSpellLevel
-            // 
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Name = "tsmiSetCurrentMaximumAutoSpellLevel";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Size = new System.Drawing.Size(221, 24);
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Text = "Set Current Maximum";
-            this.tsmiSetCurrentMaximumAutoSpellLevel.Click += new System.EventHandler(this.tsmiSetCurrentMaximumAutoSpellLevel_Click);
             // 
             // lblCurrentRealmValue
             // 
@@ -442,41 +414,41 @@
             this.tsmiMoveStrategyUp,
             this.tsmiMoveStrategyDown});
             this.ctxStrategies.Name = "ctxStrategies";
-            this.ctxStrategies.Size = new System.Drawing.Size(211, 152);
+            this.ctxStrategies.Size = new System.Drawing.Size(159, 124);
             this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
             // 
             // tsmiAddStrategy
             // 
             this.tsmiAddStrategy.Name = "tsmiAddStrategy";
-            this.tsmiAddStrategy.Size = new System.Drawing.Size(210, 24);
+            this.tsmiAddStrategy.Size = new System.Drawing.Size(158, 24);
             this.tsmiAddStrategy.Text = "Add";
             this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
             // 
             // tsmiEditStrategy
             // 
             this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(210, 24);
+            this.tsmiEditStrategy.Size = new System.Drawing.Size(158, 24);
             this.tsmiEditStrategy.Text = "Edit";
             this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
             // 
             // tsmiRemoveStrategy
             // 
             this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
-            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(210, 24);
+            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(158, 24);
             this.tsmiRemoveStrategy.Text = "Remove";
             this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
             // 
             // tsmiMoveStrategyUp
             // 
             this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
-            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(158, 24);
             this.tsmiMoveStrategyUp.Text = "Move Up";
             this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
             // 
             // tsmiMoveStrategyDown
             // 
             this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
-            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(158, 24);
             this.tsmiMoveStrategyDown.Text = "Move Down";
             this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
             // 
@@ -814,7 +786,6 @@
             this.ctxRealm.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
-            this.ctxAutoSpellLevels.ResumeLayout(false);
             this.ctxStrategies.ResumeLayout(false);
             this.tcConfiguration.ResumeLayout(false);
             this.tabConfiguration.ResumeLayout(false);
@@ -855,9 +826,6 @@
         private System.Windows.Forms.Label lblCurrentRealmValue;
         private System.Windows.Forms.TextBox txtCurrentWeaponValue;
         private System.Windows.Forms.Label lblCurrentAutoEscapeValue;
-        private System.Windows.Forms.ContextMenuStrip ctxAutoSpellLevels;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMinimumAutoSpellLevel;
-        private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentMaximumAutoSpellLevel;
         private System.Windows.Forms.ContextMenuStrip ctxRealm;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmEarth;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmFire;

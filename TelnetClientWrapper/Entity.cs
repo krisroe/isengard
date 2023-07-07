@@ -957,27 +957,46 @@ namespace IsengardClient
             return skills;
         }
 
-        public WorkflowSpells GetAvailableSpellsToCast(bool allSpells)
+        public WorkflowSpells GetAvailableWorkflowSpells(AvailableSpellTypes spellTypes)
+        {
+            WorkflowSpells ret;
+            if (spellTypes == AvailableSpellTypes.All)
+            {
+                ret = GetAvailableSpellsToCastWithLock(AvailableSpellTypes.All);
+            }
+            else
+            {
+                lock (spellTypes == AvailableSpellTypes.Castable ? SpellsKnownLock : EntityLock)
+                {
+                    ret = GetAvailableSpellsToCastWithLock(spellTypes);
+                }
+            }
+            return ret;
+        }
+
+        public WorkflowSpells GetAvailableSpellsToCastWithLock(AvailableSpellTypes spellTypes)
         {
             WorkflowSpells ret = WorkflowSpells.None;
-            lock (SpellsKnownLock)
+            foreach (WorkflowSpells wfSpell in Enum.GetValues(typeof(WorkflowSpells)))
             {
-                foreach (WorkflowSpells wfSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                if (wfSpell != WorkflowSpells.None)
                 {
-                    if (wfSpell != WorkflowSpells.None)
+                    bool include;
+                    if (spellTypes == AvailableSpellTypes.All)
                     {
-                        bool include;
-                        if (allSpells)
-                        {
-                            include = true;
-                        }
-                        else
-                        {
-                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
-                            include = SpellsKnown.Contains(sia.SpellName) && UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
-                        }
-                        if (include) ret |= wfSpell;
+                        include = true;
                     }
+                    else
+                    {
+                        SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
+                        if (spellTypes == AvailableSpellTypes.Castable)
+                            include = SpellsKnown.Contains(sia.SpellName) && UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
+                        else if (spellTypes == AvailableSpellTypes.HavePotions)
+                            include = HasPotionForSpell(sia.SpellType, out _, out _);
+                        else
+                            throw new InvalidOperationException();
+                    }
+                    if (include) ret |= wfSpell;
                 }
             }
             return ret;

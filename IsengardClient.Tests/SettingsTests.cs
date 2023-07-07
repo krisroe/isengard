@@ -26,15 +26,17 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestXMLSerialization()
         {
-            VerifyXMLSerializationForSettings(IsengardSettingData.GetDefaultSettings());
-            VerifyXMLSerializationForSettings(GenerateTestSettings());
+            IsengardMap gameMap = new IsengardMap(new List<string>());
+            VerifyXMLSerializationForSettings(IsengardSettingData.GetDefaultSettings(), gameMap);
+            VerifyXMLSerializationForSettings(GenerateTestSettings(), gameMap);
         }
 
         [TestMethod]
         public void TestDatabaseSerialization()
         {
-            VerifySqliteDatabaseSerializationForSettings(IsengardSettingData.GetDefaultSettings());
-            VerifySqliteDatabaseSerializationForSettings(GenerateTestSettings());
+            IsengardMap gameMap = new IsengardMap(new List<string>());
+            VerifySqliteDatabaseSerializationForSettings(IsengardSettingData.GetDefaultSettings(), gameMap);
+            VerifySqliteDatabaseSerializationForSettings(GenerateTestSettings(), gameMap);
         }
 
         internal IsengardSettingData GenerateTestSettings()
@@ -115,7 +117,7 @@ namespace IsengardClient.Tests
             return settings;
         }
 
-        internal void VerifyXMLSerializationForSettings(IsengardSettingData settings)
+        internal void VerifyXMLSerializationForSettings(IsengardSettingData settings, IsengardMap gameMap)
         {
             List<string> errorMessages = new List<string>();
             XmlWriterSettings xmlSettings = new XmlWriterSettings();
@@ -126,12 +128,12 @@ namespace IsengardClient.Tests
             {
                 settings.SaveToXmlWriter(xmlWriter);
             }
-            IsengardSettingData sets2 = new IsengardSettingData(sb.ToString(), errorMessages, false);
+            IsengardSettingData sets2 = new IsengardSettingData(sb.ToString(), errorMessages, false, gameMap);
             Assert.AreEqual(errorMessages.Count, 0);
             VerifySettingsMatch(settings, sets2);
         }
 
-        internal void VerifySqliteDatabaseSerializationForSettings(IsengardSettingData settings)
+        internal void VerifySqliteDatabaseSerializationForSettings(IsengardSettingData settings, IsengardMap gameMap)
         {
             List<string> errorMessages = new List<string>();
 
@@ -147,7 +149,7 @@ namespace IsengardClient.Tests
                 IsengardSettingData.CreateNewDatabaseSchema(conn);
                 int iUserID = IsengardSettingData.GetUserID(conn, "Despug", true);
                 settings.SaveSettings(conn, iUserID);
-                sets4 = new IsengardSettingData(conn, iUserID, errorMessages);
+                sets4 = new IsengardSettingData(conn, iUserID, errorMessages, gameMap);
             }
             Assert.AreEqual(errorMessages.Count, 0);
             VerifySettingsMatch(settings, sets4);
@@ -265,6 +267,7 @@ namespace IsengardClient.Tests
         {
             Assert.AreEqual(ln1.DisplayName, ln2.DisplayName);
             Assert.AreEqual(ln1.Room, ln2.Room);
+            Assert.AreEqual(ln1.RoomObject, ln2.RoomObject);
             Assert.AreEqual(ln1.Expanded, ln2.Expanded);
             Assert.AreEqual(ln1.Children == null, ln2.Children == null);
             if (ln1.Children != null)

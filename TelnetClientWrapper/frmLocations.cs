@@ -64,7 +64,7 @@ namespace IsengardClient
 
         private TreeNode CreateLocationNode(LocationNode node)
         {
-            TreeNode ret = new TreeNode(node.GetDisplayName(_fullMap));
+            TreeNode ret = new TreeNode(node.GetDisplayName());
             ret.Tag = node;
             if (node.Children != null)
             {
@@ -88,25 +88,8 @@ namespace IsengardClient
             {
                 LocationNode ln = new LocationNode();
                 ln.DisplayName = frm.DisplayName;
-                string sRoom;
-                if (frm.SelectedRoom == null)
-                {
-                    sRoom = string.Empty;
-                }
-                else if (_fullMap.UnambiguousRoomsByBackendName.ContainsKey(frm.SelectedRoom.BackendName))
-                {
-                    sRoom = frm.SelectedRoom.BackendName;
-                }
-                else if (_fullMap.UnambiguousRoomsByDisplayName[frm.SelectedRoom.Name] != null)
-                {
-                    sRoom = frm.SelectedRoom.Name;
-                }
-                else //shouldn't happen
-                {
-                    MessageBox.Show("Unable to disambiguate room.");
-                    return null;
-                }
-                ln.Room = sRoom;
+                ln.RoomObject = frm.SelectedRoom;
+                ln.Room = _fullMap.GetRoomTextIdentifier(ln.RoomObject);
                 ret = CreateLocationNode(ln);
             }
             return ret;
@@ -188,7 +171,8 @@ namespace IsengardClient
                     LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
                     currentLoc.DisplayName = newLoc.DisplayName;
                     currentLoc.Room = newLoc.Room;
-                    selectedNode.Text = newLoc.GetDisplayName(_fullMap);
+                    currentLoc.RoomObject = newLoc.RoomObject;
+                    selectedNode.Text = newLoc.GetDisplayName();
                 }
             }
             else if (tsi == tsmiRemove)
@@ -229,7 +213,7 @@ namespace IsengardClient
             }
             else if (tsi == tsmiSetAsCurrentLocation)
             {
-                CurrentRoom = currentLoc.FindRoom(_fullMap);
+                CurrentRoom = currentLoc.RoomObject;
                 SetFormTitle();
             }
         }
@@ -247,7 +231,7 @@ namespace IsengardClient
                 tsmiMoveUp.Enabled = iIndex > 0;
                 if (!_readOnly && !_forRoomSelection)
                 {
-                    Room r = ((LocationNode)selectedNode.Tag).FindRoom(_fullMap);
+                    Room r = ((LocationNode)selectedNode.Tag).RoomObject;
                     showSetCurrentLocation = r != null && r != CurrentRoom;
                 }
             }
@@ -291,7 +275,7 @@ namespace IsengardClient
         {
             if (!_readOnly)
             {
-                Room r = ((LocationNode)treeLocations.SelectedNode.Tag).FindRoom(_fullMap);
+                Room r = ((LocationNode)treeLocations.SelectedNode.Tag).RoomObject;
                 if (r != null)
                 {
                     if (!_forRoomSelection)

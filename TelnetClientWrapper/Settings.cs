@@ -111,7 +111,7 @@ namespace IsengardClient
                 PermRuns.Add(new PermRun(p));
             }
         }
-        public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages) : this()
+        public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages, IsengardMap gameMap) : this()
         {
             object oData;
             using (SQLiteCommand cmd = conn.CreateCommand())
@@ -180,6 +180,7 @@ namespace IsengardClient
                 {
                     while (reader.Read())
                     {
+                        bool isValid = true;
                         int iID = Convert.ToInt32(reader["ID"]);
                         oData = reader["DisplayName"];
                         string sDisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
@@ -194,6 +195,20 @@ namespace IsengardClient
                         ln.Room = sRoom;
                         ln.Expanded = expanded;
                         ln.ParentID = iParentID;
+
+                        Room r = null;
+                        if (!string.IsNullOrEmpty(sRoom))
+                        {
+                            r = gameMap.GetRoomFromTextIdentifier(sRoom);
+                            if (r == null)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Unable to determine location room: " + sRoom);
+                            }
+                        }
+                        ln.RoomObject = r;
+
+                        ln.IsValid = isValid;
                         locationMapping[iID] = ln;
                         locationFlatList.Add(ln);
                     }
@@ -213,8 +228,10 @@ namespace IsengardClient
                     else
                     {
                         errorMessages.Add("Location parent ID not found for " + ln.ToString());
+                        ln.IsValid = false;
                     }
                 }
+                RemoveInvalidLocations(Locations);
 
                 List<Strategy> strategiesTemp = new List<Strategy>();
                 Dictionary<int, Strategy> strats = new Dictionary<int, Strategy>();
@@ -338,11 +355,11 @@ namespace IsengardClient
                         permRun.SpellsToPotion = (WorkflowSpells)Convert.ToInt32(reader["SpellsToPotion"]);
                         permRun.SkillsToRun = (PromptedSkills)Convert.ToInt32(reader["SkillsToRun"]);
                         permRun.TargetRoom = reader["TargetRoom"].ToString();
-                        if (string.IsNullOrEmpty(permRun.TargetRoom))
+                        if (!ValidatePermRunTargetRoomFromIdentifier(permRun.TargetRoom, errorMessages, gameMap, out Room targetRoomObject))
                         {
                             permRun.IsValid = false;
-                            errorMessages.Add("Invalid target room: " + permRun.TargetRoom);
                         }
+                        permRun.TargetRoomObject = targetRoomObject;
                         oData = reader["MobText"];
                         string sMobText = oData == DBNull.Value ? string.Empty : oData.ToString();
                         if (sMobText.Length > 0)
@@ -408,7 +425,51 @@ namespace IsengardClient
             }
         }
 
-        public IsengardSettingData(string Input, List<string> errorMessages, bool IsFile) : this()
+        private void RemoveInvalidLocations(List<LocationNode> locations)
+        {
+            for (int i = locations.Count - 1; i >= 0; i--)
+            {
+                LocationNode ln = locations[i];
+                if (ln.IsValid)
+                {
+                    if (ln.Children != null)
+                    {
+                        RemoveInvalidLocations(ln.Children);
+                        if (ln.Children.Count == 0)
+                        {
+                            ln.Children = null;
+                        }
+                    }
+                }
+                else
+                {
+                    locations.RemoveAt(i);
+                }
+            }
+        }
+
+        private bool ValidatePermRunTargetRoomFromIdentifier(string identifier, List<string> errorMessages, IsengardMap gameMap, out Room r)
+        {
+            bool ret = true;
+            r = null;
+            if (string.IsNullOrEmpty(identifier))
+            {
+                ret = false;
+                errorMessages.Add("Invalid target room: " + identifier);
+            }
+            else
+            {
+                r = gameMap.GetRoomFromTextIdentifier(identifier);
+                if (r == null)
+                {
+                    ret = false;
+                    errorMessages.Add("Unable to find perm run room: " + identifier);
+                }
+            }
+            return ret;
+        }
+
+        public IsengardSettingData(string Input, List<string> errorMessages, bool IsFile, IsengardMap gameMap) : this()
         {
             XmlDocument doc = new XmlDocument();
             if (IsFile)
@@ -444,12 +505,12 @@ namespace IsengardClient
                             break;
                         case "Locations":
                             if (foundLocations) errorMessages.Add("Duplicate locations data element found.");
-                            HandleLocations(elem, errorMessages, Locations);
+                            HandleLocations(elem, errorMessages, Locations, gameMap);
                             foundLocations = true;
                             break;
                         case "Strategies":
                             if (foundStrategies) errorMessages.Add("Duplicate strategies data element found.");
-                            HandleStrategies(elem, errorMessages);
+                            HandleStrategies(elem, errorMessages, gameMap);
                             foundStrategies = true;
                             break;
                         default:
@@ -467,7 +528,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void HandleStrategies(XmlElement elem, List<string> errorMessages)
+        private void HandleStrategies(XmlElement elem, List<string> errorMessages, IsengardMap gameMap)
         {
             HashSet<string> strategyAttributes = new HashSet<string>()
             {
@@ -658,7 +719,7 @@ namespace IsengardClient
                     string sSubElementName = nextSubElement.Name;
                     if (sSubElementName == "PermRun")
                     {
-                        PermRun p = HandlePermRun(nextSubElement, errorMessages, permRunAttributes);
+                        PermRun p = HandlePermRun(nextSubElement, errorMessages, permRunAttributes, gameMap);
                         p.Strategy = s;
                         if (p.IsValid)
                         {
@@ -790,7 +851,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private PermRun HandlePermRun(XmlElement elem, List<string> errorMessages, HashSet<string> permRunAttributes)
+        private PermRun HandlePermRun(XmlElement elem, List<string> errorMessages, HashSet<string> permRunAttributes, IsengardMap gameMap)
         {
             PermRun p = new PermRun();
             var attributeMapping = GetAttributeMapping(elem, permRunAttributes, errorMessages, out bool isValid);
@@ -918,12 +979,13 @@ namespace IsengardClient
                 isValid = false;
             }
 
-            p.TargetRoom = GetAttributeValueByName(attributeMapping, "TargetRoom");
-            if (string.IsNullOrEmpty(p.TargetRoom))
+            sValue = GetAttributeValueByName(attributeMapping, "TargetRoom");
+            if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room targetRoomObject))
             {
-                errorMessages.Add("Invalid perm run target room: " + sValue);
                 isValid = false;
             }
+            p.TargetRoom = sValue;
+            p.TargetRoomObject = targetRoomObject;
 
             sValue = GetAttributeValueByName(attributeMapping, "Mob");
             if (!string.IsNullOrEmpty(sValue))
@@ -1054,7 +1116,7 @@ namespace IsengardClient
             return p;
         }
 
-        private void HandleLocations(XmlElement elem, List<string> errorMessages, List<LocationNode> locations)
+        private void HandleLocations(XmlElement elem, List<string> errorMessages, List<LocationNode> locations, IsengardMap gameMap)
         {
             foreach (XmlNode nextLocationNode in elem.ChildNodes)
             {
@@ -1063,6 +1125,7 @@ namespace IsengardClient
                 {
                     if (nextLocationElem.Name == "Location")
                     {
+                        bool isValid = true;
                         string sDisplayName, sRoom, sExpanded;
                         sDisplayName = sRoom = sExpanded = null;
                         foreach (XmlAttribute nextAttr in nextLocationElem.Attributes)
@@ -1081,6 +1144,7 @@ namespace IsengardClient
                                     sExpanded = sAttrValue;
                                     break;
                                 default:
+                                    isValid = false;
                                     errorMessages.Add("Unexpected location attribute found: " + sAttrName);
                                     break;
                             }
@@ -1090,21 +1154,36 @@ namespace IsengardClient
                         {
                             if (!bool.TryParse(sExpanded, out bExpanded))
                             {
+                                isValid = false;
                                 errorMessages.Add("Invalid location expanded: " + sExpanded);
                             }
                         }
                         if (string.IsNullOrEmpty(sDisplayName) && string.IsNullOrEmpty(sRoom))
                         {
+                            isValid = false;
                             errorMessages.Add("No room or display name specified for location");
                         }
-                        else
+
+                        Room r = null;
+                        if (!string.IsNullOrEmpty(sRoom))
+                        {
+                            r = gameMap.GetRoomFromTextIdentifier(sRoom);
+                            if (r == null)
+                            {
+                                isValid = false;
+                                errorMessages.Add("Unable to find room from identifier: " + sRoom);
+                            }
+                        }
+
+                        if (isValid)
                         {
                             LocationNode node = new LocationNode();
                             node.DisplayName = sDisplayName;
                             node.Room = sRoom;
+                            node.RoomObject = r;
                             locations.Add(node);
                             List<LocationNode> subNodes = new List<LocationNode>();
-                            HandleLocations(nextLocationElem, errorMessages, subNodes);
+                            HandleLocations(nextLocationElem, errorMessages, subNodes, gameMap);
                             if (subNodes.Count > 0)
                             {
                                 node.Children = subNodes;
@@ -1313,8 +1392,8 @@ namespace IsengardClient
                     useMeleeCombatParam.Value = nextRecord.UseMeleeCombat.HasValue ? (object)(nextRecord.UseMeleeCombat.Value ? 1 : 0) : DBNull.Value;
                     usePotionsCombatParam.Value = nextRecord.UsePotionsCombat.HasValue ? (object)(nextRecord.UsePotionsCombat.Value ? 1 : 0) : DBNull.Value;
                     afterKillMonsterActionParam.Value = nextRecord.AfterKillMonsterAction.HasValue ? (object)Convert.ToInt32(nextRecord.AfterKillMonsterAction.Value) : DBNull.Value;
-                    autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin.HasValue ? (object)nextRecord.AutoSpellLevelMin.Value : DBNull.Value;
-                    autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax.HasValue ? (object)nextRecord.AutoSpellLevelMax.Value : DBNull.Value;
+                    autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
+                    autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
                     itemsToProcessTypeParam.Value = Convert.ToInt32(nextRecord.ItemsToProcessType);
 
                     int iID = nextRecord.ID;
@@ -1732,16 +1811,16 @@ namespace IsengardClient
             }
             foreach (PermRun p in PermRuns)
             {
-                if (p.AutoSpellLevelMin.HasValue && p.AutoSpellLevelMax.HasValue)
+                if (p.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET)
                 {
-                    if (!ValidateAutoSpellMinMax(p.AutoSpellLevelMin.Value, p.AutoSpellLevelMax.Value, errorMessages))
+                    if (!ValidateAutoSpellMinMax(p.AutoSpellLevelMin, p.AutoSpellLevelMax, errorMessages))
                     {
-                        p.AutoSpellLevelMin = p.AutoSpellLevelMax = null;
+                        p.AutoSpellLevelMin = p.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
                     }
                 }
                 else
                 {
-                    p.AutoSpellLevelMin = p.AutoSpellLevelMax = null;
+                    p.AutoSpellLevelMin = p.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
                 }
             }
         }

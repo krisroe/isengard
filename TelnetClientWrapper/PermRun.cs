@@ -18,6 +18,7 @@
             this.SpellsToPotion = copied.SpellsToPotion;
             this.SkillsToRun = copied.SkillsToRun;
             this.TargetRoom = copied.TargetRoom;
+            this.TargetRoomObject = copied.TargetRoomObject;
             this.MobType = copied.MobType;
             this.MobText = copied.MobText;
             this.MobIndex = copied.MobIndex;
@@ -45,6 +46,7 @@
         public WorkflowSpells SpellsToPotion { get; set; }
         public PromptedSkills SkillsToRun { get; set; }
         public string TargetRoom { get; set; }
+        public Room TargetRoomObject { get; set; }
         public MobTypeEnum? MobType { get; set; }
         public string MobText { get; set; }
         public int MobIndex { get; set; }
@@ -53,8 +55,8 @@
         public bool? UseMeleeCombat { get; set; }
         public bool? UsePotionsCombat { get; set; }
         public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
-        public int? AutoSpellLevelMin { get; set; }
-        public int? AutoSpellLevelMax { get; set; }
+        public int AutoSpellLevelMin { get; set; }
+        public int AutoSpellLevelMax { get; set; }
         public ItemsToProcessType ItemsToProcessType { get; set; }
     }
 }

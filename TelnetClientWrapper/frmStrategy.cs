@@ -6,6 +6,7 @@ namespace IsengardClient
 {
     internal partial class frmStrategy : Form
     {
+        private IsengardSettingData _settings;
         private AutoSpellLevelOverrides _autoSpellLevelInfo;
 
         private Strategy Strategy { get; set; }
@@ -14,7 +15,8 @@ namespace IsengardClient
         /// construvctor
         /// </summary>
         /// <param name="s">strategy. This strategy object is modified in place if the form is accepted.</param>
-        public frmStrategy(Strategy s)
+        /// <param name="settings">settings object</param>
+        public frmStrategy(Strategy s, IsengardSettingData settings)
         {
             InitializeComponent();
 
@@ -53,7 +55,7 @@ namespace IsengardClient
 
             cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
 
-            _autoSpellLevelInfo = new AutoSpellLevelOverrides(s.AutoSpellLevelMin, s.AutoSpellLevelMax, lblAutoSpellLevels);
+            _autoSpellLevelInfo = new AutoSpellLevelOverrides(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, s.AutoSpellLevelMin, s.AutoSpellLevelMax, _settings.AutoSpellLevelMin, _settings.AutoSpellLevelMax, lblAutoSpellLevels, AutoSpellLevelOverridesLevel.Strategy);
 
             if (s.ManaPool > 0) txtManaPool.Text = s.ManaPool.ToString();
 
@@ -172,8 +174,10 @@ namespace IsengardClient
 
             Strategy.DisplayName = txtName.Text;
             Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-            Strategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum.Value;
-            Strategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum.Value;
+            int iAutoSpellMin, iAutoSpellMax;
+            _autoSpellLevelInfo.GetEffectiveMinMax(out iAutoSpellMin, out iAutoSpellMax);
+            Strategy.AutoSpellLevelMin = iAutoSpellMin;
+            Strategy.AutoSpellLevelMax = iAutoSpellMax;
 
             sInt = txtManaPool.Text;
             Strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);

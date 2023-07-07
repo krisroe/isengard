@@ -20,17 +20,10 @@ namespace IsengardClient
                 {
                     txtDisplayName.Text = input.DisplayName;
                 }
-                string sRoom = input.Room;
-                if (!string.IsNullOrEmpty(sRoom))
+                _selectedRoom = input.RoomObject;
+                if (_selectedRoom != null)
                 {
-                    if (!_fullMap.UnambiguousRoomsByBackendName.TryGetValue(sRoom, out _selectedRoom))
-                    {
-                        _fullMap.UnambiguousRoomsByDisplayName.TryGetValue(sRoom, out _selectedRoom);
-                    }
-                    if (_selectedRoom != null)
-                    {
-                        txtRoom.Text = _selectedRoom.GetRoomNameWithExperience();
-                    }
+                    txtRoom.Text = _selectedRoom.GetRoomNameWithExperience();
                 }
             }
 

@@ -809,4 +809,18 @@ namespace IsengardClient
         Quit,
         Logout,
     }
+
+    internal enum AvailableSpellTypes
+    {
+        All,
+        Castable,
+        HavePotions,
+    }
+
+    internal enum AutoSpellLevelOverridesLevel
+    {
+        Settings,
+        Strategy,
+        PermRun,
+    }
 }

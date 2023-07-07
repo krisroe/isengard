@@ -21,8 +21,7 @@ namespace IsengardClient
 
         private RealmType _currentRealm;
 
-        private int _currentAutoSpellLevelMinimum;
-        private int _currentAutoSpellLevelMaximum;
+        private AutoSpellLevelOverrides _autoSpellLevelOverrides;
 
         public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive)
         {
@@ -37,9 +36,7 @@ namespace IsengardClient
             _currentRealm = settingsData.Realm;
             RefreshRealmUI();
 
-            _currentAutoSpellLevelMaximum = settingsData.AutoSpellLevelMax;
-            _currentAutoSpellLevelMinimum = settingsData.AutoSpellLevelMin;
-            RefreshAutoSpellLevelUI();
+            _autoSpellLevelOverrides = new AutoSpellLevelOverrides(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, settingsData.AutoSpellLevelMin, settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.Settings);
 
             txtCurrentWeaponValue.Text = settingsData.Weapon.HasValue ? settingsData.Weapon.Value.ToString() : string.Empty;
 
@@ -218,8 +215,7 @@ namespace IsengardClient
             _settings.EmptyColor = _emptyColor;
             _settings.Realm = _currentRealm;
             _settings.PreferredAlignment = _preferredAlignment;
-            _settings.AutoSpellLevelMin = _currentAutoSpellLevelMinimum;
-            _settings.AutoSpellLevelMax = _currentAutoSpellLevelMaximum;
+            SaveAutoSpellToSettingsObject(_settings);
             _settings.Weapon = Weapon;
             _settings.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             _settings.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
@@ -228,6 +224,21 @@ namespace IsengardClient
 
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private IsengardSettingData CreateTempSettingsObjectWithAutoSpell()
+        {
+            IsengardSettingData ret = new IsengardSettingData();
+            SaveAutoSpellToSettingsObject(ret);
+            return ret;
+        }
+
+        private void SaveAutoSpellToSettingsObject(IsengardSettingData settings)
+        {
+            int iAutoSpellMin, iAutoSpellMax;
+            _autoSpellLevelOverrides.GetEffectiveMinMax(out iAutoSpellMin, out iAutoSpellMax);
+            settings.AutoSpellLevelMin = iAutoSpellMin;
+            settings.AutoSpellLevelMax = iAutoSpellMax;
         }
 
         #region preferred alignment
@@ -295,59 +306,6 @@ namespace IsengardClient
                 bool isSelected = eTag == _currentRealm;
                 tsmi.Checked = isSelected;
                 tsmi.Text = isSelected ? eTag + " (Current)" : eTag.ToString();
-            }
-        }
-
-        #endregion
-
-        #region auto spell levels
-
-        public int CurrentAutoSpellLevelMin
-        {
-            get
-            {
-                return _currentAutoSpellLevelMinimum;
-            }
-        }
-
-        public int CurrentAutoSpellLevelMax
-        {
-            get
-            {
-                return _currentAutoSpellLevelMaximum;
-            }
-        }
-
-        private void RefreshAutoSpellLevelUI()
-        {
-            lblCurrentAutoSpellLevelsValue.Text = _currentAutoSpellLevelMinimum + ":" + _currentAutoSpellLevelMaximum;
-        }
-
-        private void tsmiSetCurrentMinimumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _currentAutoSpellLevelMinimum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= IsengardSettingData.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= IsengardSettingData.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _currentAutoSpellLevelMinimum = iLevel;
-                if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)
-                {
-                    _currentAutoSpellLevelMaximum = _currentAutoSpellLevelMinimum;
-                }
-                RefreshAutoSpellLevelUI();
-            }
-        }
-
-        private void tsmiSetCurrentMaximumAutoSpellLevel_Click(object sender, EventArgs e)
-        {
-            string level = Interaction.InputBox("Level:", "Enter Level", _currentAutoSpellLevelMaximum.ToString());
-            if (int.TryParse(level, out int iLevel) && iLevel >= IsengardSettingData.AUTO_SPELL_LEVEL_MINIMUM && iLevel <= IsengardSettingData.AUTO_SPELL_LEVEL_MAXIMUM)
-            {
-                _currentAutoSpellLevelMaximum = iLevel;
-                if (_currentAutoSpellLevelMaximum < _currentAutoSpellLevelMinimum)
-                {
-                    _currentAutoSpellLevelMinimum = _currentAutoSpellLevelMaximum;
-                }
-                RefreshAutoSpellLevelUI();
             }
         }
 
@@ -537,7 +495,7 @@ namespace IsengardClient
         private void tsmiAddStrategy_Click(object sender, EventArgs e)
         {
             Strategy s = new Strategy();
-            frmStrategy frm = new frmStrategy(s);
+            frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell());
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 lstStrategies.Items.Add(s);
@@ -549,7 +507,7 @@ namespace IsengardClient
         {
             int index = lstStrategies.SelectedIndex;
             Strategy s = (Strategy)lstStrategies.Items[index];
-            frmStrategy frm = new frmStrategy(s);
+            frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell());
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 lstStrategies.Items[index] = s;

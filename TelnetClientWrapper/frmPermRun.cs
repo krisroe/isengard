@@ -5,7 +5,9 @@ namespace IsengardClient
 {
     internal partial class frmPermRun : Form
     {
+        private bool _initialized;
         private PermRun _permRun;
+        private bool _forChangeAndRun;
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
         private IsengardSettingData _settingsData;
@@ -73,31 +75,23 @@ namespace IsengardClient
         {
             get
             {
-                int iIndex = cboOnKillMonster.SelectedIndex;
-                if (_permRun != null)
-                {
-                    if (iIndex == 0)
-                        return null;
-                    else
-                        iIndex--;
-                }
-                return (AfterKillMonsterAction)iIndex;
+                return cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
             }
         }
 
-        public int? AutoSpellLevelMin
+        public int AutoSpellLevelMin
         {
             get
             {
-                return _autoSpellLevelInfo.Minimum;
+                return _autoSpellLevelInfo.PermRunMinimum;
             }
         }
 
-        public int? AutoSpellLevelMax
+        public int AutoSpellLevelMax
         {
             get
             {
-                return _autoSpellLevelInfo.Maximum;
+                return _autoSpellLevelInfo.PermRunMaximum;
             }
         }
 
@@ -153,6 +147,9 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
+        /// <summary>
+        /// constructor used when initiating a perm run ad hoc from a strategy
+        /// </summary>
         public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
@@ -160,13 +157,14 @@ namespace IsengardClient
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, useMagic, useMelee, usePotions);
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, strategy.AutoSpellLevelMin, strategy.AutoSpellLevelMax, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
         }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun)
         {
             InitializeComponent();
             _permRun = permRun;
+            _forChangeAndRun = forChangeAndRun;
             txtDisplayName.Text = permRun.DisplayName;
             string sCurrentMob;
             if (_permRun.MobType.HasValue)
@@ -182,17 +180,28 @@ namespace IsengardClient
                 sCurrentMob += " " + _permRun.MobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.FullBeforeStarting, _permRun.FullAfterFinishing, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat);
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.FullBeforeStarting, _permRun.FullAfterFinishing, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction);
         }
 
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int? autoSpellLevelMin, int? autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat)
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
         {
+            _GraphInputs = GetGraphInputs;
+            _gameMap = gameMap;
+            _settingsData = settingsData;
+            _currentRoom = currentRoom;
+            _currentEntityInfo = currentEntityInfo;
+
             chkFullBeforeStarting.Checked = fullBeforeStarting;
             chkFullAfterFinishing.Checked = fullAfterFinishing;
 
-            if (_permRun != null)
+            foreach (Enum next in Enum.GetValues(typeof(AfterKillMonsterAction)))
             {
-                cboOnKillMonster.Items.Add(string.Empty);
+                cboOnKillMonster.Items.Add(next);
+            }
+
+            if (_permRun != null && !_forChangeAndRun)
+            {
+                cboOnKillMonster.Enabled = afterMonsterKillAction.HasValue;
                 chkMagic.Enabled = useMagicCombat.HasValue;
                 chkMagic.Checked = useMagicCombat.GetValueOrDefault(false);
                 chkMelee.Enabled = useMeleeCombat.HasValue;
@@ -202,6 +211,7 @@ namespace IsengardClient
             }
             else
             {
+                cboOnKillMonster.Enabled = true;
                 chkMagic.Enabled = true;
                 chkMelee.Enabled = true;
                 chkPotions.Enabled = true;
@@ -209,12 +219,18 @@ namespace IsengardClient
                 chkMelee.Checked = useMeleeCombat.Value;
                 chkPotions.Checked = usePotionsCombat.Value;
             }
-            foreach (Enum next in Enum.GetValues(typeof(AfterKillMonsterAction)))
-            {
-                cboOnKillMonster.Items.Add(next);
-            }
 
-            _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, lblCurrentAutoSpellLevelsValue);
+            int strategyAutoSpellLevelMin, strategyAutoSpellLevelMax;
+            if (strategy == null)
+            {
+                strategyAutoSpellLevelMin = strategyAutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            }
+            else
+            {
+                strategyAutoSpellLevelMin = strategy.AutoSpellLevelMin;
+                strategyAutoSpellLevelMax = strategy.AutoSpellLevelMax;
+            }
+            _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, strategyAutoSpellLevelMin, strategyAutoSpellLevelMax, _settingsData.AutoSpellLevelMin, _settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.PermRun);
 
             cboTickRoom.Items.Add(string.Empty);
             foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
@@ -247,12 +263,6 @@ namespace IsengardClient
             cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
             cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessAllItemsInRoom);
             cboInventoryFlow.SelectedItem = invWorkflow;
-
-            _GraphInputs = GetGraphInputs;
-            _gameMap = gameMap;
-            _settingsData = settingsData;
-            _currentRoom = currentRoom;
-            _currentEntityInfo = currentEntityInfo;
 
             if (_permRun == null)
             {
@@ -291,6 +301,7 @@ namespace IsengardClient
                 cboMob.Text = currentMob;
             }
 
+            bool isChecked;
             foreach (PromptedSkills nextSkill in Enum.GetValues(typeof(PromptedSkills)))
             {
                 if (nextSkill != PromptedSkills.None)
@@ -301,9 +312,19 @@ namespace IsengardClient
                         chk.AutoSize = true;
                         if (nextSkill == PromptedSkills.PowerAttack)
                         {
-                            bool showPowerAttack = strategy == null || strategy.IsCombatStrategy(CommandType.Melee, GetEffectiveCombatTypesEnabled(strategy));
-                            chk.Checked = chk.Visible = showPowerAttack;
                             _chkPowerAttack = chk;
+                        }
+                        if (_permRun == null)
+                        {
+                            isChecked = nextSkill == PromptedSkills.PowerAttack && strategy.IsCombatStrategy(CommandType.Melee, GetEffectiveCombatTypesEnabled(strategy));
+                            if (nextSkill == PromptedSkills.PowerAttack)
+                            {
+                                chk.Visible = isChecked;
+                            }
+                        }
+                        else
+                        {
+                            isChecked = (_permRun.SkillsToRun & nextSkill) != PromptedSkills.None;
                         }
                         chk.Margin = new Padding(4);
                         chk.Tag = nextSkill;
@@ -319,11 +340,19 @@ namespace IsengardClient
                 {
                     if ((spellsCastOptions & nextSpell) == nextSpell)
                     {
-                        AddSpellCheckbox(flpSpellsCast, nextSpell, nextSpell == WorkflowSpells.Bless || nextSpell == WorkflowSpells.Protection || nextSpell == WorkflowSpells.CurePoison);
+                        if (_permRun == null)
+                            isChecked = nextSpell == WorkflowSpells.Bless || nextSpell == WorkflowSpells.Protection || nextSpell == WorkflowSpells.CurePoison;
+                        else
+                            isChecked = (_permRun.SpellsToCast & nextSpell) != WorkflowSpells.None;
+                        AddSpellCheckbox(flpSpellsCast, nextSpell, isChecked);
                     }
                     if ((spellsPotionsOptions & nextSpell) == nextSpell)
                     {
-                        AddSpellCheckbox(flpSpellsPotions, nextSpell, false);
+                        if (_permRun == null)
+                            isChecked = false;
+                        else
+                            isChecked = (_permRun.SpellsToPotion & nextSpell) != WorkflowSpells.None;
+                        AddSpellCheckbox(flpSpellsPotions, nextSpell, isChecked);
                     }
                 }
             }
@@ -336,15 +365,9 @@ namespace IsengardClient
             {
                 cboStrategy.Items.Add(s);
             }
-            if (_permRun == null)
-            {
-                cboStrategy.SelectedItem = strategy;
-                RefreshUIFromStrategy();
-            }
-            else if (_permRun.Strategy != null)
-            {
-                cboStrategy.SelectedItem = _permRun.Strategy;
-            }
+            cboStrategy.SelectedItem = _permRun == null ? strategy : _permRun.Strategy;
+            RefreshUIFromStrategy();
+            _initialized = true;
         }
 
         private void AddSpellCheckbox(FlowLayoutPanel flp, WorkflowSpells spell, bool isChecked)
@@ -362,12 +385,24 @@ namespace IsengardClient
         private void RefreshUIFromStrategy()
         {
             Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
-            chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
-            chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
-            chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
-            _autoSpellLevelInfo.Minimum = Strategy.AutoSpellLevelMin;
-            _autoSpellLevelInfo.Maximum = Strategy.AutoSpellLevelMax;
+            if (chkMagic.Enabled)
+            {
+                chkMagic.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+            }
+            if (chkMelee.Enabled)
+            {
+                chkMelee.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+            }
+            if (chkPotions.Enabled)
+            {
+                chkPotions.Checked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            }
+            if (cboOnKillMonster.Enabled)
+            {
+                cboOnKillMonster.SelectedIndex = (int)Strategy.AfterKillMonsterAction;
+            }
+            _autoSpellLevelInfo.StrategyMinimum = Strategy.AutoSpellLevelMin;
+            _autoSpellLevelInfo.StrategyMaximum = Strategy.AutoSpellLevelMax;
             _autoSpellLevelInfo.RefreshAutoSpellLevelUI();
             RefreshUIFromEffectiveStrategy();
         }
@@ -523,8 +558,10 @@ namespace IsengardClient
                 Strategy selectedStrategy = new Strategy(strategySelectedInDropdown);
                 selectedStrategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
                 selectedStrategy.TypesWithStepsEnabled = GetSelectedCombatTypes();
-                selectedStrategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum.Value;
-                selectedStrategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum.Value;
+                int iAutoSpellMin, iAutoSpellMax;
+                _autoSpellLevelInfo.GetEffectiveMinMax(out iAutoSpellMin, out iAutoSpellMax);
+                selectedStrategy.AutoSpellLevelMin = iAutoSpellMin;
+                selectedStrategy.AutoSpellLevelMax = iAutoSpellMax;
 
                 SelectedStrategy = selectedStrategy;
 
@@ -686,7 +723,7 @@ namespace IsengardClient
 
         private void chkMagic_CheckedChanged(object sender, EventArgs e)
         {
-            if (_permRun == null)
+            if ((_permRun == null || _forChangeAndRun) && _initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -694,7 +731,7 @@ namespace IsengardClient
 
         private void chkMelee_CheckedChanged(object sender, EventArgs e)
         {
-            if (_permRun == null)
+            if ((_permRun == null || _forChangeAndRun) && _initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -702,7 +739,7 @@ namespace IsengardClient
 
         private void chkPotions_CheckedChanged(object sender, EventArgs e)
         {
-            if (_permRun == null)
+            if ((_permRun == null || _forChangeAndRun) && _initialized)
             {
                 RefreshUIFromEffectiveStrategy();
             }
@@ -757,6 +794,31 @@ namespace IsengardClient
                 chk.Enabled = false;
                 chk.Checked = false;
             }
+        }
+
+        public void SaveFormDataToPermRun(PermRun pr)
+        {
+            pr.AfterKillMonsterAction = AfterKillMonsterAction;
+            pr.AutoSpellLevelMax = AutoSpellLevelMin;
+            pr.AutoSpellLevelMax = AutoSpellLevelMax;
+            pr.DisplayName = DisplayName;
+            pr.FullBeforeStarting = FullBeforeStarting;
+            pr.FullAfterFinishing = FullAfterFinishing;
+            pr.ItemsToProcessType = InventoryFlow;
+            pr.MobIndex = MobIndex;
+            pr.MobText = MobText;
+            pr.MobType = MobType;
+            pr.PawnShop = PawnShop;
+            pr.TickRoom = HealingRoom;
+            pr.SpellsToCast = SelectedCastSpells;
+            pr.SpellsToPotion = SelectedPotionsSpells;
+            pr.SkillsToRun = SelectedSkills;
+            pr.Strategy = SelectedStrategy;
+            pr.TargetRoom = TargetRoomText;
+            pr.TargetRoomObject = TargetRoom;
+            pr.UseMagicCombat = UseMagicCombat;
+            pr.UseMeleeCombat = UseMeleeCombat;
+            pr.UsePotionsCombat = UsePotionsCombat;
         }
     }
 }

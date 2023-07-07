@@ -254,7 +254,7 @@ namespace IsengardClient
             _bw.DoWork += _bw_DoWork;
             _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
 
-            ReloadMap();
+            ReloadMap(false);
 
             cboSetOption.SelectedIndex = 0;
 
@@ -281,10 +281,27 @@ namespace IsengardClient
             return 6;
         }
 
-        private void ReloadMap()
+        private void ReloadMap(bool isReload)
         {
             List<string> errorMessages = new List<string>();
             IsengardMap newMap = new IsengardMap(errorMessages);
+            if (isReload)
+            {
+                for (int i = _settingsData.PermRuns.Count - 1; i >= 0; i--)
+                {
+                    PermRun pr = _settingsData.PermRuns[i];
+                    if (pr.TargetRoomObject != null)
+                    {
+                        pr.TargetRoomObject = newMap.GetRoomFromTextIdentifier(pr.TargetRoom);
+                        if (pr.TargetRoomObject == null)
+                        {
+                            errorMessages.Add("Room not found for perm run after reload.");
+                            _settingsData.PermRuns.RemoveAt(i);
+                        }
+                    }
+                }
+                ProcessLocationRoomsAfterReload(_settingsData.Locations, newMap, errorMessages);
+            }
             if (errorMessages.Count > 0)
             {
                 lock (_broadcastMessagesLock)
@@ -310,6 +327,33 @@ namespace IsengardClient
                 }
                 _gameMap = newMap;
                 _currentEntityInfo.CurrentRoom = newRoom;
+            }
+        }
+
+        private void ProcessLocationRoomsAfterReload(List<LocationNode> locations, IsengardMap newMap, List<string> errorMessages)
+        {
+            for (int i = locations.Count - 1; i >= 0; i--)
+            {
+                bool isValid = true;
+                LocationNode ln = locations[i];
+                if (ln.RoomObject != null)
+                {
+                    ln.RoomObject = newMap.GetRoomFromTextIdentifier(ln.Room);
+                    if (ln.RoomObject == null)
+                    {
+                        isValid = false;
+                        errorMessages.Add("Room not found for location after reload: " + ln.Room);
+                        locations.RemoveAt(i);
+                    }
+                }
+                if (isValid && ln.Children != null)
+                {
+                    ProcessLocationRoomsAfterReload(ln.Children, newMap, errorMessages);
+                    if (ln.Children.Count == 0)
+                    {
+                        ln.Children = null;
+                    }
+                }
             }
         }
 
@@ -7277,7 +7321,7 @@ BeforeHazy:
             DateTime utcNow = DateTime.UtcNow;
 
             PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(false);
-            WorkflowSpells workflowSpellsCast = _currentEntityInfo.GetAvailableSpellsToCast(false);
+            WorkflowSpells workflowSpellsCast = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
             lock (_currentEntityInfo.EntityLock)
             {
                 foreach (ItemTypeEnum next in _currentEntityInfo.EnumerateInventoryAndEquipmentItems())
@@ -8695,7 +8739,7 @@ BeforeHazy:
             if (clickedItem.Text == "Edit")
             {
                 Strategy s = (Strategy)sourceButton.Tag;
-                frmStrategy frm = new frmStrategy(s);
+                frmStrategy frm = new frmStrategy(s, _settingsData);
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
                     sourceButton.Tag = s;
@@ -9428,7 +9472,7 @@ BeforeHazy:
 
         private void tsbReloadMap_Click(object sender, EventArgs e)
         {
-            ReloadMap();
+            ReloadMap(true);
             MessageBox.Show("Reloaded!");
         }
 
@@ -9504,7 +9548,7 @@ BeforeHazy:
                     bool success = false;
                     try
                     {
-                        _settingsData = new IsengardSettingData(ofd.FileName, errorMessages, true);
+                        _settingsData = new IsengardSettingData(ofd.FileName, errorMessages, true, _gameMap);
                         success = true;
                     }
                     catch (Exception ex)
@@ -9569,7 +9613,7 @@ BeforeHazy:
         private IsengardSettingData LoadSettingsForUser(SQLiteConnection conn, int UserID)
         {
             List<string> errorMessages = new List<string>();
-            IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages);
+            IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages, _gameMap);
             if (errorMessages.Count > 0)
             {
                 lock (_broadcastMessagesLock)

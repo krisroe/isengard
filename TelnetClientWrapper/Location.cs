@@ -3,11 +3,13 @@ namespace IsengardClient
 {
     internal class LocationNode
     {
+        public bool IsValid { get; set; }
         public int ID { get; set; }
         public int ParentID { get; set; }
         public LocationNode Parent { get; set; }
         public List<LocationNode> Children { get; set; }
         public string Room { get; set; }
+        public Room RoomObject { get; set; }
         public string DisplayName { get; set; }
         public bool Expanded { get; set; }
         public LocationNode()
@@ -26,6 +28,7 @@ namespace IsengardClient
                 }
             }
             Room = copied.Room;
+            RoomObject = copied.RoomObject;
             DisplayName = copied.DisplayName;
             Expanded = copied.Expanded;
         }
@@ -38,26 +41,13 @@ namespace IsengardClient
             }
             return ret;
         }
-        public Room FindRoom(IsengardMap fullMap)
-        {
-            Room associatedRoom = null;
-            if (!string.IsNullOrEmpty(Room))
-            {
-                if (!fullMap.UnambiguousRoomsByBackendName.TryGetValue(Room, out associatedRoom))
-                {
-                    fullMap.UnambiguousRoomsByDisplayName.TryGetValue(Room, out associatedRoom);
-                }
-            }
-            return associatedRoom;
-        }
 
-        public string GetDisplayName(IsengardMap fullMap)
+        public string GetDisplayName()
         {
-            Room associatedRoom = FindRoom(fullMap);
             string sDisplayName = DisplayName;
-            if (string.IsNullOrEmpty(sDisplayName) && associatedRoom != null)
+            if (string.IsNullOrEmpty(sDisplayName) && RoomObject != null)
             {
-                sDisplayName = associatedRoom.GetRoomNameWithExperience();
+                sDisplayName = RoomObject.GetRoomNameWithExperience();
             }
             return sDisplayName;
         }
