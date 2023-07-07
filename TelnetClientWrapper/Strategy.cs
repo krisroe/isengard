@@ -12,8 +12,7 @@ namespace IsengardClient
 
         public int ID { get; set; }
         public bool IsValid { get; set; }
-        public string Name { get; set; }
-        public bool AutogenerateName { get; set; }
+        public string DisplayName { get; set; }
         public AfterKillMonsterAction AfterKillMonsterAction { get; set; }
         public int ManaPool { get; set; }
 
@@ -36,23 +35,14 @@ namespace IsengardClient
 
         public Strategy()
         {
-            this.AutogenerateName = true;
             this.TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
             this.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             this.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
         }
 
-        public Strategy(string Name)
-        {
-            this.Name = Name;
-            this.AutogenerateName = false;
-            this.TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
-        }
-
         public Strategy(Strategy copied)
         {
-            this.Name = copied.Name;
-            this.AutogenerateName = copied.AutogenerateName;
+            this.DisplayName = copied.DisplayName;
             this.AfterKillMonsterAction = copied.AfterKillMonsterAction;
             this.ManaPool = copied.ManaPool;
             this.FinalMagicAction = copied.FinalMagicAction;
@@ -84,16 +74,7 @@ namespace IsengardClient
 
         public override string ToString()
         {
-            string ret;
-            if (AutogenerateName)
-            {
-                ret = GetToStringForCommandTypes(TypesWithStepsEnabled);
-            }
-            else
-            {
-                ret = Name ?? string.Empty;
-            }
-            return ret;
+            return string.IsNullOrEmpty(DisplayName) ? GetToStringForCommandTypes(TypesWithStepsEnabled) : DisplayName;
         }
 
         public string GetToStringForCommandTypes(CommandType Types)
@@ -417,7 +398,6 @@ namespace IsengardClient
             Strategy s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.FinalMeleeAction = FinalStepAction.FinishCombat;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.FinalPotionsAction = FinalStepAction.FinishCombat;
@@ -426,7 +406,6 @@ namespace IsengardClient
             yield return s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.GenericHeal };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
@@ -435,7 +414,6 @@ namespace IsengardClient
             yield return s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.OffensiveSpellAuto };
@@ -446,7 +424,6 @@ namespace IsengardClient
             yield return s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<MagicStrategyStep>()
             {
@@ -462,7 +439,6 @@ namespace IsengardClient
             yield return s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<MagicStrategyStep>()
             {
@@ -481,14 +457,12 @@ namespace IsengardClient
             yield return s;
 
             s = new Strategy();
-            s.AutogenerateName = true;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<MagicStrategyStep>()
             {
                 MagicStrategyStep.Stun,
                 MagicStrategyStep.OffensiveSpellAuto,
                 MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.Stun,
                 MagicStrategyStep.Stun,
                 MagicStrategyStep.OffensiveSpellAuto,
                 MagicStrategyStep.OffensiveSpellAuto,

@@ -202,7 +202,7 @@ namespace IsengardClient
         PickFromList,
     }
 
-    internal enum InventoryProcessInputType
+    internal enum ItemsToProcessType
     {
         NoProcessing = 0,
         ProcessMonsterDrops = 1,

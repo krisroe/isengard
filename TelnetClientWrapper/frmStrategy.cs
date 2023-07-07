@@ -49,8 +49,7 @@ namespace IsengardClient
             chkMeleeRepeatLastStepIndefinitely.Enabled = false;
             chkPotionsRepeatLastStepIndefinitely.Enabled = false;
 
-            txtName.Text = s.Name;
-            chkAutogenerateName.Checked = s.AutogenerateName;
+            txtName.Text = s.DisplayName;
 
             cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
 
@@ -106,15 +105,6 @@ namespace IsengardClient
             chkPotionsRepeatLastStepIndefinitely.Enabled = hasSteps;
         }
 
-        private void chkAutogenerateName_CheckedChanged(object sender, EventArgs e)
-        {
-            txtName.Enabled = !chkAutogenerateName.Checked;
-            if (chkAutogenerateName.Checked)
-            {
-                txtName.Text = string.Empty;
-            }
-        }
-
         private void btnOK_Click(object sender, EventArgs e)
         {
             string sInt = txtManaPool.Text;
@@ -141,11 +131,6 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid potions only when stunned for X MS", "Strategy");
                 txtPotionsOnlyWhenStunnedForXMS.Focus();
-            }
-            if (!chkAutogenerateName.Checked && string.IsNullOrEmpty(txtName.Text))
-            {
-                MessageBox.Show("No name specified", "Strategy");
-                txtName.Focus();
             }
 
             if (lstMagicSteps.Items.Count > 0)
@@ -185,11 +170,8 @@ namespace IsengardClient
                 Strategy.PotionsSteps = null;
             }
 
-            Strategy.AutogenerateName = chkAutogenerateName.Checked;
-            Strategy.Name = Strategy.AutogenerateName ? string.Empty : txtName.Text;
-
+            Strategy.DisplayName = txtName.Text;
             Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-
             Strategy.AutoSpellLevelMin = _autoSpellLevelInfo.Minimum;
             Strategy.AutoSpellLevelMax = _autoSpellLevelInfo.Maximum;
 

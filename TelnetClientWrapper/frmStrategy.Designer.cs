@@ -88,7 +88,6 @@
             this.tsmiPotionsRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsMoveDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkAutogenerateName = new System.Windows.Forms.CheckBox();
             this.txtName = new System.Windows.Forms.TextBox();
             this.lblName = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
@@ -638,20 +637,9 @@
             this.tsmiPotionsMoveDown.Size = new System.Drawing.Size(158, 24);
             this.tsmiPotionsMoveDown.Text = "Move Down";
             // 
-            // chkAutogenerateName
-            // 
-            this.chkAutogenerateName.AutoSize = true;
-            this.chkAutogenerateName.Location = new System.Drawing.Point(358, 286);
-            this.chkAutogenerateName.Name = "chkAutogenerateName";
-            this.chkAutogenerateName.Size = new System.Drawing.Size(144, 19);
-            this.chkAutogenerateName.TabIndex = 3;
-            this.chkAutogenerateName.Text = "Autogenerate name?";
-            this.chkAutogenerateName.UseVisualStyleBackColor = true;
-            this.chkAutogenerateName.CheckedChanged += new System.EventHandler(this.chkAutogenerateName_CheckedChanged);
-            // 
             // txtName
             // 
-            this.txtName.Location = new System.Drawing.Point(356, 309);
+            this.txtName.Location = new System.Drawing.Point(356, 288);
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(151, 20);
             this.txtName.TabIndex = 4;
@@ -659,7 +647,7 @@
             // lblName
             // 
             this.lblName.AutoSize = true;
-            this.lblName.Location = new System.Drawing.Point(264, 311);
+            this.lblName.Location = new System.Drawing.Point(264, 290);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(44, 15);
             this.lblName.TabIndex = 7;
@@ -668,7 +656,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(576, 338);
+            this.btnOK.Location = new System.Drawing.Point(576, 311);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 12;
@@ -680,7 +668,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(654, 339);
+            this.btnCancel.Location = new System.Drawing.Point(654, 312);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
@@ -690,7 +678,7 @@
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(260, 344);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(260, 317);
             this.lblOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(92, 15);
@@ -706,7 +694,7 @@
             "Stop Combat",
             "Fight First Monster",
             "Fight First Same Monster"});
-            this.cboOnKillMonster.Location = new System.Drawing.Point(356, 340);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(356, 313);
             this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(151, 21);
@@ -716,14 +704,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(740, 374);
+            this.ClientSize = new System.Drawing.Size(740, 347);
             this.Controls.Add(this.cboOnKillMonster);
             this.Controls.Add(this.lblOnKillMonster);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.lblName);
             this.Controls.Add(this.txtName);
-            this.Controls.Add(this.chkAutogenerateName);
             this.Controls.Add(this.grpPotions);
             this.Controls.Add(this.grpMelee);
             this.Controls.Add(this.grpMagic);
@@ -755,7 +742,6 @@
         private System.Windows.Forms.ListBox lstMeleeSteps;
         private System.Windows.Forms.GroupBox grpPotions;
         private System.Windows.Forms.ListBox lstPotionsSteps;
-        private System.Windows.Forms.CheckBox chkAutogenerateName;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.TextBox txtManaPool;

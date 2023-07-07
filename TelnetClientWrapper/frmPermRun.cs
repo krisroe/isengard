@@ -30,11 +30,11 @@ namespace IsengardClient
             }
         }
 
-        public InventoryProcessInputType InventoryFlow
+        public ItemsToProcessType InventoryFlow
         {
             get
             {
-                return (InventoryProcessInputType)cboInventoryFlow.SelectedItem;
+                return (ItemsToProcessType)cboInventoryFlow.SelectedItem;
             }
         }
 
@@ -67,7 +67,7 @@ namespace IsengardClient
         public MobTypeEnum? MobType { get; set; }
         public int MobIndex { get; set; }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, InventoryProcessInputType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
 
@@ -101,9 +101,9 @@ namespace IsengardClient
                 cboPawnShoppe.SelectedIndex = 0;
             }
 
-            cboInventoryFlow.Items.Add(InventoryProcessInputType.NoProcessing);
-            cboInventoryFlow.Items.Add(InventoryProcessInputType.ProcessMonsterDrops);
-            cboInventoryFlow.Items.Add(InventoryProcessInputType.ProcessAllItemsInRoom);
+            cboInventoryFlow.Items.Add(ItemsToProcessType.NoProcessing);
+            cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
+            cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessAllItemsInRoom);
             cboInventoryFlow.SelectedItem = invWorkflow;
 
             _GraphInputs = GetGraphInputs;
@@ -313,8 +313,8 @@ namespace IsengardClient
 
             SelectedStrategy = selectedStrategy;
 
-            InventoryProcessInputType ipw = (InventoryProcessInputType)cboInventoryFlow.SelectedItem;
-            if (ipw != InventoryProcessInputType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
+            ItemsToProcessType ipw = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
+            if (ipw != ItemsToProcessType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
             {
                 if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
                 {
@@ -419,7 +419,7 @@ namespace IsengardClient
                 {
                     if (isBaseStrategy)
                     {
-                        chosenStrategy.Name = $"Modified ({chosenStrategy})";
+                        chosenStrategy.DisplayName = $"Modified ({chosenStrategy})";
                         cboStrategy.Items.Add(chosenStrategy);
                     }
                     cboStrategy.SelectedItem = chosenStrategy;

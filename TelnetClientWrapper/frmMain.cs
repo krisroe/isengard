@@ -4570,19 +4570,19 @@ BeforeHazy:
 
         private CommandResult DoInventoryManagement(BackgroundWorkerParameters pms)
         {
-            InventoryProcessInputType eInvProcessInputs = pms.InventoryProcessInputType;
+            ItemsToProcessType eInvProcessInputs = pms.InventoryProcessInputType;
             InventoryManagementWorkflow eInventoryWorkflow = pms.InventoryManagementFlow;
             CommandResult backgroundCommandResult;
-            if (eInvProcessInputs != InventoryProcessInputType.NoProcessing && (eInvProcessInputs == InventoryProcessInputType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == InventoryProcessInputType.ProcessMonsterDrops)))
+            if (eInvProcessInputs != ItemsToProcessType.NoProcessing && (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)))
             {
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
                 lock (_entityLock)
                 {
-                    if (eInvProcessInputs == InventoryProcessInputType.ProcessAllItemsInRoom)
+                    if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom)
                     {
                         itemsToProcess.AddRange(_currentEntityInfo.CurrentRoomItems);
                     }
-                    else if (eInvProcessInputs == InventoryProcessInputType.ProcessMonsterDrops)
+                    else if (eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)
                     {
                         itemsToProcess.AddRange(_monsterKilledItems);
                     }
@@ -7257,7 +7257,7 @@ BeforeHazy:
             using (frmFerry frm = new frmFerry(_currentEntityInfo, _gameMap, GetGraphInputs, _settingsData))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK) return;
-                bwp.InventoryProcessInputType = InventoryProcessInputType.ProcessAllItemsInRoom;
+                bwp.InventoryProcessInputType = ItemsToProcessType.ProcessAllItemsInRoom;
                 bwp.InventoryManagementFlow = InventoryManagementWorkflow.Ferry;
                 bwp.TargetRoom = frm.SourceRoom;
                 bwp.InventorySinkRoom = frm.SinkRoom;
@@ -7282,7 +7282,7 @@ BeforeHazy:
             WorkflowSpells workflowSpellsPotions = WorkflowSpells.None;
             HealingRoom? healingRoom = null;
             PawnShoppe? pawnShoppe = null;
-            InventoryProcessInputType inventoryFlow;
+            ItemsToProcessType inventoryFlow;
             PromptedSkills skills = PromptedSkills.None;
             DateTime utcNow = DateTime.UtcNow;
 
@@ -7345,12 +7345,12 @@ BeforeHazy:
             {
                 defaultFullBeforeStarting = false;
                 defaultFullAfterFinishing = false;
-                inventoryFlow = InventoryProcessInputType.ProcessAllItemsInRoom;
+                inventoryFlow = ItemsToProcessType.ProcessAllItemsInRoom;
             }
             else
             {
                 defaultFullAfterFinishing = true;
-                inventoryFlow = InventoryProcessInputType.ProcessMonsterDrops;
+                inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
                 defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
                 if (!defaultFullBeforeStarting)
                 {

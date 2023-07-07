@@ -92,7 +92,7 @@ namespace IsengardClient
         public bool UsedPawnShoppe { get; set; }
         public HealingRoom? TickRoom { get; set; }
         public bool Success { get; set; }
-        public InventoryProcessInputType InventoryProcessInputType { get; set; }
+        public ItemsToProcessType InventoryProcessInputType { get; set; }
         /// <summary>
         /// when the perm run started
         /// </summary>

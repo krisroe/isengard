@@ -140,6 +140,7 @@
     <Compile Include="Location.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MobTypeEnum.cs" />
+    <Compile Include="PermRun.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
     <Compile Include="PriorityQueue\GenericPriorityQueueNode.cs" />
     <Compile Include="PriorityQueue\IFixedSizePriorityQueue.cs" />

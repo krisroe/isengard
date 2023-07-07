@@ -20,44 +20,47 @@ namespace IsengardClient.Tests
             Assert.IsTrue(strategy.TypesWithStepsEnabled == CommandType.None);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, null, true, MagicStrategyStep.GenericHeal);
+            ValidateCastStrategy(strategy, null, MagicStrategyStep.GenericHeal);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, null, true, MagicStrategyStep.OffensiveSpellAuto);
+            ValidateCastStrategy(strategy, null, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, true, MagicStrategyStep.OffensiveSpellAuto);
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun }, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, false);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, true, MagicStrategyStep.OffensiveSpellAuto);
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun }, MagicStrategyStep.OffensiveSpellAuto);
             ValidateIndefiniteAttackStrategy(strategy, true);
 
             strategy = defaultStrategies[iIndex++];
-            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, false, MagicStrategyStep.OffensiveSpellAuto);
+            ValidateCastStrategy(strategy, new List<MagicStrategyStep>() { MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.Stun, MagicStrategyStep.OffensiveSpellAuto, MagicStrategyStep.OffensiveSpellAuto }, null);
             ValidateIndefiniteAttackStrategy(strategy, false);
         }
 
-        private void ValidateCastStrategy(Strategy strategy, List<MagicStrategyStep> leadingSteps, bool indefinite, MagicStrategyStep indefiniteStep)
+        private void ValidateCastStrategy(Strategy strategy, List<MagicStrategyStep> leadingSteps, MagicStrategyStep? indefiniteStep)
         {
             Assert.IsTrue(strategy.HasAnyMagicSteps());
             int i = 0;
             foreach (var nextStep in strategy.GetMagicSteps())
             {
-                MagicStrategyStep expectedStep;
+                MagicStrategyStep expectedStep = MagicStrategyStep.CurePoison;
                 if (leadingSteps != null && i < leadingSteps.Count)
                 {
                     expectedStep = leadingSteps[i];
                 }
                 else
                 {
-                    if (!indefinite)
+                    if (indefiniteStep.HasValue)
+                    {
+                        expectedStep = indefiniteStep.Value;
+                    }
+                    else
                     {
                         Assert.Fail();
                     }
-                    expectedStep = indefiniteStep;
                 }
                 if (nextStep != expectedStep)
                 {
@@ -70,7 +73,7 @@ namespace IsengardClient.Tests
                 }
             }
             int iExpectedCount;
-            if (indefinite)
+            if (indefiniteStep.HasValue)
             {
                 iExpectedCount = 10;
             }
