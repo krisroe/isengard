@@ -123,7 +123,7 @@ namespace IsengardClient
             }
 
             //verify healing room is reachable back and forth from the target room
-            if (TickRoom.HasValue)
+            if (TickRoom.HasValue && (ItemsToProcessType != ItemsToProcessType.NoProcessing || AfterFull != FullType.None))
             {
                 Room healingRoom = gameMap.HealingRooms[TickRoom.Value];
                 if (TargetRoomObject != healingRoom)

@@ -289,7 +289,7 @@ namespace IsengardClient
                 }
             }
 
-            if (_permRun != null)
+            if (_permRun != null && _permRun.Strategy == null)
             {
                 cboStrategy.Items.Add(string.Empty);
             }
