@@ -32,7 +32,7 @@ namespace IsengardClient
             if (CurrentRoom == null)
                 sText = "Locations (None)";
             else
-                sText = "Locations (" + CurrentRoom.Name + ")";
+                sText = "Locations (" + CurrentRoom.DisplayName + ")";
             this.Text = sText;
         }
 

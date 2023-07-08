@@ -7,16 +7,22 @@ namespace IsengardClient
 
         public override string ToString()
         {
-            return Name;
+            return DisplayName;
         }
 
-        public Room(string name, string backendName)
+        public Room(string displayName, string backendName)
         {
-            this.Name = name;
+            this.DisplayName = displayName;
             this.BackendName = backendName;
             this.Exits = new List<Exit>();
         }
-        public string Name { get; set; }
+        /// <summary>
+        /// room display name, which is a name for display purposes chosen by the client program
+        /// </summary>
+        public string DisplayName { get; set; }
+        /// <summary>
+        /// room backend name, which is the name given to the room by the game
+        /// </summary>
         public string BackendName { get; set; }
         /// <summary>
         /// exits

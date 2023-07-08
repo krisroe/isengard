@@ -115,7 +115,7 @@ namespace IsengardClient
                     {
                         if (roomsWithoutExplicitMaps.ContainsKey(r))
                         {
-                            errorMessages.Add("Duplicate room without map disambiguation: " + r.Name + " - " + r.BackendName);
+                            errorMessages.Add("Duplicate room without map disambiguation: " + r.DisplayName + " - " + r.BackendName);
                         }
                         else
                         {
@@ -134,12 +134,12 @@ namespace IsengardClient
                 Room r = next.Key;
                 foreach (MapType mt in next.Value)
                 {
-                    errorMessages.Add("Boundary point missing from " + mt.ToString() + ": " + r.Name + " (" + r.BackendName + ")");
+                    errorMessages.Add("Boundary point missing from " + mt.ToString() + ": " + r.DisplayName + " (" + r.BackendName + ")");
                 }
             }
             foreach (Room r in boundaryPointsMissingValidation)
             {
-                errorMessages.Add("Disambiguated map room missing from map: " + r.Name + " (" + r.BackendName + ")");
+                errorMessages.Add("Disambiguated map room missing from map: " + r.DisplayName + " (" + r.BackendName + ")");
             }
             foreach (var nextMapping in roomsWithoutExplicitMaps)
             {
@@ -147,7 +147,7 @@ namespace IsengardClient
             }
             foreach (Room r in unmappedRooms)
             {
-                errorMessages.Add("Unmapped room: " + r.Name + " (" + r.BackendName + ")");
+                errorMessages.Add("Unmapped room: " + r.DisplayName + " (" + r.BackendName + ")");
             }
         }
 
@@ -164,9 +164,9 @@ namespace IsengardClient
             {
                 ret = room.BackendName;
             }
-            else if (UnambiguousRoomsByDisplayName.TryGetValue(room.Name, out Room r) && r != null)
+            else if (UnambiguousRoomsByDisplayName.TryGetValue(room.DisplayName, out Room r) && r != null)
             {
-                ret = room.Name;
+                ret = room.DisplayName;
             }
             return ret;
         }

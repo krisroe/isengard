@@ -7903,7 +7903,7 @@ BeforeHazy:
                     string sCurrentRoom;
                     if (oCurrentRoom != null)
                     {
-                        sCurrentRoom = oCurrentRoom.Name;
+                        sCurrentRoom = oCurrentRoom.DisplayName;
                     }
                     else
                     {
@@ -8357,7 +8357,7 @@ BeforeHazy:
 
         private TreeNode GetOtherExitsNode(Exit nextExit)
         {
-            string sNodeText = nextExit.ExitText + " (" + nextExit.Target.Name + ")";
+            string sNodeText = nextExit.ExitText + " (" + nextExit.Target.DisplayName + ")";
             TreeNode nextTreeNode = new TreeNode(sNodeText);
             nextTreeNode.Tag = nextExit;
             return nextTreeNode;
@@ -8415,7 +8415,7 @@ BeforeHazy:
                 }
                 else
                 {
-                    sNodeText += " (" + foundExit.Target.Name + ")";
+                    sNodeText += " (" + foundExit.Target.DisplayName + ")";
                 }
             }
             TreeNode nextTreeNode = new TreeNode(sNodeText);
