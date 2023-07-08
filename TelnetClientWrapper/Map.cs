@@ -2309,7 +2309,7 @@ namespace IsengardClient
             AddBidirectionalExits(oSewerTunnel1, oSewerDitch, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oSewerTunnel1] = new System.Windows.Point(8, 5);
 
-            Room oBoardedSewerTunnel = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
+            Room oBoardedSewerTunnel = AddRoom("to Monster", "Boarded Sewer Tunnel");
             e = AddExit(oSewerTunnel1, oBoardedSewerTunnel, "east");
             e.FloatRequirement = FloatRequirement.Levitation;
             AddExit(oBoardedSewerTunnel, oSewerTunnel1, "west");
@@ -2419,7 +2419,7 @@ namespace IsengardClient
             AddBidirectionalExits(sewerTunnelToTConnection, oSewerTConnection, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[sewerTunnelToTConnection] = new System.Windows.Point(8, 3);
 
-            Room oBoardedSewerTunnel2 = AddRoom("Boarded Tunnel", "Boarded Sewer Tunnel");
+            Room oBoardedSewerTunnel2 = AddRoom("to Sewer Orc Guards", "Boarded Sewer Tunnel");
             AddBidirectionalExits(sewerTunnelToTConnection, oBoardedSewerTunnel2, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oBoardedSewerTunnel2] = new System.Windows.Point(9, 3);
 

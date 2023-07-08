@@ -889,6 +889,7 @@ namespace IsengardClient
         [PluralName("clubs")]
         [WeaponType(WeaponType.Blunt)]
         [Weight(2)]
+        [Sellable(24)]
         Club,
 
         [SingularName("copper pieces")]
@@ -928,6 +929,7 @@ namespace IsengardClient
         [PluralName("daggers")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         Dagger,
 
         [SingularName("dark blade")]
@@ -1300,6 +1302,8 @@ namespace IsengardClient
         [SingularName("halberd")]
         [PluralName("halberds")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(12)]
+        [Sellable(176)]
         Halberd,
 
         [SingularName("half giant chain mail armor")]
@@ -1777,6 +1781,7 @@ namespace IsengardClient
         [PluralName("quarterstaffs")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
         Quarterstaff,
 
         [SingularName("quartz stone")]
