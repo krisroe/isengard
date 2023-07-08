@@ -632,6 +632,10 @@ namespace IsengardClient
         [ArmorClass(0.2)]
         AnimalHides,
 
+        [SingularName("anvil")]
+        [PluralName("anvils")]
+        Anvil,
+
         [SingularName("aquamarine potion")]
         [PluralName("aquamarine potions")]
         [Potion(SpellsEnum.levitate)]

@@ -404,6 +404,10 @@
         //CSRTODO: no plural
         Erech,
 
+        [SingularName("evil high priestess")]
+        //CSRTODO: no plural
+        EvilHighPriestess,
+
         [SingularName("evil sorcerer")]
         [PluralName("evil sorcerers")]
         [Experience(210)]

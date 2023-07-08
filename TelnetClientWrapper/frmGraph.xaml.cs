@@ -47,7 +47,10 @@ namespace IsengardClient
             if (currentRoom != null)
             {
                 txtCurrentRoom.Text = currentRoom.ToString();
-                startingGraph = fullMap.Graphs[fullMap.RoomsToMaps[currentRoom]];
+                if (fullMap.RoomsToMaps.TryGetValue(currentRoom, out MapType currentRoomMapType))
+                {
+                    startingGraph = fullMap.Graphs[currentRoomMapType];
+                }
             }
             if (startingGraph == null)
             {
@@ -71,8 +74,7 @@ namespace IsengardClient
                 foreach (Exit nextExit in nextRoom.Exits)
                 {
                     Room targetRoom = nextExit.Target;
-                    MapType nextTargetMapType = _fullMap.RoomsToMaps[targetRoom];
-                    if (nextMapType == mt || nextTargetMapType == mt) //don't show an exit if between rooms not on the specified map
+                    if (_fullMap.RoomsToMaps.TryGetValue(targetRoom, out MapType nextTargetMapType) && (nextMapType == mt || nextTargetMapType == mt))
                     {
                         if (rg.Rooms.ContainsKey(targetRoom))
                         {

@@ -2000,13 +2000,7 @@ namespace IsengardClient
             AddExit(oTempleOfLolth, breeStreets[0, 9], "west");
             breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(0.67, 1);
 
-            Room oUndergroundTemple = AddRoom("Underground Temple", "Underground Temple of Lolth");
-            oUndergroundTemple.IsTrapRoom = true;
-            oUndergroundTemple.AddPermanentMobs(MobTypeEnum.DrowElf, MobTypeEnum.DrowElf, MobTypeEnum.DrowElf);
-            e = AddExit(oTempleOfLolth, oUndergroundTemple, "underground temple");
-            e.Hidden = true;
-            breeStreetsGraph.Rooms[oUndergroundTemple] = new System.Windows.Point(0.67, 0.75);
-            //CSRTODO: more hidden rooms from here
+            AddUndergroundTempleOfLolth(oTempleOfLolth);
 
             Room oReadyRoom = AddRoom("Ready Room", "Ready Room");
             AddExit(oToArena, oReadyRoom, "arena");
@@ -2156,6 +2150,43 @@ namespace IsengardClient
             breeStreetsGraph.Rooms[oBardConservatory] = new System.Windows.Point(4, 8);
 
             AddHauntedMansion(oHauntedMansionEntrance);
+        }
+
+        private void AddUndergroundTempleOfLolth(Room oTempleOfLolth)
+        {
+            RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
+
+            Room oUndergroundTemple = AddRoom("Underground Temple", "Underground Temple of Lolth");
+            oUndergroundTemple.IsTrapRoom = true;
+            oUndergroundTemple.AddPermanentMobs(MobTypeEnum.DrowElf, MobTypeEnum.DrowElf, MobTypeEnum.DrowElf);
+            Exit e = AddExit(oTempleOfLolth, oUndergroundTemple, "underground temple");
+            e.Hidden = true;
+            breeStreetsGraph.Rooms[oUndergroundTemple] = new System.Windows.Point(0.67, 0.75);
+
+            Room oSecretUndergroundPassage1 = AddRoom("Underground Passage", "Secret Underground Passage");
+            e = AddExit(oUndergroundTemple, oSecretUndergroundPassage1, "southeast");
+            e.Hidden = true;
+            e = AddExit(oSecretUndergroundPassage1, oUndergroundTemple, "up");
+            e.Hidden = true;
+            //CSRTODO: graph
+
+            Room oSecretUndergroundPassage2 = AddRoom("Underground Passage", "Secret Underground Passage");
+            AddBidirectionalExits(oSecretUndergroundPassage2, oSecretUndergroundPassage1, BidirectionalExitType.SouthwestNortheast);
+            //CSRTODO: graph
+
+            Room oElvenSacrificialTemple = AddRoom("Sacrificial Temple", "Elven Sacrificial Temple");
+            oElvenSacrificialTemple.AddPermanentMobs(MobTypeEnum.EvilHighPriestess);
+            oElvenSacrificialTemple.AddPermanentItems(ItemTypeEnum.Anvil);
+            AddBidirectionalExits(oElvenSacrificialTemple, oSecretUndergroundPassage2, BidirectionalExitType.SoutheastNorthwest);
+            //CSRTODO: graph
+
+            Room oSecretUndergroundPassage3 = AddRoom("Underground Passage", "Secret Underground Passage");
+            oSecretUndergroundPassage3.AddPermanentMobs(MobTypeEnum.GreenSlime);
+            AddBidirectionalExits(oSecretUndergroundPassage3, oSecretUndergroundPassage2, BidirectionalExitType.SouthwestNortheast);
+            //CSRTODO: graph
+
+
+
         }
 
         private void AddHauntedMansion(Room hauntedMansionEntrance)
