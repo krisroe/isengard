@@ -4707,8 +4707,7 @@ BeforeHazy:
 
         private CommandResult DoInventoryManagement(BackgroundWorkerParameters pms)
         {
-            if (pms.PermRun == null) return CommandResult.CommandSuccessful;
-            ItemsToProcessType eInvProcessInputs = pms.PermRun.ItemsToProcessType;
+            ItemsToProcessType eInvProcessInputs = pms.InventoryProcessInputType;
             InventoryManagementWorkflow eInventoryWorkflow = pms.InventoryManagementFlow;
             CommandResult backgroundCommandResult;
             if (eInvProcessInputs != ItemsToProcessType.NoProcessing && (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)))
