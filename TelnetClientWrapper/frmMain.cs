@@ -3669,14 +3669,19 @@ namespace IsengardClient
                     int xpDiff = _experience - bwp.BeforeExperience;
                     double seconds = permRunTime.TotalSeconds;
                     List<string> messages = new List<string>();
-                    messages.Add("Perm run complete in " + seconds.ToString("N1") + " seconds.");
-                    if (goldDiff > 0)
+                    bool gainedGold = goldDiff > 0;
+                    bool gainedXP = xpDiff > 0;
+                    if (gainedGold || gainedXP)
                     {
-                        messages.Add("Gold: " + goldDiff + " (" + (goldDiff / seconds * 60).ToString("N1") + " per minute)");
-                    }
-                    if (xpDiff > 0)
-                    {
-                        messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
+                        messages.Add("Perm run complete in " + seconds.ToString("N1") + " seconds.");
+                        if (gainedGold)
+                        {
+                            messages.Add("Gold: " + goldDiff + " (" + (goldDiff / seconds * 60).ToString("N1") + " per minute)");
+                        }
+                        if (gainedXP)
+                        {
+                            messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
+                        }
                     }
                     AddConsoleMessage(messages);
                 }

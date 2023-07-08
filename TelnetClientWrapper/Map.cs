@@ -1991,6 +1991,7 @@ namespace IsengardClient
             breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(0.67, 1);
 
             Room oUndergroundTemple = AddRoom("Underground Temple", "Underground Temple of Lolth");
+            oUndergroundTemple.AddPermanentMobs(MobTypeEnum.DrowElf, MobTypeEnum.DrowElf, MobTypeEnum.DrowElf);
             e = AddExit(oTempleOfLolth, oUndergroundTemple, "underground temple");
             e.Hidden = true;
             breeStreetsGraph.Rooms[oUndergroundTemple] = new System.Windows.Point(0.67, 0.75);

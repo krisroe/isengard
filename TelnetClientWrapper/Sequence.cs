@@ -1572,6 +1572,10 @@ namespace IsengardClient
             {
                 return false;
             }
+            if (exits.Count == 1 && exits[0] == "none")
+            {
+                exits.Clear();
+            }
 
             List<UnknownTypeEntity> unknownEntities = new List<UnknownTypeEntity>();
             List<ItemEntity> items = new List<ItemEntity>();
