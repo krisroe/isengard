@@ -1881,6 +1881,10 @@ namespace IsengardClient
 
         private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, string activeSpell, List<ItemEntity> consumedItems)
         {
+            if (commandType == BackgroundCommandType.CurePoison)
+            {
+                _playerStatusFlags &= ~PlayerStatusFlags.Poisoned;
+            }
             if (!string.IsNullOrEmpty(activeSpell))
             {
                 AddActiveSpell(activeSpell);
