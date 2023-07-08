@@ -1974,32 +1974,12 @@ namespace IsengardClient
             AddBidirectionalSameNameExit(oHallOfAvatars, oHallOfAvatars2, "curtain");
             breeStreetsGraph.Rooms[oHallOfAvatars2] = new System.Windows.Point(3.33, 2.33);
 
-            Room oDabinsFuneralHome = AddRoom("Funeral Home", "Dabin's Funeral Home");
-            AddExit(breeStreets[3, 9], oDabinsFuneralHome, "home");
-            AddExit(oDabinsFuneralHome, breeStreets[3, 9], "east");
-            breeStreetsGraph.Rooms[oDabinsFuneralHome] = new System.Windows.Point(2, 1);
-
-            Room oFuneralHomeCemetery = AddRoom("Cemetery", "Cemetery");
-            oFuneralHomeCemetery.AddPermanentMobs(MobTypeEnum.Caretaker);
-            e = AddExit(oDabinsFuneralHome, oFuneralHomeCemetery, "northwest");
-            e.Hidden = true;
-            AddExit(oFuneralHomeCemetery, oDabinsFuneralHome, "southeast");
-            breeStreetsGraph.Rooms[oFuneralHomeCemetery] = new System.Windows.Point(1.5, 0.5);
-            //CSRTODO: hidden exit that doesn't seem to be returnable since the return exit is locked
-
             Room oClans = AddRoom("Clans", "The Clans of Middle Earth");
             AddExit(breeStreets[7, 6], oClans, "hall");
             AddExit(oClans, breeStreets[7, 6], "east");
             breeStreetsGraph.Rooms[oClans] = new System.Windows.Point(6.4, 4);
 
-            Room oTempleOfLolth = AddRoom("Lolth Temple", "Temple of Lolth");
-            AddExit(breeStreets[0, 9], oTempleOfLolth, "temple");
-            AddExit(oTempleOfLolth, breeStreets[0, 9], "west");
-            breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(0.67, 1);
-            AddMapBoundaryPoint(breeStreets[0, 9], oTempleOfLolth, MapType.BreeStreets, MapType.TempleOfLolth);
-            _graphs[MapType.TempleOfLolth].Rooms[breeStreets[0, 9]] = new System.Windows.Point(-1, 3);
-
-            AddUndergroundTempleOfLolth(oTempleOfLolth);
+            AddUndergroundTempleOfLolth(breeStreets);
 
             Room oReadyRoom = AddRoom("Ready Room", "Ready Room");
             AddExit(oToArena, oReadyRoom, "arena");
@@ -2151,50 +2131,68 @@ namespace IsengardClient
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
-        private void AddUndergroundTempleOfLolth(Room oTempleOfLolth)
+        private void AddUndergroundTempleOfLolth(Room[,] breeStreets)
         {
-            RoomGraph templeOfLolth = _graphs[MapType.TempleOfLolth];
+            RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
 
-            templeOfLolth.Rooms[oTempleOfLolth] = new System.Windows.Point(0, 3);
+            Room oTempleOfLolth = AddRoom("Lolth Temple", "Temple of Lolth");
+            AddExit(breeStreets[0, 9], oTempleOfLolth, "temple");
+            AddExit(oTempleOfLolth, breeStreets[0, 9], "west");
+            breeStreetsGraph.Rooms[oTempleOfLolth] = new System.Windows.Point(-1.5, 1);
 
             Room oUndergroundTemple = AddRoom("Drow Elfs", "Underground Temple of Lolth");
             oUndergroundTemple.IsTrapRoom = true;
             oUndergroundTemple.AddPermanentMobs(MobTypeEnum.DrowElf, MobTypeEnum.DrowElf, MobTypeEnum.DrowElf);
             Exit e = AddExit(oTempleOfLolth, oUndergroundTemple, "underground temple");
             e.Hidden = true;
-            templeOfLolth.Rooms[oUndergroundTemple] = new System.Windows.Point(0, 4);
+            breeStreetsGraph.Rooms[oUndergroundTemple] = new System.Windows.Point(-1.5, 1.5);
 
-            Room oSecretUndergroundPassage1 = AddRoom("Underground Passage", "Secret Underground Passage");
+            Room oSecretUndergroundPassage1 = AddRoom("Passage", "Secret Underground Passage");
             e = AddExit(oUndergroundTemple, oSecretUndergroundPassage1, "southeast");
             e.Hidden = true;
             e = AddExit(oSecretUndergroundPassage1, oUndergroundTemple, "up");
             e.Hidden = true;
-            templeOfLolth.Rooms[oSecretUndergroundPassage1] = new System.Windows.Point(1, 5);
+            breeStreetsGraph.Rooms[oSecretUndergroundPassage1] = new System.Windows.Point(-0.75, 2);
 
-            Room oSecretUndergroundPassage2 = AddRoom("Underground Passage", "Secret Underground Passage");
+            Room oSecretUndergroundPassage2 = AddRoom("Passage", "Secret Underground Passage");
             AddBidirectionalExits(oSecretUndergroundPassage2, oSecretUndergroundPassage1, BidirectionalExitType.SouthwestNortheast);
-            templeOfLolth.Rooms[oSecretUndergroundPassage2] = new System.Windows.Point(2, 4);
+            breeStreetsGraph.Rooms[oSecretUndergroundPassage2] = new System.Windows.Point(0, 1.5);
 
-            Room oElvenSacrificialTemple = AddRoom("Sacrificial Temple", "Elven Sacrificial Temple");
+            Room oElvenSacrificialTemple = AddRoom("Sacrifice Temple", "Elven Sacrificial Temple");
             oElvenSacrificialTemple.AddPermanentMobs(MobTypeEnum.EvilHighPriestess);
             oElvenSacrificialTemple.AddPermanentItems(ItemTypeEnum.Anvil);
             AddBidirectionalExits(oElvenSacrificialTemple, oSecretUndergroundPassage2, BidirectionalExitType.SoutheastNorthwest);
-            templeOfLolth.Rooms[oElvenSacrificialTemple] = new System.Windows.Point(1, 3);
+            breeStreetsGraph.Rooms[oElvenSacrificialTemple] = new System.Windows.Point(-0.5, 1);
 
             Room oSecretUndergroundPassage3 = AddRoom("Gr Slime Lolth", "Secret Underground Passage");
             oSecretUndergroundPassage3.AddPermanentMobs(MobTypeEnum.GreenSlime);
             AddBidirectionalExits(oSecretUndergroundPassage3, oSecretUndergroundPassage2, BidirectionalExitType.SouthwestNortheast);
-            templeOfLolth.Rooms[oSecretUndergroundPassage3] = new System.Windows.Point(3, 3);
+            breeStreetsGraph.Rooms[oSecretUndergroundPassage3] = new System.Windows.Point(0.75, 1);
 
             Room oCrematorium = AddRoom("Crematorium", "Crematorium");
             AddBidirectionalSameNameHiddenExit(oSecretUndergroundPassage3, oCrematorium, "passage");
-            templeOfLolth.Rooms[oCrematorium] = new System.Windows.Point(4, 3);
+            breeStreetsGraph.Rooms[oCrematorium] = new System.Windows.Point(0.75, 1.5);
 
             Room oMausoleum = AddRoom("Mausoleum", "Mausoleum");
             AddExit(oCrematorium, oMausoleum, "up");
             e = AddExit(oMausoleum, oCrematorium, "down");
             e.Hidden = true;
-            templeOfLolth.Rooms[oCrematorium] = new System.Windows.Point(4, 2);
+            breeStreetsGraph.Rooms[oMausoleum] = new System.Windows.Point(1.5, 1);
+
+            Room oDabinsFuneralHome = AddRoom("Funeral Home", "Dabin's Funeral Home");
+            AddExit(breeStreets[3, 9], oDabinsFuneralHome, "home");
+            AddExit(oDabinsFuneralHome, breeStreets[3, 9], "east");
+            breeStreetsGraph.Rooms[oDabinsFuneralHome] = new System.Windows.Point(2.25, 1);
+
+            Room oFuneralHomeCemetery = AddRoom("Cemetery", "Cemetery");
+            oFuneralHomeCemetery.AddPermanentMobs(MobTypeEnum.Caretaker);
+            e = AddExit(oDabinsFuneralHome, oFuneralHomeCemetery, "northwest");
+            e.Hidden = true;
+            AddExit(oFuneralHomeCemetery, oDabinsFuneralHome, "southeast");
+            e = AddExit(oFuneralHomeCemetery, oMausoleum, "door");
+            e.Hidden = true;
+            //CSRTODO: hidden door exit that doesn't seem to be returnable since the return exit is locked
+            breeStreetsGraph.Rooms[oFuneralHomeCemetery] = new System.Windows.Point(1.5, 0.5);
         }
 
         private void AddHauntedMansion(Room hauntedMansionEntrance)
@@ -2513,7 +2511,7 @@ namespace IsengardClient
 
             //add exits for the sewers. due to screwiness on periwinkle this can't be done automatically.
             AddBidirectionalExits(breeSewers[0, 10], breeSewers[0, 9], BidirectionalExitType.NorthSouth);
-            breeStreetsGraph.Rooms[breeSewers[0, 10]] = new System.Windows.Point(-1, -1);
+            breeStreetsGraph.Rooms[breeSewers[0, 10]] = new System.Windows.Point(-3.25, -1);
             AddBidirectionalExits(breeSewers[0, 9], breeSewers[0, 8], BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(breeSewers[0, 8], breeSewers[0, 7], BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(breeSewers[0, 7], breeSewers[0, 6], BidirectionalExitType.NorthSouth);
@@ -2695,7 +2693,8 @@ namespace IsengardClient
             Room r = grid[x, y];
             if (r != null)
             {
-                breeStreetsGraph.Rooms[r] = new System.Windows.Point(x, 10 - y);
+                double dX = x == 0 ? -2.25 : x;
+                breeStreetsGraph.Rooms[r] = new System.Windows.Point(dX, 10 - y);
 
                 //look for a square to the west and add the east/west exits
                 if (x > 0)
@@ -4013,7 +4012,7 @@ namespace IsengardClient
 
             Room oBreeWestGateOutside = AddRoom("West Gate Outside", "West Gate of Bree");
             AddBidirectionalSameNameExit(oBreeWestGateInside, oBreeWestGateOutside, "gate");
-            breeStreetsGraph.Rooms[oBreeWestGateOutside] = new System.Windows.Point(-1, 3);
+            breeStreetsGraph.Rooms[oBreeWestGateOutside] = new System.Windows.Point(-3.25, 3);
             westOfBreeMap.Rooms[oBreeWestGateOutside] = new System.Windows.Point(14, 0);
             AddMapBoundaryPoint(oBreeWestGateInside, oBreeWestGateOutside, MapType.BreeStreets, MapType.WestOfBree);
 

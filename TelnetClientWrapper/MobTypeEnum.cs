@@ -203,6 +203,7 @@
 
         [SingularName("caretaker")]
         [PluralName("caretakers")]
+        [Experience(40)]
         Caretaker,
 
         [SingularName("carrion crawler")]
