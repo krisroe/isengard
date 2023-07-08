@@ -577,11 +577,11 @@ namespace IsengardClient
         [Sellable(81)]
         AdamantineDart,
 
-        [SingularName("adamantine scale mail armor")]
+        [SingularName("adamantine scale mail armor")] //verified collective 7/8/23
         [EquipmentType(EquipmentType.Torso)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(10)]
-        [Sellable(242)]
+        [Sellable(247)]
         AdamantineScaleMailArmor,
 
         [SingularName("adamantine scale mail gloves")]
