@@ -71,7 +71,6 @@
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.btnPermRuns = new System.Windows.Forms.Button();
-            this.btnComplete = new System.Windows.Forms.Button();
             this.btnFerry = new System.Windows.Forms.Button();
             this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
@@ -647,7 +646,6 @@
             // pnlMain
             // 
             this.pnlMain.Controls.Add(this.btnPermRuns);
-            this.pnlMain.Controls.Add(this.btnComplete);
             this.pnlMain.Controls.Add(this.btnFerry);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
@@ -718,18 +716,6 @@
             this.btnPermRuns.Text = "Perm Runs";
             this.btnPermRuns.UseVisualStyleBackColor = true;
             this.btnPermRuns.Click += new System.EventHandler(this.btnPermRuns_Click);
-            // 
-            // btnComplete
-            // 
-            this.btnComplete.Enabled = false;
-            this.btnComplete.Location = new System.Drawing.Point(830, 628);
-            this.btnComplete.Margin = new System.Windows.Forms.Padding(2);
-            this.btnComplete.Name = "btnComplete";
-            this.btnComplete.Size = new System.Drawing.Size(80, 28);
-            this.btnComplete.TabIndex = 153;
-            this.btnComplete.Text = "Complete";
-            this.btnComplete.UseVisualStyleBackColor = true;
-            this.btnComplete.Click += new System.EventHandler(this.btnComplete_Click);
             // 
             // btnFerry
             // 
@@ -2040,7 +2026,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
         private System.Windows.Forms.Button btnFerry;
-        private System.Windows.Forms.Button btnComplete;
         private System.Windows.Forms.Button btnPermRuns;
     }
 }
