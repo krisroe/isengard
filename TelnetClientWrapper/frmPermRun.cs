@@ -583,8 +583,11 @@ namespace IsengardClient
 
         private void DisplayGraph(ComboBox roomDropdown)
         {
+            Room contextRoom = roomDropdown.SelectedItem as Room;
+            if (contextRoom == null && roomDropdown != cboTargetRoom) contextRoom = cboTargetRoom.SelectedItem as Room;
+            if (contextRoom == null) contextRoom = _currentRoom;
             VertexSelectionRequirement vsr = _permRun == null ? VertexSelectionRequirement.ValidPathFromCurrentLocation : VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName;
-            frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, vsr, false);
+            frmGraph graphForm = new frmGraph(_gameMap, contextRoom, true, _GraphInputs, vsr, false);
             graphForm.ShowDialog();
             HandleRoomSelected(graphForm.SelectedRoom, roomDropdown);
         }

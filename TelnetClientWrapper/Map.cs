@@ -15,14 +15,20 @@ namespace IsengardClient
         internal Dictionary<Room, MapType> RoomsToMaps = new Dictionary<Room, MapType>();
         internal Dictionary<Room, List<MapType>> BoundaryPointsToMaps = new Dictionary<Room, List<MapType>>();
 
+        /// <summary>
+        /// maps room backend names to rooms when unambiguous, ambiguous rooms have a separate mapping.
+        /// </summary>
         internal Dictionary<string, Room> UnambiguousRoomsByBackendName = new Dictionary<string, Room>();
+
+        /// <summary>
+        /// maps room backend names to rooms when ambiguous.
+        /// </summary>
+        internal Dictionary<string, List<Room>> AmbiguousRoomsByBackendName = new Dictionary<string, List<Room>>();
 
         /// <summary>
         /// maps room display names to rooms when unambiguous. for ambiguous room names the value is null.
         /// </summary>
         internal Dictionary<string, Room> UnambiguousRoomsByDisplayName = new Dictionary<string, Room>();
-
-        internal Dictionary<string, List<Room>> AmbiguousRoomsByBackendName = new Dictionary<string, List<Room>>();
 
         public IsengardMap(List<string> errorMessages)
         {
@@ -158,7 +164,7 @@ namespace IsengardClient
             {
                 ret = room.BackendName;
             }
-            else if (UnambiguousRoomsByDisplayName.TryGetValue(room.Name, out _))
+            else if (UnambiguousRoomsByDisplayName.TryGetValue(room.Name, out Room r) && r != null)
             {
                 ret = room.Name;
             }
@@ -6726,7 +6732,7 @@ namespace IsengardClient
             {
                 UnambiguousRoomsByBackendName[backendName] = r;
             }
-            if (UnambiguousRoomsByDisplayName.TryGetValue(roomName, out Room foundRoom))
+            if (UnambiguousRoomsByDisplayName.TryGetValue(roomName, out _))
             {
                 UnambiguousRoomsByDisplayName[roomName] = null;
             }
