@@ -23,7 +23,9 @@
         public override string ToString()
         {
             StaticItemData sid = ItemEntity.StaticItemData[Item.ItemType.Value];
-            return sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
+            string s = sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
+            if (sid.ArmorClass > 0) s += sid.ArmorClass.ToString("N1");
+            return s;
         }
     }
 }

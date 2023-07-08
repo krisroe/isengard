@@ -5455,8 +5455,8 @@ BeforeHazy:
         private CommandResult GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
         {
             CommandResult nextCommandResult;
-            WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
-            WorkflowSpells spellsToPotion = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
+            WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.CurePoison : pms.PermRun.SpellsToCast;
+            WorkflowSpells spellsToPotion = pms.PermRun == null ? WorkflowSpells.CurePoison : pms.PermRun.SpellsToPotion;
             if (needCurePoison)
             {
                 SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];

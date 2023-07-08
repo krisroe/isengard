@@ -796,7 +796,7 @@
             // grpInventory
             // 
             this.grpInventory.Controls.Add(this.lstInventory);
-            this.grpInventory.Location = new System.Drawing.Point(212, 465);
+            this.grpInventory.Location = new System.Drawing.Point(227, 464);
             this.grpInventory.Margin = new System.Windows.Forms.Padding(2);
             this.grpInventory.Name = "grpInventory";
             this.grpInventory.Padding = new System.Windows.Forms.Padding(2);
@@ -831,7 +831,7 @@
             this.grpEquipment.Margin = new System.Windows.Forms.Padding(2);
             this.grpEquipment.Name = "grpEquipment";
             this.grpEquipment.Padding = new System.Windows.Forms.Padding(2);
-            this.grpEquipment.Size = new System.Drawing.Size(182, 309);
+            this.grpEquipment.Size = new System.Drawing.Size(200, 309);
             this.grpEquipment.TabIndex = 146;
             this.grpEquipment.TabStop = false;
             this.grpEquipment.Text = "Equipment";
@@ -844,7 +844,7 @@
             this.lstEquipment.Location = new System.Drawing.Point(2, 15);
             this.lstEquipment.Margin = new System.Windows.Forms.Padding(2);
             this.lstEquipment.Name = "lstEquipment";
-            this.lstEquipment.Size = new System.Drawing.Size(178, 292);
+            this.lstEquipment.Size = new System.Drawing.Size(196, 292);
             this.lstEquipment.TabIndex = 0;
             // 
             // btnGoToHealingRoom
@@ -929,9 +929,9 @@
             // 
             // grpSkillCooldowns
             // 
-            this.grpSkillCooldowns.Location = new System.Drawing.Point(400, 464);
+            this.grpSkillCooldowns.Location = new System.Drawing.Point(413, 464);
             this.grpSkillCooldowns.Name = "grpSkillCooldowns";
-            this.grpSkillCooldowns.Size = new System.Drawing.Size(166, 153);
+            this.grpSkillCooldowns.Size = new System.Drawing.Size(153, 153);
             this.grpSkillCooldowns.TabIndex = 138;
             this.grpSkillCooldowns.TabStop = false;
             this.grpSkillCooldowns.Text = "Skill Cooldowns";
@@ -1240,11 +1240,11 @@
             // grpSpells
             // 
             this.grpSpells.Controls.Add(this.flpSpells);
-            this.grpSpells.Location = new System.Drawing.Point(400, 622);
+            this.grpSpells.Location = new System.Drawing.Point(413, 622);
             this.grpSpells.Margin = new System.Windows.Forms.Padding(2);
             this.grpSpells.Name = "grpSpells";
             this.grpSpells.Padding = new System.Windows.Forms.Padding(2);
-            this.grpSpells.Size = new System.Drawing.Size(166, 153);
+            this.grpSpells.Size = new System.Drawing.Size(153, 153);
             this.grpSpells.TabIndex = 108;
             this.grpSpells.TabStop = false;
             this.grpSpells.Text = "Active Spells";
@@ -1255,7 +1255,7 @@
             this.flpSpells.Location = new System.Drawing.Point(2, 15);
             this.flpSpells.Margin = new System.Windows.Forms.Padding(2);
             this.flpSpells.Name = "flpSpells";
-            this.flpSpells.Size = new System.Drawing.Size(162, 136);
+            this.flpSpells.Size = new System.Drawing.Size(149, 136);
             this.flpSpells.TabIndex = 0;
             // 
             // btnLevel3OffensiveSpell
