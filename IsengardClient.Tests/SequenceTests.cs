@@ -242,7 +242,8 @@ namespace IsengardClient.Tests
             int iGold = -1;
             int iTNL = -1;
             bool? poisoned = null;
-            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, p) =>
+            bool? prone = null;
+            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, p, pr) =>
             {
                 iLevel = l;
                 classType = ct;
@@ -255,6 +256,7 @@ namespace IsengardClient.Tests
                 cooldowns = cs;
                 spells = ss;
                 poisoned = p;
+                prone = pr;
             };
 
             ScoreOutputSequence sos = new ScoreOutputSequence("Despug", a);

@@ -90,6 +90,7 @@ namespace IsengardClient
         private int _tnl = -1;
         private int _tnlUI = -1;
         private bool _poisoned;
+        private bool _prone;
 
         private const int HP_OR_MP_UNKNOWN = -1;
 
@@ -147,7 +148,6 @@ namespace IsengardClient
         private CommandResult? _commandResult;
         private int _commandResultCounter = 0;
         private int _lastCommandDamage;
-        private TrapType _lastCommandTrapType;
         private MovementResult? _lastCommandMovementResult;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
@@ -999,7 +999,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned, bool prone)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -1090,6 +1090,7 @@ namespace IsengardClient
             _tnl = tnl;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
             _poisoned = poisoned;
+            _prone = prone;
 
             if (forInit)
             {
@@ -1381,6 +1382,15 @@ namespace IsengardClient
             string sRoomName = roomTransitionInfo.RoomName;
             List<string> obviousExits = roomTransitionInfo.ObviousExits;
 
+            if ((trapType & TrapType.PoisonDart) != TrapType.None)
+            {
+                _poisoned = true;
+            }
+            if ((trapType & TrapType.Fall) != TrapType.None)
+            {
+                _prone = true;
+            }
+
             BackgroundCommandType? bct = null;
             if (flParams != null)
             {
@@ -1500,7 +1510,6 @@ namespace IsengardClient
             if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
             {
                 _lastCommandDamage = damage;
-                _lastCommandTrapType = trapType;
                 _lastCommandMovementResult = MovementResult.Success;
             }
 
@@ -2572,6 +2581,9 @@ namespace IsengardClient
                                 _currentEntityInfo.CurrentEntityChanges.Add(ec);
                             }
                         }
+                        break;
+                    case InformationalMessageType.RoomPoisoned:
+                        _poisoned = true;
                         break;
                 }
             }
@@ -3700,7 +3712,6 @@ namespace IsengardClient
                 _commandResult = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
-                _lastCommandTrapType = TrapType.None;
                 _lastCommandMovementResult = null;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 bool setMobToFirstAvailable = true;
@@ -3825,17 +3836,17 @@ namespace IsengardClient
 
                 if (pms.BeforeFull != FullType.None || pms.CureIfPoisoned)
                 {
-                    //cure-poison if needed
-                    _poisoned = false;
-                    backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
-                    if (backgroundCommandResult != CommandResult.CommandSuccessful) return;
-                    bool healPoison = _poisoned;
-                    if (pms.CureIfPoisoned && !healPoison) //display a message if a standalone curepoison was attempted
+                    if (pms.CureIfPoisoned && !_poisoned) //validate not poisoned if the user initiated the cure poisoned
                     {
-                        AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
-                        return;
+                        backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful) return;
+                        if (!_poisoned)
+                        {
+                            AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
+                            return;
+                        }
                     }
-                    if (!_fleeing && !_hazying && healPoison)
+                    if (!_fleeing && !_hazying && _poisoned)
                     {
                         SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
                         if (_automp < sia.Mana)
@@ -5746,7 +5757,7 @@ BeforeHazy:
                         {
                             exitList.RemoveAt(0);
                             keepTryingMovement = false;
-                            if ((_lastCommandTrapType & TrapType.PoisonDart) != TrapType.None)
+                            if (_poisoned)
                             {
                                 needCurepoison = true;
                             }
@@ -5754,7 +5765,7 @@ BeforeHazy:
                             {
                                 needHeal = true;
                             }
-                            if ((_lastCommandTrapType & TrapType.Fall) != TrapType.None)
+                            if (_prone)
                             {
                                 SendCommand("stand", InputEchoType.On);
                             }
@@ -6660,7 +6671,6 @@ BeforeHazy:
             _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
-            _lastCommandTrapType = TrapType.None;
             _lastCommandMovementResult = null;
             try
             {

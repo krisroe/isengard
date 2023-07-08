@@ -553,14 +553,14 @@ namespace IsengardClient
 
     internal class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -625,17 +625,17 @@ namespace IsengardClient
 
                 //second line contains the poisoned indicator
                 bool poisoned = false;
+                bool prone = false;
                 sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine != null)
                 {
                     if (sNextLine.Contains("*Poisoned*"))
                     {
                         poisoned = true;
-                        sNextLine = sNextLine.Replace("*Poisoned*", string.Empty);
                     }
-                    if (!string.IsNullOrWhiteSpace(sNextLine))
+                    if (sNextLine.Contains("*Prone*"))
                     {
-                        return;
+                        prone = true;
                     }
                 }
 
@@ -800,7 +800,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, poisoned);
+                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, poisoned, prone);
                 flParams.FinishedProcessing = true;
             }
         }
