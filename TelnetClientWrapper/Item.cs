@@ -2111,6 +2111,7 @@ namespace IsengardClient
         [SingularName("stone key")]
         [PluralName("stone keys")]
         [ItemClass(ItemClass.Key)]
+        [Weight(1)]
         StoneKey,
 
         [SingularName("storage sign")]

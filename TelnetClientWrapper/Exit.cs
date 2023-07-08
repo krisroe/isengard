@@ -102,9 +102,13 @@ namespace IsengardClient
             else if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
                 ret = 10000;
             else if (PresenceType == ExitPresenceType.RequiresSearch)
-                ret = 1000;
+                ret = 2000;
+            else if (IsTrapExit)
+                ret = 2000;
+            else if (Target.IsTrapRoom)
+                ret = 2000;
             else if (isKeyExit) //knockable locked exit
-                ret = 1000;
+                ret = 2000;
             else
                 ret = 1;
             return ret;
