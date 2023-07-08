@@ -259,6 +259,9 @@ namespace IsengardClient
         [MapTypeDisplayName("Under Bree")]
         UnderBree,
 
+        [MapTypeDisplayName("Temple of Lolth")]
+        TempleOfLolth,
+
         [MapTypeDisplayName("Millwood Mansion")]
         MillwoodMansion,
 
