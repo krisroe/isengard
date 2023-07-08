@@ -34,7 +34,14 @@ namespace IsengardClient
         public bool IsFightingMob { get; set; }
         public bool FinishedProcessing { get; set; }
         public bool SuppressEcho { get; set; }
+        /// <summary>
+        /// general result type common to all background commands
+        /// </summary>
         public CommandResult? CommandResult { get; set; }
+        /// <summary>
+        /// result specific to each background command. Positive values are specific to the command.
+        /// </summary>
+        public int CommandSpecificResult { get; set; }
         public HashSet<string> PlayerNames { get; set; }
         public int NextLineIndex { get; set; }
         public List<InformationalMessages> InfoMessages { get; set; }
