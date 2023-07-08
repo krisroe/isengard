@@ -89,8 +89,7 @@ namespace IsengardClient
         private int _experienceUI = -1;
         private int _tnl = -1;
         private int _tnlUI = -1;
-        private bool _poisoned;
-        private bool _prone;
+        private PlayerStatusFlags _playerStatusFlags;
 
         private const int HP_OR_MP_UNKNOWN = -1;
 
@@ -999,7 +998,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, bool poisoned, bool prone)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, PlayerStatusFlags playerStatusFlags)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -1089,8 +1088,7 @@ namespace IsengardClient
             _gold = gold;
             _tnl = tnl;
             _currentPlayerHeader = _username + " (lvl " + level + ")";
-            _poisoned = poisoned;
-            _prone = prone;
+            _playerStatusFlags = playerStatusFlags;
 
             if (forInit)
             {
@@ -1384,11 +1382,11 @@ namespace IsengardClient
 
             if ((trapType & TrapType.PoisonDart) != TrapType.None)
             {
-                _poisoned = true;
+                _playerStatusFlags |= PlayerStatusFlags.Poisoned;
             }
             if ((trapType & TrapType.Fall) != TrapType.None)
             {
-                _prone = true;
+                _playerStatusFlags |= PlayerStatusFlags.Prone;
             }
 
             BackgroundCommandType? bct = null;
@@ -2075,7 +2073,7 @@ namespace IsengardClient
 
         private void OnStandUp(FeedLineParameters flParams)
         {
-            _prone = false;
+            _playerStatusFlags &= ~PlayerStatusFlags.Prone;
         }
 
         private static void OnCannotCarryAnymore(FeedLineParameters flParams)
@@ -2588,7 +2586,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.RoomPoisoned:
-                        _poisoned = true;
+                        _playerStatusFlags |= PlayerStatusFlags.Poisoned;
                         break;
                 }
             }
@@ -3842,17 +3840,19 @@ namespace IsengardClient
 
                 if (pms.BeforeFull != FullType.None || pms.CureIfPoisoned)
                 {
-                    if (pms.CureIfPoisoned && !_poisoned) //validate not poisoned if the user initiated the cure poisoned
+                    PlayerStatusFlags psf = _playerStatusFlags;
+                    if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
                     {
                         backgroundCommandResult = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
                         if (backgroundCommandResult != CommandResult.CommandSuccessful) return;
-                        if (!_poisoned)
+                        psf = _playerStatusFlags;
+                        if ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)
                         {
                             AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
                             return;
                         }
                     }
-                    if (!_fleeing && !_hazying && _poisoned)
+                    if (!_fleeing && !_hazying && ((psf & PlayerStatusFlags.Poisoned) != PlayerStatusFlags.None))
                     {
                         SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
                         if (_automp < sia.Mana)
@@ -5763,7 +5763,8 @@ BeforeHazy:
                         {
                             exitList.RemoveAt(0);
                             keepTryingMovement = false;
-                            if (_poisoned)
+                            PlayerStatusFlags psf = _playerStatusFlags;
+                            if ((psf & PlayerStatusFlags.Poisoned) != PlayerStatusFlags.None)
                             {
                                 needCurepoison = true;
                             }
@@ -5771,7 +5772,7 @@ BeforeHazy:
                             {
                                 needHeal = true;
                             }
-                            if (_prone)
+                            if ((psf & PlayerStatusFlags.Prone) != PlayerStatusFlags.None)
                             {
                                 SendCommand("stand", InputEchoType.On);
                             }

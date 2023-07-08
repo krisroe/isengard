@@ -553,14 +553,14 @@ namespace IsengardClient
 
     internal class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -624,18 +624,17 @@ namespace IsengardClient
                 if (iLevel <= 0) return;
 
                 //second line contains the poisoned indicator
-                bool poisoned = false;
-                bool prone = false;
+                PlayerStatusFlags playerStatusFlags = PlayerStatusFlags.None;
                 sNextLine = Lines[iNextLineIndex++];
                 if (sNextLine != null)
                 {
                     if (sNextLine.Contains("*Poisoned*"))
                     {
-                        poisoned = true;
+                        playerStatusFlags |= PlayerStatusFlags.Poisoned;
                     }
                     if (sNextLine.Contains("*Prone*"))
                     {
-                        prone = true;
+                        playerStatusFlags |= PlayerStatusFlags.Prone;
                     }
                 }
 
@@ -800,7 +799,7 @@ namespace IsengardClient
                     return;
                 }
 
-                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, poisoned, prone);
+                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, playerStatusFlags);
                 flParams.FinishedProcessing = true;
             }
         }

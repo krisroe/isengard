@@ -241,9 +241,8 @@ namespace IsengardClient.Tests
             string sArmorClassText = null;
             int iGold = -1;
             int iTNL = -1;
-            bool? poisoned = null;
-            bool? prone = null;
-            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, bool, bool> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, p, pr) =>
+            PlayerStatusFlags? playerStatusFlags = null;
+            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, psf) =>
             {
                 iLevel = l;
                 classType = ct;
@@ -255,8 +254,7 @@ namespace IsengardClient.Tests
                 iTNL = tnl;
                 cooldowns = cs;
                 spells = ss;
-                poisoned = p;
-                prone = pr;
+                playerStatusFlags = psf;
             };
 
             ScoreOutputSequence sos = new ScoreOutputSequence("Despug", a);
@@ -268,7 +266,7 @@ namespace IsengardClient.Tests
             armorClass = -1;
             sArmorClassText = null;
             classType = null;
-            poisoned = null;
+            playerStatusFlags = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 12)");
             input.Add(" *Poisoned*");
@@ -303,13 +301,13 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Available);
             Assert.IsTrue(cooldowns[1].SkillName == "manashield");
             Assert.IsTrue(spells[0] == "None");
-            Assert.IsTrue(poisoned);
+            Assert.IsTrue(playerStatusFlags == PlayerStatusFlags.Poisoned);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             armorClass = -1;
             sArmorClassText = null;
             classType = null;
-            poisoned = null;
+            playerStatusFlags = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 1)");
             input.Add(string.Empty);
@@ -349,7 +347,7 @@ namespace IsengardClient.Tests
             armorClass = -1;
             sArmorClassText = null;
             classType = null;
-            poisoned = null;
+            playerStatusFlags = null;
             input.Clear();
             input.Add("Despug the Mage Occulate (lvl 62)");
             input.Add(string.Empty);

@@ -631,6 +631,14 @@ namespace IsengardClient
         Fall = 2,
     }
 
+    [Flags]
+    internal enum PlayerStatusFlags
+    {
+        None = 0,
+        Poisoned = 1,
+        Prone = 2,
+    }
+
     internal enum BoatEmbarkOrDisembark
     {
         CelduinExpress,
