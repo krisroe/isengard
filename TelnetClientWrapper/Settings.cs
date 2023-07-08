@@ -100,15 +100,20 @@ namespace IsengardClient
             {
                 Locations.Add(new LocationNode(next, null));
             }
+            Dictionary<Strategy, Strategy> oStrategyMapping = new Dictionary<Strategy, Strategy>();
             Strategies = new List<Strategy>();
             foreach (Strategy s in copied.Strategies)
             {
-                Strategies.Add(new Strategy(s));
+                Strategy copyStrategy = new Strategy(s);
+                oStrategyMapping[s] = copyStrategy;
+                Strategies.Add(copyStrategy);
             }
             PermRuns = new List<PermRun>();
             foreach (PermRun p in copied.PermRuns)
             {
-                PermRuns.Add(new PermRun(p));
+                PermRun copyPermRun = new PermRun(p);
+                copyPermRun.Strategy = oStrategyMapping[copyPermRun.Strategy];
+                PermRuns.Add(copyPermRun);
             }
         }
         public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages, IsengardMap gameMap) : this()

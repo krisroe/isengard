@@ -29,10 +29,7 @@
             this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
             this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
             this.ItemsToProcessType = copied.ItemsToProcessType;
-            if (copied.Strategy != null)
-            {
-                this.Strategy = new Strategy(copied.Strategy);
-            }
+            this.Strategy = copied.Strategy;
         }
         public bool IsValid { get; set; }
         public int ID { get; set; }
