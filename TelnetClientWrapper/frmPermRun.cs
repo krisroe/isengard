@@ -213,7 +213,7 @@ namespace IsengardClient
             {
                 cboMob.SelectedItem = currentMob;
             }
-            else
+            else if (!string.IsNullOrEmpty(currentMob))
             {
                 cboMob.Text = currentMob;
             }
@@ -651,9 +651,12 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (!isCurrentRoom && cboMob.Items.Count > 0)
+                if (_initialized)
                 {
-                    cboMob.SelectedIndex = 0;
+                    if (cboMob.Items.Count > 0)
+                    {
+                        cboMob.SelectedIndex = 0;
+                    }
                 }
             }
         }
@@ -762,7 +765,7 @@ namespace IsengardClient
         public void SaveFormDataToPermRun(PermRun pr)
         {
             pr.AfterKillMonsterAction = cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
-            pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMinimum;
+            pr.AutoSpellLevelMin = _autoSpellLevelInfo.PermRunMinimum;
             pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMaximum;
             pr.DisplayName = txtDisplayName.Text;
             pr.FullBeforeStarting = chkFullBeforeStarting.Checked;
