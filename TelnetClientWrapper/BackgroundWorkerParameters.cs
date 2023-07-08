@@ -96,7 +96,40 @@ namespace IsengardClient
         public void SetPermRun(PermRun p, IsengardMap gameMap)
         {
             PermRun = p;
-            Strategy = p.Strategy;
+
+            //modify the strategy with overrides from the perm run.
+            Strategy = new Strategy(p.Strategy);
+            if (p.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+            {
+                Strategy.AutoSpellLevelMin = p.AutoSpellLevelMin;
+                Strategy.AutoSpellLevelMax = p.AutoSpellLevelMax;
+            }
+            if (p.AfterKillMonsterAction.HasValue)
+            {
+                Strategy.AfterKillMonsterAction = p.AfterKillMonsterAction.Value;
+            }
+            if (p.UseMagicCombat.HasValue)
+            {
+                if (p.UseMagicCombat.Value)
+                    Strategy.TypesWithStepsEnabled |= CommandType.Magic;
+                else
+                    Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
+            }
+            if (p.UseMeleeCombat.HasValue)
+            {
+                if (p.UseMeleeCombat.Value)
+                    Strategy.TypesWithStepsEnabled |= CommandType.Melee;
+                else
+                    Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
+            }
+            if (p.UsePotionsCombat.HasValue)
+            {
+                if (p.UsePotionsCombat.Value)
+                    Strategy.TypesWithStepsEnabled |= CommandType.Potions;
+                else
+                    Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;
+            }
+
             int iMobIndex = p.MobIndex;
             if (p.MobType.HasValue)
             {

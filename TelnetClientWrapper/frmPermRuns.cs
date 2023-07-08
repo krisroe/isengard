@@ -197,41 +197,6 @@ namespace IsengardClient
                     }
                     if (prToRun != null)
                     {
-                        //modify the strategy with overrides from the perm run. Since the perm run was already cloned, we
-                        //don't have to worry about messing up the original.
-                        Strategy strategyWithAppliedOverrides = new Strategy(prToRun.Strategy);
-                        if (prToRun.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && prToRun.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
-                        {
-                            strategyWithAppliedOverrides.AutoSpellLevelMin = prToRun.AutoSpellLevelMin;
-                            strategyWithAppliedOverrides.AutoSpellLevelMax = prToRun.AutoSpellLevelMax;
-                        }
-                        if (prToRun.AfterKillMonsterAction.HasValue)
-                        {
-                            strategyWithAppliedOverrides.AfterKillMonsterAction = prToRun.AfterKillMonsterAction.Value;
-                        }
-                        if (prToRun.UseMagicCombat.HasValue)
-                        {
-                            if (prToRun.UseMagicCombat.Value)
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled |= CommandType.Magic;
-                            else
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled &= ~CommandType.Magic;
-                        }
-                        if (prToRun.UseMeleeCombat.HasValue)
-                        {
-                            if (prToRun.UseMeleeCombat.Value)
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled |= CommandType.Melee;
-                            else
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled &= ~CommandType.Melee;
-                        }
-                        if (prToRun.UsePotionsCombat.HasValue)
-                        {
-                            if (prToRun.UsePotionsCombat.Value)
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled |= CommandType.Potions;
-                            else
-                                strategyWithAppliedOverrides.TypesWithStepsEnabled &= ~CommandType.Potions;
-                        }
-                        prToRun.Strategy = strategyWithAppliedOverrides;
-
                         PermRunToRun = prToRun;
                         DialogResult = DialogResult.OK;
                         Close();
