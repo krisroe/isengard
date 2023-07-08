@@ -414,8 +414,10 @@
         [Experience(210)]
         EvilSorcerer,
 
+        //doesn't appear stunnable
         [SingularName("Eugene the Executioner")]
         //CSRTODO: no plural?
+        [Experience(555)]
         EugeneTheExecutioner,
 
         [SingularName("Faeldor")]

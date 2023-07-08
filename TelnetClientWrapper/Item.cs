@@ -841,6 +841,8 @@ namespace IsengardClient
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
         [ItemClass(ItemClass.Key)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         CarvedIvoryKey,
 
         [SingularName("cat o' nine tails")]
@@ -2124,6 +2126,7 @@ namespace IsengardClient
         [PluralName("stone keys")]
         [ItemClass(ItemClass.Key)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         StoneKey,
 
         [SingularName("storage sign")]
