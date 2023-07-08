@@ -7839,7 +7839,7 @@ BeforeHazy:
                 }
                 else if (dArmorClassCalculated != -1)
                 {
-                    lblArmorClassValue.Text = "AC: " + sArmorClassText + " (" + dArmorClass.ToString("N1") + ")";
+                    lblArmorClassValue.Text = "AC: " + sArmorClassText + " (" + dArmorClassCalculated.ToString("N1") + ")";
                 }
                 else
                 {
