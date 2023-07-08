@@ -10,16 +10,91 @@ namespace IsengardClient
         private IsengardMap _gameMap;
         private CurrentEntityInfo _currentEntityInfo;
         private Func<GraphInputs> _getGraphInputs;
-        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs)
+        private bool _inBackgroundProcess;
+
+        private DataGridViewTextBoxColumn colName;
+        private DataGridViewTextBoxColumn colTickRoom;
+        private DataGridViewTextBoxColumn colRoom;
+        private DataGridViewTextBoxColumn colMob;
+        private DataGridViewButtonColumn colEdit;
+        private DataGridViewButtonColumn colChangeAndRun;
+        private DataGridViewButtonColumn colRun;
+        private DataGridViewButtonColumn colGo;
+
+        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess)
         {
             InitializeComponent();
             _settings = settings;
             _gameMap = gameMap;
             _currentEntityInfo = entityInfo;
             _getGraphInputs = getGraphInputs;
+            _inBackgroundProcess = inBackgroundProcess;
+            InitializeColumns(inBackgroundProcess);
             foreach (PermRun nextPermRun in settings.PermRuns)
             {
                 UpdatePermRunDisplay(nextPermRun, null);
+            }
+        }
+
+        private void InitializeColumns(bool inBackgroundProcess)
+        {
+            colName = new DataGridViewTextBoxColumn();
+            colTickRoom = new DataGridViewTextBoxColumn();
+            colRoom = new DataGridViewTextBoxColumn();
+            colMob = new DataGridViewTextBoxColumn();
+            colEdit = new DataGridViewButtonColumn();
+            colName.HeaderText = "Name";
+            colName.MinimumWidth = 6;
+            colName.Name = "colName";
+            colName.ReadOnly = true;
+            colName.Width = 300;
+            colTickRoom.HeaderText = "Tick";
+            colTickRoom.MinimumWidth = 6;
+            colTickRoom.Name = "colTickRoom";
+            colTickRoom.ReadOnly = true;
+            colTickRoom.Width = 150;
+            colRoom.HeaderText = "Room";
+            colRoom.MinimumWidth = 6;
+            colRoom.Name = "colRoom";
+            colRoom.ReadOnly = true;
+            colRoom.Width = 300;
+            colMob.HeaderText = "Mob";
+            colMob.MinimumWidth = 6;
+            colMob.Name = "colMob";
+            colMob.ReadOnly = true;
+            colMob.Width = 200;
+            colEdit.HeaderText = "Edit";
+            colEdit.MinimumWidth = 6;
+            colEdit.Name = "colEdit";
+            colEdit.ReadOnly = true;
+            colEdit.Width = 75;
+            dgvPermRuns.Columns.Add(colName);
+            dgvPermRuns.Columns.Add(colTickRoom);
+            dgvPermRuns.Columns.Add(colRoom);
+            dgvPermRuns.Columns.Add(colMob);
+            dgvPermRuns.Columns.Add(colEdit);
+            if (!inBackgroundProcess)
+            {
+                colChangeAndRun = new DataGridViewButtonColumn();
+                colRun = new DataGridViewButtonColumn();
+                colGo = new DataGridViewButtonColumn();
+                colChangeAndRun.HeaderText = "Change+Run";
+                colChangeAndRun.MinimumWidth = 6;
+                colChangeAndRun.Name = "colChangeAndRun";
+                colChangeAndRun.ReadOnly = true;
+                colChangeAndRun.Width = 125;
+                colRun.HeaderText = "Run";
+                colRun.MinimumWidth = 6;
+                colRun.Name = "colRun";
+                colRun.ReadOnly = true;
+                colRun.Width = 75;
+                colGo.Name = "colGo";
+                colGo.MinimumWidth = 6;
+                colGo.ReadOnly = true;
+                colGo.Width = 75;
+                dgvPermRuns.Columns.Add(colChangeAndRun);
+                dgvPermRuns.Columns.Add(colRun);
+                dgvPermRuns.Columns.Add(colGo);
             }
         }
 
@@ -109,11 +184,17 @@ namespace IsengardClient
             if (rowIndex.HasValue)
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
-                r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run");
+                if (_inBackgroundProcess)
+                    r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit");
+                else
+                    r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
             }
             else
             {
-                rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run");
+                if (_inBackgroundProcess)
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit");
+                else
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
                 r = dgvPermRuns.Rows[rowIndex.Value];
             }
             r.Tag = nextPermRun;
@@ -162,6 +243,7 @@ namespace IsengardClient
                     WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
                     WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
                     PermRun prToRun = null;
+                    List<Exit> targetRoomToGo = null;
                     if (col == colEdit)
                     {
                         using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, false))
@@ -195,9 +277,18 @@ namespace IsengardClient
                             prToRun = new PermRun(pr);
                         }
                     }
-                    if (prToRun != null)
+                    else if (col == colGo)
+                    {
+                        targetRoomToGo = MapComputation.ComputeLowestCostPath(_currentEntityInfo.CurrentRoom, pr.TargetRoomObject, _getGraphInputs());
+                        if (targetRoomToGo == null)
+                        {
+                            MessageBox.Show("Unable to navigate to room.");
+                        }
+                    }
+                    if (prToRun != null || targetRoomToGo != null)
                     {
                         PermRunToRun = prToRun;
+                        NavigateToRoom = targetRoomToGo;
                         DialogResult = DialogResult.OK;
                         Close();
                     }
@@ -245,5 +336,6 @@ namespace IsengardClient
         }
 
         public PermRun PermRunToRun { get; set; }
+        public List<Exit> NavigateToRoom { get; set; }
     }
 }

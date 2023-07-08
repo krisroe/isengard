@@ -35,13 +35,6 @@
             this.tsmiRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colTickRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colMob = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.colChangeAndRun = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.colRun = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPermRuns)).BeginInit();
             this.ctxPermRuns.SuspendLayout();
             this.SuspendLayout();
@@ -51,14 +44,6 @@
             this.dgvPermRuns.AllowUserToAddRows = false;
             this.dgvPermRuns.AllowUserToDeleteRows = false;
             this.dgvPermRuns.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvPermRuns.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colName,
-            this.colTickRoom,
-            this.colRoom,
-            this.colMob,
-            this.colEdit,
-            this.colChangeAndRun,
-            this.colRun});
             this.dgvPermRuns.ContextMenuStrip = this.ctxPermRuns;
             this.dgvPermRuns.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvPermRuns.Location = new System.Drawing.Point(0, 0);
@@ -111,62 +96,6 @@
             this.tsmiMoveDown.Text = "Move Down";
             this.tsmiMoveDown.Click += new System.EventHandler(this.tsmiMoveDown_Click);
             // 
-            // colName
-            // 
-            this.colName.HeaderText = "Name";
-            this.colName.MinimumWidth = 6;
-            this.colName.Name = "colName";
-            this.colName.ReadOnly = true;
-            this.colName.Width = 300;
-            // 
-            // colTickRoom
-            // 
-            this.colTickRoom.HeaderText = "Tick";
-            this.colTickRoom.MinimumWidth = 6;
-            this.colTickRoom.Name = "colTickRoom";
-            this.colTickRoom.ReadOnly = true;
-            this.colTickRoom.Width = 150;
-            // 
-            // colRoom
-            // 
-            this.colRoom.HeaderText = "Room";
-            this.colRoom.MinimumWidth = 6;
-            this.colRoom.Name = "colRoom";
-            this.colRoom.ReadOnly = true;
-            this.colRoom.Width = 300;
-            // 
-            // colMob
-            // 
-            this.colMob.HeaderText = "Mob";
-            this.colMob.MinimumWidth = 6;
-            this.colMob.Name = "colMob";
-            this.colMob.ReadOnly = true;
-            this.colMob.Width = 200;
-            // 
-            // colEdit
-            // 
-            this.colEdit.HeaderText = "Edit";
-            this.colEdit.MinimumWidth = 6;
-            this.colEdit.Name = "colEdit";
-            this.colEdit.ReadOnly = true;
-            this.colEdit.Width = 125;
-            // 
-            // colChangeAndRun
-            // 
-            this.colChangeAndRun.HeaderText = "Change+Run";
-            this.colChangeAndRun.MinimumWidth = 6;
-            this.colChangeAndRun.Name = "colChangeAndRun";
-            this.colChangeAndRun.ReadOnly = true;
-            this.colChangeAndRun.Width = 125;
-            // 
-            // colRun
-            // 
-            this.colRun.HeaderText = "Run";
-            this.colRun.MinimumWidth = 6;
-            this.colRun.Name = "colRun";
-            this.colRun.ReadOnly = true;
-            this.colRun.Width = 125;
-            // 
             // frmPermRuns
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -193,12 +122,5 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiRemove;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveUp;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colTickRoom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colRoom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colMob;
-        private System.Windows.Forms.DataGridViewButtonColumn colEdit;
-        private System.Windows.Forms.DataGridViewButtonColumn colChangeAndRun;
-        private System.Windows.Forms.DataGridViewButtonColumn colRun;
     }
 }

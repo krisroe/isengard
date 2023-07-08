@@ -6843,7 +6843,6 @@ BeforeHazy:
                 yield return btn;
             }
             yield return btnFerry;
-            yield return btnPermRuns;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -9720,11 +9719,15 @@ BeforeHazy:
 
         private void btnPermRuns_Click(object sender, EventArgs e)
         {
-            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs))
+            bool haveBackgroundProcess = _currentBackgroundParameters != null;
+            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    DoPermRun(frm.PermRunToRun);
+                    if (frm.PermRunToRun != null)
+                        DoPermRun(frm.PermRunToRun);
+                    else
+                        NavigateExitsInBackground(frm.NavigateToRoom);
                 }
             }
         }
