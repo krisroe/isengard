@@ -524,69 +524,11 @@ namespace IsengardClient
                     }
                 }
 
-                GraphInputs graphInputs = _GraphInputs();
-
-                if (thresholdRoom != null)
+                PermRun tempPermRun = new PermRun();
+                SaveFormDataToPermRun(tempPermRun);
+                if (!tempPermRun.IsRunnable(_GraphInputs, _currentEntityInfo, this, _gameMap))
                 {
-                    //verify the threshold room is reachable from the current room
-                    if (_currentRoom != thresholdRoom)
-                    {
-                        if (MapComputation.ComputeLowestCostPath(_currentRoom, thresholdRoom, graphInputs) == null)
-                        {
-                            MessageBox.Show("Cannot find path to threshold room.");
-                            return;
-                        }
-                    }
-                    if (MapComputation.ComputeLowestCostPath(thresholdRoom, targetRoom, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path from threshold room to target room.");
-                        return;
-                    }
-                }
-                else if (targetRoom != _currentRoom) //verify the target room is reachable from the current room
-                {
-                    if (MapComputation.ComputeLowestCostPath(_currentRoom, targetRoom, graphInputs) == null)
-                    {
-                        MessageBox.Show("Cannot find path to selected room.");
-                        return;
-                    }
-                }
-
-                //verify healing room is reachable back and forth from the target room
-                if (cboTickRoom.SelectedIndex > 0)
-                {
-                    Room healingRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
-                    if (targetRoom != healingRoom)
-                    {
-                        if (MapComputation.ComputeLowestCostPath(targetRoom, healingRoom, graphInputs) == null)
-                        {
-                            MessageBox.Show("Cannot find path from target room to tick room.");
-                            return;
-                        }
-                        if (MapComputation.ComputeLowestCostPath(healingRoom, targetRoom, graphInputs) == null)
-                        {
-                            MessageBox.Show("Cannot find path from tick room to healing room.");
-                            return;
-                        }
-                    }
-                }
-                //verify pawn shop is reachable back and forth from the target room
-                if (cboPawnShoppe.SelectedIndex > 0)
-                {
-                    Room pawnShop = _gameMap.PawnShoppes[(PawnShoppe)cboPawnShoppe.SelectedItem];
-                    if (targetRoom != pawnShop)
-                    {
-                        if (MapComputation.ComputeLowestCostPath(targetRoom, pawnShop, graphInputs) == null)
-                        {
-                            MessageBox.Show("Cannot find path from target room to pawn shop.");
-                            return;
-                        }
-                        if (MapComputation.ComputeLowestCostPath(pawnShop, targetRoom, graphInputs) == null)
-                        {
-                            MessageBox.Show("Cannot find path from pawn shop to target room.");
-                            return;
-                        }
-                    }
+                    return;
                 }
             }
             else

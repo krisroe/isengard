@@ -199,7 +199,14 @@ namespace IsengardClient
                     return new PlayerEntity(input);
                 }
             }
-            return new UnknownTypeEntity(input, 1, possibleEntityTypes);
+            Entity ret;
+            if (possibleEntityTypes == EntityTypeFlags.Item)
+                ret = new UnknownItemEntity(input, 1, 1);
+            else if (possibleEntityTypes == EntityTypeFlags.Mob)
+                ret = new UnknownMobEntity(input, 1, 1);
+            else
+                ret = new UnknownTypeEntity(input, 1, possibleEntityTypes);
+            return ret;
         }
 
         private static string GetCapitalized(string input, bool expectCapitalized)

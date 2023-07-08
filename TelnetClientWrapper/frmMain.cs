@@ -1660,18 +1660,14 @@ namespace IsengardClient
                     {
                         foreach (var nextItem in items)
                         {
-                            ItemTypeEnum? itemType = nextItem.ItemType;
-                            if (itemType.HasValue)
+                            foreach (ItemEntity nextSplitEntity in ItemEntity.SplitItemEntity(nextItem, false, null))
                             {
-                                foreach (ItemEntity nextSplitEntity in ItemEntity.SplitItemEntity(nextItem, false, null))
-                                {
-                                    _currentEntityInfo.CurrentRoomItems.Add(nextSplitEntity);
-                                    EntityChangeEntry changeEntry = new EntityChangeEntry();
-                                    changeEntry.Item = nextSplitEntity;
-                                    changeEntry.RoomItemAction = true;
-                                    changeEntry.RoomItemIndex = -1;
-                                    rc.Changes.Add(changeEntry);
-                                }
+                                _currentEntityInfo.CurrentRoomItems.Add(nextSplitEntity);
+                                EntityChangeEntry changeEntry = new EntityChangeEntry();
+                                changeEntry.Item = nextSplitEntity;
+                                changeEntry.RoomItemAction = true;
+                                changeEntry.RoomItemIndex = -1;
+                                rc.Changes.Add(changeEntry);
                             }
                         }
                     }
@@ -9252,6 +9248,11 @@ BeforeHazy:
             if (parentNode == _currentEntityInfo.tnObviousItems) //pick up item
             {
                 int counter = FindItemOrMobCounterInRoomUI(selectedNode, true);
+                if (counter == 0)
+                {
+                    MessageBox.Show("Cannot pick up unknown item.");
+                    return;
+                }
                 ItemEntity ie = (ItemEntity)selectedNode.Tag;
                 lock (_currentEntityInfo.EntityLock)
                 {
@@ -9280,6 +9281,11 @@ BeforeHazy:
             else if (parentNode == _currentEntityInfo.tnObviousMobs || parentNode == _currentEntityInfo.tnPermanentMobs) //look at mob
             {
                 int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
+                if (counter == 0)
+                {
+                    MessageBox.Show("Cannot look at unknown mob.");
+                    return;
+                }
                 MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
                 MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.CurrentRoomMobs : MobLocationType.PickFromList;
                 lock (_currentEntityInfo.EntityLock)
@@ -9307,6 +9313,7 @@ BeforeHazy:
             if (isItem)
             {
                 ie = (ItemEntity)node.Tag;
+                if (!ie.ItemType.HasValue) return 0;
                 ieType = ie.ItemType.Value;
             }
             else

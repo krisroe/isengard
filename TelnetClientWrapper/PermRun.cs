@@ -1,4 +1,7 @@
-﻿namespace IsengardClient
+﻿using System;
+using System.Windows.Forms;
+
+namespace IsengardClient
 {
     internal class PermRun
     {
@@ -82,5 +85,120 @@
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
         public ItemsToProcessType ItemsToProcessType { get; set; }
+
+        public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap)
+        {
+            GraphInputs graphInputs = GetGraphInputs();
+            Room currentRoom = cei.CurrentRoom;
+
+            if (currentRoom == null)
+            {
+                MessageBox.Show(parent, "No current room.");
+                return false;
+            }
+
+            if (ThresholdRoomObject != null) //verify the threshold room is reachable from the current room
+            {
+                if (currentRoom != ThresholdRoomObject)
+                {
+                    if (MapComputation.ComputeLowestCostPath(currentRoom, ThresholdRoomObject, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path to threshold room.");
+                        return false;
+                    }
+                }
+                if (MapComputation.ComputeLowestCostPath(ThresholdRoomObject, TargetRoomObject, graphInputs) == null)
+                {
+                    MessageBox.Show(parent, "Cannot find path from threshold room to target room.");
+                    return false;
+                }
+            }
+            else if (TargetRoomObject != currentRoom) //verify the target room is reachable from the current room
+            {
+                if (MapComputation.ComputeLowestCostPath(currentRoom, TargetRoomObject, graphInputs) == null)
+                {
+                    MessageBox.Show(parent, "Cannot find path to selected room.");
+                    return false;
+                }
+            }
+
+            //verify healing room is reachable back and forth from the target room
+            if (TickRoom.HasValue)
+            {
+                Room healingRoom = gameMap.HealingRooms[TickRoom.Value];
+                if (TargetRoomObject != healingRoom)
+                {
+                    if (MapComputation.ComputeLowestCostPath(TargetRoomObject, healingRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path from target room to tick room.");
+                        return false;
+                    }
+                    if (MapComputation.ComputeLowestCostPath(healingRoom, TargetRoomObject, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path from tick room to healing room.");
+                        return false;
+                    }
+                }
+            }
+            //verify pawn shop is reachable back and forth from the target room
+            if (PawnShop.HasValue)
+            {
+                Room pawnShop = gameMap.PawnShoppes[PawnShop.Value];
+                if (TargetRoomObject != pawnShop)
+                {
+                    if (MapComputation.ComputeLowestCostPath(TargetRoomObject, pawnShop, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path from target room to pawn shop.");
+                        return false;
+                    }
+                    if (MapComputation.ComputeLowestCostPath(pawnShop, TargetRoomObject, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path from pawn shop to target room.");
+                        return false;
+                    }
+                }
+            }
+
+            //check that skills are actually available
+            PromptedSkills skillsToCheck = SkillsToRun & ~PromptedSkills.PowerAttack;
+            if (skillsToCheck != PromptedSkills.None)
+            {
+                PromptedSkills skillsAvailable = cei.GetAvailableSkills(false);
+                PromptedSkills missingSkills = skillsToCheck & ~skillsAvailable;
+                if (missingSkills != PromptedSkills.None)
+                {
+                    MessageBox.Show(parent, "Missing skills: " + missingSkills.ToString().Replace(" ", ""));
+                    return false;
+                }
+            }
+
+            WorkflowSpells missingSpells;
+
+            //check that spells can actually be casted
+            if (SpellsToCast != WorkflowSpells.None)
+            {
+                WorkflowSpells castableSpells = cei.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
+                missingSpells = SpellsToCast & ~castableSpells;
+                if (missingSpells != WorkflowSpells.None)
+                {
+                    MessageBox.Show(parent, "Cannot cast spells: " + missingSpells.ToString().Replace(" ", ""));
+                    return false;
+                }
+            }
+
+            //verify potions are actually in inventory
+            if (SpellsToPotion != WorkflowSpells.None)
+            {
+                WorkflowSpells availablePotions = cei.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
+                missingSpells = SpellsToPotion & ~availablePotions;
+                if (missingSpells != WorkflowSpells.None)
+                {
+                    MessageBox.Show(parent, "Missing potions: " + missingSpells.ToString().Replace(" ", ""));
+                    return false;
+                }
+            }
+            
+            return true;
+        }
     }
 }

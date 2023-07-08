@@ -190,10 +190,10 @@ namespace IsengardClient
                     }
                     else if (col == colRun)
                     {
-                        if (ValidateAvailableSkillsAndSpellsAgainstPermRun(pr, skills, castableSpells, true))
+                        if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap))
                         {
                             prToRun = new PermRun(pr);
-                        } 
+                        }
                     }
                     if (prToRun != null)
                     {

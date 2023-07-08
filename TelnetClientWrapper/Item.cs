@@ -199,11 +199,11 @@ namespace IsengardClient
 
         public static IEnumerable<ItemEntity> SplitItemEntity(ItemEntity input, bool expectSingleItem, List<string> errorMessages)
         {
+            int iEntityCount = input.Count;
             if (input.ItemType.HasValue)
             {
                 ItemTypeEnum eItemType = input.ItemType.Value;
                 StaticItemData sid = StaticItemData[eItemType];
-                int iEntityCount = input.Count;
                 int iSplitCount;
                 if (sid.ItemClass == ItemClass.Coins)
                 {
@@ -232,7 +232,13 @@ namespace IsengardClient
             }
             else
             {
-                yield return input;
+                //this assumes the unknown item isn't coins, but there's no way to know at this point
+                //so the best guess is treat is as not coins
+                UnknownItemEntity uie = (UnknownItemEntity)input;
+                for (int i = 0; i < iEntityCount; i++)
+                {
+                    yield return new UnknownItemEntity(uie.Name, 1, 1);
+                }
             }
         }
 
@@ -722,6 +728,8 @@ namespace IsengardClient
         [SingularName("boiler key")]
         [PluralName("boiler keys")]
         [ItemClass(ItemClass.Key)]
+        [Weight(10)]
+        [Sellable(SellableEnum.Junk)]
         BoilerKey,
 
         [SingularName("bone armor")]
@@ -741,6 +749,8 @@ namespace IsengardClient
 
         [SingularName("book of knowledge")]
         [PluralName("books of knowledge")]
+        [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
         BookOfKnowledge,
 
         [SingularName("boomerang")]
@@ -780,6 +790,8 @@ namespace IsengardClient
         [SingularName("bridge key")]
         [PluralName("bridge keys")]
         [ItemClass(ItemClass.Key)]
+        [Weight(5)]
+        [Sellable(SellableEnum.Junk)]
         BridgeKey,
 
         [SingularName("broad sword")]
@@ -1772,6 +1784,12 @@ namespace IsengardClient
         [Weight(5)]
         [Wand(SpellsEnum.restore)] //CSRTODO: is this correct?
         QuartzStone,
+
+        [SingularName("rainbow key")]
+        [PluralName("rainbow keys")]
+        [Weight(5)]
+        [ItemClass(ItemClass.Key)]
+        RainbowKey,
 
         [SingularName("rake")]
         [PluralName("rakes")]
