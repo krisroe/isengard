@@ -2122,6 +2122,7 @@ namespace IsengardClient
         [WeaponType(WeaponType.Unknown)]
         StoneHammer,
 
+        //dropped by sewer orcs
         [SingularName("stone key")]
         [PluralName("stone keys")]
         [ItemClass(ItemClass.Key)]
@@ -2178,6 +2179,13 @@ namespace IsengardClient
         [SingularName("tiger shark leather armor")]
         [EquipmentType(EquipmentType.Torso)]
         TigerSharkLeatherArmor,
+
+        //dropped by caretaker
+        [SingularName("tin key")]
+        [PluralName("tin keys")]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        TinKey,
 
         [SingularName("toilet paper")] //verified collective 7/5/23
         [Wand(SpellsEnum.stun)]
