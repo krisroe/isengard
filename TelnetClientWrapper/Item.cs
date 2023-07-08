@@ -630,9 +630,10 @@ namespace IsengardClient
 
         [SingularName("animal hides")]
         //CSRTODO: plural
-        [Weight(5)]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(5)]
         [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         AnimalHides,
 
         [SingularName("anvil")]
@@ -809,6 +810,9 @@ namespace IsengardClient
         [SingularName("bronze gauntlets")]
         //CSRTODO: plural?
         [EquipmentType(EquipmentType.Hands)]
+        [Weight(5)]
+        [ArmorClass(0.2)]
+        [Sellable(198)]
         BronzeGauntlets,
 
         [SingularName("brown bag")]
@@ -1666,6 +1670,14 @@ namespace IsengardClient
         [WeaponType(WeaponType.Unknown)]
         MorningStar,
 
+        [SingularName("mountain boots")]
+        //CSRTODO: plural
+        [EquipmentType(EquipmentType.Feet)]
+        [Weight(2)]
+        [ArmorClass(0.1)]
+        [Sellable(SellableEnum.Junk)]
+        MountainBoots,
+
         [SingularName("nunchukus")]
         [WeaponType(WeaponType.Polearm)]
         //CSRTODO: plural
@@ -2253,6 +2265,7 @@ namespace IsengardClient
         [PluralName("war harnesses")]
         [EquipmentType(EquipmentType.Waist)]
         [Weight(3)]
+        [ArmorClass(0.4)]
         WarHarness,
 
         [SingularName("War's flaming axe")]

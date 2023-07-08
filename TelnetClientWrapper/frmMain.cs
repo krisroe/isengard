@@ -7487,7 +7487,7 @@ BeforeHazy:
                 }
                 else
                 {
-                    beforeFull = FullType.Total;
+                    beforeFull = FullType.Almost;
                     afterFull = FullType.None;
                     inventoryFlow = ItemsToProcessType.NoProcessing;
                 }
