@@ -253,13 +253,13 @@ namespace IsengardClient
                 if (col != null)
                 {
                     PermRun pr = (PermRun)dgvPermRuns.Rows[iRowIndex].Tag;
-                    PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
-                    WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
-                    WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
                     PermRun prToRun = null;
                     List<Exit> targetRoomToGo = null;
                     if (col == colEdit)
                     {
+                        PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
+                        WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
+                        WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
                         using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, false))
                         {
                             if (frm.ShowDialog(this) == DialogResult.OK)
@@ -271,20 +271,34 @@ namespace IsengardClient
                     }
                     else if (col == colChangeAndRun)
                     {
-                        if (ValidateAvailableSkillsAndSpellsAgainstPermRun(pr, skills, castableSpells, false))
+                        PermRun prChanged = new PermRun(pr);
+                        PromptedSkills availableSkills = _currentEntityInfo.GetAvailableSkills(false);
+                        WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
+                        WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
+                        if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, false))
                         {
-                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, true))
+                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, true))
                             {
                                 if (frm.ShowDialog(this) == DialogResult.OK)
                                 {
-                                    prToRun = new PermRun();
-                                    frm.SaveFormDataToPermRun(prToRun);
+                                    frm.SaveFormDataToPermRun(prChanged);
+                                    prToRun = prChanged;
                                 }
                             }
                         }
                     }
                     else if (col == colRun)
                     {
+                        PermRun prChanged = new PermRun(pr);
+
+                        //if power attack is missing, that isn't critical, just turn power attack off
+                        PromptedSkills availableSkills = _currentEntityInfo.GetAvailableSkills(false);
+                        if (((pr.SkillsToRun & PromptedSkills.PowerAttack) != PromptedSkills.None) &&
+                            ((availableSkills & PromptedSkills.PowerAttack) == PromptedSkills.None))
+                        {
+                            pr.SkillsToRun &= ~PromptedSkills.PowerAttack;
+                        }
+
                         if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap))
                         {
                             prToRun = new PermRun(pr);
@@ -309,29 +323,33 @@ namespace IsengardClient
             }
         }
 
-        public bool ValidateAvailableSkillsAndSpellsAgainstPermRun(PermRun pr, PromptedSkills skills, WorkflowSpells castableSpells, bool hardStop)
+        public bool ValidateAvailableSkillsAndSpellsAgainstPermRun(PermRun pr, ref PromptedSkills availableSkills, ref WorkflowSpells castableSpells, ref WorkflowSpells availablePotions, bool hardStop)
         {
-            PromptedSkills missingSkills;
-            WorkflowSpells missingSpells;
             List<string> errorMessages = new List<string>();
-            PromptedSkills requiredSkills = pr.SkillsToRun & ~PromptedSkills.PowerAttack;
-            if ((skills & requiredSkills) != requiredSkills)
+
+            //if power attack is missing, that isn't critical, just turn power attack off
+            if (((pr.SkillsToRun & PromptedSkills.PowerAttack) != PromptedSkills.None) && 
+                ((availableSkills & PromptedSkills.PowerAttack) == PromptedSkills.None))
             {
-                missingSkills = requiredSkills & ~skills;
+                pr.SkillsToRun &= ~PromptedSkills.PowerAttack;
+            }
+            PromptedSkills requiredSkills = pr.SkillsToRun;
+            PromptedSkills missingSkills = requiredSkills & ~availableSkills;
+            if (missingSkills != PromptedSkills.None)
+            {
                 errorMessages.Add("Missing required skills: " + missingSkills.ToString().Replace(" ", ""));
             }
-            WorkflowSpells requiredSpells = pr.SpellsToCast;
-            if ((castableSpells & requiredSpells) != requiredSpells)
+            WorkflowSpells requiredCastableSpells = pr.SpellsToCast;
+            WorkflowSpells missingCastableSpells = requiredCastableSpells & ~castableSpells;
+            if (missingCastableSpells != WorkflowSpells.None)
             {
-                missingSpells = requiredSpells & ~castableSpells;
-                errorMessages.Add("Missing castable spells: " + missingSpells.ToString().Replace(" ", ""));
+                errorMessages.Add("Missing castable spells: " + missingCastableSpells.ToString().Replace(" ", ""));
             }
-            WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
-            requiredSpells = pr.SpellsToPotion;
-            if ((availablePotions & requiredSpells) != requiredSpells)
+            WorkflowSpells requiredPotionSpells = pr.SpellsToPotion;
+            WorkflowSpells missingPotionSpells = requiredPotionSpells & ~availablePotions;
+            if (missingPotionSpells != WorkflowSpells.None)
             {
-                missingSpells = requiredSpells & ~availablePotions;
-                errorMessages.Add("Missing potions for: " + missingSpells.ToString().Replace(" ", ""));
+                errorMessages.Add("Missing potions for: " + missingPotionSpells.ToString().Replace(" ", ""));
             }
             bool ret = errorMessages.Count == 0;
             if (!ret)
@@ -342,7 +360,16 @@ namespace IsengardClient
                 }
                 else
                 {
-                    ret = MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()) + Environment.NewLine + "Proceed anyway?", "Perm Run", MessageBoxButtons.OKCancel) == DialogResult.OK;
+                    if (MessageBox.Show(string.Join(Environment.NewLine, errorMessages.ToArray()) + Environment.NewLine + "Proceed anyway?", "Perm Run", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        availableSkills &= ~missingSkills;
+                        castableSpells &= ~missingCastableSpells;
+                        availablePotions &= ~missingPotionSpells;
+                    }
+                    else
+                    {
+                        ret = false;
+                    }
                 }
             }
             return ret;

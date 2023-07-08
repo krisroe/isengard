@@ -160,7 +160,7 @@ namespace IsengardClient
             }
 
             //check that skills are actually available
-            PromptedSkills skillsToCheck = SkillsToRun & ~PromptedSkills.PowerAttack;
+            PromptedSkills skillsToCheck = SkillsToRun;
             if (skillsToCheck != PromptedSkills.None)
             {
                 PromptedSkills skillsAvailable = cei.GetAvailableSkills(false);
