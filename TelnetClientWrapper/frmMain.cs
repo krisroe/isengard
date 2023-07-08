@@ -6830,9 +6830,9 @@ BeforeHazy:
             {
                 tsb.Enabled = enabled;
             }
-            foreach (ToolStripDropDownButton tsddb in GetToolStripDropdownsToDisableForBackgroundProcess())
+            foreach (ToolStripMenuItem tsmi in GetToolStripMenuItemsToDisableForBackgroundProcess())
             {
-                tsddb.Enabled = enabled;
+                tsmi.Enabled = enabled;
             }
             btnAbort.Enabled = running;
             btnComplete.Enabled = running && bwp.PermRun != null;
@@ -6846,9 +6846,14 @@ BeforeHazy:
             yield return tsbLogout;
         }
 
-        private IEnumerable<ToolStripDropDownButton> GetToolStripDropdownsToDisableForBackgroundProcess()
+        private IEnumerable<ToolStripMenuItem> GetToolStripMenuItemsToDisableForBackgroundProcess()
         {
-            yield return tsddbSettings;
+            yield return tsmiEditSettings;
+            yield return tsmiImportXML;
+            yield return tsmiSaveSettings;
+            yield return tsmiImportFromPlayer;
+            yield return tsmiQuitWithoutSaving;
+            yield return tsmiRestoreDefaults;
         }
 
         private IEnumerable<Control> GetControlsToDisableForBackgroundProcess()

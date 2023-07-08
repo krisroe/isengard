@@ -30,6 +30,14 @@ namespace IsengardClient
             _getGraphInputs = getGraphInputs;
             _inBackgroundProcess = inBackgroundProcess;
             InitializeColumns(inBackgroundProcess);
+
+            DataGridViewCellStyle oAlternatingRowsStyle = new DataGridViewCellStyle();
+            oAlternatingRowsStyle.BackColor = System.Drawing.Color.FromArgb(225, 255, 255);
+            oAlternatingRowsStyle.ForeColor = System.Drawing.SystemColors.ControlText;
+            oAlternatingRowsStyle.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            oAlternatingRowsStyle.SelectionForeColor = System.Drawing.SystemColors.WindowText;
+            dgvPermRuns.AlternatingRowsDefaultCellStyle = oAlternatingRowsStyle;
+
             foreach (PermRun nextPermRun in settings.PermRuns)
             {
                 UpdatePermRunDisplay(nextPermRun, null);
@@ -101,16 +109,16 @@ namespace IsengardClient
 
         private void ctxPermRuns_Opening(object sender, CancelEventArgs e)
         {
-            bool hasSelected = dgvPermRuns.SelectedRows.Count > 0;
-            tsmiRemove.Visible = hasSelected;
+            int iSelectedCount = dgvPermRuns.SelectedRows.Count;
+            tsmiRemove.Visible = iSelectedCount > 0;
             bool showMoveUp = false;
             bool showMoveDown = false;
-            if (hasSelected)
+            if (iSelectedCount == 1)
             {
                 DataGridViewRow r = dgvPermRuns.SelectedRows[0];
                 int iIndex = r.Index;
-                showMoveDown = iIndex > 0;
-                showMoveUp = iIndex < dgvPermRuns.RowCount - 1;
+                showMoveDown = iIndex < dgvPermRuns.RowCount - 1;
+                showMoveUp = iIndex > 0;
             }
             tsmiMoveUp.Visible = showMoveUp;
             tsmiMoveDown.Visible = showMoveDown;
@@ -149,7 +157,6 @@ namespace IsengardClient
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
                     frm.SaveFormDataToPermRun(pr);
-                    _settings.PermRuns.Add(pr);
                     UpdatePermRunDisplay(pr, null);
                 }
             }
@@ -203,9 +210,15 @@ namespace IsengardClient
 
         private void tsmiRemove_Click(object sender, EventArgs e)
         {
-            DataGridViewRow r = dgvPermRuns.SelectedRows[0];
-            dgvPermRuns.Rows.Remove(r);
-            _settings.PermRuns.Remove((PermRun)r.Tag);
+            List<DataGridViewRow> rows = new List<DataGridViewRow>();
+            foreach (DataGridViewRow r in dgvPermRuns.SelectedRows)
+            {
+                rows.Add(r);
+            }
+            foreach (DataGridViewRow r in rows)
+            {
+                dgvPermRuns.Rows.Remove(r);
+            }
         }
 
         private void tsmiMoveUp_Click(object sender, EventArgs e)
@@ -252,7 +265,6 @@ namespace IsengardClient
                             if (frm.ShowDialog(this) == DialogResult.OK)
                             {
                                 frm.SaveFormDataToPermRun(pr);
-                                _settings.PermRuns[iRowIndex] = pr;
                                 UpdatePermRunDisplay(pr, iRowIndex);
                             }
                         }
@@ -338,5 +350,14 @@ namespace IsengardClient
 
         public PermRun PermRunToRun { get; set; }
         public List<Exit> NavigateToRoom { get; set; }
+
+        private void frmPermRuns_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _settings.PermRuns.Clear();
+            foreach (DataGridViewRow r in dgvPermRuns.Rows)
+            {
+                _settings.PermRuns.Add((PermRun)r.Tag);
+            }
+        }
     }
 }

@@ -108,6 +108,7 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Perm Runs";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmPermRuns_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPermRuns)).EndInit();
             this.ctxPermRuns.ResumeLayout(false);
             this.ResumeLayout(false);
