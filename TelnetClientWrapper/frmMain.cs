@@ -2073,6 +2073,11 @@ namespace IsengardClient
             }
         }
 
+        private void OnStandUp(FeedLineParameters flParams)
+        {
+            _prone = false;
+        }
+
         private static void OnCannotCarryAnymore(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -3232,6 +3237,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("The shopkeep won't buy that from you.", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
                 new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
                 new ConstantOutputSequence("You can't.  It's cursed!", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
+                new ConstantOutputSequence("You stand up.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0),
             };
             return seqs;
         }

@@ -451,7 +451,7 @@ namespace IsengardClient
             tharbadWestGraph.Rooms[oLelionPark] = new System.Windows.Point(4, 5);
 
             Room oSouthCoveSandBar = AddRoom("South Cove Sand Bar", "South Cove Sand Bar");
-            AddBidirectionalSameNameExit(oLelionPark, oSouthCoveSandBar, "drainage");
+            AddBidirectionalSameNameExit(oLelionPark, oSouthCoveSandBar, "drainage ditch");
             tharbadWestGraph.Rooms[oSouthCoveSandBar] = new System.Windows.Point(3, 5);
 
             Room oMultiTurnPath = AddRoom("Multi-turn Path", "Multi-turn Path");
@@ -462,6 +462,10 @@ namespace IsengardClient
             AddExit(oMultiTurnPath, oCrookedPath, "west");
             AddExit(oMultiTurnPath, oCrookedPath, "north");
             AddExit(oCrookedPath, oMultiTurnPath, "west");
+            AddExit(oCrookedPath, oCrookedPath, "northeast");
+            AddExit(oCrookedPath, oCrookedPath, "east");
+            AddExit(oCrookedPath, oCrookedPath, "north");
+            AddExit(oCrookedPath, oCrookedPath, "south");
             tharbadWestGraph.Rooms[oCrookedPath] = new System.Windows.Point(1, 4);
 
             Room oNorthShoreGrotto = AddRoom("North Shore Grotto", "North Shore Grotto");
