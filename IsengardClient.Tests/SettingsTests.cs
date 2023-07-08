@@ -15,10 +15,11 @@ namespace IsengardClient.Tests
         [TestMethod]
         public void TestCloning()
         {
+            IsengardMap gameMap = new IsengardMap(new List<string>());
             IsengardSettingData settings = IsengardSettingData.GetDefaultSettings();
             IsengardSettingData clone = new IsengardSettingData(settings);
             VerifySettingsMatch(settings, clone);
-            settings = GenerateTestSettings();
+            settings = GenerateTestSettings(gameMap);
             clone = new IsengardSettingData(settings);
             VerifySettingsMatch(settings, clone);
         }
@@ -28,7 +29,7 @@ namespace IsengardClient.Tests
         {
             IsengardMap gameMap = new IsengardMap(new List<string>());
             VerifyXMLSerializationForSettings(IsengardSettingData.GetDefaultSettings(), gameMap);
-            VerifyXMLSerializationForSettings(GenerateTestSettings(), gameMap);
+            VerifyXMLSerializationForSettings(GenerateTestSettings(gameMap), gameMap);
         }
 
         [TestMethod]
@@ -36,10 +37,10 @@ namespace IsengardClient.Tests
         {
             IsengardMap gameMap = new IsengardMap(new List<string>());
             VerifySqliteDatabaseSerializationForSettings(IsengardSettingData.GetDefaultSettings(), gameMap);
-            VerifySqliteDatabaseSerializationForSettings(GenerateTestSettings(), gameMap);
+            VerifySqliteDatabaseSerializationForSettings(GenerateTestSettings(gameMap), gameMap);
         }
 
-        internal IsengardSettingData GenerateTestSettings()
+        internal IsengardSettingData GenerateTestSettings(IsengardMap gameMap)
         {
             IsengardSettingData settings = new IsengardSettingData();
             settings.Realm = RealmType.Fire;
@@ -111,7 +112,10 @@ namespace IsengardClient.Tests
             p.UseMeleeCombat = false;
             p.UsePotionsCombat = null;
             p.Strategy = s;
-            p.TargetRoom = "Fallon";
+            p.TargetRoomObject = gameMap.HealingRooms[HealingRoom.BreeArena];
+            p.TargetRoomIdentifier = p.TargetRoomObject.BackendName;
+            p.ThresholdRoomObject = gameMap.HealingRooms[HealingRoom.BreeNortheast];
+            p.ThresholdRoomIdentifier = p.ThresholdRoomObject.BackendName;
             settings.PermRuns.Add(p);
 
             return settings;
@@ -205,7 +209,10 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
             Assert.AreEqual(p1.SpellsToPotion, p2.SpellsToPotion);
             Assert.AreEqual(p1.SkillsToRun, p2.SkillsToRun);
-            Assert.AreEqual(p1.TargetRoom, p2.TargetRoom);
+            Assert.AreEqual(p1.TargetRoomIdentifier, p2.TargetRoomIdentifier);
+            Assert.AreEqual(p1.TargetRoomObject, p2.TargetRoomObject);
+            Assert.AreEqual(p1.ThresholdRoomIdentifier, p2.ThresholdRoomIdentifier);
+            Assert.AreEqual(p1.ThresholdRoomObject, p2.ThresholdRoomObject);
             Assert.AreEqual(p1.MobType, p2.MobType);
             Assert.AreEqual(p1.MobText, p2.MobText);
             Assert.AreEqual(p1.MobIndex, p2.MobIndex);

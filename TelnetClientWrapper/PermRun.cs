@@ -17,8 +17,10 @@
             this.SpellsToCast = copied.SpellsToCast;
             this.SpellsToPotion = copied.SpellsToPotion;
             this.SkillsToRun = copied.SkillsToRun;
-            this.TargetRoom = copied.TargetRoom;
+            this.TargetRoomIdentifier = copied.TargetRoomIdentifier;
             this.TargetRoomObject = copied.TargetRoomObject;
+            this.ThresholdRoomIdentifier = copied.ThresholdRoomIdentifier;
+            this.ThresholdRoomObject = copied.ThresholdRoomObject;
             this.MobType = copied.MobType;
             this.MobText = copied.MobText;
             this.MobIndex = copied.MobIndex;
@@ -42,8 +44,22 @@
         public WorkflowSpells SpellsToCast { get; set; }
         public WorkflowSpells SpellsToPotion { get; set; }
         public PromptedSkills SkillsToRun { get; set; }
-        public string TargetRoom { get; set; }
+        /// <summary>
+        /// identifier for the target room
+        /// </summary>
+        public string TargetRoomIdentifier { get; set; }
+        /// <summary>
+        /// target room object
+        /// </summary>
         public Room TargetRoomObject { get; set; }
+        /// <summary>
+        /// identifier for the threshold room
+        /// </summary>
+        public string ThresholdRoomIdentifier { get; set; }
+        /// <summary>
+        /// threshold room object
+        /// </summary>
+        public Room ThresholdRoomObject { get; set; }
         /// <summary>
         /// specific mob type
         /// </summary>

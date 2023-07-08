@@ -340,7 +340,7 @@ namespace IsengardClient
                     else
                         strats.Remove(s.ID);
                 }
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.FullBeforeStarting,p.FullAfterFinishing,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.FullBeforeStarting,p.FullAfterFinishing,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -359,12 +359,24 @@ namespace IsengardClient
                         permRun.SpellsToCast = (WorkflowSpells)Convert.ToInt32(reader["SpellsToCast"]);
                         permRun.SpellsToPotion = (WorkflowSpells)Convert.ToInt32(reader["SpellsToPotion"]);
                         permRun.SkillsToRun = (PromptedSkills)Convert.ToInt32(reader["SkillsToRun"]);
-                        permRun.TargetRoom = reader["TargetRoom"].ToString();
-                        if (!ValidatePermRunTargetRoomFromIdentifier(permRun.TargetRoom, errorMessages, gameMap, out Room targetRoomObject))
+
+                        permRun.TargetRoomIdentifier = reader["TargetRoom"].ToString();
+                        if (!ValidatePermRunTargetRoomFromIdentifier(permRun.TargetRoomIdentifier, errorMessages, gameMap, out Room targetRoomObject, "target"))
                         {
                             permRun.IsValid = false;
                         }
                         permRun.TargetRoomObject = targetRoomObject;
+
+                        oData = reader["ThresholdRoom"];
+                        if (oData != DBNull.Value)
+                        {
+                            permRun.ThresholdRoomIdentifier = oData.ToString();
+                            if (!ValidatePermRunTargetRoomFromIdentifier(permRun.ThresholdRoomIdentifier, errorMessages, gameMap, out Room thresholdRoomObject, "threshold"))
+                            {
+                                permRun.IsValid = false;
+                            }
+                            permRun.ThresholdRoomObject = thresholdRoomObject;
+                        }
 
                         oData = reader["MobText"];
                         string sMobText = oData == DBNull.Value ? string.Empty : oData.ToString();
@@ -466,14 +478,14 @@ namespace IsengardClient
             }
         }
 
-        private bool ValidatePermRunTargetRoomFromIdentifier(string identifier, List<string> errorMessages, IsengardMap gameMap, out Room r)
+        private bool ValidatePermRunTargetRoomFromIdentifier(string identifier, List<string> errorMessages, IsengardMap gameMap, out Room r, string roomType)
         {
             bool ret = true;
             r = null;
             if (string.IsNullOrEmpty(identifier))
             {
                 ret = false;
-                errorMessages.Add("Invalid target room: " + identifier);
+                errorMessages.Add($"Invalid {roomType} room: {identifier}");
             }
             else
             {
@@ -481,7 +493,7 @@ namespace IsengardClient
                 if (r == null)
                 {
                     ret = false;
-                    errorMessages.Add("Unable to find perm run room: " + identifier);
+                    errorMessages.Add($"Unable to find perm run {roomType} room: {identifier}");
                 }
             }
             return ret;
@@ -576,6 +588,7 @@ namespace IsengardClient
                 "SpellsToPotion",
                 "SkillsToRun",
                 "TargetRoom",
+                "ThresholdRoom",
                 "Mob",
                 "MobIndex",
                 "UseMagicCombat",
@@ -998,12 +1011,23 @@ namespace IsengardClient
             }
 
             sValue = GetAttributeValueByName(attributeMapping, "TargetRoom");
-            if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room targetRoomObject))
+            if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room targetRoomObject, "target"))
             {
                 isValid = false;
             }
-            p.TargetRoom = sValue;
+            p.TargetRoomIdentifier = sValue;
             p.TargetRoomObject = targetRoomObject;
+
+            sValue = GetAttributeValueByName(attributeMapping, "ThresholdRoom");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room thresholdRoomObject, "threshold"))
+                {
+                    isValid = false;
+                }
+                p.ThresholdRoomIdentifier = sValue;
+                p.ThresholdRoomObject = thresholdRoomObject;
+            }
 
             sValue = GetAttributeValueByName(attributeMapping, "Mob");
             if (!string.IsNullOrEmpty(sValue))
@@ -1344,6 +1368,7 @@ namespace IsengardClient
                 "SpellsToPotion",
                 "SkillsToRun",
                 "TargetRoom",
+                "ThresholdRoom",
                 "MobText",
                 "MobIndex",
                 "StrategyID",
@@ -1374,6 +1399,7 @@ namespace IsengardClient
                 SQLiteParameter spellsToPotionParam = cmd.Parameters.Add("@SpellsToPotion", DbType.Int32);
                 SQLiteParameter skillsToRunParam = cmd.Parameters.Add("@SkillsToRun", DbType.Int32);
                 SQLiteParameter targetRoomParam = cmd.Parameters.Add("@TargetRoom", DbType.String);
+                SQLiteParameter thresholdRoomParam = cmd.Parameters.Add("@ThresholdRoom", DbType.String);
                 SQLiteParameter mobTextParam = cmd.Parameters.Add("@MobText", DbType.String);
                 SQLiteParameter mobIndexParam = cmd.Parameters.Add("@MobIndex", DbType.Int32);
                 SQLiteParameter strategyIDParam = cmd.Parameters.Add("@StrategyID", DbType.Int32);
@@ -1397,7 +1423,8 @@ namespace IsengardClient
                     spellsToCastParam.Value = Convert.ToInt32(nextRecord.SpellsToCast);
                     spellsToPotionParam.Value = Convert.ToInt32(nextRecord.SpellsToPotion);
                     skillsToRunParam.Value = Convert.ToInt32(nextRecord.SkillsToRun);
-                    targetRoomParam.Value = nextRecord.TargetRoom;
+                    targetRoomParam.Value = nextRecord.TargetRoomIdentifier;
+                    thresholdRoomParam.Value = string.IsNullOrEmpty(nextRecord.ThresholdRoomIdentifier) ? (object)DBNull.Value : nextRecord.ThresholdRoomIdentifier;
 
                     string sMobText;
                     if (nextRecord.MobType.HasValue)
@@ -2218,7 +2245,11 @@ namespace IsengardClient
                             {
                                 writer.WriteAttributeString("SkillsToRun", p.SkillsToRun.ToString().Replace(" ", string.Empty));
                             }
-                            writer.WriteAttributeString("TargetRoom", p.TargetRoom);
+                            writer.WriteAttributeString("TargetRoom", p.TargetRoomIdentifier);
+                            if (!string.IsNullOrEmpty(p.ThresholdRoomIdentifier))
+                            {
+                                writer.WriteAttributeString("ThresholdRoom", p.ThresholdRoomIdentifier);
+                            }
 
                             string sMobValue;
                             if (p.MobType.HasValue)
@@ -2409,7 +2440,7 @@ namespace IsengardClient
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, FullBeforeStarting INTEGER NOT NULL, FullAfterFinishing INTEGER NOT NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, FullBeforeStarting INTEGER NOT NULL, FullAfterFinishing INTEGER NOT NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

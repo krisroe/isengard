@@ -289,15 +289,29 @@ namespace IsengardClient
             {
                 for (int i = _settingsData.PermRuns.Count - 1; i >= 0; i--)
                 {
+                    bool isValid = true;
                     PermRun pr = _settingsData.PermRuns[i];
                     if (pr.TargetRoomObject != null)
                     {
-                        pr.TargetRoomObject = newMap.GetRoomFromTextIdentifier(pr.TargetRoom);
+                        pr.TargetRoomObject = newMap.GetRoomFromTextIdentifier(pr.TargetRoomIdentifier);
                         if (pr.TargetRoomObject == null)
                         {
-                            errorMessages.Add("Room not found for perm run after reload.");
-                            _settingsData.PermRuns.RemoveAt(i);
+                            isValid = false;
+                            errorMessages.Add("Target room not found for perm run after reload.");
                         }
+                    }
+                    if (pr.ThresholdRoomObject != null)
+                    {
+                        pr.ThresholdRoomObject = newMap.GetRoomFromTextIdentifier(pr.ThresholdRoomIdentifier);
+                        if (pr.ThresholdRoomObject == null)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Target room not found for perm run after reload.");
+                        }
+                    }
+                    if (!isValid)
+                    {
+                        _settingsData.PermRuns.RemoveAt(i);
                     }
                 }
                 ProcessLocationRoomsAfterReload(_settingsData.Locations, newMap, errorMessages);
@@ -3175,7 +3189,9 @@ namespace IsengardClient
                 new InventoryEquipmentManagementSequence(OnInventoryManagement),
                 new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
+                new ConstantOutputSequence("You already have a manashield!", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
                 new ConstantOutputSequence("You create a protective fireshield.", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
+                new ConstantOutputSequence("You already have a fireshield active!", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
                 new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
                 new SelfSpellCastSequence(OnSelfSpellCast),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
@@ -3866,31 +3882,53 @@ namespace IsengardClient
                     pms.PermRunStart = DateTime.UtcNow;
                 }
 
+                bool haveThreshold = pms.PermRun != null && pms.PermRun.ThresholdRoomObject != null;
                 if (!_fleeing && !_hazying)
                 {
                     bool moved = true;
-                    if (pms.TargetRoom != null)
-                    {
-                        backgroundCommandResult = NavigateToTargetRoom(pms, true);
-                    }
+                    if (haveThreshold)
+                        backgroundCommandResult = NavigateToSpecificRoom(pms.PermRun.ThresholdRoomObject, pms, true);
+                    else if (pms.TargetRoom != null)
+                        backgroundCommandResult = NavigateToSpecificRoom(pms.TargetRoom, pms, true);
                     else if (pms.Exits != null && pms.Exits.Count > 0)
-                    {
                         backgroundCommandResult = TraverseExitsAlreadyInBackground(pms.Exits, pms, true);
-                    }
                     else
-                    {
                         moved = false;
-                    }
                     if (moved)
                     {
                         if (backgroundCommandResult == CommandResult.CommandSuccessful)
                         {
-                            pms.AtDestination = true;
+                            pms.AtDestination = !haveThreshold;
                         }
                         else if (backgroundCommandResult != CommandResult.CommandEscaped)
                         {
                             return;
                         }
+                    }
+                }
+
+                PromptedSkills skillsToRun = pms.PermRun == null ? PromptedSkills.None : pms.PermRun.SkillsToRun;
+
+                //activate potions/skills at the threshold if there is a threshold
+                if (!_fleeing && !_hazying && haveThreshold)
+                {
+                    backgroundCommandResult = ActivatePotionsAndSkills(pms, skillsToRun);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful && backgroundCommandResult != CommandResult.CommandEscaped)
+                    {
+                        return;
+                    }
+                }
+
+                if (!_fleeing && !_hazying && haveThreshold)
+                {
+                    backgroundCommandResult = NavigateToSpecificRoom(pms.TargetRoom, pms, true);
+                    if (backgroundCommandResult == CommandResult.CommandSuccessful)
+                    {
+                        pms.AtDestination = true;
+                    }
+                    else if (backgroundCommandResult != CommandResult.CommandEscaped)
+                    {
+                        return;
                     }
                 }
 
@@ -3902,62 +3940,11 @@ namespace IsengardClient
                     return;
                 }
 
-                WorkflowSpells spellsToPot = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
-                spellsToPot &= ~WorkflowSpells.CurePoison;
-                if (spellsToPot != WorkflowSpells.None)
+                //activate potions/skills at the target if there is no threshold
+                if (!_fleeing && !_hazying && !haveThreshold)
                 {
-                    List<string> spellsCast = new List<string>();
-                    lock (_spellsCastLock)
-                    {
-                        spellsCast.AddRange(_spellsCast);
-                    }
-                    lock (_currentEntityInfo.EntityLock) //validate spells are either active or have a potion for them
-                    {
-                        foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
-                        {
-                            if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
-                            {
-                                SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextPotSpell];
-                                if (spellsCast.Contains(sia.SpellName))
-                                {
-                                    spellsToPot &= ~nextPotSpell;
-                                }
-                                else
-                                {
-                                    if (!_currentEntityInfo.HasPotionForSpell(sia.SpellType, out _, out _)) return;
-                                }
-                            }
-                        }
-                    }
-                    foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
-                    {
-                        if (_hazying || _fleeing) break;
-                        if (_bw.CancellationPending) return;
-                        if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
-                        {
-                            backgroundCommandResult = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms);
-                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                            {
-                                return;
-                            }
-                        }
-                    }
-                }
-                PromptedSkills skillsToRun = pms.PermRun == null ? PromptedSkills.None : pms.PermRun.SkillsToRun;
-                if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Manashield) == PromptedSkills.Manashield))
-                {
-                    _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                    backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
-                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                    {
-                        return;
-                    }
-                }
-                if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
-                {
-                    _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
-                    backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
-                    if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                    backgroundCommandResult = ActivatePotionsAndSkills(pms, skillsToRun);
+                    if (backgroundCommandResult != CommandResult.CommandSuccessful && backgroundCommandResult != CommandResult.CommandEscaped)
                     {
                         return;
                     }
@@ -4605,6 +4592,74 @@ BeforeHazy:
             }
         }
 
+        private CommandResult ActivatePotionsAndSkills(BackgroundWorkerParameters pms, PromptedSkills skillsToRun)
+        {
+            CommandResult backgroundCommandResult;
+            WorkflowSpells spellsToPot = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
+            spellsToPot &= ~WorkflowSpells.CurePoison;
+            if (spellsToPot != WorkflowSpells.None)
+            {
+                List<string> spellsCast = new List<string>();
+                lock (_spellsCastLock)
+                {
+                    spellsCast.AddRange(_spellsCast);
+                }
+                lock (_currentEntityInfo.EntityLock) //validate spells are either active or have a potion for them
+                {
+                    foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                    {
+                        if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
+                        {
+                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextPotSpell];
+                            if (spellsCast.Contains(sia.SpellName))
+                            {
+                                spellsToPot &= ~nextPotSpell;
+                            }
+                            else
+                            {
+                                if (!_currentEntityInfo.HasPotionForSpell(sia.SpellType, out _, out _)) return CommandResult.CommandUnsuccessfulAlways;
+                            }
+                        }
+                    }
+                }
+                foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                {
+                    if (_hazying || _fleeing) return CommandResult.CommandEscaped;
+                    if (_bw.CancellationPending) return CommandResult.CommandAborted;
+                    if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
+                    {
+                        backgroundCommandResult = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms);
+                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                        {
+                            return backgroundCommandResult;
+                        }
+                    }
+                }
+            }
+            if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Manashield) == PromptedSkills.Manashield))
+            {
+                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
+                backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
+                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResult;
+                }
+            }
+            if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
+            {
+                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
+                backgroundCommandResult = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
+                if (backgroundCommandResult != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResult;
+                }
+            }
+            if (_hazying) backgroundCommandResult = CommandResult.CommandEscaped;
+            else if (_bw.CancellationPending) backgroundCommandResult = CommandResult.CommandAborted;
+            else backgroundCommandResult = CommandResult.CommandSuccessful;
+            return backgroundCommandResult;
+        }
+
         private CommandResult TryDrinkHazy(BackgroundWorkerParameters pms)
         {
             _backgroundProcessPhase = BackgroundProcessPhase.Hazy;
@@ -4967,7 +5022,7 @@ BeforeHazy:
 
                 if (anythingCouldNotBePickedUpFromSourceRoom)
                 {
-                    backgroundCommandResult = NavigateToTargetRoom(pms, false);
+                    backgroundCommandResult = NavigateToSpecificRoom(pms.TargetRoom, pms, false);
                     if (backgroundCommandResult != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResult;
@@ -5023,11 +5078,6 @@ BeforeHazy:
                 if (string.IsNullOrEmpty(sItemText)) return CommandResult.CommandUnsuccessfulAlways;
             }
             return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, AbortIfFleeingOrHazying, false);
-        }
-
-        private CommandResult NavigateToTargetRoom(BackgroundWorkerParameters pms, bool allowFlee)
-        {
-            return NavigateToSpecificRoom(pms.TargetRoom, pms, allowFlee);
         }
 
         /// <summary>
