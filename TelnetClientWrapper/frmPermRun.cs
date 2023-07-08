@@ -110,7 +110,10 @@ namespace IsengardClient
         /// <param name="gameMap">game map</param>
         /// <param name="settingsData">settings data</param>
         /// <param name="currentRoom">current room for an ad hoc or new perm run, target room for existing perm run</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
+        /// <param name="skillsToShow">skills to show checkboxes for</param>
+        /// <param name="spellsCastToShow">cast spells to show checkboxes for</param>
+        /// <param name="spellsPotionsToShow">potions spells to show checkboxes for</param>
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
@@ -238,7 +241,7 @@ namespace IsengardClient
             {
                 if (nextSkill != PromptedSkills.None)
                 {
-                    if ((skills & nextSkill) == nextSkill)
+                    if ((skillsToShow & nextSkill) == nextSkill)
                     {
                         CheckBox chk = new CheckBox();
                         chk.AutoSize = true;
@@ -258,6 +261,7 @@ namespace IsengardClient
                         {
                             isChecked = (_permRun.SkillsToRun & nextSkill) != PromptedSkills.None;
                         }
+                        chk.Checked = isChecked;
                         chk.Margin = new Padding(4);
                         chk.Tag = nextSkill;
                         chk.Text = nextSkill.ToString();
@@ -270,7 +274,7 @@ namespace IsengardClient
             {
                 if (nextSpell != WorkflowSpells.None)
                 {
-                    if ((spellsCastOptions & nextSpell) == nextSpell)
+                    if ((spellsCastToShow & nextSpell) == nextSpell)
                     {
                         if (_permRun == null)
                             isChecked = nextSpell == WorkflowSpells.Bless || nextSpell == WorkflowSpells.Protection || nextSpell == WorkflowSpells.CurePoison;
@@ -278,7 +282,7 @@ namespace IsengardClient
                             isChecked = (_permRun.SpellsToCast & nextSpell) != WorkflowSpells.None;
                         AddSpellCheckbox(flpSpellsCast, nextSpell, isChecked);
                     }
-                    if ((spellsPotionsOptions & nextSpell) == nextSpell)
+                    if ((spellsPotionsToShow & nextSpell) == nextSpell)
                     {
                         if (_permRun == null)
                             isChecked = false;
