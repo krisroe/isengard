@@ -4129,11 +4129,15 @@ namespace IsengardClient
                                 if (nextMagicStep.HasValue && allowBasedOnStun &&
                                     (!dtNextMagicCommand.HasValue || dtUtcNow > dtNextMagicCommand.Value))
                                 {
-                                    string sMobTarget = GetMobTarget(false);
-                                    if (string.IsNullOrEmpty(sMobTarget))
+                                    string sMobTarget = string.Empty;
+                                    if (Strategy.GetMagicStrategyStepIsCombat(nextMagicStep.Value))
                                     {
-                                        AddConsoleMessage("Target mob not found.");
-                                        return;
+                                        sMobTarget = GetMobTarget(false);
+                                        if (string.IsNullOrEmpty(sMobTarget))
+                                        {
+                                            AddConsoleMessage("Target mob not found.");
+                                            return;
+                                        }
                                     }
 
                                     int currentMana = useManaPool ? _currentMana : _automp;
@@ -7286,30 +7290,33 @@ BeforeHazy:
 
         private void RunStandaloneStrategy(Strategy s)
         {
-            if (MobEntity.GetMobInfo(txtMob.Text, out string sMobText, out MobTypeEnum? eMobType, out int iMobCounter))
+            MobTypeEnum? eMobType = null;
+            string sMobText = string.Empty;
+            int iMobCounter = 0;
+            bool isCombat = s.IsCombatStrategy(CommandType.All, s.TypesWithStepsEnabled);
+            string sMobTextInput = txtMob.Text;
+            if (isCombat && !MobEntity.GetMobInfo(sMobTextInput, out sMobText, out eMobType, out iMobCounter))
             {
-                BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-                if (eMobType.HasValue)
-                {
-                    bwp.MobType = eMobType;
-                    bwp.MobTypeCounter = iMobCounter;
-                }
-                else if (!string.IsNullOrEmpty(sMobText))
-                {
-                    bwp.MobText = sMobText;
-                    bwp.MobTextCounter = iMobCounter;
-                }
-                else if (iMobCounter >= 1) //monster in room with specified count
-                {
-                    bwp.MobTypeCounter = bwp.MobTextCounter = 1;
-                }
-                bwp.Strategy = s;
-                RunBackgroundProcess(bwp);
+                MessageBox.Show("Invalid mob text: " + sMobTextInput);
+                return;
             }
-            else
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            if (eMobType.HasValue)
             {
-                MessageBox.Show("Invalid mob text: " + txtMob.Text);
+                bwp.MobType = eMobType;
+                bwp.MobTypeCounter = iMobCounter;
             }
+            else if (!string.IsNullOrEmpty(sMobText))
+            {
+                bwp.MobText = sMobText;
+                bwp.MobTextCounter = iMobCounter;
+            }
+            else if (iMobCounter >= 1) //monster in room with specified count
+            {
+                bwp.MobTypeCounter = bwp.MobTextCounter = 1;
+            }
+            bwp.Strategy = s;
+            RunBackgroundProcess(bwp);
         }
 
         private void btnLookAtMob_Click(object sender, EventArgs e)

@@ -345,17 +345,17 @@ namespace IsengardClient
             }
         }
 
-        private static bool GetMagicStrategyStepIsCombat(MagicStrategyStep step)
+        public static bool GetMagicStrategyStepIsCombat(MagicStrategyStep step)
         {
             return GetStrategyStepIsCombatFromAttribute(typeof(MagicStrategyStep), step.ToString());
         }
 
-        private static bool GetMeleeStrategyStepIsCombat(MeleeStrategyStep step)
+        public static bool GetMeleeStrategyStepIsCombat(MeleeStrategyStep step)
         {
             return GetStrategyStepIsCombatFromAttribute(typeof(MeleeStrategyStep), step.ToString());
         }
 
-        private static bool GetPotionsStrategyStepIsCombat(PotionsStrategyStep step)
+        public static bool GetPotionsStrategyStepIsCombat(PotionsStrategyStep step)
         {
             return GetStrategyStepIsCombatFromAttribute(typeof(PotionsStrategyStep), step.ToString());
         }
