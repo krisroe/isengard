@@ -360,9 +360,11 @@ namespace IsengardClient
                             permRun.IsValid = false;
                         }
                         permRun.TargetRoomObject = targetRoomObject;
+
                         oData = reader["MobText"];
                         string sMobText = oData == DBNull.Value ? string.Empty : oData.ToString();
-                        if (sMobText.Length > 0)
+                        bool hasMob = sMobText.Length > 0;
+                        if (hasMob)
                         {
                             char cFirstChar = sMobText[0];
                             if (char.IsUpper(cFirstChar))
@@ -382,15 +384,26 @@ namespace IsengardClient
                                 permRun.MobText = sMobText;
                             }
                         }
+
                         oData = reader["MobIndex"];
-                        if (oData != DBNull.Value)
+                        if (oData == DBNull.Value)
                         {
-                            permRun.MobIndex = Convert.ToInt32(oData);
+                            if (hasMob)
+                            {
+                                permRun.MobIndex = 1;
+                            }
                         }
-                        if (permRun.MobIndex <= 0)
+                        else //have a mob index in the database
                         {
-                            permRun.MobIndex = 1;
+                            int iMobIndex = Convert.ToInt32(oData);
+                            if (iMobIndex < 1)
+                            {
+                                permRun.IsValid = false;
+                                errorMessages.Add("Invalid perm run mob index: " + iMobIndex);
+                            }
+                            permRun.MobIndex = iMobIndex;
                         }
+
                         int iStrategyID = Convert.ToInt32(reader["StrategyID"]);
                         if (strats.TryGetValue(iStrategyID, out Strategy s))
                         {
@@ -1008,29 +1021,30 @@ namespace IsengardClient
                 }
             }
 
-            if (p.MobType.HasValue || !string.IsNullOrEmpty(p.MobText))
+            bool hasMob = p.MobType.HasValue || !string.IsNullOrEmpty(p.MobText);
+            sValue = GetAttributeValueByName(attributeMapping, "MobIndex");
+            if (string.IsNullOrEmpty(sValue))
             {
-                sValue = GetAttributeValueByName(attributeMapping, "MobIndex");
-                if (string.IsNullOrEmpty(sValue))
+                if (hasMob)
                 {
                     p.MobIndex = 1;
                 }
+            }
+            else
+            {
+                if (!int.TryParse(sValue, out iValue))
+                {
+                    errorMessages.Add("Invalid perm run mob index: " + sValue);
+                    isValid = false;
+                }
+                else if (iValue < 1)
+                {
+                    errorMessages.Add("Invalid perm run mob index: " + sValue);
+                    isValid = false;
+                }
                 else
                 {
-                    if (!int.TryParse(sValue, out iValue))
-                    {
-                        errorMessages.Add("Invalid perm run mob index: " + sValue);
-                        isValid = false;
-                    }
-                    else if (iValue < 1)
-                    {
-                        errorMessages.Add("Invalid perm run mob index: " + sValue);
-                        isValid = false;
-                    }
-                    else
-                    {
-                        p.MobIndex = iValue;
-                    }
+                    p.MobIndex = iValue;
                 }
             }
 
@@ -1386,7 +1400,15 @@ namespace IsengardClient
                     else
                         sMobText = nextRecord.MobText;
                     mobTextParam.Value = string.IsNullOrEmpty(sMobText) ? (object)DBNull.Value : sMobText;
-                    mobIndexParam.Value = string.IsNullOrEmpty(sMobText) || nextRecord.MobIndex <= 1 ? (object)DBNull.Value : nextRecord.MobIndex;
+
+                    int iMobIndexThreshold;
+                    int iMobIndex = nextRecord.MobIndex;
+                    if (string.IsNullOrEmpty(sMobText))
+                        iMobIndexThreshold = 1;
+                    else
+                        iMobIndexThreshold = 2;
+                    mobIndexParam.Value = iMobIndex >= iMobIndexThreshold ? (object)DBNull.Value : iMobIndex;
+
                     strategyIDParam.Value = nextRecord.Strategy.ID;
                     useMagicCombatParam.Value = nextRecord.UseMagicCombat.HasValue ? (object)(nextRecord.UseMagicCombat.Value ? 1 : 0) : DBNull.Value;
                     useMeleeCombatParam.Value = nextRecord.UseMeleeCombat.HasValue ? (object)(nextRecord.UseMeleeCombat.Value ? 1 : 0) : DBNull.Value;
@@ -2192,14 +2214,22 @@ namespace IsengardClient
                                 writer.WriteAttributeString("SkillsToRun", p.SkillsToRun.ToString().Replace(" ", string.Empty));
                             }
                             writer.WriteAttributeString("TargetRoom", p.TargetRoom);
+
+                            string sMobValue;
                             if (p.MobType.HasValue)
-                                writer.WriteAttributeString("Mob", p.MobType.Value.ToString());
-                            else if (!string.IsNullOrEmpty(p.MobText))
-                                writer.WriteAttributeString("Mob", p.MobText);
-                            if ((p.MobType.HasValue || !string.IsNullOrEmpty(p.MobText)) && p.MobIndex > 1)
-                            {
-                                writer.WriteAttributeString("MobIndex", p.MobIndex.ToString());
-                            }
+                                sMobValue = p.MobType.Value.ToString();
+                            else
+                                sMobValue = p.MobText;
+                            if (!string.IsNullOrEmpty(sMobValue)) writer.WriteAttributeString("Mob", sMobValue);
+
+                            int iMobIndexThreshold;
+                            int iMobIndex = p.MobIndex;
+                            if (string.IsNullOrEmpty(sMobValue))
+                                iMobIndexThreshold = 1;
+                            else
+                                iMobIndexThreshold = 2;
+                            if (iMobIndex >= iMobIndexThreshold) writer.WriteAttributeString("MobIndex", iMobIndex.ToString());
+
                             if (p.UseMagicCombat.HasValue)
                             {
                                 writer.WriteAttributeString("UseMagicCombat", p.UseMagicCombat.Value.ToString());

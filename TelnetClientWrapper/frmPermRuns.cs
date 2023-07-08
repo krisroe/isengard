@@ -83,16 +83,37 @@ namespace IsengardClient
         {
             string sDisplayName = string.IsNullOrEmpty(nextPermRun.DisplayName) ? "None" : nextPermRun.DisplayName;
             string sTickRoom = nextPermRun.TickRoom.HasValue ? nextPermRun.TickRoom.Value.ToString() : string.Empty;
-            string sMob = nextPermRun.MobType.HasValue ? nextPermRun.MobType.Value.ToString() : nextPermRun.MobText;
+            string sMob = string.Empty;
+            bool hasMobType = false;
+            int iMobIndex = nextPermRun.MobIndex;
+            if (nextPermRun.MobType.HasValue)
+            {
+                sMob = nextPermRun.MobType.Value.ToString();
+                hasMobType = true;
+            }
+            else if (!string.IsNullOrEmpty(nextPermRun.MobText))
+            {
+                sMob = nextPermRun.MobText;
+                hasMobType = true;
+            }
+            else if (iMobIndex >= 1)
+            {
+                sMob = iMobIndex.ToString();
+            }
+            if (hasMobType && iMobIndex > 1)
+            {
+                sMob += " " + iMobIndex;
+            }
+            string sRoom = nextPermRun.TargetRoomObject.BackendName;
             DataGridViewRow r;
             if (rowIndex.HasValue)
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
-                r.SetValues(sDisplayName, sTickRoom, sMob, "Edit", "Change+Run", "Run");
+                r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run");
             }
             else
             {
-                rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sMob, "Edit", "Change+Run", "Run");
+                rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run");
                 r = dgvPermRuns.Rows[rowIndex.Value];
             }
             r.Tag = nextPermRun;

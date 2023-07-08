@@ -16,86 +16,7 @@ namespace IsengardClient
         private CurrentEntityInfo _currentEntityInfo;
         private AutoSpellLevelOverrides _autoSpellLevelInfo;
 
-        public Strategy SelectedStrategy { get; set; }
-
-        public HealingRoom? HealingRoom
-        {
-            get
-            {
-                return cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
-            }
-        }
-        public PawnShoppe? PawnShop
-        {
-            get
-            {
-                return cboPawnShoppe.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShoppe.SelectedItem;
-            }
-        }
-
-        public ItemsToProcessType InventoryFlow
-        {
-            get
-            {
-                return (ItemsToProcessType)cboInventoryFlow.SelectedItem;
-            }
-        }
-
-        public bool FullBeforeStarting
-        {
-            get
-            {
-                return chkFullBeforeStarting.Checked;
-            }
-        }
-
-        public bool FullAfterFinishing
-        {
-            get
-            {
-                return chkFullAfterFinishing.Checked;
-            }
-        }
-
-        public Room TargetRoom
-        {
-            get
-            {
-                return (Room)cboRoom.SelectedItem;
-            }
-        }
-
-        public AfterKillMonsterAction? AfterKillMonsterAction
-        {
-            get
-            {
-                return cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
-            }
-        }
-
-        public int AutoSpellLevelMin
-        {
-            get
-            {
-                return _autoSpellLevelInfo.PermRunMinimum;
-            }
-        }
-
-        public int AutoSpellLevelMax
-        {
-            get
-            {
-                return _autoSpellLevelInfo.PermRunMaximum;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return txtDisplayName.Text;
-            }
-        }
+        private Strategy SelectedStrategy { get; set; }
 
         public bool? UseMagicCombat
         {
@@ -136,10 +57,10 @@ namespace IsengardClient
             }
         }
 
-        public bool IsCombatStrategy { get; set; }
-        public string MobText { get; set; }
-        public MobTypeEnum? MobType { get; set; }
-        public int MobIndex { get; set; }
+        private bool IsCombatStrategy { get; set; }
+        private string MobText { get; set; }
+        private MobTypeEnum? MobType { get; set; }
+        private int MobIndex { get; set; }
 
         /// <summary>
         /// constructor used when initiating a perm run ad hoc from a strategy
@@ -160,18 +81,26 @@ namespace IsengardClient
             _permRun = permRun;
             _forChangeAndRun = forChangeAndRun;
             txtDisplayName.Text = permRun.DisplayName;
-            string sCurrentMob;
+            string sCurrentMob = string.Empty;
+            bool hasMob = false;
+            int iMobIndex = _permRun.MobIndex;
             if (_permRun.MobType.HasValue)
             {
                 sCurrentMob = _permRun.MobType.Value.ToString();
+                hasMob = true;
             }
-            else
+            else if (!string.IsNullOrEmpty(_permRun.MobText))
             {
                 sCurrentMob = _permRun.MobText;
+                hasMob = true;
             }
-            if (!string.IsNullOrEmpty(sCurrentMob) && _permRun.MobIndex > 1)
+            else if (iMobIndex >= 1)
             {
-                sCurrentMob += " " + _permRun.MobIndex.ToString();
+                sCurrentMob = iMobIndex.ToString();
+            }
+            if (hasMob && iMobIndex > 1)
+            {
+                sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
             Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.FullBeforeStarting, _permRun.FullAfterFinishing, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction);
@@ -460,7 +389,7 @@ namespace IsengardClient
             return full;
         }
 
-        public PromptedSkills SelectedSkills
+        private PromptedSkills SelectedSkills
         {
             get
             {
@@ -473,22 +402,6 @@ namespace IsengardClient
                     }
                 }
                 return ret;
-            }
-        }
-
-        public WorkflowSpells SelectedCastSpells
-        {
-            get
-            {
-                return GetSelectedSpells(flpSpellsCast);
-            }
-        }
-
-        public WorkflowSpells SelectedPotionsSpells
-        {
-            get
-            {
-                return GetSelectedSpells(flpSpellsPotions);
             }
         }
 
@@ -799,6 +712,11 @@ namespace IsengardClient
             }
             else
             {
+                Control sourceControl = ctxToggleStrategyModificationOverride.SourceControl;
+                if (sourceControl == chkMagic || sourceControl == chkMelee || sourceControl == chkPotions || sourceControl == cboOnKillMonster)
+                {
+                    _rightClickControl = sourceControl;
+                }
                 tsmiToggleEnabled.Text = _rightClickControl.Enabled ? "Remove Override" : "Override";
             }
         }
@@ -839,24 +757,25 @@ namespace IsengardClient
 
         public void SaveFormDataToPermRun(PermRun pr)
         {
-            pr.AfterKillMonsterAction = AfterKillMonsterAction;
-            pr.AutoSpellLevelMax = AutoSpellLevelMin;
-            pr.AutoSpellLevelMax = AutoSpellLevelMax;
-            pr.DisplayName = DisplayName;
-            pr.FullBeforeStarting = FullBeforeStarting;
-            pr.FullAfterFinishing = FullAfterFinishing;
-            pr.ItemsToProcessType = InventoryFlow;
+            pr.AfterKillMonsterAction = cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
+            pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMinimum;
+            pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMaximum;
+            pr.DisplayName = txtDisplayName.Text;
+            pr.FullBeforeStarting = chkFullBeforeStarting.Checked;
+            pr.FullAfterFinishing = chkFullAfterFinishing.Checked;
+            pr.ItemsToProcessType = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
             pr.MobIndex = MobIndex;
             pr.MobText = MobText;
             pr.MobType = MobType;
-            pr.PawnShop = PawnShop;
-            pr.TickRoom = HealingRoom;
-            pr.SpellsToCast = SelectedCastSpells;
-            pr.SpellsToPotion = SelectedPotionsSpells;
+            pr.PawnShop = cboPawnShoppe.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShoppe.SelectedItem;
+            pr.TickRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
+            pr.SpellsToCast = GetSelectedSpells(flpSpellsCast);
+            pr.SpellsToPotion = GetSelectedSpells(flpSpellsPotions);
             pr.SkillsToRun = SelectedSkills;
             pr.Strategy = SelectedStrategy;
-            pr.TargetRoom = _gameMap.GetRoomTextIdentifier(TargetRoom);
-            pr.TargetRoomObject = TargetRoom;
+            Room oTargetRoom = (Room)cboRoom.SelectedItem;
+            pr.TargetRoom = _gameMap.GetRoomTextIdentifier(oTargetRoom);
+            pr.TargetRoomObject = oTargetRoom;
             pr.UseMagicCombat = UseMagicCombat;
             pr.UseMeleeCombat = UseMeleeCombat;
             pr.UsePotionsCombat = UsePotionsCombat;

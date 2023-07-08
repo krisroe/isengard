@@ -97,15 +97,20 @@ namespace IsengardClient
         {
             PermRun = p;
             Strategy = p.Strategy;
+            int iMobIndex = p.MobIndex;
             if (p.MobType.HasValue)
             {
                 MobType = p.MobType;
-                MobTypeCounter = p.MobIndex;
+                MobTypeCounter = iMobIndex;
             }
-            else
+            else if (!string.IsNullOrEmpty(p.MobText))
             {
                 MobText = p.MobText;
-                MobTextCounter = p.MobIndex;
+                MobTextCounter = iMobIndex;
+            }
+            else if (iMobIndex >= 1)
+            {
+                MobTypeCounter = MobTextCounter = 1;
             }
             if (p.TickRoom.HasValue)
             {

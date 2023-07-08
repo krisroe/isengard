@@ -528,35 +528,51 @@ namespace IsengardClient
         public static bool GetMobInfo(string inputMobText, out string mobText, out MobTypeEnum? mobType, out int mobCounter)
         {
             mobType = null;
-            bool ret = false;
             mobText = string.Empty;
-            mobCounter = 1;
-            if (!string.IsNullOrEmpty(inputMobText))
+            mobCounter = 0;
+            if (string.IsNullOrEmpty(inputMobText)) return false;
+            string[] split = inputMobText.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            int len = split.Length;
+            if (len <= 0) return false;
+            string sFirst = split[0];
+            if (len == 1)
             {
-                string[] split = inputMobText.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                int len = split.Length;
-                if (len >= 1 && len <= 2)
+                if (int.TryParse(sFirst, out mobCounter))
                 {
-                    mobText = split[0];
-                    if (int.TryParse(mobText, out _)) return false;
-                    if (len == 2 && (!int.TryParse(split[1], out mobCounter) || mobCounter < 1)) return false;
-                    if (len == 1) mobCounter = 1;
-                    ret = true;
+                    return mobCounter >= 1;
+                }
+                else
+                {
+                    mobCounter = 1;
                 }
             }
-            if (!ret) return false;
-            if (char.IsUpper(mobText[0]))
+            else if (len == 2)
+            {
+                string sSecond = split[1];
+                if (!int.TryParse(sSecond, out mobCounter) || mobCounter < 1)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+            if (char.IsUpper(sFirst[0]))
             {
                 MobTypeEnum mt;
-                if (Enum.TryParse(mobText, out mt))
+                if (Enum.TryParse(sFirst, out mt))
                 {
                     mobType = mt;
-                    mobText = string.Empty;
                 }
                 else
                 {
                     return false;
                 }
+            }
+            else
+            {
+                mobText = sFirst;
             }
             return true;
         }

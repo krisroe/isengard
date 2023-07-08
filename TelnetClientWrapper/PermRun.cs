@@ -47,8 +47,19 @@
         public PromptedSkills SkillsToRun { get; set; }
         public string TargetRoom { get; set; }
         public Room TargetRoomObject { get; set; }
+        /// <summary>
+        /// specific mob type
+        /// </summary>
         public MobTypeEnum? MobType { get; set; }
+        /// <summary>
+        /// mob text to use for the mob when not specifying a specific type. The first character of this
+        /// text must be lower case.
+        /// </summary>
         public string MobText { get; set; }
+        /// <summary>
+        /// mob index if there is a specifiy mob type/text and not the first mob
+        /// mob index for any mob in the room if no mob type/text is specified
+        /// </summary>
         public int MobIndex { get; set; }
         public Strategy Strategy { get; set; }
         public bool? UseMagicCombat { get; set; }

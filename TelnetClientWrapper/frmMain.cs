@@ -5170,11 +5170,44 @@ BeforeHazy:
         {
             bool ret;
             if (pms.MobType.HasValue)
+            {
                 ret = !string.IsNullOrEmpty(GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false));
+            }
             else if (!string.IsNullOrEmpty(pms.MobText))
+            {
                 ret = true; //there's no way of verifying from mob text, so just say ok
+            }
+            else if (pms.MobTypeCounter >= 1) //attacking any monster based on what's in the room
+            {
+                int iCounter = 1;
+                MobTypeEnum? foundMob = null;
+                lock (_currentEntityInfo)
+                {
+                    if (_currentEntityInfo.CurrentRoomMobs.Count >= pms.MobTypeCounter)
+                    {
+                        foundMob = _currentEntityInfo.CurrentRoomMobs[pms.MobTypeCounter - 1];
+                        for (int i = 0; i < pms.MobTypeCounter - 1; i++)
+                        {
+                            if (_currentEntityInfo.CurrentRoomMobs[i] == foundMob)
+                            {
+                                iCounter++;
+                            }
+                        }
+                    }
+                }
+                ret = foundMob.HasValue;
+                if (ret)
+                {
+                    pms.MobText = string.Empty;
+                    pms.MobTextCounter = 0;
+                    pms.MobType = foundMob.Value;
+                    pms.MobTypeCounter = iCounter;
+                }
+            }
             else //not attacking anything
+            {
                 ret = false;
+            }
             return ret;
         }
 
@@ -7175,10 +7208,20 @@ BeforeHazy:
             if (MobEntity.GetMobInfo(txtMob.Text, out string sMobText, out MobTypeEnum? eMobType, out int iMobCounter))
             {
                 BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-                bwp.MobText = sMobText;
-                bwp.MobType = eMobType;
-                if (eMobType.HasValue) bwp.MobTypeCounter = iMobCounter;
-                else bwp.MobTextCounter = iMobCounter;
+                if (eMobType.HasValue)
+                {
+                    bwp.MobType = eMobType;
+                    bwp.MobTypeCounter = iMobCounter;
+                }
+                else if (!string.IsNullOrEmpty(sMobText))
+                {
+                    bwp.MobText = sMobText;
+                    bwp.MobTextCounter = iMobCounter;
+                }
+                else if (iMobCounter >= 1) //monster in room with specified count
+                {
+                    bwp.MobTypeCounter = bwp.MobTextCounter = 1;
+                }
                 bwp.Strategy = s;
                 RunBackgroundProcess(bwp);
             }

@@ -37,6 +37,7 @@
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTickRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colMob = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colEdit = new System.Windows.Forms.DataGridViewButtonColumn();
             this.colChangeAndRun = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -53,6 +54,7 @@
             this.dgvPermRuns.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colName,
             this.colTickRoom,
+            this.colRoom,
             this.colMob,
             this.colEdit,
             this.colChangeAndRun,
@@ -125,6 +127,14 @@
             this.colTickRoom.ReadOnly = true;
             this.colTickRoom.Width = 150;
             // 
+            // colRoom
+            // 
+            this.colRoom.HeaderText = "Room";
+            this.colRoom.MinimumWidth = 6;
+            this.colRoom.Name = "colRoom";
+            this.colRoom.ReadOnly = true;
+            this.colRoom.Width = 300;
+            // 
             // colMob
             // 
             this.colMob.HeaderText = "Mob";
@@ -185,6 +195,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
         private System.Windows.Forms.DataGridViewTextBoxColumn colName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTickRoom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRoom;
         private System.Windows.Forms.DataGridViewTextBoxColumn colMob;
         private System.Windows.Forms.DataGridViewButtonColumn colEdit;
         private System.Windows.Forms.DataGridViewButtonColumn colChangeAndRun;
