@@ -3,6 +3,7 @@ using GraphSharp.Controls;
 using QuickGraph;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 namespace IsengardClient
@@ -138,6 +139,13 @@ namespace IsengardClient
                         mnu.Header = "Set";
                         mnu.Click += mnuSetRoom_Click;
                         ctx.Items.Add(mnu);
+                        if (CurrentRoom != null)
+                        {
+                            mnu = new MenuItem();
+                            mnu.Header = "View Path";
+                            mnu.Click += mnuViewPath_Click;
+                            ctx.Items.Add(mnu);
+                        }
                     }
                 }
 
@@ -180,6 +188,25 @@ namespace IsengardClient
                     cboGraphs.SelectedItem = cbi;
                     break;
                 }
+            }
+        }
+
+        private void mnuViewPath_Click(object sender, RoutedEventArgs e)
+        {
+            Room selectedRoom = (Room)_currentVertexControl.Vertex;
+            List<Exit> path = MapComputation.ComputeLowestCostPath(CurrentRoom, selectedRoom, _graphInputs());
+            if (path == null)
+            {
+                MessageBox.Show("No path to target room found.", "View Path", MessageBoxButton.OK);
+            }
+            else
+            {
+                StringBuilder sbMessage = new StringBuilder();
+                foreach (Exit nextExit in path)
+                {
+                    sbMessage.AppendLine(nextExit.ExitText);
+                }
+                MessageBox.Show(sbMessage.ToString(), "View Path");
             }
         }
 
