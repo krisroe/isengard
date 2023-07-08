@@ -1407,7 +1407,7 @@ namespace IsengardClient
                         iMobIndexThreshold = 1;
                     else
                         iMobIndexThreshold = 2;
-                    mobIndexParam.Value = iMobIndex >= iMobIndexThreshold ? (object)DBNull.Value : iMobIndex;
+                    mobIndexParam.Value = iMobIndex >= iMobIndexThreshold ? (object)iMobIndex : DBNull.Value;
 
                     strategyIDParam.Value = nextRecord.Strategy.ID;
                     useMagicCombatParam.Value = nextRecord.UseMagicCombat.HasValue ? (object)(nextRecord.UseMagicCombat.Value ? 1 : 0) : DBNull.Value;

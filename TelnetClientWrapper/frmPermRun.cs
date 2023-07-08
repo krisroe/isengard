@@ -327,15 +327,19 @@ namespace IsengardClient
                     isChecked = (Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
                 chkPotions.Checked = isChecked;
             }
+            AfterKillMonsterAction action;
             if (_permRun == null || _forChangeAndRun || !cboOnKillMonster.Enabled)
             {
-                AfterKillMonsterAction action;
                 if (Strategy == null)
-                    action = IsengardClient.AfterKillMonsterAction.StopCombat;
+                    action = AfterKillMonsterAction.StopCombat;
                 else
                     action = Strategy.AfterKillMonsterAction;
-                cboOnKillMonster.SelectedIndex = (int)action;
             }
+            else
+            {
+                action = _permRun.AfterKillMonsterAction.Value;
+            }
+            cboOnKillMonster.SelectedIndex = (int)action;
             if (Strategy != null)
             {
                 _autoSpellLevelInfo.StrategyMinimum = Strategy.AutoSpellLevelMin;
@@ -451,12 +455,12 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (_permRun != null && cboStrategy.SelectedIndex == 0)
+            Strategy strategySelectedInDropdown = cboStrategy.SelectedItem as Strategy;
+            if (_permRun != null && strategySelectedInDropdown == null)
             {
                 MessageBox.Show("No strategy selected.", "Perm Run");
                 return;
             }
-            Strategy strategySelectedInDropdown = (Strategy)cboStrategy.SelectedItem;
             IsCombatStrategy = strategySelectedInDropdown.IsCombatStrategy(CommandType.All, GetEffectiveCombatTypesEnabled(strategySelectedInDropdown));
             if (IsCombatStrategy)
             {
