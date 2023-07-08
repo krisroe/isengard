@@ -2793,7 +2793,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed, bool poisonCured)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
@@ -2820,6 +2820,10 @@ namespace IsengardClient
             if (potionConsumed && flParams.BackgroundCommandType.HasValue && flParams.BackgroundCommandType.Value == BackgroundCommandType.DrinkNonHazyPotion)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+            if (poisonCured)
+            {
+                _playerStatusFlags &= ~PlayerStatusFlags.Poisoned;
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)

@@ -811,7 +811,8 @@ namespace IsengardClient.Tests
             int? soldGold = null;
             List<string> spells = null;
             bool? potionConsumed = null;
-            Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool> a = (flParams, i, act, gt, gs, sp, pot) =>
+            bool? poisonCured = null;
+            Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> a = (flParams, i, act, gt, gs, sp, pot, pc) =>
             {
                 items = i;
                 action = act;
@@ -819,6 +820,7 @@ namespace IsengardClient.Tests
                 soldGold = gs;
                 spells = sp;
                 potionConsumed = pot;
+                poisonCured = pc;
             };
 
             FeedLineParameters flp = new FeedLineParameters(null);

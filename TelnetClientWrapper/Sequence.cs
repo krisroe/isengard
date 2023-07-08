@@ -1039,8 +1039,8 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
-        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1052,12 +1052,13 @@ namespace IsengardClient
             ItemManagementAction eAction = ItemManagementAction.None;
             List<string> activeSpells = null;
             bool potionConsumed = false;
+            bool poisonCured = false;
             if (Lines.Count > 0)
             {
                 string firstLine = Lines[0];
                 if (firstLine == "You aren't wearing anything that can be removed.")
                 {
-                    _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false);
+                    _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false, false);
                     flp.FinishedProcessing = true;
                     return;
                 }
@@ -1286,6 +1287,10 @@ namespace IsengardClient
                     {
                         potionConsumed = true;
                     }
+                    else if (nextLine == "You feel the poison subside.")
+                    {
+                        poisonCured = true;
+                    }
                     else if (nextLine == "Thanks for recycling." ||
                              nextLine == "You feel better." || //vigor/mend
                              nextLine == "You feel dizzy." || //speckled potion
@@ -1295,7 +1300,6 @@ namespace IsengardClient
                              nextLine == "Yuck!" || //viscous potion
                              nextLine == "Nothing happens." || //lollipop when not diseased?
                              nextLine == "MMMMMM!!!!    GOOD!" || //lollipop
-                             nextLine == "You feel the poison subside." || //green potion
                              nextLine.EndsWith(" hit points removed."))
                     {
                         continue; //skipped
@@ -1356,7 +1360,7 @@ namespace IsengardClient
                 }
                 if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)
                 {
-                    _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed);
+                    _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed, poisonCured);
                     flp.FinishedProcessing = true;
                 }
             }

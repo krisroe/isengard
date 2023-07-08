@@ -134,26 +134,36 @@ namespace IsengardClient
             cboBeforeFull.SelectedItem = beforeFull;
             cboAfterFull.SelectedItem = afterFull;
 
-            if (_permRun != null && !_forChangeAndRun)
+            bool useMagicCombatFromStrategy;
+            bool useMeleeCombatFromStrategy;
+            bool usePotionsCombatFromStrategy;
+            if (strategy == null)
             {
-                cboOnKillMonster.Enabled = afterMonsterKillAction.HasValue;
-                chkMagic.Enabled = useMagicCombat.HasValue;
-                chkMagic.Checked = useMagicCombat.GetValueOrDefault(false);
-                chkMelee.Enabled = useMeleeCombat.HasValue;
-                chkMelee.Checked = useMeleeCombat.GetValueOrDefault(false);
-                chkPotions.Enabled = usePotionsCombat.HasValue;
-                chkPotions.Checked = usePotionsCombat.GetValueOrDefault(false);
+                useMagicCombatFromStrategy = useMeleeCombatFromStrategy = usePotionsCombatFromStrategy = false;
             }
             else
+            {
+                useMagicCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
+                useMeleeCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
+                usePotionsCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            }
+            if (ForImmediateRun())
             {
                 cboOnKillMonster.Enabled = true;
                 chkMagic.Enabled = true;
                 chkMelee.Enabled = true;
                 chkPotions.Enabled = true;
-                chkMagic.Checked = useMagicCombat.Value;
-                chkMelee.Checked = useMeleeCombat.Value;
-                chkPotions.Checked = usePotionsCombat.Value;
             }
+            else //add/edit a perm run
+            {
+                cboOnKillMonster.Enabled = afterMonsterKillAction.HasValue;
+                chkMagic.Enabled = useMagicCombat.HasValue;
+                chkMelee.Enabled = useMeleeCombat.HasValue;
+                chkPotions.Enabled = usePotionsCombat.HasValue;
+            }
+            chkMagic.Checked = useMagicCombat.GetValueOrDefault(useMagicCombatFromStrategy);
+            chkMelee.Checked = useMeleeCombat.GetValueOrDefault(useMeleeCombatFromStrategy);
+            chkPotions.Checked = usePotionsCombat.GetValueOrDefault(usePotionsCombatFromStrategy);
 
             int strategyAutoSpellLevelMin, strategyAutoSpellLevelMax;
             if (strategy == null)
