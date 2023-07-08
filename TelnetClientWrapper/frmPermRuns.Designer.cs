@@ -43,6 +43,7 @@
             // 
             this.dgvPermRuns.AllowUserToAddRows = false;
             this.dgvPermRuns.AllowUserToDeleteRows = false;
+            this.dgvPermRuns.AllowUserToResizeRows = false;
             this.dgvPermRuns.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvPermRuns.ContextMenuStrip = this.ctxPermRuns;
             this.dgvPermRuns.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -51,6 +52,7 @@
             this.dgvPermRuns.ReadOnly = true;
             this.dgvPermRuns.RowHeadersVisible = false;
             this.dgvPermRuns.RowHeadersWidth = 51;
+            this.dgvPermRuns.RowTemplate.Height = 25;
             this.dgvPermRuns.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvPermRuns.Size = new System.Drawing.Size(1505, 834);
             this.dgvPermRuns.TabIndex = 0;
