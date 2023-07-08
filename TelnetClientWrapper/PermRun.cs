@@ -12,8 +12,8 @@
             this.DisplayName = copied.DisplayName;
             this.TickRoom = copied.TickRoom;
             this.PawnShop = copied.PawnShop;
-            this.FullBeforeStarting = copied.FullBeforeStarting;
-            this.FullAfterFinishing = copied.FullAfterFinishing;
+            this.BeforeFull = copied.BeforeFull;
+            this.AfterFull = copied.AfterFull;
             this.SpellsToCast = copied.SpellsToCast;
             this.SpellsToPotion = copied.SpellsToPotion;
             this.SkillsToRun = copied.SkillsToRun;
@@ -39,8 +39,8 @@
         public string DisplayName { get; set; }
         public HealingRoom? TickRoom { get; set; }
         public PawnShoppe? PawnShop { get; set; }
-        public bool FullBeforeStarting { get; set; }
-        public bool FullAfterFinishing { get; set; }
+        public FullType BeforeFull { get; set; }
+        public FullType AfterFull { get; set; }
         public WorkflowSpells SpellsToCast { get; set; }
         public WorkflowSpells SpellsToPotion { get; set; }
         public PromptedSkills SkillsToRun { get; set; }

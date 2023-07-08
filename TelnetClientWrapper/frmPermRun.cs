@@ -63,14 +63,14 @@ namespace IsengardClient
         /// <summary>
         /// constructor used when initiating a perm run ad hoc from a strategy
         /// </summary>
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
         {
             InitializeComponent();
             txtDisplayName.Enabled = false;
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, fullBeforeStarting, fullAfterFinishing, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
         }
 
         public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun)
@@ -101,7 +101,7 @@ namespace IsengardClient
                 sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.FullBeforeStarting, _permRun.FullAfterFinishing, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction);
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace IsengardClient
         /// <param name="gameMap">game map</param>
         /// <param name="settingsData">settings data</param>
         /// <param name="currentRoom">current room for an ad hoc or new perm run, target room for existing perm run</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, bool fullBeforeStarting, bool fullAfterFinishing, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
@@ -118,13 +118,18 @@ namespace IsengardClient
             _currentRoom = currentRoom;
             _currentEntityInfo = currentEntityInfo;
 
-            chkFullBeforeStarting.Checked = fullBeforeStarting;
-            chkFullAfterFinishing.Checked = fullAfterFinishing;
-
+            foreach (Enum next in Enum.GetValues(typeof(FullType)))
+            {
+                cboBeforeFull.Items.Add(next);
+                cboAfterFull.Items.Add(next);
+            }
             foreach (Enum next in Enum.GetValues(typeof(AfterKillMonsterAction)))
             {
                 cboOnKillMonster.Items.Add(next);
             }
+
+            cboBeforeFull.SelectedItem = beforeFull;
+            cboAfterFull.SelectedItem = afterFull;
 
             if (_permRun != null && !_forChangeAndRun)
             {
@@ -180,10 +185,10 @@ namespace IsengardClient
             else
                 cboPawnShoppe.SelectedIndex = 0;
 
-            cboInventoryFlow.Items.Add(ItemsToProcessType.NoProcessing);
-            cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
-            cboInventoryFlow.Items.Add(ItemsToProcessType.ProcessAllItemsInRoom);
-            cboInventoryFlow.SelectedItem = invWorkflow;
+            cboItemsToProcessType.Items.Add(ItemsToProcessType.NoProcessing);
+            cboItemsToProcessType.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
+            cboItemsToProcessType.Items.Add(ItemsToProcessType.ProcessAllItemsInRoom);
+            cboItemsToProcessType.SelectedItem = invWorkflow;
 
             if (_permRun == null)
             {
@@ -510,7 +515,7 @@ namespace IsengardClient
 
             if (ForImmediateRun()) //if running the perm run immediately, validate it can be run
             {
-                ItemsToProcessType ipw = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
+                ItemsToProcessType ipw = (ItemsToProcessType)cboItemsToProcessType.SelectedItem;
                 if (ipw != ItemsToProcessType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
                 {
                     if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
@@ -804,7 +809,7 @@ namespace IsengardClient
                 }
                 else if (_rightClickControl == cboOnKillMonster)
                 {
-                    cboOnKillMonster.SelectedIndex = (int)(haveStrategy ? s.AfterKillMonsterAction : IsengardClient.AfterKillMonsterAction.StopCombat);
+                    cboOnKillMonster.SelectedIndex = (int)(haveStrategy ? s.AfterKillMonsterAction : AfterKillMonsterAction.StopCombat);
                 }
                 else
                 {
@@ -819,9 +824,9 @@ namespace IsengardClient
             pr.AutoSpellLevelMin = _autoSpellLevelInfo.PermRunMinimum;
             pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMaximum;
             pr.DisplayName = txtDisplayName.Text;
-            pr.FullBeforeStarting = chkFullBeforeStarting.Checked;
-            pr.FullAfterFinishing = chkFullAfterFinishing.Checked;
-            pr.ItemsToProcessType = (ItemsToProcessType)cboInventoryFlow.SelectedItem;
+            pr.BeforeFull = (FullType)cboBeforeFull.SelectedItem;
+            pr.AfterFull = (FullType)cboAfterFull.SelectedItem;
+            pr.ItemsToProcessType = (ItemsToProcessType)cboItemsToProcessType.SelectedItem;
             pr.MobIndex = MobIndex;
             pr.MobText = MobText;
             pr.MobType = MobType;
@@ -859,7 +864,7 @@ namespace IsengardClient
                         itemsToProcessTypeToSelect = ItemsToProcessType.ProcessAllItemsInRoom;
                     else
                         itemsToProcessTypeToSelect = ItemsToProcessType.ProcessMonsterDrops;
-                    cboInventoryFlow.SelectedIndex = (int)itemsToProcessTypeToSelect;
+                    cboItemsToProcessType.SelectedIndex = (int)itemsToProcessTypeToSelect;
                 }
             }
             if (_initialized)

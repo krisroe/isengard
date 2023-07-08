@@ -58,8 +58,8 @@ namespace IsengardClient
             }
             pr.TickRoom = currentRoom.HealingRoom;
             pr.PawnShop = currentRoom.PawnShoppe;
-            pr.FullBeforeStarting = true;
-            pr.FullAfterFinishing = true;
+            pr.BeforeFull = FullType.Total;
+            pr.AfterFull = FullType.Almost;
             PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
             WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
             pr.SpellsToCast = castableSpells & (WorkflowSpells.Bless | WorkflowSpells.Protection | WorkflowSpells.CurePoison);

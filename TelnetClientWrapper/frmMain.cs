@@ -3825,8 +3825,9 @@ namespace IsengardClient
 
                 Strategy strategy = pms.Strategy;
                 CommandResult backgroundCommandResult = CommandResult.CommandSuccessful;
+                WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
 
-                if ((pms.PermRun != null && pms.PermRun.FullBeforeStarting) || pms.CureIfPoisoned)
+                if (pms.BeforeFull != FullType.None || pms.CureIfPoisoned)
                 {
                     //cure-poison if needed
                     _poisoned = false;
@@ -3856,20 +3857,28 @@ namespace IsengardClient
                     }
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (!_fleeing && !_hazying && pms.PermRun != null && pms.PermRun.FullBeforeStarting && !IsFull(pms.PermRun.SpellsToCast))
+                    if (!_fleeing && !_hazying && !IsFull(pms.BeforeFull, spellsToCast, out _))
                     {
-                        if (!pms.PermRun.TickRoom.HasValue)
+                        //navigate to tick room if appropriate
+                        if (pms.PermRun != null)
                         {
-                            return;
+                            if (pms.PermRun.TickRoom.HasValue)
+                            {
+                                backgroundCommandResult = NavigateToTickRoom(pms, true);
+                                if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                return;
+                            }
                         }
-                        backgroundCommandResult = NavigateToTickRoom(pms, true);
-                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
-                        {
-                            return;
-                        }
+
                         if (!_hazying && !_fleeing)
                         {
-                            backgroundCommandResult = GetFullInBackground(pms, true);
+                            backgroundCommandResult = GetFullInBackground(pms, pms.BeforeFull, spellsToCast);
                             if (backgroundCommandResult != CommandResult.CommandSuccessful && backgroundCommandResult != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -4512,16 +4521,20 @@ BeforeHazy:
                     {
                         return;
                     }
-                    if (!_hazying && pms.PermRun != null && pms.PermRun.FullAfterFinishing && pms.PermRun.TickRoom.HasValue && !IsFull(pms.PermRun.SpellsToCast))
+                    if (!_hazying && !IsFull(pms.AfterFull, spellsToCast, out _))
                     {
-                        backgroundCommandResult = NavigateToTickRoom(pms, false);
-                        if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                        //navigate to tick room if appropriate
+                        if (pms.PermRun != null && pms.PermRun.TickRoom.HasValue)
                         {
-                            return;
+                            backgroundCommandResult = NavigateToTickRoom(pms, false);
+                            if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
+                            {
+                                return;
+                            }
                         }
                         if (!_hazying)
                         {
-                            backgroundCommandResult = GetFullInBackground(pms, false);
+                            backgroundCommandResult = GetFullInBackground(pms, pms.AfterFull, spellsToCast);
                             if (backgroundCommandResult == CommandResult.CommandAborted || backgroundCommandResult == CommandResult.CommandTimeout || backgroundCommandResult == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
@@ -5114,12 +5127,25 @@ BeforeHazy:
             return backgroundCommandResult;
         }
 
-        private bool IsFull(WorkflowSpells castWorkflowSpells)
+        private bool IsFull(FullType fullType, WorkflowSpells castWorkflowSpells, out WorkflowSpells needWorkflowSpells)
         {
-            if (_autohp < _totalhp) return false;
-            if (_automp < _totalmp) return false;
-            castWorkflowSpells &= ~WorkflowSpells.CurePoison;
+            needWorkflowSpells = WorkflowSpells.None;
+            if (fullType == FullType.None) return true;
+            needWorkflowSpells = castWorkflowSpells & ~WorkflowSpells.CurePoison;
             bool ret = true;
+            if (_autohp < _totalhp)
+            {
+                ret = false;
+            }
+            else if (fullType == FullType.Total)
+            {
+                ret = _automp >= _totalmp;
+            }
+            else if (fullType == FullType.Almost)
+            {
+                ret = _automp + GetHealingRoomTickMP() > _totalmp;
+            }
+            castWorkflowSpells &= ~WorkflowSpells.CurePoison;
             if (castWorkflowSpells != WorkflowSpells.None)
             {
                 lock (_spellsCastLock)
@@ -5129,11 +5155,10 @@ BeforeHazy:
                         if ((nextWorkflowSpell & castWorkflowSpells) != WorkflowSpells.None)
                         {
                             SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextWorkflowSpell];
-                            if (!_spellsCast.Contains(sia.SpellName))
-                            {
+                            if (_spellsCast.Contains(sia.SpellName))
+                                needWorkflowSpells &= ~nextWorkflowSpell;
+                            else
                                 ret = false;
-                                break;
-                            }
                         }
                     }
                 }
@@ -5458,16 +5483,15 @@ BeforeHazy:
         /// gets full in a background process
         /// </summary>
         /// <param name="pms">background parameters</param>
-        /// <param name="forStart">true for before starting the perm run, false for after finishing the perm run</param>
+        /// <param name="fullType">full type</param>
+        /// <param name="spellsToCast">spells to maintain via casting</param>
         /// <returns>true if successfully got to full, false otherwise</returns>
-        private CommandResult GetFullInBackground(BackgroundWorkerParameters pms, bool forStart)
+        private CommandResult GetFullInBackground(BackgroundWorkerParameters pms, FullType fullType, WorkflowSpells spellsToCast)
         {
             int iTickHP = GetHealingRoomTickHP();
             int iTickMP = GetHealingRoomTickMP();
-            WorkflowSpells spellsToCast = pms.PermRun.SpellsToCast;
-            spellsToCast &= ~WorkflowSpells.CurePoison;
             CommandResult backgroundCommandResult;
-            while (!IsFull(spellsToCast))
+            while (!IsFull(fullType, spellsToCast, out WorkflowSpells needWorkflowSpells))
             {
                 int automp = _automp;
                 int autohp = _autohp;
@@ -5488,37 +5512,26 @@ BeforeHazy:
                 {
                     if (automp + iTickMP > _totalmp) //wait until almost full mp before casting spells
                     {
-                        if (!forStart && autohp >= _totalhp)
+                        foreach (WorkflowSpells nextSpell in Enum.GetValues(typeof(WorkflowSpells)))
                         {
-                            //after the workflow, at full hp and less than one tick of mp left. Even though not technically full, the user can
-                            //make a decision whether to do something at slightly less than full mp, so stop the fulling
-                            //at this point.
-                            return CommandResult.CommandSuccessful;
-                        }
-                        else if (autohp + iTickHP > _totalhp)
-                        {
-                            foreach (WorkflowSpells nextSpell in Enum.GetValues(typeof(WorkflowSpells)))
+                            if ((nextSpell & needWorkflowSpells) != WorkflowSpells.None)
                             {
-                                if ((nextSpell & spellsToCast) != WorkflowSpells.None)
+                                SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextSpell];
+                                string spellName = sia.SpellName;
+                                bool hasSpellActive;
+                                lock (_spellsCastLock)
                                 {
-                                    SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextSpell];
-                                    string spellName = sia.SpellName;
-                                    bool hasSpellActive;
-                                    lock (_spellsCastLock)
+                                    hasSpellActive = _spellsCast.Contains(spellName);
+                                }
+                                if (!hasSpellActive && _automp >= sia.Mana)
+                                {
+                                    backgroundCommandResult = CastSpellOnSelf(spellName, pms);
+                                    if (backgroundCommandResult != CommandResult.CommandSuccessful)
                                     {
-                                        hasSpellActive = _spellsCast.Contains(spellName);
+                                        return backgroundCommandResult;
                                     }
-                                    if (!hasSpellActive && _automp >= sia.Mana)
-                                    {
-                                        backgroundCommandResult = CastSpellOnSelf(spellName, pms);
-                                        if (backgroundCommandResult != CommandResult.CommandSuccessful)
-                                        {
-                                            return backgroundCommandResult;
-                                        }
-                                        castSomething = true;
-                                        spellsToCast &= ~nextSpell;
-                                        break;
-                                    }
+                                    castSomething = true;
+                                    break;
                                 }
                             }
                         }
@@ -7441,44 +7454,36 @@ BeforeHazy:
                 }
             }
 
+            Room currentRoom = _currentEntityInfo.CurrentRoom;
+
             HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
 
-            bool defaultFullAfterFinishing;
-            bool defaultFullBeforeStarting;
+            FullType beforeFull;
+            FullType afterFull;
             if (strategy.TypesWithStepsEnabled == CommandType.None)
             {
-                defaultFullBeforeStarting = false;
-                defaultFullAfterFinishing = false;
-                inventoryFlow = ItemsToProcessType.ProcessAllItemsInRoom;
+                if (currentRoom == null || !currentRoom.HealingRoom.HasValue)
+                {
+                    beforeFull = FullType.None;
+                    afterFull = FullType.None;
+                    inventoryFlow = ItemsToProcessType.ProcessAllItemsInRoom;
+                }
+                else
+                {
+                    beforeFull = FullType.Total;
+                    afterFull = FullType.None;
+                    inventoryFlow = ItemsToProcessType.NoProcessing;
+                }
             }
             else
             {
-                defaultFullAfterFinishing = true;
+                beforeFull = FullType.Total;
+                afterFull = FullType.Almost;
                 inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
-                defaultFullBeforeStarting = _autohp < _totalhp || _automp + GetHealingRoomTickMP() <= _totalmp;
-                if (!defaultFullBeforeStarting)
-                {
-                    WorkflowSpells alwaysOnSpells = _settingsData.AlwaysOnSpells;
-                    foreach (WorkflowSpells next in Enum.GetValues(typeof(WorkflowSpells)))
-                    {
-                        if ((next & alwaysOnSpells) != WorkflowSpells.None)
-                        {
-                            SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[next];
-                            lock (_spellsCastLock)
-                            {
-                                if (!_spellsCast.Contains(sia.SpellName))
-                                {
-                                    defaultFullBeforeStarting = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
             }
             PermRun p;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, defaultFullBeforeStarting, defaultFullAfterFinishing, workflowSpellsCast, workflowSpellsPotions))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {

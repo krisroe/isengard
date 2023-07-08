@@ -56,6 +56,14 @@ namespace IsengardClient
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.
         /// </summary>
         public bool CureIfPoisoned { get; set; }
+        /// <summary>
+        /// how to full at the beginning of the workflow
+        /// </summary>
+        public FullType BeforeFull { get; set; }
+        /// <summary>
+        /// how to full at the end of the workflow
+        /// </summary>
+        public FullType AfterFull { get; set; }
         public BackgroundCommandType? SingleCommandType { get; set; }
         public CommandResult SingleCommandResult { get; set; }
         public bool SaveSettingsOnQuit { get; set; }
@@ -151,6 +159,8 @@ namespace IsengardClient
             }
             InventoryProcessInputType = p.ItemsToProcessType;
             TargetRoom = p.TargetRoomObject;
+            BeforeFull = p.BeforeFull;
+            AfterFull = p.AfterFull;
         }
     }
 }

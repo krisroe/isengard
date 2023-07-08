@@ -340,7 +340,7 @@ namespace IsengardClient
                     else
                         strats.Remove(s.ID);
                 }
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.FullBeforeStarting,p.FullAfterFinishing,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -354,8 +354,10 @@ namespace IsengardClient
                         if (oData != DBNull.Value) permRun.TickRoom = (HealingRoom)Convert.ToInt32(oData);
                         oData = reader["PawnShop"];
                         if (oData != DBNull.Value) permRun.PawnShop = (PawnShoppe)Convert.ToInt32(oData);
-                        permRun.FullBeforeStarting = Convert.ToInt32(reader["FullBeforeStarting"]) != 0;
-                        permRun.FullAfterFinishing = Convert.ToInt32(reader["FullAfterFinishing"]) != 0;
+                        oData = reader["BeforeFull"];
+                        if (oData != DBNull.Value) permRun.BeforeFull = (FullType)Convert.ToInt32(oData);
+                        oData = reader["AfterFull"];
+                        if (oData != DBNull.Value) permRun.AfterFull = (FullType)Convert.ToInt32(oData);
                         permRun.SpellsToCast = (WorkflowSpells)Convert.ToInt32(reader["SpellsToCast"]);
                         permRun.SpellsToPotion = (WorkflowSpells)Convert.ToInt32(reader["SpellsToPotion"]);
                         permRun.SkillsToRun = (PromptedSkills)Convert.ToInt32(reader["SkillsToRun"]);
@@ -582,8 +584,8 @@ namespace IsengardClient
                 "DisplayName",
                 "TickRoom",
                 "PawnShop",
-                "FullBeforeStarting",
-                "FullAfterFinishing",
+                "BeforeFull",
+                "AfterFull",
                 "SpellsToCast",
                 "SpellsToPotion",
                 "SkillsToRun",
@@ -935,26 +937,28 @@ namespace IsengardClient
                 }
             }
 
-            sValue = GetAttributeValueByName(attributeMapping, "FullBeforeStarting");
+            FullType fullType;
+
+            sValue = GetAttributeValueByName(attributeMapping, "BeforeFull");
             if (!string.IsNullOrEmpty(sValue))
             {
-                if (bool.TryParse(sValue, out bValue))
+                if (Enum.TryParse(sValue, out fullType))
                 {
-                    p.FullBeforeStarting = bValue;
+                    p.BeforeFull = fullType;
                 }
                 else
                 {
-                    errorMessages.Add("Invalid perm run full before starting: " + sValue);
+                    errorMessages.Add("Invalid perm run before full: " + sValue);
                     isValid = false;
                 }
             }
 
-            sValue = GetAttributeValueByName(attributeMapping, "FullAfterFinishing");
+            sValue = GetAttributeValueByName(attributeMapping, "AfterFull");
             if (!string.IsNullOrEmpty(sValue))
             {
-                if (bool.TryParse(sValue, out bValue))
+                if (Enum.TryParse(sValue, out fullType))
                 {
-                    p.FullAfterFinishing = bValue;
+                    p.AfterFull = fullType;
                 }
                 else
                 {
@@ -1362,8 +1366,8 @@ namespace IsengardClient
                 "DisplayName",
                 "TickRoom",
                 "PawnShop",
-                "FullBeforeStarting",
-                "FullAfterFinishing",
+                "BeforeFull",
+                "AfterFull",
                 "SpellsToCast",
                 "SpellsToPotion",
                 "SkillsToRun",
@@ -1393,8 +1397,8 @@ namespace IsengardClient
                 SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
                 SQLiteParameter tickRoomParam = cmd.Parameters.Add("@TickRoom", DbType.Int32);
                 SQLiteParameter pawnShopParam = cmd.Parameters.Add("@PawnShop", DbType.Int32);
-                SQLiteParameter fullBeforeStartingParam = cmd.Parameters.Add("@FullBeforeStarting", DbType.Int32);
-                SQLiteParameter fullAfterFinishingParam = cmd.Parameters.Add("@FullAfterFinishing", DbType.Int32);
+                SQLiteParameter beforeFullParam = cmd.Parameters.Add("@BeforeFull", DbType.Int32);
+                SQLiteParameter afterFullParam = cmd.Parameters.Add("@AfterFull", DbType.Int32);
                 SQLiteParameter spellsToCastParam = cmd.Parameters.Add("@SpellsToCast", DbType.Int32);
                 SQLiteParameter spellsToPotionParam = cmd.Parameters.Add("@SpellsToPotion", DbType.Int32);
                 SQLiteParameter skillsToRunParam = cmd.Parameters.Add("@SkillsToRun", DbType.Int32);
@@ -1418,8 +1422,8 @@ namespace IsengardClient
                     displayNameParam.Value = string.IsNullOrEmpty(nextRecord.DisplayName) ? (object)DBNull.Value : nextRecord.DisplayName;
                     tickRoomParam.Value = nextRecord.TickRoom.HasValue ? (object)Convert.ToInt32(nextRecord.TickRoom.Value) : DBNull.Value;
                     pawnShopParam.Value = nextRecord.PawnShop.HasValue ? (object)Convert.ToInt32(nextRecord.PawnShop.Value) : DBNull.Value;
-                    fullBeforeStartingParam.Value = nextRecord.FullBeforeStarting ? 1 : 0;
-                    fullAfterFinishingParam.Value = nextRecord.FullAfterFinishing ? 1 : 0;
+                    beforeFullParam.Value = nextRecord.BeforeFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.BeforeFull);
+                    afterFullParam.Value = nextRecord.AfterFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.AfterFull);
                     spellsToCastParam.Value = Convert.ToInt32(nextRecord.SpellsToCast);
                     spellsToPotionParam.Value = Convert.ToInt32(nextRecord.SpellsToPotion);
                     skillsToRunParam.Value = Convert.ToInt32(nextRecord.SkillsToRun);
@@ -2231,8 +2235,14 @@ namespace IsengardClient
                             {
                                 writer.WriteAttributeString("PawnShop", p.PawnShop.Value.ToString());
                             }
-                            writer.WriteAttributeString("FullBeforeStarting", p.FullBeforeStarting.ToString());
-                            writer.WriteAttributeString("FullAfterFinishing", p.FullAfterFinishing.ToString());
+                            if (p.BeforeFull != FullType.None)
+                            {
+                                writer.WriteAttributeString("BeforeFull", p.BeforeFull.ToString());
+                            }
+                            if (p.AfterFull != FullType.None)
+                            {
+                                writer.WriteAttributeString("AfterFull", p.AfterFull.ToString());
+                            }
                             if (p.SpellsToCast != WorkflowSpells.None)
                             {
                                 writer.WriteAttributeString("SpellsToCast", p.SpellsToCast.ToString().Replace(" ", string.Empty));
@@ -2440,7 +2450,7 @@ namespace IsengardClient
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, FullBeforeStarting INTEGER NOT NULL, FullAfterFinishing INTEGER NOT NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

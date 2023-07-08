@@ -100,8 +100,8 @@ namespace IsengardClient.Tests
             p.AutoSpellLevelMin = 3;
             p.AutoSpellLevelMax = 4;
             p.DisplayName = "asfdsdaf";
-            p.FullAfterFinishing = true;
-            p.FullBeforeStarting = false;
+            p.BeforeFull = FullType.Total;
+            p.AfterFull = FullType.Almost;
             p.ItemsToProcessType = ItemsToProcessType.ProcessMonsterDrops;
             p.MobIndex = 2;
             p.MobType = MobTypeEnum.Amlug;
@@ -204,8 +204,8 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.DisplayName ?? string.Empty, p2.DisplayName ?? string.Empty);
             Assert.AreEqual(p1.TickRoom, p2.TickRoom);
             Assert.AreEqual(p1.PawnShop, p2.PawnShop);
-            Assert.AreEqual(p1.FullBeforeStarting, p2.FullBeforeStarting);
-            Assert.AreEqual(p1.FullAfterFinishing, p2.FullAfterFinishing);
+            Assert.AreEqual(p1.BeforeFull, p2.AfterFull);
+            Assert.AreEqual(p1.BeforeFull, p2.AfterFull);
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
             Assert.AreEqual(p1.SpellsToPotion, p2.SpellsToPotion);
             Assert.AreEqual(p1.SkillsToRun, p2.SkillsToRun);

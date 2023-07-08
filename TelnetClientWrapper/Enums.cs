@@ -823,4 +823,11 @@ namespace IsengardClient
         Strategy,
         PermRun,
     }
+
+    internal enum FullType
+    {
+        None,
+        Total,
+        Almost,
+    }
 }
