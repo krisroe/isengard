@@ -568,6 +568,12 @@ namespace IsengardClient
             this.Close();
         }
 
+        private void btnThresholdClear_Click(object sender, EventArgs e)
+        {
+            cboThresholdRoom.SelectedItem = null;
+            cboThresholdRoom.Items.Clear();
+        }
+
         private void btnThresholdLocations_Click(object sender, EventArgs e)
         {
             DisplayLocations(cboThresholdRoom);

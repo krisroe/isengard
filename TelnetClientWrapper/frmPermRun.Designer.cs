@@ -72,6 +72,7 @@
             this.lblBeforeFull = new System.Windows.Forms.Label();
             this.cboAfterFull = new System.Windows.Forms.ComboBox();
             this.lblAfterFull = new System.Windows.Forms.Label();
+            this.btnThresholdClear = new System.Windows.Forms.Button();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -151,9 +152,9 @@
             // 
             // btnTargetGraph
             // 
-            this.btnTargetGraph.Location = new System.Drawing.Point(809, 367);
+            this.btnTargetGraph.Location = new System.Drawing.Point(770, 367);
             this.btnTargetGraph.Name = "btnTargetGraph";
-            this.btnTargetGraph.Size = new System.Drawing.Size(133, 27);
+            this.btnTargetGraph.Size = new System.Drawing.Size(94, 27);
             this.btnTargetGraph.TabIndex = 9;
             this.btnTargetGraph.Text = "Graph";
             this.btnTargetGraph.UseVisualStyleBackColor = true;
@@ -163,7 +164,7 @@
             // 
             this.btnTargetLocations.Location = new System.Drawing.Point(670, 367);
             this.btnTargetLocations.Name = "btnTargetLocations";
-            this.btnTargetLocations.Size = new System.Drawing.Size(133, 27);
+            this.btnTargetLocations.Size = new System.Drawing.Size(94, 27);
             this.btnTargetLocations.TabIndex = 10;
             this.btnTargetLocations.Text = "Locations";
             this.btnTargetLocations.UseVisualStyleBackColor = true;
@@ -344,7 +345,7 @@
             this.lblItemsToProcessType.Location = new System.Drawing.Point(3, 608);
             this.lblItemsToProcessType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblItemsToProcessType.Name = "lblItemsToProcessType";
-            this.lblItemsToProcessType.Size = new System.Drawing.Size(135, 24);
+            this.lblItemsToProcessType.Size = new System.Drawing.Size(108, 19);
             this.lblItemsToProcessType.TabIndex = 16;
             this.lblItemsToProcessType.Text = "Items source:";
             // 
@@ -432,7 +433,7 @@
             // 
             this.btnThresholdLocations.Location = new System.Drawing.Point(669, 332);
             this.btnThresholdLocations.Name = "btnThresholdLocations";
-            this.btnThresholdLocations.Size = new System.Drawing.Size(133, 27);
+            this.btnThresholdLocations.Size = new System.Drawing.Size(95, 27);
             this.btnThresholdLocations.TabIndex = 32;
             this.btnThresholdLocations.Text = "Locations";
             this.btnThresholdLocations.UseVisualStyleBackColor = true;
@@ -440,9 +441,9 @@
             // 
             // btnThresholdGraph
             // 
-            this.btnThresholdGraph.Location = new System.Drawing.Point(808, 332);
+            this.btnThresholdGraph.Location = new System.Drawing.Point(770, 332);
             this.btnThresholdGraph.Name = "btnThresholdGraph";
-            this.btnThresholdGraph.Size = new System.Drawing.Size(133, 27);
+            this.btnThresholdGraph.Size = new System.Drawing.Size(95, 27);
             this.btnThresholdGraph.TabIndex = 31;
             this.btnThresholdGraph.Text = "Graph";
             this.btnThresholdGraph.UseVisualStyleBackColor = true;
@@ -504,9 +505,19 @@
             this.lblAfterFull.Location = new System.Drawing.Point(3, 643);
             this.lblAfterFull.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAfterFull.Name = "lblAfterFull";
-            this.lblAfterFull.Size = new System.Drawing.Size(93, 24);
+            this.lblAfterFull.Size = new System.Drawing.Size(74, 19);
             this.lblAfterFull.TabIndex = 35;
             this.lblAfterFull.Text = "After full:";
+            // 
+            // btnThresholdClear
+            // 
+            this.btnThresholdClear.Location = new System.Drawing.Point(871, 332);
+            this.btnThresholdClear.Name = "btnThresholdClear";
+            this.btnThresholdClear.Size = new System.Drawing.Size(95, 27);
+            this.btnThresholdClear.TabIndex = 37;
+            this.btnThresholdClear.Text = "Clear";
+            this.btnThresholdClear.UseVisualStyleBackColor = true;
+            this.btnThresholdClear.Click += new System.EventHandler(this.btnThresholdClear_Click);
             // 
             // frmPermRun
             // 
@@ -514,6 +525,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(981, 685);
             this.ControlBox = false;
+            this.Controls.Add(this.btnThresholdClear);
             this.Controls.Add(this.cboAfterFull);
             this.Controls.Add(this.lblAfterFull);
             this.Controls.Add(this.cboBeforeFull);
@@ -605,5 +617,6 @@
         private System.Windows.Forms.Label lblBeforeFull;
         private System.Windows.Forms.ComboBox cboAfterFull;
         private System.Windows.Forms.Label lblAfterFull;
+        private System.Windows.Forms.Button btnThresholdClear;
     }
 }
