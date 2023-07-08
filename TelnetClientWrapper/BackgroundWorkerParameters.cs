@@ -51,10 +51,6 @@ namespace IsengardClient
         /// counter for a mob identified by a type
         /// </summary>
         public int MobTypeCounter { get; set; }
-        public bool HasCombat()
-        {
-            return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
-        }
         public bool Foreground { get; set; }
         /// <summary>
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.
@@ -89,9 +85,13 @@ namespace IsengardClient
         /// items to process in the inventory management flow
         /// </summary>
         public ItemsToProcessType InventoryProcessInputType { get; set; }
-        public bool IsForPermRun()
+        public bool ExpectsMob()
         {
-            return this.TargetRoom != null && (this.MobType.HasValue || !string.IsNullOrEmpty(this.MobText));
+            return MobType.HasValue || !string.IsNullOrEmpty(MobText) || (MobTextCounter >= 1 && MobTypeCounter >= 1);
+        }
+        public bool HasTargetMob()
+        {
+            return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
         }
         public void SetPermRun(PermRun p, IsengardMap gameMap)
         {

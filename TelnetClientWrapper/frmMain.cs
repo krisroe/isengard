@@ -3856,7 +3856,7 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (!_fleeing && !_hazying && pms.IsForPermRun())
+                if (!_fleeing && !_hazying && pms.PermRun != null)
                 {
                     pms.PermRunStart = DateTime.UtcNow;
                 }
@@ -3891,7 +3891,7 @@ namespace IsengardClient
 
                 //verify the mob is present and attackable before activating skills
                 if (_bw.CancellationPending) return;
-                if (!_hazying && !_fleeing && pms.IsForPermRun() && !AttackIsGoodToGo(pms))
+                if (!_hazying && !_fleeing && pms.ExpectsMob() && !AttackIsGoodToGo(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
@@ -3967,7 +3967,7 @@ namespace IsengardClient
                     hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
                     hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
                 }
-                bool hasCombat = pms.HasCombat();
+                bool hasCombat = pms.HasTargetMob();
                 string sMobText;
                 if (hasCombat)
                 {
@@ -6749,7 +6749,7 @@ BeforeHazy:
                 tsddb.Enabled = enabled;
             }
             btnAbort.Enabled = running;
-            btnComplete.Enabled = running && bwp.IsForPermRun();
+            btnComplete.Enabled = running && bwp.PermRun != null;
             EnableDisableActionButtons(bwp);
         }
 

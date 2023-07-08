@@ -652,6 +652,7 @@ namespace IsengardClient
         [SingularName("bag")]
         [PluralName("bags")]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         Bag,
 
         [SingularName("banded mail armor")]
@@ -745,6 +746,8 @@ namespace IsengardClient
         [SingularName("boomerang")]
         [PluralName("boomerangs")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(5)]
+        [Sellable(54)]
         Boomerang,
 
         //first use casts levitation
