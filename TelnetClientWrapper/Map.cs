@@ -787,10 +787,7 @@ namespace IsengardClient
             mithlondGraph.Rooms[oShipsHoldNE] = new System.Windows.Point(7, 7);
 
             Room oRandsQuarters = AddRoom("Rand's Quarters", "Rand's Quarters");
-            e = AddExit(oShipsHoldNE, oRandsQuarters, "door");
-            e.MustOpen = true;
-            e = AddExit(oRandsQuarters, oShipsHoldNE, "door");
-            e.MustOpen = true;
+            AddBidirectionalSameNameMustOpenExit(oShipsHoldNE, oRandsQuarters, "door");
             mithlondGraph.Rooms[oRandsQuarters] = new System.Windows.Point(7, 6.5);
         }
 
@@ -845,8 +842,8 @@ namespace IsengardClient
             brentDiehard.AddPermanentMobs(MobTypeEnum.BrentDiehard);
             mithlondGraph.Rooms[fishHold] = new System.Windows.Point(4.5, 3);
             mithlondGraph.Rooms[brentDiehard] = new System.Windows.Point(4.5, 2.5);
-            AddBidirectionalSameNameExit(fishHold, brentDiehard, "hatchway", true);
-            AddBidirectionalSameNameExit(cargoHold, fishHold, "hatch", true);
+            AddBidirectionalSameNameMustOpenExit(fishHold, brentDiehard, "hatchway");
+            AddBidirectionalSameNameMustOpenExit(cargoHold, fishHold, "hatch");
         }
 
         public AdjacencyGraph<Room, Exit> MapGraph
@@ -2184,10 +2181,20 @@ namespace IsengardClient
             AddBidirectionalExits(oElvenSacrificialTemple, oSecretUndergroundPassage2, BidirectionalExitType.SoutheastNorthwest);
             templeOfLolth.Rooms[oElvenSacrificialTemple] = new System.Windows.Point(1, 3);
 
-            Room oSecretUndergroundPassage3 = AddRoom("Green Slime", "Secret Underground Passage");
+            Room oSecretUndergroundPassage3 = AddRoom("Gr Slime Lolth", "Secret Underground Passage");
             oSecretUndergroundPassage3.AddPermanentMobs(MobTypeEnum.GreenSlime);
             AddBidirectionalExits(oSecretUndergroundPassage3, oSecretUndergroundPassage2, BidirectionalExitType.SouthwestNortheast);
             templeOfLolth.Rooms[oSecretUndergroundPassage3] = new System.Windows.Point(3, 3);
+
+            Room oCrematorium = AddRoom("Crematorium", "Crematorium");
+            AddBidirectionalSameNameHiddenExit(oSecretUndergroundPassage3, oCrematorium, "passage");
+            templeOfLolth.Rooms[oCrematorium] = new System.Windows.Point(4, 3);
+
+            Room oMausoleum = AddRoom("Mausoleum", "Mausoleum");
+            AddExit(oCrematorium, oMausoleum, "up");
+            e = AddExit(oMausoleum, oCrematorium, "down");
+            e.Hidden = true;
+            templeOfLolth.Rooms[oCrematorium] = new System.Windows.Point(4, 2);
         }
 
         private void AddHauntedMansion(Room hauntedMansionEntrance)
@@ -3260,7 +3267,7 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new System.Windows.Point(2, 7.5);
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor", "Parlor");
-            AddBidirectionalSameNameExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door", true);
+            AddBidirectionalSameNameMustOpenExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door");
             breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new System.Windows.Point(2, 7);
 
             Room oManagerMulloy = AddRoom("Manager Mulloy", "Study");
@@ -3364,7 +3371,7 @@ namespace IsengardClient
             AddExit(oGalbasiHalls, oAntechamber, "stairway");
             breeToImladrisGraph.Rooms[oGalbasiHalls] = new System.Windows.Point(5, 1.5);
 
-            Room oUnderHallsCorridorsGreenSlime = AddRoom("Green Slime", "Underhalls Corridors");
+            Room oUnderHallsCorridorsGreenSlime = AddRoom("Gr Slime Underhalls", "Underhalls Corridors");
             oUnderHallsCorridorsGreenSlime.AddPermanentMobs(MobTypeEnum.GreenSlime, MobTypeEnum.GreenSlime);
             AddBidirectionalExits(oUnderHallsCorridorsGreenSlime, oGalbasiHalls, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oUnderHallsCorridorsGreenSlime] = new System.Windows.Point(5, 1.25);
@@ -3496,12 +3503,7 @@ namespace IsengardClient
 
             Room oUnderhallsBugbearsLair = AddRoom("Bugbear Lair", "Bugbears' Lair");
             oUnderhallsBugbearsLair.AddPermanentMobs(MobTypeEnum.Bugbear, MobTypeEnum.Bugbear, MobTypeEnum.Bugbear);
-            e = AddExit(oUnderhallsCorridorsStoneDoor, oUnderhallsBugbearsLair, "stone");
-            e.IsUnknownKnockableKeyType = true;
-            e.MustOpen = true;
-            e = AddExit(oUnderhallsBugbearsLair, oUnderhallsCorridorsStoneDoor, "stone");
-            e.IsUnknownKnockableKeyType = true;
-            e.MustOpen = true;
+            AddBidirectionalSameNameExit(oUnderhallsCorridorsStoneDoor, oUnderhallsBugbearsLair, "stone", (exit) => { exit.IsUnknownKnockableKeyType = true; exit.MustOpen = true; });
             breeToImladrisGraph.Rooms[oUnderhallsBugbearsLair] = new System.Windows.Point(4, -2);
 
             Room oHiddenCubicle = AddRoom("Hidden Cubicle", "Hidden Cubicle");
@@ -4102,7 +4104,7 @@ namespace IsengardClient
 
             Room oBilboBaggins = AddRoom("Bilbo Baggins", "Bilbo's Living Quarters");
             oBilboBaggins.AddPermanentMobs(MobTypeEnum.BilboBaggins);
-            AddBidirectionalSameNameExit(oSouthwingHallway, oBilboBaggins, "oakdoor", true);
+            AddBidirectionalSameNameMustOpenExit(oSouthwingHallway, oBilboBaggins, "oakdoor");
             westOfBreeMap.Rooms[oBilboBaggins] = new System.Windows.Point(3, 3);
 
             Room oFrodoBaggins = AddRoom("Frodo Baggins", "Frodo's Living Quarters");
@@ -5123,10 +5125,7 @@ namespace IsengardClient
 
             Room oGraddyOgre = AddRoom("Ogre", "Graddy's Ogre Pen");
             oGraddyOgre.AddPermanentMobs(MobTypeEnum.Ogre);
-            e = AddExit(oGraddy, oGraddyOgre, "gate");
-            e.MustOpen = true;
-            e = AddExit(oGraddyOgre, oGraddy, "gate");
-            e.MustOpen = true;
+            AddBidirectionalSameNameMustOpenExit(oGraddy, oGraddyOgre, "gate");
             oShantyTownGraph.Rooms[oGraddyOgre] = new System.Windows.Point(5, 4);
         }
 
@@ -6839,17 +6838,30 @@ namespace IsengardClient
 
         private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText)
         {
-            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, false);
+            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, null);
         }
 
-        private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, bool mustOpen)
+        private void AddBidirectionalSameNameMustOpenExit(Room aRoom, Room bRoom, string exitText)
         {
-            Exit e = new Exit(aRoom, bRoom, exitText);
-            e.MustOpen = mustOpen;
-            AddExit(e);
-            e = new Exit(bRoom, aRoom, exitText);
-            e.MustOpen = mustOpen;
-            AddExit(e);
+            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, (e) => { e.MustOpen = true; });
+        }
+
+        private void AddBidirectionalSameNameHiddenExit(Room aRoom, Room bRoom, string exitText)
+        {
+            AddBidirectionalSameNameExit(aRoom, bRoom, exitText, (e) => { e.Hidden = true; });
+        }
+
+        private void AddBidirectionalSameNameExit(Room aRoom, Room bRoom, string exitText, Action<Exit> actionToApplyToBoth)
+        {
+            Exit e1 = new Exit(aRoom, bRoom, exitText);
+            Exit e2 = new Exit(bRoom, aRoom, exitText);
+            if (actionToApplyToBoth != null)
+            {
+                actionToApplyToBoth(e1);
+                actionToApplyToBoth(e2);
+            }
+            AddExit(e1);
+            AddExit(e2);
         }
 
         private void AddBidirectionalExits(Room aRoom, Room bRoom, BidirectionalExitType exitType)
