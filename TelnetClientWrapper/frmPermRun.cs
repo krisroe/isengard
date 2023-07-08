@@ -854,6 +854,12 @@ namespace IsengardClient
                 if (sFirst == null)
                 {
                     cboStrategy.Items.RemoveAt(0);
+                    ItemsToProcessType itemsToProcessTypeToSelect;
+                    if (s.TypesWithStepsEnabled == CommandType.None)
+                        itemsToProcessTypeToSelect = ItemsToProcessType.ProcessAllItemsInRoom;
+                    else
+                        itemsToProcessTypeToSelect = ItemsToProcessType.ProcessMonsterDrops;
+                    cboInventoryFlow.SelectedIndex = (int)itemsToProcessTypeToSelect;
                 }
             }
             if (_initialized)
