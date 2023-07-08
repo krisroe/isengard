@@ -852,6 +852,9 @@ namespace IsengardClient
 
         [SingularName("cloth armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(5)]
+        [ArmorClass(0.3)]
+        [Sellable(SellableEnum.Junk)]
         ClothArmor,
 
         [SingularName("cloth boots")]
