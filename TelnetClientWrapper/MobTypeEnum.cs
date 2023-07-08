@@ -329,6 +329,7 @@
 
         [SingularName("drow elf")]
         [PluralName("drow elfs")] //verified 7/5/23
+        [Aggressive]
         DrowElf,
 
         [SingularName("drunk")]

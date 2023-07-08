@@ -141,7 +141,7 @@ namespace IsengardClient
                 }
             }
             //verify pawn shop is reachable back and forth from the target room
-            if (PawnShop.HasValue)
+            if (PawnShop.HasValue && ItemsToProcessType != ItemsToProcessType.NoProcessing)
             {
                 Room pawnShop = gameMap.PawnShoppes[PawnShop.Value];
                 if (TargetRoomObject != pawnShop)

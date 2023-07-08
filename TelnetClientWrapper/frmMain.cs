@@ -2586,6 +2586,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.RoomPoisoned:
+                    case InformationalMessageType.PoisonDamage:
                         _playerStatusFlags |= PlayerStatusFlags.Poisoned;
                         break;
                 }

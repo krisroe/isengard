@@ -88,8 +88,9 @@ namespace IsengardClient
                 colRun.Name = "colRun";
                 colRun.ReadOnly = true;
                 colRun.Width = 75;
-                colGo.Name = "colGo";
+                colGo.HeaderText = "Go";
                 colGo.MinimumWidth = 6;
+                colGo.Name = "colGo";
                 colGo.ReadOnly = true;
                 colGo.Width = 75;
                 dgvPermRuns.Columns.Add(colChangeAndRun);
