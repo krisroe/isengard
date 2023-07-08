@@ -3539,7 +3539,7 @@ namespace IsengardClient
             AddExit(oImladrisCircle2, oAsylumCourtyard, "east");
             AddExit(oAsylumCourtyard, oImladrisCircle2, "road");
             imladrisGraph.Rooms[oAsylumCourtyard] = new System.Windows.Point(p.X + 1, p.Y);
-            //CSRTODO: asylum
+            AddImladrisAsylum(oAsylumCourtyard);
 
             Room oImladrisCircle3 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle2, BidirectionalExitType.SouthwestNortheast);
@@ -3743,6 +3743,72 @@ namespace IsengardClient
             e = AddBidirectionalExitsWithOut(oImladrisCityJail, oCaveTrollCell, "grate");
             e.MustOpen = true;
             imladrisGraph.Rooms[oCaveTrollCell] = new System.Windows.Point(7, 5.5);
+        }
+
+        private void AddImladrisAsylum(Room asylumCourtyard)
+        {
+            RoomGraph imladrisGraph = _graphs[MapType.Imladris];
+
+            Room oAsylumFoyer = AddRoom("Asylum Foyer", "Asylum Foyer");
+            AddExit(asylumCourtyard, oAsylumFoyer, "asylum");
+            AddExit(oAsylumFoyer, asylumCourtyard, "doors");
+            imladrisGraph.Rooms[oAsylumFoyer] = new System.Windows.Point(1, 1.5);
+
+            Room oAsylumWestHallway = AddRoom("West Hallway", "West Hallway");
+            AddBidirectionalExits(oAsylumWestHallway, oAsylumFoyer, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oAsylumWestHallway] = new System.Windows.Point(0, 1.5);
+
+            Room oAsylumEastHallway = AddRoom("East Hallway", "East Hallway");
+            AddBidirectionalExits(oAsylumFoyer, oAsylumEastHallway, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oAsylumEastHallway] = new System.Windows.Point(2, 1.5);
+
+            Room oNorthCourt = AddRoom("North Court", "North Court");
+            AddBidirectionalExits(oNorthCourt, oAsylumFoyer, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oNorthCourt] = new System.Windows.Point(1, 1);
+
+            Room oWestStairwayDownstairs = AddRoom("Stairway", "Stairway");
+            AddExit(oAsylumWestHallway, oWestStairwayDownstairs, "staircase");
+            AddExit(oWestStairwayDownstairs, oAsylumWestHallway, "hallway");
+            imladrisGraph.Rooms[oWestStairwayDownstairs] = new System.Windows.Point(0, 1);
+
+            Room oWestStairwayUpstairs = AddRoom("Stairway", "Stairway");
+            AddBidirectionalExits(oWestStairwayUpstairs, oWestStairwayDownstairs, BidirectionalExitType.UpDown);
+            imladrisGraph.Rooms[oWestStairwayUpstairs] = new System.Windows.Point(0, 0.5);
+
+            Room oWestHallwayUpstairs = AddRoom("Hallway", "West Hallway");
+            AddExit(oWestStairwayUpstairs, oWestHallwayUpstairs, "hallway");
+            AddExit(oWestHallwayUpstairs, oWestStairwayUpstairs, "staircase");
+            imladrisGraph.Rooms[oWestHallwayUpstairs] = new System.Windows.Point(0, 0);
+
+            Room oUpstairsLobby = AddRoom("Upstairs Lobby", "Upstairs Lobby");
+            AddBidirectionalExits(oWestHallwayUpstairs, oUpstairsLobby, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oUpstairsLobby] = new System.Windows.Point(1, 0);
+
+            Room oNorthHallway = AddRoom("North Hallway", "North Hallway");
+            Exit e = AddExit(oUpstairsLobby, oNorthHallway, "door");
+            e.MustOpen = true;
+            AddExit(oNorthHallway, oUpstairsLobby, "door");
+            imladrisGraph.Rooms[oNorthHallway] = new System.Windows.Point(1, -0.5);
+
+            Room oAsylumTop = AddRoom("Asylum Top", "The Top of the Asylum");
+            e = AddExit(oNorthHallway, oAsylumTop, "ladder");
+            e.Hidden = true;
+            imladrisGraph.Rooms[oAsylumTop] = new System.Windows.Point(1, -1);
+
+            Room oEastHallwayUpstairs = AddRoom("Hallway", "East Hallway");
+            AddBidirectionalExits(oUpstairsLobby, oEastHallwayUpstairs, BidirectionalExitType.WestEast);
+            imladrisGraph.Rooms[oEastHallwayUpstairs] = new System.Windows.Point(2, 0);
+
+            Room oEastStairwayUpstairs = AddRoom("Stairway", "Stairway");
+            AddExit(oEastHallwayUpstairs, oEastStairwayUpstairs, "staircase");
+            AddExit(oEastStairwayUpstairs, oEastHallwayUpstairs, "hallway");
+            imladrisGraph.Rooms[oEastStairwayUpstairs] = new System.Windows.Point(2, 0.5);
+
+            Room oEastStairwayDownstairs = AddRoom("Stairway", "Stairway");
+            AddBidirectionalExits(oEastStairwayUpstairs, oEastStairwayDownstairs, BidirectionalExitType.UpDown);
+            AddExit(oEastStairwayDownstairs, oAsylumEastHallway, "hallway");
+            AddExit(oAsylumEastHallway, oEastStairwayDownstairs, "staircase");
+            imladrisGraph.Rooms[oEastStairwayDownstairs] = new System.Windows.Point(2, 1);
         }
 
         private void AddEastOfImladris(Room oEastGateOfImladrisOutside, Room oEastGateOfImladrisInside, out Room westGateOfEsgaroth)

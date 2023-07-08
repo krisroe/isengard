@@ -1306,6 +1306,10 @@
         //CSRTODO: no plural
         Roc,
 
+        [SingularName("sadist")]
+        [PluralName("sadists")]
+        Sadist,
+
         [SingularName("sailor")]
         [PluralName("sailors")]
         Sailor,
@@ -1456,6 +1460,10 @@
         [SingularName("sobbing girl")]
         [PluralName("sobbing girls")]
         SobbingGirl,
+
+        [SingularName("sociopath")]
+        [PluralName("sociopaths")]
+        Sociopath,
 
         [SingularName("spectre")]
         [PluralName("spectres")]
