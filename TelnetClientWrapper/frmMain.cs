@@ -147,6 +147,7 @@ namespace IsengardClient
         private CommandResult? _commandResult;
         private int _commandResultCounter = 0;
         private int _commandSpecificResult;
+        private SelectedInventoryOrEquipmentItem _commandInventoryItem;
         private int _lastCommandDamage;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
@@ -1459,7 +1460,7 @@ namespace IsengardClient
                 _fleeing = false;
                 if (roomTransitionInfo.DrankHazy)
                 {
-                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(ItemTypeEnum.HazyPotion, 1, 1) }, ItemManagementAction.ConsumeItem);
+                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(ItemTypeEnum.HazyPotion, 1, 1) }, ItemManagementAction.ConsumeItem, null);
                 }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
@@ -1891,7 +1892,7 @@ namespace IsengardClient
             }
             if (consumedItems != null && consumedItems.Count > 0)
             {
-                AddOrRemoveItemsFromInventoryOrEquipment(flParams, consumedItems, ItemManagementAction.ConsumeItem);
+                AddOrRemoveItemsFromInventoryOrEquipment(flParams, consumedItems, ItemManagementAction.ConsumeItem, null);
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && commandType.HasValue && bct.Value == commandType.Value)
@@ -2016,7 +2017,7 @@ namespace IsengardClient
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem)
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem || bctValue == BackgroundCommandType.Trade)
                 {
                     if (bctValue == BackgroundCommandType.DrinkHazy)
                     {
@@ -2171,7 +2172,7 @@ namespace IsengardClient
                     ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
                     if (weaponIT.HasValue)
                     {
-                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip, null);
                     }
                 }
             }
@@ -2269,9 +2270,13 @@ namespace IsengardClient
         private static void OnThatIsNotHere(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
+            if (bct.HasValue)
             {
-                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.Attack || bctValue == BackgroundCommandType.Trade)
+                {
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
             }
         }
 
@@ -2591,13 +2596,13 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.EquipmentDestroyed:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.DestroyEquipment);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.DestroyEquipment, null);
                         break;
                     case InformationalMessageType.EquipmentFellApart:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip, null);
                         break;
                     case InformationalMessageType.WeaponIsBroken:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.Unequip, null);
                         if (bct.HasValue && bct.Value == BackgroundCommandType.Attack)
                         {
                             _lastCommandDamage = 0;
@@ -2605,7 +2610,7 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.ItemMagicallySentToYou:
-                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.MagicallySentItem);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flp, new List<ItemEntity>() { next.Item }, ItemManagementAction.MagicallySentItem, null);
                         break;
                     case InformationalMessageType.MobPickedUpItem:
                         lock (_currentEntityInfo.EntityLock)
@@ -2827,6 +2832,12 @@ namespace IsengardClient
 
         private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed, bool poisonCured)
         {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            bool inBackgroundCommand = bct.HasValue;
+            BackgroundCommandType bctValue = BackgroundCommandType.Quit;
+            if (bct.HasValue) bctValue = bct.Value;
+            SelectedInventoryOrEquipmentItem sioei = bctValue == BackgroundCommandType.Trade ? _commandInventoryItem : null;
+
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.RemoveAll) == InitializationStep.None;
             bool hasItems = items != null && items.Count > 0;
@@ -2835,7 +2846,7 @@ namespace IsengardClient
             bool couldBeRemoveAll = !hasSpells && !hasGold && action == ItemManagementAction.Unequip;
             if (hasItems)
             {
-                AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, action);
+                AddOrRemoveItemsFromInventoryOrEquipment(flParams, items, action, sioei);
             }
             if (gold.HasValue)
             {
@@ -2857,10 +2868,8 @@ namespace IsengardClient
             {
                 _playerStatusFlags &= ~PlayerStatusFlags.Poisoned;
             }
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue)
+            if (inBackgroundCommand)
             {
-                BackgroundCommandType bctValue = bct.Value;
                 if (action == ItemManagementAction.PickUpItem && bctValue == BackgroundCommandType.GetItem)
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
@@ -2868,7 +2877,8 @@ namespace IsengardClient
                 }
                 else if ((action == ItemManagementAction.SellItem && bctValue == BackgroundCommandType.SellItem) ||
                     (action == ItemManagementAction.DropItem && bctValue == BackgroundCommandType.DropItem) ||
-                    (action == ItemManagementAction.Unequip && bctValue == BackgroundCommandType.RemoveEquipment))
+                    (action == ItemManagementAction.Unequip && bctValue == BackgroundCommandType.RemoveEquipment) ||
+                    (action == ItemManagementAction.Trade && bctValue == BackgroundCommandType.Trade))
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
@@ -2879,10 +2889,9 @@ namespace IsengardClient
             }
         }
 
-        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action)
+        private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, SelectedInventoryOrEquipmentItem sioei)
         {
             EntityChangeType changeType;
-            List<ItemEntity> pickupItemsMoney = null;
             if (action == ItemManagementAction.Equip)
             {
                 changeType = EntityChangeType.EquipItem;
@@ -2894,7 +2903,10 @@ namespace IsengardClient
             else if (action == ItemManagementAction.PickUpItem)
             {
                 changeType = EntityChangeType.PickUpItem;
-                pickupItemsMoney = new List<ItemEntity>();
+            }
+            else if (action == ItemManagementAction.Trade)
+            {
+                changeType = EntityChangeType.Trade;
             }
             else if (action == ItemManagementAction.MagicallySentItem)
             {
@@ -2920,10 +2932,11 @@ namespace IsengardClient
             iec.ChangeType = changeType;
             lock (_currentEntityInfo.EntityLock)
             {
+                EntityChangeEntry changeEntry;
                 foreach (ItemEntity nextItemEntity in items)
                 {
                     bool addChange = false;
-                    EntityChangeEntry changeEntry = new EntityChangeEntry();
+                    changeEntry = new EntityChangeEntry();
                     changeEntry.Item = nextItemEntity;
                     bool removeEquipment = changeType == EntityChangeType.UnequipItem || changeType == EntityChangeType.DestroyEquipment;
                     StaticItemData sid = null;
@@ -2976,21 +2989,16 @@ namespace IsengardClient
                     }
                     else //equipment not involved
                     {
-                        if (sid == null || (sid.ItemClass != ItemClass.Money && sid.ItemClass != ItemClass.Coins))
+                        if (sid == null || !sid.IsCurrency()) //add/remove from inventory if not currency
                         {
-                            //add/remove from inventory
-                            bool isAddToInventory = changeType == EntityChangeType.PickUpItem || changeType == EntityChangeType.MagicallySentItem;
+                            bool isAddToInventory = changeType == EntityChangeType.PickUpItem || changeType == EntityChangeType.MagicallySentItem || changeType == EntityChangeType.Trade;
                             addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, isAddToInventory, changeEntry);
-                            if (changeType == EntityChangeType.PickUpItem) //remove from room items
-                            {
-                                addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
-                            }
                         }
-                        else if (changeType == EntityChangeType.PickUpItem)
+                        if (changeType == EntityChangeType.PickUpItem) //remove from room items
                         {
-                            pickupItemsMoney.Add(nextItemEntity); //picking up money handled below since it doesn't go into inventory
+                            addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, false, changeEntry);
                         }
-                        if (changeType == EntityChangeType.DropItem)
+                        if (changeType == EntityChangeType.DropItem) //add to room items
                         {
                             addChange |= iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, nextItemEntity, true, changeEntry);
                         }
@@ -3000,27 +3008,20 @@ namespace IsengardClient
                         iec.Changes.Add(changeEntry);
                     }
                 }
+                if (sioei != null && action == ItemManagementAction.Trade) //remove traded item from inventory
+                {
+                    int iActualIndex = _currentEntityInfo.PickActualIndexFromItemCounter(ItemLocationType.Inventory, sioei.ItemType, sioei.Counter, false);
+                    if (iActualIndex >= 0)
+                    {
+                        changeEntry = new EntityChangeEntry();
+                        changeEntry.InventoryAction = false;
+                        changeEntry.InventoryIndex = iActualIndex;
+                        iec.Changes.Add(changeEntry);
+                    }
+                }
                 if (iec.Changes.Count > 0)
                 {
                     _currentEntityInfo.CurrentEntityChanges.Add(iec);
-                }
-                if (pickupItemsMoney != null && pickupItemsMoney.Count > 0)
-                {
-                    iec = new EntityChange();
-                    iec.ChangeType = EntityChangeType.RemoveRoomItems;
-                    foreach (ItemEntity ie in pickupItemsMoney)
-                    {
-                        EntityChangeEntry changeEntry = new EntityChangeEntry();
-                        changeEntry.Item = ie;
-                        if (iec.AddOrRemoveEntityItemFromRoomItems(_currentEntityInfo, ie, false, changeEntry))
-                        {
-                            iec.Changes.Add(changeEntry);
-                        }
-                    }
-                    if (iec.Changes.Count > 0)
-                    {
-                        _currentEntityInfo.CurrentEntityChanges.Add(iec);
-                    }
                 }
             }
         }
@@ -3074,6 +3075,7 @@ namespace IsengardClient
                             {
                                 _commandResult = CommandResult.CommandSuccessful;
                                 _commandSpecificResult = 0;
+                                _commandInventoryItem = null;
                             }
                         }
                         else if (oist == OutputItemSequenceType.HPMPStatus)
@@ -3258,14 +3260,14 @@ namespace IsengardClient
                 new AttackSequence(OnAttack),
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
-                new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Attack), //triggered by power attack
+                new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.Trade }), //triggered by power attack
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
                 new ConstantOutputSequence("You cannot harm him.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
                 new ConstantOutputSequence("You cannot harm her.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem }),
+                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade }),
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailItemAction, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
@@ -3762,6 +3764,7 @@ namespace IsengardClient
                 }
                 _commandResult = null;
                 _commandSpecificResult = 0;
+                _commandInventoryItem = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
@@ -4003,10 +4006,42 @@ namespace IsengardClient
 
                 //verify the mob is present and attackable before activating skills
                 if (_bw.CancellationPending) return;
-                if (!_hazying && !_fleeing && pms.ExpectsMob() && !AttackIsGoodToGo(pms))
+                if (!_hazying && !_fleeing && pms.ExpectsMob() && !FoundMob(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
                     return;
+                }
+
+                bool isTrade = pms.InventoryItems != null;
+                if (!_hazying && !_fleeing && isTrade)
+                {
+                    string sMobTarget = GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false);
+                    if (!string.IsNullOrEmpty(sMobTarget))
+                    {
+                        AddConsoleMessage("Unable to construct trade mob target for " + pms.MobType.Value);
+                        return;
+                    }
+                    for (int i = pms.InventoryItems.Count - 1; i >= 0; i--)
+                    {
+                        SelectedInventoryOrEquipmentItem sioei = pms.InventoryItems[i];
+                        ItemTypeEnum eItemType = sioei.ItemType;
+                        string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eItemType, sioei.Counter, false, false);
+                        if (!string.IsNullOrEmpty(sItemText))
+                        {
+                            AddConsoleMessage("Unable to construct trade command for " + eItemType);
+                            return;
+                        }
+                        _commandInventoryItem = sioei;
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Trade, $"trade {sItemText} {sMobTarget}", pms, null, false);
+                        if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                        {
+                            break;
+                        }
+                        else if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                        {
+                            return;
+                        }
+                    }
                 }
 
                 //activate potions/skills at the target if there is no threshold
@@ -4113,7 +4148,7 @@ namespace IsengardClient
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
-                        if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
+                        if (!isTrade && (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep))
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
@@ -4870,7 +4905,7 @@ BeforeHazy:
                 {
                     ItemTypeEnum itemType = nextItemPickedUp.ItemType.Value;
                     StaticItemData sid = ItemEntity.StaticItemData[itemType];
-                    if (sid.ItemClass != ItemClass.Coins && sid.ItemClass != ItemClass.Money)
+                    if (!sid.IsCurrency())
                     {
                         if (eInventoryWorkflow == InventoryManagementWorkflow.Ferry)
                         {
@@ -5321,7 +5356,7 @@ BeforeHazy:
             return ret;
         }
 
-        private bool AttackIsGoodToGo(BackgroundWorkerParameters pms)
+        private bool FoundMob(BackgroundWorkerParameters pms)
         {
             bool ret;
             if (pms.MobType.HasValue)
@@ -6792,6 +6827,7 @@ BeforeHazy:
             {
                 _commandResult = null;
                 _commandSpecificResult = 0;
+                _commandInventoryItem = null;
                 _lastCommand = null;
             }
         }
@@ -8301,7 +8337,7 @@ BeforeHazy:
                         }
                         else
                         {
-                            if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.ConsumeItem || rcType == EntityChangeType.EquipItem)
+                            if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.ConsumeItem || rcType == EntityChangeType.EquipItem || rcType == EntityChangeType.Trade)
                             {
                                 foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                                 {
@@ -8311,11 +8347,11 @@ BeforeHazy:
                                     }
                                 }
                             }
-                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.MagicallySentItem)
+                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.MagicallySentItem || rcType == EntityChangeType.Trade)
                             {
                                 foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                                 {
-                                    if (nextEntry.InventoryAction.GetValueOrDefault(true))
+                                    if (nextEntry.InventoryAction.HasValue && nextEntry.InventoryAction.Value)
                                     {
                                         ItemInInventoryList it = new ItemInInventoryList(nextEntry.Item);
                                         if (nextEntry.InventoryIndex == -1)
@@ -9454,15 +9490,10 @@ BeforeHazy:
             StaticItemData sid = null;
             int iCounter = 0;
             ItemTypeEnum itemType = ItemTypeEnum.GoldCoins;
-            Room r;
-            lock (_currentEntityInfo.EntityLock)
+            Room r = _currentEntityInfo.CurrentRoom;
+            List<SelectedInventoryOrEquipmentItem> sioeiList = new List<SelectedInventoryOrEquipmentItem>();
+            foreach (object oObj in lst.SelectedItems)
             {
-                object oObj = lst.SelectedItem;
-                if (oObj == null)
-                {
-                    e.Cancel = true;
-                    return;
-                }
                 ItemEntity ie = isInventory ? ((ItemInInventoryList)oObj).Item : ((ItemInEquipmentList)oObj).Item;
                 if (ie.ItemType.HasValue)
                 {
@@ -9507,14 +9538,16 @@ BeforeHazy:
                     e.Cancel = true;
                     return;
                 }
-                r = _currentEntityInfo.CurrentRoom;
+                sioeiList.Add(new SelectedInventoryOrEquipmentItem(itemType, iCounter, isInventory));
             }
+            if (sioeiList.Count == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
+            bool hasMultiple = sioeiList.Count > 0;
 
-            SelectedInventoryOrEquipmentItem sioei = new SelectedInventoryOrEquipmentItem();
-            sioei.ItemType = itemType;
-            sioei.Counter = iCounter;
-            sioei.IsInventory = isInventory;
-            ctxInventoryOrEquipmentItem.Tag = sioei;
+            ctxInventoryOrEquipmentItem.Tag = sioeiList;
 
             string sActionTransferBetweenInventoryAndEquipment;
             ItemClass iclass = sid.ItemClass;
@@ -9537,6 +9570,12 @@ BeforeHazy:
             ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             if (isInventory)
             {
+                if (r != null && _gameMap.Trades.ContainsKey(itemType))
+                {
+                    tsmi = new ToolStripMenuItem();
+                    tsmi.Text = "trade";
+                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                }
                 if (iclass == ItemClass.Scroll)
                 {
                     tsmi = new ToolStripMenuItem();
@@ -9575,7 +9614,7 @@ BeforeHazy:
                 tsmi.Text = sActionTransferBetweenInventoryAndEquipment;
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
-            if (iclass == ItemClass.Weapon && _settingsData.Weapon != itemType)
+            if (iclass == ItemClass.Weapon && _settingsData.Weapon != itemType && !hasMultiple)
             {
                 tsmi = new ToolStripMenuItem();
                 tsmi.Text = "Set Weapon";
@@ -9585,39 +9624,94 @@ BeforeHazy:
 
         private void ctxInventoryOrEquipmentItem_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)ctxInventoryOrEquipmentItem.Tag;
-            ItemTypeEnum eItemType = sioei.ItemType;
-            ToolStripMenuItem tsmi = (ToolStripMenuItem)e.ClickedItem;
-            string command = tsmi.Text;
-            if (tsmi.Text == "Set Weapon")
+            List<SelectedInventoryOrEquipmentItem> sioeis = (List<SelectedInventoryOrEquipmentItem>)ctxInventoryOrEquipmentItem.Tag;
+            MobTypeEnum? foundTradeMob = null;
+            Room tradeRoom = null;
+            for (int i = sioeis.Count - 1; i >= 0; i--)
             {
-                _settingsData.Weapon = eItemType;
-                txtWeapon.Text = eItemType.ToString();
-            }
-            else
-            {
-                ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
-                lock (_currentEntityInfo.EntityLock)
+                SelectedInventoryOrEquipmentItem sioei = sioeis[i];
+                ItemTypeEnum eItemType = sioei.ItemType;
+                ToolStripMenuItem tsmi = (ToolStripMenuItem)e.ClickedItem;
+                string menuText = tsmi.Text;
+                if (menuText == "Set Weapon")
                 {
-                    bool validateAgainstOtherSources;
-                    if (ilt == ItemLocationType.Equipment)
-                        validateAgainstOtherSources = command != "remove";
-                    else
-                        validateAgainstOtherSources = false;
-                    string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
-                    if (!string.IsNullOrEmpty(sText))
+                    _settingsData.Weapon = eItemType;
+                    txtWeapon.Text = eItemType.ToString();
+                }
+                else if (menuText == "trade")
+                {
+                    if (!_gameMap.Trades.TryGetValue(eItemType, out MobTypeEnum tradeMob))
                     {
-                        SendCommand(command + " " + sText, InputEchoType.On);
+                        MessageBox.Show($"{eItemType} is not tradeable.");
+                        return;
+                    }
+                    else if (foundTradeMob.HasValue && tradeMob != foundTradeMob.Value)
+                    {
+                        MessageBox.Show("Cannot trade with multiple mobs at once.");
+                        return;
+                    }
+                    else if (tradeRoom == null && !_gameMap.MobRooms.TryGetValue(tradeMob, out tradeRoom))
+                    {
+                        MessageBox.Show($"No room found for {tradeMob}.");
+                        return;
+                    }
+                    else if (tradeRoom == null)
+                    {
+                        MessageBox.Show($"Ambiguous room found for {tradeMob}.");
+                        return;
+                    }
+                    else
+                    {
+                        foundTradeMob = tradeMob;
+                    }
+                }
+                else
+                {
+                    ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
+                    lock (_currentEntityInfo.EntityLock)
+                    {
+                        bool validateAgainstOtherSources;
+                        if (ilt == ItemLocationType.Equipment)
+                            validateAgainstOtherSources = menuText != "remove";
+                        else
+                            validateAgainstOtherSources = false;
+                        string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
+                        if (!string.IsNullOrEmpty(sText))
+                        {
+                            SendCommand(menuText + " " + sText, InputEchoType.On);
+                        }
                     }
                 }
             }
-        }
 
-        private class SelectedInventoryOrEquipmentItem
-        {
-            public ItemTypeEnum ItemType;
-            public int Counter;
-            public bool IsInventory;
+            if (tradeRoom != null)
+            {
+                Room currentRoom = _currentEntityInfo.CurrentRoom;
+                if (currentRoom == null)
+                {
+                    MessageBox.Show("No current room, cannot trade.");
+                    return;
+                }
+                List<Exit> foundPath = null;
+                if (currentRoom != tradeRoom)
+                {
+                    foundPath = MapComputation.ComputeLowestCostPath(currentRoom, tradeRoom, GetGraphInputs());
+                    if (foundPath == null)
+                    {
+                        MessageBox.Show("No path found to " + foundTradeMob.Value);
+                        return;
+                    }
+                }
+                if ((MessageBox.Show($"Are you sure you want to trade with {foundTradeMob.Value} at {tradeRoom.DisplayName}?", "Trade", MessageBoxButtons.OKCancel) == DialogResult.OK))
+                {
+                    BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+                    bwp.Exits = foundPath;
+                    bwp.MobType = foundTradeMob.Value;
+                    bwp.MobTypeCounter = 1;
+                    bwp.InventoryItems = sioeis;
+                    RunBackgroundProcess(bwp);
+                }
+            }
         }
 
         private void tsbReloadMap_Click(object sender, EventArgs e)

@@ -852,6 +852,18 @@ namespace IsengardClient.Tests
             Assert.IsTrue(items[0].ItemType.Value == ItemTypeEnum.PotOfGold);
             Assert.IsTrue(action == ItemManagementAction.PickUpItem);
             Assert.IsTrue(totalGold.Value == 557420);
+
+            items = null;
+            action = null;
+            totalGold = null;
+            soldGold = null;
+            spells = null;
+            potionConsumed = null;
+            flp.Lines = new List<string>() { "Oohlgrist gives you the tomb key." };
+            seq.FeedLine(flp);
+            Assert.IsTrue(items.Count == 1);
+            Assert.IsTrue(items[0].ItemType.Value == ItemTypeEnum.TombKey);
+            Assert.IsTrue(action == ItemManagementAction.Trade);
         }
 
         [TestMethod]

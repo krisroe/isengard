@@ -1115,10 +1115,6 @@
         [PluralName("naked hobbits")]
         NakedHobbit,
 
-        //trades goblin blade for platinum ring
-        //trades sprite sword for ?
-        //trades diamond for mask of distortion
-        //trades emerald for flint blade
         [SingularName("Nathalin the Trader")]
         //CSRTODO: no plural
         NathalinTheTrader,
@@ -1401,6 +1397,7 @@
 
         [SingularName("Shadow of Incendius")]
         //CSRTODO: no plural
+        [MobVisibility(MobVisibility.Hidden)]
         ShadowOfIncendius,
 
         [SingularName("shallow scholar")]

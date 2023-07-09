@@ -1386,15 +1386,14 @@ namespace IsengardClient
         }
 
         /// <summary>
-        /// pick selection text for an inventory/equipment/room item, assumes the entity lock is present
+        /// picks the actual index for an item in inventory from an item type and counter
         /// </summary>
         /// <param name="locationType">where to look for the item</param>
         /// <param name="itemType">item type</param>
-        /// <param name="itemCounter">item counter of that type</param>
-        /// <param name="reverseOrder">whether to search in reverse order</param>
-        /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
-        /// <returns>selection text for the item</returns>
-        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, bool validateAgainstOtherSources)
+        /// <param name="itemCounter">item counter</param>
+        /// <param name="reverseOrder">whether to look in forward or reverse order</param>
+        /// <returns>actual index if found, -1 if not found</returns>
+        public int PickActualIndexFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder)
         {
             int iActualIndex = -1;
             int iCounter = 0;
@@ -1449,6 +1448,21 @@ namespace IsengardClient
             {
                 throw new InvalidOperationException();
             }
+            return iActualIndex;
+        }
+
+        /// <summary>
+        /// pick selection text for an inventory/equipment/room item, assumes the entity lock is present
+        /// </summary>
+        /// <param name="locationType">where to look for the item</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="itemCounter">item counter of that type</param>
+        /// <param name="reverseOrder">whether to search in reverse order</param>
+        /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
+        /// <returns>selection text for the item</returns>
+        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, bool validateAgainstOtherSources)
+        {
+            int iActualIndex = PickActualIndexFromItemCounter(locationType, itemType, itemCounter, reverseOrder);
             return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex, validateAgainstOtherSources);
         }
 

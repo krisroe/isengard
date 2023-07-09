@@ -174,7 +174,7 @@ namespace IsengardClient
                 {
                     sText = this.Count + " " + sText;
                 }
-                if (eItemClass != ItemClass.Coins && eItemClass != ItemClass.Money)
+                if (!sid.IsCurrency())
                 {
                     if (sid.Weight > 0)
                     {
@@ -285,8 +285,25 @@ namespace IsengardClient
         }
     }
 
+    internal class SelectedInventoryOrEquipmentItem
+    {
+        public SelectedInventoryOrEquipmentItem(ItemTypeEnum ItemType, int Counter, bool IsInventory)
+        {
+            this.ItemType = ItemType;
+            this.Counter = Counter;
+            this.IsInventory = IsInventory;
+        }
+        public ItemTypeEnum ItemType;
+        public int Counter;
+        public bool IsInventory;
+    }
+
     internal class StaticItemData
     {
+        public bool IsCurrency()
+        {
+            return ItemClass == ItemClass.Money || ItemClass == ItemClass.Coins;
+        }
         public ItemClass ItemClass { get; set; }
         public ItemTypeEnum ItemType { get; set; }
         public EquipmentType EquipmentType { get; set; }
@@ -612,8 +629,12 @@ namespace IsengardClient
         [Scroll(SpellsEnum.burn)]
         AmberScroll,
 
+        //destroys whatever is put in it (e.g. "some toilet paper is devoured by an ancient bag!")
         [SingularName("ancient bag")]
         [PluralName("ancient bags")]
+        [ItemClass(ItemClass.Bag)]
+        [Weight(1)]
+        [Sellable(123)]
         AncientBag,
 
         [SingularName("ancient lyre")]
@@ -1353,6 +1374,8 @@ namespace IsengardClient
         [SingularName("hand axe")]
         [PluralName("hand axes")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(2)]
+        [Sellable(39)]
         HandAxe,
 
         [SingularName("hardwood shield")]
@@ -2199,6 +2222,12 @@ namespace IsengardClient
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
         ToiletPaper,
+
+        [SingularName("tomb key")]
+        [PluralName("tomb keys")]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        TombKey,
 
         [SingularName("topaz")]
         //CSRTODO: plural

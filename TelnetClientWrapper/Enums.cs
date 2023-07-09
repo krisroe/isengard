@@ -583,6 +583,7 @@ namespace IsengardClient
         MagicallySentItem,
         DropItem,
         ConsumeItem,
+        Trade,
         EquipItem,
         UnequipItem,
         DestroyEquipment,
@@ -601,6 +602,7 @@ namespace IsengardClient
         Equip,
         Unequip,
         DestroyEquipment,
+        Trade,
     }
 
     internal enum EquipmentType

@@ -51,6 +51,10 @@ namespace IsengardClient
         /// counter for a mob identified by a type
         /// </summary>
         public int MobTypeCounter { get; set; }
+        /// <summary>
+        /// inventory items
+        /// </summary>
+        public List<SelectedInventoryOrEquipmentItem> InventoryItems { get; set; }
         public bool Foreground { get; set; }
         /// <summary>
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.

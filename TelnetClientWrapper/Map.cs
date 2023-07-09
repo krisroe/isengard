@@ -3159,6 +3159,10 @@ namespace IsengardClient
             breeToImladrisGraph.Rooms[oDeepForest] = new System.Windows.Point(12, 5);
 
             Room oNathalin = AddRoom("Nathalin", "Trading Post");
+            Trades[ItemTypeEnum.Diamond] = MobTypeEnum.NathalinTheTrader; //mask of distortion
+            Trades[ItemTypeEnum.GoblinBlade] = MobTypeEnum.NathalinTheTrader; //platinum ring
+            Trades[ItemTypeEnum.Emerald] = MobTypeEnum.NathalinTheTrader; //flint blade
+            //CSRTODO: sprite sword
             AddPermanentMobs(oNathalin, MobTypeEnum.NathalinTheTrader);
             AddBidirectionalExitsWithOut(oDeepForest, oNathalin, "tree");
             breeToImladrisGraph.Rooms[oNathalin] = new System.Windows.Point(13, 5);

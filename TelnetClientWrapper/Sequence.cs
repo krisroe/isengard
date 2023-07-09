@@ -1046,6 +1046,7 @@ namespace IsengardClient
         private const string YOU_REMOVE_PREFIX = "You remove ";
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
+        private const string TRADE_MID_TEXT = " gives you ";
         private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> _onSatisfied;
         public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> onSatisfied)
         {
@@ -1060,309 +1061,290 @@ namespace IsengardClient
             List<string> activeSpells = null;
             bool potionConsumed = false;
             bool poisonCured = false;
-            if (Lines.Count > 0)
+            int iLinesCount = Lines.Count;
+            if (iLinesCount > 0)
             {
-                string firstLine = Lines[0];
-                if (firstLine == "You aren't wearing anything that can be removed.")
-                {
-                    _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false, false);
-                    flp.FinishedProcessing = true;
-                    return;
-                }
+                List<ItemEntity> itemsManaged = null;
                 int iIndex = 0;
                 while (true)
                 {
-                    firstLine = Lines[iIndex];
-                    if (firstLine == "You feel extraordinarily light as you wear these boots.")
+                    int iOriginalIndex = iIndex;
+                    string nextLine = Lines[iIndex];
+                    if (!string.IsNullOrEmpty(nextLine))
+                    {
+                        int lineLength = nextLine.Length;
+                        bool expectCapitalized = false;
+                        string objectText = string.Empty;
+                        if (nextLine == "You aren't wearing anything that can be removed.")
+                        {
+                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false, false);
+                            flp.FinishedProcessing = true;
+                            return;
+                        }
+                        else if (nextLine.StartsWith("You can't trade with the ") || nextLine.EndsWith(" says, \"I don't want that!\""))
+                        {
+                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Trade, null, 0, null, false, false);
+                            flp.FinishedProcessing = true;
+                            return;
+                        }
+                        else if (nextLine.StartsWith(YOU_WEAR_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
+                            eAction = ItemManagementAction.Equip;
+                            List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, wornObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    else if (ie.Count != 1)
+                                    {
+                                        flp.ErrorMessages.Add("Unexpected item count for worn equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
+                                    }
+                                    else
+                                    {
+                                        itemsManaged.Add(ie);
+                                    }
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(YOU_HOLD_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
+                            eAction = ItemManagementAction.Equip;
+                            List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, heldObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    else if (ie.Count != 1)
+                                    {
+                                        flp.ErrorMessages.Add("Unexpected item count for held equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
+                                    }
+                                    else
+                                    {
+                                        itemsManaged.Add(ie);
+                                    }
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(YOU_REMOVE_PREFIX) || nextLine.StartsWith(YOU_REMOVED_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Unequip) return;
+                            eAction = ItemManagementAction.Unequip;
+                            string sExpectedPrefix;
+                            if (nextLine.StartsWith(YOU_REMOVE_PREFIX))
+                            {
+                                sExpectedPrefix = YOU_REMOVE_PREFIX;
+                            }
+                            else
+                            {
+                                sExpectedPrefix = YOU_REMOVED_PREFIX;
+                            }
+                            List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, removedObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    else if (ie.Count != 1)
+                                    {
+                                        flp.ErrorMessages.Add("Unexpected item count for removed equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
+                                    }
+                                    else
+                                    {
+                                        itemsManaged.Add(ie);
+                                    }
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(YOU_WIELD_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
+                            eAction = ItemManagementAction.Equip;
+                            List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, wieldedObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    else if (ie.Count != 1)
+                                    {
+                                        flp.ErrorMessages.Add("Unexpected item count for wielded equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
+                                    }
+                                    else
+                                    {
+                                        itemsManaged.Add(ie);
+                                    }
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(YOU_GET_A_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.PickUpItem) return;
+                            eAction = ItemManagementAction.PickUpItem;
+                            List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, retrievedObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    itemsManaged.Add(ie);
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(YOU_DROP_A_PREFIX) && nextLine != InformationalMessagesSequence.FLEE_WITH_DROP_WEAPON)
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem) return;
+                            eAction = ItemManagementAction.DropItem;
+                            List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out iIndex, null);
+                            List<ItemEntity> items = new List<ItemEntity>();
+                            RoomTransitionSequence.LoadMustBeItems(items, droppedObjects, flp.ErrorMessages);
+                            if (items.Count > 0)
+                            {
+                                itemsManaged = new List<ItemEntity>();
+                                foreach (ItemEntity ie in items)
+                                {
+                                    if (ie is UnknownItemEntity)
+                                    {
+                                        flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
+                                    }
+                                    itemsManaged.Add(ie);
+                                }
+                            }
+                        }
+                        else if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem) return;
+                            eAction = ItemManagementAction.SellItem;
+                            if (!nextLine.EndsWith(".")) return;
+                            int goldForPrefixIndex = nextLine.IndexOf(" gold for ");
+                            int goldLength = goldForPrefixIndex - THE_SHOPKEEP_GIVES_YOU_PREFIX.Length;
+                            if (goldLength <= 0) return;
+                            string sGold = nextLine.Substring(THE_SHOPKEEP_GIVES_YOU_PREFIX.Length, goldLength);
+                            if (!int.TryParse(sGold, out int iNextGold))
+                            {
+                                return;
+                            }
+                            iSellGold += iNextGold;
+                            int objectLen = lineLength - goldForPrefixIndex - " gold for ".Length - 1;
+                            if (objectLen <= 0) return;
+                            objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
+                        }
+                        else if (nextLine.Contains(TRADE_MID_TEXT))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Trade) return;
+                            eAction = ItemManagementAction.Trade;
+                            if (!nextLine.EndsWith(".")) return;
+                            int iMidIndex = nextLine.IndexOf(TRADE_MID_TEXT);
+                            int iItemLength = lineLength - iMidIndex - TRADE_MID_TEXT.Length - 1;
+                            if (iItemLength <= 0) return;
+                            objectText = nextLine.Substring(iMidIndex + TRADE_MID_TEXT.Length, iItemLength);
+                        }
+                        else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " disintegrates.", ref objectText))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem) return;
+                            eAction = ItemManagementAction.ConsumeItem;
+                            expectCapitalized = true;
+                        }
+                        else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " shocks you and you drop it.", ref objectText))
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem) return;
+                            eAction = ItemManagementAction.DropItem;
+                            expectCapitalized = true;
+                        }
+                        else if (nextLine == "Substance consumed.")
+                        {
+                            potionConsumed = true;
+                        }
+                        else if (nextLine == "You feel the poison subside.")
+                        {
+                            poisonCured = true;
+                        }
+                        else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
+                        {
+                            if (activeSpells == null)
+                            {
+                                activeSpells = new List<string>() { activeSpell };
+                            }
+                        }
+                        else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
+                        {
+                            if (nextLine.Length == "You have ".Length + " gold.".Length)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                string sGold = nextLine.Substring("You have ".Length, nextLine.Length - "You have ".Length - " gold.".Length);
+                                if (!int.TryParse(sGold, out int iFoundGold))
+                                {
+                                    return;
+                                }
+                                iTotalGold = iFoundGold;
+                            }
+                        }
+                        else if (nextLine.StartsWith("You now have ") && nextLine.EndsWith(" gold pieces."))
+                        {
+                            if (nextLine.Length == "You now have ".Length + " gold pieces.".Length)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                string sGold = nextLine.Substring("You now have ".Length, nextLine.Length - "You now have ".Length - " gold pieces.".Length);
+                                if (!int.TryParse(sGold, out int iFoundGold))
+                                {
+                                    return;
+                                }
+                                iTotalGold = iFoundGold;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(objectText))
+                        {
+                            ItemEntity.GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
+                        }
+                    }
+                    //if a list was processed the index counter has already been incremented. so increment the index if just a single line
+                    //was processed.
+                    if (iOriginalIndex == iIndex)
                     {
                         iIndex++;
                     }
-                    else
+                    if (iIndex >= iLinesCount)
                     {
                         break;
-                    }
-                }
-                List<ItemEntity> itemsManaged = null;
-                if (firstLine.StartsWith(YOU_WEAR_PREFIX))
-                {
-                    List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, wornObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.Equip;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            else if (ie.Count != 1)
-                            {
-                                flp.ErrorMessages.Add("Unexpected item count for worn equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
-                            }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
-                        }
-                    }
-                }
-                else if (firstLine.StartsWith(YOU_HOLD_PREFIX))
-                {
-                    List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, heldObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.Equip;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            else if (ie.Count != 1)
-                            {
-                                flp.ErrorMessages.Add("Unexpected item count for held equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
-                            }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
-                        }
-                    }
-                }
-                else if (firstLine.StartsWith(YOU_REMOVE_PREFIX) || firstLine.StartsWith(YOU_REMOVED_PREFIX))
-                {
-                    string sExpectedPrefix;
-                    if (firstLine.StartsWith(YOU_REMOVE_PREFIX))
-                    {
-                        sExpectedPrefix = YOU_REMOVE_PREFIX;
-                    }
-                    else
-                    {
-                        sExpectedPrefix = YOU_REMOVED_PREFIX;
-                    }
-                    List<string> removedObjects = StringProcessing.GetList(Lines, iIndex, sExpectedPrefix, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, removedObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.Unequip;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            else if (ie.Count != 1)
-                            {
-                                flp.ErrorMessages.Add("Unexpected item count for removed equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
-                            }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
-                        }
-                    }
-                }
-                else if (firstLine.StartsWith(YOU_WIELD_PREFIX))
-                {
-                    List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, wieldedObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.Equip;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            else if (ie.Count != 1)
-                            {
-                                flp.ErrorMessages.Add("Unexpected item count for wielded equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
-                            }
-                            else
-                            {
-                                itemsManaged.Add(ie);
-                            }
-                        }
-                    }
-                }
-                else if (firstLine.StartsWith(YOU_GET_A_PREFIX))
-                {
-                    if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.PickUpItem)
-                    {
-                        return;
-                    }
-                    List<string> retrievedObjects = StringProcessing.GetList(Lines, iIndex, YOU_GET_A_PREFIX, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, retrievedObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.PickUpItem;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            itemsManaged.Add(ie);
-                        }
-                    }
-                }
-                else if (firstLine.StartsWith(YOU_DROP_A_PREFIX) && firstLine != InformationalMessagesSequence.FLEE_WITH_DROP_WEAPON)
-                {
-                    if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
-                    {
-                        return;
-                    }
-                    List<string> droppedObjects = StringProcessing.GetList(Lines, iIndex, YOU_DROP_A_PREFIX, true, out iIndex, null);
-                    List<ItemEntity> items = new List<ItemEntity>();
-                    RoomTransitionSequence.LoadMustBeItems(items, droppedObjects, flp.ErrorMessages);
-                    eAction = ItemManagementAction.DropItem;
-                    if (items.Count > 0)
-                    {
-                        itemsManaged = new List<ItemEntity>();
-                        foreach (ItemEntity ie in items)
-                        {
-                            if (ie is UnknownItemEntity)
-                            {
-                                flp.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)ie).Name);
-                            }
-                            itemsManaged.Add(ie);
-                        }
-                    }
-                }
-                bool expectCapitalized = false;
-                for (int i = iIndex; i < Lines.Count; i++)
-                {
-                    string nextLine = Lines[i];
-                    int lineLength = nextLine.Length;
-                    string objectText = string.Empty;
-                    if (nextLine.StartsWith(THE_SHOPKEEP_GIVES_YOU_PREFIX))
-                    {
-                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.SellItem)
-                        {
-                            return;
-                        }
-                        eAction = ItemManagementAction.SellItem;
-                        if (!nextLine.EndsWith("."))
-                        {
-                            return;
-                        }
-                        int goldForPrefixIndex = nextLine.IndexOf(" gold for ");
-                        int goldLength = goldForPrefixIndex - THE_SHOPKEEP_GIVES_YOU_PREFIX.Length;
-                        if (goldLength <= 0) return;
-                        string sGold = nextLine.Substring(THE_SHOPKEEP_GIVES_YOU_PREFIX.Length, goldLength);
-                        if (!int.TryParse(sGold, out int iNextGold))
-                        {
-                            return;
-                        }
-                        iSellGold += iNextGold;
-                        int objectLen = lineLength - goldForPrefixIndex - " gold for ".Length - 1;
-                        if (objectLen <= 0) return;
-                        objectText = nextLine.Substring(goldForPrefixIndex + " gold for ".Length, objectLen);
-                    }
-                    else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " disintegrates.", ref objectText))
-                    {
-                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.ConsumeItem)
-                        {
-                            return;
-                        }
-                        eAction = ItemManagementAction.ConsumeItem;
-                        expectCapitalized = true;
-                    }
-                    else if (GetObjectTextForMessageWithSpecificSuffix(nextLine, " shocks you and you drop it.", ref objectText))
-                    {
-                        if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.DropItem)
-                        {
-                            return;
-                        }
-                        eAction = ItemManagementAction.DropItem;
-                        expectCapitalized = true;
-                    }
-                    else if (nextLine == "Substance consumed.")
-                    {
-                        potionConsumed = true;
-                    }
-                    else if (nextLine == "You feel the poison subside.")
-                    {
-                        poisonCured = true;
-                    }
-                    else if (nextLine == "Thanks for recycling." ||
-                             nextLine == "You feel better." || //vigor/mend
-                             nextLine == "You feel dizzy." || //speckled potion
-                             nextLine == "You start to feel real strange, as if connected to another dimension." || //additional message for detect-invisible
-                             nextLine == "Yuck!  Tastes awful!" || //additional message for endure-fire
-                             nextLine == "Yuck! That's terrible!" || //viscous potion
-                             nextLine == "Yuck!" || //viscous potion
-                             nextLine == "Nothing happens." || //lollipop when not diseased?
-                             nextLine == "MMMMMM!!!!    GOOD!" || //lollipop
-                             nextLine.EndsWith(" hit points removed."))
-                    {
-                        continue; //skipped
-                    }
-                    else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
-                    {
-                        if (activeSpells == null)
-                        {
-                            activeSpells = new List<string>() { activeSpell };
-                        }
-                    }
-                    else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
-                    {
-                        if (nextLine.Length == "You have ".Length + " gold.".Length)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            string sGold = nextLine.Substring("You have ".Length, nextLine.Length - "You have ".Length - " gold.".Length);
-                            if (!int.TryParse(sGold, out int iFoundGold))
-                            {
-                                return;
-                            }
-                            iTotalGold = iFoundGold;
-                        }
-                        continue;
-                    }
-                    else if (nextLine.StartsWith("You now have ") && nextLine.EndsWith(" gold pieces."))
-                    {
-                        if (nextLine.Length == "You now have ".Length + " gold pieces.".Length)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            string sGold = nextLine.Substring("You now have ".Length, nextLine.Length - "You now have ".Length - " gold pieces.".Length);
-                            if (!int.TryParse(sGold, out int iFoundGold))
-                            {
-                                return;
-                            }
-                            iTotalGold = iFoundGold;
-                        }
-                        continue;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(nextLine))
-                    {
-                        //wearing equipment can trigger additional messages so skip additional messages in that case
-                        if (eAction != ItemManagementAction.Equip)
-                        {
-                            return;
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(objectText))
-                    {
-                        ItemEntity.GetItemEntityFromObjectText(objectText, ref itemsManaged, flp, expectCapitalized);
                     }
                 }
                 if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)

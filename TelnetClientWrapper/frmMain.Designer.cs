@@ -814,6 +814,7 @@
             this.lstInventory.Location = new System.Drawing.Point(2, 15);
             this.lstInventory.Margin = new System.Windows.Forms.Padding(2);
             this.lstInventory.Name = "lstInventory";
+            this.lstInventory.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lstInventory.Size = new System.Drawing.Size(178, 292);
             this.lstInventory.TabIndex = 0;
             // 
@@ -911,7 +912,7 @@
             // 
             this.ctxCurrentRoom.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxCurrentRoom.Name = "ctxCurrentRoom";
-            this.ctxCurrentRoom.Size = new System.Drawing.Size(211, 32);
+            this.ctxCurrentRoom.Size = new System.Drawing.Size(61, 4);
             this.ctxCurrentRoom.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCurrentRoom_Opening);
             this.ctxCurrentRoom.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxCurrentRoom_ItemClicked);
             // 

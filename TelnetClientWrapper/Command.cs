@@ -106,6 +106,7 @@
         SellItem,
         DropItem,
         RemoveEquipment,
+        Trade,
         Score,
         Inventory,
         Quit,
