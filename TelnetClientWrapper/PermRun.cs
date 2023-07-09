@@ -13,8 +13,7 @@ namespace IsengardClient
         {
             ID = copied.ID;
             DisplayName = copied.DisplayName;
-            TickRoom = copied.TickRoom;
-            PawnShop = copied.PawnShop;
+            Area = copied.Area;
             BeforeFull = copied.BeforeFull;
             AfterFull = copied.AfterFull;
             SpellsToCast = copied.SpellsToCast;
@@ -24,8 +23,6 @@ namespace IsengardClient
             TargetRoomObject = copied.TargetRoomObject;
             ThresholdRoomIdentifier = copied.ThresholdRoomIdentifier;
             ThresholdRoomObject = copied.ThresholdRoomObject;
-            InventorySinkRoomIdentifier = copied.InventorySinkRoomIdentifier;
-            InventorySinkRoomObject = copied.InventorySinkRoomObject;
             MobType = copied.MobType;
             MobText = copied.MobText;
             MobIndex = copied.MobIndex;
@@ -42,8 +39,7 @@ namespace IsengardClient
         public int ID { get; set; }
         public int OrderValue { get; set; }
         public string DisplayName { get; set; }
-        public HealingRoom? TickRoom { get; set; }
-        public PawnShoppe? PawnShop { get; set; }
+        public Area Area { get; set; }
         public FullType BeforeFull { get; set; }
         public FullType AfterFull { get; set; }
         public WorkflowSpells SpellsToCast { get; set; }
@@ -65,14 +61,6 @@ namespace IsengardClient
         /// threshold room object
         /// </summary>
         public Room ThresholdRoomObject { get; set; }
-        /// <summary>
-        /// inventory sink room identifier
-        /// </summary>
-        public string InventorySinkRoomIdentifier { get; set; }
-        /// <summary>
-        /// inventory sink room object
-        /// </summary>
-        public Room InventorySinkRoomObject { get; set; }
         /// <summary>
         /// specific mob type
         /// </summary>
@@ -98,10 +86,24 @@ namespace IsengardClient
 
         public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap)
         {
+            Room healingRoom = null;
+            Room pawnShop = null;
+            Room inventorySinkRoom = null;
+            if (Area != null)
+            {
+                if (Area.TickRoom.HasValue)
+                {
+                    healingRoom = gameMap.HealingRooms[Area.TickRoom.Value];
+                }
+                if (Area.PawnShop.HasValue)
+                {
+                    pawnShop = gameMap.PawnShoppes[Area.PawnShop.Value];
+                }
+                inventorySinkRoom = Area.InventorySinkRoomObject;
+            }
+
             GraphInputs graphInputs = GetGraphInputs();
             Room currentRoom = cei.CurrentRoom;
-            bool haveTickRoom = TickRoom.HasValue;
-            Room healingRoom = haveTickRoom ? gameMap.HealingRooms[TickRoom.Value]: null;
 
             if (currentRoom == null)
             {
@@ -111,9 +113,15 @@ namespace IsengardClient
 
             Room testRoom = currentRoom;
 
-            if (haveTickRoom && BeforeFull != FullType.None && testRoom != healingRoom) //verify healing room is reachable if needed
+            if (healingRoom == null && (BeforeFull != FullType.None || AfterFull != FullType.None))
             {
-                if (MapComputation.ComputeLowestCostPath(testRoom, healingRoom, graphInputs) == null)
+                MessageBox.Show(parent, "No tick room specified.");
+                return false;
+            }
+
+            if (BeforeFull != FullType.None)
+            {
+                if (testRoom != healingRoom && MapComputation.ComputeLowestCostPath(testRoom, healingRoom, graphInputs) == null)
                 {
                     MessageBox.Show(parent, "Cannot find path to tick room.");
                     return false;
@@ -142,41 +150,37 @@ namespace IsengardClient
 
             if (ItemsToProcessType != ItemsToProcessType.NoProcessing)
             {
-                if (InventorySinkRoomObject != null && testRoom != InventorySinkRoomObject)
+                if (inventorySinkRoom != null && testRoom != inventorySinkRoom)
                 {
-                    if (MapComputation.ComputeLowestCostPath(testRoom, InventorySinkRoomObject, graphInputs) == null)
+                    if (MapComputation.ComputeLowestCostPath(testRoom, inventorySinkRoom, graphInputs) == null)
                     {
                         MessageBox.Show(parent, "Cannot find path from target to inventory sink room.");
                         return false;
                     }
-                    if (MapComputation.ComputeLowestCostPath(InventorySinkRoomObject, testRoom, graphInputs) == null)
+                    if (MapComputation.ComputeLowestCostPath(inventorySinkRoom, testRoom, graphInputs) == null)
                     {
                         MessageBox.Show(parent, "Cannot find path from target to inventory sink room.");
                         return false;
                     }
                 }
-                testRoom = InventorySinkRoomObject;
+                testRoom = inventorySinkRoom;
 
-                if (PawnShop.HasValue) //verify can get to and from the pawn shop
+                if (pawnShop != null && testRoom != pawnShop) //verify can get to and from the pawn shop
                 {
-                    Room pawnShop = gameMap.PawnShoppes[PawnShop.Value];
-                    if (TargetRoomObject != pawnShop && testRoom != pawnShop)
+                    if (MapComputation.ComputeLowestCostPath(testRoom, pawnShop, graphInputs) == null)
                     {
-                        if (MapComputation.ComputeLowestCostPath(testRoom, pawnShop, graphInputs) == null)
-                        {
-                            MessageBox.Show(parent, "Cannot find path to pawn shop.");
-                            return false;
-                        }
-                        if (MapComputation.ComputeLowestCostPath(pawnShop, testRoom, graphInputs) == null)
-                        {
-                            MessageBox.Show(parent, "Cannot find path from pawn shop.");
-                            return false;
-                        }
+                        MessageBox.Show(parent, "Cannot find path to pawn shop.");
+                        return false;
+                    }
+                    if (MapComputation.ComputeLowestCostPath(pawnShop, testRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path from pawn shop.");
+                        return false;
                     }
                 }
             }
 
-            if (haveTickRoom && AfterFull != FullType.None && testRoom != healingRoom) //verify healing room is reachable after the workflow
+            if (AfterFull != FullType.None && testRoom != healingRoom) //verify healing room is reachable after the workflow
             {
                 if (MapComputation.ComputeLowestCostPath(testRoom, healingRoom, graphInputs) == null)
                 {

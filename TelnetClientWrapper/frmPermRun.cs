@@ -63,14 +63,14 @@ namespace IsengardClient
         /// <summary>
         /// constructor used when initiating a perm run ad hoc from a strategy
         /// </summary>
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, Area currentArea)
         {
             InitializeComponent();
             txtDisplayName.Enabled = false;
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, healingRoom, pawnShop, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, IsengardClient.AfterKillMonsterAction.StopCombat);
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea);
         }
 
         public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun)
@@ -101,7 +101,7 @@ namespace IsengardClient
                 sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.TickRoom, _permRun.PawnShop, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction);
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, _permRun.Area);
         }
 
         /// <summary>
@@ -113,7 +113,8 @@ namespace IsengardClient
         /// <param name="skillsToShow">skills to show checkboxes for</param>
         /// <param name="spellsCastToShow">cast spells to show checkboxes for</param>
         /// <param name="spellsPotionsToShow">potions spells to show checkboxes for</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, HealingRoom? healingRoom, PawnShoppe? pawnShop, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction)
+        /// <param name="currentArea">current area</param>
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
@@ -177,27 +178,6 @@ namespace IsengardClient
             }
             _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, strategyAutoSpellLevelMin, strategyAutoSpellLevelMax, _settingsData.AutoSpellLevelMin, _settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.PermRun);
 
-            //populate tick room and pawn shop dropdowns
-            cboTickRoom.Items.Add(string.Empty);
-            cboPawnShoppe.Items.Add(string.Empty);
-            foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
-            {
-                cboTickRoom.Items.Add(nextHealingRoom);
-            }
-            foreach (var nextPawnShop in Enum.GetValues(typeof(PawnShoppe)))
-            {
-                cboPawnShoppe.Items.Add(nextPawnShop);
-            }
-
-            if (healingRoom.HasValue)
-                cboTickRoom.SelectedItem = healingRoom.Value;
-            else
-                cboTickRoom.SelectedIndex = 0;
-            if (pawnShop.HasValue)
-                cboPawnShoppe.SelectedItem = pawnShop;
-            else
-                cboPawnShoppe.SelectedIndex = 0;
-
             cboItemsToProcessType.Items.Add(ItemsToProcessType.NoProcessing);
             cboItemsToProcessType.Items.Add(ItemsToProcessType.ProcessMonsterDrops);
             cboItemsToProcessType.Items.Add(ItemsToProcessType.ProcessAllItemsInRoom);
@@ -209,7 +189,6 @@ namespace IsengardClient
                 {
                     cboTargetRoom.Enabled = false;
                     cboThresholdRoom.Enabled = false;
-                    cboInventorySinkRoom.Enabled = false;
                 }
                 else
                 {
@@ -236,11 +215,6 @@ namespace IsengardClient
                 {
                     cboThresholdRoom.Items.Add(_permRun.ThresholdRoomObject);
                     cboThresholdRoom.SelectedItem = _permRun.ThresholdRoomObject;
-                }
-                if (_permRun.InventorySinkRoomObject != null)
-                {
-                    cboInventorySinkRoom.Items.Add(_permRun.InventorySinkRoomObject);
-                    cboInventorySinkRoom.SelectedItem = _permRun.InventorySinkRoomObject;
                 }
             }
             if (cboMob.Items.Contains(currentMob))
@@ -307,6 +281,20 @@ namespace IsengardClient
                         AddSpellCheckbox(flpSpellsPotions, nextSpell, isChecked);
                     }
                 }
+            }
+
+            cboArea.Items.Add(string.Empty);
+            foreach (Area a in settingsData.Areas)
+            {
+                cboArea.Items.Add(a);
+            }
+            if (currentArea == null)
+            {
+                cboArea.SelectedIndex = 0;
+            }
+            else
+            {
+                cboArea.SelectedItem = currentArea;
             }
 
             if (_permRun != null && _permRun.Strategy == null)
@@ -533,19 +521,12 @@ namespace IsengardClient
                 return;
             }
 
-            Room inventorySinkRoom = cboInventorySinkRoom.SelectedItem as Room;
-            if (inventorySinkRoom == targetRoom)
-            {
-                MessageBox.Show("Inventory sink room cannot be the same as the target room.");
-                return;
-            }
-
             if (ForImmediateRun()) //if running the perm run immediately, validate it can be run
             {
                 ItemsToProcessType ipw = (ItemsToProcessType)cboItemsToProcessType.SelectedItem;
-                if (ipw != ItemsToProcessType.NoProcessing && (cboPawnShoppe.SelectedIndex == 0 || cboTickRoom.SelectedIndex == 0))
+                if (ipw != ItemsToProcessType.NoProcessing && (cboArea.SelectedIndex == 0))
                 {
-                    if (MessageBox.Show("No pawn/tick room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                    if (MessageBox.Show("No area room selected. Continue?", "Inventory Processing", MessageBoxButtons.OKCancel) != DialogResult.OK)
                     {
                         return;
                     }
@@ -575,34 +556,10 @@ namespace IsengardClient
                         return;
                     }
                 }
-                if (inventorySinkRoom != null)
-                {
-                    sRoomTextIdentifier = _gameMap.GetRoomTextIdentifier(inventorySinkRoom);
-                    if (string.IsNullOrEmpty(sRoomTextIdentifier))
-                    {
-                        MessageBox.Show("Cannot use this inventory sink room because the backend and display names are ambiguous.", "Perm Run");
-                        return;
-                    }
-                }
             }
 
             this.DialogResult = DialogResult.OK;
             this.Close();
-        }
-
-        private void btnInventorySinkLocations_Click(object sender, EventArgs e)
-        {
-            DisplayLocations(cboInventorySinkRoom);
-        }
-
-        private void btnInventorySinkGraph_Click(object sender, EventArgs e)
-        {
-            DisplayGraph(cboInventorySinkRoom);
-        }
-
-        private void btnInventorySinkClear_Click(object sender, EventArgs e)
-        {
-            ClearRoomDropdown(cboInventorySinkRoom);
         }
 
         private void btnThresholdClear_Click(object sender, EventArgs e)
@@ -640,7 +597,7 @@ namespace IsengardClient
         {
             frmLocations locationsForm = new frmLocations(_gameMap, _settingsData, _currentRoom, true, _GraphInputs, false);
             locationsForm.ShowDialog();
-            HandleRoomSelected(locationsForm.SelectedRoom, roomDropdown);
+            UIShared.HandleRoomSelected(locationsForm.SelectedRoom, roomDropdown);
         }
 
         private void DisplayGraph(ComboBox roomDropdown)
@@ -651,19 +608,7 @@ namespace IsengardClient
             VertexSelectionRequirement vsr = _permRun == null ? VertexSelectionRequirement.ValidPathFromCurrentLocation : VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName;
             frmGraph graphForm = new frmGraph(_gameMap, contextRoom, true, _GraphInputs, vsr, false);
             graphForm.ShowDialog();
-            HandleRoomSelected(graphForm.SelectedRoom, roomDropdown);
-        }
-
-        private void HandleRoomSelected(Room selectedRoom, ComboBox roomDropdown)
-        {
-            if (selectedRoom != null)
-            {
-                if (!roomDropdown.Items.Contains(selectedRoom))
-                {
-                    roomDropdown.Items.Add(selectedRoom);
-                }
-                roomDropdown.SelectedItem = selectedRoom;
-            }
+            UIShared.HandleRoomSelected(graphForm.SelectedRoom, roomDropdown);
         }
 
         private void cboRoom_SelectedIndexChanged(object sender, EventArgs e)
@@ -748,30 +693,6 @@ namespace IsengardClient
             }
         }
 
-        private void cboPawnShoppe_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboPawnShoppe.SelectedIndex > 0)
-            {
-                PawnShoppe ePawnShoppe = (PawnShoppe)cboPawnShoppe.SelectedItem;
-                if (Enum.TryParse(ePawnShoppe.ToString(), out HealingRoom healingRoom))
-                {
-                    cboTickRoom.SelectedItem = healingRoom;
-                }
-            }
-        }
-
-        private void cboTickRoom_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboTickRoom.SelectedIndex > 0)
-            {
-                HealingRoom eHealingRoom = (HealingRoom)cboTickRoom.SelectedItem;
-                if (Enum.TryParse(eHealingRoom.ToString(), out PawnShoppe pawnShoppe))
-                {
-                    cboPawnShoppe.SelectedItem = pawnShoppe;
-                }
-            }
-        }
-
         private Control _rightClickControl;
 
         private void ctxToggleStrategyModificationOverride_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -837,8 +758,6 @@ namespace IsengardClient
             pr.MobIndex = MobIndex;
             pr.MobText = MobText;
             pr.MobType = MobType;
-            pr.PawnShop = cboPawnShoppe.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShoppe.SelectedItem;
-            pr.TickRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
             pr.SpellsToCast = GetSelectedSpells(flpSpellsCast);
             pr.SpellsToPotion = GetSelectedSpells(flpSpellsPotions);
             pr.SkillsToRun = SelectedSkills;
@@ -850,9 +769,6 @@ namespace IsengardClient
             rTemp = cboThresholdRoom.SelectedItem as Room;
             pr.ThresholdRoomIdentifier = rTemp == null ? string.Empty : _gameMap.GetRoomTextIdentifier(rTemp);
             pr.ThresholdRoomObject = rTemp;
-            rTemp = cboInventorySinkRoom.SelectedItem as Room;
-            pr.InventorySinkRoomIdentifier = rTemp == null ? string.Empty : _gameMap.GetRoomTextIdentifier(rTemp);
-            pr.InventorySinkRoomObject = rTemp;
             pr.UseMagicCombat = UseMagicCombat;
             pr.UseMeleeCombat = UseMeleeCombat;
             pr.UsePotionsCombat = UsePotionsCombat;

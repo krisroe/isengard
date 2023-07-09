@@ -124,7 +124,7 @@ namespace IsengardClient
         private List<string> _foundSearchedExits;
         private bool _programmaticUI = false;
 
-        private bool _setTickOrPawnRoom = false;
+        private bool _setCurrentArea = false;
         private BackgroundWorker _bw;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
@@ -209,19 +209,6 @@ namespace IsengardClient
             InitializeComponent();
             this.MinimumSize = this.Size;
 
-            cboTickRoom.Items.Add(string.Empty);
-            foreach (var nextHealingRoom in Enum.GetValues(typeof(HealingRoom)))
-            {
-                cboTickRoom.Items.Add(nextHealingRoom);
-            }
-            cboTickRoom.SelectedIndex = 0;
-            cboPawnShop.Items.Add(string.Empty);
-            foreach (var nextPawnShop in Enum.GetValues(typeof(PawnShoppe)))
-            {
-                cboPawnShop.Items.Add(nextPawnShop);
-            }
-            cboPawnShop.SelectedIndex = 0;
-
             _pleaseWaitSequence = new PleaseWaitSequence(OnWaitXSeconds);
 
             SetButtonTags();
@@ -287,10 +274,35 @@ namespace IsengardClient
             IsengardMap newMap = new IsengardMap(errorMessages);
             if (isReload)
             {
+                List<Area> areasRemoved = new List<Area>();
+                for (int i = _settingsData.Areas.Count - 1; i >= 0; i--)
+                {
+                    bool isValid = true;
+                    Area a = _settingsData.Areas[i];
+                    if (a.InventorySinkRoomObject != null)
+                    {
+                        a.InventorySinkRoomObject = newMap.GetRoomFromTextIdentifier(a.InventorySinkRoomIdentifier);
+                        if (a.InventorySinkRoomObject == null)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Inventory sink room not found for area after reload.");
+                        }
+                    }
+                    if (!isValid)
+                    {
+                        _settingsData.Areas.RemoveAt(i);
+                        areasRemoved.Add(a);
+                    }
+                }
                 for (int i = _settingsData.PermRuns.Count - 1; i >= 0; i--)
                 {
                     bool isValid = true;
                     PermRun pr = _settingsData.PermRuns[i];
+                    if (pr.Area != null && areasRemoved.Contains(pr.Area))
+                    {
+                        isValid = false;
+                        errorMessages.Add("Perm run removed because area became invalid.");
+                    }
                     if (pr.TargetRoomObject != null)
                     {
                         pr.TargetRoomObject = newMap.GetRoomFromTextIdentifier(pr.TargetRoomIdentifier);
@@ -307,15 +319,6 @@ namespace IsengardClient
                         {
                             isValid = false;
                             errorMessages.Add("Threshold room not found for perm run after reload.");
-                        }
-                    }
-                    if (pr.InventorySinkRoomObject != null)
-                    {
-                        pr.InventorySinkRoomObject = newMap.GetRoomFromTextIdentifier(pr.InventorySinkRoomIdentifier);
-                        if (pr.InventorySinkRoomObject == null)
-                        {
-                            isValid = false;
-                            errorMessages.Add("Inventory sink room not found for perm run after reload.");
                         }
                     }
                     if (!isValid)
@@ -1354,6 +1357,26 @@ namespace IsengardClient
                 btnOneClick.ContextMenuStrip = ctxStrategy;
                 flpOneClickStrategies.Controls.Add(btnOneClick);
             }
+
+            Area previousArea = cboArea.SelectedItem as Area;
+            Area newlySelectedArea = null;
+            cboArea.Items.Clear();
+            foreach (Area a in _settingsData.Areas)
+            {
+                if (previousArea != null && previousArea.DisplayName == a.DisplayName)
+                {
+                    newlySelectedArea = previousArea;
+                }
+                cboArea.Items.Add(a);
+            }
+            if (newlySelectedArea == null)
+            {
+                cboArea.SelectedIndex = 0;
+            }
+            else
+            {
+                cboArea.SelectedItem = newlySelectedArea;
+            }
         }
 
         private void ProcessInitialLogin(FeedLineParameters flp)
@@ -1368,7 +1391,7 @@ namespace IsengardClient
             {
                 _initializationSteps |= InitializationStep.Finalization;
                 Room r = _currentEntityInfo.CurrentRoom;
-                _setTickOrPawnRoom = r != null && (r.HealingRoom.HasValue || r.PawnShoppe.HasValue);
+                _setCurrentArea = r != null;
             }
             else
             {
@@ -3841,16 +3864,9 @@ namespace IsengardClient
                     treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
 
-                if (bwp.Success && bwp.PermRun != null)
+                if (bwp.PermRun != null && bwp.PermRun.Area != null && bwp.EnteredArea)
                 {
-                    if (bwp.PermRun.TickRoom.HasValue)
-                    {
-                        cboTickRoom.SelectedItem = bwp.PermRun.TickRoom.Value;
-                    }
-                    if (bwp.PermRun.PawnShop.HasValue && bwp.UsedPawnShoppe)
-                    {
-                        cboPawnShop.SelectedItem = bwp.PermRun.PawnShop.Value;
-                    }
+                    cboArea.SelectedItem = bwp.PermRun.Area;
                 }
 
                 ToggleBackgroundProcessUI(bwp, false);
@@ -3897,7 +3913,7 @@ namespace IsengardClient
                 CommandResultObject backgroundCommandResultObject = null;
                 WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
 
-                if (pms.BeforeFull != FullType.None || pms.CureIfPoisoned)
+                if ((pms.PermRun != null && pms.PermRun.BeforeFull != FullType.None) || pms.CureIfPoisoned)
                 {
                     PlayerStatusFlags psf = _playerStatusFlags;
                     if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
@@ -3929,28 +3945,16 @@ namespace IsengardClient
                     }
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (!_fleeing && !_hazying && !IsFull(pms.BeforeFull, spellsToCast, out _))
+                    if (!_fleeing && !_hazying && !IsFull(pms.PermRun.BeforeFull, spellsToCast, out _))
                     {
-                        //navigate to tick room if appropriate
-                        if (pms.PermRun != null)
+                        backgroundCommandResultObject = NavigateToTickRoom(pms, true);
+                        if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                         {
-                            if (pms.PermRun.TickRoom.HasValue)
-                            {
-                                backgroundCommandResultObject = NavigateToTickRoom(pms, true);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                                {
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                return;
-                            }
+                            return;
                         }
-
                         if (!_hazying && !_fleeing)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.BeforeFull, spellsToCast);
+                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.BeforeFull, spellsToCast);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -4629,20 +4633,16 @@ BeforeHazy:
                     {
                         return;
                     }
-                    if (!_hazying && !IsFull(pms.AfterFull, spellsToCast, out _))
+                    if (!_hazying && pms.PermRun != null && !IsFull(pms.PermRun.AfterFull, spellsToCast, out _))
                     {
-                        //navigate to tick room if appropriate
-                        if (pms.PermRun != null && pms.PermRun.TickRoom.HasValue)
+                        backgroundCommandResultObject = NavigateToTickRoom(pms, false);
+                        if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                         {
-                            backgroundCommandResultObject = NavigateToTickRoom(pms, false);
-                            if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                            {
-                                return;
-                            }
+                            return;
                         }
                         if (!_hazying)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.AfterFull, spellsToCast);
+                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.AfterFull, spellsToCast);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
@@ -5220,12 +5220,27 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool allowFlee)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.PermRun.TickRoom.Value], pms, allowFlee);
+            return NavigateToAreaRoom(pms, _gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], allowFlee);
+        }
+
+        private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms)
+        {
+            return NavigateToAreaRoom(pms, _gameMap.PawnShoppes[pms.PermRun.Area.PawnShop.Value], false);
         }
 
         private CommandResultObject NavigateToInventorySinkRoom(BackgroundWorkerParameters pms, bool allowFlee)
         {
-            return NavigateToSpecificRoom(pms.InventorySinkRoom, pms, allowFlee);
+            return NavigateToAreaRoom(pms, pms.InventorySinkRoom, allowFlee);
+        }
+
+        private CommandResultObject NavigateToAreaRoom(BackgroundWorkerParameters pms, Room r, bool allowFlee)
+        {
+            CommandResultObject ret = NavigateToSpecificRoom(r, pms, allowFlee);
+            if (ret.Result == CommandResult.CommandSuccessful)
+            {
+                pms.EnteredArea = true;
+            }
+            return ret;
         }
 
         private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool allowFlee)
@@ -5291,22 +5306,15 @@ BeforeHazy:
             bool success = true;
             if (items.Count > 0)
             {
-                if (!pms.PermRun.PawnShop.HasValue)
+                if (!pms.PermRun.Area.PawnShop.HasValue)
                 {
                     AddConsoleMessage("No pawn shop available.");
                     return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 }
-                Room currentRoom = _currentEntityInfo.CurrentRoom;
-                Room targetRoom = _gameMap.PawnShoppes[pms.PermRun.PawnShop.Value];
-                if (currentRoom != targetRoom)
+                backgroundCommandResultObject = NavigateToPawnShop(pms);
+                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
-                    List<Exit> nextRoute = CalculateRouteExits(currentRoom, targetRoom, true);
-                    if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
-                    backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, false);
-                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
-                    {
-                        return backgroundCommandResultObject;
-                    }
+                    return backgroundCommandResultObject;
                 }
                 foreach (ItemEntity nextItem in items)
                 {
@@ -5328,7 +5336,6 @@ BeforeHazy:
                     if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms).Result == CommandResult.CommandSuccessful)
                     {
                         somethingDone = true;
-                        pms.UsedPawnShoppe = true;
                         continue;
                     }
 
@@ -5337,7 +5344,6 @@ BeforeHazy:
                         if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms).Result == CommandResult.CommandSuccessful)
                         {
                             somethingDone = true;
-                            pms.UsedPawnShoppe = true;
                             continue;
                         }
                         else
@@ -6945,6 +6951,7 @@ BeforeHazy:
             }
             btnAbort.Enabled = running;
             EnableDisableActionButtons(bwp);
+            RefreshCurrentAreaButtons();
         }
 
         private IEnumerable<ToolStripButton> GetToolStripButtonsToDisableForBackgroundProcess()
@@ -6969,10 +6976,7 @@ BeforeHazy:
             yield return txtMob;
             yield return txtWand;
             yield return txtPotion;
-            yield return cboTickRoom;
-            yield return btnGoToHealingRoom;
-            yield return cboPawnShop;
-            yield return btnGoToPawnShop;
+            yield return cboArea;
             foreach (Button btn in flpOneClickStrategies.Controls)
             {
                 yield return btn;
@@ -7573,8 +7577,7 @@ BeforeHazy:
 
             Room currentRoom = _currentEntityInfo.CurrentRoom;
 
-            HealingRoom? initHealingRoom = cboTickRoom.SelectedIndex == 0 ? (HealingRoom?)null : (HealingRoom)cboTickRoom.SelectedItem;
-            PawnShoppe? initPawnShoppe = cboPawnShop.SelectedIndex == 0 ? (PawnShoppe?)null : (PawnShoppe)cboPawnShop.SelectedItem;
+            Area initArea = cboArea.SelectedItem as Area;
 
             FullType beforeFull;
             FullType afterFull;
@@ -7600,7 +7603,7 @@ BeforeHazy:
                 inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
             }
             PermRun p;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, initHealingRoom, initPawnShoppe, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions, initArea))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
@@ -8004,22 +8007,19 @@ BeforeHazy:
                 Room oCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (oCurrentRoom != _currentEntityInfo.CurrentRoomUI)
                 {
-                    if (_setTickOrPawnRoom && oCurrentRoom != null)
+                    if (_setCurrentArea && oCurrentRoom != null)
                     {
-                        HealingRoom? healFlag = oCurrentRoom.HealingRoom;
-                        if (healFlag.HasValue)
+                        foreach (Area a in _settingsData.Areas)
                         {
-                            cboTickRoom.SelectedItem = healFlag.Value;
-                        }
-                        else
-                        {
-                            PawnShoppe? pawnFlag = oCurrentRoom.PawnShoppe;
-                            if (pawnFlag.HasValue)
+                            if ((oCurrentRoom.HealingRoom.HasValue && a.TickRoom == oCurrentRoom.HealingRoom.Value) ||
+                                (oCurrentRoom.PawnShoppe.HasValue && a.PawnShop == oCurrentRoom.PawnShoppe.Value) ||
+                                a.InventorySinkRoomObject == oCurrentRoom)
                             {
-                                cboPawnShop.SelectedItem = pawnFlag.Value;
+                                _setCurrentArea = false;
+                                cboArea.SelectedItem = a;
+                                break;
                             }
                         }
-                        _setTickOrPawnRoom = false;
                     }
                     string sCurrentRoom;
                     if (oCurrentRoom != null)
@@ -8032,11 +8032,7 @@ BeforeHazy:
                     }
                     grpCurrentRoom.Text = sCurrentRoom;
                     _currentEntityInfo.CurrentRoomUI = oCurrentRoom;
-                    if (_currentBackgroundParameters == null)
-                    {
-                        btnGoToHealingRoom.Enabled = oCurrentRoom != null;
-                        RefreshEnabledForSingleMoveButtons();
-                    }
+                    RefreshCurrentAreaButtons();
                 }
                 if (_currentEntityInfo.CurrentEntityChanges.Count > 0)
                 {
@@ -9270,42 +9266,33 @@ BeforeHazy:
             }
         }
 
-        private void cboTickRoom_SelectedIndexChanged(object sender, EventArgs e)
+        private void cboArea_SelectedIndexChanged(object sender, EventArgs e)
         {
-            bool hasTickRoom = cboTickRoom.SelectedIndex > 0;
-            btnGoToHealingRoom.Enabled = hasTickRoom;
-            if (hasTickRoom)
-            {
-                HealingRoom eHealingRoom = (HealingRoom)cboTickRoom.SelectedItem;
-                if (Enum.TryParse(eHealingRoom.ToString(), out PawnShoppe pawnShoppe))
-                {
-                    cboPawnShop.SelectedItem = pawnShoppe;
-                }
-            }
+            RefreshCurrentAreaButtons();
+        }
+
+        private void RefreshCurrentAreaButtons()
+        {
+            Area a = cboArea.SelectedItem as Area;
+            bool canEnable = a != null && _currentBackgroundParameters == null && _currentEntityInfo.CurrentRoom != null;
+            btnGoToHealingRoom.Enabled = canEnable && a.TickRoom.HasValue;
+            btnGoToPawnShop.Enabled = canEnable && a.PawnShop.HasValue;
+            btnGoToInventorySink.Enabled = canEnable && a.InventorySinkRoomObject != null;
         }
 
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)
         {
-            GoToRoom(_gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem]);
-        }
-
-        private void cboPawnShop_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            bool hasPawnRoom = cboPawnShop.SelectedIndex > 0;
-            btnGoToPawnShop.Enabled = hasPawnRoom;
-            if (hasPawnRoom)
-            {
-                PawnShoppe ePawnShoppe = (PawnShoppe)cboPawnShop.SelectedItem;
-                if (Enum.TryParse(ePawnShoppe.ToString(), out HealingRoom healingRoom))
-                {
-                    cboTickRoom.SelectedItem = healingRoom;
-                }
-            }
+            GoToRoom(_gameMap.HealingRooms[((Area)cboArea.SelectedItem).TickRoom.Value]);
         }
 
         private void btnGoToPawnShop_Click(object sender, EventArgs e)
         {
-            GoToRoom(_gameMap.PawnShoppes[(PawnShoppe)cboPawnShop.SelectedItem]);
+            GoToRoom(_gameMap.PawnShoppes[((Area)cboArea.SelectedItem).PawnShop.Value]);
+        }
+
+        private void btnGoToInventorySink_Click(object sender, EventArgs e)
+        {
+            GoToRoom(((Area)cboArea.SelectedItem).InventorySinkRoomObject);
         }
 
         private void treeCurrentRoom_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -9751,7 +9738,7 @@ BeforeHazy:
                 autoEscapeType = _settingsData.AutoEscapeType;
             }
             IsengardSettingData clone = new IsengardSettingData(_settingsData);
-            frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive);
+            frmConfiguration frm = new frmConfiguration(clone, autoEscapeThreshold, autoEscapeType, autoEscapeActive, _gameMap, GetGraphInputs, _currentEntityInfo);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 bool newAutoEscapeActive = frm.CurrentAutoEscapeActive;

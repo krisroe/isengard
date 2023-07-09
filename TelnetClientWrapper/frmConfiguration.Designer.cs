@@ -62,12 +62,12 @@
             this.lblFullColorValue = new System.Windows.Forms.Label();
             this.lblFullColor = new System.Windows.Forms.Label();
             this.lstStrategies = new System.Windows.Forms.ListBox();
-            this.ctxStrategies = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiAddStrategy = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiRemoveStrategy = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiMoveStrategyUp = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiMoveStrategyDown = new System.Windows.Forms.ToolStripMenuItem();
+            this.ctxListModification = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiAddEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiEditEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRemoveEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveEntryUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveEntryDown = new System.Windows.Forms.ToolStripMenuItem();
             this.chkRemoveAllOnStartup = new System.Windows.Forms.CheckBox();
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
@@ -97,17 +97,25 @@
             this.btnClear = new System.Windows.Forms.Button();
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
+            this.tabAreas = new System.Windows.Forms.TabPage();
+            this.dgvAreas = new System.Windows.Forms.DataGridView();
+            this.colAreaDisplayName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colAreaTickRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colAreaPawnShop = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colAreaInventorySinkRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlBottom = new System.Windows.Forms.Panel();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
-            this.ctxStrategies.SuspendLayout();
+            this.ctxListModification.SuspendLayout();
             this.tcConfiguration.SuspendLayout();
             this.tabConfiguration.SuspendLayout();
             this.pnlSettings.SuspendLayout();
             this.tabStrategies.SuspendLayout();
             this.tabDynamicItemData.SuspendLayout();
             this.pnlItemsTop.SuspendLayout();
+            this.tabAreas.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).BeginInit();
             this.pnlBottom.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -120,34 +128,34 @@
             this.tsmiCurrentRealmWater,
             this.tsmiCurrentRealmWind});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(264, 160);
+            this.ctxRealm.Size = new System.Drawing.Size(116, 100);
             this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiCurrentRealmEarth
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(210, 24);
+            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmFire
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(210, 24);
+            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWater
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(210, 24);
+            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWind
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(210, 24);
+            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(115, 24);
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -396,61 +404,62 @@
             // 
             // lstStrategies
             // 
-            this.lstStrategies.ContextMenuStrip = this.ctxStrategies;
+            this.lstStrategies.ContextMenuStrip = this.ctxListModification;
             this.lstStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstStrategies.FormattingEnabled = true;
             this.lstStrategies.Location = new System.Drawing.Point(2, 2);
             this.lstStrategies.Name = "lstStrategies";
+            this.lstStrategies.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lstStrategies.Size = new System.Drawing.Size(812, 370);
             this.lstStrategies.TabIndex = 0;
             // 
-            // ctxStrategies
+            // ctxListModification
             // 
-            this.ctxStrategies.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxStrategies.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiAddStrategy,
-            this.tsmiEditStrategy,
-            this.tsmiRemoveStrategy,
-            this.tsmiMoveStrategyUp,
-            this.tsmiMoveStrategyDown});
-            this.ctxStrategies.Name = "ctxStrategies";
-            this.ctxStrategies.Size = new System.Drawing.Size(159, 124);
-            this.ctxStrategies.Opening += new System.ComponentModel.CancelEventHandler(this.ctxStrategies_Opening);
+            this.ctxListModification.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxListModification.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAddEntry,
+            this.tsmiEditEntry,
+            this.tsmiRemoveEntry,
+            this.tsmiMoveEntryUp,
+            this.tsmiMoveEntryDown});
+            this.ctxListModification.Name = "ctxStrategies";
+            this.ctxListModification.Size = new System.Drawing.Size(159, 124);
+            this.ctxListModification.Opening += new System.ComponentModel.CancelEventHandler(this.ctxListModification_Opening);
             // 
-            // tsmiAddStrategy
+            // tsmiAddEntry
             // 
-            this.tsmiAddStrategy.Name = "tsmiAddStrategy";
-            this.tsmiAddStrategy.Size = new System.Drawing.Size(158, 24);
-            this.tsmiAddStrategy.Text = "Add";
-            this.tsmiAddStrategy.Click += new System.EventHandler(this.tsmiAddStrategy_Click);
+            this.tsmiAddEntry.Name = "tsmiAddEntry";
+            this.tsmiAddEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiAddEntry.Text = "Add";
+            this.tsmiAddEntry.Click += new System.EventHandler(this.tsmiAddEntry_Click);
             // 
-            // tsmiEditStrategy
+            // tsmiEditEntry
             // 
-            this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(158, 24);
-            this.tsmiEditStrategy.Text = "Edit";
-            this.tsmiEditStrategy.Click += new System.EventHandler(this.tsmiEditStrategy_Click);
+            this.tsmiEditEntry.Name = "tsmiEditEntry";
+            this.tsmiEditEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiEditEntry.Text = "Edit";
+            this.tsmiEditEntry.Click += new System.EventHandler(this.tsmiEditEntry_Click);
             // 
-            // tsmiRemoveStrategy
+            // tsmiRemoveEntry
             // 
-            this.tsmiRemoveStrategy.Name = "tsmiRemoveStrategy";
-            this.tsmiRemoveStrategy.Size = new System.Drawing.Size(158, 24);
-            this.tsmiRemoveStrategy.Text = "Remove";
-            this.tsmiRemoveStrategy.Click += new System.EventHandler(this.tsmiRemoveStrategy_Click);
+            this.tsmiRemoveEntry.Name = "tsmiRemoveEntry";
+            this.tsmiRemoveEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiRemoveEntry.Text = "Remove";
+            this.tsmiRemoveEntry.Click += new System.EventHandler(this.tsmiRemoveEntry_Click);
             // 
-            // tsmiMoveStrategyUp
+            // tsmiMoveEntryUp
             // 
-            this.tsmiMoveStrategyUp.Name = "tsmiMoveStrategyUp";
-            this.tsmiMoveStrategyUp.Size = new System.Drawing.Size(158, 24);
-            this.tsmiMoveStrategyUp.Text = "Move Up";
-            this.tsmiMoveStrategyUp.Click += new System.EventHandler(this.tsmiMoveStrategyUp_Click);
+            this.tsmiMoveEntryUp.Name = "tsmiMoveEntryUp";
+            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryUp.Text = "Move Up";
+            this.tsmiMoveEntryUp.Click += new System.EventHandler(this.tsmiMoveEntryUp_Click);
             // 
-            // tsmiMoveStrategyDown
+            // tsmiMoveEntryDown
             // 
-            this.tsmiMoveStrategyDown.Name = "tsmiMoveStrategyDown";
-            this.tsmiMoveStrategyDown.Size = new System.Drawing.Size(158, 24);
-            this.tsmiMoveStrategyDown.Text = "Move Down";
-            this.tsmiMoveStrategyDown.Click += new System.EventHandler(this.tsmiMoveStrategyDown_Click);
+            this.tsmiMoveEntryDown.Name = "tsmiMoveEntryDown";
+            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryDown.Text = "Move Down";
+            this.tsmiMoveEntryDown.Click += new System.EventHandler(this.tsmiMoveEntryDown_Click);
             // 
             // chkRemoveAllOnStartup
             // 
@@ -467,6 +476,7 @@
             this.tcConfiguration.Controls.Add(this.tabConfiguration);
             this.tcConfiguration.Controls.Add(this.tabStrategies);
             this.tcConfiguration.Controls.Add(this.tabDynamicItemData);
+            this.tcConfiguration.Controls.Add(this.tabAreas);
             this.tcConfiguration.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcConfiguration.Location = new System.Drawing.Point(0, 0);
             this.tcConfiguration.Margin = new System.Windows.Forms.Padding(2);
@@ -760,6 +770,69 @@
             this.btnIgnore.UseVisualStyleBackColor = true;
             this.btnIgnore.Click += new System.EventHandler(this.btnIgnore_Click);
             // 
+            // tabAreas
+            // 
+            this.tabAreas.Controls.Add(this.dgvAreas);
+            this.tabAreas.Location = new System.Drawing.Point(4, 22);
+            this.tabAreas.Name = "tabAreas";
+            this.tabAreas.Size = new System.Drawing.Size(816, 374);
+            this.tabAreas.TabIndex = 3;
+            this.tabAreas.Text = "Areas";
+            this.tabAreas.UseVisualStyleBackColor = true;
+            // 
+            // dgvAreas
+            // 
+            this.dgvAreas.AllowUserToAddRows = false;
+            this.dgvAreas.AllowUserToDeleteRows = false;
+            this.dgvAreas.AllowUserToResizeRows = false;
+            this.dgvAreas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAreas.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colAreaDisplayName,
+            this.colAreaTickRoom,
+            this.colAreaPawnShop,
+            this.colAreaInventorySinkRoom});
+            this.dgvAreas.ContextMenuStrip = this.ctxListModification;
+            this.dgvAreas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvAreas.Location = new System.Drawing.Point(0, 0);
+            this.dgvAreas.Name = "dgvAreas";
+            this.dgvAreas.ReadOnly = true;
+            this.dgvAreas.RowHeadersVisible = false;
+            this.dgvAreas.RowHeadersWidth = 51;
+            this.dgvAreas.Size = new System.Drawing.Size(816, 374);
+            this.dgvAreas.TabIndex = 0;
+            // 
+            // colAreaDisplayName
+            // 
+            this.colAreaDisplayName.HeaderText = "Display Name";
+            this.colAreaDisplayName.MinimumWidth = 6;
+            this.colAreaDisplayName.Name = "colAreaDisplayName";
+            this.colAreaDisplayName.ReadOnly = true;
+            this.colAreaDisplayName.Width = 125;
+            // 
+            // colAreaTickRoom
+            // 
+            this.colAreaTickRoom.HeaderText = "Tick";
+            this.colAreaTickRoom.MinimumWidth = 6;
+            this.colAreaTickRoom.Name = "colAreaTickRoom";
+            this.colAreaTickRoom.ReadOnly = true;
+            this.colAreaTickRoom.Width = 125;
+            // 
+            // colAreaPawnShop
+            // 
+            this.colAreaPawnShop.HeaderText = "Pawn";
+            this.colAreaPawnShop.MinimumWidth = 6;
+            this.colAreaPawnShop.Name = "colAreaPawnShop";
+            this.colAreaPawnShop.ReadOnly = true;
+            this.colAreaPawnShop.Width = 125;
+            // 
+            // colAreaInventorySinkRoom
+            // 
+            this.colAreaInventorySinkRoom.HeaderText = "Inventory Sink";
+            this.colAreaInventorySinkRoom.MinimumWidth = 6;
+            this.colAreaInventorySinkRoom.Name = "colAreaInventorySinkRoom";
+            this.colAreaInventorySinkRoom.ReadOnly = true;
+            this.colAreaInventorySinkRoom.Width = 125;
+            // 
             // pnlBottom
             // 
             this.pnlBottom.Controls.Add(this.btnCancel);
@@ -786,7 +859,7 @@
             this.ctxRealm.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
-            this.ctxStrategies.ResumeLayout(false);
+            this.ctxListModification.ResumeLayout(false);
             this.tcConfiguration.ResumeLayout(false);
             this.tabConfiguration.ResumeLayout(false);
             this.pnlSettings.ResumeLayout(false);
@@ -794,6 +867,8 @@
             this.tabStrategies.ResumeLayout(false);
             this.tabDynamicItemData.ResumeLayout(false);
             this.pnlItemsTop.ResumeLayout(false);
+            this.tabAreas.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).EndInit();
             this.pnlBottom.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -814,12 +889,12 @@
         private System.Windows.Forms.Label lblEmptyColorValue;
         private System.Windows.Forms.Label lblEmptyColor;
         private System.Windows.Forms.ListBox lstStrategies;
-        private System.Windows.Forms.ContextMenuStrip ctxStrategies;
-        private System.Windows.Forms.ToolStripMenuItem tsmiAddStrategy;
-        private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
-        private System.Windows.Forms.ToolStripMenuItem tsmiRemoveStrategy;
-        private System.Windows.Forms.ToolStripMenuItem tsmiMoveStrategyUp;
-        private System.Windows.Forms.ToolStripMenuItem tsmiMoveStrategyDown;
+        private System.Windows.Forms.ContextMenuStrip ctxListModification;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddEntry;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEditEntry;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRemoveEntry;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveEntryUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveEntryDown;
         private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentGood;
         private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentEvil;
         private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
@@ -869,5 +944,11 @@
         private System.Windows.Forms.TextBox txtPotionsVigorWhenDownXHP;
         private System.Windows.Forms.Label lblPotionsVigorWhenDownXHP;
         private System.Windows.Forms.CheckBox chkSaveSettingsOnQuit;
+        private System.Windows.Forms.TabPage tabAreas;
+        private System.Windows.Forms.DataGridView dgvAreas;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaDisplayName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaTickRoom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaPawnShop;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaInventorySinkRoom;
     }
 }

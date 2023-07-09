@@ -13,7 +13,7 @@ namespace IsengardClient
         private bool _inBackgroundProcess;
 
         private DataGridViewTextBoxColumn colName;
-        private DataGridViewTextBoxColumn colTickRoom;
+        private DataGridViewTextBoxColumn colArea;
         private DataGridViewTextBoxColumn colRoom;
         private DataGridViewTextBoxColumn colMob;
         private DataGridViewButtonColumn colEdit;
@@ -31,12 +31,7 @@ namespace IsengardClient
             _inBackgroundProcess = inBackgroundProcess;
             InitializeColumns(inBackgroundProcess);
 
-            DataGridViewCellStyle oAlternatingRowsStyle = new DataGridViewCellStyle();
-            oAlternatingRowsStyle.BackColor = System.Drawing.Color.FromArgb(225, 255, 255);
-            oAlternatingRowsStyle.ForeColor = System.Drawing.SystemColors.ControlText;
-            oAlternatingRowsStyle.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            oAlternatingRowsStyle.SelectionForeColor = System.Drawing.SystemColors.WindowText;
-            dgvPermRuns.AlternatingRowsDefaultCellStyle = oAlternatingRowsStyle;
+            dgvPermRuns.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
 
             foreach (PermRun nextPermRun in settings.PermRuns)
             {
@@ -47,7 +42,7 @@ namespace IsengardClient
         private void InitializeColumns(bool inBackgroundProcess)
         {
             colName = new DataGridViewTextBoxColumn();
-            colTickRoom = new DataGridViewTextBoxColumn();
+            colArea = new DataGridViewTextBoxColumn();
             colRoom = new DataGridViewTextBoxColumn();
             colMob = new DataGridViewTextBoxColumn();
             colEdit = new DataGridViewButtonColumn();
@@ -56,11 +51,11 @@ namespace IsengardClient
             colName.Name = "colName";
             colName.ReadOnly = true;
             colName.Width = 300;
-            colTickRoom.HeaderText = "Tick";
-            colTickRoom.MinimumWidth = 6;
-            colTickRoom.Name = "colTickRoom";
-            colTickRoom.ReadOnly = true;
-            colTickRoom.Width = 150;
+            colArea.HeaderText = "Area";
+            colArea.MinimumWidth = 6;
+            colArea.Name = "colArea";
+            colArea.ReadOnly = true;
+            colArea.Width = 150;
             colRoom.HeaderText = "Room";
             colRoom.MinimumWidth = 6;
             colRoom.Name = "colRoom";
@@ -77,7 +72,7 @@ namespace IsengardClient
             colEdit.ReadOnly = true;
             colEdit.Width = 75;
             dgvPermRuns.Columns.Add(colName);
-            dgvPermRuns.Columns.Add(colTickRoom);
+            dgvPermRuns.Columns.Add(colArea);
             dgvPermRuns.Columns.Add(colRoom);
             dgvPermRuns.Columns.Add(colMob);
             dgvPermRuns.Columns.Add(colEdit);
@@ -140,8 +135,6 @@ namespace IsengardClient
                     }
                 }
             }
-            pr.TickRoom = currentRoom.HealingRoom;
-            pr.PawnShop = currentRoom.PawnShoppe;
             pr.BeforeFull = FullType.Total;
             pr.AfterFull = FullType.Almost;
             PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
@@ -165,7 +158,7 @@ namespace IsengardClient
         private void UpdatePermRunDisplay(PermRun nextPermRun, int? rowIndex)
         {
             string sDisplayName = string.IsNullOrEmpty(nextPermRun.DisplayName) ? "None" : nextPermRun.DisplayName;
-            string sTickRoom = nextPermRun.TickRoom.HasValue ? nextPermRun.TickRoom.Value.ToString() : string.Empty;
+            string sArea = nextPermRun.Area == null ? "None" : nextPermRun.Area.DisplayName;
             string sMob = string.Empty;
             bool hasMobType = false;
             int iMobIndex = nextPermRun.MobIndex;
@@ -193,16 +186,16 @@ namespace IsengardClient
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
                 if (_inBackgroundProcess)
-                    r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit");
+                    r.SetValues(sDisplayName, sArea, sRoom, sMob, "Edit");
                 else
-                    r.SetValues(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    r.SetValues(sDisplayName, sArea, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
             }
             else
             {
                 if (_inBackgroundProcess)
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sArea, sRoom, sMob, "Edit");
                 else
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sTickRoom, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sArea, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
                 r = dgvPermRuns.Rows[rowIndex.Value];
             }
             r.Tag = nextPermRun;

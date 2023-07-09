@@ -49,10 +49,6 @@
             this.chkPotions = new System.Windows.Forms.CheckBox();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
-            this.cboPawnShoppe = new System.Windows.Forms.ComboBox();
-            this.lblPawnShoppe = new System.Windows.Forms.Label();
-            this.cboTickRoom = new System.Windows.Forms.ComboBox();
-            this.lblTickRoom = new System.Windows.Forms.Label();
             this.cboItemsToProcessType = new System.Windows.Forms.ComboBox();
             this.lblItemsToProcessType = new System.Windows.Forms.Label();
             this.lblSpellsCast = new System.Windows.Forms.Label();
@@ -73,11 +69,8 @@
             this.cboAfterFull = new System.Windows.Forms.ComboBox();
             this.lblAfterFull = new System.Windows.Forms.Label();
             this.btnThresholdClear = new System.Windows.Forms.Button();
-            this.btnInventorySinkClear = new System.Windows.Forms.Button();
-            this.btnInventorySinkLocations = new System.Windows.Forms.Button();
-            this.btnInventorySinkGraph = new System.Windows.Forms.Button();
-            this.cboInventorySinkRoom = new System.Windows.Forms.ComboBox();
-            this.lblInventorySinkRoom = new System.Windows.Forms.Label();
+            this.lblArea = new System.Windows.Forms.Label();
+            this.cboArea = new System.Windows.Forms.ComboBox();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -86,11 +79,11 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(677, 678);
+            this.btnOK.Location = new System.Drawing.Point(677, 593);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(140, 43);
-            this.btnOK.TabIndex = 1;
+            this.btnOK.TabIndex = 30;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
@@ -99,78 +92,78 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(828, 678);
+            this.btnCancel.Location = new System.Drawing.Point(828, 593);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(140, 43);
-            this.btnCancel.TabIndex = 2;
+            this.btnCancel.TabIndex = 31;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // flpSkills
             // 
-            this.flpSkills.Location = new System.Drawing.Point(121, 293);
+            this.flpSkills.Location = new System.Drawing.Point(121, 260);
             this.flpSkills.Margin = new System.Windows.Forms.Padding(4);
             this.flpSkills.Name = "flpSkills";
             this.flpSkills.Size = new System.Drawing.Size(846, 31);
-            this.flpSkills.TabIndex = 0;
+            this.flpSkills.TabIndex = 11;
             // 
             // lblMob
             // 
             this.lblMob.AutoSize = true;
-            this.lblMob.Location = new System.Drawing.Point(13, 405);
+            this.lblMob.Location = new System.Drawing.Point(13, 372);
             this.lblMob.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMob.Name = "lblMob";
             this.lblMob.Size = new System.Drawing.Size(45, 19);
-            this.lblMob.TabIndex = 4;
+            this.lblMob.TabIndex = 21;
             this.lblMob.Text = "Mob:";
             // 
             // cboMob
             // 
             this.cboMob.FormattingEnabled = true;
-            this.cboMob.Location = new System.Drawing.Point(122, 402);
+            this.cboMob.Location = new System.Drawing.Point(122, 369);
             this.cboMob.Margin = new System.Windows.Forms.Padding(4);
             this.cboMob.Name = "cboMob";
             this.cboMob.Size = new System.Drawing.Size(528, 27);
-            this.cboMob.TabIndex = 5;
+            this.cboMob.TabIndex = 22;
             // 
             // cboTargetRoom
             // 
             this.cboTargetRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTargetRoom.FormattingEnabled = true;
-            this.cboTargetRoom.Location = new System.Drawing.Point(122, 367);
+            this.cboTargetRoom.Location = new System.Drawing.Point(122, 334);
             this.cboTargetRoom.Margin = new System.Windows.Forms.Padding(4);
             this.cboTargetRoom.Name = "cboTargetRoom";
             this.cboTargetRoom.Size = new System.Drawing.Size(528, 27);
-            this.cboTargetRoom.TabIndex = 7;
+            this.cboTargetRoom.TabIndex = 18;
             this.cboTargetRoom.SelectedIndexChanged += new System.EventHandler(this.cboRoom_SelectedIndexChanged);
             // 
             // lblTargetRoom
             // 
             this.lblTargetRoom.AutoSize = true;
-            this.lblTargetRoom.Location = new System.Drawing.Point(13, 370);
+            this.lblTargetRoom.Location = new System.Drawing.Point(13, 337);
             this.lblTargetRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTargetRoom.Name = "lblTargetRoom";
             this.lblTargetRoom.Size = new System.Drawing.Size(58, 19);
-            this.lblTargetRoom.TabIndex = 6;
+            this.lblTargetRoom.TabIndex = 17;
             this.lblTargetRoom.Text = "Target:";
             // 
             // btnTargetGraph
             // 
-            this.btnTargetGraph.Location = new System.Drawing.Point(770, 367);
+            this.btnTargetGraph.Location = new System.Drawing.Point(770, 334);
             this.btnTargetGraph.Name = "btnTargetGraph";
             this.btnTargetGraph.Size = new System.Drawing.Size(94, 27);
-            this.btnTargetGraph.TabIndex = 9;
+            this.btnTargetGraph.TabIndex = 20;
             this.btnTargetGraph.Text = "Graph";
             this.btnTargetGraph.UseVisualStyleBackColor = true;
             this.btnTargetGraph.Click += new System.EventHandler(this.btnTargetGraph_Click);
             // 
             // btnTargetLocations
             // 
-            this.btnTargetLocations.Location = new System.Drawing.Point(670, 367);
+            this.btnTargetLocations.Location = new System.Drawing.Point(670, 334);
             this.btnTargetLocations.Name = "btnTargetLocations";
             this.btnTargetLocations.Size = new System.Drawing.Size(94, 27);
-            this.btnTargetLocations.TabIndex = 10;
+            this.btnTargetLocations.TabIndex = 19;
             this.btnTargetLocations.Text = "Locations";
             this.btnTargetLocations.UseVisualStyleBackColor = true;
             this.btnTargetLocations.Click += new System.EventHandler(this.btnTargetLocations_Click);
@@ -178,10 +171,10 @@
             // grpStrategyModifications
             // 
             this.grpStrategyModifications.Controls.Add(this.pnlStrategyModifications);
-            this.grpStrategyModifications.Location = new System.Drawing.Point(122, 469);
+            this.grpStrategyModifications.Location = new System.Drawing.Point(122, 436);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
             this.grpStrategyModifications.Size = new System.Drawing.Size(528, 129);
-            this.grpStrategyModifications.TabIndex = 11;
+            this.grpStrategyModifications.TabIndex = 25;
             this.grpStrategyModifications.TabStop = false;
             this.grpStrategyModifications.Text = "Strategy Modifications";
             // 
@@ -208,7 +201,7 @@
             this.chkMagic.Location = new System.Drawing.Point(3, 3);
             this.chkMagic.Name = "chkMagic";
             this.chkMagic.Size = new System.Drawing.Size(75, 23);
-            this.chkMagic.TabIndex = 9;
+            this.chkMagic.TabIndex = 0;
             this.chkMagic.Text = "Magic";
             this.chkMagic.UseVisualStyleBackColor = true;
             this.chkMagic.CheckedChanged += new System.EventHandler(this.chkMagic_CheckedChanged);
@@ -235,7 +228,7 @@
             this.lblAutoSpellLevels.Location = new System.Drawing.Point(7, 66);
             this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
             this.lblAutoSpellLevels.Size = new System.Drawing.Size(128, 19);
-            this.lblAutoSpellLevels.TabIndex = 150;
+            this.lblAutoSpellLevels.TabIndex = 5;
             this.lblAutoSpellLevels.Text = "Auto spell levels:";
             // 
             // chkMelee
@@ -245,7 +238,7 @@
             this.chkMelee.Location = new System.Drawing.Point(109, 3);
             this.chkMelee.Name = "chkMelee";
             this.chkMelee.Size = new System.Drawing.Size(74, 23);
-            this.chkMelee.TabIndex = 10;
+            this.chkMelee.TabIndex = 1;
             this.chkMelee.Text = "Melee";
             this.chkMelee.UseVisualStyleBackColor = true;
             this.chkMelee.CheckedChanged += new System.EventHandler(this.chkMelee_CheckedChanged);
@@ -257,7 +250,7 @@
             this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(165, 62);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
             this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(234, 27);
-            this.lblCurrentAutoSpellLevelsValue.TabIndex = 149;
+            this.lblCurrentAutoSpellLevelsValue.TabIndex = 6;
             this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
             this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -268,7 +261,7 @@
             this.chkPotions.Location = new System.Drawing.Point(208, 3);
             this.chkPotions.Name = "chkPotions";
             this.chkPotions.Size = new System.Drawing.Size(85, 23);
-            this.chkPotions.TabIndex = 11;
+            this.chkPotions.TabIndex = 2;
             this.chkPotions.Text = "Potions";
             this.chkPotions.UseVisualStyleBackColor = true;
             this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
@@ -281,7 +274,7 @@
             this.cboOnKillMonster.Location = new System.Drawing.Point(165, 32);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
-            this.cboOnKillMonster.TabIndex = 148;
+            this.cboOnKillMonster.TabIndex = 4;
             // 
             // lblOnKillMonster
             // 
@@ -289,101 +282,59 @@
             this.lblOnKillMonster.Location = new System.Drawing.Point(7, 37);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(121, 19);
-            this.lblOnKillMonster.TabIndex = 147;
+            this.lblOnKillMonster.TabIndex = 3;
             this.lblOnKillMonster.Text = "On kill monster:";
-            // 
-            // cboPawnShoppe
-            // 
-            this.cboPawnShoppe.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboPawnShoppe.FormattingEnabled = true;
-            this.cboPawnShoppe.Location = new System.Drawing.Point(129, 77);
-            this.cboPawnShoppe.Margin = new System.Windows.Forms.Padding(4);
-            this.cboPawnShoppe.Name = "cboPawnShoppe";
-            this.cboPawnShoppe.Size = new System.Drawing.Size(528, 27);
-            this.cboPawnShoppe.TabIndex = 13;
-            this.cboPawnShoppe.SelectedIndexChanged += new System.EventHandler(this.cboPawnShoppe_SelectedIndexChanged);
-            // 
-            // lblPawnShoppe
-            // 
-            this.lblPawnShoppe.AutoSize = true;
-            this.lblPawnShoppe.Location = new System.Drawing.Point(13, 80);
-            this.lblPawnShoppe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblPawnShoppe.Name = "lblPawnShoppe";
-            this.lblPawnShoppe.Size = new System.Drawing.Size(94, 19);
-            this.lblPawnShoppe.TabIndex = 12;
-            this.lblPawnShoppe.Text = "Pawn shop:";
-            // 
-            // cboTickRoom
-            // 
-            this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTickRoom.FormattingEnabled = true;
-            this.cboTickRoom.Location = new System.Drawing.Point(129, 44);
-            this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
-            this.cboTickRoom.Name = "cboTickRoom";
-            this.cboTickRoom.Size = new System.Drawing.Size(528, 27);
-            this.cboTickRoom.TabIndex = 15;
-            this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
-            // 
-            // lblTickRoom
-            // 
-            this.lblTickRoom.AutoSize = true;
-            this.lblTickRoom.Location = new System.Drawing.Point(13, 47);
-            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(85, 19);
-            this.lblTickRoom.TabIndex = 14;
-            this.lblTickRoom.Text = "Tick room:";
             // 
             // cboItemsToProcessType
             // 
             this.cboItemsToProcessType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboItemsToProcessType.FormattingEnabled = true;
-            this.cboItemsToProcessType.Location = new System.Drawing.Point(122, 605);
+            this.cboItemsToProcessType.Location = new System.Drawing.Point(122, 572);
             this.cboItemsToProcessType.Margin = new System.Windows.Forms.Padding(4);
             this.cboItemsToProcessType.Name = "cboItemsToProcessType";
             this.cboItemsToProcessType.Size = new System.Drawing.Size(528, 27);
-            this.cboItemsToProcessType.TabIndex = 17;
+            this.cboItemsToProcessType.TabIndex = 27;
             // 
             // lblItemsToProcessType
             // 
             this.lblItemsToProcessType.AutoSize = true;
-            this.lblItemsToProcessType.Location = new System.Drawing.Point(3, 608);
+            this.lblItemsToProcessType.Location = new System.Drawing.Point(3, 575);
             this.lblItemsToProcessType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblItemsToProcessType.Name = "lblItemsToProcessType";
             this.lblItemsToProcessType.Size = new System.Drawing.Size(108, 19);
-            this.lblItemsToProcessType.TabIndex = 16;
+            this.lblItemsToProcessType.TabIndex = 26;
             this.lblItemsToProcessType.Text = "Items source:";
             // 
             // lblSpellsCast
             // 
             this.lblSpellsCast.AutoSize = true;
-            this.lblSpellsCast.Location = new System.Drawing.Point(13, 147);
+            this.lblSpellsCast.Location = new System.Drawing.Point(13, 114);
             this.lblSpellsCast.Name = "lblSpellsCast";
             this.lblSpellsCast.Size = new System.Drawing.Size(104, 19);
-            this.lblSpellsCast.TabIndex = 19;
+            this.lblSpellsCast.TabIndex = 6;
             this.lblSpellsCast.Text = "Spells (cast):";
             // 
             // lblSkills
             // 
             this.lblSkills.AutoSize = true;
-            this.lblSkills.Location = new System.Drawing.Point(16, 293);
+            this.lblSkills.Location = new System.Drawing.Point(16, 260);
             this.lblSkills.Name = "lblSkills";
             this.lblSkills.Size = new System.Drawing.Size(51, 19);
-            this.lblSkills.TabIndex = 20;
+            this.lblSkills.TabIndex = 10;
             this.lblSkills.Text = "Skills:";
             // 
             // flpSpellsCast
             // 
-            this.flpSpellsCast.Location = new System.Drawing.Point(122, 147);
+            this.flpSpellsCast.Location = new System.Drawing.Point(122, 114);
             this.flpSpellsCast.Margin = new System.Windows.Forms.Padding(4);
             this.flpSpellsCast.Name = "flpSpellsCast";
             this.flpSpellsCast.Size = new System.Drawing.Size(846, 65);
-            this.flpSpellsCast.TabIndex = 21;
+            this.flpSpellsCast.TabIndex = 7;
             // 
             // lblStrategy
             // 
             this.lblStrategy.AutoSize = true;
-            this.lblStrategy.Location = new System.Drawing.Point(10, 439);
+            this.lblStrategy.Location = new System.Drawing.Point(10, 406);
             this.lblStrategy.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblStrategy.Name = "lblStrategy";
             this.lblStrategy.Size = new System.Drawing.Size(75, 19);
@@ -394,7 +345,7 @@
             // 
             this.cboStrategy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboStrategy.FormattingEnabled = true;
-            this.cboStrategy.Location = new System.Drawing.Point(122, 436);
+            this.cboStrategy.Location = new System.Drawing.Point(122, 403);
             this.cboStrategy.Name = "cboStrategy";
             this.cboStrategy.Size = new System.Drawing.Size(528, 27);
             this.cboStrategy.TabIndex = 24;
@@ -402,19 +353,19 @@
             // 
             // flpSpellsPotions
             // 
-            this.flpSpellsPotions.Location = new System.Drawing.Point(122, 220);
+            this.flpSpellsPotions.Location = new System.Drawing.Point(122, 187);
             this.flpSpellsPotions.Margin = new System.Windows.Forms.Padding(4);
             this.flpSpellsPotions.Name = "flpSpellsPotions";
             this.flpSpellsPotions.Size = new System.Drawing.Size(846, 65);
-            this.flpSpellsPotions.TabIndex = 26;
+            this.flpSpellsPotions.TabIndex = 9;
             // 
             // lblSpellsPotions
             // 
             this.lblSpellsPotions.AutoSize = true;
-            this.lblSpellsPotions.Location = new System.Drawing.Point(12, 220);
+            this.lblSpellsPotions.Location = new System.Drawing.Point(12, 187);
             this.lblSpellsPotions.Name = "lblSpellsPotions";
             this.lblSpellsPotions.Size = new System.Drawing.Size(96, 19);
-            this.lblSpellsPotions.TabIndex = 25;
+            this.lblSpellsPotions.TabIndex = 8;
             this.lblSpellsPotions.Text = "Spells (pot):";
             // 
             // lblDisplayName
@@ -424,7 +375,7 @@
             this.lblDisplayName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblDisplayName.Name = "lblDisplayName";
             this.lblDisplayName.Size = new System.Drawing.Size(113, 19);
-            this.lblDisplayName.TabIndex = 27;
+            this.lblDisplayName.TabIndex = 0;
             this.lblDisplayName.Text = "Display name:";
             // 
             // txtDisplayName
@@ -432,24 +383,24 @@
             this.txtDisplayName.Location = new System.Drawing.Point(129, 9);
             this.txtDisplayName.Name = "txtDisplayName";
             this.txtDisplayName.Size = new System.Drawing.Size(528, 27);
-            this.txtDisplayName.TabIndex = 28;
+            this.txtDisplayName.TabIndex = 1;
             // 
             // btnThresholdLocations
             // 
-            this.btnThresholdLocations.Location = new System.Drawing.Point(669, 332);
+            this.btnThresholdLocations.Location = new System.Drawing.Point(669, 299);
             this.btnThresholdLocations.Name = "btnThresholdLocations";
             this.btnThresholdLocations.Size = new System.Drawing.Size(95, 27);
-            this.btnThresholdLocations.TabIndex = 32;
+            this.btnThresholdLocations.TabIndex = 14;
             this.btnThresholdLocations.Text = "Locations";
             this.btnThresholdLocations.UseVisualStyleBackColor = true;
             this.btnThresholdLocations.Click += new System.EventHandler(this.btnThresholdLocations_Click);
             // 
             // btnThresholdGraph
             // 
-            this.btnThresholdGraph.Location = new System.Drawing.Point(770, 332);
+            this.btnThresholdGraph.Location = new System.Drawing.Point(770, 299);
             this.btnThresholdGraph.Name = "btnThresholdGraph";
             this.btnThresholdGraph.Size = new System.Drawing.Size(95, 27);
-            this.btnThresholdGraph.TabIndex = 31;
+            this.btnThresholdGraph.TabIndex = 15;
             this.btnThresholdGraph.Text = "Graph";
             this.btnThresholdGraph.UseVisualStyleBackColor = true;
             this.btnThresholdGraph.Click += new System.EventHandler(this.btnThresholdGraph_Click);
@@ -458,133 +409,98 @@
             // 
             this.cboThresholdRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboThresholdRoom.FormattingEnabled = true;
-            this.cboThresholdRoom.Location = new System.Drawing.Point(121, 332);
+            this.cboThresholdRoom.Location = new System.Drawing.Point(121, 299);
             this.cboThresholdRoom.Margin = new System.Windows.Forms.Padding(4);
             this.cboThresholdRoom.Name = "cboThresholdRoom";
             this.cboThresholdRoom.Size = new System.Drawing.Size(528, 27);
-            this.cboThresholdRoom.TabIndex = 30;
+            this.cboThresholdRoom.TabIndex = 13;
             // 
             // lblThresholdRoom
             // 
             this.lblThresholdRoom.AutoSize = true;
-            this.lblThresholdRoom.Location = new System.Drawing.Point(12, 335);
+            this.lblThresholdRoom.Location = new System.Drawing.Point(12, 302);
             this.lblThresholdRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblThresholdRoom.Name = "lblThresholdRoom";
             this.lblThresholdRoom.Size = new System.Drawing.Size(85, 19);
-            this.lblThresholdRoom.TabIndex = 29;
+            this.lblThresholdRoom.TabIndex = 12;
             this.lblThresholdRoom.Text = "Threshold:";
             // 
             // cboBeforeFull
             // 
             this.cboBeforeFull.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboBeforeFull.FormattingEnabled = true;
-            this.cboBeforeFull.Location = new System.Drawing.Point(129, 112);
+            this.cboBeforeFull.Location = new System.Drawing.Point(129, 79);
             this.cboBeforeFull.Margin = new System.Windows.Forms.Padding(4);
             this.cboBeforeFull.Name = "cboBeforeFull";
             this.cboBeforeFull.Size = new System.Drawing.Size(528, 27);
-            this.cboBeforeFull.TabIndex = 34;
+            this.cboBeforeFull.TabIndex = 5;
             // 
             // lblBeforeFull
             // 
             this.lblBeforeFull.AutoSize = true;
-            this.lblBeforeFull.Location = new System.Drawing.Point(13, 115);
+            this.lblBeforeFull.Location = new System.Drawing.Point(13, 82);
             this.lblBeforeFull.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBeforeFull.Name = "lblBeforeFull";
             this.lblBeforeFull.Size = new System.Drawing.Size(88, 19);
-            this.lblBeforeFull.TabIndex = 33;
+            this.lblBeforeFull.TabIndex = 4;
             this.lblBeforeFull.Text = "Before full:";
             // 
             // cboAfterFull
             // 
             this.cboAfterFull.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboAfterFull.FormattingEnabled = true;
-            this.cboAfterFull.Location = new System.Drawing.Point(122, 676);
+            this.cboAfterFull.Location = new System.Drawing.Point(122, 607);
             this.cboAfterFull.Margin = new System.Windows.Forms.Padding(4);
             this.cboAfterFull.Name = "cboAfterFull";
             this.cboAfterFull.Size = new System.Drawing.Size(528, 27);
-            this.cboAfterFull.TabIndex = 36;
+            this.cboAfterFull.TabIndex = 29;
             // 
             // lblAfterFull
             // 
             this.lblAfterFull.AutoSize = true;
-            this.lblAfterFull.Location = new System.Drawing.Point(4, 679);
+            this.lblAfterFull.Location = new System.Drawing.Point(4, 610);
             this.lblAfterFull.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAfterFull.Name = "lblAfterFull";
             this.lblAfterFull.Size = new System.Drawing.Size(74, 19);
-            this.lblAfterFull.TabIndex = 35;
+            this.lblAfterFull.TabIndex = 28;
             this.lblAfterFull.Text = "After full:";
             // 
             // btnThresholdClear
             // 
-            this.btnThresholdClear.Location = new System.Drawing.Point(871, 332);
+            this.btnThresholdClear.Location = new System.Drawing.Point(871, 299);
             this.btnThresholdClear.Name = "btnThresholdClear";
             this.btnThresholdClear.Size = new System.Drawing.Size(95, 27);
-            this.btnThresholdClear.TabIndex = 37;
+            this.btnThresholdClear.TabIndex = 16;
             this.btnThresholdClear.Text = "Clear";
             this.btnThresholdClear.UseVisualStyleBackColor = true;
             this.btnThresholdClear.Click += new System.EventHandler(this.btnThresholdClear_Click);
             // 
-            // btnInventorySinkClear
+            // lblArea
             // 
-            this.btnInventorySinkClear.Location = new System.Drawing.Point(871, 640);
-            this.btnInventorySinkClear.Name = "btnInventorySinkClear";
-            this.btnInventorySinkClear.Size = new System.Drawing.Size(95, 27);
-            this.btnInventorySinkClear.TabIndex = 42;
-            this.btnInventorySinkClear.Text = "Clear";
-            this.btnInventorySinkClear.UseVisualStyleBackColor = true;
-            this.btnInventorySinkClear.Click += new System.EventHandler(this.btnInventorySinkClear_Click);
+            this.lblArea.AutoSize = true;
+            this.lblArea.Location = new System.Drawing.Point(13, 47);
+            this.lblArea.Name = "lblArea";
+            this.lblArea.Size = new System.Drawing.Size(49, 19);
+            this.lblArea.TabIndex = 2;
+            this.lblArea.Text = "Area:";
             // 
-            // btnInventorySinkLocations
+            // cboArea
             // 
-            this.btnInventorySinkLocations.Location = new System.Drawing.Point(669, 640);
-            this.btnInventorySinkLocations.Name = "btnInventorySinkLocations";
-            this.btnInventorySinkLocations.Size = new System.Drawing.Size(95, 27);
-            this.btnInventorySinkLocations.TabIndex = 41;
-            this.btnInventorySinkLocations.Text = "Locations";
-            this.btnInventorySinkLocations.UseVisualStyleBackColor = true;
-            this.btnInventorySinkLocations.Click += new System.EventHandler(this.btnInventorySinkLocations_Click);
-            // 
-            // btnInventorySinkGraph
-            // 
-            this.btnInventorySinkGraph.Location = new System.Drawing.Point(770, 640);
-            this.btnInventorySinkGraph.Name = "btnInventorySinkGraph";
-            this.btnInventorySinkGraph.Size = new System.Drawing.Size(95, 27);
-            this.btnInventorySinkGraph.TabIndex = 40;
-            this.btnInventorySinkGraph.Text = "Graph";
-            this.btnInventorySinkGraph.UseVisualStyleBackColor = true;
-            this.btnInventorySinkGraph.Click += new System.EventHandler(this.btnInventorySinkGraph_Click);
-            // 
-            // cboInventorySinkRoom
-            // 
-            this.cboInventorySinkRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboInventorySinkRoom.FormattingEnabled = true;
-            this.cboInventorySinkRoom.Location = new System.Drawing.Point(122, 640);
-            this.cboInventorySinkRoom.Margin = new System.Windows.Forms.Padding(4);
-            this.cboInventorySinkRoom.Name = "cboInventorySinkRoom";
-            this.cboInventorySinkRoom.Size = new System.Drawing.Size(528, 27);
-            this.cboInventorySinkRoom.TabIndex = 39;
-            // 
-            // lblInventorySinkRoom
-            // 
-            this.lblInventorySinkRoom.AutoSize = true;
-            this.lblInventorySinkRoom.Location = new System.Drawing.Point(4, 644);
-            this.lblInventorySinkRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblInventorySinkRoom.Name = "lblInventorySinkRoom";
-            this.lblInventorySinkRoom.Size = new System.Drawing.Size(115, 19);
-            this.lblInventorySinkRoom.TabIndex = 38;
-            this.lblInventorySinkRoom.Text = "Inventory sink:";
+            this.cboArea.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboArea.FormattingEnabled = true;
+            this.cboArea.Location = new System.Drawing.Point(129, 44);
+            this.cboArea.Name = "cboArea";
+            this.cboArea.Size = new System.Drawing.Size(528, 27);
+            this.cboArea.TabIndex = 3;
             // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(981, 729);
+            this.ClientSize = new System.Drawing.Size(981, 644);
             this.ControlBox = false;
-            this.Controls.Add(this.btnInventorySinkClear);
-            this.Controls.Add(this.btnInventorySinkLocations);
-            this.Controls.Add(this.btnInventorySinkGraph);
-            this.Controls.Add(this.cboInventorySinkRoom);
-            this.Controls.Add(this.lblInventorySinkRoom);
+            this.Controls.Add(this.cboArea);
+            this.Controls.Add(this.lblArea);
             this.Controls.Add(this.btnThresholdClear);
             this.Controls.Add(this.cboAfterFull);
             this.Controls.Add(this.lblAfterFull);
@@ -606,10 +522,6 @@
             this.Controls.Add(this.lblSpellsCast);
             this.Controls.Add(this.cboItemsToProcessType);
             this.Controls.Add(this.lblItemsToProcessType);
-            this.Controls.Add(this.cboTickRoom);
-            this.Controls.Add(this.lblTickRoom);
-            this.Controls.Add(this.cboPawnShoppe);
-            this.Controls.Add(this.lblPawnShoppe);
             this.Controls.Add(this.grpStrategyModifications);
             this.Controls.Add(this.btnTargetLocations);
             this.Controls.Add(this.btnTargetGraph);
@@ -649,10 +561,6 @@
         private System.Windows.Forms.CheckBox chkMagic;
         private System.Windows.Forms.ComboBox cboOnKillMonster;
         private System.Windows.Forms.Label lblOnKillMonster;
-        private System.Windows.Forms.ComboBox cboPawnShoppe;
-        private System.Windows.Forms.Label lblPawnShoppe;
-        private System.Windows.Forms.ComboBox cboTickRoom;
-        private System.Windows.Forms.Label lblTickRoom;
         private System.Windows.Forms.ComboBox cboItemsToProcessType;
         private System.Windows.Forms.Label lblItemsToProcessType;
         private System.Windows.Forms.Label lblSpellsCast;
@@ -678,10 +586,7 @@
         private System.Windows.Forms.ComboBox cboAfterFull;
         private System.Windows.Forms.Label lblAfterFull;
         private System.Windows.Forms.Button btnThresholdClear;
-        private System.Windows.Forms.Button btnInventorySinkClear;
-        private System.Windows.Forms.Button btnInventorySinkLocations;
-        private System.Windows.Forms.Button btnInventorySinkGraph;
-        private System.Windows.Forms.ComboBox cboInventorySinkRoom;
-        private System.Windows.Forms.Label lblInventorySinkRoom;
+        private System.Windows.Forms.Label lblArea;
+        private System.Windows.Forms.ComboBox cboArea;
     }
 }

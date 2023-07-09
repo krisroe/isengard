@@ -10,6 +10,9 @@ namespace IsengardClient
     internal partial class frmConfiguration : Form
     {
         private IsengardSettingData _settings;
+        private IsengardMap _gameMap;
+        private Func<GraphInputs> _getGraphInputs;
+        private CurrentEntityInfo _cei;
 
         private int _currentAutoEscapeThreshold;
         private AutoEscapeType _currentAutoEscapeType;
@@ -23,11 +26,22 @@ namespace IsengardClient
 
         private AutoSpellLevelOverrides _autoSpellLevelOverrides;
 
-        public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive)
+
+        public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, IsengardMap gameMap, Func<GraphInputs> getGraphInputs, CurrentEntityInfo cei)
         {
             InitializeComponent();
 
             _settings = settingsData;
+            _gameMap = gameMap;
+            _getGraphInputs = getGraphInputs;
+            _cei = cei;
+
+            dgvAreas.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
+            foreach (Area nextArea in settingsData.Areas)
+            {
+                UpdateAreaDisplay(nextArea, null);
+            }
+
             tsmiCurrentRealmEarth.Tag = RealmType.Earth;
             tsmiCurrentRealmFire.Tag = RealmType.Fire;
             tsmiCurrentRealmWater.Tag = RealmType.Water;
@@ -221,6 +235,21 @@ namespace IsengardClient
             _settings.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
             _settings.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             _settings.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+
+            _settings.Strategies.Clear();
+            foreach (Strategy s in lstStrategies.Items)
+            {
+                _settings.Strategies.Add(s);
+            }
+
+            _settings.Areas.Clear();
+            _settings.AreasByName.Clear();
+            foreach (DataGridViewRow r in dgvAreas.Rows)
+            {
+                Area a = (Area)r.Tag;
+                _settings.Areas.Add(a);
+                _settings.AreasByName[a.DisplayName] = a;
+            }
 
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -473,74 +502,228 @@ namespace IsengardClient
             return ret;
         }
 
-        private void ctxStrategies_Opening(object sender, CancelEventArgs e)
+        private void ctxListModification_Opening(object sender, CancelEventArgs e)
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            if (iIndex < 0)
+            ListBox lb;
+            DataGridView dgv;
+            object oSourceControl = ctxListModification.SourceControl;
+            lb = oSourceControl as ListBox;
+            dgv = oSourceControl as DataGridView;
+            int iCount;
+            List<int> indexes = new List<int>();
+            if (lb != null)
             {
-                tsmiEditStrategy.Visible = false;
-                tsmiRemoveStrategy.Visible = false;
-                tsmiMoveStrategyUp.Visible = false;
-                tsmiMoveStrategyDown.Visible = false;
+                foreach (int nextIndex in lb.SelectedIndices)
+                {
+                    indexes.Add(nextIndex);
+                }
+                iCount = lb.Items.Count;
+            }
+            else if (dgv != null)
+            {
+                foreach (DataGridViewRow r in dgv.SelectedRows)
+                {
+                    indexes.Add(r.Index);
+                }
+                iCount = dgv.Rows.Count;
             }
             else
             {
-                tsmiEditStrategy.Visible = true;
-                tsmiRemoveStrategy.Visible = true;
-                tsmiMoveStrategyUp.Visible = iIndex > 0;
-                tsmiMoveStrategyDown.Visible = iIndex < lstStrategies.Items.Count - 1;
+                throw new InvalidOperationException();
             }
+            bool hasOne = indexes.Count == 1;
+            bool hasMultiple = indexes.Count > 1;
+            int iFirst = hasOne ? indexes[0] : 0;
+            tsmiEditEntry.Visible = hasOne;
+            tsmiRemoveEntry.Visible = hasOne || hasMultiple;
+            tsmiMoveEntryDown.Visible = hasOne && (iFirst < iCount - 1);
+            tsmiMoveEntryUp.Visible = hasOne && iFirst > 0;
         }
 
-        private void tsmiAddStrategy_Click(object sender, EventArgs e)
+        private void tsmiAddEntry_Click(object sender, EventArgs e)
         {
-            Strategy s = new Strategy();
-            frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell());
-            if (frm.ShowDialog(this) == DialogResult.OK)
+            if (tcConfiguration.SelectedTab == tabStrategies)
             {
-                lstStrategies.Items.Add(s);
-                _settings.Strategies.Add(s);
+                Strategy s = new Strategy();
+                using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+                {
+                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        lstStrategies.Items.Add(s);
+                    }
+                }
             }
-        }
-
-        private void tsmiEditStrategy_Click(object sender, EventArgs e)
-        {
-            int index = lstStrategies.SelectedIndex;
-            Strategy s = (Strategy)lstStrategies.Items[index];
-            frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell());
-            if (frm.ShowDialog(this) == DialogResult.OK)
+            else if (tcConfiguration.SelectedTab == tabAreas)
             {
-                lstStrategies.Items[index] = s;
+                Area a = new Area();
+                using (frmArea frm = new frmArea(a, _gameMap, _settings, GetCurrentAreas(), _getGraphInputs, _cei))
+                {
+                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        UpdateAreaDisplay(a, null);
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
             }
         }
 
-        private void tsmiRemoveStrategy_Click(object sender, EventArgs e)
+        private List<Area> GetCurrentAreas()
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            _settings.Strategies.RemoveAt(iIndex);
-            lstStrategies.Items.RemoveAt(iIndex);
+            List<Area> ret = new List<Area>();
+            foreach (DataGridViewRow r in dgvAreas.Rows)
+            {
+                ret.Add((Area)r.Tag);
+            }
+            return ret;
         }
 
-        private void MoveStrategyUp(int iIndex, int iIndexToSelect)
+        private void tsmiEditEntry_Click(object sender, EventArgs e)
         {
-            Strategy s = (Strategy)lstStrategies.Items[iIndex];
-            lstStrategies.Items.RemoveAt(iIndex);
-            lstStrategies.Items.Insert(iIndex - 1, s);
-            _settings.Strategies.RemoveAt(iIndex);
-            _settings.Strategies.Insert(iIndex - 1, s);
-            lstStrategies.SelectedIndex = iIndexToSelect;
+            if (tcConfiguration.SelectedTab == tabStrategies)
+            {
+                int index = lstStrategies.SelectedIndex;
+                Strategy s = (Strategy)lstStrategies.Items[index];
+                using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+                {
+                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        lstStrategies.Items[index] = s;
+                    }
+                }
+            }
+            else if (tcConfiguration.SelectedTab == tabAreas)
+            {
+                DataGridViewRow r = dgvAreas.SelectedRows[0];
+                int index = r.Index;
+                Area a = (Area)r.Tag;
+                using (frmArea frm = new frmArea(a, _gameMap, _settings, GetCurrentAreas(), _getGraphInputs, _cei))
+                {
+                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        UpdateAreaDisplay(a, index);
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
 
-        private void tsmiMoveStrategyUp_Click(object sender, EventArgs e)
+        private void tsmiRemoveEntry_Click(object sender, EventArgs e)
         {
-            int iIndex = lstStrategies.SelectedIndex;
-            MoveStrategyUp(iIndex, iIndex - 1);
+            bool isValid = true;
+            List<int> indexesToRemove = new List<int>();
+            if (tcConfiguration.SelectedTab == tabStrategies)
+            {
+                foreach (int nextIndex in lstStrategies.SelectedIndices)
+                {
+                    indexesToRemove.Add(nextIndex);
+                    Strategy s = (Strategy)lstStrategies.Items[nextIndex];
+                    foreach (PermRun pr in _settings.PermRuns)
+                    {
+                        if (pr.Strategy == s)
+                        {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) break;
+                }
+                if (isValid && MessageBox.Show("Are you sure you want to remove these strategy(s)?", "Remove Strategy", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    indexesToRemove.Reverse();
+                    foreach (int nextIndex in indexesToRemove)
+                    {
+                        lstStrategies.Items.RemoveAt(nextIndex);
+                    }
+                }
+            }
+            else if (tcConfiguration.SelectedTab == tabAreas)
+            {
+                foreach (DataGridViewRow r in dgvAreas.SelectedRows)
+                {
+                    int nextIndex = r.Index;
+                    indexesToRemove.Add(nextIndex);
+                    Area a = (Area)r.Tag;
+                    foreach (PermRun pr in _settings.PermRuns)
+                    {
+                        if (pr.Area == a)
+                        {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) break;
+                }
+                if (isValid && MessageBox.Show("Are you sure you want to remove these areas(s)?", "Remove Area", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    indexesToRemove.Reverse();
+                    foreach (int nextIndex in indexesToRemove)
+                    {
+                        dgvAreas.Rows.RemoveAt(nextIndex);
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+            if (!isValid)
+            {
+                MessageBox.Show("Objects associated to perm runs cannot be removed.");
+                return;
+            }
         }
 
-        private void tsmiMoveStrategyDown_Click(object sender, EventArgs e)
+        private void MoveEntryUp(int iIndex, int iIndexToSelect)
         {
-            int iIndex = lstStrategies.SelectedIndex + 1;
-            MoveStrategyUp(iIndex, iIndex);
+            if (tcConfiguration.SelectedTab == tabStrategies)
+            {
+                Strategy s = (Strategy)lstStrategies.Items[iIndex];
+                lstStrategies.Items.RemoveAt(iIndex);
+                lstStrategies.Items.Insert(iIndex - 1, s);
+                lstStrategies.SelectedIndex = iIndexToSelect;
+            }
+            else if (tcConfiguration.SelectedTab == tabAreas)
+            {
+                DataGridViewRow r = dgvAreas.Rows[iIndex];
+                dgvAreas.Rows.RemoveAt(iIndex);
+                dgvAreas.Rows.Insert(iIndex - 1, r);
+                r.Selected = true;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        private void tsmiMoveEntryUp_Click(object sender, EventArgs e)
+        {
+            int iIndex;
+            if (tcConfiguration.SelectedTab == tabStrategies)
+                iIndex = lstStrategies.SelectedIndex;
+            else if (tcConfiguration.SelectedTab == tabAreas)
+                iIndex = dgvAreas.SelectedRows[0].Index;
+            else
+                throw new InvalidOperationException();
+            MoveEntryUp(iIndex, iIndex - 1);
+        }
+
+        private void tsmiMoveEntryDown_Click(object sender, EventArgs e)
+        {
+            int iIndex;
+            if (tcConfiguration.SelectedTab == tabStrategies)
+                iIndex = lstStrategies.SelectedIndex;
+            else if (tcConfiguration.SelectedTab == tabAreas)
+                iIndex = dgvAreas.SelectedRows[0].Index;
+            else
+                throw new InvalidOperationException();
+            iIndex++;
+            MoveEntryUp(iIndex, iIndex);
         }
 
         private void ctxPreferredAlignment_Opening(object sender, CancelEventArgs e)
@@ -699,6 +882,25 @@ namespace IsengardClient
             else if (!int.TryParse(count, out iCount))
                 return;
             SetItemProperty((did) => { did.KeepCount = iCount < 0 ? -1 : iCount; });
+        }
+        private void UpdateAreaDisplay(Area nextArea, int? rowIndex)
+        {
+            string sDisplayName = nextArea.DisplayName;
+            string sTickRoom = nextArea.TickRoom.HasValue ? nextArea.TickRoom.Value.ToString() : "None";
+            string sPawnRoom = nextArea.PawnShop.HasValue ? nextArea.PawnShop.Value.ToString() : "None";
+            string sInventorySinkRoom = nextArea.InventorySinkRoomObject != null ? nextArea.InventorySinkRoomObject.DisplayName : "None";
+            DataGridViewRow r;
+            if (rowIndex.HasValue)
+            {
+                r = dgvAreas.Rows[rowIndex.Value];
+                r.SetValues(sDisplayName, sTickRoom, sPawnRoom, sInventorySinkRoom);
+            }
+            else
+            {
+                rowIndex = dgvAreas.Rows.Add(sDisplayName, sTickRoom, sPawnRoom, sInventorySinkRoom);
+                r = dgvAreas.Rows[rowIndex.Value];
+            }
+            r.Tag = nextArea;
         }
     }
 }

@@ -33,6 +33,33 @@ namespace IsengardClient
             foreg = (byte)(g <= 128 ? 255 : 0);
             foreb = (byte)(b <= 128 ? 255 : 0);
         }
+
+        internal static DataGridViewCellStyle GetAlternatingDataGridViewCellStyle()
+        {
+            DataGridViewCellStyle ret = new DataGridViewCellStyle();
+            ret.BackColor = Color.FromArgb(225, 255, 255);
+            ret.ForeColor = SystemColors.ControlText;
+            ret.SelectionBackColor = SystemColors.Highlight;
+            ret.SelectionForeColor = SystemColors.WindowText;
+            return ret;
+        }
+
+        /// <summary>
+        /// handler for when a room is selected for a dropdown that auto-adds the room on selection
+        /// </summary>
+        /// <param name="selectedRoom">selected room</param>
+        /// <param name="roomDropdown">dropdown</param>
+        public static void HandleRoomSelected(Room selectedRoom, ComboBox roomDropdown)
+        {
+            if (selectedRoom != null)
+            {
+                if (!roomDropdown.Items.Contains(selectedRoom))
+                {
+                    roomDropdown.Items.Add(selectedRoom);
+                }
+                roomDropdown.SelectedItem = selectedRoom;
+            }
+        }
     }
 
     internal class AutoSpellLevelOverrides

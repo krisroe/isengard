@@ -60,14 +60,6 @@ namespace IsengardClient
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.
         /// </summary>
         public bool CureIfPoisoned { get; set; }
-        /// <summary>
-        /// how to full at the beginning of the workflow
-        /// </summary>
-        public FullType BeforeFull { get; set; }
-        /// <summary>
-        /// how to full at the end of the workflow
-        /// </summary>
-        public FullType AfterFull { get; set; }
         public BackgroundCommandType? SingleCommandType { get; set; }
         public CommandResult SingleCommandResult { get; set; }
         public bool SaveSettingsOnQuit { get; set; }
@@ -75,7 +67,7 @@ namespace IsengardClient
         public bool MonsterKilled { get; set; }
         public MobTypeEnum? MonsterKilledType { get; set; }
         public bool AtDestination { get; set; }
-        public bool UsedPawnShoppe { get; set; }
+        public bool EnteredArea { get; set; }
         public bool Success { get; set; }
         /// <summary>
         /// when the perm run started
@@ -157,11 +149,12 @@ namespace IsengardClient
             {
                 MobTypeCounter = MobTextCounter = 1;
             }
-            InventorySinkRoom = p.InventorySinkRoomObject;
+            if (p.Area != null)
+            {
+                InventorySinkRoom = p.Area.InventorySinkRoomObject;
+            }
             InventoryProcessInputType = p.ItemsToProcessType;
             TargetRoom = p.TargetRoomObject;
-            BeforeFull = p.BeforeFull;
-            AfterFull = p.AfterFull;
         }
     }
 }

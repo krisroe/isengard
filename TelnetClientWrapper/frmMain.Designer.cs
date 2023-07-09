@@ -70,12 +70,11 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
+            this.btnGoToInventorySink = new System.Windows.Forms.Button();
             this.btnPermRuns = new System.Windows.Forms.Button();
             this.btnFerry = new System.Windows.Forms.Button();
             this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
-            this.lblPawnShop = new System.Windows.Forms.Label();
-            this.cboPawnShop = new System.Windows.Forms.ComboBox();
             this.lblGold = new System.Windows.Forms.Label();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
             this.grpInventory = new System.Windows.Forms.GroupBox();
@@ -84,8 +83,8 @@
             this.grpEquipment = new System.Windows.Forms.GroupBox();
             this.lstEquipment = new System.Windows.Forms.ListBox();
             this.btnGoToHealingRoom = new System.Windows.Forms.Button();
-            this.lblTickRoom = new System.Windows.Forms.Label();
-            this.cboTickRoom = new System.Windows.Forms.ComboBox();
+            this.lblArea = new System.Windows.Forms.Label();
+            this.cboArea = new System.Windows.Forms.ComboBox();
             this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.treeCurrentRoom = new System.Windows.Forms.TreeView();
             this.ctxCurrentRoom = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -646,19 +645,18 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.btnGoToInventorySink);
             this.pnlMain.Controls.Add(this.btnPermRuns);
             this.pnlMain.Controls.Add(this.btnFerry);
             this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
-            this.pnlMain.Controls.Add(this.lblPawnShop);
-            this.pnlMain.Controls.Add(this.cboPawnShop);
             this.pnlMain.Controls.Add(this.lblGold);
             this.pnlMain.Controls.Add(this.lblToNextLevelValue);
             this.pnlMain.Controls.Add(this.grpInventory);
             this.pnlMain.Controls.Add(this.grpEquipment);
             this.pnlMain.Controls.Add(this.btnGoToHealingRoom);
-            this.pnlMain.Controls.Add(this.lblTickRoom);
-            this.pnlMain.Controls.Add(this.cboTickRoom);
+            this.pnlMain.Controls.Add(this.lblArea);
+            this.pnlMain.Controls.Add(this.cboArea);
             this.pnlMain.Controls.Add(this.grpCurrentRoom);
             this.pnlMain.Controls.Add(this.btnLocations);
             this.pnlMain.Controls.Add(this.btnIncrementWand);
@@ -706,6 +704,19 @@
             this.pnlMain.Size = new System.Drawing.Size(1017, 900);
             this.pnlMain.TabIndex = 0;
             // 
+            // btnGoToInventorySink
+            // 
+            this.btnGoToInventorySink.Enabled = false;
+            this.btnGoToInventorySink.Location = new System.Drawing.Point(186, 133);
+            this.btnGoToInventorySink.Margin = new System.Windows.Forms.Padding(2);
+            this.btnGoToInventorySink.Name = "btnGoToInventorySink";
+            this.btnGoToInventorySink.Size = new System.Drawing.Size(51, 23);
+            this.btnGoToInventorySink.TabIndex = 155;
+            this.btnGoToInventorySink.Tag = "";
+            this.btnGoToInventorySink.Text = "Inv";
+            this.btnGoToInventorySink.UseVisualStyleBackColor = true;
+            this.btnGoToInventorySink.Click += new System.EventHandler(this.btnGoToInventorySink_Click);
+            // 
             // btnPermRuns
             // 
             this.btnPermRuns.Location = new System.Drawing.Point(284, 135);
@@ -743,36 +754,15 @@
             // btnGoToPawnShop
             // 
             this.btnGoToPawnShop.Enabled = false;
-            this.btnGoToPawnShop.Location = new System.Drawing.Point(234, 131);
+            this.btnGoToPawnShop.Location = new System.Drawing.Point(131, 133);
             this.btnGoToPawnShop.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToPawnShop.Name = "btnGoToPawnShop";
-            this.btnGoToPawnShop.Size = new System.Drawing.Size(34, 23);
+            this.btnGoToPawnShop.Size = new System.Drawing.Size(51, 23);
             this.btnGoToPawnShop.TabIndex = 151;
             this.btnGoToPawnShop.Tag = "";
-            this.btnGoToPawnShop.Text = "Go";
+            this.btnGoToPawnShop.Text = "Pawn";
             this.btnGoToPawnShop.UseVisualStyleBackColor = true;
             this.btnGoToPawnShop.Click += new System.EventHandler(this.btnGoToPawnShop_Click);
-            // 
-            // lblPawnShop
-            // 
-            this.lblPawnShop.AutoSize = true;
-            this.lblPawnShop.Location = new System.Drawing.Point(14, 136);
-            this.lblPawnShop.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblPawnShop.Name = "lblPawnShop";
-            this.lblPawnShop.Size = new System.Drawing.Size(54, 15);
-            this.lblPawnShop.TabIndex = 150;
-            this.lblPawnShop.Text = "Pawn at:";
-            this.lblPawnShop.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // cboPawnShop
-            // 
-            this.cboPawnShop.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboPawnShop.FormattingEnabled = true;
-            this.cboPawnShop.Location = new System.Drawing.Point(76, 133);
-            this.cboPawnShop.Name = "cboPawnShop";
-            this.cboPawnShop.Size = new System.Drawing.Size(155, 21);
-            this.cboPawnShop.TabIndex = 149;
-            this.cboPawnShop.SelectedIndexChanged += new System.EventHandler(this.cboPawnShop_SelectedIndexChanged);
             // 
             // lblGold
             // 
@@ -852,36 +842,36 @@
             // btnGoToHealingRoom
             // 
             this.btnGoToHealingRoom.Enabled = false;
-            this.btnGoToHealingRoom.Location = new System.Drawing.Point(234, 105);
+            this.btnGoToHealingRoom.Location = new System.Drawing.Point(76, 133);
             this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToHealingRoom.Name = "btnGoToHealingRoom";
-            this.btnGoToHealingRoom.Size = new System.Drawing.Size(34, 23);
+            this.btnGoToHealingRoom.Size = new System.Drawing.Size(51, 23);
             this.btnGoToHealingRoom.TabIndex = 145;
             this.btnGoToHealingRoom.Tag = "";
-            this.btnGoToHealingRoom.Text = "Go";
+            this.btnGoToHealingRoom.Text = "Tick";
             this.btnGoToHealingRoom.UseVisualStyleBackColor = true;
             this.btnGoToHealingRoom.Click += new System.EventHandler(this.btnGoToHealingRoom_Click);
             // 
-            // lblTickRoom
+            // lblArea
             // 
-            this.lblTickRoom.AutoSize = true;
-            this.lblTickRoom.Location = new System.Drawing.Point(14, 110);
-            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblTickRoom.Name = "lblTickRoom";
-            this.lblTickRoom.Size = new System.Drawing.Size(45, 15);
-            this.lblTickRoom.TabIndex = 144;
-            this.lblTickRoom.Text = "Tick at:";
-            this.lblTickRoom.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblArea.AutoSize = true;
+            this.lblArea.Location = new System.Drawing.Point(14, 110);
+            this.lblArea.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblArea.Name = "lblArea";
+            this.lblArea.Size = new System.Drawing.Size(35, 15);
+            this.lblArea.TabIndex = 144;
+            this.lblArea.Text = "Area:";
+            this.lblArea.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // cboTickRoom
+            // cboArea
             // 
-            this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTickRoom.FormattingEnabled = true;
-            this.cboTickRoom.Location = new System.Drawing.Point(76, 107);
-            this.cboTickRoom.Name = "cboTickRoom";
-            this.cboTickRoom.Size = new System.Drawing.Size(155, 21);
-            this.cboTickRoom.TabIndex = 143;
-            this.cboTickRoom.SelectedIndexChanged += new System.EventHandler(this.cboTickRoom_SelectedIndexChanged);
+            this.cboArea.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboArea.FormattingEnabled = true;
+            this.cboArea.Location = new System.Drawing.Point(76, 107);
+            this.cboArea.Name = "cboArea";
+            this.cboArea.Size = new System.Drawing.Size(155, 21);
+            this.cboArea.TabIndex = 143;
+            this.cboArea.SelectedIndexChanged += new System.EventHandler(this.cboArea_SelectedIndexChanged);
             // 
             // grpCurrentRoom
             // 
@@ -2005,8 +1995,8 @@
         private System.Windows.Forms.ToolStripSeparator tsmiAutoEscapeSeparator2;
         private System.Windows.Forms.Button btnLocations;
         private System.Windows.Forms.GroupBox grpCurrentRoom;
-        private System.Windows.Forms.ComboBox cboTickRoom;
-        private System.Windows.Forms.Label lblTickRoom;
+        private System.Windows.Forms.ComboBox cboArea;
+        private System.Windows.Forms.Label lblArea;
         private System.Windows.Forms.Button btnGoToHealingRoom;
         private System.Windows.Forms.TreeView treeCurrentRoom;
         private System.Windows.Forms.Button btnOut;
@@ -2021,8 +2011,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
         private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
         private System.Windows.Forms.Button btnGoToPawnShop;
-        private System.Windows.Forms.Label lblPawnShop;
-        private System.Windows.Forms.ComboBox cboPawnShop;
         private System.Windows.Forms.ToolStripButton tsbReloadMap;
         private System.Windows.Forms.ContextMenuStrip ctxMessages;
         private System.Windows.Forms.ToolStripMenuItem tsmiCopyMessages;
@@ -2039,6 +2027,7 @@
         private System.Windows.Forms.Button btnFerry;
         private System.Windows.Forms.Button btnPermRuns;
         private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
+        private System.Windows.Forms.Button btnGoToInventorySink;
     }
 }
 

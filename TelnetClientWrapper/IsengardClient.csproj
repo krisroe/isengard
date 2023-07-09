@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Area.cs" />
     <Compile Include="AsciiMapping.cs" />
     <Compile Include="Attributes.cs" />
     <Compile Include="BackgroundWorkerParameters.cs" />
@@ -74,6 +75,12 @@
     <Compile Include="Entity.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exit.cs" />
+    <Compile Include="frmArea.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmArea.Designer.cs">
+      <DependentUpon>frmArea.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmConfiguration.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -162,6 +169,9 @@
     <Compile Include="Spells.cs" />
     <Compile Include="Strategy.cs" />
     <Compile Include="UIShared.cs" />
+    <EmbeddedResource Include="frmArea.resx">
+      <DependentUpon>frmArea.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmConfiguration.resx">
       <DependentUpon>frmConfiguration.cs</DependentUpon>
     </EmbeddedResource>

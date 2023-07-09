@@ -18,10 +18,10 @@ namespace IsengardClient.Tests
             IsengardMap gameMap = new IsengardMap(new List<string>());
             IsengardSettingData settings = IsengardSettingData.GetDefaultSettings();
             IsengardSettingData clone = new IsengardSettingData(settings);
-            VerifySettingsMatch(settings, clone);
+            VerifySettingsMatch(settings, clone, false);
             settings = GenerateTestSettings(gameMap);
             clone = new IsengardSettingData(settings);
-            VerifySettingsMatch(settings, clone);
+            VerifySettingsMatch(settings, clone, false);
         }
 
         [TestMethod]
@@ -77,6 +77,15 @@ namespace IsengardClient.Tests
             node2.Room = "someroom";
             node1.Children = new List<LocationNode>() { node2 };
 
+            Area a = new Area();
+            a.DisplayName = "test";
+            a.PawnShop = PawnShoppe.Esgaroth;
+            a.TickRoom = HealingRoom.SpindrilsCastle;
+            a.InventorySinkRoomObject = gameMap.HealingRooms[HealingRoom.DeathValley];
+            a.InventorySinkRoomIdentifier = a.InventorySinkRoomObject.BackendName;
+            settings.Areas.Add(a);
+            settings.AreasByName[a.DisplayName] = a;
+
             Strategy s = new Strategy();
             s.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoom;
             s.AutoSpellLevelMin = 2;
@@ -96,6 +105,7 @@ namespace IsengardClient.Tests
             settings.Strategies.Add(s);
 
             PermRun p = new PermRun();
+            p.Area = a;
             p.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
             p.AutoSpellLevelMin = 3;
             p.AutoSpellLevelMax = 4;
@@ -106,8 +116,6 @@ namespace IsengardClient.Tests
             p.MobIndex = 2;
             p.MobType = MobTypeEnum.Amlug;
             p.OrderValue = 12;
-            p.PawnShop = PawnShoppe.Esgaroth;
-            p.TickRoom = HealingRoom.SpindrilsCastle;
             p.UseMagicCombat = true;
             p.UseMeleeCombat = false;
             p.UsePotionsCombat = null;
@@ -116,8 +124,6 @@ namespace IsengardClient.Tests
             p.TargetRoomIdentifier = p.TargetRoomObject.BackendName;
             p.ThresholdRoomObject = gameMap.HealingRooms[HealingRoom.BreeNortheast];
             p.ThresholdRoomIdentifier = p.ThresholdRoomObject.BackendName;
-            p.InventorySinkRoomObject = gameMap.HealingRooms[HealingRoom.DeathValley];
-            p.InventorySinkRoomIdentifier = p.InventorySinkRoomObject.BackendName;
             settings.PermRuns.Add(p);
 
             return settings;
@@ -136,7 +142,7 @@ namespace IsengardClient.Tests
             }
             IsengardSettingData sets2 = new IsengardSettingData(sb.ToString(), errorMessages, false, gameMap);
             Assert.AreEqual(errorMessages.Count, 0);
-            VerifySettingsMatch(settings, sets2);
+            VerifySettingsMatch(settings, sets2, false);
         }
 
         internal void VerifySqliteDatabaseSerializationForSettings(IsengardSettingData settings, IsengardMap gameMap)
@@ -158,10 +164,10 @@ namespace IsengardClient.Tests
                 sets4 = new IsengardSettingData(conn, iUserID, errorMessages, gameMap);
             }
             Assert.AreEqual(errorMessages.Count, 0);
-            VerifySettingsMatch(settings, sets4);
+            VerifySettingsMatch(settings, sets4, true);
         }
 
-        internal void VerifySettingsMatch(IsengardSettingData settings, IsengardSettingData sets2)
+        internal void VerifySettingsMatch(IsengardSettingData settings, IsengardSettingData sets2, bool expectIDsPopulated)
         {
             Assert.AreEqual(settings.Realm, sets2.Realm);
             Assert.AreEqual(settings.PreferredAlignment, sets2.PreferredAlignment);
@@ -183,29 +189,51 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].SinkCount, sets2.DynamicItemClassData[next.Key].SinkCount);
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].OverflowAction, sets2.DynamicItemClassData[next.Key].OverflowAction);
             }
+            Assert.AreEqual(settings.Areas.Count, sets2.Areas.Count);
+            for (int i = 0; i < settings.Areas.Count; i++)
+            {
+                VerifyAreasMatch(settings.Areas[i], sets2.Areas[i], expectIDsPopulated);
+            }
             Assert.AreEqual(settings.Locations.Count, sets2.Locations.Count);
             for (int i = 0; i < settings.Locations.Count; i++)
             {
-                VerifyLocationsMatch(settings.Locations[i], sets2.Locations[i]);
+                VerifyLocationsMatch(settings.Locations[i], sets2.Locations[i], expectIDsPopulated);
             }
             Assert.AreEqual(settings.Strategies.Count, sets2.Strategies.Count);
             for (int i = 0; i < settings.Strategies.Count; i++)
             {
-                VerifyStrategiesMatch(settings.Strategies[i], sets2.Strategies[i]);
+                VerifyStrategiesMatch(settings.Strategies[i], sets2.Strategies[i], expectIDsPopulated);
             }
             Assert.AreEqual(settings.PermRuns.Count, sets2.PermRuns.Count);
             for (int i = 0; i < settings.PermRuns.Count; i++)
             {
-                VerifyPermRunsMatch(settings.PermRuns[i], sets2.PermRuns[i]);
+                VerifyPermRunsMatch(settings.PermRuns[i], sets2.PermRuns[i], expectIDsPopulated);
             }
         }
 
-        internal void VerifyPermRunsMatch(PermRun p1, PermRun p2)
+        internal void VerifyAreasMatch(Area a1, Area a2, bool expectIDsPopulated)
+        {
+            Assert.AreEqual(a1.ID, a2.ID);
+            if (expectIDsPopulated)
+                Assert.AreNotEqual(a1.ID, 0);
+            else
+                Assert.AreEqual(a1.ID, 0);
+            Assert.AreEqual(a1.DisplayName, a2.DisplayName);
+            Assert.AreEqual(a1.TickRoom, a2.TickRoom);
+            Assert.AreEqual(a1.PawnShop, a2.PawnShop);
+            Assert.AreEqual(a1.InventorySinkRoomIdentifier, a2.InventorySinkRoomIdentifier);
+            Assert.AreEqual(a1.InventorySinkRoomObject, a2.InventorySinkRoomObject);
+        }
+
+        internal void VerifyPermRunsMatch(PermRun p1, PermRun p2, bool expectIDsPopulated)
         {
             Assert.AreEqual(p1.ID, p2.ID);
+            if (expectIDsPopulated)
+                Assert.AreNotEqual(p1.ID, 0);
+            else
+                Assert.AreEqual(p1.ID, 0);
             Assert.AreEqual(p1.DisplayName ?? string.Empty, p2.DisplayName ?? string.Empty);
-            Assert.AreEqual(p1.TickRoom, p2.TickRoom);
-            Assert.AreEqual(p1.PawnShop, p2.PawnShop);
+            VerifyAreasMatch(p1.Area, p2.Area, expectIDsPopulated);
             Assert.AreEqual(p1.BeforeFull, p2.BeforeFull);
             Assert.AreEqual(p1.AfterFull, p2.AfterFull);
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
@@ -215,8 +243,6 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.TargetRoomObject, p2.TargetRoomObject);
             Assert.AreEqual(p1.ThresholdRoomIdentifier, p2.ThresholdRoomIdentifier);
             Assert.AreEqual(p1.ThresholdRoomObject, p2.ThresholdRoomObject);
-            Assert.AreEqual(p1.InventorySinkRoomIdentifier, p2.InventorySinkRoomIdentifier);
-            Assert.AreEqual(p1.InventorySinkRoomObject, p2.InventorySinkRoomObject);
             Assert.AreEqual(p1.MobType, p2.MobType);
             Assert.AreEqual(p1.MobText, p2.MobText);
             Assert.AreEqual(p1.MobIndex, p2.MobIndex);
@@ -227,11 +253,16 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.AutoSpellLevelMin, p2.AutoSpellLevelMin);
             Assert.AreEqual(p1.AutoSpellLevelMax, p2.AutoSpellLevelMax);
             Assert.AreEqual(p1.ItemsToProcessType, p2.ItemsToProcessType);
-            VerifyStrategiesMatch(p1.Strategy, p2.Strategy);
+            VerifyStrategiesMatch(p1.Strategy, p2.Strategy, expectIDsPopulated);
         }
 
-        internal void VerifyStrategiesMatch(Strategy s1, Strategy s2)
+        internal void VerifyStrategiesMatch(Strategy s1, Strategy s2, bool expectIDsPopulated)
         {
+            Assert.AreEqual(s1.ID, s2.ID);
+            if (expectIDsPopulated)
+                Assert.AreNotEqual(s1.ID, 0);
+            else
+                Assert.AreEqual(s1.ID, 0);
             Assert.AreEqual(s1.DisplayName ?? string.Empty, s2.DisplayName ?? string.Empty);
             Assert.AreEqual(s1.AfterKillMonsterAction, s2.AfterKillMonsterAction);
             Assert.AreEqual(s1.ManaPool, s2.ManaPool);
@@ -274,8 +305,13 @@ namespace IsengardClient.Tests
             }
         }
 
-        internal void VerifyLocationsMatch(LocationNode ln1, LocationNode ln2)
+        internal void VerifyLocationsMatch(LocationNode ln1, LocationNode ln2, bool expectIDsPopulated)
         {
+            Assert.AreEqual(ln1.ID, ln2.ID);
+            if (expectIDsPopulated)
+                Assert.AreNotEqual(ln1.ID, 0);
+            else
+                Assert.AreEqual(ln1.ID, 0);
             Assert.AreEqual(ln1.DisplayName, ln2.DisplayName);
             Assert.AreEqual(ln1.Room, ln2.Room);
             Assert.AreEqual(ln1.RoomObject, ln2.RoomObject);
@@ -286,7 +322,7 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(ln1.Children.Count, ln2.Children.Count);
                 for (int i = 0; i < ln1.Children.Count; i++)
                 {
-                    VerifyLocationsMatch(ln1.Children[0], ln2.Children[0]);
+                    VerifyLocationsMatch(ln1.Children[0], ln2.Children[0], expectIDsPopulated);
                 }
             }
         }
