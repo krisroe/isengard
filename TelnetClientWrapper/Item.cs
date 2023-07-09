@@ -176,9 +176,9 @@ namespace IsengardClient
                 }
                 if (!sid.IsCurrency())
                 {
-                    if (sid.Weight > 0)
+                    if (sid.Weight.HasValue)
                     {
-                        sText = sText + " #" + sid.Weight.ToString();
+                        sText = sText + " #" + sid.Weight.Value.ToString();
                     }
                     if (sid.ArmorClass > 0)
                     {
@@ -312,7 +312,10 @@ namespace IsengardClient
         public string SingularName { get; set; }
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
-        public int Weight { get; set; }
+        /// <summary>
+        /// weight of the item. Null if unknown. It's nullable because a zero pound item has been observed (string of pearls)
+        /// </summary>
+        public int? Weight { get; set; }
         public double ArmorClass { get; set; }
         public SellableEnum Sellable { get; set; }
         public int SellGold { get; set; }
@@ -2181,6 +2184,14 @@ namespace IsengardClient
         [PluralName("storage signs")]
         [ItemClass(ItemClass.Fixed)]
         StorageSign,
+
+        [SingularName("string of pearls")]
+        //CSRTODO: plural?
+        [EquipmentType(EquipmentType.Neck)]
+        [Weight(0)]
+        [ArmorClass(0.1)]
+        [Sellable(123)]
+        StringOfPearls,
 
         [SingularName("sundorian tassle")]
         [PluralName("sundorian tassles")]

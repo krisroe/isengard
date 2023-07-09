@@ -4029,7 +4029,7 @@ namespace IsengardClient
                 if (!_hazying && !_fleeing && isTrade)
                 {
                     string sMobTarget = GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false);
-                    if (!string.IsNullOrEmpty(sMobTarget))
+                    if (string.IsNullOrEmpty(sMobTarget))
                     {
                         AddConsoleMessage("Unable to construct trade mob target for " + pms.MobType.Value);
                         return;
@@ -4039,7 +4039,7 @@ namespace IsengardClient
                         SelectedInventoryOrEquipmentItem sioei = pms.InventoryItems[i];
                         ItemTypeEnum eItemType = sioei.ItemType;
                         string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eItemType, sioei.Counter, false, false);
-                        if (!string.IsNullOrEmpty(sItemText))
+                        if (string.IsNullOrEmpty(sItemText))
                         {
                             AddConsoleMessage("Unable to construct trade command for " + eItemType);
                             return;
@@ -4849,7 +4849,7 @@ BeforeHazy:
                         itemsToRemoveFromProcessing.Add(nextItem);
                         continue;
                     }
-                    if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
+                    if (!sid.Weight.HasValue || sid.Weight.Value < weightFailed) //if heavier than something that already couldn't be picked up skip
                     {
                         string sItemText;
                         lock (_currentEntityInfo.EntityLock)
@@ -4870,9 +4870,9 @@ BeforeHazy:
                             }
                             else if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulThisTime)
                             {
-                                if (sid.Weight > 0 && sid.Weight < weightFailed)
+                                if (sid.Weight.HasValue && sid.Weight.Value < weightFailed)
                                 {
-                                    weightFailed = sid.Weight;
+                                    weightFailed = sid.Weight.Value;
                                 }
                                 anythingCouldNotBePickedUpFromSourceRoom = true;
                             }
@@ -5101,7 +5101,7 @@ BeforeHazy:
                                 }
                                 for (int i = 0; i < iOverflow; i++)
                                 {
-                                    if (sid.Weight == 0 || sid.Weight < weightFailed) //if heavier than something that already couldn't be picked up skip
+                                    if (!sid.Weight.HasValue || sid.Weight.Value < weightFailed) //if heavier than something that already couldn't be picked up skip
                                     {
                                         string sItemText;
                                         lock (_currentEntityInfo.EntityLock)
@@ -5115,9 +5115,9 @@ BeforeHazy:
                                         }
                                         else if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulThisTime)
                                         {
-                                            if (sid.Weight > 0 && sid.Weight < weightFailed)
+                                            if (sid.Weight.HasValue && sid.Weight.Value < weightFailed)
                                             {
-                                                weightFailed = sid.Weight;
+                                                weightFailed = sid.Weight.Value;
                                             }
                                             anythingCouldNotBePickedUpFromTickRoom = true;
                                         }
@@ -5461,7 +5461,7 @@ BeforeHazy:
         {
             CommandResultObject backgroundCommandResultObject;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
-            bool checkWeight = sid.Weight == 0;
+            bool checkWeight = !sid.Weight.HasValue;
             int beforeWeight = 0;
             int afterWeight;
             int beforeGold = _gold;
