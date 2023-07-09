@@ -3325,11 +3325,11 @@ StartProcessRoom:
                 }
                 else if (remainder.EndsWith(" smites"))
                 {
-                    matches = true; //CSRTODO: 16-20
+                    matches = true; //typically 16-20
                 }
                 else if (remainder.EndsWith(" maims"))
                 {
-                    matches = true; //CSRTODO: 22-24
+                    matches = true; //typically 21-24
                 }
                 else if (remainder.EndsWith(" pulverizes"))
                 {

@@ -710,6 +710,8 @@ namespace IsengardClient
         [SingularName("black scroll")]
         [PluralName("black scrolls")]
         [Scroll(SpellsEnum.hurt)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         BlackScroll,
 
         [SingularName("black iron key")]
