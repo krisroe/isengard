@@ -1400,19 +1400,23 @@ namespace IsengardClient
 
         [SingularName("half-giant chain mail hood")]
         [PluralName("half-giant chain mail hoods")]
+        [EquipmentType(EquipmentType.Head)]
         [Weight(13)]
         [Sellable(185)]
         HalfGiantChainMailHood,
 
         [SingularName("half-giant chain mail leggings")]
+        [EquipmentType(EquipmentType.Legs)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
         [Sellable(185)]
         HalfGiantChainMailLeggings,
 
         [SingularName("half-giant chain mail sleeves")]
+        [EquipmentType(EquipmentType.Arms)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
         [Sellable(185)]
-        [DisallowedClasses(ClassTypeFlags.Mage)]
         HalfGiantChainMailSleeves,
 
         [SingularName("hand axe")]

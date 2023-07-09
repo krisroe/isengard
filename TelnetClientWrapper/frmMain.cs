@@ -3253,7 +3253,7 @@ namespace IsengardClient
                     List<string> messages = new List<string>();
                     if (gotFullHP) messages.Add("Your hitpoints are full.");
                     if (gotFullMP) messages.Add("Your mana is full.");
-                    AddConsoleMessage(messages);
+                    AddConsoleMessages(messages);
                 }
             }
             _autohp = newHP;
@@ -3793,7 +3793,7 @@ namespace IsengardClient
                             messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
                         }
                     }
-                    AddConsoleMessage(messages);
+                    AddConsoleMessages(messages);
                 }
                 _commandResult = null;
                 _commandSpecificResult = 0;
@@ -4814,7 +4814,7 @@ BeforeHazy:
             NextItemCycle:
                 bool somethingDone = false;
                 bool anythingCouldNotBePickedUpFromSourceRoom = false;
-                bool anythingFailedForSourceRoom = false;
+                List<string> failedForSourceRoomMessages = new List<string>();
                 List<ItemEntity> itemsToRemoveFromProcessing = new List<ItemEntity>();
                 List<ItemEntity> itemsPickedUp = new List<ItemEntity>();
                 int weightFailed = int.MaxValue;
@@ -4822,7 +4822,7 @@ BeforeHazy:
                 {
                     if (!nextItem.ItemType.HasValue)
                     {
-                        anythingFailedForSourceRoom = true;
+                        failedForSourceRoomMessages.Add("Unknown item encountered: " + ((UnknownItemEntity)nextItem).Name);
                         continue;
                     }
                     ItemTypeEnum eItemType = nextItem.ItemType.Value;
@@ -4842,7 +4842,7 @@ BeforeHazy:
                         processItem = true;
                     else
                     {
-                        anythingFailedForSourceRoom = true;
+                        failedForSourceRoomMessages.Add($"Unconfigured inventory management for item: {eItemType}");
                         continue;
                     }
                     if (!processItem)
@@ -4859,7 +4859,7 @@ BeforeHazy:
                         }
                         if (string.IsNullOrEmpty(sItemText))
                         {
-                            anythingFailedForSourceRoom = true;
+                            failedForSourceRoomMessages.Add($"Failed to construct selection text for item: {eItemType}");
                         }
                         else
                         {
@@ -4890,16 +4890,16 @@ BeforeHazy:
                                 }
                                 else if (failureResult == GetItemResult.ItemNotPresent)
                                 {
-                                    anythingFailedForSourceRoom = true;
+                                    failedForSourceRoomMessages.Add($"Missing item: {eItemType}");
                                 }
                                 else if (failureResult == GetItemResult.MobDisallowsTakingItems)
                                 {
-                                    anythingFailedForSourceRoom = true;
+                                    failedForSourceRoomMessages.Add($"Cannot proceed with inventory management.");
                                     break; //no way to pick up more items so stop picking up more
                                 }
                                 else //unexpected result code
                                 {
-                                    anythingFailedForSourceRoom = true;
+                                    failedForSourceRoomMessages.Add($"Unexpected result code for item inventory management for: {eItemType}");
                                 }
                             }
                         }
@@ -4907,7 +4907,11 @@ BeforeHazy:
                 }
                 foreach (ItemEntity nextItem in itemsToRemoveFromProcessing) itemsToProcess.Remove(nextItem);
                 foreach (ItemEntity nextItem in itemsPickedUp) itemsToProcess.Remove(nextItem);
-                if (anythingFailedForSourceRoom) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (failedForSourceRoomMessages.Count > 0)
+                {
+                    AddConsoleMessages(failedForSourceRoomMessages);
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                }
 
                 List<ItemEntity> itemsToSendToInventorySink = new List<ItemEntity>();
                 List<ItemEntity> itemsToSellOrJunk = new List<ItemEntity>();
@@ -6850,10 +6854,10 @@ BeforeHazy:
 
         private void AddConsoleMessage(string Message)
         {
-            AddConsoleMessage(new List<string>() { Message });
+            AddConsoleMessages(new List<string>() { Message });
         }
 
-        private void AddConsoleMessage(List<string> Messages)
+        private void AddConsoleMessages(List<string> Messages)
         {
             lock (_newConsoleText)
             {
