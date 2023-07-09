@@ -490,6 +490,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.Fixed;
             }
+            else if (ic == ItemClass.Gem)
+            {
+                yield return DynamicDataItemClass.Gem;
+            }
             yield return DynamicDataItemClass.Item;
         }
     }
@@ -533,6 +537,7 @@ namespace IsengardClient
         Usable,
         Bag,
         Key,
+        Gem,
         Coins,
         Money,
         Fixed,
@@ -576,6 +581,7 @@ namespace IsengardClient
         BagClass,
         Key,
         Fixed,
+        Gem,
         Coins,
         Money,
 
@@ -1002,6 +1008,7 @@ namespace IsengardClient
 
         [SingularName("diamond")]
         [PluralName("diamonds")]
+        [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(371)]
         Diamond,
@@ -1126,6 +1133,7 @@ namespace IsengardClient
 
         [SingularName("emerald")]
         [PluralName("emeralds")]
+        [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(432)]
         Emerald,
@@ -1957,6 +1965,7 @@ namespace IsengardClient
 
         [SingularName("sapphire")]
         [PluralName("sapphires")]
+        [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(179)]
         Sapphire,
@@ -2239,6 +2248,7 @@ namespace IsengardClient
 
         [SingularName("topaz")]
         //CSRTODO: plural
+        [ItemClass(ItemClass.Gem)]
         [Weight(3)]
         [Sellable(308)]
         Topaz,
