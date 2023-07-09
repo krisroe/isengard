@@ -2358,6 +2358,7 @@ namespace IsengardClient
             underBreeGraph.Rooms[oBoardedSewerTunnel] = new System.Windows.Point(9, 5);
 
             Room oSewagePit = AddRoom("Sewage Pit", "Sewage Pit");
+            oSewagePit.AddPermanentItems(ItemTypeEnum.KelpNecklace);
             oSewagePit.DamageType = RoomDamageType.Poison;
             oSewagePit.AddPermanentMobs(MobTypeEnum.Monster);
             e = AddExit(oSewagePit, oBoardedSewerTunnel, "up");

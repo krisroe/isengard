@@ -365,6 +365,7 @@ namespace IsengardClient
                         availableSkills &= ~missingSkills;
                         castableSpells &= ~missingCastableSpells;
                         availablePotions &= ~missingPotionSpells;
+                        ret = true;
                     }
                     else
                     {
