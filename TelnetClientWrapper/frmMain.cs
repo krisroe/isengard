@@ -7931,7 +7931,7 @@ BeforeHazy:
             double dArmorClass = _armorClass;
             string sArmorClassText = _armorClassText;
             double dArmorClassCalculated = _armorClassCalculated;
-            if (dArmorClass != _armorClassUI || dArmorClassCalculated != _armorClassCalculatedUI && sArmorClassText != _armorClassTextUI)
+            if (dArmorClass != _armorClassUI || dArmorClassCalculated != _armorClassCalculatedUI || sArmorClassText != _armorClassTextUI)
             {
                 bool isExact = sArmorClassText.Contains(".");
                 if (isExact)

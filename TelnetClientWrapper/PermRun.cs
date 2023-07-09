@@ -162,8 +162,8 @@ namespace IsengardClient
                         MessageBox.Show(parent, "Cannot find path from target to inventory sink room.");
                         return false;
                     }
+                    testRoom = inventorySinkRoom;
                 }
-                testRoom = inventorySinkRoom;
 
                 if (pawnShop != null && testRoom != pawnShop) //verify can get to and from the pawn shop
                 {
