@@ -1438,7 +1438,10 @@ namespace IsengardClient
 
         [SingularName("kelp necklace")]
         [PluralName("kelp necklaces")]
-        [EquipmentType(EquipmentType.Unknown)]
+        [EquipmentType(EquipmentType.Neck)]
+        [Weight(2)]
+        [ArmorClass(0.3)]
+        [Sellable(SellableEnum.Junk)]
         KelpNecklace,
 
         [SingularName("key of the elements")]

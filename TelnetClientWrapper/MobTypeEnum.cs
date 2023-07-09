@@ -1379,6 +1379,7 @@
         [SingularName("sewer orc")]
         [PluralName("sewer orcs")]
         [Aggressive]
+        [Experience(20)]
         SewerOrc,
 
         [SingularName("sewer orc guard")]
@@ -1395,6 +1396,7 @@
 
         [SingularName("sewer wolf")]
         [PluralName("sewer wolves")]
+        [Experience(475)]
         SewerWolf,
 
         [SingularName("Shadow of Incendius")]
