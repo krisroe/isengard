@@ -3045,6 +3045,7 @@ namespace IsengardClient
                     int iActualIndex = _currentEntityInfo.PickActualIndexFromItemCounter(ItemLocationType.Inventory, sioei.ItemType, sioei.Counter, false);
                     if (iActualIndex >= 0)
                     {
+                        _currentEntityInfo.InventoryItems.RemoveAt(iActualIndex);
                         changeEntry = new EntityChangeEntry();
                         changeEntry.InventoryAction = false;
                         changeEntry.InventoryIndex = iActualIndex;
@@ -4792,7 +4793,7 @@ BeforeHazy:
             ItemsToProcessType eInvProcessInputs = pms.InventoryProcessInputType;
             InventoryManagementWorkflow eInventoryWorkflow = pms.InventoryManagementFlow;
             CommandResultObject backgroundCommandResultObject;
-            if (eInvProcessInputs != ItemsToProcessType.NoProcessing && (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)))
+            if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
                 lock (_currentEntityInfo.EntityLock)
@@ -8325,7 +8326,7 @@ BeforeHazy:
                             lstInventory.Items.Clear();
                             foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                             {
-                                lstInventory.Items.Add(new ItemInInventoryList(nextEntry.Item));
+                                lstInventory.Items.Add(new ItemInInventoryOrEquipmentList(nextEntry.Item, true));
                             }
                         }
                         else if (rcType == EntityChangeType.RefreshEquipment)
@@ -8333,66 +8334,39 @@ BeforeHazy:
                             lstEquipment.Items.Clear();
                             foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
                             {
-                                lstEquipment.Items.Add(new ItemInEquipmentList(nextEntry.Item));
+                                lstEquipment.Items.Add(new ItemInInventoryOrEquipmentList(nextEntry.Item, false));
                             }
                         }
                         else
                         {
-                            if (rcType == EntityChangeType.DropItem || rcType == EntityChangeType.ConsumeItem || rcType == EntityChangeType.EquipItem || rcType == EntityChangeType.Trade)
+                            HashSet<EntityChangeType> invAdds = new HashSet<EntityChangeType>()
                             {
-                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
-                                {
-                                    if (nextEntry.InventoryAction.HasValue && !nextEntry.InventoryAction.Value)
-                                    {
-                                        lstInventory.Items.RemoveAt(nextEntry.InventoryIndex);
-                                    }
-                                }
-                            }
-                            if (rcType == EntityChangeType.PickUpItem || rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.MagicallySentItem || rcType == EntityChangeType.Trade)
+                                EntityChangeType.PickUpItem,
+                                EntityChangeType.UnequipItem,
+                                EntityChangeType.MagicallySentItem,
+                                EntityChangeType.Trade,
+                            };
+                            HashSet<EntityChangeType> invRemoves = new HashSet<EntityChangeType>()
                             {
-                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
-                                {
-                                    if (nextEntry.InventoryAction.HasValue && nextEntry.InventoryAction.Value)
-                                    {
-                                        ItemInInventoryList it = new ItemInInventoryList(nextEntry.Item);
-                                        if (nextEntry.InventoryIndex == -1)
-                                        {
-                                            lstInventory.Items.Add(it);
-                                        }
-                                        else
-                                        {
-                                            lstInventory.Items.Insert(nextEntry.InventoryIndex, it);
-                                        }
-                                    }
-                                }
-                            }
-                            if (rcType == EntityChangeType.EquipItem)
+                                EntityChangeType.DropItem,
+                                EntityChangeType.ConsumeItem,
+                                EntityChangeType.EquipItem,
+                                EntityChangeType.Trade
+                            };
+                            HashSet<EntityChangeType> eqAdds = new HashSet<EntityChangeType>()
                             {
-                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
-                                {
-                                    if (nextEntry.EquipmentAction.GetValueOrDefault(true))
-                                    {
-                                        ItemInEquipmentList it = new ItemInEquipmentList(nextEntry.Item);
-                                        if (nextEntry.EquipmentIndex == -1)
-                                        {
-                                            lstEquipment.Items.Add(it);
-                                        }
-                                        else
-                                        {
-                                            lstEquipment.Items.Insert(nextEntry.EquipmentIndex, it);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (rcType == EntityChangeType.UnequipItem || rcType == EntityChangeType.DestroyEquipment)
+                                EntityChangeType.EquipItem,
+                            };
+                            HashSet<EntityChangeType> eqRemoves = new HashSet<EntityChangeType>()
                             {
-                                foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
-                                {
-                                    if (nextEntry.EquipmentAction.HasValue && !nextEntry.EquipmentAction.Value)
-                                    {
-                                        lstEquipment.Items.RemoveAt(nextEntry.EquipmentIndex);
-                                    }
-                                }
+                                EntityChangeType.UnequipItem,
+                                EntityChangeType.DestroyEquipment,
+                            };
+                            foreach (EntityChangeEntry nextEntry in nextEntityChange.Changes)
+                            {
+                                ItemEntity ie = nextEntry.Item;
+                                ProcessInventoryOrEquipmentChange(true, lstInventory, rcType, nextEntry.InventoryAction, nextEntry.InventoryIndex, ie, invAdds, invRemoves);
+                                ProcessInventoryOrEquipmentChange(false, lstEquipment, rcType, nextEntry.EquipmentAction, nextEntry.EquipmentIndex, ie, eqAdds, eqRemoves);
                             }
                         }
                     }
@@ -8413,6 +8387,35 @@ BeforeHazy:
                 if (hazying || fleeing)
                 {
                     StartEscapeBackgroundProcess(hazying, fleeing);
+                }
+            }
+        }
+
+        private void ProcessInventoryOrEquipmentChange(bool isInventory, ListBox lst, EntityChangeType changeType, bool? action, int index, ItemEntity item, HashSet<EntityChangeType> addTypes, HashSet<EntityChangeType> removeTypes)
+        {
+            bool isAdd;
+            bool isOK;
+            if (action.HasValue)
+            {
+                isAdd = action.Value;
+                if (isAdd)
+                    isOK = addTypes.Contains(changeType);
+                else
+                    isOK = removeTypes.Contains(changeType);
+                if (isOK)
+                {
+                    if (isAdd)
+                    {
+                        ItemInInventoryOrEquipmentList it = new ItemInInventoryOrEquipmentList(item, isInventory);
+                        if (index == -1)
+                            lst.Items.Add(it);
+                        else
+                            lst.Items.Insert(index, it);
+                    }
+                    else
+                    {
+                        lst.Items.RemoveAt(index);
+                    }
                 }
             }
         }
@@ -9486,9 +9489,9 @@ BeforeHazy:
             ItemTypeEnum itemType = ItemTypeEnum.GoldCoins;
             Room r = _currentEntityInfo.CurrentRoom;
             List<SelectedInventoryOrEquipmentItem> sioeiList = new List<SelectedInventoryOrEquipmentItem>();
-            foreach (object oObj in lst.SelectedItems)
+            foreach (ItemInInventoryOrEquipmentList oObj in lst.SelectedItems)
             {
-                ItemEntity ie = isInventory ? ((ItemInInventoryList)oObj).Item : ((ItemInEquipmentList)oObj).Item;
+                ItemEntity ie = oObj.Item;
                 if (ie.ItemType.HasValue)
                 {
                     itemType = ie.ItemType.Value;
@@ -9501,7 +9504,7 @@ BeforeHazy:
                 }
                 if (isInventory)
                 {
-                    foreach (ItemInInventoryList nextEntry in lstInventory.Items)
+                    foreach (ItemInInventoryOrEquipmentList nextEntry in lstInventory.Items)
                     {
                         if (nextEntry.Item.ItemType.HasValue && nextEntry.Item.ItemType == itemType)
                         {
@@ -9515,7 +9518,7 @@ BeforeHazy:
                 }
                 else
                 {
-                    foreach (ItemInEquipmentList nextEntry in lstEquipment.Items)
+                    foreach (ItemInInventoryOrEquipmentList nextEntry in lstEquipment.Items)
                     {
                         if (nextEntry.Item.ItemType.Value == itemType)
                         {

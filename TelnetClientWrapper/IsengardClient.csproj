@@ -144,7 +144,6 @@
     <Compile Include="frmStrategy.Designer.cs">
       <DependentUpon>frmStrategy.cs</DependentUpon>
     </Compile>
-    <Compile Include="InventoryEquipment.cs" />
     <Compile Include="IsengardSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

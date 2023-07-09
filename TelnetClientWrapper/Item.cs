@@ -285,6 +285,33 @@ namespace IsengardClient
         }
     }
 
+    internal class ItemInInventoryOrEquipmentList
+    {
+        public ItemEntity Item { get; set; }
+        public bool IsInventory { get; set; }
+        public ItemInInventoryOrEquipmentList(ItemEntity item, bool IsInventory)
+        {
+            this.Item = item;
+            this.IsInventory = IsInventory;
+        }
+        public override string ToString()
+        {
+            string ret;
+            if (IsInventory)
+            {
+                ret = this.Item.GetItemString();
+            }
+            else
+            {
+                StaticItemData sid = ItemEntity.StaticItemData[Item.ItemType.Value];
+                ret = sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
+                if (sid.ArmorClass > 0) ret += sid.ArmorClass.ToString("N1");
+            }
+            return ret;
+        }
+    }
+
+
     internal class SelectedInventoryOrEquipmentItem
     {
         public SelectedInventoryOrEquipmentItem(ItemTypeEnum ItemType, int Counter, bool IsInventory)
@@ -1634,6 +1661,7 @@ namespace IsengardClient
         MaskOfDarkness,
 
         [SingularName("mask of distortion")]
+        [PluralName("mask of distortions")] //verified 7/9/23
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
         [Sellable(308)]
