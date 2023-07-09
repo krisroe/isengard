@@ -6930,13 +6930,9 @@ BeforeHazy:
             return ret;
         }
 
-        private void ToggleBackgroundProcessUI(BackgroundWorkerParameters bwp, bool running)
+        private void ToggleBackgroundProcessUI(BackgroundWorkerParameters bwp, bool inBackground)
         {
-            bool enabled;
-            if (running)
-                enabled = false;
-            else
-                enabled = !running;
+            bool enabled = !inBackground;
             foreach (Control ctl in GetControlsToDisableForBackgroundProcess())
             {
                 ctl.Enabled = enabled;
@@ -6949,9 +6945,9 @@ BeforeHazy:
             {
                 tsmi.Enabled = enabled;
             }
-            btnAbort.Enabled = running;
+            btnAbort.Enabled = inBackground;
             EnableDisableActionButtons(bwp);
-            RefreshCurrentAreaButtons();
+            RefreshCurrentAreaButtons(inBackground);
         }
 
         private IEnumerable<ToolStripButton> GetToolStripButtonsToDisableForBackgroundProcess()
@@ -8032,7 +8028,7 @@ BeforeHazy:
                     }
                     grpCurrentRoom.Text = sCurrentRoom;
                     _currentEntityInfo.CurrentRoomUI = oCurrentRoom;
-                    RefreshCurrentAreaButtons();
+                    RefreshCurrentAreaButtons(_currentBackgroundParameters != null);
                 }
                 if (_currentEntityInfo.CurrentEntityChanges.Count > 0)
                 {
@@ -9268,16 +9264,17 @@ BeforeHazy:
 
         private void cboArea_SelectedIndexChanged(object sender, EventArgs e)
         {
-            RefreshCurrentAreaButtons();
+            RefreshCurrentAreaButtons(_currentBackgroundParameters != null);
         }
 
-        private void RefreshCurrentAreaButtons()
+        private void RefreshCurrentAreaButtons(bool InBackground)
         {
             Area a = cboArea.SelectedItem as Area;
-            bool canEnable = a != null && _currentBackgroundParameters == null && _currentEntityInfo.CurrentRoom != null;
-            btnGoToHealingRoom.Enabled = canEnable && a.TickRoom.HasValue;
-            btnGoToPawnShop.Enabled = canEnable && a.PawnShop.HasValue;
-            btnGoToInventorySink.Enabled = canEnable && a.InventorySinkRoomObject != null;
+            Room rCurrentRoom = _currentEntityInfo.CurrentRoom;
+            bool canEnable = a != null && !InBackground && rCurrentRoom != null;
+            btnGoToHealingRoom.Enabled = canEnable && a.TickRoom.HasValue && _gameMap.HealingRooms[a.TickRoom.Value] != rCurrentRoom;
+            btnGoToPawnShop.Enabled = canEnable && a.PawnShop.HasValue && _gameMap.PawnShoppes[a.PawnShop.Value] != rCurrentRoom;
+            btnGoToInventorySink.Enabled = canEnable && a.InventorySinkRoomObject != null && a.InventorySinkRoomObject != rCurrentRoom;
         }
 
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)

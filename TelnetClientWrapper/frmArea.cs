@@ -25,6 +25,8 @@ namespace IsengardClient
             _existingAreas = existingAreas;
             _cei = cei;
 
+            txtDisplayName.Text = area.DisplayName;
+
             //populate tick room and pawn shop dropdowns
             cboTickRoom.Items.Add(string.Empty);
             cboPawnShoppe.Items.Add(string.Empty);

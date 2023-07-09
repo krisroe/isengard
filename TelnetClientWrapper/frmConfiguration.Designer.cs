@@ -798,6 +798,7 @@
             this.dgvAreas.ReadOnly = true;
             this.dgvAreas.RowHeadersVisible = false;
             this.dgvAreas.RowHeadersWidth = 51;
+            this.dgvAreas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAreas.Size = new System.Drawing.Size(816, 374);
             this.dgvAreas.TabIndex = 0;
             // 

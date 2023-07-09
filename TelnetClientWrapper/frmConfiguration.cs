@@ -690,10 +690,12 @@ namespace IsengardClient
             }
             else if (tcConfiguration.SelectedTab == tabAreas)
             {
-                DataGridViewRow r = dgvAreas.Rows[iIndex];
+                DataGridViewRow r1 = dgvAreas.Rows[iIndex - 1];
+                DataGridViewRow r2 = dgvAreas.Rows[iIndex];
                 dgvAreas.Rows.RemoveAt(iIndex);
-                dgvAreas.Rows.Insert(iIndex - 1, r);
-                r.Selected = true;
+                dgvAreas.Rows.Insert(iIndex - 1, r2);
+                r1.Selected = iIndexToSelect == r1.Index;
+                r2.Selected = iIndexToSelect == r2.Index;
             }
             else
             {

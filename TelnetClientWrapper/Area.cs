@@ -8,17 +8,6 @@ namespace IsengardClient
 {
     internal class Area
     {
-        public Area()
-        {
-        }
-        public Area(Area copied)
-        {
-            DisplayName = copied.DisplayName;
-            TickRoom = copied.TickRoom;
-            PawnShop = copied.PawnShop;
-            InventorySinkRoomIdentifier = copied.InventorySinkRoomIdentifier;
-            InventorySinkRoomObject = copied.InventorySinkRoomObject;
-        }
         public int ID { get; set; }
         public string DisplayName { get; set; }
         public HealingRoom? TickRoom { get; set; }
@@ -32,6 +21,22 @@ namespace IsengardClient
         /// </summary>
         public Room InventorySinkRoomObject { get; set; }
 
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+
+        public Area()
+        {
+        }
+        public Area(Area copied)
+        {
+            DisplayName = copied.DisplayName;
+            TickRoom = copied.TickRoom;
+            PawnShop = copied.PawnShop;
+            InventorySinkRoomIdentifier = copied.InventorySinkRoomIdentifier;
+            InventorySinkRoomObject = copied.InventorySinkRoomObject;
+        }
         public static IEnumerable<Area> GetDefaultAreas()
         {
             Area a;
