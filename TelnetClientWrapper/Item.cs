@@ -1537,6 +1537,8 @@ namespace IsengardClient
 
         [SingularName("leather boots")]
         [EquipmentType(EquipmentType.Feet)]
+        [Weight(4)]
+        [Sellable(SellableEnum.Junk)]
         LeatherBoots,
 
         [SingularName("leather cap")]

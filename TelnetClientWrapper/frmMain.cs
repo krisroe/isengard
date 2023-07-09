@@ -948,7 +948,7 @@ namespace IsengardClient
 
         private void _bwNetwork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!_backgroundCommandType.HasValue || _backgroundCommandType != BackgroundCommandType.Quit)
+            if ((!_backgroundCommandType.HasValue || _backgroundCommandType != BackgroundCommandType.Quit) && !this.IsDisposed)
             {
                 DisconnectedAction action;
                 bool saveSettings;
