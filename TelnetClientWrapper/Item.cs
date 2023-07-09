@@ -1731,6 +1731,8 @@ namespace IsengardClient
         [SingularName("parched scroll")]
         [PluralName("parched scrolls")]
         [Scroll(SpellsEnum.curepoison)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         ParchedScroll,
 
         [SingularName("pearl encrusted diadem")]

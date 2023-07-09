@@ -69,6 +69,17 @@
         MobDisallowsTakingItems = 6,
     }
 
+    internal enum MovementResult
+    {
+        Success = 1,
+        TotalFailure = 2,
+        MapFailure = 3,
+        StandFailure = 4,
+        ClosedDoorFailure = 5,
+        LockedDoorFailure = 6,
+        FallFailure = 7,
+    }
+
     internal enum BackgroundCommandType
     {
         Movement,

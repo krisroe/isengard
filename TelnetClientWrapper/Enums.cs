@@ -499,17 +499,6 @@ namespace IsengardClient
         Fireshield,
     }
 
-    internal enum MovementResult
-    {
-        Success,
-        TotalFailure,
-        MapFailure,
-        StandFailure,
-        ClosedDoorFailure,
-        LockedDoorFailure,
-        FallFailure,
-    }
-
     internal enum RealmType
     {
         Earth = 0,

@@ -148,7 +148,6 @@ namespace IsengardClient
         private int _commandResultCounter = 0;
         private int _commandSpecificResult;
         private int _lastCommandDamage;
-        private MovementResult? _lastCommandMovementResult;
         private string _lastCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
@@ -1509,7 +1508,7 @@ namespace IsengardClient
             if (fromBackgroundFlee || fromBackgroundMove) //not sure if you can flee to a trap room
             {
                 _lastCommandDamage = damage;
-                _lastCommandMovementResult = MovementResult.Success;
+                flParams.CommandSpecificResult = Convert.ToInt32(MovementResult.Success);
             }
 
             if (lookForRoomsByRoomName)
@@ -1943,7 +1942,7 @@ namespace IsengardClient
                 if (bctValue == BackgroundCommandType.Movement)
                 {
                     _lastCommandDamage = damage;
-                    _lastCommandMovementResult = movementResult;
+                    flParams.CommandSpecificResult = Convert.ToInt32(movementResult);
 
                     //even though some of these results are fixable (e.g. trap rooms), return full failure to allow the caller
                     //to decide to heal.
@@ -3765,7 +3764,6 @@ namespace IsengardClient
                 _commandSpecificResult = 0;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
-                _lastCommandMovementResult = null;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 bool setMobToFirstAvailable = true;
                 if (bwp.AtDestination && (!string.IsNullOrEmpty(bwp.MobText) || bwp.MobType.HasValue))
@@ -5823,6 +5821,7 @@ BeforeHazy:
                     while (keepTryingMovement)
                     {
                         backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, null, false);
+                        MovementResult eMovementResult = (MovementResult)backgroundCommandResultObject.ResultCode;
                         if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful) //successfully traversed the exit to the new room
                         {
                             exitList.RemoveAt(0);
@@ -5841,7 +5840,7 @@ BeforeHazy:
                                 SendCommand("stand", InputEchoType.On);
                             }
                         }
-                        else if (_lastCommandMovementResult == MovementResult.MapFailure)
+                        else if (eMovementResult == MovementResult.MapFailure)
                         {
                             List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget, true);
                             if (newRoute != null && newRoute.Count > 0)
@@ -5855,12 +5854,12 @@ BeforeHazy:
                             }
                             keepTryingMovement = false;
                         }
-                        else if (_lastCommandMovementResult == MovementResult.StandFailure)
+                        else if (eMovementResult == MovementResult.StandFailure)
                         {
                             SendCommand("stand", InputEchoType.On);
                             keepTryingMovement = true;
                         }
-                        else if (_lastCommandMovementResult == MovementResult.ClosedDoorFailure)
+                        else if (eMovementResult == MovementResult.ClosedDoorFailure)
                         {
                             backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying, false);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
@@ -5872,7 +5871,7 @@ BeforeHazy:
                                 return backgroundCommandResultObject;
                             }
                         }
-                        else if (_lastCommandMovementResult == MovementResult.FallFailure)
+                        else if (eMovementResult == MovementResult.FallFailure)
                         {
                             backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
@@ -6743,7 +6742,6 @@ BeforeHazy:
             _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
-            _lastCommandMovementResult = null;
             try
             {
                 _lastCommand = command;
