@@ -157,10 +157,7 @@ namespace IsengardClient
             {
                 MobTypeCounter = MobTextCounter = 1;
             }
-            if (p.TickRoom.HasValue)
-            {
-                InventorySinkRoom = gameMap.HealingRooms[p.TickRoom.Value];
-            }
+            InventorySinkRoom = p.InventorySinkRoomObject;
             InventoryProcessInputType = p.ItemsToProcessType;
             TargetRoom = p.TargetRoomObject;
             BeforeFull = p.BeforeFull;

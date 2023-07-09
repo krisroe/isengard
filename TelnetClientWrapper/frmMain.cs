@@ -306,7 +306,16 @@ namespace IsengardClient
                         if (pr.ThresholdRoomObject == null)
                         {
                             isValid = false;
-                            errorMessages.Add("Target room not found for perm run after reload.");
+                            errorMessages.Add("Threshold room not found for perm run after reload.");
+                        }
+                    }
+                    if (pr.InventorySinkRoomObject != null)
+                    {
+                        pr.InventorySinkRoomObject = newMap.GetRoomFromTextIdentifier(pr.InventorySinkRoomIdentifier);
+                        if (pr.InventorySinkRoomObject == null)
+                        {
+                            isValid = false;
+                            errorMessages.Add("Inventory sink room not found for perm run after reload.");
                         }
                     }
                     if (!isValid)
@@ -4826,7 +4835,7 @@ BeforeHazy:
                         processItem = true;
                     else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.Ignore)
                         processItem = false;
-                    else if (didWithInherit.KeepCount > 0 || didWithInherit.TickCount > 0)
+                    else if (didWithInherit.KeepCount > 0 || didWithInherit.SinkCount > 0)
                         processItem = true;
                     else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
                         processItem = true;
@@ -4921,7 +4930,7 @@ BeforeHazy:
                             }
                             if (didWithInherit.KeepCount > 0 && inventoryCount <= didWithInherit.KeepCount)
                                 itemsToProcess.Remove(nextItemPickedUp);
-                            else if (didWithInherit.TickCount > 0)
+                            else if (didWithInherit.SinkCount > 0)
                                 itemsToSendToInventorySink.Add(nextItemPickedUp);
                             else if (didWithInherit.OverflowAction == ItemInventoryOverflowAction.SellOrJunk)
                                 itemsToSellOrJunk.Add(nextItemPickedUp);
@@ -4988,21 +4997,21 @@ BeforeHazy:
                                         iCountToGetRidOfFromInventory = iInventoryCount - didWithInherit.KeepCount;
                                     iTickRoomCount = _currentEntityInfo.GetTotalRoomItemsCount(itemType);
                                 }
-                                if (didWithInherit.TickCount == -1)
+                                if (didWithInherit.SinkCount == -1)
                                 {
                                     iCountToDisposeOf = iCountToGetRidOfFromInventory;
                                 }
-                                else if (didWithInherit.TickCount == int.MaxValue)
+                                else if (didWithInherit.SinkCount == int.MaxValue)
                                 {
                                     iCountToDrop = iCountToGetRidOfFromInventory;
                                 }
-                                else if (iTickRoomCount >= didWithInherit.TickCount)
+                                else if (iTickRoomCount >= didWithInherit.SinkCount)
                                 {
                                     iCountToDisposeOf = iCountToGetRidOfFromInventory;
                                 }
                                 else
                                 {
-                                    int iTickRoomFree = didWithInherit.TickCount - iTickRoomCount;
+                                    int iTickRoomFree = didWithInherit.SinkCount - iTickRoomCount;
                                     if (iTickRoomFree >= iCountToGetRidOfFromInventory)
                                     {
                                         iCountToDrop = iCountToGetRidOfFromInventory;
@@ -5085,10 +5094,10 @@ BeforeHazy:
                                 lock (_currentEntityInfo)
                                 {
                                     iTickRoomCount = _currentEntityInfo.GetTotalRoomItemsCount(itemType);
-                                    if (didWithInherit.TickCount == -1)
+                                    if (didWithInherit.SinkCount == -1)
                                         iOverflow = iTickRoomCount;
-                                    else if (iTickRoomCount > didWithInherit.TickCount)
-                                        iOverflow = iTickRoomCount - didWithInherit.TickCount;
+                                    else if (iTickRoomCount > didWithInherit.SinkCount)
+                                        iOverflow = iTickRoomCount - didWithInherit.SinkCount;
                                 }
                                 for (int i = 0; i < iOverflow; i++)
                                 {

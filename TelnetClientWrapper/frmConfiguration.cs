@@ -110,7 +110,7 @@ namespace IsengardClient
         private void SetListViewItemInfo(ListViewItem lvi, DynamicDataItemListInfo listInfo)
         {
             lvi.SubItems[1].Text = listInfo.KeepCountText;
-            lvi.SubItems[2].Text = listInfo.TickCountText;
+            lvi.SubItems[2].Text = listInfo.SinkCountText;
             lvi.SubItems[3].Text = listInfo.OverflowActionText;
         }
 
@@ -617,7 +617,7 @@ namespace IsengardClient
         private class DynamicDataItemListInfo
         {
             public string KeepCountText { get; set; }
-            public string TickCountText { get; set; }
+            public string SinkCountText { get; set; }
             public string OverflowActionText { get; set; }
         }
 
@@ -646,15 +646,15 @@ namespace IsengardClient
                 sNext += " (" + did.KeepCountInheritance.Value.ToString() + ")";
             ret.KeepCountText = sNext;
 
-            if (did.TickCount < 0)
+            if (did.SinkCount < 0)
                 sNext = "None";
-            else if (did.TickCount == int.MaxValue)
+            else if (did.SinkCount == int.MaxValue)
                 sNext = "All";
             else
-                sNext = did.TickCount.ToString();
-            if (did.TickCount >= 0 && did.TickCountInheritance.HasValue)
-                sNext += " (" + did.TickCountInheritance.Value.ToString() + ")";
-            ret.TickCountText = sNext;
+                sNext = did.SinkCount.ToString();
+            if (did.SinkCount >= 0 && did.SinkCountInheritance.HasValue)
+                sNext += " (" + did.SinkCountInheritance.Value.ToString() + ")";
+            ret.SinkCountText = sNext;
 
             sNext = did.OverflowAction.ToString();
             if (did.OverflowAction != ItemInventoryOverflowAction.None && did.OverflowActionInheritance.HasValue)
@@ -679,15 +679,15 @@ namespace IsengardClient
             SetItemProperty((did) => { did.OverflowAction = ItemInventoryOverflowAction.None; });
         }
 
-        private void btnTick_Click(object sender, EventArgs e)
+        private void btnSink_Click(object sender, EventArgs e)
         {
-            string count = Interaction.InputBox("Tick Count:", "Enter count, negative to clear, all for no limit", string.Empty);
+            string count = Interaction.InputBox("Sink Count:", "Enter count, negative to clear, all for no limit", string.Empty);
             int iCount;
             if (count.Equals("all", StringComparison.OrdinalIgnoreCase))
                 iCount = int.MaxValue;
             else if (!int.TryParse(count, out iCount))
                 return;
-            SetItemProperty((did) => { did.TickCount = iCount < 0 ? -1 : iCount; });
+            SetItemProperty((did) => { did.SinkCount = iCount < 0 ? -1 : iCount; });
         }
 
         private void btnKeep_Click(object sender, EventArgs e)

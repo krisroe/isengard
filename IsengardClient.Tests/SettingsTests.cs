@@ -56,7 +56,7 @@ namespace IsengardClient.Tests
             did.OverflowAction = ItemInventoryOverflowAction.SellOrJunk;
             settings.DynamicItemData[ItemTypeEnum.Scythe] = did;
             did = new DynamicItemData();
-            did.TickCount = 3;
+            did.SinkCount = 3;
             settings.DynamicItemData[ItemTypeEnum.Sapphire] = did;
             did = new DynamicItemData();
             did.OverflowAction = ItemInventoryOverflowAction.Ignore;
@@ -116,6 +116,8 @@ namespace IsengardClient.Tests
             p.TargetRoomIdentifier = p.TargetRoomObject.BackendName;
             p.ThresholdRoomObject = gameMap.HealingRooms[HealingRoom.BreeNortheast];
             p.ThresholdRoomIdentifier = p.ThresholdRoomObject.BackendName;
+            p.InventorySinkRoomObject = gameMap.HealingRooms[HealingRoom.DeathValley];
+            p.InventorySinkRoomIdentifier = p.InventorySinkRoomObject.BackendName;
             settings.PermRuns.Add(p);
 
             return settings;
@@ -171,14 +173,14 @@ namespace IsengardClient.Tests
             foreach (var next in settings.DynamicItemData)
             {
                 Assert.AreEqual(settings.DynamicItemData[next.Key].KeepCount, sets2.DynamicItemData[next.Key].KeepCount);
-                Assert.AreEqual(settings.DynamicItemData[next.Key].TickCount, sets2.DynamicItemData[next.Key].TickCount);
+                Assert.AreEqual(settings.DynamicItemData[next.Key].SinkCount, sets2.DynamicItemData[next.Key].SinkCount);
                 Assert.AreEqual(settings.DynamicItemData[next.Key].OverflowAction, sets2.DynamicItemData[next.Key].OverflowAction);
             }
             Assert.AreEqual(settings.DynamicItemClassData.Count, sets2.DynamicItemClassData.Count);
             foreach (var next in settings.DynamicItemClassData)
             {
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].KeepCount, sets2.DynamicItemClassData[next.Key].KeepCount);
-                Assert.AreEqual(settings.DynamicItemClassData[next.Key].TickCount, sets2.DynamicItemClassData[next.Key].TickCount);
+                Assert.AreEqual(settings.DynamicItemClassData[next.Key].SinkCount, sets2.DynamicItemClassData[next.Key].SinkCount);
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].OverflowAction, sets2.DynamicItemClassData[next.Key].OverflowAction);
             }
             Assert.AreEqual(settings.Locations.Count, sets2.Locations.Count);
@@ -204,8 +206,8 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.DisplayName ?? string.Empty, p2.DisplayName ?? string.Empty);
             Assert.AreEqual(p1.TickRoom, p2.TickRoom);
             Assert.AreEqual(p1.PawnShop, p2.PawnShop);
-            Assert.AreEqual(p1.BeforeFull, p2.AfterFull);
-            Assert.AreEqual(p1.BeforeFull, p2.AfterFull);
+            Assert.AreEqual(p1.BeforeFull, p2.BeforeFull);
+            Assert.AreEqual(p1.AfterFull, p2.AfterFull);
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
             Assert.AreEqual(p1.SpellsToPotion, p2.SpellsToPotion);
             Assert.AreEqual(p1.SkillsToRun, p2.SkillsToRun);
@@ -213,6 +215,8 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.TargetRoomObject, p2.TargetRoomObject);
             Assert.AreEqual(p1.ThresholdRoomIdentifier, p2.ThresholdRoomIdentifier);
             Assert.AreEqual(p1.ThresholdRoomObject, p2.ThresholdRoomObject);
+            Assert.AreEqual(p1.InventorySinkRoomIdentifier, p2.InventorySinkRoomIdentifier);
+            Assert.AreEqual(p1.InventorySinkRoomObject, p2.InventorySinkRoomObject);
             Assert.AreEqual(p1.MobType, p2.MobType);
             Assert.AreEqual(p1.MobText, p2.MobText);
             Assert.AreEqual(p1.MobIndex, p2.MobIndex);

@@ -73,6 +73,11 @@
             this.cboAfterFull = new System.Windows.Forms.ComboBox();
             this.lblAfterFull = new System.Windows.Forms.Label();
             this.btnThresholdClear = new System.Windows.Forms.Button();
+            this.btnInventorySinkClear = new System.Windows.Forms.Button();
+            this.btnInventorySinkLocations = new System.Windows.Forms.Button();
+            this.btnInventorySinkGraph = new System.Windows.Forms.Button();
+            this.cboInventorySinkRoom = new System.Windows.Forms.ComboBox();
+            this.lblInventorySinkRoom = new System.Windows.Forms.Label();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -81,7 +86,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(677, 634);
+            this.btnOK.Location = new System.Drawing.Point(677, 678);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(140, 43);
@@ -94,7 +99,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(828, 634);
+            this.btnCancel.Location = new System.Drawing.Point(828, 678);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(140, 43);
@@ -336,7 +341,7 @@
             this.cboItemsToProcessType.Location = new System.Drawing.Point(122, 605);
             this.cboItemsToProcessType.Margin = new System.Windows.Forms.Padding(4);
             this.cboItemsToProcessType.Name = "cboItemsToProcessType";
-            this.cboItemsToProcessType.Size = new System.Drawing.Size(522, 27);
+            this.cboItemsToProcessType.Size = new System.Drawing.Size(528, 27);
             this.cboItemsToProcessType.TabIndex = 17;
             // 
             // lblItemsToProcessType
@@ -493,7 +498,7 @@
             // 
             this.cboAfterFull.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboAfterFull.FormattingEnabled = true;
-            this.cboAfterFull.Location = new System.Drawing.Point(119, 640);
+            this.cboAfterFull.Location = new System.Drawing.Point(122, 676);
             this.cboAfterFull.Margin = new System.Windows.Forms.Padding(4);
             this.cboAfterFull.Name = "cboAfterFull";
             this.cboAfterFull.Size = new System.Drawing.Size(528, 27);
@@ -502,7 +507,7 @@
             // lblAfterFull
             // 
             this.lblAfterFull.AutoSize = true;
-            this.lblAfterFull.Location = new System.Drawing.Point(3, 643);
+            this.lblAfterFull.Location = new System.Drawing.Point(4, 679);
             this.lblAfterFull.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAfterFull.Name = "lblAfterFull";
             this.lblAfterFull.Size = new System.Drawing.Size(74, 19);
@@ -519,12 +524,67 @@
             this.btnThresholdClear.UseVisualStyleBackColor = true;
             this.btnThresholdClear.Click += new System.EventHandler(this.btnThresholdClear_Click);
             // 
+            // btnInventorySinkClear
+            // 
+            this.btnInventorySinkClear.Location = new System.Drawing.Point(871, 640);
+            this.btnInventorySinkClear.Name = "btnInventorySinkClear";
+            this.btnInventorySinkClear.Size = new System.Drawing.Size(95, 27);
+            this.btnInventorySinkClear.TabIndex = 42;
+            this.btnInventorySinkClear.Text = "Clear";
+            this.btnInventorySinkClear.UseVisualStyleBackColor = true;
+            this.btnInventorySinkClear.Click += new System.EventHandler(this.btnInventorySinkClear_Click);
+            // 
+            // btnInventorySinkLocations
+            // 
+            this.btnInventorySinkLocations.Location = new System.Drawing.Point(669, 640);
+            this.btnInventorySinkLocations.Name = "btnInventorySinkLocations";
+            this.btnInventorySinkLocations.Size = new System.Drawing.Size(95, 27);
+            this.btnInventorySinkLocations.TabIndex = 41;
+            this.btnInventorySinkLocations.Text = "Locations";
+            this.btnInventorySinkLocations.UseVisualStyleBackColor = true;
+            this.btnInventorySinkLocations.Click += new System.EventHandler(this.btnInventorySinkLocations_Click);
+            // 
+            // btnInventorySinkGraph
+            // 
+            this.btnInventorySinkGraph.Location = new System.Drawing.Point(770, 640);
+            this.btnInventorySinkGraph.Name = "btnInventorySinkGraph";
+            this.btnInventorySinkGraph.Size = new System.Drawing.Size(95, 27);
+            this.btnInventorySinkGraph.TabIndex = 40;
+            this.btnInventorySinkGraph.Text = "Graph";
+            this.btnInventorySinkGraph.UseVisualStyleBackColor = true;
+            this.btnInventorySinkGraph.Click += new System.EventHandler(this.btnInventorySinkGraph_Click);
+            // 
+            // cboInventorySinkRoom
+            // 
+            this.cboInventorySinkRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboInventorySinkRoom.FormattingEnabled = true;
+            this.cboInventorySinkRoom.Location = new System.Drawing.Point(122, 640);
+            this.cboInventorySinkRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboInventorySinkRoom.Name = "cboInventorySinkRoom";
+            this.cboInventorySinkRoom.Size = new System.Drawing.Size(528, 27);
+            this.cboInventorySinkRoom.TabIndex = 39;
+            // 
+            // lblInventorySinkRoom
+            // 
+            this.lblInventorySinkRoom.AutoSize = true;
+            this.lblInventorySinkRoom.Location = new System.Drawing.Point(4, 644);
+            this.lblInventorySinkRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblInventorySinkRoom.Name = "lblInventorySinkRoom";
+            this.lblInventorySinkRoom.Size = new System.Drawing.Size(115, 19);
+            this.lblInventorySinkRoom.TabIndex = 38;
+            this.lblInventorySinkRoom.Text = "Inventory sink:";
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(981, 685);
+            this.ClientSize = new System.Drawing.Size(981, 729);
             this.ControlBox = false;
+            this.Controls.Add(this.btnInventorySinkClear);
+            this.Controls.Add(this.btnInventorySinkLocations);
+            this.Controls.Add(this.btnInventorySinkGraph);
+            this.Controls.Add(this.cboInventorySinkRoom);
+            this.Controls.Add(this.lblInventorySinkRoom);
             this.Controls.Add(this.btnThresholdClear);
             this.Controls.Add(this.cboAfterFull);
             this.Controls.Add(this.lblAfterFull);
@@ -618,5 +678,10 @@
         private System.Windows.Forms.ComboBox cboAfterFull;
         private System.Windows.Forms.Label lblAfterFull;
         private System.Windows.Forms.Button btnThresholdClear;
+        private System.Windows.Forms.Button btnInventorySinkClear;
+        private System.Windows.Forms.Button btnInventorySinkLocations;
+        private System.Windows.Forms.Button btnInventorySinkGraph;
+        private System.Windows.Forms.ComboBox cboInventorySinkRoom;
+        private System.Windows.Forms.Label lblInventorySinkRoom;
     }
 }

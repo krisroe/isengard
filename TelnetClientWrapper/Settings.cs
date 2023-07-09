@@ -131,7 +131,7 @@ namespace IsengardClient
                     }
                 }
 
-                cmd.CommandText = "SELECT Key,KeepCount,TickCount,OverflowAction FROM DynamicItemData WHERE UserID = @UserID";
+                cmd.CommandText = "SELECT Key,KeepCount,SinkCount,OverflowAction FROM DynamicItemData WHERE UserID = @UserID";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -158,8 +158,8 @@ namespace IsengardClient
                         DynamicItemData did = new DynamicItemData();
                         oData = reader["KeepCount"];
                         did.KeepCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
-                        oData = reader["TickCount"];
-                        did.TickCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
+                        oData = reader["SinkCount"];
+                        did.SinkCount = oData == DBNull.Value ? -1 : Convert.ToInt32(oData);
                         oData = reader["OverflowAction"];
                         did.OverflowAction = oData == DBNull.Value ? ItemInventoryOverflowAction.None : (ItemInventoryOverflowAction)Convert.ToInt32(oData);
 
@@ -340,7 +340,7 @@ namespace IsengardClient
                     else
                         strats.Remove(s.ID);
                 }
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.TickRoom,p.PawnShop,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType,p.InventorySinkRoom FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -362,22 +362,26 @@ namespace IsengardClient
                         permRun.SpellsToPotion = (WorkflowSpells)Convert.ToInt32(reader["SpellsToPotion"]);
                         permRun.SkillsToRun = (PromptedSkills)Convert.ToInt32(reader["SkillsToRun"]);
 
+                        Room rTemp;
+
                         permRun.TargetRoomIdentifier = reader["TargetRoom"].ToString();
-                        if (!ValidatePermRunTargetRoomFromIdentifier(permRun.TargetRoomIdentifier, errorMessages, gameMap, out Room targetRoomObject, "target"))
-                        {
-                            permRun.IsValid = false;
-                        }
-                        permRun.TargetRoomObject = targetRoomObject;
+                        permRun.IsValid &= ValidatePermRunTargetRoomFromIdentifier(permRun.TargetRoomIdentifier, errorMessages, gameMap, out rTemp, "target");
+                        permRun.TargetRoomObject = rTemp;
 
                         oData = reader["ThresholdRoom"];
                         if (oData != DBNull.Value)
                         {
                             permRun.ThresholdRoomIdentifier = oData.ToString();
-                            if (!ValidatePermRunTargetRoomFromIdentifier(permRun.ThresholdRoomIdentifier, errorMessages, gameMap, out Room thresholdRoomObject, "threshold"))
-                            {
-                                permRun.IsValid = false;
-                            }
-                            permRun.ThresholdRoomObject = thresholdRoomObject;
+                            permRun.IsValid &= ValidatePermRunTargetRoomFromIdentifier(permRun.ThresholdRoomIdentifier, errorMessages, gameMap, out rTemp, "threshold");
+                            permRun.ThresholdRoomObject = rTemp;
+                        }
+
+                        oData = reader["InventorySinkRoom"];
+                        if (oData != DBNull.Value)
+                        {
+                            permRun.InventorySinkRoomIdentifier = oData.ToString();
+                            permRun.IsValid &= ValidatePermRunTargetRoomFromIdentifier(permRun.InventorySinkRoomIdentifier, errorMessages, gameMap, out rTemp, "inventory sink");
+                            permRun.InventorySinkRoomObject = rTemp;
                         }
 
                         oData = reader["MobText"];
@@ -600,6 +604,7 @@ namespace IsengardClient
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
                 "ItemsToProcessType",
+                "InventorySinkRoom",
             };
             string sValue;
             int iValue;
@@ -1014,23 +1019,27 @@ namespace IsengardClient
                 isValid = false;
             }
 
+            Room rTemp;
+
             sValue = GetAttributeValueByName(attributeMapping, "TargetRoom");
-            if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room targetRoomObject, "target"))
-            {
-                isValid = false;
-            }
+            isValid &= ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out rTemp, "target");
             p.TargetRoomIdentifier = sValue;
-            p.TargetRoomObject = targetRoomObject;
+            p.TargetRoomObject = rTemp;
 
             sValue = GetAttributeValueByName(attributeMapping, "ThresholdRoom");
             if (!string.IsNullOrEmpty(sValue))
             {
-                if (!ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out Room thresholdRoomObject, "threshold"))
-                {
-                    isValid = false;
-                }
+                isValid &= ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out rTemp, "threshold");
                 p.ThresholdRoomIdentifier = sValue;
-                p.ThresholdRoomObject = thresholdRoomObject;
+                p.ThresholdRoomObject = rTemp;
+            }
+
+            sValue = GetAttributeValueByName(attributeMapping, "InventorySinkRoom");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                isValid &= ValidatePermRunTargetRoomFromIdentifier(sValue, errorMessages, gameMap, out rTemp, "inventory sink");
+                p.InventorySinkRoomIdentifier = sValue;
+                p.InventorySinkRoomObject = rTemp;
             }
 
             sValue = GetAttributeValueByName(attributeMapping, "Mob");
@@ -1383,6 +1392,7 @@ namespace IsengardClient
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
                 "ItemsToProcessType",
+                "InventorySinkRoom",
             };
             string sInsertBaseRecordCommand = GetInsertCommand("PermRuns", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("PermRuns", baseRecordColumns, "ID");
@@ -1414,6 +1424,7 @@ namespace IsengardClient
                 SQLiteParameter autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
                 SQLiteParameter autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
                 SQLiteParameter itemsToProcessTypeParam = cmd.Parameters.Add("@ItemsToProcessType", DbType.Int32);
+                SQLiteParameter inventorySinkRoomParam = cmd.Parameters.Add("@InventorySinkRoom", DbType.String);
 
                 int iOrder = 0;
                 foreach (PermRun nextRecord in PermRuns)
@@ -1453,6 +1464,7 @@ namespace IsengardClient
                     autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
                     autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
                     itemsToProcessTypeParam.Value = Convert.ToInt32(nextRecord.ItemsToProcessType);
+                    inventorySinkRoomParam.Value = string.IsNullOrEmpty(nextRecord.InventorySinkRoomIdentifier) ? (object)DBNull.Value : nextRecord.InventorySinkRoomIdentifier;
 
                     int iID = nextRecord.ID;
                     bool isNew = iID == 0;
@@ -1826,12 +1838,12 @@ namespace IsengardClient
             keyParameter.Value = key;
             string sql;
             string sKeepCount = did.KeepCount >= 0 ? did.KeepCount.ToString() : "NULL";
-            string sTickCount = did.TickCount >= 0 ? did.TickCount.ToString() : "NULL";
+            string sSinkCount = did.SinkCount >= 0 ? did.SinkCount.ToString() : "NULL";
             string sOverflowAction = did.OverflowAction == ItemInventoryOverflowAction.None ? "NULL" : Convert.ToInt32(did.OverflowAction).ToString();
             if (existingKeys.Contains(key))
-                sql = $"UPDATE DynamicItemData SET KeepCount = {sKeepCount}, TickCount = {sTickCount}, OverflowAction = {sOverflowAction} WHERE UserID = @UserID AND Key = @Key";
+                sql = $"UPDATE DynamicItemData SET KeepCount = {sKeepCount}, SinkCount = {sSinkCount}, OverflowAction = {sOverflowAction} WHERE UserID = @UserID AND Key = @Key";
             else
-                sql = $"INSERT INTO DynamicItemData (UserID, Key, KeepCount, TickCount, OverflowAction) VALUES (@UserID, @Key, {sKeepCount}, {sTickCount}, {sOverflowAction})";
+                sql = $"INSERT INTO DynamicItemData (UserID, Key, KeepCount, SinkCount, OverflowAction) VALUES (@UserID, @Key, {sKeepCount}, {sSinkCount}, {sOverflowAction})";
             cmd.CommandText = sql;
             cmd.ExecuteNonQuery();
             existingKeys.Remove(key);
@@ -1921,7 +1933,7 @@ namespace IsengardClient
                         DynamicItemData did = new DynamicItemData();
 
                         did.KeepCount = ProcessNonNegativeIntAttributeWithAll(elem, "keep", -1, errorMessages);
-                        did.TickCount = ProcessNonNegativeIntAttributeWithAll(elem, "tick", -1, errorMessages);
+                        did.SinkCount = ProcessNonNegativeIntAttributeWithAll(elem, "sink", -1, errorMessages);
 
                         string sValue = elem.Attributes["overflow"]?.Value;
                         int iValue = 0;
@@ -2298,6 +2310,11 @@ namespace IsengardClient
                                 writer.WriteAttributeString("AutoSpellLevelMax", p.AutoSpellLevelMax.ToString());
                             }
                             writer.WriteAttributeString("ItemsToProcessType", p.ItemsToProcessType.ToString());
+                            if (!string.IsNullOrEmpty(p.InventorySinkRoomIdentifier))
+                            {
+                                writer.WriteAttributeString("InventorySinkRoom", p.InventorySinkRoomIdentifier);
+                            }
+
                             writer.WriteEndElement(); //end the perm run
                         }
                     }
@@ -2392,12 +2409,12 @@ namespace IsengardClient
             if (sValue != null) writer.WriteAttributeString("keep", sValue);
 
             sValue = null;
-            iCount = didValue.TickCount;
+            iCount = didValue.SinkCount;
             if (iCount == int.MaxValue)
                 sValue = "All";
             else if (iCount >= 0)
                 sValue = iCount.ToString();
-            if (sValue != null) writer.WriteAttributeString("tick", sValue);
+            if (sValue != null) writer.WriteAttributeString("sink", sValue);
 
             if (didValue.OverflowAction != ItemInventoryOverflowAction.None)
             {
@@ -2446,11 +2463,11 @@ namespace IsengardClient
             {
                 "CREATE TABLE Users (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)",
                 "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
-                "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, TickCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
+                "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, SinkCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, InventorySinkRoom TEXT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID))",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

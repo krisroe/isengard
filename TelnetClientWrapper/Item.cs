@@ -322,7 +322,7 @@ namespace IsengardClient
     internal class DynamicItemDataWithInheritance : DynamicItemData
     {
         public DynamicDataItemClass? KeepCountInheritance;
-        public DynamicDataItemClass? TickCountInheritance;
+        public DynamicDataItemClass? SinkCountInheritance;
         public DynamicDataItemClass? OverflowActionInheritance;
 
         public DynamicItemDataWithInheritance(IsengardSettingData settings, ItemTypeEnum itemType)
@@ -331,7 +331,7 @@ namespace IsengardClient
             if (settings.DynamicItemData.TryGetValue(itemType, out did))
             {
                 KeepCount = did.KeepCount;
-                TickCount = did.TickCount;
+                SinkCount = did.SinkCount;
                 OverflowAction = did.OverflowAction;
             }
             ProcessInheritance(settings, GetInheritanceClasses(itemType));
@@ -343,7 +343,7 @@ namespace IsengardClient
             if (settings.DynamicItemClassData.TryGetValue(itemClass, out did))
             {
                 KeepCount = did.KeepCount;
-                TickCount = did.TickCount;
+                SinkCount = did.SinkCount;
                 OverflowAction = did.OverflowAction;
             }
             ProcessInheritance(settings, GetInheritanceClasses(itemClass));
@@ -360,10 +360,10 @@ namespace IsengardClient
                         KeepCount = did.KeepCount;
                         KeepCountInheritance = nextInheritanceClass;
                     }
-                    if (TickCount < 0 && did.TickCount >= 0)
+                    if (SinkCount < 0 && did.SinkCount >= 0)
                     {
-                        TickCount = did.TickCount;
-                        TickCountInheritance = nextInheritanceClass;
+                        SinkCount = did.SinkCount;
+                        SinkCountInheritance = nextInheritanceClass;
                     }
                     if (OverflowAction == ItemInventoryOverflowAction.None && did.OverflowAction != ItemInventoryOverflowAction.None)
                     {
@@ -496,24 +496,30 @@ namespace IsengardClient
 
     internal class DynamicItemData
     {
+        /// <summary>
+        /// number of items to keep in inventory
+        /// </summary>
         public int KeepCount { get; set; }
-        public int TickCount { get; set; }
+        /// <summary>
+        /// number of items to keep at the inventory sink
+        /// </summary>
+        public int SinkCount { get; set; }
         public ItemInventoryOverflowAction OverflowAction { get; set; }
         public DynamicItemData()
         {
             KeepCount = -1;
-            TickCount = -1;
+            SinkCount = -1;
             OverflowAction = ItemInventoryOverflowAction.None;
         }
         public DynamicItemData(DynamicItemData copied)
         {
             this.KeepCount = copied.KeepCount;
-            this.TickCount = copied.TickCount;
+            this.SinkCount = copied.SinkCount;
             this.OverflowAction = copied.OverflowAction;
         }
         public bool HasData()
         {
-            return KeepCount >=0 || TickCount >= 0 || OverflowAction != ItemInventoryOverflowAction.None;
+            return KeepCount >=0 || SinkCount >= 0 || OverflowAction != ItemInventoryOverflowAction.None;
         }
     }
 

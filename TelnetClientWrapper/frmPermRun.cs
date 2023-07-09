@@ -209,6 +209,7 @@ namespace IsengardClient
                 {
                     cboTargetRoom.Enabled = false;
                     cboThresholdRoom.Enabled = false;
+                    cboInventorySinkRoom.Enabled = false;
                 }
                 else
                 {
@@ -235,6 +236,11 @@ namespace IsengardClient
                 {
                     cboThresholdRoom.Items.Add(_permRun.ThresholdRoomObject);
                     cboThresholdRoom.SelectedItem = _permRun.ThresholdRoomObject;
+                }
+                if (_permRun.InventorySinkRoomObject != null)
+                {
+                    cboInventorySinkRoom.Items.Add(_permRun.InventorySinkRoomObject);
+                    cboInventorySinkRoom.SelectedItem = _permRun.InventorySinkRoomObject;
                 }
             }
             if (cboMob.Items.Contains(currentMob))
@@ -527,6 +533,13 @@ namespace IsengardClient
                 return;
             }
 
+            Room inventorySinkRoom = cboInventorySinkRoom.SelectedItem as Room;
+            if (inventorySinkRoom == targetRoom)
+            {
+                MessageBox.Show("Inventory sink room cannot be the same as the target room.");
+                return;
+            }
+
             if (ForImmediateRun()) //if running the perm run immediately, validate it can be run
             {
                 ItemsToProcessType ipw = (ItemsToProcessType)cboItemsToProcessType.SelectedItem;
@@ -562,16 +575,39 @@ namespace IsengardClient
                         return;
                     }
                 }
+                if (inventorySinkRoom != null)
+                {
+                    sRoomTextIdentifier = _gameMap.GetRoomTextIdentifier(inventorySinkRoom);
+                    if (string.IsNullOrEmpty(sRoomTextIdentifier))
+                    {
+                        MessageBox.Show("Cannot use this inventory sink room because the backend and display names are ambiguous.", "Perm Run");
+                        return;
+                    }
+                }
             }
 
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
+        private void btnInventorySinkLocations_Click(object sender, EventArgs e)
+        {
+            DisplayLocations(cboInventorySinkRoom);
+        }
+
+        private void btnInventorySinkGraph_Click(object sender, EventArgs e)
+        {
+            DisplayGraph(cboInventorySinkRoom);
+        }
+
+        private void btnInventorySinkClear_Click(object sender, EventArgs e)
+        {
+            ClearRoomDropdown(cboInventorySinkRoom);
+        }
+
         private void btnThresholdClear_Click(object sender, EventArgs e)
         {
-            cboThresholdRoom.SelectedItem = null;
-            cboThresholdRoom.Items.Clear();
+            ClearRoomDropdown(cboThresholdRoom);
         }
 
         private void btnThresholdLocations_Click(object sender, EventArgs e)
@@ -592,6 +628,12 @@ namespace IsengardClient
         private void btnTargetGraph_Click(object sender, EventArgs e)
         {
             DisplayGraph(cboTargetRoom);
+        }
+
+        private void ClearRoomDropdown(ComboBox dropdown)
+        {
+            dropdown.SelectedItem = null;
+            dropdown.Items.Clear();
         }
 
         private void DisplayLocations(ComboBox roomDropdown)
@@ -801,12 +843,16 @@ namespace IsengardClient
             pr.SpellsToPotion = GetSelectedSpells(flpSpellsPotions);
             pr.SkillsToRun = SelectedSkills;
             pr.Strategy = (Strategy)cboStrategy.SelectedItem;
-            Room oTargetRoom = (Room)cboTargetRoom.SelectedItem;
-            pr.TargetRoomIdentifier = _gameMap.GetRoomTextIdentifier(oTargetRoom);
-            pr.TargetRoomObject = oTargetRoom;
-            Room oThresholdRoom = cboThresholdRoom.SelectedItem as Room;
-            pr.ThresholdRoomIdentifier = oThresholdRoom == null ? string.Empty : _gameMap.GetRoomTextIdentifier(oThresholdRoom);
-            pr.ThresholdRoomObject = oThresholdRoom;
+            Room rTemp;
+            rTemp = (Room)cboTargetRoom.SelectedItem;
+            pr.TargetRoomIdentifier = _gameMap.GetRoomTextIdentifier(rTemp);
+            pr.TargetRoomObject = rTemp;
+            rTemp = cboThresholdRoom.SelectedItem as Room;
+            pr.ThresholdRoomIdentifier = rTemp == null ? string.Empty : _gameMap.GetRoomTextIdentifier(rTemp);
+            pr.ThresholdRoomObject = rTemp;
+            rTemp = cboInventorySinkRoom.SelectedItem as Room;
+            pr.InventorySinkRoomIdentifier = rTemp == null ? string.Empty : _gameMap.GetRoomTextIdentifier(rTemp);
+            pr.InventorySinkRoomObject = rTemp;
             pr.UseMagicCombat = UseMagicCombat;
             pr.UseMeleeCombat = UseMeleeCombat;
             pr.UsePotionsCombat = UsePotionsCombat;

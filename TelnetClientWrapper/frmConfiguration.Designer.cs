@@ -89,10 +89,10 @@
             this.lvItems = new System.Windows.Forms.ListView();
             this.colItemName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colKeepCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colTickCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colSinkCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colOverflowAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlItemsTop = new System.Windows.Forms.Panel();
-            this.btnTick = new System.Windows.Forms.Button();
+            this.btnSink = new System.Windows.Forms.Button();
             this.btnSellOrJunk = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnKeep = new System.Windows.Forms.Button();
@@ -658,7 +658,7 @@
             this.lvItems.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colItemName,
             this.colKeepCount,
-            this.colTickCount,
+            this.colSinkCount,
             this.colOverflowAction});
             this.lvItems.FullRowSelect = true;
             this.lvItems.HideSelection = false;
@@ -681,10 +681,10 @@
             this.colKeepCount.Text = "Keep #";
             this.colKeepCount.Width = 77;
             // 
-            // colTickCount
+            // colSinkCount
             // 
-            this.colTickCount.Text = "Tick #";
-            this.colTickCount.Width = 84;
+            this.colSinkCount.Text = "Tick #";
+            this.colSinkCount.Width = 84;
             // 
             // colOverflowAction
             // 
@@ -693,7 +693,7 @@
             // 
             // pnlItemsTop
             // 
-            this.pnlItemsTop.Controls.Add(this.btnTick);
+            this.pnlItemsTop.Controls.Add(this.btnSink);
             this.pnlItemsTop.Controls.Add(this.btnSellOrJunk);
             this.pnlItemsTop.Controls.Add(this.btnClear);
             this.pnlItemsTop.Controls.Add(this.btnKeep);
@@ -705,16 +705,16 @@
             this.pnlItemsTop.Size = new System.Drawing.Size(816, 36);
             this.pnlItemsTop.TabIndex = 0;
             // 
-            // btnTick
+            // btnSink
             // 
-            this.btnTick.Location = new System.Drawing.Point(67, 10);
-            this.btnTick.Margin = new System.Windows.Forms.Padding(2);
-            this.btnTick.Name = "btnTick";
-            this.btnTick.Size = new System.Drawing.Size(56, 21);
-            this.btnTick.TabIndex = 4;
-            this.btnTick.Text = "Tick";
-            this.btnTick.UseVisualStyleBackColor = true;
-            this.btnTick.Click += new System.EventHandler(this.btnTick_Click);
+            this.btnSink.Location = new System.Drawing.Point(67, 10);
+            this.btnSink.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSink.Name = "btnSink";
+            this.btnSink.Size = new System.Drawing.Size(56, 21);
+            this.btnSink.TabIndex = 4;
+            this.btnSink.Text = "Sink";
+            this.btnSink.UseVisualStyleBackColor = true;
+            this.btnSink.Click += new System.EventHandler(this.btnSink_Click);
             // 
             // btnSellOrJunk
             // 
@@ -854,11 +854,11 @@
         private System.Windows.Forms.Button btnIgnore;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnSellOrJunk;
-        private System.Windows.Forms.Button btnTick;
+        private System.Windows.Forms.Button btnSink;
         private System.Windows.Forms.CheckBox chkDisplayStunLength;
         private System.Windows.Forms.Panel pnlSettings;
         private System.Windows.Forms.ColumnHeader colKeepCount;
-        private System.Windows.Forms.ColumnHeader colTickCount;
+        private System.Windows.Forms.ColumnHeader colSinkCount;
         private System.Windows.Forms.ColumnHeader colOverflowAction;
         private System.Windows.Forms.TextBox txtMagicMendWhenDownXHP;
         private System.Windows.Forms.Label lblMagicMendWhenDownXHP;

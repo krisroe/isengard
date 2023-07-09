@@ -11,30 +11,32 @@ namespace IsengardClient
         }
         public PermRun(PermRun copied)
         {
-            this.ID = copied.ID;
-            this.DisplayName = copied.DisplayName;
-            this.TickRoom = copied.TickRoom;
-            this.PawnShop = copied.PawnShop;
-            this.BeforeFull = copied.BeforeFull;
-            this.AfterFull = copied.AfterFull;
-            this.SpellsToCast = copied.SpellsToCast;
-            this.SpellsToPotion = copied.SpellsToPotion;
-            this.SkillsToRun = copied.SkillsToRun;
-            this.TargetRoomIdentifier = copied.TargetRoomIdentifier;
-            this.TargetRoomObject = copied.TargetRoomObject;
-            this.ThresholdRoomIdentifier = copied.ThresholdRoomIdentifier;
-            this.ThresholdRoomObject = copied.ThresholdRoomObject;
-            this.MobType = copied.MobType;
-            this.MobText = copied.MobText;
-            this.MobIndex = copied.MobIndex;
-            this.UseMagicCombat = copied.UseMagicCombat;
-            this.UseMeleeCombat = copied.UseMeleeCombat;
-            this.UsePotionsCombat = copied.UsePotionsCombat;
-            this.AfterKillMonsterAction = copied.AfterKillMonsterAction;
-            this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
-            this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
-            this.ItemsToProcessType = copied.ItemsToProcessType;
-            this.Strategy = copied.Strategy;
+            ID = copied.ID;
+            DisplayName = copied.DisplayName;
+            TickRoom = copied.TickRoom;
+            PawnShop = copied.PawnShop;
+            BeforeFull = copied.BeforeFull;
+            AfterFull = copied.AfterFull;
+            SpellsToCast = copied.SpellsToCast;
+            SpellsToPotion = copied.SpellsToPotion;
+            SkillsToRun = copied.SkillsToRun;
+            TargetRoomIdentifier = copied.TargetRoomIdentifier;
+            TargetRoomObject = copied.TargetRoomObject;
+            ThresholdRoomIdentifier = copied.ThresholdRoomIdentifier;
+            ThresholdRoomObject = copied.ThresholdRoomObject;
+            InventorySinkRoomIdentifier = copied.InventorySinkRoomIdentifier;
+            InventorySinkRoomObject = copied.InventorySinkRoomObject;
+            MobType = copied.MobType;
+            MobText = copied.MobText;
+            MobIndex = copied.MobIndex;
+            UseMagicCombat = copied.UseMagicCombat;
+            UseMeleeCombat = copied.UseMeleeCombat;
+            UsePotionsCombat = copied.UsePotionsCombat;
+            AfterKillMonsterAction = copied.AfterKillMonsterAction;
+            AutoSpellLevelMin = copied.AutoSpellLevelMin;
+            AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            ItemsToProcessType = copied.ItemsToProcessType;
+            Strategy = copied.Strategy;
         }
         public bool IsValid { get; set; }
         public int ID { get; set; }
@@ -64,6 +66,14 @@ namespace IsengardClient
         /// </summary>
         public Room ThresholdRoomObject { get; set; }
         /// <summary>
+        /// inventory sink room identifier
+        /// </summary>
+        public string InventorySinkRoomIdentifier { get; set; }
+        /// <summary>
+        /// inventory sink room object
+        /// </summary>
+        public Room InventorySinkRoomObject { get; set; }
+        /// <summary>
         /// specific mob type
         /// </summary>
         public MobTypeEnum? MobType { get; set; }
@@ -90,6 +100,8 @@ namespace IsengardClient
         {
             GraphInputs graphInputs = GetGraphInputs();
             Room currentRoom = cei.CurrentRoom;
+            bool haveTickRoom = TickRoom.HasValue;
+            Room healingRoom = haveTickRoom ? gameMap.HealingRooms[TickRoom.Value]: null;
 
             if (currentRoom == null)
             {
@@ -97,65 +109,79 @@ namespace IsengardClient
                 return false;
             }
 
-            if (ThresholdRoomObject != null) //verify the threshold room is reachable from the current room
+            Room testRoom = currentRoom;
+
+            if (haveTickRoom && BeforeFull != FullType.None && testRoom != healingRoom) //verify healing room is reachable if needed
             {
-                if (currentRoom != ThresholdRoomObject)
+                if (MapComputation.ComputeLowestCostPath(testRoom, healingRoom, graphInputs) == null)
                 {
-                    if (MapComputation.ComputeLowestCostPath(currentRoom, ThresholdRoomObject, graphInputs) == null)
-                    {
-                        MessageBox.Show(parent, "Cannot find path to threshold room.");
-                        return false;
-                    }
-                }
-                if (MapComputation.ComputeLowestCostPath(ThresholdRoomObject, TargetRoomObject, graphInputs) == null)
-                {
-                    MessageBox.Show(parent, "Cannot find path from threshold room to target room.");
+                    MessageBox.Show(parent, "Cannot find path to tick room.");
                     return false;
                 }
+                testRoom = healingRoom;
             }
-            else if (TargetRoomObject != currentRoom) //verify the target room is reachable from the current room
+
+            if (ThresholdRoomObject != null && testRoom != ThresholdRoomObject) //verify the threshold room is reachable
             {
-                if (MapComputation.ComputeLowestCostPath(currentRoom, TargetRoomObject, graphInputs) == null)
+                if (MapComputation.ComputeLowestCostPath(testRoom, ThresholdRoomObject, graphInputs) == null)
                 {
-                    MessageBox.Show(parent, "Cannot find path to selected room.");
+                    MessageBox.Show(parent, "Cannot find path to threshold room.");
+                    return false;
+                }
+                testRoom = ThresholdRoomObject;
+            }
+
+            if (testRoom != TargetRoomObject) //verify the target room is reachable
+            {
+                if (MapComputation.ComputeLowestCostPath(testRoom, TargetRoomObject, graphInputs) == null)
+                {
+                    MessageBox.Show(parent, "Cannot find path to target room.");
                     return false;
                 }
             }
 
-            //verify healing room is reachable back and forth from the target room
-            if (TickRoom.HasValue && (ItemsToProcessType != ItemsToProcessType.NoProcessing || AfterFull != FullType.None))
+            if (ItemsToProcessType != ItemsToProcessType.NoProcessing)
             {
-                Room healingRoom = gameMap.HealingRooms[TickRoom.Value];
-                if (TargetRoomObject != healingRoom)
+                if (InventorySinkRoomObject != null && testRoom != InventorySinkRoomObject)
                 {
-                    if (MapComputation.ComputeLowestCostPath(TargetRoomObject, healingRoom, graphInputs) == null)
+                    if (MapComputation.ComputeLowestCostPath(testRoom, InventorySinkRoomObject, graphInputs) == null)
                     {
-                        MessageBox.Show(parent, "Cannot find path from target room to tick room.");
+                        MessageBox.Show(parent, "Cannot find path from target to inventory sink room.");
                         return false;
                     }
-                    if (MapComputation.ComputeLowestCostPath(healingRoom, TargetRoomObject, graphInputs) == null)
+                    if (MapComputation.ComputeLowestCostPath(InventorySinkRoomObject, testRoom, graphInputs) == null)
                     {
-                        MessageBox.Show(parent, "Cannot find path from tick room to healing room.");
+                        MessageBox.Show(parent, "Cannot find path from target to inventory sink room.");
                         return false;
                     }
                 }
-            }
-            //verify pawn shop is reachable back and forth from the target room
-            if (PawnShop.HasValue && ItemsToProcessType != ItemsToProcessType.NoProcessing)
-            {
-                Room pawnShop = gameMap.PawnShoppes[PawnShop.Value];
-                if (TargetRoomObject != pawnShop)
+                testRoom = InventorySinkRoomObject;
+
+                if (PawnShop.HasValue) //verify can get to and from the pawn shop
                 {
-                    if (MapComputation.ComputeLowestCostPath(TargetRoomObject, pawnShop, graphInputs) == null)
+                    Room pawnShop = gameMap.PawnShoppes[PawnShop.Value];
+                    if (TargetRoomObject != pawnShop && testRoom != pawnShop)
                     {
-                        MessageBox.Show(parent, "Cannot find path from target room to pawn shop.");
-                        return false;
+                        if (MapComputation.ComputeLowestCostPath(testRoom, pawnShop, graphInputs) == null)
+                        {
+                            MessageBox.Show(parent, "Cannot find path to pawn shop.");
+                            return false;
+                        }
+                        if (MapComputation.ComputeLowestCostPath(pawnShop, testRoom, graphInputs) == null)
+                        {
+                            MessageBox.Show(parent, "Cannot find path from pawn shop.");
+                            return false;
+                        }
                     }
-                    if (MapComputation.ComputeLowestCostPath(pawnShop, TargetRoomObject, graphInputs) == null)
-                    {
-                        MessageBox.Show(parent, "Cannot find path from pawn shop to target room.");
-                        return false;
-                    }
+                }
+            }
+
+            if (haveTickRoom && AfterFull != FullType.None && testRoom != healingRoom) //verify healing room is reachable after the workflow
+            {
+                if (MapComputation.ComputeLowestCostPath(testRoom, healingRoom, graphInputs) == null)
+                {
+                    MessageBox.Show(parent, "Cannot find path to tick room.");
+                    return false;
                 }
             }
 
