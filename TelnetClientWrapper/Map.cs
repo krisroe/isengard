@@ -6796,10 +6796,8 @@ namespace IsengardClient
                 r.PermanentMobs.Add(nextMob);
                 if (!processedMobs.Contains(nextMob))
                 {
-                    if (MobRooms.TryGetValue(nextMob, out _))
-                    {
-                        MobRooms[nextMob] = null;
-                    }
+                    bool exists = MobRooms.TryGetValue(nextMob, out _);
+                    MobRooms[nextMob] = exists ? null : r;
                     processedMobs.Add(nextMob);
                 }
             }

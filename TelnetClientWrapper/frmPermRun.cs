@@ -748,6 +748,7 @@ namespace IsengardClient
 
         public void SaveFormDataToPermRun(PermRun pr)
         {
+            pr.Area = cboArea.SelectedItem as Area;
             pr.AfterKillMonsterAction = cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
             pr.AutoSpellLevelMin = _autoSpellLevelInfo.PermRunMinimum;
             pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMaximum;

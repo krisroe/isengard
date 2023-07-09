@@ -120,8 +120,9 @@ namespace IsengardClient
             if (selectedRoom != null)
             {
                 RoomEntry found = null;
-                foreach (RoomEntry next in cbo.Items)
+                foreach (object nextObj in cbo.Items)
                 {
+                    RoomEntry next = nextObj as RoomEntry;
                     if (next != null && next.Room == selectedRoom)
                     {
                         found = next;

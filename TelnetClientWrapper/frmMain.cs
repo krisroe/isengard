@@ -9477,6 +9477,7 @@ BeforeHazy:
 
         private void ctxInventoryOrEquipmentItem_Opening(object sender, CancelEventArgs e)
         {
+            bool inBackground = _currentBackgroundParameters != null;
             ctxInventoryOrEquipmentItem.Items.Clear();
             ListBox lst = (ListBox)ctxInventoryOrEquipmentItem.SourceControl;
             bool isInventory = lst == lstInventory;
@@ -9563,7 +9564,7 @@ BeforeHazy:
             ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             if (isInventory)
             {
-                if (r != null && _gameMap.Trades.ContainsKey(itemType))
+                if (!inBackground && r != null && _gameMap.Trades.ContainsKey(itemType))
                 {
                     tsmi = new ToolStripMenuItem();
                     tsmi.Text = "trade";
