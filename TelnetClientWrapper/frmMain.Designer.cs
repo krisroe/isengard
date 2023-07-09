@@ -88,6 +88,7 @@
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.grpCurrentRoom = new System.Windows.Forms.GroupBox();
             this.treeCurrentRoom = new System.Windows.Forms.TreeView();
+            this.ctxCurrentRoom = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.btnLocations = new System.Windows.Forms.Button();
             this.btnIncrementWand = new System.Windows.Forms.Button();
             this.grpSkillCooldowns = new System.Windows.Forms.GroupBox();
@@ -893,6 +894,7 @@
             // 
             // treeCurrentRoom
             // 
+            this.treeCurrentRoom.ContextMenuStrip = this.ctxCurrentRoom;
             this.treeCurrentRoom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeCurrentRoom.Location = new System.Drawing.Point(3, 16);
             this.treeCurrentRoom.Margin = new System.Windows.Forms.Padding(2);
@@ -904,6 +906,14 @@
             this.treeCurrentRoom.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeCurrentRoom_AfterSelect);
             this.treeCurrentRoom.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeCurrentRoom_NodeMouseClick);
             this.treeCurrentRoom.DoubleClick += new System.EventHandler(this.treeCurrentRoom_DoubleClick);
+            // 
+            // ctxCurrentRoom
+            // 
+            this.ctxCurrentRoom.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxCurrentRoom.Name = "ctxCurrentRoom";
+            this.ctxCurrentRoom.Size = new System.Drawing.Size(211, 32);
+            this.ctxCurrentRoom.Opening += new System.ComponentModel.CancelEventHandler(this.ctxCurrentRoom_Opening);
+            this.ctxCurrentRoom.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxCurrentRoom_ItemClicked);
             // 
             // btnLocations
             // 
@@ -2027,6 +2037,7 @@
         private System.Windows.Forms.ToolStripButton tsbLogout;
         private System.Windows.Forms.Button btnFerry;
         private System.Windows.Forms.Button btnPermRuns;
+        private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
     }
 }
 

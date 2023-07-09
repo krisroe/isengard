@@ -9318,6 +9318,26 @@ BeforeHazy:
             }
         }
 
+        private void RunCommandOnRoomItemTreeNode(string command, TreeNode selectedNode)
+        {
+            int counter = FindItemOrMobCounterInRoomUI(selectedNode, true);
+            if (counter == 0)
+            {
+                MessageBox.Show($"Cannot {command} unknown item.");
+                return;
+            }
+            ItemEntity ie = (ItemEntity)selectedNode.Tag;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                bool validateAgainstOtherSources = command == "look";
+                string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, false, validateAgainstOtherSources);
+                if (string.IsNullOrEmpty(sItemText))
+                    MessageBox.Show($"Unable to construct {command} command for item.");
+                else
+                    SendCommand($"{command} {sItemText}", InputEchoType.On);
+            }
+        }
+
         private void treeCurrentRoom_DoubleClick(object sender, EventArgs e)
         {
             TreeNode selectedNode = treeCurrentRoom.SelectedNode;
@@ -9325,25 +9345,7 @@ BeforeHazy:
             object oTag = selectedNode.Tag;
             if (parentNode == _currentEntityInfo.tnObviousItems) //pick up item
             {
-                int counter = FindItemOrMobCounterInRoomUI(selectedNode, true);
-                if (counter == 0)
-                {
-                    MessageBox.Show("Cannot pick up unknown item.");
-                    return;
-                }
-                ItemEntity ie = (ItemEntity)selectedNode.Tag;
-                lock (_currentEntityInfo.EntityLock)
-                {
-                    string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, false, false);
-                    if (string.IsNullOrEmpty(sItemText))
-                    {
-                        MessageBox.Show("Unable to pick up item.");
-                    }
-                    else
-                    {
-                        SendCommand("get " + sItemText, InputEchoType.On);
-                    }
-                }
+                RunCommandOnRoomItemTreeNode("look", selectedNode);
             }
             else if (parentNode == _currentEntityInfo.tnObviousExits || parentNode == _currentEntityInfo.tnOtherExits)
             {
@@ -9819,6 +9821,31 @@ BeforeHazy:
             bwp.BeforeGold = _gold;
             bwp.BeforeExperience = _experience;
             RunBackgroundProcess(bwp);
+        }
+
+        private void ctxCurrentRoom_Opening(object sender, CancelEventArgs e)
+        {
+            ctxCurrentRoom.Items.Clear();
+            TreeNode selectedNode = treeCurrentRoom.SelectedNode;
+            if (selectedNode == null || selectedNode.Parent == null)
+            {
+                e.Cancel = true;
+            }
+            else if (selectedNode.Parent == _currentEntityInfo.tnObviousItems)
+            {
+                ToolStripMenuItem tsmi = new ToolStripMenuItem();
+                tsmi.Text = "get";
+                ctxCurrentRoom.Items.Add(tsmi);
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void ctxCurrentRoom_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            RunCommandOnRoomItemTreeNode(e.ClickedItem.Text, treeCurrentRoom.SelectedNode);
         }
     }
 }

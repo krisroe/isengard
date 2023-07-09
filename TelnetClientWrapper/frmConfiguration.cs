@@ -473,7 +473,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void ctxStrategies_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ctxStrategies_Opening(object sender, CancelEventArgs e)
         {
             int iIndex = lstStrategies.SelectedIndex;
             if (iIndex < 0)
