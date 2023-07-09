@@ -55,33 +55,6 @@ namespace IsengardClient
         public List<MobTypeEnum> NonPermanentMobs { get; set; }
         public List<ItemTypeEnum> PermanentItems { get; set; }
 
-        public void AddPermanentMobs(params MobTypeEnum[] mobs)
-        {
-            if (PermanentMobs == null) PermanentMobs = new List<MobTypeEnum>();
-            foreach (MobTypeEnum nextMob in mobs)
-            {
-                PermanentMobs.Add(nextMob);
-            }
-        }
-
-        public void AddNonPermanentMobs(params MobTypeEnum[] mobs)
-        {
-            if (NonPermanentMobs == null) NonPermanentMobs = new List<MobTypeEnum>();
-            foreach (MobTypeEnum nextMob in mobs)
-            {
-                NonPermanentMobs.Add(nextMob);
-            }
-        }
-
-        public void AddPermanentItems(params ItemTypeEnum[] items)
-        {
-            if (PermanentItems == null) PermanentItems = new List<ItemTypeEnum>();
-            foreach (ItemTypeEnum nextItem in items)
-            {
-                PermanentItems.Add(nextItem);
-            }
-        }
-
         public int GetTotalExperience()
         {
             int total = 0;
