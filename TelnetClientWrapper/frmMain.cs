@@ -4519,11 +4519,14 @@ namespace IsengardClient
                         if (_fleeing && (onMonsterKilledAction != AfterKillMonsterAction.StopCombat || !_monsterKilled) && !_hazying)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Flee;
-                            if (RemoveWeapon(weaponItem))
+                            backgroundCommandResultObject = RemoveWeaponBeforeFlee(pms);
+                            if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                             {
-                                if (!_fleeing) goto BeforeHazy;
-                                if (_hazying) goto BeforeHazy;
-                                if (_bw.CancellationPending) return;
+                                goto BeforeHazy;
+                            }
+                            else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
+                            {
+                                return;
                             }
 
                             //determine the flee exit if there is only one place to flee to
@@ -6274,31 +6277,38 @@ BeforeHazy:
             return true;
         }
 
-        private bool RemoveWeapon(ItemTypeEnum? weaponItem)
+        private CommandResultObject RemoveWeaponBeforeFlee(BackgroundWorkerParameters pms)
         {
-            bool ret = false;
-            if (weaponItem.HasValue)
+            foreach (EquipmentSlot nextWeaponSlot in new EquipmentSlot[] { EquipmentSlot.Weapon1, EquipmentSlot.Weapon2})
             {
-                ItemTypeEnum weaponItemValue = weaponItem.Value;
-                string sWieldCommand = null;
+                string sWeaponText = string.Empty;
+                ItemTypeEnum weaponValue = ItemTypeEnum.GoldCoins;
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == weaponItemValue)
+                    int iIndex = (int)nextWeaponSlot;
+                    ItemTypeEnum? weapon = _currentEntityInfo.Equipment[iIndex];
+                    if (weapon.HasValue)
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, weaponItemValue, 1, false, false);
-                        if (!string.IsNullOrEmpty(sWeaponText))
+                        weaponValue = weapon.Value;
+                        sWeaponText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, weaponValue, iIndex, false);
+                        if (string.IsNullOrEmpty(sWeaponText))
                         {
-                            sWieldCommand = "remove " + sWeaponText;
+                            continue; //can't remove the weapon, but as we are fleeing don't fail for this. Should never happen but don't fail just in case.
                         }
                     }
                 }
-                if (!string.IsNullOrEmpty(sWieldCommand))
+                if (!string.IsNullOrEmpty(sWeaponText))
                 {
-                    ret = true;
-                    SendCommand(sWieldCommand, InputEchoType.On);
+                    CommandResultObject backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, weaponValue, sWeaponText, pms, AbortIfHazying);
+                    if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                    {
+                        return backgroundCommandResultObject;
+                    }
+                    //continue in case of either success or failure. Even on a failure continue with the logic, since we still want to
+                    //flee even if the weapon has to be dropped.
                 }
             }
-            return ret;
+            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
         }
 
         private void WieldWeapon(ItemTypeEnum? weaponItem)
