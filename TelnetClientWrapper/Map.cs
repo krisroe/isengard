@@ -1853,7 +1853,7 @@ namespace IsengardClient
             e.MustOpen = true;
             breeStreetsGraph.Rooms[oBigPapaSmallHallway] = new System.Windows.Point(8, 4.5);
 
-            Room oWizardsEye = AddRoom("Wizard's Eye", "Wizard's Eye");
+            Room oWizardsEye = AddRoom("Wizard's Eye", "The Wizard's Eye");
             e = AddBidirectionalExitsWithOut(breeStreets[5, 0], oWizardsEye, "north");
             e.RequiredClass = ClassType.Mage;
             breeStreetsGraph.Rooms[oWizardsEye] = new System.Windows.Point(5, 9.75);
