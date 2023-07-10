@@ -369,6 +369,7 @@ namespace IsengardClient
         ExactMatch,
         StartsWith,
         EndsWith,
+        StartsWithAndEndsWith,
         Contains,
     }
 

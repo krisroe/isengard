@@ -813,6 +813,10 @@
         [SingularSelection("Ixell")]
         IxellDeSantis,
 
+        [SingularName("jeweler")]
+        [PluralName("jewelers")]
+        Jeweler,
+
         [SingularName("jongleur")]
         [PluralName("jongleurs")]
         Jongleur,

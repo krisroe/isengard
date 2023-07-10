@@ -73,31 +73,32 @@ namespace IsengardClient
     internal class ConstantOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters> _onSatisfied;
-        private string _characters;
+        private string _characters1;
+        private string _characters2;
         private ConstantSequenceMatchType _matchType;
         private int? _exactLine;
         private List<BackgroundCommandType> _backgroundCommandTypes;
 
-        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine)
+        public ConstantOutputSequence(string prefix, string suffix, Action<FeedLineParameters> onSatisfied, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes)
         {
             _onSatisfied = onSatisfied;
-            _characters = characters;
+            _characters1 = prefix;
+            _characters2 = suffix;
+            _matchType = ConstantSequenceMatchType.StartsWithAndEndsWith;
+            _exactLine = exactLine;
+            _backgroundCommandTypes = backgroundCommandTypes;
+        }
+
+        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes)
+        {
+            _onSatisfied = onSatisfied;
+            _characters1 = characters;
+            if (MatchType == ConstantSequenceMatchType.StartsWithAndEndsWith)
+            {
+                throw new InvalidOperationException();
+            }
             _matchType = MatchType;
             _exactLine = exactLine;
-        }
-
-        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, BackgroundCommandType? backgroundCommandType) :
-            this(characters, onSatisfied, MatchType, exactLine)
-        {
-            if (backgroundCommandType.HasValue)
-            {
-                _backgroundCommandTypes = new List<BackgroundCommandType>() { backgroundCommandType.Value };
-            }
-        }
-
-        public ConstantOutputSequence(string characters, Action<FeedLineParameters> onSatisfied, ConstantSequenceMatchType MatchType, int? exactLine, List<BackgroundCommandType> backgroundCommandTypes) :
-            this(characters, onSatisfied, MatchType, exactLine)
-        {
             _backgroundCommandTypes = backgroundCommandTypes;
         }
 
@@ -142,16 +143,19 @@ namespace IsengardClient
             switch (_matchType)
             {
                 case ConstantSequenceMatchType.ExactMatch:
-                    ret = Line.Equals(_characters);
+                    ret = Line.Equals(_characters1);
                     break;
                 case ConstantSequenceMatchType.StartsWith:
-                    ret = Line.StartsWith(_characters);
+                    ret = Line.StartsWith(_characters1);
                     break;
                 case ConstantSequenceMatchType.Contains:
-                    ret = Line.Contains(_characters);
+                    ret = Line.Contains(_characters1);
                     break;
                 case ConstantSequenceMatchType.EndsWith:
-                    ret = Line.EndsWith(_characters);
+                    ret = Line.EndsWith(_characters1);
+                    break;
+                case ConstantSequenceMatchType.StartsWithAndEndsWith:
+                    ret = Line.StartsWith(_characters1) && Line.EndsWith(_characters2);
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -814,24 +818,30 @@ namespace IsengardClient
 
     internal class EquipmentSequence : AOutputProcessingSequence
     {
-        private Action<FeedLineParameters, List<KeyValuePair<string, string>>> _onSatisfied;
-        public EquipmentSequence(Action<FeedLineParameters, List<KeyValuePair<string, string>>> onSatisfied)
+        private Action<FeedLineParameters, List<KeyValuePair<string, string>>, int> _onSatisfied;
+        public EquipmentSequence(Action<FeedLineParameters, List<KeyValuePair<string, string>>, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
         internal override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
+            int equipmentWeight;
             if (Lines.Count > 0)
             {
                 string sFirstLine = Lines[0];
                 if (sFirstLine == "You aren't wearing anything.")
                 {
-                    _onSatisfied(flParams, new List<KeyValuePair<string, string>>());
+                    _onSatisfied(flParams, new List<KeyValuePair<string, string>>(), 0);
                     flParams.FinishedProcessing = true;
                     return;
                 }
                 if (!sFirstLine.EndsWith(". of equipment.") || Lines.Count < 3 || !string.IsNullOrEmpty(Lines[1]))
+                {
+                    return;
+                }
+                string[] firstLineSplit = sFirstLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (!int.TryParse(firstLineSplit[0], out equipmentWeight))
                 {
                     return;
                 }
@@ -870,7 +880,7 @@ namespace IsengardClient
                         eq.Add(new KeyValuePair<string, string>(sItemName, sSlot));
                     }
                 }
-                _onSatisfied(flParams, eq);
+                _onSatisfied(flParams, eq, equipmentWeight);
                 flParams.FinishedProcessing = true;
             }
         }

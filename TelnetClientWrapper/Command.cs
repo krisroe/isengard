@@ -107,9 +107,11 @@
         SellItem,
         DropItem,
         RemoveEquipment,
+        WieldWeapon,
         Trade,
         Score,
         Inventory,
+        Equipment,
         Quit,
     }
 }

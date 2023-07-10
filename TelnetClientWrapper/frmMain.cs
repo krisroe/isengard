@@ -1178,13 +1178,14 @@ namespace IsengardClient
             }
         }
 
-        private void OnEquipment(FeedLineParameters flParams, List<KeyValuePair<string, string>> equipment)
+        private void OnEquipment(FeedLineParameters flParams, List<KeyValuePair<string, string>> equipment, int equipmentWeight)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Equipment) == InitializationStep.None;
 
             lock (_currentEntityInfo.EntityLock)
             {
+                _currentEntityInfo.TotalEquipmentWeight = equipmentWeight;
                 EntityChange changes = new EntityChange();
                 changes.ChangeType = EntityChangeType.RefreshEquipment;
                 for (int i = 0; i < _currentEntityInfo.Equipment.Length; i++)
@@ -1241,6 +1242,12 @@ namespace IsengardClient
                 {
                     _currentEntityInfo.CurrentEntityChanges.Add(changes);
                 }
+            }
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct == BackgroundCommandType.Equipment)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+                flParams.SuppressEcho = true;
             }
             if (forInit)
             {
@@ -2049,7 +2056,7 @@ namespace IsengardClient
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem || bctValue == BackgroundCommandType.Trade)
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem || bctValue == BackgroundCommandType.Trade || bctValue == BackgroundCommandType.WieldWeapon)
                 {
                     if (bctValue == BackgroundCommandType.DrinkHazy)
                     {
@@ -2135,6 +2142,15 @@ namespace IsengardClient
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.RemoveEquipment)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void OnCannotWieldWeapon(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.WieldWeapon)
             {
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
@@ -2919,7 +2935,8 @@ namespace IsengardClient
                 else if ((action == ItemManagementAction.SellItem && bctValue == BackgroundCommandType.SellItem) ||
                     (action == ItemManagementAction.DropItem && bctValue == BackgroundCommandType.DropItem) ||
                     (action == ItemManagementAction.Unequip && bctValue == BackgroundCommandType.RemoveEquipment) ||
-                    (action == ItemManagementAction.Trade && bctValue == BackgroundCommandType.Trade))
+                    (action == ItemManagementAction.Trade && bctValue == BackgroundCommandType.Trade) ||
+                    (action == ItemManagementAction.Equip && bctValue == BackgroundCommandType.WieldWeapon))
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
@@ -3289,12 +3306,12 @@ namespace IsengardClient
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new InventoryEquipmentManagementSequence(OnInventoryManagement),
-                new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("You already have a manashield!", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Manashield),
-                new ConstantOutputSequence("You create a protective fireshield.", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
-                new ConstantOutputSequence("You already have a fireshield active!", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Fireshield),
-                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null), //could be prefixed by "Scared of going X"*
+                new ConstantOutputSequence("You creative a protective manashield.", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("Your attempt to manashield failed.", OnFailManashield, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Manashield }),
+                new ConstantOutputSequence("You already have a manashield!", OnManashieldOn, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("You create a protective fireshield.", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("You already have a fireshield active!", OnFireshieldOn, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("You failed to escape!", OnFailFlee, ConstantSequenceMatchType.Contains, null, null), //could be prefixed by "Scared of going X"*
                 new SelfSpellCastSequence(OnSelfSpellCast),
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
@@ -3306,28 +3323,31 @@ namespace IsengardClient
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
                 new ConstantOutputSequence("You cannot harm him.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
                 new ConstantOutputSequence("You cannot harm her.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
-                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Knock),
-                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade }),
+                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
+                new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
+                new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
+                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon }),
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", FailItemAction, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
-                new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
-                new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.Prepare),
-                new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
-                new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, BackgroundCommandType.OpenDoor),
-                new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.OpenDoor),
-                new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.LookAtMob),
-                new ConstantOutputSequence("That isn't here.", OnCannotPickUpItemNotHere, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence("You may not take that. You have already fulfilled that quest.", OnCannotPickUpItemQuestFulfilled, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence("You can't carry anymore.", OnCannotCarryAnymore, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence("You can't take that!", OnCannotPickUpItemFixedItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItemMobDisallows, ConstantSequenceMatchType.EndsWith, 0, BackgroundCommandType.GetItem),
-                new ConstantOutputSequence("The shopkeep says, \"I won't buy that crap from you.\"", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
-                new ConstantOutputSequence("The shopkeep won't buy that from you.", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.SellItem),
-                new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
-                new ConstantOutputSequence("You can't.  It's cursed!", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
-                new ConstantOutputSequence("You stand up.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0),
-                new ConstantOutputSequence("You are already standing.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
+                new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
+                new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OpenDoor }),
+                new ConstantOutputSequence("You open the ", OpenDoorSuccess, ConstantSequenceMatchType.StartsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OpenDoor }),
+                new ConstantOutputSequence("It's already open.", OpenDoorSuccess, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OpenDoor }),
+                new ConstantOutputSequence("You see nothing special about it.", OnSeeNothingSpecial, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.LookAtMob }),
+                new ConstantOutputSequence("That isn't here.", OnCannotPickUpItemNotHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.GetItem }),
+                new ConstantOutputSequence("You may not take that. You have already fulfilled that quest.", OnCannotPickUpItemQuestFulfilled, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.GetItem }),
+                new ConstantOutputSequence("You can't carry anymore.", OnCannotCarryAnymore, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.GetItem }),
+                new ConstantOutputSequence("You can't take that!", OnCannotPickUpItemFixedItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.GetItem }),
+                new ConstantOutputSequence(" won't let you take anything.", OnCannotPickUpItemMobDisallows, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.GetItem }),
+                new ConstantOutputSequence("The shopkeep says, \"I won't buy that crap from you.\"", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.SellItem }),
+                new ConstantOutputSequence("The shopkeep won't buy that from you.", OnCannotSellItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.SellItem }),
+                new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.RemoveEquipment }),
+                new ConstantOutputSequence("You can't.  It's cursed!", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.RemoveEquipment }),
+                new ConstantOutputSequence("You stand up.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("You are already standing.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0, null),
+                new ConstantOutputSequence("You're already wielding something.", OnCannotWieldWeapon, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
+                new ConstantOutputSequence("You need to train in the ", " proficiency in order to use this weapon.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
+                new ConstantOutputSequence("You need a ", " to use this weapon effectively.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon}),
             };
             return seqs;
         }
@@ -4178,7 +4198,7 @@ namespace IsengardClient
                             bool doPowerAttack = false;
                             if (useMelee)
                             {
-                                WieldWeapon(weaponItem);
+                                WieldWeapon(weaponItem, pms, true);
                                 doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
@@ -4344,7 +4364,7 @@ namespace IsengardClient
                                     }
 
                                     GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
-                                    WieldWeapon(weaponItem); //wield the weapon in case it was fumbled
+                                    WieldWeapon(weaponItem, pms, false); //wield the weapon in case it was fumbled
                                     backgroundCommandResultObject = RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage);
                                     if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                                     {
@@ -5479,20 +5499,35 @@ BeforeHazy:
         {
             CommandResultObject backgroundCommandResultObject;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
+            BackgroundCommandType checkWeightCommandType = BackgroundCommandType.Quit;
+            bool checkWeightIsEquipment = false;
+            string checkWeightCommand = null;
             bool checkWeight = !sid.Weight.HasValue;
             int beforeWeight = 0;
             int afterWeight;
             int beforeGold = _gold;
             if (checkWeight)
             {
-                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, abortLogic, true);
+                checkWeightIsEquipment = commandType == BackgroundCommandType.WieldWeapon;
+                if (checkWeightIsEquipment)
+                {
+                    checkWeightCommandType = BackgroundCommandType.Equipment;
+                    checkWeightCommand = "equipment";
+                }
+                else
+                {
+                    checkWeightCommandType = BackgroundCommandType.Inventory;
+                    checkWeightCommand = "inventory";
+                }
+                
+                backgroundCommandResultObject = RunSingleCommandForCommandResult(checkWeightCommandType, checkWeightCommand, pms, abortLogic, true);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
                 }
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    beforeWeight = _currentEntityInfo.TotalInventoryWeight.Value;
+                    beforeWeight = (checkWeightIsEquipment ? _currentEntityInfo.TotalEquipmentWeight : _currentEntityInfo.TotalInventoryWeight).Value;
                 }
             }
             string command;
@@ -5509,6 +5544,9 @@ BeforeHazy:
                     break;
                 case BackgroundCommandType.RemoveEquipment:
                     command = "remove";
+                    break;
+                case BackgroundCommandType.WieldWeapon:
+                    command = "wield";
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -5537,7 +5575,7 @@ BeforeHazy:
                     }
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        afterWeight = _currentEntityInfo.TotalInventoryWeight.Value;
+                        afterWeight = (checkWeightIsEquipment ? _currentEntityInfo.TotalEquipmentWeight : _currentEntityInfo.TotalInventoryWeight).Value;
                     }
                     int weightDifference = afterWeight - beforeWeight;
                     if (commandType == BackgroundCommandType.DropItem || commandType == BackgroundCommandType.SellItem)
@@ -6311,28 +6349,76 @@ BeforeHazy:
             return new CommandResultObject(CommandResult.CommandSuccessful, 0);
         }
 
-        private void WieldWeapon(ItemTypeEnum? weaponItem)
+        /// <summary>
+        /// wields a weapon
+        /// </summary>
+        /// <param name="weaponItem">weapon item</param>
+        /// <param name="pms">background worker parameters</param>
+        /// <param name="isBeforeCombat">true if before combat, false if during combat</param>
+        /// <returns>result of the operation</returns>
+        private CommandResultObject WieldWeapon(ItemTypeEnum? weaponItem, BackgroundWorkerParameters pms, bool isBeforeCombat)
         {
+            CommandResultObject backgroundCommandResultObject;
             if (weaponItem.HasValue)
             {
+                List<string> weaponTexts = new List<string>();
                 ItemTypeEnum weaponItemValue = weaponItem.Value;
-                string sWieldCommand = null;
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null && _currentEntityInfo.InventoryContainsItemType(weaponItemValue))
+                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null)
                     {
-                        string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, 1, false, false);
-                        if (!string.IsNullOrEmpty(sWeaponText))
+                        if (_currentEntityInfo.InventoryContainsItemType(weaponItemValue))
                         {
-                            sWieldCommand = "wield " + sWeaponText;
+                            int iCounter = 0;
+                            for (int i = 0; i < _currentEntityInfo.InventoryItems.Count; i++)
+                            {
+                                ItemEntity ie = _currentEntityInfo.InventoryItems[i];
+                                if (ie.ItemType == weaponItemValue)
+                                {
+                                    iCounter++;
+                                    string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, iCounter, false, false);
+                                    if (!string.IsNullOrEmpty(sWeaponText))
+                                    {
+                                        weaponTexts.Add(sWeaponText);
+                                    }
+                                }
+                            }
                         }
                     }
+                    else //already wielding something
+                    {
+                        //we could remove the existing weapon and wield the correct weapon (if different), but for the moment leave things as is
+                        //and let the combat continue.
+                        return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                    }
                 }
-                if (!string.IsNullOrEmpty(sWieldCommand))
+                foreach (string sNextWeaponText in weaponTexts)
                 {
-                    SendCommand(sWieldCommand, InputEchoType.On);
+                    backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.WieldWeapon, weaponItemValue, sNextWeaponText, pms, AbortIfFleeingOrHazying);
+                    if (backgroundCommandResultObject.Result != CommandResult.CommandUnsuccessfulAlways)
+                    {
+                        return backgroundCommandResultObject;
+                    }
+                }
+                if (isBeforeCombat)
+                {
+                    //if combat hasn't started yet return failure and let the user take the next action
+                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                }
+                else
+                {
+                    AddConsoleMessage($"Unable to wield weapon {weaponItemValue}, continuing combat.");
+
+                    //if combat has started we don't want to fail and stop combat. Current behavior is to display a message to the user and
+                    //make them responsible for handling it appropriately
+                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
                 }
             }
+            else //nothing to wield
+            {
+                backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            }
+            return backgroundCommandResultObject;
         }
 
         private bool FleeExitDiscriminator(Exit exit)

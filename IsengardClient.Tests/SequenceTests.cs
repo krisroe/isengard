@@ -908,7 +908,7 @@ namespace IsengardClient.Tests
                 satisfied = true;
             };
 
-            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, null);
+            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, null, null);
             FeedLineParameters flParams = new FeedLineParameters(null);
 
             satisfied = false;
@@ -924,7 +924,7 @@ namespace IsengardClient.Tests
             cseq.FeedLine(flParams);
             Assert.IsTrue(!satisfied);
 
-            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.StartsWith, null);
+            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.StartsWith, null, null);
             satisfied = false;
             flParams.Lines = new List<string>() { "test" };
             cseq.FeedLine(flParams);
@@ -938,7 +938,7 @@ namespace IsengardClient.Tests
             cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
 
-            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.Contains, null);
+            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.Contains, null, null);
             satisfied = false;
             flParams.Lines = new List<string>() { "test" };
             cseq.FeedLine(flParams);
@@ -952,7 +952,7 @@ namespace IsengardClient.Tests
             cseq.FeedLine(flParams);
             Assert.IsTrue(satisfied);
 
-            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, 1);
+            cseq = new ConstantOutputSequence("test", a, ConstantSequenceMatchType.ExactMatch, 1, null);
             satisfied = false;
             flParams.Lines = new List<string>() { "not", "test" };
             cseq.FeedLine(flParams);

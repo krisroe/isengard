@@ -891,7 +891,14 @@ namespace IsengardClient
         public List<ItemEntity> CurrentRoomItems { get; set; }
         public List<UnknownTypeEntity> CurrentUnknownEntities { get; set; }
         public List<ItemEntity> InventoryItems { get; set; }
+        /// <summary>
+        /// total inventory weight. This is currently only maintained by the inventory command.
+        /// </summary>
         public int? TotalInventoryWeight { get; set; }
+        /// <summary>
+        /// total equipment weight. This is currently only maintained by the equipment command.
+        /// </summary>
+        public int? TotalEquipmentWeight { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
         public List<string> CurrentObviousExits { get; set; }
         public TreeNode tnObviousMobs { get; set; }
