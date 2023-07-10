@@ -5569,7 +5569,7 @@ BeforeHazy:
                 }
                 if (checkWeight)
                 {
-                    if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, abortLogic, true).Result != CommandResult.CommandSuccessful)
+                    if (RunSingleCommandForCommandResult(checkWeightCommandType, checkWeightCommand, pms, abortLogic, true).Result != CommandResult.CommandSuccessful)
                     {
                         return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                     }
