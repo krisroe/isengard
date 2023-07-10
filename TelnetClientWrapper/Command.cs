@@ -89,6 +89,7 @@
         Prepare,
         Search,
         Knock,
+        Stand,
         Vigor,
         MendWounds,
         CurePoison,

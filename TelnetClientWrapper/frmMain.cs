@@ -2140,9 +2140,18 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// handles the result of the stand command. Either the user stands up or is already standing, and in
+        /// either case maintain the current player state as standing.
+        /// </summary>
         private void OnStandUp(FeedLineParameters flParams)
         {
             _playerStatusFlags &= ~PlayerStatusFlags.Prone;
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Stand)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
         }
 
         private static void OnCannotCarryAnymore(FeedLineParameters flParams)
@@ -3318,6 +3327,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You aren't using that.", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
                 new ConstantOutputSequence("You can't.  It's cursed!", OnCannotRemoveEquipment, ConstantSequenceMatchType.ExactMatch, 0, BackgroundCommandType.RemoveEquipment),
                 new ConstantOutputSequence("You stand up.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0),
+                new ConstantOutputSequence("You are already standing.", OnStandUp, ConstantSequenceMatchType.ExactMatch, 0),
             };
             return seqs;
         }
@@ -3937,7 +3947,7 @@ namespace IsengardClient
                         }
                         else
                         {
-                            backgroundCommandResultObject = CastSpellOnSelf("cure-poison", pms);
+                            backgroundCommandResultObject = CastSpellOnSelf("cure-poison", pms, AbortIfFleeingOrHazying);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -3955,7 +3965,7 @@ namespace IsengardClient
                         }
                         if (!_hazying && !_fleeing)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.BeforeFull, spellsToCast);
+                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.BeforeFull, spellsToCast, AbortIfFleeingOrHazying);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -4643,7 +4653,7 @@ BeforeHazy:
                         }
                         if (!_hazying)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.AfterFull, spellsToCast);
+                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.AfterFull, spellsToCast, AbortIfHazying);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
@@ -4750,7 +4760,7 @@ BeforeHazy:
                     if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                     if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
                     {
-                        backgroundCommandResultObject = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms);
+                        backgroundCommandResultObject = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms, AbortIfFleeingOrHazying);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -4863,7 +4873,7 @@ BeforeHazy:
                         }
                         else
                         {
-                            backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, eItemType, sItemText, pms);
+                            backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, eItemType, sItemText, pms, AbortIfHazying);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                             {
                                 itemsPickedUp.Add(nextItem);
@@ -5049,7 +5059,7 @@ BeforeHazy:
                             }
                             if (remove)
                             {
-                                backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, itemType, sItemText, pms);
+                                backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, itemType, sItemText, pms, AbortIfHazying);
                                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                                 {
                                     return backgroundCommandResultObject;
@@ -5060,7 +5070,7 @@ BeforeHazy:
                                     if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                                 }
                             }
-                            backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms);
+                            backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms, AbortIfHazying);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                             {
                                 return backgroundCommandResultObject;
@@ -5113,7 +5123,7 @@ BeforeHazy:
                                         {
                                             sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, itemType, 1, true, false);
                                         }
-                                        backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, itemType, sItemText, pms);
+                                        backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, itemType, sItemText, pms, AbortIfHazying);
                                         if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                                         {
                                             itemsToSellOrJunk.Add(ie);
@@ -5185,7 +5195,7 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms)
+        private CommandResultObject DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             string sItemText;
             bool removeHeldPotion = false;
@@ -5207,14 +5217,14 @@ BeforeHazy:
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
                     if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 }
-                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms).Result != CommandResult.CommandSuccessful) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms, abortLogic).Result != CommandResult.CommandSuccessful) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
                 }
                 if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
             }
-            return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, AbortIfFleeingOrHazying, false);
+            return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, abortLogic, false);
         }
 
         /// <summary>
@@ -5338,7 +5348,7 @@ BeforeHazy:
 
                     StaticItemData sid = ItemEntity.StaticItemData[itemType];
                     bool trySell = sid.SellGold > 0 || sid.Sellable == SellableEnum.Unknown;
-                    if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms).Result == CommandResult.CommandSuccessful)
+                    if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                     {
                         somethingDone = true;
                         continue;
@@ -5346,7 +5356,7 @@ BeforeHazy:
 
                     if (sid.Sellable == SellableEnum.Junk)
                     {
-                        if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms).Result == CommandResult.CommandSuccessful)
+                        if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                         {
                             somethingDone = true;
                             continue;
@@ -5462,7 +5472,7 @@ BeforeHazy:
         /// <param name="itemText">precomputed item text respecting the item's current location</param>
         /// <param name="pms">background command parameters</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms)
+        private CommandResultObject TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             CommandResultObject backgroundCommandResultObject;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
@@ -5472,7 +5482,7 @@ BeforeHazy:
             int beforeGold = _gold;
             if (checkWeight)
             {
-                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true);
+                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, abortLogic, true);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
@@ -5500,7 +5510,7 @@ BeforeHazy:
                 default:
                     throw new InvalidOperationException();
             }
-            CommandResultObject ret = RunSingleCommandForCommandResult(commandType, command + " " + itemText, pms, null, false);
+            CommandResultObject ret = RunSingleCommandForCommandResult(commandType, command + " " + itemText, pms, abortLogic, false);
             if (ret.Result == CommandResult.CommandSuccessful)
             {
                 List<string> broadcastMessages = null;
@@ -5518,7 +5528,7 @@ BeforeHazy:
                 }
                 if (checkWeight)
                 {
-                    if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, null, true).Result != CommandResult.CommandSuccessful)
+                    if (RunSingleCommandForCommandResult(BackgroundCommandType.Inventory, "inventory", pms, abortLogic, true).Result != CommandResult.CommandSuccessful)
                     {
                         return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                     }
@@ -5555,8 +5565,9 @@ BeforeHazy:
         /// </summary>
         /// <param name="pms">background worker parameters</param>
         /// <param name="needCurePoison">whether cure-poison is needed</param>
+        /// <param name="abortLogic">abort logic</param>
         /// <returns>true if cure-poison was successfully cast if needed and hitpoints got to maximum</returns>
-        private CommandResultObject GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison)
+        private CommandResultObject GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison, Func<bool> abortLogic)
         {
             CommandResultObject nextCommandResultObject;
             WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.CurePoison : pms.PermRun.SpellsToCast;
@@ -5566,7 +5577,7 @@ BeforeHazy:
                 SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
                 if ((spellsToPotion & WorkflowSpells.CurePoison) != WorkflowSpells.None)
                 {
-                    nextCommandResultObject = DrinkPotionForSpell(siaCurePoison, pms);
+                    nextCommandResultObject = DrinkPotionForSpell(siaCurePoison, pms, abortLogic);
                     if (nextCommandResultObject.Result == CommandResult.CommandSuccessful)
                     {
                         needCurePoison = false;
@@ -5580,7 +5591,7 @@ BeforeHazy:
                 {
                     if (_automp >= siaCurePoison.Mana)
                     {
-                        nextCommandResultObject = CastSpellOnSelf("cure-poison", pms);
+                        nextCommandResultObject = CastSpellOnSelf("cure-poison", pms, abortLogic);
                         if (nextCommandResultObject.Result == CommandResult.CommandSuccessful)
                         {
                             needCurePoison = false;
@@ -5600,7 +5611,7 @@ BeforeHazy:
             SpellInformationAttribute siaVigor = SpellsStatic.SpellsByEnum[SpellsEnum.vigor];
             while (_autohp < _totalhp && _automp >= siaVigor.Mana)
             {
-                nextCommandResultObject = CastSpellOnSelf("vigor", pms);
+                nextCommandResultObject = CastSpellOnSelf("vigor", pms, abortLogic);
                 if (nextCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return nextCommandResultObject;
@@ -5616,7 +5627,7 @@ BeforeHazy:
         /// <param name="fullType">full type</param>
         /// <param name="spellsToCast">spells to maintain via casting</param>
         /// <returns>true if successfully got to full, false otherwise</returns>
-        private CommandResultObject GetFullInBackground(BackgroundWorkerParameters pms, FullType fullType, WorkflowSpells spellsToCast)
+        private CommandResultObject GetFullInBackground(BackgroundWorkerParameters pms, FullType fullType, WorkflowSpells spellsToCast, Func<bool> abortLogic)
         {
             int iTickHP = GetHealingRoomTickHP();
             int iTickMP = GetHealingRoomTickMP();
@@ -5631,7 +5642,7 @@ BeforeHazy:
                 bool castSomething = false;
                 if (numTicksForFullHP > numTicksForFullMP)
                 {
-                    backgroundCommandResultObject = CastSpellOnSelf("vigor", pms);
+                    backgroundCommandResultObject = CastSpellOnSelf("vigor", pms, abortLogic);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResultObject;
@@ -5655,7 +5666,7 @@ BeforeHazy:
                                 }
                                 if (!hasSpellActive && _automp >= sia.Mana)
                                 {
-                                    backgroundCommandResultObject = CastSpellOnSelf(spellName, pms);
+                                    backgroundCommandResultObject = CastSpellOnSelf(spellName, pms, abortLogic);
                                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                                     {
                                         return backgroundCommandResultObject;
@@ -5848,7 +5859,7 @@ BeforeHazy:
 
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
                     {
-                        backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, AbortIfFleeingOrHazying, false);
+                        backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, abortLogic, false);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -5892,7 +5903,8 @@ BeforeHazy:
                             }
                             if ((psf & PlayerStatusFlags.Prone) != PlayerStatusFlags.None)
                             {
-                                SendCommand("stand", InputEchoType.On);
+                                backgroundCommandResultObject = TryStand(pms, abortLogic);
+                                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
                             }
                         }
                         else if (eMovementResult == MovementResult.MapFailure)
@@ -5911,12 +5923,13 @@ BeforeHazy:
                         }
                         else if (eMovementResult == MovementResult.StandFailure)
                         {
-                            SendCommand("stand", InputEchoType.On);
+                            backgroundCommandResultObject = TryStand(pms, abortLogic);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
                             keepTryingMovement = true;
                         }
                         else if (eMovementResult == MovementResult.ClosedDoorFailure)
                         {
-                            backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, AbortIfFleeingOrHazying, false);
+                            backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.OpenDoor, "open " + exitText, pms, abortLogic, false);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                             {
                                 keepTryingMovement = true;
@@ -5928,12 +5941,13 @@ BeforeHazy:
                         }
                         else if (eMovementResult == MovementResult.FallFailure)
                         {
-                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison);
+                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                             {
                                 return backgroundCommandResultObject;
                             }
-                            SendCommand("stand", InputEchoType.On);
+                            backgroundCommandResultObject = TryStand(pms, abortLogic);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
                             keepTryingMovement = true;
                         }
                         else //total failure, abort the background process
@@ -5961,7 +5975,7 @@ BeforeHazy:
                         }
                         if (doHealingLogic)
                         {
-                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison);
+                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                             {
                                 return backgroundCommandResultObject;
@@ -5985,6 +5999,11 @@ BeforeHazy:
             else
                 ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
             return ret;
+        }
+
+        private CommandResultObject TryStand(BackgroundWorkerParameters pms, Func<bool> abortLogic)
+        {
+            return RunSingleCommandForCommandResult(BackgroundCommandType.Stand, "stand", pms, abortLogic, false);
         }
 
         private IEnumerable<int> GetValidPotionsIndices(PotionsStrategyStep nextPotionsStep, CurrentEntityInfo inventoryEquipment, bool canVigor, bool canMend)
@@ -6654,7 +6673,7 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp)
+        private CommandResultObject CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp, Func<bool> abortLogic)
         {
             BackgroundCommandType bct;
             switch (spellName)
@@ -6677,7 +6696,7 @@ BeforeHazy:
                 default:
                     throw new InvalidOperationException();
             }
-            return RunSingleCommand(bct, "cast " + spellName, bwp, AbortIfFleeingOrHazying, false);
+            return RunSingleCommand(bct, "cast " + spellName, bwp, abortLogic, false);
         }
 
         private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType commandType)
