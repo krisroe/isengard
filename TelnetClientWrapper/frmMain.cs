@@ -5506,7 +5506,7 @@ BeforeHazy:
             BackgroundCommandType checkWeightCommandType = BackgroundCommandType.Quit;
             bool checkWeightIsEquipment = false;
             string checkWeightCommand = null;
-            bool checkWeight = !sid.Weight.HasValue;
+            bool checkWeight = !sid.Weight.HasValue && !sid.IsCurrency();
             int beforeWeight = 0;
             int afterWeight;
             int beforeGold = _gold;
