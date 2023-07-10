@@ -138,15 +138,22 @@ namespace IsengardClient
             bool useMagicCombatFromStrategy;
             bool useMeleeCombatFromStrategy;
             bool usePotionsCombatFromStrategy;
+            AfterKillMonsterAction afterSkillMonsterActionFromStrategy;
+            int strategyAutoSpellLevelMin, strategyAutoSpellLevelMax;
             if (strategy == null)
             {
                 useMagicCombatFromStrategy = useMeleeCombatFromStrategy = usePotionsCombatFromStrategy = false;
+                afterSkillMonsterActionFromStrategy = AfterKillMonsterAction.StopCombat;
+                strategyAutoSpellLevelMin = strategyAutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             }
             else
             {
                 useMagicCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
                 useMeleeCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
                 usePotionsCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+                afterSkillMonsterActionFromStrategy = strategy.AfterKillMonsterAction;
+                strategyAutoSpellLevelMin = strategy.AutoSpellLevelMin;
+                strategyAutoSpellLevelMax = strategy.AutoSpellLevelMax;
             }
             if (ForImmediateRun())
             {
@@ -165,17 +172,7 @@ namespace IsengardClient
             chkMagic.Checked = useMagicCombat.GetValueOrDefault(useMagicCombatFromStrategy);
             chkMelee.Checked = useMeleeCombat.GetValueOrDefault(useMeleeCombatFromStrategy);
             chkPotions.Checked = usePotionsCombat.GetValueOrDefault(usePotionsCombatFromStrategy);
-
-            int strategyAutoSpellLevelMin, strategyAutoSpellLevelMax;
-            if (strategy == null)
-            {
-                strategyAutoSpellLevelMin = strategyAutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
-            }
-            else
-            {
-                strategyAutoSpellLevelMin = strategy.AutoSpellLevelMin;
-                strategyAutoSpellLevelMax = strategy.AutoSpellLevelMax;
-            }
+            cboOnKillMonster.SelectedIndex = (int)afterMonsterKillAction.GetValueOrDefault(afterSkillMonsterActionFromStrategy);
             _autoSpellLevelInfo = new AutoSpellLevelOverrides(autoSpellLevelMin, autoSpellLevelMax, strategyAutoSpellLevelMin, strategyAutoSpellLevelMax, _settingsData.AutoSpellLevelMin, _settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.PermRun);
 
             cboItemsToProcessType.Items.Add(ItemsToProcessType.NoProcessing);
@@ -306,7 +303,8 @@ namespace IsengardClient
                 cboStrategy.Items.Add(s);
             }
             cboStrategy.SelectedItem = _permRun == null ? strategy : _permRun.Strategy;
-            RefreshUIFromStrategy();
+            _autoSpellLevelInfo.RefreshAutoSpellLevelUI();
+            RefreshUIFromEffectiveStrategy();
             _initialized = true;
         }
 
@@ -322,6 +320,9 @@ namespace IsengardClient
             flp.Controls.Add(chk);
         }
 
+        /// <summary>
+        /// refreshes the UI after the strategy dropdown changes
+        /// </summary>
         private void RefreshUIFromStrategy()
         {
             Strategy Strategy = (Strategy)cboStrategy.SelectedItem;
@@ -375,7 +376,6 @@ namespace IsengardClient
                 _autoSpellLevelInfo.StrategyMaximum = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             }
             _autoSpellLevelInfo.RefreshAutoSpellLevelUI();
-
             RefreshUIFromEffectiveStrategy();
         }
 
