@@ -5582,7 +5582,7 @@ BeforeHazy:
                     {
                         weightDifference = -weightDifference;
                     }
-                    if (weightDifference > 0)
+                    if (weightDifference >= 0)
                     {
                         if (broadcastMessages == null) broadcastMessages = new List<string>();
                         broadcastMessages.Add("Found weight for " + sid.ItemType.ToString() + ": " + weightDifference);
