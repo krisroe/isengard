@@ -3917,18 +3917,18 @@ namespace IsengardClient
                     CommandResult commandResult;
                     if (cmdType == BackgroundCommandType.Look)
                     {
-                        commandResult = RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, null, false).Result;
+                        commandResult = RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, AbortIfFleeingOrHazying, false).Result;
                     }
                     else
                     {
                         bool success;
                         if (cmdType == BackgroundCommandType.Search)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, null, false).Result == CommandResult.CommandSuccessful;
+                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying, false).Result == CommandResult.CommandSuccessful;
                         }
                         else if (cmdType == BackgroundCommandType.Quit)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, null, false).Result == CommandResult.CommandSuccessful;
+                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, AbortIfFleeingOrHazying, false).Result == CommandResult.CommandSuccessful;
                         }
                         else
                         {
@@ -3949,7 +3949,7 @@ namespace IsengardClient
                     PlayerStatusFlags psf = _playerStatusFlags;
                     if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
                     {
-                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, AbortIfFleeingOrHazying, true);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return;
                         psf = _playerStatusFlags;
                         if ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)
@@ -4056,8 +4056,7 @@ namespace IsengardClient
                     return;
                 }
 
-                bool isTrade = pms.InventoryItems != null;
-                if (!_hazying && !_fleeing && isTrade)
+                if (!_hazying && !_fleeing && pms.InventoryItems != null) //trading
                 {
                     string sMobTarget = GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false);
                     if (string.IsNullOrEmpty(sMobTarget))
@@ -4076,7 +4075,7 @@ namespace IsengardClient
                             return;
                         }
                         _commandInventoryItem = sioei;
-                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Trade, $"trade {sItemText} {sMobTarget}", pms, null, false);
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Trade, $"trade {sItemText} {sMobTarget}", pms, AbortIfFleeingOrHazying, false);
                         if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                         {
                             break;
@@ -4086,6 +4085,11 @@ namespace IsengardClient
                             return;
                         }
                     }
+                    //remove the mob from the background process so combat will not occur on the mob.
+                    pms.MobText = string.Empty;
+                    pms.MobTextCounter = 0;
+                    pms.MobType = null;
+                    pms.MobTypeCounter = 0;
                 }
 
                 //activate potions/skills at the target if there is no threshold
@@ -4192,7 +4196,7 @@ namespace IsengardClient
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
-                        if (!isTrade && (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep))
+                        if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
@@ -5927,7 +5931,7 @@ BeforeHazy:
                     bool keepTryingMovement = true;
                     while (keepTryingMovement)
                     {
-                        backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, null, false);
+                        backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Movement, nextCommand, pms, abortLogic, false);
                         MovementResult eMovementResult = (MovementResult)backgroundCommandResultObject.ResultCode;
                         if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful) //successfully traversed the exit to the new room
                         {
@@ -6891,7 +6895,7 @@ BeforeHazy:
             try
             {
                 bool allowAbort = commandType != BackgroundCommandType.Movement;
-                return RunSingleCommandForCommandResult(command, pms, abortLogic, hidden, allowAbort);
+                return RunSingleCommandForCommandResultBase(commandType, command, pms, abortLogic, hidden);
             }
             finally
             {
@@ -6904,8 +6908,10 @@ BeforeHazy:
             return GetVerboseMode() ? InputEchoType.On : InputEchoType.Off;
         }
 
-        private CommandResultObject RunSingleCommandForCommandResult(string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden, bool allowAbort)
+        private CommandResultObject RunSingleCommandForCommandResultBase(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden)
         {
+            //quitting and commands that could cause room transition can't be aborted if sent to the server
+            bool allowAbort = commandType != BackgroundCommandType.Look && commandType != BackgroundCommandType.Movement && commandType != BackgroundCommandType.Flee && commandType != BackgroundCommandType.DrinkHazy && commandType != BackgroundCommandType.Quit;
             DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
             _commandResult = null;
             _commandSpecificResult = 0;
@@ -7003,13 +7009,12 @@ BeforeHazy:
             try
             {
                 CommandResultObject resultObject = null;
-                bool allowAbort = commandType != BackgroundCommandType.Movement;
                 while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND)
                 {
                     if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                     if (abortLogic != null && abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     currentAttempts++;
-                    resultObject = RunSingleCommandForCommandResult(command, pms, abortLogic, hidden, allowAbort);
+                    resultObject = RunSingleCommandForCommandResultBase(commandType, command, pms, abortLogic, hidden);
                     CommandResult resultValue = resultObject.Result;
                     if (resultValue == CommandResult.CommandSuccessful || resultValue == CommandResult.CommandUnsuccessfulAlways || resultValue == CommandResult.CommandAborted || resultValue == CommandResult.CommandTimeout || resultValue == CommandResult.CommandEscaped)
                     {
