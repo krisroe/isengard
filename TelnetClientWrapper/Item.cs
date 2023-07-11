@@ -2310,7 +2310,7 @@ namespace IsengardClient
         TombKey,
 
         [SingularName("topaz")]
-        //CSRTODO: plural
+        [PluralName("topazs")] //verified 7/10/23
         [ItemClass(ItemClass.Gem)]
         [Weight(3)]
         [Sellable(308)]

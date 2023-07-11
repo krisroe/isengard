@@ -53,6 +53,7 @@ namespace IsengardClient
             _autoSpellLevelOverrides = new AutoSpellLevelOverrides(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, settingsData.AutoSpellLevelMin, settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.Settings);
 
             txtCurrentWeaponValue.Text = settingsData.Weapon.HasValue ? settingsData.Weapon.Value.ToString() : string.Empty;
+            txtHeldItem.Text = settingsData.HeldItem.HasValue ? settingsData.HeldItem.Value.ToString() : string.Empty;
 
             _preferredAlignment = settingsData.PreferredAlignment;
             RefreshAlignmentTypeUI();
@@ -145,28 +146,21 @@ namespace IsengardClient
             foregroundColor = Color.FromArgb(iForegroundR, iForegroundG, iForegroundB);
         }
 
-        internal ItemTypeEnum? Weapon
-        {
-            get;
-            set;
-        }
-
         private void btnOK_Click(object sender, EventArgs e)
         {
-            string sWeapon = txtCurrentWeaponValue.Text;
-            if (string.IsNullOrEmpty(sWeapon))
+            ItemTypeEnum? eWeapon = null;
+            ItemTypeEnum? eHeldItem = null;
+
+            string sItem = txtCurrentWeaponValue.Text;
+            if (!string.IsNullOrEmpty(sItem))
             {
-                Weapon = null;
+                eWeapon = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), sItem);
             }
-            else
+
+            sItem = txtHeldItem.Text;
+            if (string.IsNullOrEmpty(sItem))
             {
-                if (!Enum.TryParse(sWeapon, out ItemTypeEnum weapon))
-                {
-                    MessageBox.Show("Invalid weapon");
-                    txtCurrentWeaponValue.Focus();
-                    return;
-                }
-                Weapon = weapon;
+                eHeldItem = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), sItem);
             }
 
             string sWhenDownXHP;
@@ -230,7 +224,8 @@ namespace IsengardClient
             _settings.Realm = _currentRealm;
             _settings.PreferredAlignment = _preferredAlignment;
             SaveAutoSpellToSettingsObject(_settings);
-            _settings.Weapon = Weapon;
+            _settings.Weapon = eWeapon;
+            _settings.HeldItem = eHeldItem;
             _settings.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
             _settings.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
             _settings.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;

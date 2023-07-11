@@ -4303,10 +4303,19 @@ namespace IsengardClient
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
+                            bool failedToEquip = false;
                             if (useMelee)
                             {
-                                EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true);
-                                EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true);
+                                backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    return;
+                                }
+                                backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    return;
+                                }
                                 doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
@@ -4472,7 +4481,21 @@ namespace IsengardClient
                                     }
 
                                     GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
-                                    EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, false); //wield the weapon in case it was fumbled
+
+                                    //wield the weapon in case it was fumbled
+                                    if (!failedToEquip)
+                                    {
+                                        backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, false, ref failedToEquip);
+                                        if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                                        {
+                                            break;
+                                        }
+                                        else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
+                                        {
+                                            return;
+                                        }
+                                    }
+
                                     backgroundCommandResultObject = RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage);
                                     if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                                     {
@@ -6468,8 +6491,9 @@ BeforeHazy:
         /// <param name="commandType">command type</param>
         /// <param name="pms">background worker parameters</param>
         /// <param name="isBeforeCombat">true if before combat, false if during combat</param>
+        /// <param name="failedToEquip">set to true if failed to equip after combat started</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject EquipSingleItem(ItemTypeEnum? item, EquipmentSlot slot, BackgroundCommandType commandType, BackgroundWorkerParameters pms, bool isBeforeCombat)
+        private CommandResultObject EquipSingleItem(ItemTypeEnum? item, EquipmentSlot slot, BackgroundCommandType commandType, BackgroundWorkerParameters pms, bool isBeforeCombat, ref bool failedToEquip)
         {
             CommandResultObject backgroundCommandResultObject;
             if (item.HasValue)
@@ -6520,6 +6544,7 @@ BeforeHazy:
                 }
                 else
                 {
+                    failedToEquip = true;
                     AddConsoleMessage($"Unable to equip {itemValue}, continuing combat.");
 
                     //if combat has started we don't want to fail and stop combat. Current behavior is to display a message to the user and
