@@ -49,6 +49,7 @@ namespace IsengardClient.Tests
             settings.RemoveAllOnStartup = false;
             settings.VerboseMode = true;
             settings.Weapon = ItemTypeEnum.SilimaBlade;
+            settings.HeldItem = ItemTypeEnum.Diamond;
             DynamicItemData did = new DynamicItemData();
             did.OverflowAction = ItemInventoryOverflowAction.Ignore;
             settings.DynamicItemData[ItemTypeEnum.Sextant] = did;
@@ -175,6 +176,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.RemoveAllOnStartup, sets2.RemoveAllOnStartup);
             Assert.AreEqual(settings.VerboseMode, sets2.VerboseMode);
             Assert.AreEqual(settings.Weapon, sets2.Weapon);
+            Assert.AreEqual(settings.HeldItem, sets2.HeldItem);
             Assert.AreEqual(settings.DynamicItemData.Count, sets2.DynamicItemData.Count);
             foreach (var next in settings.DynamicItemData)
             {

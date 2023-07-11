@@ -34,7 +34,6 @@
             this.tsmiCurrentRealmFire = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentRealmWater = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentRealmWind = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblWeapon = new System.Windows.Forms.Label();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
             this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiSetCurrentAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +54,6 @@
             this.tsmiPreferredAlignmentEvil = new System.Windows.Forms.ToolStripMenuItem();
             this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
             this.lblCurrentRealmValue = new System.Windows.Forms.Label();
-            this.txtCurrentWeaponValue = new System.Windows.Forms.TextBox();
             this.lblCurrentAutoEscapeValue = new System.Windows.Forms.Label();
             this.lblEmptyColorValue = new System.Windows.Forms.Label();
             this.lblEmptyColor = new System.Windows.Forms.Label();
@@ -86,12 +84,19 @@
             this.lblPotionsVigorWhenDownXHP = new System.Windows.Forms.Label();
             this.tabStrategies = new System.Windows.Forms.TabPage();
             this.tabDynamicItemData = new System.Windows.Forms.TabPage();
+            this.pnlMiddle = new System.Windows.Forms.Panel();
             this.lvItems = new System.Windows.Forms.ListView();
             this.colItemName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colKeepCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colSinkCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colOverflowAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlItemsTop = new System.Windows.Forms.Panel();
+            this.btnClearHeldItem = new System.Windows.Forms.Button();
+            this.btnClearWeapon = new System.Windows.Forms.Button();
+            this.txtHeldItem = new System.Windows.Forms.TextBox();
+            this.lblHeldItem = new System.Windows.Forms.Label();
+            this.txtCurrentWeaponValue = new System.Windows.Forms.TextBox();
+            this.lblWeapon = new System.Windows.Forms.Label();
             this.btnSink = new System.Windows.Forms.Button();
             this.btnSellOrJunk = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
@@ -104,6 +109,7 @@
             this.colAreaPawnShop = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAreaInventorySinkRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlBottom = new System.Windows.Forms.Panel();
+            this.ctxItems = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -113,6 +119,7 @@
             this.pnlSettings.SuspendLayout();
             this.tabStrategies.SuspendLayout();
             this.tabDynamicItemData.SuspendLayout();
+            this.pnlMiddle.SuspendLayout();
             this.pnlItemsTop.SuspendLayout();
             this.tabAreas.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).BeginInit();
@@ -159,19 +166,10 @@
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
-            // lblWeapon
-            // 
-            this.lblWeapon.AutoSize = true;
-            this.lblWeapon.Location = new System.Drawing.Point(13, 31);
-            this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(56, 15);
-            this.lblWeapon.TabIndex = 126;
-            this.lblWeapon.Text = "Weapon:";
-            // 
             // lblPreferredAlignment
             // 
             this.lblPreferredAlignment.AutoSize = true;
-            this.lblPreferredAlignment.Location = new System.Drawing.Point(11, 156);
+            this.lblPreferredAlignment.Location = new System.Drawing.Point(17, 133);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
             this.lblPreferredAlignment.Size = new System.Drawing.Size(119, 15);
             this.lblPreferredAlignment.TabIndex = 128;
@@ -290,7 +288,7 @@
             this.lblPreferredAlignmentValue.BackColor = System.Drawing.Color.Blue;
             this.lblPreferredAlignmentValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblPreferredAlignmentValue.ForeColor = System.Drawing.Color.White;
-            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(136, 154);
+            this.lblPreferredAlignmentValue.Location = new System.Drawing.Point(142, 131);
             this.lblPreferredAlignmentValue.Name = "lblPreferredAlignmentValue";
             this.lblPreferredAlignmentValue.Size = new System.Drawing.Size(141, 15);
             this.lblPreferredAlignmentValue.TabIndex = 139;
@@ -325,7 +323,7 @@
             // 
             this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(111, 76);
+            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(117, 53);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
             this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(166, 15);
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 144;
@@ -343,19 +341,12 @@
             this.lblCurrentRealmValue.Text = "Realm";
             this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // txtCurrentWeaponValue
-            // 
-            this.txtCurrentWeaponValue.Location = new System.Drawing.Point(111, 28);
-            this.txtCurrentWeaponValue.Name = "txtCurrentWeaponValue";
-            this.txtCurrentWeaponValue.Size = new System.Drawing.Size(167, 20);
-            this.txtCurrentWeaponValue.TabIndex = 142;
-            // 
             // lblCurrentAutoEscapeValue
             // 
             this.lblCurrentAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblCurrentAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblCurrentAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblCurrentAutoEscapeValue.Location = new System.Drawing.Point(111, 53);
+            this.lblCurrentAutoEscapeValue.Location = new System.Drawing.Point(117, 30);
             this.lblCurrentAutoEscapeValue.Name = "lblCurrentAutoEscapeValue";
             this.lblCurrentAutoEscapeValue.Size = new System.Drawing.Size(166, 15);
             this.lblCurrentAutoEscapeValue.TabIndex = 143;
@@ -367,7 +358,7 @@
             this.lblEmptyColorValue.BackColor = System.Drawing.Color.Red;
             this.lblEmptyColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblEmptyColorValue.ForeColor = System.Drawing.Color.Black;
-            this.lblEmptyColorValue.Location = new System.Drawing.Point(111, 128);
+            this.lblEmptyColorValue.Location = new System.Drawing.Point(117, 105);
             this.lblEmptyColorValue.Name = "lblEmptyColorValue";
             this.lblEmptyColorValue.Size = new System.Drawing.Size(166, 15);
             this.lblEmptyColorValue.TabIndex = 143;
@@ -376,7 +367,7 @@
             // lblEmptyColor
             // 
             this.lblEmptyColor.AutoSize = true;
-            this.lblEmptyColor.Location = new System.Drawing.Point(11, 128);
+            this.lblEmptyColor.Location = new System.Drawing.Point(17, 105);
             this.lblEmptyColor.Name = "lblEmptyColor";
             this.lblEmptyColor.Size = new System.Drawing.Size(74, 15);
             this.lblEmptyColor.TabIndex = 142;
@@ -387,7 +378,7 @@
             this.lblFullColorValue.BackColor = System.Drawing.Color.Green;
             this.lblFullColorValue.ContextMenuStrip = this.ctxPreferredAlignment;
             this.lblFullColorValue.ForeColor = System.Drawing.Color.Black;
-            this.lblFullColorValue.Location = new System.Drawing.Point(111, 102);
+            this.lblFullColorValue.Location = new System.Drawing.Point(117, 79);
             this.lblFullColorValue.Name = "lblFullColorValue";
             this.lblFullColorValue.Size = new System.Drawing.Size(166, 15);
             this.lblFullColorValue.TabIndex = 141;
@@ -396,7 +387,7 @@
             // lblFullColor
             // 
             this.lblFullColor.AutoSize = true;
-            this.lblFullColor.Location = new System.Drawing.Point(11, 104);
+            this.lblFullColor.Location = new System.Drawing.Point(17, 81);
             this.lblFullColor.Name = "lblFullColor";
             this.lblFullColor.Size = new System.Drawing.Size(60, 15);
             this.lblFullColor.TabIndex = 140;
@@ -410,7 +401,7 @@
             this.lstStrategies.Location = new System.Drawing.Point(2, 2);
             this.lstStrategies.Name = "lstStrategies";
             this.lstStrategies.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstStrategies.Size = new System.Drawing.Size(812, 370);
+            this.lstStrategies.Size = new System.Drawing.Size(812, 546);
             this.lstStrategies.TabIndex = 0;
             // 
             // ctxListModification
@@ -482,7 +473,7 @@
             this.tcConfiguration.Margin = new System.Windows.Forms.Padding(2);
             this.tcConfiguration.Name = "tcConfiguration";
             this.tcConfiguration.SelectedIndex = 0;
-            this.tcConfiguration.Size = new System.Drawing.Size(824, 400);
+            this.tcConfiguration.Size = new System.Drawing.Size(824, 576);
             this.tcConfiguration.TabIndex = 147;
             // 
             // tabConfiguration
@@ -492,7 +483,7 @@
             this.tabConfiguration.Margin = new System.Windows.Forms.Padding(2);
             this.tabConfiguration.Name = "tabConfiguration";
             this.tabConfiguration.Padding = new System.Windows.Forms.Padding(2);
-            this.tabConfiguration.Size = new System.Drawing.Size(816, 374);
+            this.tabConfiguration.Size = new System.Drawing.Size(816, 550);
             this.tabConfiguration.TabIndex = 0;
             this.tabConfiguration.Text = "Settings";
             this.tabConfiguration.UseVisualStyleBackColor = true;
@@ -509,11 +500,9 @@
             this.pnlSettings.Controls.Add(this.lblMagicVigorWhenDownXHP);
             this.pnlSettings.Controls.Add(this.btnSelectFullColor);
             this.pnlSettings.Controls.Add(this.txtPotionsMendWhenDownXHP);
-            this.pnlSettings.Controls.Add(this.txtCurrentWeaponValue);
             this.pnlSettings.Controls.Add(this.lblPotionsMendWhenDownXHP);
             this.pnlSettings.Controls.Add(this.lblCurrentRealmValue);
             this.pnlSettings.Controls.Add(this.txtPotionsVigorWhenDownXHP);
-            this.pnlSettings.Controls.Add(this.lblWeapon);
             this.pnlSettings.Controls.Add(this.lblPotionsVigorWhenDownXHP);
             this.pnlSettings.Controls.Add(this.chkVerboseOutput);
             this.pnlSettings.Controls.Add(this.lblCurrentAutoEscapeValue);
@@ -529,7 +518,7 @@
             this.pnlSettings.Location = new System.Drawing.Point(2, 2);
             this.pnlSettings.Margin = new System.Windows.Forms.Padding(2);
             this.pnlSettings.Name = "pnlSettings";
-            this.pnlSettings.Size = new System.Drawing.Size(812, 370);
+            this.pnlSettings.Size = new System.Drawing.Size(812, 546);
             this.pnlSettings.TabIndex = 150;
             // 
             // chkSaveSettingsOnQuit
@@ -544,7 +533,7 @@
             // 
             // txtMagicMendWhenDownXHP
             // 
-            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(203, 210);
+            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(209, 187);
             this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
             this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtMagicMendWhenDownXHP.TabIndex = 152;
@@ -562,7 +551,7 @@
             // lblMagicMendWhenDownXHP
             // 
             this.lblMagicMendWhenDownXHP.AutoSize = true;
-            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(13, 213);
+            this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(19, 190);
             this.lblMagicMendWhenDownXHP.Name = "lblMagicMendWhenDownXHP";
             this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(179, 15);
             this.lblMagicMendWhenDownXHP.TabIndex = 151;
@@ -570,7 +559,7 @@
             // 
             // btnSelectEmptyColor
             // 
-            this.btnSelectEmptyColor.Location = new System.Drawing.Point(283, 123);
+            this.btnSelectEmptyColor.Location = new System.Drawing.Point(289, 100);
             this.btnSelectEmptyColor.Name = "btnSelectEmptyColor";
             this.btnSelectEmptyColor.Size = new System.Drawing.Size(55, 23);
             this.btnSelectEmptyColor.TabIndex = 148;
@@ -580,7 +569,7 @@
             // 
             // txtMagicVigorWhenDownXHP
             // 
-            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(203, 185);
+            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(209, 162);
             this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
             this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtMagicVigorWhenDownXHP.TabIndex = 150;
@@ -588,7 +577,7 @@
             // lblMagicVigorWhenDownXHP
             // 
             this.lblMagicVigorWhenDownXHP.AutoSize = true;
-            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(13, 189);
+            this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(19, 166);
             this.lblMagicVigorWhenDownXHP.Name = "lblMagicVigorWhenDownXHP";
             this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(175, 15);
             this.lblMagicVigorWhenDownXHP.TabIndex = 149;
@@ -596,7 +585,7 @@
             // 
             // btnSelectFullColor
             // 
-            this.btnSelectFullColor.Location = new System.Drawing.Point(283, 99);
+            this.btnSelectFullColor.Location = new System.Drawing.Point(289, 76);
             this.btnSelectFullColor.Name = "btnSelectFullColor";
             this.btnSelectFullColor.Size = new System.Drawing.Size(55, 23);
             this.btnSelectFullColor.TabIndex = 147;
@@ -606,7 +595,7 @@
             // 
             // txtPotionsMendWhenDownXHP
             // 
-            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(203, 262);
+            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(209, 239);
             this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
             this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtPotionsMendWhenDownXHP.TabIndex = 156;
@@ -614,7 +603,7 @@
             // lblPotionsMendWhenDownXHP
             // 
             this.lblPotionsMendWhenDownXHP.AutoSize = true;
-            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(13, 265);
+            this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(19, 242);
             this.lblPotionsMendWhenDownXHP.Name = "lblPotionsMendWhenDownXHP";
             this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(186, 15);
             this.lblPotionsMendWhenDownXHP.TabIndex = 155;
@@ -622,7 +611,7 @@
             // 
             // txtPotionsVigorWhenDownXHP
             // 
-            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(203, 237);
+            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(209, 214);
             this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
             this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
             this.txtPotionsVigorWhenDownXHP.TabIndex = 154;
@@ -630,7 +619,7 @@
             // lblPotionsVigorWhenDownXHP
             // 
             this.lblPotionsVigorWhenDownXHP.AutoSize = true;
-            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(13, 240);
+            this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(19, 217);
             this.lblPotionsVigorWhenDownXHP.Name = "lblPotionsVigorWhenDownXHP";
             this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(182, 15);
             this.lblPotionsVigorWhenDownXHP.TabIndex = 153;
@@ -643,39 +632,49 @@
             this.tabStrategies.Margin = new System.Windows.Forms.Padding(2);
             this.tabStrategies.Name = "tabStrategies";
             this.tabStrategies.Padding = new System.Windows.Forms.Padding(2);
-            this.tabStrategies.Size = new System.Drawing.Size(816, 374);
+            this.tabStrategies.Size = new System.Drawing.Size(816, 550);
             this.tabStrategies.TabIndex = 1;
             this.tabStrategies.Text = "Strategies";
             this.tabStrategies.UseVisualStyleBackColor = true;
             // 
             // tabDynamicItemData
             // 
-            this.tabDynamicItemData.Controls.Add(this.lvItems);
+            this.tabDynamicItemData.Controls.Add(this.pnlMiddle);
             this.tabDynamicItemData.Controls.Add(this.pnlItemsTop);
             this.tabDynamicItemData.Location = new System.Drawing.Point(4, 22);
             this.tabDynamicItemData.Margin = new System.Windows.Forms.Padding(2);
             this.tabDynamicItemData.Name = "tabDynamicItemData";
-            this.tabDynamicItemData.Size = new System.Drawing.Size(816, 374);
+            this.tabDynamicItemData.Size = new System.Drawing.Size(816, 550);
             this.tabDynamicItemData.TabIndex = 2;
             this.tabDynamicItemData.Text = "Items";
             this.tabDynamicItemData.UseVisualStyleBackColor = true;
             // 
-            // lvItems
+            // pnlMiddle
             // 
-            this.lvItems.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.pnlMiddle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlMiddle.Controls.Add(this.lvItems);
+            this.pnlMiddle.Location = new System.Drawing.Point(-4, 76);
+            this.pnlMiddle.Name = "pnlMiddle";
+            this.pnlMiddle.Size = new System.Drawing.Size(820, 429);
+            this.pnlMiddle.TabIndex = 2;
+            // 
+            // lvItems
+            // 
             this.lvItems.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colItemName,
             this.colKeepCount,
             this.colSinkCount,
             this.colOverflowAction});
+            this.lvItems.ContextMenuStrip = this.ctxItems;
+            this.lvItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvItems.FullRowSelect = true;
             this.lvItems.HideSelection = false;
-            this.lvItems.Location = new System.Drawing.Point(0, 35);
+            this.lvItems.Location = new System.Drawing.Point(0, 0);
             this.lvItems.Margin = new System.Windows.Forms.Padding(2);
             this.lvItems.Name = "lvItems";
-            this.lvItems.Size = new System.Drawing.Size(816, 300);
+            this.lvItems.Size = new System.Drawing.Size(820, 429);
             this.lvItems.TabIndex = 1;
             this.lvItems.UseCompatibleStateImageBehavior = false;
             this.lvItems.View = System.Windows.Forms.View.Details;
@@ -703,6 +702,12 @@
             // 
             // pnlItemsTop
             // 
+            this.pnlItemsTop.Controls.Add(this.btnClearHeldItem);
+            this.pnlItemsTop.Controls.Add(this.btnClearWeapon);
+            this.pnlItemsTop.Controls.Add(this.txtHeldItem);
+            this.pnlItemsTop.Controls.Add(this.lblHeldItem);
+            this.pnlItemsTop.Controls.Add(this.txtCurrentWeaponValue);
+            this.pnlItemsTop.Controls.Add(this.lblWeapon);
             this.pnlItemsTop.Controls.Add(this.btnSink);
             this.pnlItemsTop.Controls.Add(this.btnSellOrJunk);
             this.pnlItemsTop.Controls.Add(this.btnClear);
@@ -712,12 +717,66 @@
             this.pnlItemsTop.Location = new System.Drawing.Point(0, 0);
             this.pnlItemsTop.Margin = new System.Windows.Forms.Padding(2);
             this.pnlItemsTop.Name = "pnlItemsTop";
-            this.pnlItemsTop.Size = new System.Drawing.Size(816, 36);
+            this.pnlItemsTop.Size = new System.Drawing.Size(816, 71);
             this.pnlItemsTop.TabIndex = 0;
+            // 
+            // btnClearHeldItem
+            // 
+            this.btnClearHeldItem.Location = new System.Drawing.Point(245, 36);
+            this.btnClearHeldItem.Name = "btnClearHeldItem";
+            this.btnClearHeldItem.Size = new System.Drawing.Size(24, 20);
+            this.btnClearHeldItem.TabIndex = 148;
+            this.btnClearHeldItem.Text = "X";
+            this.btnClearHeldItem.UseVisualStyleBackColor = true;
+            this.btnClearHeldItem.Click += new System.EventHandler(this.btnClearHeldItem_Click);
+            // 
+            // btnClearWeapon
+            // 
+            this.btnClearWeapon.Location = new System.Drawing.Point(245, 12);
+            this.btnClearWeapon.Name = "btnClearWeapon";
+            this.btnClearWeapon.Size = new System.Drawing.Size(24, 20);
+            this.btnClearWeapon.TabIndex = 147;
+            this.btnClearWeapon.Text = "X";
+            this.btnClearWeapon.UseVisualStyleBackColor = true;
+            this.btnClearWeapon.Click += new System.EventHandler(this.btnClearWeapon_Click);
+            // 
+            // txtHeldItem
+            // 
+            this.txtHeldItem.Enabled = false;
+            this.txtHeldItem.Location = new System.Drawing.Point(72, 36);
+            this.txtHeldItem.Name = "txtHeldItem";
+            this.txtHeldItem.Size = new System.Drawing.Size(167, 20);
+            this.txtHeldItem.TabIndex = 146;
+            // 
+            // lblHeldItem
+            // 
+            this.lblHeldItem.AutoSize = true;
+            this.lblHeldItem.Location = new System.Drawing.Point(10, 39);
+            this.lblHeldItem.Name = "lblHeldItem";
+            this.lblHeldItem.Size = new System.Drawing.Size(36, 15);
+            this.lblHeldItem.TabIndex = 145;
+            this.lblHeldItem.Text = "Held:";
+            // 
+            // txtCurrentWeaponValue
+            // 
+            this.txtCurrentWeaponValue.Enabled = false;
+            this.txtCurrentWeaponValue.Location = new System.Drawing.Point(72, 12);
+            this.txtCurrentWeaponValue.Name = "txtCurrentWeaponValue";
+            this.txtCurrentWeaponValue.Size = new System.Drawing.Size(167, 20);
+            this.txtCurrentWeaponValue.TabIndex = 144;
+            // 
+            // lblWeapon
+            // 
+            this.lblWeapon.AutoSize = true;
+            this.lblWeapon.Location = new System.Drawing.Point(10, 15);
+            this.lblWeapon.Name = "lblWeapon";
+            this.lblWeapon.Size = new System.Drawing.Size(56, 15);
+            this.lblWeapon.TabIndex = 143;
+            this.lblWeapon.Text = "Weapon:";
             // 
             // btnSink
             // 
-            this.btnSink.Location = new System.Drawing.Point(67, 10);
+            this.btnSink.Location = new System.Drawing.Point(364, 10);
             this.btnSink.Margin = new System.Windows.Forms.Padding(2);
             this.btnSink.Name = "btnSink";
             this.btnSink.Size = new System.Drawing.Size(56, 21);
@@ -728,7 +787,7 @@
             // 
             // btnSellOrJunk
             // 
-            this.btnSellOrJunk.Location = new System.Drawing.Point(217, 10);
+            this.btnSellOrJunk.Location = new System.Drawing.Point(365, 35);
             this.btnSellOrJunk.Margin = new System.Windows.Forms.Padding(2);
             this.btnSellOrJunk.Name = "btnSellOrJunk";
             this.btnSellOrJunk.Size = new System.Drawing.Size(71, 21);
@@ -739,7 +798,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(157, 10);
+            this.btnClear.Location = new System.Drawing.Point(305, 35);
             this.btnClear.Margin = new System.Windows.Forms.Padding(2);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(56, 21);
@@ -750,7 +809,7 @@
             // 
             // btnKeep
             // 
-            this.btnKeep.Location = new System.Drawing.Point(7, 10);
+            this.btnKeep.Location = new System.Drawing.Point(304, 10);
             this.btnKeep.Margin = new System.Windows.Forms.Padding(2);
             this.btnKeep.Name = "btnKeep";
             this.btnKeep.Size = new System.Drawing.Size(56, 21);
@@ -761,7 +820,7 @@
             // 
             // btnIgnore
             // 
-            this.btnIgnore.Location = new System.Drawing.Point(292, 10);
+            this.btnIgnore.Location = new System.Drawing.Point(440, 35);
             this.btnIgnore.Margin = new System.Windows.Forms.Padding(2);
             this.btnIgnore.Name = "btnIgnore";
             this.btnIgnore.Size = new System.Drawing.Size(56, 21);
@@ -775,7 +834,7 @@
             this.tabAreas.Controls.Add(this.dgvAreas);
             this.tabAreas.Location = new System.Drawing.Point(4, 22);
             this.tabAreas.Name = "tabAreas";
-            this.tabAreas.Size = new System.Drawing.Size(816, 374);
+            this.tabAreas.Size = new System.Drawing.Size(816, 550);
             this.tabAreas.TabIndex = 3;
             this.tabAreas.Text = "Areas";
             this.tabAreas.UseVisualStyleBackColor = true;
@@ -799,7 +858,7 @@
             this.dgvAreas.RowHeadersVisible = false;
             this.dgvAreas.RowHeadersWidth = 51;
             this.dgvAreas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAreas.Size = new System.Drawing.Size(816, 374);
+            this.dgvAreas.Size = new System.Drawing.Size(816, 550);
             this.dgvAreas.TabIndex = 0;
             // 
             // colAreaDisplayName
@@ -839,17 +898,25 @@
             this.pnlBottom.Controls.Add(this.btnCancel);
             this.pnlBottom.Controls.Add(this.btnOK);
             this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBottom.Location = new System.Drawing.Point(0, 356);
+            this.pnlBottom.Location = new System.Drawing.Point(0, 532);
             this.pnlBottom.Margin = new System.Windows.Forms.Padding(2);
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
+            // ctxItems
+            // 
+            this.ctxItems.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxItems.Name = "ctxItems";
+            this.ctxItems.Size = new System.Drawing.Size(61, 4);
+            this.ctxItems.Opening += new System.ComponentModel.CancelEventHandler(this.ctxItems_Opening);
+            this.ctxItems.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxItems_ItemClicked);
+            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(824, 400);
+            this.ClientSize = new System.Drawing.Size(824, 576);
             this.Controls.Add(this.pnlBottom);
             this.Controls.Add(this.tcConfiguration);
             this.MinimizeBox = false;
@@ -867,7 +934,9 @@
             this.pnlSettings.PerformLayout();
             this.tabStrategies.ResumeLayout(false);
             this.tabDynamicItemData.ResumeLayout(false);
+            this.pnlMiddle.ResumeLayout(false);
             this.pnlItemsTop.ResumeLayout(false);
+            this.pnlItemsTop.PerformLayout();
             this.tabAreas.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).EndInit();
             this.pnlBottom.ResumeLayout(false);
@@ -876,7 +945,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.Label lblWeapon;
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.CheckBox chkQueryMonsterStatus;
         private System.Windows.Forms.CheckBox chkVerboseOutput;
@@ -900,7 +968,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiPreferredAlignmentEvil;
         private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
         private System.Windows.Forms.Label lblCurrentRealmValue;
-        private System.Windows.Forms.TextBox txtCurrentWeaponValue;
         private System.Windows.Forms.Label lblCurrentAutoEscapeValue;
         private System.Windows.Forms.ContextMenuStrip ctxRealm;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmEarth;
@@ -951,5 +1018,13 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colAreaTickRoom;
         private System.Windows.Forms.DataGridViewTextBoxColumn colAreaPawnShop;
         private System.Windows.Forms.DataGridViewTextBoxColumn colAreaInventorySinkRoom;
+        private System.Windows.Forms.TextBox txtCurrentWeaponValue;
+        private System.Windows.Forms.Label lblWeapon;
+        private System.Windows.Forms.Panel pnlMiddle;
+        private System.Windows.Forms.TextBox txtHeldItem;
+        private System.Windows.Forms.Label lblHeldItem;
+        private System.Windows.Forms.Button btnClearWeapon;
+        private System.Windows.Forms.Button btnClearHeldItem;
+        private System.Windows.Forms.ContextMenuStrip ctxItems;
     }
 }

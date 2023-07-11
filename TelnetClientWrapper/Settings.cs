@@ -14,6 +14,7 @@ namespace IsengardClient
         internal const int AUTO_SPELL_LEVEL_NOT_SET = 0;
 
         public ItemTypeEnum? Weapon { get; set; }
+        public ItemTypeEnum? HeldItem { get; set; }
         public RealmType Realm { get; set; }
         public AlignmentType PreferredAlignment { get; set; }
         public bool VerboseMode { get; set; }
@@ -42,6 +43,7 @@ namespace IsengardClient
         public IsengardSettingData()
         {
             Weapon = null;
+            HeldItem = null;
             Realm = RealmType.Earth;
             PreferredAlignment = AlignmentType.Blue;
             VerboseMode = false;
@@ -71,6 +73,7 @@ namespace IsengardClient
         public IsengardSettingData(IsengardSettingData copied)
         {
             Weapon = copied.Weapon;
+            HeldItem = copied.HeldItem;
             Realm = copied.Realm;
             PreferredAlignment = copied.PreferredAlignment;
             VerboseMode = copied.VerboseMode;
@@ -1389,7 +1392,8 @@ namespace IsengardClient
         {
             Dictionary<string, string> existingSettings = new Dictionary<string, string>();
             Dictionary<string, string> newSettings = new Dictionary<string, string>();
-            newSettings["Weapon"] = Weapon.HasValue ? Weapon.Value.ToString() : string.Empty;
+            if (Weapon.HasValue) newSettings["Weapon"] = Weapon.Value.ToString();
+            if (HeldItem.HasValue) newSettings["HeldItem"] = HeldItem.Value.ToString();
             newSettings["Realm"] = Realm.ToString();
             newSettings["PreferredAlignment"] = PreferredAlignment.ToString();
             newSettings["VerboseMode"] = VerboseMode.ToString();
@@ -2193,15 +2197,25 @@ namespace IsengardClient
         {
             bool bValue;
             int iValue;
+            ItemTypeEnum item;
             switch (sName)
             {
                 case "Weapon":
                     if (!string.IsNullOrEmpty(sValue))
                     {
-                        if (Enum.TryParse(sValue, out ItemTypeEnum weapon))
-                            Weapon = weapon;
+                        if (Enum.TryParse(sValue, out item))
+                            Weapon = item;
                         else
-                            errorMessages.Add("Invalid weapon: " + sValue);
+                            errorMessages.Add("Invalid weapon: " + item);
+                    }
+                    break;
+                case "HeldItem":
+                    if (!string.IsNullOrEmpty(sValue))
+                    {
+                        if (Enum.TryParse(sValue, out item))
+                            HeldItem = item;
+                        else
+                            errorMessages.Add("Invalid held item: " + item);
                     }
                     break;
                 case "Realm":
@@ -2513,7 +2527,8 @@ namespace IsengardClient
         private void WriteSettingsXML(XmlWriter writer)
         {
             writer.WriteStartElement("Settings");
-            WriteSetting(writer, "Weapon", Weapon.HasValue ? Weapon.Value.ToString() : string.Empty);
+            if (Weapon.HasValue) WriteSetting(writer, "Weapon", Weapon.Value.ToString());
+            if (HeldItem.HasValue) WriteSetting(writer, "HeldItem", HeldItem.Value.ToString());
             WriteSetting(writer, "Realm", Realm.ToString());
             WriteSetting(writer, "PreferredAlignment", PreferredAlignment.ToString());
             WriteSetting(writer, "VerboseMode", VerboseMode.ToString());

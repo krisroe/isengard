@@ -904,5 +904,61 @@ namespace IsengardClient
             }
             r.Tag = nextArea;
         }
+
+        private void btnClearWeapon_Click(object sender, EventArgs e)
+        {
+            txtCurrentWeaponValue.Text = string.Empty;
+        }
+
+        private void btnClearHeldItem_Click(object sender, EventArgs e)
+        {
+            txtHeldItem.Text = string.Empty;
+        }
+
+        private void ctxItems_Opening(object sender, CancelEventArgs e)
+        {
+            ctxItems.Items.Clear();
+            bool singleItemSelected = lvItems.SelectedItems.Count == 1;
+            if (singleItemSelected)
+            {
+                ListViewItem lvi = lvItems.SelectedItems[0];
+                if (lvi.Tag is ItemTypeEnum)
+                {
+                    ItemTypeEnum itemType = (ItemTypeEnum)lvi.Tag;
+                    StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                    ToolStripMenuItem tsmi;
+                    if (sid.ItemClass == ItemClass.Weapon)
+                    {
+                        tsmi = new ToolStripMenuItem();
+                        tsmi.Text = "Set Weapon";
+                        ctxItems.Items.Add(tsmi);
+                    }
+                    else if (sid.EquipmentType == EquipmentType.Holding)
+                    {
+                        tsmi = new ToolStripMenuItem();
+                        tsmi.Text = "Set Held Item";
+                        ctxItems.Items.Add(tsmi);
+                    }
+                }
+            }
+            if (ctxItems.Items.Count == 0)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void ctxItems_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            string itemTypeText = lvItems.SelectedItems[0].Tag.ToString();
+            string sText = e.ClickedItem.Text;
+            TextBox txtItem;
+            if (sText == "Set Weapon")
+                txtItem = txtCurrentWeaponValue;
+            else if (sText == "Set Held Item")
+                txtItem = txtHeldItem;
+            else
+                throw new InvalidOperationException();
+            txtItem.Text = itemTypeText;
+        }
     }
 }

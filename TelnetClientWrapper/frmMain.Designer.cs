@@ -45,8 +45,6 @@
             this.btnAttackMob = new System.Windows.Forms.Button();
             this.btnDrinkVigor = new System.Windows.Forms.Button();
             this.btnDrinkCurepoison = new System.Windows.Forms.Button();
-            this.txtWeapon = new System.Windows.Forms.TextBox();
-            this.lblWeapon = new System.Windows.Forms.Label();
             this.btnSet = new System.Windows.Forms.Button();
             this.cboSetOption = new System.Windows.Forms.ComboBox();
             this.chkSetOn = new System.Windows.Forms.CheckBox();
@@ -221,10 +219,10 @@
             // 
             // txtMob
             // 
-            this.txtMob.Location = new System.Drawing.Point(76, 19);
+            this.txtMob.Location = new System.Drawing.Point(71, 18);
             this.txtMob.Margin = new System.Windows.Forms.Padding(2);
             this.txtMob.Name = "txtMob";
-            this.txtMob.Size = new System.Drawing.Size(155, 20);
+            this.txtMob.Size = new System.Drawing.Size(161, 20);
             this.txtMob.TabIndex = 4;
             this.txtMob.TextChanged += new System.EventHandler(this.txtMob_TextChanged);
             // 
@@ -372,26 +370,6 @@
             this.btnDrinkCurepoison.UseVisualStyleBackColor = true;
             this.btnDrinkCurepoison.Click += new System.EventHandler(this.btnCurePoisonPotion_Click);
             // 
-            // txtWeapon
-            // 
-            this.txtWeapon.Location = new System.Drawing.Point(76, 41);
-            this.txtWeapon.Margin = new System.Windows.Forms.Padding(2);
-            this.txtWeapon.Name = "txtWeapon";
-            this.txtWeapon.ReadOnly = true;
-            this.txtWeapon.Size = new System.Drawing.Size(154, 20);
-            this.txtWeapon.TabIndex = 42;
-            // 
-            // lblWeapon
-            // 
-            this.lblWeapon.AutoSize = true;
-            this.lblWeapon.Location = new System.Drawing.Point(13, 44);
-            this.lblWeapon.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(56, 15);
-            this.lblWeapon.TabIndex = 41;
-            this.lblWeapon.Text = "Weapon:";
-            this.lblWeapon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // btnSet
             // 
             this.btnSet.Location = new System.Drawing.Point(10, 13);
@@ -435,17 +413,17 @@
             // 
             // txtWand
             // 
-            this.txtWand.Location = new System.Drawing.Point(76, 63);
+            this.txtWand.Location = new System.Drawing.Point(71, 42);
             this.txtWand.Margin = new System.Windows.Forms.Padding(2);
             this.txtWand.Name = "txtWand";
-            this.txtWand.Size = new System.Drawing.Size(154, 20);
+            this.txtWand.Size = new System.Drawing.Size(161, 20);
             this.txtWand.TabIndex = 49;
             this.txtWand.TextChanged += new System.EventHandler(this.txtWand_TextChanged);
             // 
             // lblWand
             // 
             this.lblWand.AutoSize = true;
-            this.lblWand.Location = new System.Drawing.Point(14, 66);
+            this.lblWand.Location = new System.Drawing.Point(13, 45);
             this.lblWand.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblWand.Name = "lblWand";
             this.lblWand.Size = new System.Drawing.Size(42, 15);
@@ -503,16 +481,16 @@
             // 
             // txtPotion
             // 
-            this.txtPotion.Location = new System.Drawing.Point(76, 85);
+            this.txtPotion.Location = new System.Drawing.Point(71, 66);
             this.txtPotion.Margin = new System.Windows.Forms.Padding(2);
             this.txtPotion.Name = "txtPotion";
-            this.txtPotion.Size = new System.Drawing.Size(154, 20);
+            this.txtPotion.Size = new System.Drawing.Size(161, 20);
             this.txtPotion.TabIndex = 68;
             // 
             // lblPotion
             // 
             this.lblPotion.AutoSize = true;
-            this.lblPotion.Location = new System.Drawing.Point(14, 88);
+            this.lblPotion.Location = new System.Drawing.Point(14, 70);
             this.lblPotion.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPotion.Name = "lblPotion";
             this.lblPotion.Size = new System.Drawing.Size(45, 15);
@@ -695,9 +673,7 @@
             this.pnlMain.Controls.Add(this.btnAttackMob);
             this.pnlMain.Controls.Add(this.lblWand);
             this.pnlMain.Controls.Add(this.btnDrinkVigor);
-            this.pnlMain.Controls.Add(this.txtWeapon);
             this.pnlMain.Controls.Add(this.btnDrinkCurepoison);
-            this.pnlMain.Controls.Add(this.lblWeapon);
             this.pnlMain.Location = new System.Drawing.Point(2, 2);
             this.pnlMain.Margin = new System.Windows.Forms.Padding(2);
             this.pnlMain.Name = "pnlMain";
@@ -707,7 +683,7 @@
             // btnGoToInventorySink
             // 
             this.btnGoToInventorySink.Enabled = false;
-            this.btnGoToInventorySink.Location = new System.Drawing.Point(186, 133);
+            this.btnGoToInventorySink.Location = new System.Drawing.Point(181, 117);
             this.btnGoToInventorySink.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToInventorySink.Name = "btnGoToInventorySink";
             this.btnGoToInventorySink.Size = new System.Drawing.Size(51, 23);
@@ -754,7 +730,7 @@
             // btnGoToPawnShop
             // 
             this.btnGoToPawnShop.Enabled = false;
-            this.btnGoToPawnShop.Location = new System.Drawing.Point(131, 133);
+            this.btnGoToPawnShop.Location = new System.Drawing.Point(126, 117);
             this.btnGoToPawnShop.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToPawnShop.Name = "btnGoToPawnShop";
             this.btnGoToPawnShop.Size = new System.Drawing.Size(51, 23);
@@ -842,7 +818,7 @@
             // btnGoToHealingRoom
             // 
             this.btnGoToHealingRoom.Enabled = false;
-            this.btnGoToHealingRoom.Location = new System.Drawing.Point(76, 133);
+            this.btnGoToHealingRoom.Location = new System.Drawing.Point(71, 117);
             this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(2);
             this.btnGoToHealingRoom.Name = "btnGoToHealingRoom";
             this.btnGoToHealingRoom.Size = new System.Drawing.Size(51, 23);
@@ -855,7 +831,7 @@
             // lblArea
             // 
             this.lblArea.AutoSize = true;
-            this.lblArea.Location = new System.Drawing.Point(14, 110);
+            this.lblArea.Location = new System.Drawing.Point(14, 95);
             this.lblArea.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblArea.Name = "lblArea";
             this.lblArea.Size = new System.Drawing.Size(35, 15);
@@ -867,9 +843,9 @@
             // 
             this.cboArea.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboArea.FormattingEnabled = true;
-            this.cboArea.Location = new System.Drawing.Point(76, 107);
+            this.cboArea.Location = new System.Drawing.Point(71, 91);
             this.cboArea.Name = "cboArea";
-            this.cboArea.Size = new System.Drawing.Size(155, 21);
+            this.cboArea.Size = new System.Drawing.Size(161, 21);
             this.cboArea.TabIndex = 143;
             this.cboArea.SelectedIndexChanged += new System.EventHandler(this.cboArea_SelectedIndexChanged);
             // 
@@ -919,7 +895,7 @@
             // btnIncrementWand
             // 
             this.btnIncrementWand.Enabled = false;
-            this.btnIncrementWand.Location = new System.Drawing.Point(234, 63);
+            this.btnIncrementWand.Location = new System.Drawing.Point(234, 41);
             this.btnIncrementWand.Margin = new System.Windows.Forms.Padding(2);
             this.btnIncrementWand.Name = "btnIncrementWand";
             this.btnIncrementWand.Size = new System.Drawing.Size(34, 23);
@@ -1896,8 +1872,6 @@
         private System.Windows.Forms.Button btnAttackMob;
         private System.Windows.Forms.Button btnDrinkVigor;
         private System.Windows.Forms.Button btnDrinkCurepoison;
-        private System.Windows.Forms.TextBox txtWeapon;
-        private System.Windows.Forms.Label lblWeapon;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.ComboBox cboSetOption;
         private System.Windows.Forms.CheckBox chkSetOn;

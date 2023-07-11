@@ -1019,6 +1019,8 @@ namespace IsengardClient
         [SingularName("cutlass")]
         [PluralName("cutlasses")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(4)]
+        [Sellable(91)]
         Cutlass,
 
         [SingularName("dagger")]

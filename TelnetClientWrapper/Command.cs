@@ -108,6 +108,7 @@
         DropItem,
         RemoveEquipment,
         WieldWeapon,
+        HoldItem,
         Trade,
         Score,
         Inventory,

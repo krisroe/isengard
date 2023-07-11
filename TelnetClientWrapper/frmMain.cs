@@ -25,9 +25,6 @@ namespace IsengardClient
         private string _mob;
         private string _wand;
 
-        private string _weapon;
-        private string _weaponUI;
-
         private const int SECONDS_PER_GAME_HOUR = 150;
         private const int SUNRISE_GAME_HOUR = 6;
         private const int SUNSET_GAME_HOUR = 20;
@@ -1362,7 +1359,6 @@ namespace IsengardClient
 
         private void AfterLoadSettings()
         {
-            _weapon = _settingsData.Weapon.HasValue ? _settingsData.Weapon.Value.ToString() : string.Empty;
             tsmiQuitWithoutSaving.Visible = _settingsData.SaveSettingsOnQuit;
 
             flpOneClickStrategies.Controls.Clear();
@@ -2065,13 +2061,30 @@ namespace IsengardClient
             }
         }
 
+        private void PotionEvaporatesBeforeDrinking(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue)
+            {
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion)
+                {
+                    if (bctValue == BackgroundCommandType.DrinkHazy)
+                    {
+                        _hazying = false;
+                    }
+                    flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+                }
+            }
+        }
+
         private void FailItemAction(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem || bctValue == BackgroundCommandType.Trade || bctValue == BackgroundCommandType.WieldWeapon)
+                if (bctValue == BackgroundCommandType.DrinkHazy || bctValue == BackgroundCommandType.DrinkNonHazyPotion || bctValue == BackgroundCommandType.SellItem || bctValue == BackgroundCommandType.DropItem || bctValue == BackgroundCommandType.Trade || bctValue == BackgroundCommandType.WieldWeapon || bctValue == BackgroundCommandType.HoldItem)
                 {
                     if (bctValue == BackgroundCommandType.DrinkHazy)
                     {
@@ -2166,6 +2179,15 @@ namespace IsengardClient
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.WieldWeapon)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void OnCannotHoldItem(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.HoldItem)
             {
                 flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
             }
@@ -2951,7 +2973,8 @@ namespace IsengardClient
                     (action == ItemManagementAction.DropItem && bctValue == BackgroundCommandType.DropItem) ||
                     (action == ItemManagementAction.Unequip && bctValue == BackgroundCommandType.RemoveEquipment) ||
                     (action == ItemManagementAction.Trade && bctValue == BackgroundCommandType.Trade) ||
-                    (action == ItemManagementAction.Equip && bctValue == BackgroundCommandType.WieldWeapon))
+                    (action == ItemManagementAction.WieldItem && bctValue == BackgroundCommandType.WieldWeapon) ||
+                    (action == ItemManagementAction.HoldItem && bctValue == BackgroundCommandType.HoldItem))
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
@@ -2965,7 +2988,7 @@ namespace IsengardClient
         private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, SelectedInventoryOrEquipmentItem sioei)
         {
             EntityChangeType changeType;
-            if (action == ItemManagementAction.Equip)
+            if (action == ItemManagementAction.WearItem || action == ItemManagementAction.WieldItem || action == ItemManagementAction.HoldItem)
             {
                 changeType = EntityChangeType.EquipItem;
             }
@@ -3403,8 +3426,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
-                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon }),
-                new ConstantOutputSequence(" starts to evaporates before you drink it.", FailItemAction, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
+                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon, BackgroundCommandType.HoldItem }),
+                new ConstantOutputSequence(" starts to evaporates before you drink it.", PotionEvaporatesBeforeDrinking, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
                 new ConstantOutputSequence("I don't see that exit.", CantSeeExit, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OpenDoor }),
@@ -3425,6 +3448,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("You're already wielding something.", OnCannotWieldWeapon, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
                 new ConstantOutputSequence("You need to train in the ", " proficiency in order to use this weapon.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
                 new ConstantOutputSequence("You need a ", " to use this weapon effectively.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon}),
+                new ConstantOutputSequence("You can't wield that.", OnCannotWieldWeapon, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
+                new ConstantOutputSequence("You can't hold that.", OnCannotHoldItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.HoldItem }),
             };
             return seqs;
         }
@@ -4272,6 +4297,7 @@ namespace IsengardClient
                             _currentMana = strategy.ManaPool;
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
+                        ItemTypeEnum? heldItem = _settingsData.HeldItem;
                         bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
@@ -4279,7 +4305,8 @@ namespace IsengardClient
                             bool doPowerAttack = false;
                             if (useMelee)
                             {
-                                WieldWeapon(weaponItem, pms, true);
+                                EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true);
+                                EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true);
                                 doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
@@ -4445,7 +4472,7 @@ namespace IsengardClient
                                     }
 
                                     GetMeleeCommand(nextMeleeStep.Value, out command, sMobTarget);
-                                    WieldWeapon(weaponItem, pms, false); //wield the weapon in case it was fumbled
+                                    EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, false); //wield the weapon in case it was fumbled
                                     backgroundCommandResultObject = RunBackgroundMeleeStep(BackgroundCommandType.Attack, command, pms, meleeSteps, ref meleeStepsFinished, ref nextMeleeStep, ref dtNextMeleeCommand, ref didDamage);
                                     if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                                     {
@@ -5589,7 +5616,7 @@ BeforeHazy:
             int beforeGold = _gold;
             if (checkWeight)
             {
-                checkWeightIsEquipment = commandType == BackgroundCommandType.WieldWeapon;
+                checkWeightIsEquipment = commandType == BackgroundCommandType.WieldWeapon || commandType == BackgroundCommandType.HoldItem;
                 if (checkWeightIsEquipment)
                 {
                     checkWeightCommandType = BackgroundCommandType.Equipment;
@@ -5628,6 +5655,9 @@ BeforeHazy:
                     break;
                 case BackgroundCommandType.WieldWeapon:
                     command = "wield";
+                    break;
+                case BackgroundCommandType.HoldItem:
+                    command = "hold";
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -6431,51 +6461,53 @@ BeforeHazy:
         }
 
         /// <summary>
-        /// wields a weapon
+        /// equips an item
         /// </summary>
-        /// <param name="weaponItem">weapon item</param>
+        /// <param name="item">item to equip</param>
+        /// <param name="slot">equipment slot</param>
+        /// <param name="commandType">command type</param>
         /// <param name="pms">background worker parameters</param>
         /// <param name="isBeforeCombat">true if before combat, false if during combat</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject WieldWeapon(ItemTypeEnum? weaponItem, BackgroundWorkerParameters pms, bool isBeforeCombat)
+        private CommandResultObject EquipSingleItem(ItemTypeEnum? item, EquipmentSlot slot, BackgroundCommandType commandType, BackgroundWorkerParameters pms, bool isBeforeCombat)
         {
             CommandResultObject backgroundCommandResultObject;
-            if (weaponItem.HasValue)
+            if (item.HasValue)
             {
-                List<string> weaponTexts = new List<string>();
-                ItemTypeEnum weaponItemValue = weaponItem.Value;
+                List<string> itemTexts = new List<string>();
+                ItemTypeEnum itemValue = item.Value;
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    if (_currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1] == null)
+                    if (_currentEntityInfo.Equipment[(int)slot] == null)
                     {
-                        if (_currentEntityInfo.InventoryContainsItemType(weaponItemValue))
+                        if (_currentEntityInfo.InventoryContainsItemType(itemValue))
                         {
                             int iCounter = 0;
                             for (int i = 0; i < _currentEntityInfo.InventoryItems.Count; i++)
                             {
                                 ItemEntity ie = _currentEntityInfo.InventoryItems[i];
-                                if (ie.ItemType == weaponItemValue)
+                                if (ie.ItemType == itemValue)
                                 {
                                     iCounter++;
-                                    string sWeaponText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, weaponItemValue, iCounter, false, false);
-                                    if (!string.IsNullOrEmpty(sWeaponText))
+                                    string itemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemValue, iCounter, false, false);
+                                    if (!string.IsNullOrEmpty(itemText))
                                     {
-                                        weaponTexts.Add(sWeaponText);
+                                        itemTexts.Add(itemText);
                                     }
                                 }
                             }
                         }
                     }
-                    else //already wielding something
+                    else //already equipping something in that slot
                     {
-                        //we could remove the existing weapon and wield the correct weapon (if different), but for the moment leave things as is
+                        //we could remove the existing item and equip the correct item (if different), but for the moment leave things as is
                         //and let the combat continue.
                         return new CommandResultObject(CommandResult.CommandSuccessful, 0);
                     }
                 }
-                foreach (string sNextWeaponText in weaponTexts)
+                foreach (string sNextWeaponText in itemTexts)
                 {
-                    backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.WieldWeapon, weaponItemValue, sNextWeaponText, pms, AbortIfFleeingOrHazying);
+                    backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(commandType, itemValue, sNextWeaponText, pms, AbortIfFleeingOrHazying);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandUnsuccessfulAlways)
                     {
                         return backgroundCommandResultObject;
@@ -6488,7 +6520,7 @@ BeforeHazy:
                 }
                 else
                 {
-                    AddConsoleMessage($"Unable to wield weapon {weaponItemValue}, continuing combat.");
+                    AddConsoleMessage($"Unable to equip {itemValue}, continuing combat.");
 
                     //if combat has started we don't want to fail and stop combat. Current behavior is to display a message to the user and
                     //make them responsible for handling it appropriately
@@ -7227,8 +7259,6 @@ BeforeHazy:
             {
                 object oControl = oTag.Control;
                 if ((oTag.ObjectType & DependentObjectType.Mob) != DependentObjectType.None && !hasMobTarget)
-                    enabled = false;
-                else if ((oTag.ObjectType & DependentObjectType.Weapon) != DependentObjectType.None && (!haveSettings || !_settingsData.Weapon.HasValue))
                     enabled = false;
                 else if ((oTag.ObjectType & DependentObjectType.Wand) != DependentObjectType.None && string.IsNullOrEmpty(_wand))
                     enabled = false;
@@ -8194,12 +8224,6 @@ BeforeHazy:
             if (haveSettings)
             {
                 RefreshAutoEscapeUI(!_processedUIWithSettings);
-                string sWeapon = _weapon;
-                if (_weaponUI != sWeapon)
-                {
-                    txtWeapon.Text = sWeapon;
-                    _weaponUI = sWeapon;
-                }
                 _processedUIWithSettings = true;
             }
 
@@ -9835,11 +9859,26 @@ BeforeHazy:
                 tsmi.Text = sActionTransferBetweenInventoryAndEquipment;
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
-            if (iclass == ItemClass.Weapon && _settingsData.Weapon != itemType && !hasMultiple)
+            if (!hasMultiple)
             {
-                tsmi = new ToolStripMenuItem();
-                tsmi.Text = "Set Weapon";
-                ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                if (iclass == ItemClass.Weapon)
+                {
+                    if (_settingsData.Weapon != itemType)
+                    {
+                        tsmi = new ToolStripMenuItem();
+                        tsmi.Text = "Set Weapon";
+                        ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                    }
+                }
+                else if (sid.EquipmentType == EquipmentType.Holding)
+                {
+                    if (_settingsData.HeldItem != itemType)
+                    {
+                        tsmi = new ToolStripMenuItem();
+                        tsmi.Text = "Set Held Item";
+                        ctxInventoryOrEquipmentItem.Items.Add(tsmi);
+                    }
+                }
             }
         }
 
@@ -9857,7 +9896,12 @@ BeforeHazy:
                 if (menuText == "Set Weapon")
                 {
                     _settingsData.Weapon = eItemType;
-                    txtWeapon.Text = eItemType.ToString();
+                    MessageBox.Show($"Weapon set to {eItemType}");
+                }
+                else if (menuText == "Set Held Item")
+                {
+                    _settingsData.HeldItem = eItemType;
+                    MessageBox.Show($"Held item set to {eItemType}");
                 }
                 else if (menuText == "trade")
                 {

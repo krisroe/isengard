@@ -1099,8 +1099,8 @@ namespace IsengardClient
                         }
                         else if (nextLine.StartsWith(YOU_WEAR_PREFIX))
                         {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
-                            eAction = ItemManagementAction.Equip;
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.WearItem) return;
+                            eAction = ItemManagementAction.WearItem;
                             List<string> wornObjects = StringProcessing.GetList(Lines, iIndex, YOU_WEAR_PREFIX, true, out iIndex, null);
                             List<ItemEntity> items = new List<ItemEntity>();
                             RoomTransitionSequence.LoadMustBeItems(items, wornObjects, flp.ErrorMessages);
@@ -1123,8 +1123,8 @@ namespace IsengardClient
                         }
                         else if (nextLine.StartsWith(YOU_HOLD_PREFIX))
                         {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
-                            eAction = ItemManagementAction.Equip;
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.HoldItem) return;
+                            eAction = ItemManagementAction.HoldItem;
                             List<string> heldObjects = StringProcessing.GetList(Lines, iIndex, YOU_HOLD_PREFIX, true, out iIndex, null);
                             List<ItemEntity> items = new List<ItemEntity>();
                             RoomTransitionSequence.LoadMustBeItems(items, heldObjects, flp.ErrorMessages);
@@ -1180,8 +1180,8 @@ namespace IsengardClient
                         }
                         else if (nextLine.StartsWith(YOU_WIELD_PREFIX))
                         {
-                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.Equip) return;
-                            eAction = ItemManagementAction.Equip;
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.WieldItem) return;
+                            eAction = ItemManagementAction.WieldItem;
                             List<string> wieldedObjects = StringProcessing.GetList(Lines, iIndex, YOU_WIELD_PREFIX, true, out iIndex, null);
                             List<ItemEntity> items = new List<ItemEntity>();
                             RoomTransitionSequence.LoadMustBeItems(items, wieldedObjects, flp.ErrorMessages);
@@ -3317,7 +3317,7 @@ StartProcessRoom:
                 }
                 else if (remainder.EndsWith(" devestates"))
                 {
-                    matches = true; //CSRTODO: 33
+                    matches = true; //CSRTODO: 32-33
                 }
                 else if (remainder.EndsWith(" obliterates"))
                 {

@@ -344,8 +344,7 @@ namespace IsengardClient
     {
         None = 0,
         Mob = 1,
-        Weapon = 2,
-        Wand = 4,
+        Wand = 2,
     }
 
     internal enum ValidPotionType
@@ -600,7 +599,9 @@ namespace IsengardClient
         DropItem,
         ConsumeItem,
         SellItem,
-        Equip,
+        WieldItem,
+        HoldItem,
+        WearItem,
         Unequip,
         DestroyEquipment,
         Trade,
