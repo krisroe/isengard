@@ -1192,22 +1192,29 @@ namespace IsengardClient
                 {
                     _currentEntityInfo.Equipment[i] = null;
                 }
+                _currentEntityInfo.UnknownEquipment.Clear();
                 foreach (var nextEntry in equipment)
                 {
                     var itemInfo = Entity.GetEntity(nextEntry.Key, EntityTypeFlags.Item, flParams.ErrorMessages, null, false) as ItemEntity;
                     if (itemInfo is UnknownItemEntity)
                     {
-                        flParams.ErrorMessages.Add("Unknown item: " + ((UnknownItemEntity)itemInfo).Name);
+                        _currentEntityInfo.UnknownEquipment.Add(itemInfo);
                     }
                     else if (itemInfo.Count != 1)
                     {
-                        flParams.ErrorMessages.Add("Unexpected item count for worn equipment " + itemInfo.ItemType.Value.ToString() + ": " + itemInfo.Count);
+                        _currentEntityInfo.UnknownEquipment.Add(itemInfo);
                     }
                     else
                     {
                         ItemTypeEnum itemType = itemInfo.ItemType.Value;
                         if (Enum.TryParse(nextEntry.Value, out EquipmentType eqType))
                         {
+                            StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                            if (sid.EquipmentType == EquipmentType.Unknown)
+                            {
+                                flParams.ErrorMessages.Add("Found " + itemType + " equipment type " + eqType);
+                                sid.EquipmentType = eqType;
+                            }
                             bool foundSlot = false;
                             foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(eqType, false))
                             {
@@ -1229,14 +1236,22 @@ namespace IsengardClient
                             }
                             else
                             {
-                                flParams.ErrorMessages.Add("Unable to find equipment slot for: " + nextEntry.Value);
+                                _currentEntityInfo.UnknownEquipment.Add(itemInfo);
                             }
                         }
                         else
                         {
-                            flParams.ErrorMessages.Add("Invalid equipment slot: " + nextEntry.Value);
+                            _currentEntityInfo.UnknownEquipment.Add(itemInfo);
                         }
                     }
+                }
+                foreach (ItemEntity ie in _currentEntityInfo.UnknownEquipment)
+                {
+                    EntityChangeEntry entry = new EntityChangeEntry();
+                    entry.Item = ie;
+                    entry.EquipmentAction = true;
+                    entry.EquipmentIndex = -1;
+                    changes.Changes.Add(entry);
                 }
                 if (changes.Changes.Count > 0)
                 {
@@ -3018,7 +3033,6 @@ namespace IsengardClient
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
                                         changeEntry.EquipmentAction = true;
                                         _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
-                                        iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, false, changeEntry);
                                         addChange = true;
                                         break;
                                     }
@@ -3030,19 +3044,73 @@ namespace IsengardClient
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindEquipmentRemovalPoint(nextSlot);
                                         changeEntry.EquipmentAction = false;
                                         _currentEntityInfo.Equipment[iSlotIndex] = null;
-                                        if (changeType == EntityChangeType.UnequipItem)
-                                        {
-                                            iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, true, changeEntry);
-                                        }
                                         addChange = true;
                                         break;
                                     }
                                 }
                             }
                         }
-                        else
+                        else //don't know what slot to put the equipment in, so it must go in the unknown list
                         {
-                            flParams.ErrorMessages.Add("Equipment type not found for: " + nextItem);
+                            string sItemName;
+                            if (sid == null)
+                                sItemName = ((UnknownItemEntity)nextItemEntity).Name;
+                            else
+                                sItemName = sid.SingularName;
+                            int index = _currentEntityInfo.GetTotalKnownEquipmentCount();
+                            bool found = false;
+                            for (int i = 0; i < _currentEntityInfo.UnknownEquipment.Count; i++)
+                            {
+                                ItemEntity ie = _currentEntityInfo.UnknownEquipment[i];
+                                string sNextItemName;
+                                if (ie.ItemType.HasValue)
+                                    sNextItemName = ItemEntity.StaticItemData[ie.ItemType.Value].SingularName;
+                                else
+                                    sNextItemName = ((UnknownItemEntity)ie).Name;
+                                if (removeEquipment)
+                                {
+                                    if (sNextItemName == sItemName)
+                                    {
+                                        changeEntry.EquipmentAction = false;
+                                        changeEntry.EquipmentIndex = index;
+                                        _currentEntityInfo.UnknownEquipment.RemoveAt(i);
+                                        addChange = true;
+                                        found = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        index++;
+                                    }
+                                }
+                                else //equip
+                                {
+                                    if (sNextItemName.CompareTo(sItemName) > 0)
+                                    {
+                                        changeEntry.EquipmentAction = true;
+                                        changeEntry.EquipmentIndex = index;
+                                        _currentEntityInfo.UnknownEquipment.Insert(index, nextItemEntity);
+                                        addChange = true;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (changeType == EntityChangeType.EquipItem && !found)
+                            {
+                                changeEntry.EquipmentAction = true;
+                                changeEntry.EquipmentIndex = -1;
+                                _currentEntityInfo.UnknownEquipment.Add(nextItemEntity);
+                                addChange = true;
+                            }
+                        }
+                        if (changeType == EntityChangeType.EquipItem)
+                        {
+                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, false, changeEntry);
+                        }
+                        else if (changeType == EntityChangeType.UnequipItem)
+                        {
+                            addChange |= iec.AddOrRemoveEntityItemFromInventory(_currentEntityInfo, nextItemEntity, true, changeEntry);
                         }
                     }
                     else //equipment not involved
@@ -3080,7 +3148,16 @@ namespace IsengardClient
                 }
                 if (iec.Changes.Count > 0)
                 {
+                    bool changedInventory = false;
+                    bool changedEquipment = false;
+                    foreach (var nextChange in iec.Changes)
+                    {
+                        changedInventory |= nextChange.InventoryAction.HasValue;
+                        changedEquipment |= nextChange.EquipmentAction.HasValue;
+                    }
                     _currentEntityInfo.CurrentEntityChanges.Add(iec);
+                    if (changedInventory) _currentEntityInfo.ComputeTotalInventoryWeight();
+                    if (changedEquipment) _currentEntityInfo.ComputeTotalEquipmentWeight();
                 }
             }
         }
@@ -8003,6 +8080,25 @@ BeforeHazy:
                     lblTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
                 }
             }
+            int? iTotalWeight;
+            if ((initStep & InitializationStep.Inventory) != InitializationStep.None)
+            {
+                iTotalWeight = _currentEntityInfo.TotalInventoryWeight;
+                if (iTotalWeight != _currentEntityInfo.TotalInventoryWeightUI)
+                {
+                    grpInventory.Text = "Inventory (" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() + " lbs" : "?") + ")";
+                    _currentEntityInfo.TotalInventoryWeightUI = iTotalWeight;
+                }
+            }
+            if ((initStep & InitializationStep.Equipment) != InitializationStep.None)
+            {
+                iTotalWeight = _currentEntityInfo.TotalEquipmentWeight;
+                if (iTotalWeight != _currentEntityInfo.TotalEquipmentWeightUI)
+                {
+                    grpEquipment.Text = "Equipment (" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() + " lbs" : "?") + ")";
+                    _currentEntityInfo.TotalEquipmentWeightUI = iTotalWeight;
+                }
+            }
 
             int iMonsterDamage = _monsterDamage;
             MonsterStatus monsterStatus = _currentMonsterStatus;
@@ -9620,6 +9716,10 @@ BeforeHazy:
                 {
                     itemType = ie.ItemType.Value;
                     sid = ItemEntity.StaticItemData[itemType];
+                    if (!isInventory && sid.EquipmentType == EquipmentType.Unknown) //unknown equipment type cannot be acted on since selection text cannot be constructed
+                    {
+                        e.Cancel = true;
+                    }
                 }
                 else //unknown item cannot be acted on since selection text cannot be constructed
                 {

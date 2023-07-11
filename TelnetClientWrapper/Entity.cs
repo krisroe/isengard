@@ -892,14 +892,26 @@ namespace IsengardClient
         public List<UnknownTypeEntity> CurrentUnknownEntities { get; set; }
         public List<ItemEntity> InventoryItems { get; set; }
         /// <summary>
-        /// total inventory weight. This is currently only maintained by the inventory command.
+        /// total inventory weight.
         /// </summary>
         public int? TotalInventoryWeight { get; set; }
         /// <summary>
-        /// total equipment weight. This is currently only maintained by the equipment command.
+        /// total inventory weight as last displayed by the UI.
+        /// </summary>
+        public int? TotalInventoryWeightUI { get; set; }
+        /// <summary>
+        /// total equipment weight.
         /// </summary>
         public int? TotalEquipmentWeight { get; set; }
+        /// <summary>
+        /// total equipment weight as last displayed by the UI
+        /// </summary>
+        public int? TotalEquipmentWeightUI { get; set; }
         public ItemTypeEnum?[] Equipment { get; set; }
+        /// <summary>
+        /// unknown equipment
+        /// </summary>
+        public List<ItemEntity> UnknownEquipment { get; set; }
         public List<string> CurrentObviousExits { get; set; }
         public TreeNode tnObviousMobs { get; set; }
         public bool ObviousMobsTNExpanded { get; set; }
@@ -928,6 +940,7 @@ namespace IsengardClient
             CurrentUnknownEntities = new List<UnknownTypeEntity>();
             InventoryItems = new List<ItemEntity>();
             Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
+            UnknownEquipment = new List<ItemEntity>();
             CurrentObviousExits = new List<string>();
             ObviousExitsTNExpanded = true;
             ObviousMobsTNExpanded = true;
@@ -1716,6 +1729,98 @@ namespace IsengardClient
                 if (nextItemType == itemType) iCount++;
             }
             return iCount;
+        }
+
+        public int GetTotalKnownEquipmentCount()
+        {
+            int iCounter = 0;
+            foreach (ItemTypeEnum? nextItemType in Equipment)
+            {
+                if (nextItemType.HasValue)
+                {
+                    iCounter++;
+                }
+            }
+            return iCounter;
+        }
+
+        /// <summary>
+        /// computes total equipment weight
+        /// </summary>
+        /// <returns>equipment weight if calculated, null if not calculated</returns>
+        private int? GetTotalEquipmentWeight()
+        {
+            int iWeight = 0;
+            bool unknown = false;
+            if (UnknownEquipment.Count == 0)
+            {
+                foreach (ItemTypeEnum? nextItemType in Equipment)
+                {
+                    if (nextItemType.HasValue)
+                    {
+                        ItemTypeEnum nextItem = nextItemType.Value;
+                        StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+                        if (sid.Weight.HasValue)
+                        {
+                            iWeight += sid.Weight.Value;
+                        }
+                        else
+                        {
+                            unknown = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                unknown = true;
+            }
+            return unknown ? (int?)null : iWeight;
+        }
+
+        /// <summary>
+        /// sets the total equipment weight
+        /// </summary>
+        public void ComputeTotalEquipmentWeight()
+        {
+            TotalEquipmentWeight = GetTotalEquipmentWeight();
+        }
+
+        /// <summary>
+        /// computes total inventory weight
+        /// </summary>
+        /// <returns>inventory weight if calculated, null if not calculated</returns>
+        private int? GetTotalInventoryWeight()
+        {
+            int? equipmentWeight = GetTotalEquipmentWeight();
+            if (!equipmentWeight.HasValue) return null;
+            int iWeight = equipmentWeight.Value;
+            foreach (ItemEntity ie in InventoryItems)
+            {
+                if (ie.ItemType.HasValue)
+                {
+                    ItemTypeEnum nextItem = ie.ItemType.Value;
+                    StaticItemData sid = ItemEntity.StaticItemData[nextItem];
+                    if (sid.Weight.HasValue)
+                        iWeight += sid.Weight.Value;
+                    else
+                        return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return iWeight;
+        }
+
+        /// <summary>
+        /// sets the total inventory weight
+        /// </summary>
+        public void ComputeTotalInventoryWeight()
+        {
+            TotalInventoryWeight = GetTotalInventoryWeight();
         }
 
         public bool InventoryContainsItemType(ItemTypeEnum itemType)

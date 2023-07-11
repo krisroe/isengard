@@ -303,9 +303,16 @@ namespace IsengardClient
             }
             else
             {
-                StaticItemData sid = ItemEntity.StaticItemData[Item.ItemType.Value];
-                ret = sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
-                if (sid.ArmorClass > 0) ret += sid.ArmorClass.ToString("N1");
+                if (this.Item is UnknownItemEntity)
+                {
+                    ret = ((UnknownItemEntity)this.Item).Name + "(Unknown)";
+                }
+                else
+                {
+                    StaticItemData sid = ItemEntity.StaticItemData[Item.ItemType.Value];
+                    ret = sid.SingularName + "(" + sid.EquipmentType.ToString() + ")";
+                    if (sid.ArmorClass > 0) ret += sid.ArmorClass.ToString("N1");
+                }
             }
             return ret;
         }

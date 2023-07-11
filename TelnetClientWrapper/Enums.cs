@@ -608,6 +608,7 @@ namespace IsengardClient
 
     internal enum EquipmentType
     {
+        Unknown,
         Torso,
         Arms,
         Legs,
@@ -622,7 +623,6 @@ namespace IsengardClient
         Holding,
         Shield,
         Wielded,
-        Unknown,
     }
 
     internal enum WeaponType

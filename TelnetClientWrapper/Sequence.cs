@@ -1117,10 +1117,7 @@ namespace IsengardClient
                                     {
                                         flp.ErrorMessages.Add("Unexpected item count for worn equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
                                     }
-                                    else
-                                    {
-                                        itemsManaged.Add(ie);
-                                    }
+                                    itemsManaged.Add(ie);
                                 }
                             }
                         }
@@ -1144,10 +1141,7 @@ namespace IsengardClient
                                     {
                                         flp.ErrorMessages.Add("Unexpected item count for held equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
                                     }
-                                    else
-                                    {
-                                        itemsManaged.Add(ie);
-                                    }
+                                    itemsManaged.Add(ie);
                                 }
                             }
                         }
@@ -1180,10 +1174,7 @@ namespace IsengardClient
                                     {
                                         flp.ErrorMessages.Add("Unexpected item count for removed equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
                                     }
-                                    else
-                                    {
-                                        itemsManaged.Add(ie);
-                                    }
+                                    itemsManaged.Add(ie);
                                 }
                             }
                         }
@@ -1207,10 +1198,7 @@ namespace IsengardClient
                                     {
                                         flp.ErrorMessages.Add("Unexpected item count for wielded equipment " + ie.ItemType.Value.ToString() + ": " + ie.Count);
                                     }
-                                    else
-                                    {
-                                        itemsManaged.Add(ie);
-                                    }
+                                    itemsManaged.Add(ie);
                                 }
                             }
                         }
