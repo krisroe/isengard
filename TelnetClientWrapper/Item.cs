@@ -578,6 +578,7 @@ namespace IsengardClient
         Coins,
         Money,
         Fixed,
+        Chest,
         Other,
     }
 
@@ -618,6 +619,7 @@ namespace IsengardClient
         BagClass,
         Key,
         Fixed,
+        Chest,
         Gem,
         Coins,
         Money,
@@ -727,8 +729,8 @@ namespace IsengardClient
         [EquipmentType(EquipmentType.Face)]
         AssassinsMask,
 
-        //cannot be interacted with at all
         [SingularName("A statuette of Balthazar")]
+        [SingularSelection("A")]
         //CSRTODO: no plural?
         [ItemClass(ItemClass.Fixed)]
         AStatuetteOfBalthazar,
@@ -940,6 +942,11 @@ namespace IsengardClient
         [SingularName("chain mail sleeves")]
         [EquipmentType(EquipmentType.Arms)]
         ChainMailSleeves,
+
+        [SingularName("chest")]
+        [PluralName("chests")]
+        [ItemClass(ItemClass.Chest)]
+        Chest,
 
         [SingularName("claw gauntlet")]
         [PluralName("claw gauntlets")]

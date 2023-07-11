@@ -2130,6 +2130,22 @@ namespace IsengardClient
             AddExit(oBardConservatory, breeStreets[4, 3], "north");
             breeStreetsGraph.Rooms[oBardConservatory] = new System.Windows.Point(4, 8);
 
+            AddPermanentItems(breeStreets[2, 0], ItemTypeEnum.AStatuetteOfBalthazar);
+            Room oGoodwillShop = AddRoom("Goodwill", "Goodwill shop");
+            AddPermanentItems(oGoodwillShop, ItemTypeEnum.Chest);
+            AddExit(breeStreets[2, 0], oGoodwillShop, "shop");
+            AddExit(oGoodwillShop, breeStreets[2, 0], "south");
+            breeStreetsGraph.Rooms[oGoodwillShop] = new System.Windows.Point(2, 9.75);
+
+            Room oWaitingRoom = AddRoom("Waiting Room", "Waiting Room");
+            AddBidirectionalExitsWithOut(oGoodwillShop, oWaitingRoom, "door");
+            breeStreetsGraph.Rooms[oWaitingRoom] = new System.Windows.Point(2, 9.5);
+
+            Room oOffice = AddRoom("Office", "Office");
+            AddPermanentItems(oOffice, ItemTypeEnum.Chest);
+            AddBidirectionalExitsWithOut(oWaitingRoom, oOffice, "office");
+            breeStreetsGraph.Rooms[oOffice] = new System.Windows.Point(2, 9.25);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 

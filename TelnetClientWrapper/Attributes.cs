@@ -132,6 +132,7 @@ namespace IsengardClient
                 ItemClass == ItemClass.Bag ||
                 ItemClass == ItemClass.Key ||
                 ItemClass == ItemClass.Fixed ||
+                ItemClass == ItemClass.Chest ||
                 ItemClass == ItemClass.Gem)
             {
                 this.ItemClass = ItemClass;
