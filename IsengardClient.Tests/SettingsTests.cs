@@ -174,7 +174,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.Realm, sets2.Realm);
             Assert.AreEqual(settings.PreferredAlignment, sets2.PreferredAlignment);
             Assert.AreEqual(settings.QueryMonsterStatus, sets2.QueryMonsterStatus);
-            Assert.AreEqual(settings.GetNewPermRunOnBoatExitMissing = sets2.GetNewPermRunOnBoatExitMissing);
+            Assert.AreEqual(settings.GetNewPermRunOnBoatExitMissing, sets2.GetNewPermRunOnBoatExitMissing);
             Assert.AreEqual(settings.RemoveAllOnStartup, sets2.RemoveAllOnStartup);
             Assert.AreEqual(settings.VerboseMode, sets2.VerboseMode);
             Assert.AreEqual(settings.Weapon, sets2.Weapon);

@@ -6819,51 +6819,54 @@ BeforeHazy:
             useGo = false;
             string target = exit.ExitText.ToLower().Trim();
             string ret = null;
-            switch (target)
+            if (!exit.ForceGo)
             {
-                case "north":
-                case "northeast":
-                case "northwest":
-                case "west":
-                case "east":
-                case "south":
-                case "southeast":
-                case "southwest":
-                case "up":
-                case "down":
-                case "out":
-                    ret = target;
-                    break;
-                case "n":
-                    ret = "north";
-                    break;
-                case "ne":
-                    ret = "northeast";
-                    break;
-                case "nw":
-                    ret = "northwest";
-                    break;
-                case "w":
-                    ret = "west";
-                    break;
-                case "e":
-                    ret = "east";
-                    break;
-                case "sw":
-                    ret = "southwest";
-                    break;
-                case "s":
-                    ret = "south";
-                    break;
-                case "se":
-                    ret = "southeast";
-                    break;
-                case "u":
-                    ret = "up";
-                    break;
-                case "d":
-                    ret = "down";
-                    break;
+                switch (target)
+                {
+                    case "north":
+                    case "northeast":
+                    case "northwest":
+                    case "west":
+                    case "east":
+                    case "south":
+                    case "southeast":
+                    case "southwest":
+                    case "up":
+                    case "down":
+                    case "out":
+                        ret = target;
+                        break;
+                    case "n":
+                        ret = "north";
+                        break;
+                    case "ne":
+                        ret = "northeast";
+                        break;
+                    case "nw":
+                        ret = "northwest";
+                        break;
+                    case "w":
+                        ret = "west";
+                        break;
+                    case "e":
+                        ret = "east";
+                        break;
+                    case "sw":
+                        ret = "southwest";
+                        break;
+                    case "s":
+                        ret = "south";
+                        break;
+                    case "se":
+                        ret = "southeast";
+                        break;
+                    case "u":
+                        ret = "up";
+                        break;
+                    case "d":
+                        ret = "down";
+                        break;
+                }
             }
             var enumerator = StringProcessing.PickWords(target).GetEnumerator();
             enumerator.MoveNext();
@@ -7458,17 +7461,17 @@ BeforeHazy:
             string move = Interaction.InputBox("Move:", "Enter Move", string.Empty);
             if (!string.IsNullOrEmpty(move))
             {
-                DoSingleMove(move.ToLower());
+                DoSingleMove(move.ToLower(), true);
             }
         }
 
         private void btnDoSingleMove_Click(object sender, EventArgs e)
         {
             string direction = ((Button)sender).Tag.ToString();
-            DoSingleMove(direction);
+            DoSingleMove(direction, false);
         }
 
-        private void DoSingleMove(string direction)
+        private void DoSingleMove(string direction, bool forceGo)
         {
             if (direction == "nw")
                 direction = "northwest";
@@ -7515,6 +7518,7 @@ BeforeHazy:
             if (ambiguous || navigateExit == null)
             {
                 navigateExit = new Exit(null, null, direction);
+                navigateExit.ForceGo = forceGo;
             }
             NavigateSingleExitInBackground(navigateExit);
         }
@@ -8949,7 +8953,7 @@ BeforeHazy:
                                 {
                                     sCommandLower = words[1];
                                 }
-                                DoSingleMove(sCommandLower);
+                                DoSingleMove(sCommandLower, sFirstWord == "go");
                             }
                         }
                         else if (isLook)
@@ -9665,7 +9669,8 @@ BeforeHazy:
                 }
                 else //string
                 {
-                    DoSingleMove(oTag.ToString());
+                    string sTarget = oTag.ToString();
+                    DoSingleMove(sTarget, sTarget.Contains(" "));
                 }
             }
             else if (parentNode == _currentEntityInfo.tnObviousMobs || parentNode == _currentEntityInfo.tnPermanentMobs) //look at mob

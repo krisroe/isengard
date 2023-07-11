@@ -1610,6 +1610,7 @@ namespace IsengardClient
         LeatherBoots,
 
         [SingularName("leather cap")]
+        [PluralName("leather caps")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
@@ -2351,6 +2352,11 @@ namespace IsengardClient
         [PluralName("verdant green scrolls")]
         [Scroll(SpellsEnum.protection)]
         VerdantGreenScroll,
+
+        [SingularName("very old key")]
+        [PluralName("very old keys")]
+        [ItemClass(ItemClass.Key)]
+        VeryOldKey,
 
         [SingularName("viscous potion")]
         [PluralName("viscous potions")]

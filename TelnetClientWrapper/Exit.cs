@@ -66,6 +66,11 @@ namespace IsengardClient
         public ClassType? RequiredClass { get; set; }
 
         /// <summary>
+        /// whether go should be forced
+        /// </summary>
+        public bool ForceGo { get; set; }
+
+        /// <summary>
         /// whether the key is required to use the exit (returns false when knockable)
         /// </summary>
         /// <returns>true if the key is required, false otherwise</returns>
