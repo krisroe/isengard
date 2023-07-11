@@ -527,6 +527,10 @@ namespace IsengardClient
             {
                 yield return DynamicDataItemClass.Fixed;
             }
+            else if (ic == ItemClass.Chest)
+            {
+                yield return DynamicDataItemClass.Chest;
+            }
             else if (ic == ItemClass.Gem)
             {
                 yield return DynamicDataItemClass.Gem;

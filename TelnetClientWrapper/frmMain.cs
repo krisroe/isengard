@@ -4944,7 +4944,7 @@ BeforeHazy:
                     DynamicItemDataWithInheritance didWithInherit = new DynamicItemDataWithInheritance(_settingsData, eItemType);
 
                     bool processItem = false;
-                    if (sid.ItemClass == ItemClass.Fixed)
+                    if (sid.ItemClass == ItemClass.Fixed || sid.ItemClass == ItemClass.Chest)
                         processItem = false;
                     else if (eInventoryWorkflow == InventoryManagementWorkflow.Ferry)
                         processItem = true;
