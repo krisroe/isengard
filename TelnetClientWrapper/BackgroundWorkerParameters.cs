@@ -89,6 +89,10 @@ namespace IsengardClient
         /// items to process in the inventory management flow
         /// </summary>
         public ItemsToProcessType InventoryProcessInputType { get; set; }
+        /// <summary>
+        /// whether to get a new perm run after finishing
+        /// </summary>
+        public bool GetNewPermRun { get; set; }
         public bool ExpectsMob()
         {
             return MobType.HasValue || !string.IsNullOrEmpty(MobText) || (MobTextCounter >= 1 && MobTypeCounter >= 1);
@@ -97,7 +101,7 @@ namespace IsengardClient
         {
             return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
         }
-        public void SetPermRun(PermRun p, IsengardMap gameMap)
+        public void SetPermRun(PermRun p)
         {
             PermRun = p;
 

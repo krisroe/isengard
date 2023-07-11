@@ -4005,6 +4005,11 @@ namespace IsengardClient
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
+
+                if (bwp.GetNewPermRun)
+                {
+                    DisplayPermRunsForm();
+                }
             }
         }
 
@@ -5385,11 +5390,11 @@ BeforeHazy:
         /// navigates to a tick room. assumed to be in the context of a perm run
         /// </summary>
         /// <param name="pms">background parameter</param>
-        /// <param name="allowFlee">whether flee is allowed</param>
+        /// <param name="beforeGetToTargetRoom">whether flee is allowed</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool allowFlee)
+        private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
-            return NavigateToAreaRoom(pms, _gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], allowFlee);
+            return NavigateToAreaRoom(pms, _gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], beforeGetToTargetRoom);
         }
 
         private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms)
@@ -5397,14 +5402,14 @@ BeforeHazy:
             return NavigateToAreaRoom(pms, _gameMap.PawnShoppes[pms.PermRun.Area.PawnShop.Value], false);
         }
 
-        private CommandResultObject NavigateToInventorySinkRoom(BackgroundWorkerParameters pms, bool allowFlee)
+        private CommandResultObject NavigateToInventorySinkRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
-            return NavigateToAreaRoom(pms, pms.InventorySinkRoom, allowFlee);
+            return NavigateToAreaRoom(pms, pms.InventorySinkRoom, beforeGetToTargetRoom);
         }
 
-        private CommandResultObject NavigateToAreaRoom(BackgroundWorkerParameters pms, Room r, bool allowFlee)
+        private CommandResultObject NavigateToAreaRoom(BackgroundWorkerParameters pms, Room r, bool beforeGetToTargetRoom)
         {
-            CommandResultObject ret = NavigateToSpecificRoom(r, pms, allowFlee);
+            CommandResultObject ret = NavigateToSpecificRoom(r, pms, beforeGetToTargetRoom);
             if (ret.Result == CommandResult.CommandSuccessful)
             {
                 pms.EnteredArea = true;
@@ -5412,7 +5417,7 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool allowFlee)
+        private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
             Room currentRoom = _currentEntityInfo.CurrentRoom;
             CommandResultObject backgroundCommandResultObject;
@@ -5420,7 +5425,7 @@ BeforeHazy:
             {
                 var nextRoute = CalculateRouteExits(currentRoom, r, true);
                 if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
-                backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, allowFlee);
+                backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, beforeGetToTargetRoom);
             }
             else
             {
@@ -5928,10 +5933,10 @@ BeforeHazy:
             return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
         }
 
-        private CommandResultObject TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms, bool allowFlee)
+        private CommandResultObject TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
             Func<bool> abortLogic;
-            if (allowFlee)
+            if (beforeGetToTargetRoom)
                 abortLogic = AbortIfFleeingOrHazying;
             else
                 abortLogic = AbortIfHazying;
@@ -5974,6 +5979,11 @@ BeforeHazy:
                                     }
                                     else
                                     {
+                                        if (beforeGetToTargetRoom && _settingsData.GetNewPermRunOnBoatExitMissing && pms.PermRun != null && (pms.PermRun.Flow == PermRunFlow.ChangeAndRun || pms.PermRun.Flow == PermRunFlow.Run))
+                                        {
+                                            pms.GetNewPermRun = true;
+                                            return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                                        }
                                         WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
                                     }
                                 }
@@ -6011,7 +6021,7 @@ BeforeHazy:
                     {
                         while (!_currentBackgroundExitMessageReceived)
                         {
-                            if (allowFlee && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
+                            if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                             if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                             if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                             Thread.Sleep(50);
@@ -6019,7 +6029,7 @@ BeforeHazy:
                         }
                     }
 
-                    if (allowFlee && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
+                    if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
 
@@ -7863,6 +7873,7 @@ BeforeHazy:
                     return;
                 }
                 p = new PermRun();
+                p.Flow = PermRunFlow.AdHocStrategy;
                 frm.SaveFormDataToPermRun(p);
             }
             DoPermRun(p);
@@ -10182,6 +10193,11 @@ BeforeHazy:
 
         private void btnPermRuns_Click(object sender, EventArgs e)
         {
+            DisplayPermRunsForm();
+        }
+
+        private void DisplayPermRunsForm()
+        {
             bool haveBackgroundProcess = _currentBackgroundParameters != null;
             using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess))
             {
@@ -10198,7 +10214,7 @@ BeforeHazy:
         private void DoPermRun(PermRun p)
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            bwp.SetPermRun(p, _gameMap);
+            bwp.SetPermRun(p);
             bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
             bwp.BeforeGold = _gold;
             bwp.BeforeExperience = _experience;

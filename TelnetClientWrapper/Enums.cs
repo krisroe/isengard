@@ -759,4 +759,11 @@ namespace IsengardClient
         Total,
         Almost,
     }
+
+    internal enum PermRunFlow
+    {
+        AdHocStrategy,
+        ChangeAndRun,
+        Run,
+    }
 }

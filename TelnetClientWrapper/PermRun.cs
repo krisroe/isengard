@@ -83,6 +83,10 @@ namespace IsengardClient
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
         public ItemsToProcessType ItemsToProcessType { get; set; }
+        /// <summary>
+        /// flow used to initiate a perm run. This is not saved.
+        /// </summary>
+        public PermRunFlow Flow { get; set; }
 
         public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap)
         {

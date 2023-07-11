@@ -276,6 +276,7 @@ namespace IsengardClient
                                 {
                                     frm.SaveFormDataToPermRun(prChanged);
                                     prToRun = prChanged;
+                                    prToRun.Flow = PermRunFlow.ChangeAndRun;
                                 }
                             }
                         }
@@ -295,6 +296,7 @@ namespace IsengardClient
                         if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap))
                         {
                             prToRun = new PermRun(pr);
+                            prToRun.Flow = PermRunFlow.Run;
                         }
                     }
                     else if (col == colGo)

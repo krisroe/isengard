@@ -90,6 +90,7 @@
             this.colKeepCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colSinkCount = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colOverflowAction = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ctxItems = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.pnlItemsTop = new System.Windows.Forms.Panel();
             this.btnClearHeldItem = new System.Windows.Forms.Button();
             this.btnClearWeapon = new System.Windows.Forms.Button();
@@ -109,7 +110,7 @@
             this.colAreaPawnShop = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAreaInventorySinkRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.ctxItems = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.chkGetNewPermRunOnBoatExitMissing = new System.Windows.Forms.CheckBox();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -490,6 +491,7 @@
             // 
             // pnlSettings
             // 
+            this.pnlSettings.Controls.Add(this.chkGetNewPermRunOnBoatExitMissing);
             this.pnlSettings.Controls.Add(this.chkSaveSettingsOnQuit);
             this.pnlSettings.Controls.Add(this.txtMagicMendWhenDownXHP);
             this.pnlSettings.Controls.Add(this.chkDisplayStunLength);
@@ -700,6 +702,14 @@
             this.colOverflowAction.Text = "Overflow Action";
             this.colOverflowAction.Width = 97;
             // 
+            // ctxItems
+            // 
+            this.ctxItems.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxItems.Name = "ctxItems";
+            this.ctxItems.Size = new System.Drawing.Size(61, 4);
+            this.ctxItems.Opening += new System.ComponentModel.CancelEventHandler(this.ctxItems_Opening);
+            this.ctxItems.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxItems_ItemClicked);
+            // 
             // pnlItemsTop
             // 
             this.pnlItemsTop.Controls.Add(this.btnClearHeldItem);
@@ -904,13 +914,15 @@
             this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
-            // ctxItems
+            // chkGetNewPermRunOnBoatExitMissing
             // 
-            this.ctxItems.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxItems.Name = "ctxItems";
-            this.ctxItems.Size = new System.Drawing.Size(61, 4);
-            this.ctxItems.Opening += new System.ComponentModel.CancelEventHandler(this.ctxItems_Opening);
-            this.ctxItems.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxItems_ItemClicked);
+            this.chkGetNewPermRunOnBoatExitMissing.AutoSize = true;
+            this.chkGetNewPermRunOnBoatExitMissing.Location = new System.Drawing.Point(358, 146);
+            this.chkGetNewPermRunOnBoatExitMissing.Name = "chkGetNewPermRunOnBoatExitMissing";
+            this.chkGetNewPermRunOnBoatExitMissing.Size = new System.Drawing.Size(308, 24);
+            this.chkGetNewPermRunOnBoatExitMissing.TabIndex = 158;
+            this.chkGetNewPermRunOnBoatExitMissing.Text = "Get new perm run on boat exit missing?";
+            this.chkGetNewPermRunOnBoatExitMissing.UseVisualStyleBackColor = true;
             // 
             // frmConfiguration
             // 
@@ -1026,5 +1038,6 @@
         private System.Windows.Forms.Button btnClearWeapon;
         private System.Windows.Forms.Button btnClearHeldItem;
         private System.Windows.Forms.ContextMenuStrip ctxItems;
+        private System.Windows.Forms.CheckBox chkGetNewPermRunOnBoatExitMissing;
     }
 }

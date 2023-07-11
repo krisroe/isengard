@@ -289,6 +289,10 @@
         [PluralName("dancing bears")]
         DancingBear,
 
+        [SingularName("dancing girl")]
+        [PluralName("dancing girls")]
+        DancingGirl,
+
         [SingularName("Deathbringer")]
         //CSRTODO: no plural
         Deathbringer,

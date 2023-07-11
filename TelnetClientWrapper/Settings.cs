@@ -19,6 +19,7 @@ namespace IsengardClient
         public AlignmentType PreferredAlignment { get; set; }
         public bool VerboseMode { get; set; }
         public bool QueryMonsterStatus { get; set; }
+        public bool GetNewPermRunOnBoatExitMissing { get; set; }
         public Color FullColor { get; set; }
         public Color EmptyColor { get; set; }
         public int AutoSpellLevelMin { get; set; }
@@ -50,6 +51,7 @@ namespace IsengardClient
             FullColor = Color.Green;
             EmptyColor = Color.Red;
             QueryMonsterStatus = true;
+            GetNewPermRunOnBoatExitMissing = false;
             AutoSpellLevelMin = AUTO_SPELL_LEVEL_MINIMUM;
             AutoSpellLevelMax = AUTO_SPELL_LEVEL_MAXIMUM;
             RemoveAllOnStartup = true;
@@ -78,6 +80,7 @@ namespace IsengardClient
             PreferredAlignment = copied.PreferredAlignment;
             VerboseMode = copied.VerboseMode;
             QueryMonsterStatus = copied.QueryMonsterStatus;
+            GetNewPermRunOnBoatExitMissing = copied.GetNewPermRunOnBoatExitMissing;
             FullColor = copied.FullColor;
             EmptyColor = copied.EmptyColor;
             AutoSpellLevelMin = copied.AutoSpellLevelMin;
@@ -1398,6 +1401,7 @@ namespace IsengardClient
             newSettings["PreferredAlignment"] = PreferredAlignment.ToString();
             newSettings["VerboseMode"] = VerboseMode.ToString();
             newSettings["QueryMonsterStatus"] = QueryMonsterStatus.ToString();
+            newSettings["GetNewPermRunOnBoatExitMissing"] = GetNewPermRunOnBoatExitMissing.ToString();
             newSettings["RemoveAllOnStartup"] = RemoveAllOnStartup.ToString();
             newSettings["DisplayStunLength"] = DisplayStunLength.ToString();
             newSettings["FullColor"] = FullColor.ToArgb().ToString();
@@ -2254,6 +2258,12 @@ namespace IsengardClient
                     else
                         errorMessages.Add("Invalid QueryMonsterStatus: " + sValue);
                     break;
+                case "GetNewPermRunOnBoatExitMissing":
+                    if (bool.TryParse(sValue, out bValue))
+                        GetNewPermRunOnBoatExitMissing = bValue;
+                    else
+                        errorMessages.Add("Invalid GetNewPermRunOnBoatExitMissing: " + sValue);
+                    break;
                 case "AutoSpellLevelMin":
                     if (int.TryParse(sValue, out iValue))
                         AutoSpellLevelMin = iValue;
@@ -2535,6 +2545,7 @@ namespace IsengardClient
             WriteSetting(writer, "FullColor", FullColor.ToArgb().ToString());
             WriteSetting(writer, "EmptyColor", EmptyColor.ToArgb().ToString());
             WriteSetting(writer, "QueryMonsterStatus", QueryMonsterStatus.ToString());
+            WriteSetting(writer, "GetNewPermRunOnBoatExitMissing", GetNewPermRunOnBoatExitMissing.ToString());
             WriteSetting(writer, "AutoSpellLevelMin", AutoSpellLevelMin.ToString());
             WriteSetting(writer, "AutoSpellLevelMax", AutoSpellLevelMax.ToString());
             WriteSetting(writer, "RemoveAllOnStartup", RemoveAllOnStartup.ToString());

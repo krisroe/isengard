@@ -64,6 +64,7 @@ namespace IsengardClient
             RefreshAutoEscapeUI();
 
             chkQueryMonsterStatus.Checked = settingsData.QueryMonsterStatus;
+            chkGetNewPermRunOnBoatExitMissing.Checked = settingsData.GetNewPermRunOnBoatExitMissing;
             chkVerboseOutput.Checked = settingsData.VerboseMode;
             chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
             chkDisplayStunLength.Checked = settingsData.DisplayStunLength;
@@ -158,7 +159,7 @@ namespace IsengardClient
             }
 
             sItem = txtHeldItem.Text;
-            if (string.IsNullOrEmpty(sItem))
+            if (!string.IsNullOrEmpty(sItem))
             {
                 eHeldItem = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), sItem);
             }
@@ -215,6 +216,7 @@ namespace IsengardClient
             }
 
             _settings.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
+            _settings.GetNewPermRunOnBoatExitMissing = chkGetNewPermRunOnBoatExitMissing.Checked;
             _settings.VerboseMode = chkVerboseOutput.Checked;
             _settings.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
             _settings.DisplayStunLength = chkDisplayStunLength.Checked;
