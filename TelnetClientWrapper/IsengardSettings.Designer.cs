@@ -12,7 +12,7 @@ namespace IsengardClient {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.6.0.0")]
     internal sealed partial class IsengardSettings : global::System.Configuration.ApplicationSettingsBase {
         
         private static IsengardSettings defaultInstance = ((IsengardSettings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new IsengardSettings())));
@@ -32,6 +32,18 @@ namespace IsengardClient {
             }
             set {
                 this["UserName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GenerateFullLog {
+            get {
+                return ((bool)(this["GenerateFullLog"]));
+            }
+            set {
+                this["GenerateFullLog"] = value;
             }
         }
     }

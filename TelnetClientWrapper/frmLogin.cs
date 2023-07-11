@@ -10,6 +10,7 @@ namespace IsengardClient
             InitializeComponent();
 
             txtUserName.Text = userName;
+            chkGenerateFullLog.Checked = IsengardSettings.Default.GenerateFullLog;
         }
 
         public string UserName
@@ -25,6 +26,14 @@ namespace IsengardClient
             get
             {
                 return txtPassword.Text;
+            }
+        }
+
+        public bool GenerateFullLog
+        {
+            get
+            {
+                return chkGenerateFullLog.Checked;
             }
         }
 
@@ -51,6 +60,10 @@ namespace IsengardClient
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            IsengardSettings sets = IsengardSettings.Default;
+            IsengardSettings.Default.GenerateFullLog = chkGenerateFullLog.Checked;
+            sets.Save();
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

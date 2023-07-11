@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,8 @@ namespace IsengardClient
 {
     internal partial class frmMain : Form
     {
-        private TcpClient _tcpClient;
         private NetworkStream _tcpClientNetworkStream;
+        private bool _fullLogFinished;
 
         private IsengardSettingData _settingsData;
         private bool _processedUIWithSettings;
@@ -66,6 +67,8 @@ namespace IsengardClient
         /// </summary>
         private HashSet<string> _players = null;
 
+        private object _fullLogLock;
+        private List<string> _fullLogLines;
         private string _username;
         private string _password;
         private bool _promptedUserName;
@@ -122,7 +125,8 @@ namespace IsengardClient
         private bool _programmaticUI = false;
 
         private bool _setCurrentArea = false;
-        private BackgroundWorker _bw;
+        private BackgroundWorker _bwBackgroundProcess;
+        private BackgroundWorker _bwFullLog;
         private BackgroundWorkerParameters _currentBackgroundParameters;
         private BackgroundProcessPhase _backgroundProcessPhase;
         private PleaseWaitSequence _pleaseWaitSequence;
@@ -201,7 +205,7 @@ namespace IsengardClient
             }
         }
 
-        internal frmMain(string userName, string password)
+        internal frmMain(string userName, string password, bool generateFullLog)
         {
             InitializeComponent();
             this.MinimumSize = this.Size;
@@ -233,10 +237,20 @@ namespace IsengardClient
             _username = sb.ToString();
             _password = password;
 
-            _bw = new BackgroundWorker();
-            _bw.WorkerSupportsCancellation = true;
-            _bw.DoWork += _bw_DoWork;
-            _bw.RunWorkerCompleted += _bw_RunWorkerCompleted;
+            _bwBackgroundProcess = new BackgroundWorker();
+            _bwBackgroundProcess.WorkerSupportsCancellation = true;
+            _bwBackgroundProcess.DoWork += _bwBackgroundProcess_DoWork;
+            _bwBackgroundProcess.RunWorkerCompleted += _bwBackgroundProcess_RunWorkerCompleted;
+
+            if (generateFullLog)
+            {
+                _bwFullLog = new BackgroundWorker();
+                _bwFullLog.WorkerSupportsCancellation = true;
+                _bwFullLog.DoWork += _bwFullLog_DoWork;
+                _fullLogLock = new object();
+                _fullLogLines = new List<string>();
+                _bwFullLog.RunWorkerAsync();
+            }
 
             ReloadMap(false);
 
@@ -947,8 +961,7 @@ namespace IsengardClient
             _enteredUserName = false;
             _enteredPassword = false;
 
-            _tcpClient = new TcpClient(Program.HOST_NAME, Program.PORT);
-            _tcpClientNetworkStream = _tcpClient.GetStream();
+            _tcpClientNetworkStream = new TcpClient(Program.HOST_NAME, Program.PORT).GetStream();
             BackgroundWorker _bwNetwork = new BackgroundWorker();
             _bwNetwork.DoWork += _bwNetwork_DoWork;
             _bwNetwork.RunWorkerCompleted += _bwNetwork_RunWorkerCompleted;
@@ -3185,6 +3198,54 @@ namespace IsengardClient
             }
         }
 
+        private void _bwFullLog_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string logPath = Path.Combine(Path.GetTempPath(), "Isengard");
+            try
+            {
+                if (!Directory.Exists(logPath))
+                {
+                    Directory.CreateDirectory(logPath);
+                }
+                DateTime dtNow = DateTime.UtcNow;
+                string sFileName = Path.Combine(logPath, dtNow.Year + dtNow.Month.ToString().PadLeft(2, '0') + dtNow.Day.ToString().PadLeft(2, '0') + dtNow.Hour.ToString().PadLeft(2, '0') + dtNow.Minute.ToString().PadLeft(2, '0') + dtNow.Second.ToString().PadLeft(2, '0') + dtNow.Millisecond.ToString().PadLeft(3, '0') + ".txt");
+                List<string> nextLines = new List<string>();
+                using (StreamWriter sw = new StreamWriter(sFileName, true))
+                {
+                    while (!_bwFullLog.CancellationPending)
+                    {
+                        bool didSomething = false;
+                        nextLines.Clear();
+                        lock (_fullLogLock)
+                        {
+                            if (_fullLogLines.Count > 0)
+                            {
+                                didSomething = true;
+                                nextLines.AddRange(_fullLogLines);
+                                _fullLogLines.Clear();
+                            }
+                        }
+                        foreach (string s in nextLines)
+                        {
+                            sw.Write(s);
+                        }
+                        if (!didSomething)
+                        {
+                            Thread.Sleep(100);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddConsoleMessage("Full log error: " + ex.ToString());
+            }
+            finally
+            {
+                _fullLogFinished = true;
+            }
+        }
+
         private void _bwNetwork_DoWork(object sender, DoWorkEventArgs e)
         {
             List<int> currentOutputItemData = new List<int>();
@@ -3257,6 +3318,13 @@ namespace IsengardClient
                         }
 
                         string sNewLine = sb.ToString();
+                        if (_fullLogLock != null)
+                        {
+                            lock (_fullLogLock)
+                            {
+                                _fullLogLines.Add(sNewLine);
+                            }
+                        }
 
                         bool haveStatus = oist == OutputItemSequenceType.HPMPStatus;
                         if (haveStatus) //strip status "(HP X, MP Y)"
@@ -3889,7 +3957,7 @@ namespace IsengardClient
             RunStrategy((Strategy)((Button)sender).Tag);
         }
 
-        private void _bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void _bwBackgroundProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
             if (bwp.SingleCommandType.HasValue && bwp.SingleCommandType.Value == BackgroundCommandType.Quit && bwp.SingleCommandResult == CommandResult.CommandSuccessful)
@@ -4013,7 +4081,7 @@ namespace IsengardClient
             }
         }
 
-        private void _bw_DoWork(object sender, DoWorkEventArgs e)
+        private void _bwBackgroundProcess_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerParameters pms = (BackgroundWorkerParameters)e.Argument;
             try
@@ -4156,7 +4224,7 @@ namespace IsengardClient
                 }
 
                 //verify the mob is present and attackable before activating skills
-                if (_bw.CancellationPending) return;
+                if (_bwBackgroundProcess.CancellationPending) return;
                 if (!_hazying && !_fleeing && pms.ExpectsMob() && !FoundMob(pms))
                 {
                     AddConsoleMessage("Target mob not present.");
@@ -4916,7 +4984,7 @@ BeforeHazy:
                 foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
                 {
                     if (_hazying || _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                    if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                     if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
                     {
                         backgroundCommandResultObject = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms, AbortIfFleeingOrHazying);
@@ -4946,7 +5014,7 @@ BeforeHazy:
                 }
             }
             if (_hazying) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandEscaped, 0);
-            else if (_bw.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted, 0);
+            else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted, 0);
             else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
             return backgroundCommandResultObject;
         }
@@ -5345,7 +5413,7 @@ BeforeHazy:
                 }
             }
             CommandResultObject ret;
-            if (_bw.CancellationPending)
+            if (_bwBackgroundProcess.CancellationPending)
                 ret = new CommandResultObject(CommandResult.CommandAborted, 0);
             else if (_hazying)
                 ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
@@ -5534,7 +5602,7 @@ BeforeHazy:
                 }
             }
             CommandResultObject ret;
-            if (_bw.CancellationPending)
+            if (_bwBackgroundProcess.CancellationPending)
                 ret = new CommandResultObject(CommandResult.CommandAborted, 0);
             else if (_hazying)
                 ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
@@ -5867,12 +5935,12 @@ BeforeHazy:
                         Thread.Sleep(50);
                         waitInterval -= 50;
                         if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                        if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                         RunQueuedCommandWhenBackgroundProcessRunning(pms);
                     }
                 }
                 if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
             }
             return new CommandResultObject(CommandResult.CommandSuccessful, 0);
@@ -6023,7 +6091,7 @@ BeforeHazy:
                         {
                             if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                             if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                            if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                            if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                             Thread.Sleep(50);
                             RunQueuedCommandWhenBackgroundProcessRunning(pms);
                         }
@@ -6031,7 +6099,7 @@ BeforeHazy:
 
                     if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                    if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
 
                     if ((nextExit.KeyType.HasValue || nextExit.IsUnknownKnockableKeyType) && !nextExit.RequiresKey())
                     {
@@ -6177,7 +6245,7 @@ BeforeHazy:
                 }
             }
             CommandResultObject ret;
-            if (_bw.CancellationPending)
+            if (_bwBackgroundProcess.CancellationPending)
                 ret = new CommandResultObject(CommandResult.CommandAborted, 0);
             else if (_hazying || _fleeing)
                 ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
@@ -6583,7 +6651,7 @@ BeforeHazy:
                 ret = true;
             else if (_hazying)
                 ret = true;
-            else if (_bw.CancellationPending)
+            else if (_bwBackgroundProcess.CancellationPending)
                 ret = true;
             else
             {
@@ -6967,7 +7035,7 @@ BeforeHazy:
                 {
                     if (_fleeing || _hazying) break;
                 }
-                if (_bw.CancellationPending) break;
+                if (_bwBackgroundProcess.CancellationPending) break;
 
                 Thread.Sleep(nextWaitMS);
 
@@ -6984,7 +7052,7 @@ BeforeHazy:
                 {
                     if (_fleeing || _hazying) break;
                 }
-                if (_bw.CancellationPending) break;
+                if (_bwBackgroundProcess.CancellationPending) break;
 
                 remainingMS -= nextWaitMS;
                 RunQueuedCommandWhenBackgroundProcessRunning(_currentBackgroundParameters);
@@ -7002,7 +7070,7 @@ BeforeHazy:
                 {
                     if (_fleeing || _hazying) break;
                 }
-                if (_bw.CancellationPending) break;
+                if (_bwBackgroundProcess.CancellationPending) break;
             }
         }
 
@@ -7082,7 +7150,7 @@ BeforeHazy:
                     bool doSleep = true;
                     if (allowAbort)
                     {
-                        if (_bw.CancellationPending)
+                        if (_bwBackgroundProcess.CancellationPending)
                         {
                             currentResult = CommandResult.CommandAborted;
                             specificResult = 0;
@@ -7158,7 +7226,7 @@ BeforeHazy:
                 CommandResultObject resultObject = null;
                 while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND)
                 {
-                    if (_bw.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                     if (abortLogic != null && abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     currentAttempts++;
                     resultObject = RunSingleCommandForCommandResultBase(commandType, command, pms, abortLogic, hidden);
@@ -7432,7 +7500,9 @@ BeforeHazy:
             {
                 _tcpClientNetworkStream.Write(bytesToWrite.ToArray(), 0, bytesToWrite.Count);
             }
-            if (!string.IsNullOrEmpty(command) && echoType != InputEchoType.Off)
+            bool displayToConsole = !string.IsNullOrEmpty(command) && echoType != InputEchoType.Off;
+            bool displayToFullLog = !string.IsNullOrEmpty(command) && _fullLogLock != null;
+            if (displayToConsole || displayToFullLog)
             {
                 string sToConsole;
                 if (echoType == InputEchoType.OnPassword)
@@ -7448,10 +7518,20 @@ BeforeHazy:
                 {
                     sToConsole = command;
                 }
-                lock (_consoleTextLock)
+                string sText = sToConsole + Environment.NewLine;
+                if (displayToConsole)
                 {
-                    string sText = sToConsole + Environment.NewLine;
-                    _newConsoleText.Add(sText);
+                    lock (_consoleTextLock)
+                    {
+                        _newConsoleText.Add(sText);
+                    }
+                }
+                if (displayToFullLog)
+                {
+                    lock (_fullLogLock)
+                    {
+                        _fullLogLines.Add(sText);
+                    }
                 }
             }
         }
@@ -7755,13 +7835,13 @@ BeforeHazy:
             _currentBackgroundParameters = backgroundParameters;
             _backgroundProcessPhase = BackgroundProcessPhase.Initialization;
             ToggleBackgroundProcessUI(backgroundParameters, true);
-            _bw.RunWorkerAsync(backgroundParameters);
+            _bwBackgroundProcess.RunWorkerAsync(backgroundParameters);
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
             _currentBackgroundParameters.Cancelled = true;
-            _bw.CancelAsync();
+            _bwBackgroundProcess.CancelAsync();
             btnAbort.Enabled = false;
         }
 
@@ -10249,6 +10329,24 @@ BeforeHazy:
         private void ctxCurrentRoom_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             RunCommandOnRoomItemTreeNode(e.ClickedItem.Text, treeCurrentRoom.SelectedNode);
+        }
+
+        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _bwFullLog.CancelAsync();
+            if (_fullLogLock != null)
+            {
+                while (!_fullLogFinished)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+        }
+
+        private void tsmiOpenLogFolder_Click(object sender, EventArgs e)
+        {
+            string sLogFolder = Path.Combine(Path.GetTempPath(), "Isengard");
+            Process.Start("explorer.exe", sLogFolder);
         }
     }
 }

@@ -34,6 +34,7 @@ namespace IsengardClient
             string userName = IsengardSettings.Default.UserName;
             while (true)
             {
+                bool generateFullLog;
                 using (frmLogin loginForm = new frmLogin(userName))
                 {
                     if (loginForm.ShowDialog() != DialogResult.OK)
@@ -42,9 +43,10 @@ namespace IsengardClient
                     }
                     userName = loginForm.UserName;
                     password = loginForm.Password;
+                    generateFullLog = loginForm.GenerateFullLog;
                 }
                 bool logout;
-                using (frmMain frm = new frmMain(userName, password))
+                using (frmMain frm = new frmMain(userName, password, generateFullLog))
                 {
                     frm.ShowDialog();
                     logout = frm.Logout;
