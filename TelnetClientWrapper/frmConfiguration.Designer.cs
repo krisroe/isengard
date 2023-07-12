@@ -69,6 +69,8 @@
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
             this.pnlSettings = new System.Windows.Forms.Panel();
+            this.cboConsoleVerbosity = new System.Windows.Forms.ComboBox();
+            this.lblConsoleVerbosity = new System.Windows.Forms.Label();
             this.chkGetNewPermRunOnBoatExitMissing = new System.Windows.Forms.CheckBox();
             this.chkSaveSettingsOnQuit = new System.Windows.Forms.CheckBox();
             this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
@@ -104,14 +106,16 @@
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
             this.tabAreas = new System.Windows.Forms.TabPage();
-            this.dgvAreas = new System.Windows.Forms.DataGridView();
-            this.colAreaDisplayName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAreaTickRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAreaPawnShop = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAreaInventorySinkRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.treeAreas = new System.Windows.Forms.TreeView();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.lblConsoleVerbosity = new System.Windows.Forms.Label();
-            this.cboConsoleVerbosity = new System.Windows.Forms.ComboBox();
+            this.ctxAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiAddChild = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddSiblingBefore = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddSiblingAfter = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiEdit = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -124,8 +128,8 @@
             this.pnlMiddle.SuspendLayout();
             this.pnlItemsTop.SuspendLayout();
             this.tabAreas.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).BeginInit();
             this.pnlBottom.SuspendLayout();
+            this.ctxAreas.SuspendLayout();
             this.SuspendLayout();
             // 
             // ctxRealm
@@ -515,6 +519,28 @@
             this.pnlSettings.Size = new System.Drawing.Size(812, 546);
             this.pnlSettings.TabIndex = 150;
             // 
+            // cboConsoleVerbosity
+            // 
+            this.cboConsoleVerbosity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboConsoleVerbosity.FormattingEnabled = true;
+            this.cboConsoleVerbosity.Items.AddRange(new object[] {
+            "Minimum",
+            "Default",
+            "Maximum"});
+            this.cboConsoleVerbosity.Location = new System.Drawing.Point(196, 266);
+            this.cboConsoleVerbosity.Name = "cboConsoleVerbosity";
+            this.cboConsoleVerbosity.Size = new System.Drawing.Size(87, 21);
+            this.cboConsoleVerbosity.TabIndex = 160;
+            // 
+            // lblConsoleVerbosity
+            // 
+            this.lblConsoleVerbosity.AutoSize = true;
+            this.lblConsoleVerbosity.Location = new System.Drawing.Point(19, 269);
+            this.lblConsoleVerbosity.Name = "lblConsoleVerbosity";
+            this.lblConsoleVerbosity.Size = new System.Drawing.Size(93, 13);
+            this.lblConsoleVerbosity.TabIndex = 159;
+            this.lblConsoleVerbosity.Text = "Console verbosity:";
+            // 
             // chkGetNewPermRunOnBoatExitMissing
             // 
             this.chkGetNewPermRunOnBoatExitMissing.AutoSize = true;
@@ -843,7 +869,7 @@
             // 
             // tabAreas
             // 
-            this.tabAreas.Controls.Add(this.dgvAreas);
+            this.tabAreas.Controls.Add(this.treeAreas);
             this.tabAreas.Location = new System.Drawing.Point(4, 22);
             this.tabAreas.Name = "tabAreas";
             this.tabAreas.Size = new System.Drawing.Size(816, 550);
@@ -851,59 +877,15 @@
             this.tabAreas.Text = "Areas";
             this.tabAreas.UseVisualStyleBackColor = true;
             // 
-            // dgvAreas
+            // treeAreas
             // 
-            this.dgvAreas.AllowUserToAddRows = false;
-            this.dgvAreas.AllowUserToDeleteRows = false;
-            this.dgvAreas.AllowUserToResizeRows = false;
-            this.dgvAreas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvAreas.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colAreaDisplayName,
-            this.colAreaTickRoom,
-            this.colAreaPawnShop,
-            this.colAreaInventorySinkRoom});
-            this.dgvAreas.ContextMenuStrip = this.ctxListModification;
-            this.dgvAreas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvAreas.Location = new System.Drawing.Point(0, 0);
-            this.dgvAreas.Name = "dgvAreas";
-            this.dgvAreas.ReadOnly = true;
-            this.dgvAreas.RowHeadersVisible = false;
-            this.dgvAreas.RowHeadersWidth = 51;
-            this.dgvAreas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAreas.Size = new System.Drawing.Size(816, 550);
-            this.dgvAreas.TabIndex = 0;
-            // 
-            // colAreaDisplayName
-            // 
-            this.colAreaDisplayName.HeaderText = "Display Name";
-            this.colAreaDisplayName.MinimumWidth = 6;
-            this.colAreaDisplayName.Name = "colAreaDisplayName";
-            this.colAreaDisplayName.ReadOnly = true;
-            this.colAreaDisplayName.Width = 125;
-            // 
-            // colAreaTickRoom
-            // 
-            this.colAreaTickRoom.HeaderText = "Tick";
-            this.colAreaTickRoom.MinimumWidth = 6;
-            this.colAreaTickRoom.Name = "colAreaTickRoom";
-            this.colAreaTickRoom.ReadOnly = true;
-            this.colAreaTickRoom.Width = 125;
-            // 
-            // colAreaPawnShop
-            // 
-            this.colAreaPawnShop.HeaderText = "Pawn";
-            this.colAreaPawnShop.MinimumWidth = 6;
-            this.colAreaPawnShop.Name = "colAreaPawnShop";
-            this.colAreaPawnShop.ReadOnly = true;
-            this.colAreaPawnShop.Width = 125;
-            // 
-            // colAreaInventorySinkRoom
-            // 
-            this.colAreaInventorySinkRoom.HeaderText = "Inventory Sink";
-            this.colAreaInventorySinkRoom.MinimumWidth = 6;
-            this.colAreaInventorySinkRoom.Name = "colAreaInventorySinkRoom";
-            this.colAreaInventorySinkRoom.ReadOnly = true;
-            this.colAreaInventorySinkRoom.Width = 125;
+            this.treeAreas.ContextMenuStrip = this.ctxAreas;
+            this.treeAreas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeAreas.Location = new System.Drawing.Point(0, 0);
+            this.treeAreas.Name = "treeAreas";
+            this.treeAreas.Size = new System.Drawing.Size(816, 550);
+            this.treeAreas.TabIndex = 0;
+            this.treeAreas.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeAreas_BeforeCollapse);
             // 
             // pnlBottom
             // 
@@ -916,27 +898,62 @@
             this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
-            // lblConsoleVerbosity
+            // ctxAreas
             // 
-            this.lblConsoleVerbosity.AutoSize = true;
-            this.lblConsoleVerbosity.Location = new System.Drawing.Point(19, 269);
-            this.lblConsoleVerbosity.Name = "lblConsoleVerbosity";
-            this.lblConsoleVerbosity.Size = new System.Drawing.Size(93, 13);
-            this.lblConsoleVerbosity.TabIndex = 159;
-            this.lblConsoleVerbosity.Text = "Console verbosity:";
+            this.ctxAreas.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiAddChild,
+            this.tsmiAddSiblingBefore,
+            this.tsmiAddSiblingAfter,
+            this.tsmiEdit,
+            this.tsmiRemove,
+            this.tsmiMoveUp,
+            this.tsmiMoveDown});
+            this.ctxAreas.Name = "ctxAreas";
+            this.ctxAreas.Size = new System.Drawing.Size(173, 158);
+            this.ctxAreas.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAreas_Opening);
+            this.ctxAreas.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxAreas_ItemClicked);
             // 
-            // cboConsoleVerbosity
+            // tsmiAddChild
             // 
-            this.cboConsoleVerbosity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboConsoleVerbosity.FormattingEnabled = true;
-            this.cboConsoleVerbosity.Items.AddRange(new object[] {
-            "Minimum",
-            "Default",
-            "Maximum"});
-            this.cboConsoleVerbosity.Location = new System.Drawing.Point(196, 266);
-            this.cboConsoleVerbosity.Name = "cboConsoleVerbosity";
-            this.cboConsoleVerbosity.Size = new System.Drawing.Size(87, 21);
-            this.cboConsoleVerbosity.TabIndex = 160;
+            this.tsmiAddChild.Name = "tsmiAddChild";
+            this.tsmiAddChild.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddChild.Text = "Add Child";
+            // 
+            // tsmiAddSiblingBefore
+            // 
+            this.tsmiAddSiblingBefore.Name = "tsmiAddSiblingBefore";
+            this.tsmiAddSiblingBefore.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddSiblingBefore.Text = "Add Sibling Before";
+            // 
+            // tsmiAddSiblingAfter
+            // 
+            this.tsmiAddSiblingAfter.Name = "tsmiAddSiblingAfter";
+            this.tsmiAddSiblingAfter.Size = new System.Drawing.Size(172, 22);
+            this.tsmiAddSiblingAfter.Text = "Add Sibling After";
+            // 
+            // tsmiEdit
+            // 
+            this.tsmiEdit.Name = "tsmiEdit";
+            this.tsmiEdit.Size = new System.Drawing.Size(172, 22);
+            this.tsmiEdit.Text = "Edit";
+            // 
+            // tsmiRemove
+            // 
+            this.tsmiRemove.Name = "tsmiRemove";
+            this.tsmiRemove.Size = new System.Drawing.Size(172, 22);
+            this.tsmiRemove.Text = "Remove";
+            // 
+            // tsmiMoveUp
+            // 
+            this.tsmiMoveUp.Name = "tsmiMoveUp";
+            this.tsmiMoveUp.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveUp.Text = "Move Up";
+            // 
+            // tsmiMoveDown
+            // 
+            this.tsmiMoveDown.Name = "tsmiMoveDown";
+            this.tsmiMoveDown.Size = new System.Drawing.Size(172, 22);
+            this.tsmiMoveDown.Text = "Move Down";
             // 
             // frmConfiguration
             // 
@@ -964,8 +981,8 @@
             this.pnlItemsTop.ResumeLayout(false);
             this.pnlItemsTop.PerformLayout();
             this.tabAreas.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAreas)).EndInit();
             this.pnlBottom.ResumeLayout(false);
+            this.ctxAreas.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1038,11 +1055,6 @@
         private System.Windows.Forms.Label lblPotionsVigorWhenDownXHP;
         private System.Windows.Forms.CheckBox chkSaveSettingsOnQuit;
         private System.Windows.Forms.TabPage tabAreas;
-        private System.Windows.Forms.DataGridView dgvAreas;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaDisplayName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaTickRoom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaPawnShop;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAreaInventorySinkRoom;
         private System.Windows.Forms.TextBox txtCurrentWeaponValue;
         private System.Windows.Forms.Label lblWeapon;
         private System.Windows.Forms.Panel pnlMiddle;
@@ -1054,5 +1066,14 @@
         private System.Windows.Forms.CheckBox chkGetNewPermRunOnBoatExitMissing;
         private System.Windows.Forms.ComboBox cboConsoleVerbosity;
         private System.Windows.Forms.Label lblConsoleVerbosity;
+        private System.Windows.Forms.TreeView treeAreas;
+        private System.Windows.Forms.ContextMenuStrip ctxAreas;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddChild;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddSiblingBefore;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAddSiblingAfter;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEdit;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRemove;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
     }
 }

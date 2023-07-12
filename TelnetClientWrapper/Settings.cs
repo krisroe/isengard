@@ -39,8 +39,7 @@ namespace IsengardClient
         public List<LocationNode> Locations { get; set; }
         public List<Strategy> Strategies { get; set; }
         public List<PermRun> PermRuns { get; set; }
-        public List<Area> Areas { get; set; }
-        public Dictionary<string, Area> AreasByName { get; set; }
+        public Area HomeArea { get; set; }
         public IsengardSettingData()
         {
             Weapon = null;
@@ -69,8 +68,7 @@ namespace IsengardClient
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
             Locations = new List<LocationNode>();
-            Areas = new List<Area>();
-            AreasByName = new Dictionary<string, Area>();
+            HomeArea = null;
         }
         public IsengardSettingData(IsengardSettingData copied)
         {
@@ -105,16 +103,8 @@ namespace IsengardClient
             {
                 DynamicItemClassData[next.Key] = new DynamicItemData(next.Value);
             }
-            Areas = new List<Area>();
-            AreasByName = new Dictionary<string, Area>();
-            Dictionary<Area, Area> oAreaMapping = new Dictionary<Area, Area>();
-            foreach (Area next in copied.Areas)
-            {
-                Area copyArea = new Area(next);
-                Areas.Add(copyArea);
-                oAreaMapping[next] = copyArea;
-                AreasByName[next.DisplayName] = copyArea;
-            }
+            Dictionary<Area, Area> areaMapping = new Dictionary<Area, Area>();
+            HomeArea = new Area(copied.HomeArea, null, areaMapping);
             Locations = new List<LocationNode>();
             foreach (LocationNode next in copied.Locations)
             {
@@ -135,7 +125,7 @@ namespace IsengardClient
                 copyPermRun.Strategy = oStrategyMapping[copyPermRun.Strategy];
                 if (copyPermRun.Area != null)
                 {
-                    copyPermRun.Area = oAreaMapping[copyPermRun.Area];
+                    copyPermRun.Area = areaMapping[copyPermRun.Area];
                 }
                 PermRuns.Add(copyPermRun);
             }
@@ -202,25 +192,39 @@ namespace IsengardClient
                     }
                 }
 
-                cmd.CommandText = "SELECT ID,DisplayName,TickRoom,PawnShop,InventorySinkRoom FROM Areas WHERE UserID = @UserID ORDER BY OrderValue";
+                List<Area> areaFlatList = new List<Area>();
+                Dictionary<int, Area> areaMapping = new Dictionary<int, Area>();
+                Dictionary<string, Area> areasByName = new Dictionary<string, Area>();
+
+                cmd.CommandText = "SELECT ID,ParentID,DisplayName,TickRoom,PawnShop,InventorySinkRoom FROM Areas WHERE UserID = @UserID ORDER BY OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        Area a = new Area(null);
                         bool isValid = true;
-                        Area a = new Area();
 
-                        a.ID = Convert.ToInt32(reader["ID"]);
-                        a.DisplayName = reader["DisplayName"].ToString();
-                        if (string.IsNullOrEmpty(a.DisplayName))
+                        int iID = Convert.ToInt32(reader["ID"]);
+                        a.ID = iID;
+
+                        oData = reader["ParentID"];
+                        if (oData != DBNull.Value) a.ParentID = Convert.ToInt32(oData);
+
+                        string sDisplayName = reader["DisplayName"].ToString();
+                        a.DisplayName = sDisplayName;
+                        if (string.IsNullOrEmpty(sDisplayName))
                         {
                             isValid = false;
                             errorMessages.Add("Area found with no display name.");
                         }
-                        else if (AreasByName.ContainsKey(a.DisplayName))
+                        else if (areasByName.ContainsKey(sDisplayName))
                         {
                             isValid = false;
                             errorMessages.Add("Duplicate area display name found.");
+                        }
+                        else
+                        {
+                            areasByName[sDisplayName] = a;
                         }
 
                         oData = reader["TickRoom"];
@@ -237,37 +241,68 @@ namespace IsengardClient
                             a.InventorySinkRoomObject = rTemp;
                         }
 
-                        if (isValid)
+                        a.IsValid = isValid;
+                        areaMapping[iID] = a;
+                        areaFlatList.Add(a);
+                    }
+                }
+                foreach (Area a in areaFlatList)
+                {
+                    if (a.ParentID == 0)
+                    {
+                        if (HomeArea != null)
                         {
-                            Areas.Add(a);
-                            AreasByName[a.DisplayName] = a;
+                            errorMessages.Add("Duplicate home area found");
+                            a.IsValid = false;
                         }
+                        HomeArea = a;
+                    }
+                    else if (areaMapping.TryGetValue(a.ParentID, out Area parent))
+                    {
+                        if (parent.Children == null) parent.Children = new List<Area>();
+                        parent.Children.Add(a);
+                        a.Parent = parent;
+                    }
+                    else
+                    {
+                        errorMessages.Add("Location parent ID not found for " + a.ToString());
+                        a.IsValid = false;
+                    }
+                }
+                Dictionary<int, Area> areasByID = new Dictionary<int, Area>();
+                if (HomeArea != null)
+                {
+                    if (HomeArea.IsValid)
+                    {
+                        RemoveInvalidAreas(HomeArea);
+                        PopulateAreaMappings(HomeArea, areasByID);
+                    }
+                    else
+                    {
+                        HomeArea = null;
                     }
                 }
 
                 List<LocationNode> locationFlatList = new List<LocationNode>();
                 Dictionary<int, LocationNode> locationMapping = new Dictionary<int, LocationNode>();
-                cmd.CommandText = "SELECT ID,DisplayName,Room,Expanded,ParentID FROM LocationNodes WHERE UserID = @UserID ORDER BY OrderValue";
+                cmd.CommandText = "SELECT ID,ParentID,DisplayName,Room,Expanded FROM LocationNodes WHERE UserID = @UserID ORDER BY OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        LocationNode ln = new LocationNode(null);
                         bool isValid = true;
+
                         int iID = Convert.ToInt32(reader["ID"]);
+                        ln.ID = iID;
+
                         oData = reader["DisplayName"];
                         string sDisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
+                        ln.DisplayName = sDisplayName;
+
                         oData = reader["Room"];
                         string sRoom = oData == DBNull.Value ? string.Empty : oData.ToString();
-                        bool expanded = Convert.ToInt32(reader["Expanded"]) != 0;
-                        oData = reader["ParentID"];
-                        int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
-                        LocationNode ln = new LocationNode(null);
-                        ln.ID = iID;
-                        ln.DisplayName = sDisplayName;
                         ln.Room = sRoom;
-                        ln.Expanded = expanded;
-                        ln.ParentID = iParentID;
-
                         Room r = null;
                         if (!string.IsNullOrEmpty(sRoom))
                         {
@@ -279,6 +314,12 @@ namespace IsengardClient
                             }
                         }
                         ln.RoomObject = r;
+
+                        ln.Expanded = Convert.ToInt32(reader["Expanded"]) != 0;
+
+                        oData = reader["ParentID"];
+                        int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
+                        ln.ParentID = iParentID;
 
                         ln.IsValid = isValid;
                         locationMapping[iID] = ln;
@@ -422,8 +463,11 @@ namespace IsengardClient
                         if (oData != DBNull.Value)
                         {
                             int iValue = Convert.ToInt32(oData);
-                            permRun.Area = Areas.Find((a) => { return a.ID == iValue; });
-                            if (permRun.Area == null)
+                            if (areasByID.TryGetValue(iValue, out Area aFound))
+                            {
+                                permRun.Area = aFound;
+                            }
+                            else
                             {
                                 permRun.IsValid = false;
                                 errorMessages.Add("Area not found: " + iValue);
@@ -529,6 +573,45 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// removes invalid areas. The specified area is assumed to be valid
+        /// </summary>
+        /// <param name="a">area to check</param>
+        public void RemoveInvalidAreas(Area a)
+        {
+            if (a.Children != null)
+            {
+                for (int i = a.Children.Count - 1; i >= 0; i--)
+                {
+                    Area aChild = a.Children[i];
+                    if (aChild.IsValid)
+                    {
+                        RemoveInvalidAreas(aChild);
+                    }
+                    else
+                    {
+                        a.Children.RemoveAt(i);
+                    }
+                }
+                if (a.Children.Count == 0)
+                {
+                    a.Children = null;
+                }
+            }
+        }
+
+        private void PopulateAreaMappings(Area a, Dictionary<int, Area> AreasByID)
+        {
+            AreasByID[a.ID] = a;
+            if (a.Children != null)
+            {
+                foreach (Area aChild in a.Children)
+                {
+                    PopulateAreaMappings(aChild, AreasByID);
+                }
+            }
+        }
+
         private void RemoveInvalidLocations(List<LocationNode> locations)
         {
             for (int i = locations.Count - 1; i >= 0; i--)
@@ -601,10 +684,11 @@ namespace IsengardClient
             {
                 "Settings",
                 "DynamicItemData",
-                "Areas",
+                "Area",
                 "Locations",
                 "Strategies"
             };
+            Dictionary<string, Area> areasByName = new Dictionary<string, Area>();
             foreach (string nextStandardElement in standardElements)
             {
                 if (topLevelElements.TryGetValue(nextStandardElement, out elem))
@@ -613,12 +697,12 @@ namespace IsengardClient
                         HandleSettings(elem, errorMessages);
                     else if (nextStandardElement == "DynamicItemData")
                         HandleDynamicItemData(elem, errorMessages);
-                    else if (nextStandardElement == "Areas")
-                        HandleAreas(elem, errorMessages, gameMap);
+                    else if (nextStandardElement == "Area")
+                        HomeArea = HandleArea(null, elem, errorMessages, gameMap, areasByName);
                     else if (nextStandardElement == "Locations")
                         HandleLocations(elem, errorMessages, null, Locations, gameMap);
                     else if (nextStandardElement == "Strategies")
-                        HandleStrategies(elem, errorMessages, gameMap);
+                        HandleStrategies(elem, errorMessages, gameMap, areasByName);
                     else
                         throw new InvalidOperationException();
                     topLevelElements.Remove(nextStandardElement);
@@ -634,11 +718,11 @@ namespace IsengardClient
         {
             IsengardSettingData ret = new IsengardSettingData();
             ret.Strategies.AddRange(Strategy.GetDefaultStrategies());
-            ret.Areas.AddRange(Area.GetDefaultAreas());
+            ret.HomeArea = Area.GetDefaultHomeArea();
             return ret;
         }
 
-        private void HandleAreas(XmlElement elem, List<string> errorMessages, IsengardMap gameMap)
+        private Area HandleArea(Area parentArea, XmlElement elem, List<string> errorMessages, IsengardMap gameMap, Dictionary<string, Area> areasByName)
         {
             HashSet<string> attributes = new HashSet<string>()
             {
@@ -647,6 +731,67 @@ namespace IsengardClient
                 "PawnShop",
                 "InventorySinkRoom",
             };
+
+            Area a = new Area(parentArea);
+
+            bool isValid;
+            var attributeMapping = GetAttributeMapping(elem, attributes, errorMessages, out isValid);
+            string sValue;
+
+            sValue = GetAttributeValueByName(attributeMapping, "DisplayName");
+            if (string.IsNullOrEmpty(sValue))
+            {
+                errorMessages.Add("No display name specified for area.");
+                isValid = false;
+            }
+            else if (areasByName.ContainsKey(sValue))
+            {
+                errorMessages.Add($"Duplicate area found: {sValue}");
+                isValid = false;
+            }
+            else
+            {
+                areasByName[sValue] = a;
+            }
+            a.DisplayName = sValue;
+
+            sValue = GetAttributeValueByName(attributeMapping, "TickRoom");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (Enum.TryParse(sValue, out HealingRoom eTickRoom))
+                {
+                    a.TickRoom = eTickRoom;
+                }
+                else
+                {
+                    errorMessages.Add("Invalid area tick room: " + sValue);
+                    isValid = false;
+                }
+            }
+
+            sValue = GetAttributeValueByName(attributeMapping, "PawnShop");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (Enum.TryParse(sValue, out PawnShoppe ePawnShop))
+                {
+                    a.PawnShop = ePawnShop;
+                }
+                else
+                {
+                    errorMessages.Add("Invalid area pawn shop: " + sValue);
+                    isValid = false;
+                }
+            }
+
+            Room rTemp;
+            sValue = GetAttributeValueByName(attributeMapping, "InventorySinkRoom");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                isValid &= ValidateRoomFromIdentifier(sValue, errorMessages, gameMap, out rTemp, "inventory sink", "area");
+                a.InventorySinkRoomIdentifier = sValue;
+                a.InventorySinkRoomObject = rTemp;
+            }
+
             foreach (XmlNode nextAreaNode in elem.ChildNodes)
             {
                 XmlElement nextAreaElem = nextAreaNode as XmlElement;
@@ -657,70 +802,30 @@ namespace IsengardClient
                     errorMessages.Add("Invalid area element: " + sAreaElementName);
                     continue;
                 }
-                Area a = new Area();
-                bool isValid;
-                var attributeMapping = GetAttributeMapping(nextAreaElem, attributes, errorMessages, out isValid);
-                string sValue;
-
-                sValue = GetAttributeValueByName(attributeMapping, "DisplayName");
-                if (string.IsNullOrEmpty(sValue))
+                Area aChild = HandleArea(a, nextAreaElem, errorMessages, gameMap, areasByName);
+                if (aChild == null)
                 {
-                    errorMessages.Add("No display name specified for area.");
                     isValid = false;
                 }
-                else if (AreasByName.ContainsKey(sValue))
+                else
                 {
-                    errorMessages.Add($"Duplicate area found: {sValue}");
-                    isValid = false;
-                }
-                a.DisplayName = sValue;
-
-                sValue = GetAttributeValueByName(attributeMapping, "TickRoom");
-                if (!string.IsNullOrEmpty(sValue))
-                {
-                    if (Enum.TryParse(sValue, out HealingRoom eTickRoom))
+                    if (a.Children == null)
                     {
-                        a.TickRoom = eTickRoom;
+                        a.Children = new List<Area>();
                     }
-                    else
-                    {
-                        errorMessages.Add("Invalid area tick room: " + sValue);
-                        isValid = false;
-                    }
-                }
-
-                sValue = GetAttributeValueByName(attributeMapping, "PawnShop");
-                if (!string.IsNullOrEmpty(sValue))
-                {
-                    if (Enum.TryParse(sValue, out PawnShoppe ePawnShop))
-                    {
-                        a.PawnShop = ePawnShop;
-                    }
-                    else
-                    {
-                        errorMessages.Add("Invalid area pawn shop: " + sValue);
-                        isValid = false;
-                    }
-                }
-
-                Room rTemp;
-                sValue = GetAttributeValueByName(attributeMapping, "InventorySinkRoom");
-                if (!string.IsNullOrEmpty(sValue))
-                {
-                    isValid &= ValidateRoomFromIdentifier(sValue, errorMessages, gameMap, out rTemp, "inventory sink", "area");
-                    a.InventorySinkRoomIdentifier = sValue;
-                    a.InventorySinkRoomObject = rTemp;
-                }
-
-                if (isValid)
-                {
-                    Areas.Add(a);
-                    AreasByName[a.DisplayName] = a;
+                    a.Children.Add(aChild);
                 }
             }
+
+            Area aRet = null;
+            if (isValid)
+            {
+                aRet = a;
+            }
+            return aRet;
         }
 
-        private void HandleStrategies(XmlElement elem, List<string> errorMessages, IsengardMap gameMap)
+        private void HandleStrategies(XmlElement elem, List<string> errorMessages, IsengardMap gameMap, Dictionary<string, Area> areasByName)
         {
             HashSet<string> strategyAttributes = new HashSet<string>()
             {
@@ -911,7 +1016,7 @@ namespace IsengardClient
                     string sSubElementName = nextSubElement.Name;
                     if (sSubElementName == "PermRun")
                     {
-                        PermRun p = HandlePermRun(nextSubElement, errorMessages, permRunAttributes, gameMap);
+                        PermRun p = HandlePermRun(nextSubElement, errorMessages, permRunAttributes, gameMap, areasByName);
                         p.Strategy = s;
                         if (p.IsValid)
                         {
@@ -1043,7 +1148,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private PermRun HandlePermRun(XmlElement elem, List<string> errorMessages, HashSet<string> permRunAttributes, IsengardMap gameMap)
+        private PermRun HandlePermRun(XmlElement elem, List<string> errorMessages, HashSet<string> permRunAttributes, IsengardMap gameMap, Dictionary<string, Area> areasByName)
         {
             PermRun p = new PermRun();
             var attributeMapping = GetAttributeMapping(elem, permRunAttributes, errorMessages, out bool isValid);
@@ -1071,7 +1176,7 @@ namespace IsengardClient
             sValue = GetAttributeValueByName(attributeMapping, "Area");
             if (!string.IsNullOrEmpty(sValue))
             {
-                if (!AreasByName.TryGetValue(sValue, out Area foundArea))
+                if (!areasByName.TryGetValue(sValue, out Area foundArea))
                 {
                     errorMessages.Add($"Perm run area not found: {sValue}");
                     isValid = false;
@@ -1489,6 +1594,7 @@ namespace IsengardClient
         {
             List<string> baseRecordColumns = new List<string>()
             {
+                "ParentID",
                 "OrderValue",
                 "DisplayName",
                 "TickRoom",
@@ -1504,27 +1610,65 @@ namespace IsengardClient
                 cmd.Parameters.AddWithValue("@UserID", userID);
 
                 SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
+                SQLiteParameter parentIDParameter = cmd.Parameters.Add("@ParentID", DbType.Int32);
                 SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
                 SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
                 SQLiteParameter tickRoomParam = cmd.Parameters.Add("@TickRoom", DbType.Int32);
                 SQLiteParameter pawnShopParam = cmd.Parameters.Add("@PawnShop", DbType.Int32);
                 SQLiteParameter inventorySinkRoomParam = cmd.Parameters.Add("@InventorySinkRoom", DbType.String);
 
-                int iOrder = 0;
-                foreach (Area nextRecord in Areas)
+                if (HomeArea != null)
                 {
-                    orderParam.Value = ++iOrder;
-                    displayNameParam.Value = nextRecord.DisplayName;
-                    tickRoomParam.Value = nextRecord.TickRoom.HasValue ? (object)Convert.ToInt32(nextRecord.TickRoom.Value) : DBNull.Value;
-                    pawnShopParam.Value = nextRecord.PawnShop.HasValue ? (object)Convert.ToInt32(nextRecord.PawnShop.Value) : DBNull.Value;
-                    inventorySinkRoomParam.Value = string.IsNullOrEmpty(nextRecord.InventorySinkRoomIdentifier) ? (object)DBNull.Value : nextRecord.InventorySinkRoomIdentifier;
+                    int iOrder = 0;
+                    foreach (Area nextRecord in EnumerateAreas(HomeArea))
+                    {
+                        parentIDParameter.Value = nextRecord.Parent == null ? (object)DBNull.Value : nextRecord.Parent.ID;
+                        orderParam.Value = ++iOrder;
+                        displayNameParam.Value = nextRecord.DisplayName;
+                        tickRoomParam.Value = nextRecord.TickRoom.HasValue ? (object)Convert.ToInt32(nextRecord.TickRoom.Value) : DBNull.Value;
+                        pawnShopParam.Value = nextRecord.PawnShop.HasValue ? (object)Convert.ToInt32(nextRecord.PawnShop.Value) : DBNull.Value;
+                        inventorySinkRoomParam.Value = string.IsNullOrEmpty(nextRecord.InventorySinkRoomIdentifier) ? (object)DBNull.Value : nextRecord.InventorySinkRoomIdentifier;
 
-                    int iID = nextRecord.ID;
-                    bool isNew = iID == 0;
-                    iID = SaveRecord(cmd, nextRecord.ID, sInsertBaseRecordCommand, sUpdateBaseRecordCommand, idParameter, existingIDs);
-                    nextRecord.ID = iID;
+                        int iID = nextRecord.ID;
+                        bool isNew = iID == 0;
+                        iID = SaveRecord(cmd, nextRecord.ID, sInsertBaseRecordCommand, sUpdateBaseRecordCommand, idParameter, existingIDs);
+                        nextRecord.ID = iID;
+                        if (nextRecord.Children != null)
+                        {
+                            foreach (Area aChild in nextRecord.Children)
+                            {
+                                aChild.ParentID = iID;
+                            }
+                        }
+                    }
                 }
                 DeleteUnprocessedIDs(existingIDs, conn, "Areas", "ID");
+            }
+        }
+
+        public IEnumerable<Area> EnumerateAreas()
+        {
+            if (HomeArea != null)
+            {
+                foreach (Area a in EnumerateAreas(HomeArea))
+                {
+                    yield return a;
+                }
+            }
+        }
+
+        private IEnumerable<Area> EnumerateAreas(Area a)
+        {
+            yield return a;
+            if (a.Children != null)
+            {
+                foreach (Area aChild in a.Children)
+                {
+                    foreach (Area aEnumerated in EnumerateAreas(aChild))
+                    {
+                        yield return aEnumerated;
+                    }
+                }
             }
         }
 
@@ -2335,38 +2479,37 @@ namespace IsengardClient
             writer.WriteStartElement("DynamicData");
             WriteSettingsXML(writer);
             WriteDynamicItemDataXML(writer);
-            WriteAreasXML(writer);
+            if (HomeArea != null) WriteAreaXML(writer, HomeArea);
             WriteLocationsXML(writer);
             WriteStrategiesXML(writer);
             writer.WriteEndElement();
         }
 
-        private void WriteAreasXML(XmlWriter writer)
+        private void WriteAreaXML(XmlWriter writer, Area a)
         {
-            if (Areas.Count > 0)
+            writer.WriteStartElement("Area");
+            writer.WriteAttributeString("DisplayName", a.DisplayName);
+            if (a.TickRoom.HasValue)
             {
-                writer.WriteStartElement("Areas");
-                foreach (Area nextArea in Areas)
-                {
-                    writer.WriteStartElement("Area");
-                    writer.WriteAttributeString("DisplayName", nextArea.DisplayName);
-                    if (nextArea.TickRoom.HasValue)
-                    {
-                        writer.WriteAttributeString("TickRoom", nextArea.TickRoom.Value.ToString());
-                    }
-                    if (nextArea.PawnShop.HasValue)
-                    {
-                        writer.WriteAttributeString("PawnShop", nextArea.PawnShop.Value.ToString());
-                    }
-                    string sRoomIdentifier = nextArea.InventorySinkRoomIdentifier;
-                    if (!string.IsNullOrEmpty(sRoomIdentifier))
-                    {
-                        writer.WriteAttributeString("InventorySinkRoom", sRoomIdentifier);
-                    }
-                    writer.WriteEndElement(); //end area
-                }
-                writer.WriteEndElement(); //end area list
+                writer.WriteAttributeString("TickRoom", a.TickRoom.Value.ToString());
             }
+            if (a.PawnShop.HasValue)
+            {
+                writer.WriteAttributeString("PawnShop", a.PawnShop.Value.ToString());
+            }
+            string sRoomIdentifier = a.InventorySinkRoomIdentifier;
+            if (!string.IsNullOrEmpty(sRoomIdentifier))
+            {
+                writer.WriteAttributeString("InventorySinkRoom", sRoomIdentifier);
+            }
+            if (a.Children != null)
+            {
+                foreach (Area aChild in a.Children)
+                {
+                    WriteAreaXML(writer, aChild);
+                }
+            }
+            writer.WriteEndElement();
         }
 
         private void WriteStrategiesXML(XmlWriter writer)
@@ -2661,8 +2804,8 @@ namespace IsengardClient
                 "CREATE TABLE Users (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)",
                 "CREATE TABLE Settings (UserID INTEGER NOT NULL, SettingName TEXT NOT NULL, SettingValue TEXT NOT NULL, PRIMARY KEY (UserID, SettingName), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, SinkCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
-                "CREATE TABLE Areas (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NOT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, InventorySinkRoom TEXT NULL)",
-                "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, ParentID INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
+                "CREATE TABLE Areas (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NOT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, InventorySinkRoom TEXT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES Areas(ID))",
+                "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AreaID INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE, FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE)"

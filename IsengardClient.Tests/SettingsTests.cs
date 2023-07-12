@@ -78,14 +78,13 @@ namespace IsengardClient.Tests
             node1.Children = new List<LocationNode>() { node2 };
             settings.Locations.Add(node1);
 
-            Area a = new Area();
+            Area a = new Area(null);
             a.DisplayName = "test";
             a.PawnShop = PawnShoppe.Esgaroth;
             a.TickRoom = HealingRoom.SpindrilsCastle;
             a.InventorySinkRoomObject = gameMap.HealingRooms[HealingRoom.DeathValley];
             a.InventorySinkRoomIdentifier = a.InventorySinkRoomObject.BackendName;
-            settings.Areas.Add(a);
-            settings.AreasByName[a.DisplayName] = a;
+            settings.HomeArea = a;
 
             Strategy s = new Strategy();
             s.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoom;
@@ -192,10 +191,10 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].SinkCount, sets2.DynamicItemClassData[next.Key].SinkCount);
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].OverflowAction, sets2.DynamicItemClassData[next.Key].OverflowAction);
             }
-            Assert.AreEqual(settings.Areas.Count, sets2.Areas.Count);
-            for (int i = 0; i < settings.Areas.Count; i++)
+            Assert.AreEqual(settings.HomeArea == null, sets2.HomeArea == null);
+            if (settings.HomeArea != null)
             {
-                VerifyAreasMatch(settings.Areas[i], sets2.Areas[i], expectIDsPopulated);
+                VerifyAreasMatch(settings.HomeArea, sets2.HomeArea, expectIDsPopulated);
             }
             Assert.AreEqual(settings.Locations.Count, sets2.Locations.Count);
             for (int i = 0; i < settings.Locations.Count; i++)
@@ -216,17 +215,38 @@ namespace IsengardClient.Tests
 
         internal void VerifyAreasMatch(Area a1, Area a2, bool expectIDsPopulated)
         {
-            Assert.AreEqual(a1.ID, a2.ID);
+            VerifyAreaPropertiesMatch(a1, a2);
             if (expectIDsPopulated)
                 Assert.AreNotEqual(a1.ID, 0);
             else
                 Assert.AreEqual(a1.ID, 0);
+            Assert.AreEqual(a1.Parent == null, a2.Parent == null);
+            Assert.AreEqual(a1.ParentID, a2.ParentID);
+            if (expectIDsPopulated && a1.Parent != null)
+                Assert.AreNotEqual(a1.ParentID, 0);
+            else
+                Assert.AreEqual(a1.ParentID, 0);
+            if (a1.Parent != null) VerifyAreaPropertiesMatch(a1.Parent, a2.Parent);
+            Assert.AreEqual(a1.Children == null, a2.Children == null);
+            if (a1.Children != null)
+            {
+                for (int i = 0; i < a1.Children.Count; i++)
+                {
+                    VerifyAreasMatch(a1.Children[i], a2.Children[i], expectIDsPopulated);
+                }
+            }
+        }
+
+        internal void VerifyAreaPropertiesMatch(Area a1, Area a2)
+        {
+            Assert.AreEqual(a1.ID, a2.ID);
             Assert.AreEqual(a1.DisplayName, a2.DisplayName);
             Assert.AreEqual(a1.TickRoom, a2.TickRoom);
             Assert.AreEqual(a1.PawnShop, a2.PawnShop);
             Assert.AreEqual(a1.InventorySinkRoomIdentifier ?? string.Empty, a2.InventorySinkRoomIdentifier ?? string.Empty);
             Assert.AreEqual(a1.InventorySinkRoomObject, a2.InventorySinkRoomObject);
         }
+
 
         internal void VerifyPermRunsMatch(PermRun p1, PermRun p2, bool expectIDsPopulated)
         {

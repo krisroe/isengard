@@ -80,17 +80,12 @@ namespace IsengardClient
             return ret;
         }
 
-        private TreeNode DisplayNodeForm(LocationNode startingPoint, LocationNode parentNode)
+        private TreeNode DisplayNodeForm(LocationNode startingPoint)
         {
             TreeNode ret = null;
             frmLocationNode frm = new frmLocationNode(startingPoint, CurrentRoom, _fullMap, _graphInputs);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                startingPoint.DisplayName = frm.DisplayName;
-                startingPoint.RoomObject = frm.SelectedRoom;
-                startingPoint.Room = _fullMap.GetRoomTextIdentifier(startingPoint.RoomObject);
-                startingPoint.Parent = parentNode;
-                startingPoint.ParentID = parentNode == null ? 0 : parentNode.ID;
                 ret = CreateLocationNode(startingPoint);
             }
             return ret;
@@ -118,7 +113,7 @@ namespace IsengardClient
                     parentLocNode = currentLoc;
                 else
                     parentLocNode = currentLoc.Parent;
-                newNodeInfo = DisplayNodeForm(new LocationNode(parentLocNode), parentLocNode);
+                newNodeInfo = DisplayNodeForm(new LocationNode(parentLocNode));
                 if (newNodeInfo != null)
                 {
                     LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
@@ -158,7 +153,7 @@ namespace IsengardClient
             }
             else if (tsi == tsmiEdit)
             {
-                newNodeInfo = DisplayNodeForm(currentLoc, currentLoc.Parent);
+                newNodeInfo = DisplayNodeForm(currentLoc);
                 if (newNodeInfo != null)
                 {
                     selectedNode.Text = currentLoc.GetDisplayName();

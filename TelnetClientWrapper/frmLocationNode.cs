@@ -5,6 +5,7 @@ namespace IsengardClient
 {
     internal partial class frmLocationNode : Form
     {
+        private LocationNode _input;
         private Room _currentRoom;
         private IsengardMap _fullMap;
         private Room _selectedRoom;
@@ -14,38 +15,20 @@ namespace IsengardClient
         {
             InitializeComponent();
 
-            if (input != null)
+            _input = input;
+            if (!string.IsNullOrEmpty(input.DisplayName))
             {
-                if (!string.IsNullOrEmpty(input.DisplayName))
-                {
-                    txtDisplayName.Text = input.DisplayName;
-                }
-                _selectedRoom = input.RoomObject;
-                if (_selectedRoom != null)
-                {
-                    txtRoom.Text = _selectedRoom.GetRoomNameWithExperience();
-                }
+                txtDisplayName.Text = input.DisplayName;
+            }
+            _selectedRoom = input.RoomObject;
+            if (_selectedRoom != null)
+            {
+                txtRoom.Text = _selectedRoom.GetRoomNameWithExperience();
             }
 
             _currentRoom = currentRoom;
             _fullMap = fullMap;
             _gi = gi;
-        }
-
-        public Room SelectedRoom
-        {
-            get
-            {
-                return _selectedRoom;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return txtDisplayName.Text;
-            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -55,6 +38,9 @@ namespace IsengardClient
                 MessageBox.Show("Either a display name or room must be specified.");
                 return;
             }
+            _input.DisplayName = txtDisplayName.Text;
+            _input.RoomObject = _selectedRoom;
+            _input.Room = _fullMap.GetRoomTextIdentifier(_input.RoomObject);
             DialogResult = DialogResult.OK;
             Close();
         }

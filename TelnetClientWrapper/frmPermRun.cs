@@ -281,7 +281,7 @@ namespace IsengardClient
             }
 
             cboArea.Items.Add(string.Empty);
-            foreach (Area a in settingsData.Areas)
+            foreach (Area a in settingsData.EnumerateAreas())
             {
                 cboArea.Items.Add(a);
             }

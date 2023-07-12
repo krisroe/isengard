@@ -286,10 +286,9 @@ namespace IsengardClient
             if (isReload)
             {
                 List<Area> areasRemoved = new List<Area>();
-                for (int i = _settingsData.Areas.Count - 1; i >= 0; i--)
+                foreach (Area a in _settingsData.EnumerateAreas())
                 {
                     bool isValid = true;
-                    Area a = _settingsData.Areas[i];
                     if (a.InventorySinkRoomObject != null)
                     {
                         a.InventorySinkRoomObject = newMap.GetRoomFromTextIdentifier(a.InventorySinkRoomIdentifier);
@@ -299,10 +298,21 @@ namespace IsengardClient
                             errorMessages.Add("Inventory sink room not found for area after reload.");
                         }
                     }
+                    a.IsValid = isValid;
                     if (!isValid)
                     {
-                        _settingsData.Areas.RemoveAt(i);
                         areasRemoved.Add(a);
+                    }
+                }
+                if (_settingsData.HomeArea != null)
+                {
+                    if (_settingsData.HomeArea.IsValid)
+                    {
+                        _settingsData.RemoveInvalidAreas(_settingsData.HomeArea);
+                    }
+                    else
+                    {
+                        _settingsData.HomeArea = null;
                     }
                 }
                 for (int i = _settingsData.PermRuns.Count - 1; i >= 0; i--)
@@ -337,6 +347,7 @@ namespace IsengardClient
                         _settingsData.PermRuns.RemoveAt(i);
                     }
                 }
+                RefreshAreaDropdown();
                 ProcessLocationRoomsAfterReload(_settingsData.Locations, newMap, errorMessages);
             }
             if (errorMessages.Count > 0)
@@ -1398,10 +1409,15 @@ namespace IsengardClient
                 flpOneClickStrategies.Controls.Add(btnOneClick);
             }
 
+            RefreshAreaDropdown();
+        }
+
+        private void RefreshAreaDropdown()
+        {
             Area previousArea = cboArea.SelectedItem as Area;
             Area newlySelectedArea = null;
             cboArea.Items.Clear();
-            foreach (Area a in _settingsData.Areas)
+            foreach (Area a in _settingsData.EnumerateAreas())
             {
                 if (previousArea != null && previousArea.DisplayName == a.DisplayName)
                 {
@@ -1409,14 +1425,10 @@ namespace IsengardClient
                 }
                 cboArea.Items.Add(a);
             }
-            if (newlySelectedArea == null)
-            {
+            if (newlySelectedArea == null && cboArea.Items.Count > 0)
                 cboArea.SelectedIndex = 0;
-            }
             else
-            {
                 cboArea.SelectedItem = newlySelectedArea;
-            }
         }
 
         private void ProcessInitialLogin(FeedLineParameters flp)
@@ -8375,7 +8387,7 @@ BeforeHazy:
                 {
                     if (_setCurrentArea && oCurrentRoom != null)
                     {
-                        foreach (Area a in _settingsData.Areas)
+                        foreach (Area a in _settingsData.EnumerateAreas())
                         {
                             if ((oCurrentRoom.HealingRoom.HasValue && a.TickRoom == oCurrentRoom.HealingRoom.Value) ||
                                 (oCurrentRoom.PawnShoppe.HasValue && a.PawnShop == oCurrentRoom.PawnShoppe.Value) ||

@@ -36,12 +36,6 @@ namespace IsengardClient
             _getGraphInputs = getGraphInputs;
             _cei = cei;
 
-            dgvAreas.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
-            foreach (Area nextArea in settingsData.Areas)
-            {
-                UpdateAreaDisplay(nextArea, null);
-            }
-
             tsmiCurrentRealmEarth.Tag = RealmType.Earth;
             tsmiCurrentRealmFire.Tag = RealmType.Fire;
             tsmiCurrentRealmWater.Tag = RealmType.Water;
@@ -94,6 +88,33 @@ namespace IsengardClient
                 AddNewListEntry(nextItem);
             }
             RefreshAllItemEntries();
+            PopulateAreaTree();
+        }
+
+        private void PopulateAreaTree()
+        {
+            if (_settings.HomeArea != null)
+            {
+                treeAreas.Nodes.Add(CreateAreaNode(_settings.HomeArea));
+            }
+        }
+
+        private TreeNode CreateAreaNode(Area node)
+        {
+            TreeNode ret = new TreeNode(node.DisplayName);
+            ret.Tag = node;
+            if (node.Children != null)
+            {
+                foreach (Area nextObj in node.Children)
+                {
+                    ret.Nodes.Add(CreateAreaNode(nextObj));
+                }
+            }
+            if (ret.Nodes.Count > 0)
+            {
+                ret.Expand();
+            }
+            return ret;
         }
 
         private void AddNewListEntry(object enumValue)
@@ -239,17 +260,33 @@ namespace IsengardClient
                 _settings.Strategies.Add(s);
             }
 
-            _settings.Areas.Clear();
-            _settings.AreasByName.Clear();
-            foreach (DataGridViewRow r in dgvAreas.Rows)
-            {
-                Area a = (Area)r.Tag;
-                _settings.Areas.Add(a);
-                _settings.AreasByName[a.DisplayName] = a;
-            }
+            if (treeAreas.Nodes.Count == 0)
+                _settings.HomeArea = null;
+            else
+                _settings.HomeArea = GetAreaFromNode(null, treeAreas.Nodes[0]);
 
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private Area GetAreaFromNode(Area parentArea, TreeNode tn)
+        {
+            Area a = (Area)tn.Tag;
+            a.Parent = parentArea;
+            a.ParentID = parentArea == null ? parentArea.ID : 0;
+            if (tn.Nodes.Count > 0)
+            {
+                a.Children = new List<Area>();
+                foreach (TreeNode nextTN in tn.Nodes)
+                {
+                    a.Children.Add(GetAreaFromNode(a, nextTN));
+                }
+            }
+            else
+            {
+                a.Children = null;
+            }
+            return a;
         }
 
         private IsengardSettingData CreateTempSettingsObjectWithAutoSpell()
@@ -539,74 +576,26 @@ namespace IsengardClient
 
         private void tsmiAddEntry_Click(object sender, EventArgs e)
         {
-            if (tcConfiguration.SelectedTab == tabStrategies)
+            Strategy s = new Strategy();
+            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
             {
-                Strategy s = new Strategy();
-                using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+                if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (frm.ShowDialog(this) == DialogResult.OK)
-                    {
-                        lstStrategies.Items.Add(s);
-                    }
+                    lstStrategies.Items.Add(s);
                 }
             }
-            else if (tcConfiguration.SelectedTab == tabAreas)
-            {
-                Area a = new Area();
-                using (frmArea frm = new frmArea(a, _gameMap, _settings, GetCurrentAreas(), _getGraphInputs, _cei))
-                {
-                    if (frm.ShowDialog(this) == DialogResult.OK)
-                    {
-                        UpdateAreaDisplay(a, null);
-                    }
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        private List<Area> GetCurrentAreas()
-        {
-            List<Area> ret = new List<Area>();
-            foreach (DataGridViewRow r in dgvAreas.Rows)
-            {
-                ret.Add((Area)r.Tag);
-            }
-            return ret;
         }
 
         private void tsmiEditEntry_Click(object sender, EventArgs e)
         {
-            if (tcConfiguration.SelectedTab == tabStrategies)
+            int index = lstStrategies.SelectedIndex;
+            Strategy s = (Strategy)lstStrategies.Items[index];
+            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
             {
-                int index = lstStrategies.SelectedIndex;
-                Strategy s = (Strategy)lstStrategies.Items[index];
-                using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+                if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (frm.ShowDialog(this) == DialogResult.OK)
-                    {
-                        lstStrategies.Items[index] = s;
-                    }
+                    lstStrategies.Items[index] = s;
                 }
-            }
-            else if (tcConfiguration.SelectedTab == tabAreas)
-            {
-                DataGridViewRow r = dgvAreas.SelectedRows[0];
-                int index = r.Index;
-                Area a = (Area)r.Tag;
-                using (frmArea frm = new frmArea(a, _gameMap, _settings, GetCurrentAreas(), _getGraphInputs, _cei))
-                {
-                    if (frm.ShowDialog(this) == DialogResult.OK)
-                    {
-                        UpdateAreaDisplay(a, index);
-                    }
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException();
             }
         }
 
@@ -614,60 +603,27 @@ namespace IsengardClient
         {
             bool isValid = true;
             List<int> indexesToRemove = new List<int>();
-            if (tcConfiguration.SelectedTab == tabStrategies)
+            foreach (int nextIndex in lstStrategies.SelectedIndices)
             {
-                foreach (int nextIndex in lstStrategies.SelectedIndices)
+                indexesToRemove.Add(nextIndex);
+                Strategy s = (Strategy)lstStrategies.Items[nextIndex];
+                foreach (PermRun pr in _settings.PermRuns)
                 {
-                    indexesToRemove.Add(nextIndex);
-                    Strategy s = (Strategy)lstStrategies.Items[nextIndex];
-                    foreach (PermRun pr in _settings.PermRuns)
+                    if (pr.Strategy == s)
                     {
-                        if (pr.Strategy == s)
-                        {
-                            isValid = false;
-                            break;
-                        }
-                    }
-                    if (!isValid) break;
-                }
-                if (isValid && MessageBox.Show("Are you sure you want to remove these strategy(s)?", "Remove Strategy", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                {
-                    indexesToRemove.Reverse();
-                    foreach (int nextIndex in indexesToRemove)
-                    {
-                        lstStrategies.Items.RemoveAt(nextIndex);
+                        isValid = false;
+                        break;
                     }
                 }
+                if (!isValid) break;
             }
-            else if (tcConfiguration.SelectedTab == tabAreas)
+            if (isValid && MessageBox.Show("Are you sure you want to remove these strategy(s)?", "Remove Strategy", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                foreach (DataGridViewRow r in dgvAreas.SelectedRows)
+                indexesToRemove.Reverse();
+                foreach (int nextIndex in indexesToRemove)
                 {
-                    int nextIndex = r.Index;
-                    indexesToRemove.Add(nextIndex);
-                    Area a = (Area)r.Tag;
-                    foreach (PermRun pr in _settings.PermRuns)
-                    {
-                        if (pr.Area == a)
-                        {
-                            isValid = false;
-                            break;
-                        }
-                    }
-                    if (!isValid) break;
+                    lstStrategies.Items.RemoveAt(nextIndex);
                 }
-                if (isValid && MessageBox.Show("Are you sure you want to remove these areas(s)?", "Remove Area", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                {
-                    indexesToRemove.Reverse();
-                    foreach (int nextIndex in indexesToRemove)
-                    {
-                        dgvAreas.Rows.RemoveAt(nextIndex);
-                    }
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException();
             }
             if (!isValid)
             {
@@ -678,49 +634,21 @@ namespace IsengardClient
 
         private void MoveEntryUp(int iIndex, int iIndexToSelect)
         {
-            if (tcConfiguration.SelectedTab == tabStrategies)
-            {
-                Strategy s = (Strategy)lstStrategies.Items[iIndex];
-                lstStrategies.Items.RemoveAt(iIndex);
-                lstStrategies.Items.Insert(iIndex - 1, s);
-                lstStrategies.SelectedIndex = iIndexToSelect;
-            }
-            else if (tcConfiguration.SelectedTab == tabAreas)
-            {
-                DataGridViewRow r1 = dgvAreas.Rows[iIndex - 1];
-                DataGridViewRow r2 = dgvAreas.Rows[iIndex];
-                dgvAreas.Rows.RemoveAt(iIndex);
-                dgvAreas.Rows.Insert(iIndex - 1, r2);
-                r1.Selected = iIndexToSelect == r1.Index;
-                r2.Selected = iIndexToSelect == r2.Index;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+            Strategy s = (Strategy)lstStrategies.Items[iIndex];
+            lstStrategies.Items.RemoveAt(iIndex);
+            lstStrategies.Items.Insert(iIndex - 1, s);
+            lstStrategies.SelectedIndex = iIndexToSelect;
         }
 
         private void tsmiMoveEntryUp_Click(object sender, EventArgs e)
         {
-            int iIndex;
-            if (tcConfiguration.SelectedTab == tabStrategies)
-                iIndex = lstStrategies.SelectedIndex;
-            else if (tcConfiguration.SelectedTab == tabAreas)
-                iIndex = dgvAreas.SelectedRows[0].Index;
-            else
-                throw new InvalidOperationException();
+            int iIndex = lstStrategies.SelectedIndex;
             MoveEntryUp(iIndex, iIndex - 1);
         }
 
         private void tsmiMoveEntryDown_Click(object sender, EventArgs e)
         {
-            int iIndex;
-            if (tcConfiguration.SelectedTab == tabStrategies)
-                iIndex = lstStrategies.SelectedIndex;
-            else if (tcConfiguration.SelectedTab == tabAreas)
-                iIndex = dgvAreas.SelectedRows[0].Index;
-            else
-                throw new InvalidOperationException();
+            int iIndex = lstStrategies.SelectedIndex;
             iIndex++;
             MoveEntryUp(iIndex, iIndex);
         }
@@ -882,25 +810,6 @@ namespace IsengardClient
                 return;
             SetItemProperty((did) => { did.KeepCount = iCount < 0 ? -1 : iCount; });
         }
-        private void UpdateAreaDisplay(Area nextArea, int? rowIndex)
-        {
-            string sDisplayName = nextArea.DisplayName;
-            string sTickRoom = nextArea.TickRoom.HasValue ? nextArea.TickRoom.Value.ToString() : "None";
-            string sPawnRoom = nextArea.PawnShop.HasValue ? nextArea.PawnShop.Value.ToString() : "None";
-            string sInventorySinkRoom = nextArea.InventorySinkRoomObject != null ? nextArea.InventorySinkRoomObject.DisplayName : "None";
-            DataGridViewRow r;
-            if (rowIndex.HasValue)
-            {
-                r = dgvAreas.Rows[rowIndex.Value];
-                r.SetValues(sDisplayName, sTickRoom, sPawnRoom, sInventorySinkRoom);
-            }
-            else
-            {
-                rowIndex = dgvAreas.Rows.Add(sDisplayName, sTickRoom, sPawnRoom, sInventorySinkRoom);
-                r = dgvAreas.Rows[rowIndex.Value];
-            }
-            r.Tag = nextArea;
-        }
 
         private void btnClearWeapon_Click(object sender, EventArgs e)
         {
@@ -956,6 +865,191 @@ namespace IsengardClient
             else
                 throw new InvalidOperationException();
             txtItem.Text = itemTypeText;
+        }
+
+        private void ctxAreas_Opening(object sender, CancelEventArgs e)
+        {
+            TreeNode selectedNode = treeAreas.SelectedNode;
+            bool haveNode = selectedNode != null;
+            bool isHome = false;
+            bool allowAdd;
+            bool allowRemove;
+            if (haveNode)
+            {
+                isHome = selectedNode.Parent == null;
+                TreeNodeCollection parentCollection = isHome ? treeAreas.Nodes : selectedNode.Parent.Nodes;
+                int iIndex = parentCollection.IndexOf(selectedNode);
+                tsmiMoveDown.Enabled = iIndex < parentCollection.Count - 1;
+                tsmiMoveUp.Enabled = iIndex > 0;
+                allowAdd = true;
+                allowRemove = true;
+                List<Area> areasToDelete = new List<Area>();
+                GetExistingAreas(selectedNode, areasToDelete);
+                foreach (PermRun pr in _settings.PermRuns)
+                {
+                    if (pr.Area != null && areasToDelete.Contains(pr.Area))
+                    {
+                        allowRemove = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                allowAdd = treeAreas.Nodes.Count == 0;
+                allowRemove = false;
+            }
+            tsmiAddChild.Visible = allowAdd;
+            tsmiAddSiblingAfter.Visible = haveNode && !isHome;
+            tsmiAddSiblingBefore.Visible = haveNode && !isHome;
+            tsmiEdit.Visible = haveNode;
+            tsmiMoveDown.Visible = haveNode;
+            tsmiMoveUp.Visible = haveNode;
+            tsmiRemove.Visible = allowRemove;
+
+            if (!allowAdd && !haveNode)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void ctxAreas_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ToolStripItem tsi = e.ClickedItem;
+            TreeNode selectedNode = treeAreas.SelectedNode;
+            Area currentObj = null;
+            TreeNode parentNode = null;
+            if (selectedNode != null)
+            {
+                currentObj = (Area)selectedNode.Tag;
+                parentNode = selectedNode.Parent;
+            }
+            TreeNodeCollection parentTreeNodes = parentNode == null ? treeAreas.Nodes : selectedNode.Parent.Nodes;
+            List<Area> parentObjectNodes = parentNode == null ? null : currentObj.Parent.Children;
+            int iCurrentIndex = parentTreeNodes.IndexOf(selectedNode);
+            TreeNode newNodeInfo;
+            if (tsi == tsmiAddChild || tsi == tsmiAddSiblingAfter || tsi == tsmiAddSiblingBefore)
+            {
+                Area parentObj;
+                if (tsi == tsmiAddChild)
+                    parentObj = currentObj;
+                else
+                    parentObj = currentObj.Parent;
+                newNodeInfo = DisplayAreaForm(new Area(parentObj));
+                if (newNodeInfo != null)
+                {
+                    Area newObj = (Area)newNodeInfo.Tag;
+                    if (tsi == tsmiAddChild)
+                    {
+                        if (selectedNode == null) //add top level node
+                        {
+                            treeAreas.Nodes.Add(newNodeInfo);
+                        }
+                        else //add sub node to the current node
+                        {
+                            selectedNode.Nodes.Add(newNodeInfo);
+                            if (currentObj.Children == null) currentObj.Children = new List<Area>();
+                            currentObj.Children.Add(newObj);
+                            selectedNode.Expand();
+                        }
+                    }
+                    else if (tsi == tsmiAddSiblingBefore)
+                    {
+                        selectedNode.Parent.Nodes.Insert(iCurrentIndex, newNodeInfo);
+                        parentObjectNodes.Insert(iCurrentIndex, newObj);
+                    }
+                    else if (tsi == tsmiAddSiblingAfter)
+                    {
+                        if (iCurrentIndex == parentTreeNodes.Count - 1)
+                        {
+                            parentTreeNodes.Add(newNodeInfo);
+                            parentObjectNodes.Add(newObj);
+                        }
+                        else
+                        {
+                            parentTreeNodes.Insert(iCurrentIndex + 1, newNodeInfo);
+                            parentObjectNodes.Insert(iCurrentIndex + 1, newObj);
+                        }
+                    }
+                }
+            }
+            else if (tsi == tsmiEdit)
+            {
+                newNodeInfo = DisplayAreaForm(currentObj);
+                if (newNodeInfo != null)
+                {
+                    selectedNode.Text = newNodeInfo.Text;
+                }
+            }
+            else if (tsi == tsmiRemove)
+            {
+                if (MessageBox.Show("Are you sure you want to remove this area?", "Remove Area", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
+                    parentTreeNodes.Remove(selectedNode);
+                    parentObjectNodes.Remove(currentObj);
+                    if (currentObj.Parent != null && parentObjectNodes.Count == 0)
+                    {
+                        currentObj.Parent.Children = null;
+                    }
+                }
+            }
+            else if (tsi == tsmiMoveUp)
+            {
+                parentTreeNodes.Remove(selectedNode);
+                parentObjectNodes.Remove(currentObj);
+                parentTreeNodes.Insert(iCurrentIndex - 1, selectedNode);
+                parentObjectNodes.Insert(iCurrentIndex - 1, currentObj);
+                treeAreas.SelectedNode = selectedNode;
+            }
+            else if (tsi == tsmiMoveDown)
+            {
+                parentTreeNodes.Remove(selectedNode);
+                parentObjectNodes.Remove(currentObj);
+                if (iCurrentIndex == parentTreeNodes.Count)
+                {
+                    parentTreeNodes.Add(selectedNode);
+                    parentObjectNodes.Add(currentObj);
+                }
+                else
+                {
+                    parentTreeNodes.Insert(iCurrentIndex + 1, selectedNode);
+                    parentObjectNodes.Insert(iCurrentIndex + 1, currentObj);
+                }
+                treeAreas.SelectedNode = selectedNode;
+            }
+        }
+
+        private TreeNode DisplayAreaForm(Area startingPoint)
+        {
+            TreeNode ret = null;
+            List<Area> existingAreas = new List<Area>();
+            if (treeAreas.Nodes.Count > 0)
+            {
+                GetExistingAreas(treeAreas.Nodes[0], existingAreas);
+            }
+            frmArea frm = new frmArea(startingPoint, _gameMap, _settings, existingAreas, _getGraphInputs, _cei);
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                ret = CreateAreaNode(startingPoint);
+            }
+            return ret;
+        }
+
+        private void GetExistingAreas(TreeNode tn, List<Area> areas)
+        {
+            if (tn != null)
+            {
+                areas.Add((Area)tn.Tag);
+                foreach (TreeNode tnChild in tn.Nodes)
+                {
+                    GetExistingAreas(tnChild, areas);
+                }
+            }
+        }
+
+        private void treeAreas_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            e.Cancel = true;
         }
     }
 }
