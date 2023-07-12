@@ -146,11 +146,11 @@ namespace IsengardClient
         private bool _initiatedEmotesTab;
         private bool _initiatedHelpTab;
         private CommandResult? _commandResult;
-        private int _commandResultCounter = 0;
         private int _commandSpecificResult;
         private SelectedInventoryOrEquipmentItem _commandInventoryItem;
         private int _lastCommandDamage;
         private string _lastCommand;
+        private bool _runningHiddenCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
         private bool _currentBackgroundExitMessageReceived;
@@ -1026,8 +1026,6 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
 
-            bool suppressEcho = forInit;
-
             lock (_currentEntityInfo.SkillsLock)
             {
                 bool clear = false;
@@ -1119,14 +1117,14 @@ namespace IsengardClient
             }
 
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            bool runningHiddenCommand = false;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Score)
             {
-                BackgroundWorkerParameters bwp = _currentBackgroundParameters;
                 flParams.CommandResult = CommandResult.CommandSuccessful;
-                suppressEcho = forInit || (bwp != null && !bwp.Foreground); //suppress output if not initiated explicitly by the user
+                runningHiddenCommand = _runningHiddenCommand;
             }
 
-            flParams.SuppressEcho = suppressEcho;
+            flParams.SetSuppressEcho(forInit || runningHiddenCommand);
         }
 
         private void OnSpells(FeedLineParameters flParams, List<string> SpellsList)
@@ -1166,7 +1164,7 @@ namespace IsengardClient
             {
                 ProcessInitialLogin(flp);
             }
-            flp.SuppressEcho = true;
+            flp.SetSuppressEcho(true);
         }
 
         private void OnTime(FeedLineParameters flParams, int hour)
@@ -1269,15 +1267,17 @@ namespace IsengardClient
                 }
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            bool runningHiddenCommand = false;
             if (bct.HasValue && bct == BackgroundCommandType.Equipment)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
-                flParams.SuppressEcho = true;
+                runningHiddenCommand = _runningHiddenCommand;
             }
             if (forInit)
             {
                 AfterProcessInitializationStep(currentStep, InitializationStep.Equipment, flParams);
             }
+            flParams.SetSuppressEcho(forInit || runningHiddenCommand);
         }
 
         private void OnInventory(FeedLineParameters flParams, List<ItemEntity> items, int TotalWeight)
@@ -1305,15 +1305,17 @@ namespace IsengardClient
                 _currentEntityInfo.TotalInventoryWeight = TotalWeight;
             }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            bool runningHiddenCommand = false;
             if (bct.HasValue && bct == BackgroundCommandType.Inventory)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
-                flParams.SuppressEcho = true;
+                runningHiddenCommand = _runningHiddenCommand;
             }
             if (forInit)
             {
                 AfterProcessInitializationStep(currentStep, InitializationStep.Inventory, flParams);
             }
+            flParams.SetSuppressEcho(forInit || runningHiddenCommand);
         }
 
         private void OnFailFlee(FeedLineParameters flParams)
@@ -1355,16 +1357,23 @@ namespace IsengardClient
                 _initializationSteps = InitializationStep.None;
             else
                 _initializationSteps = InitializationStep.RemoveAll;
-            SendCommand("score", InputEchoType.Off);
-            SendCommand("information", InputEchoType.Off);
-            SendCommand("who", InputEchoType.Off);
-            SendCommand("inventory", InputEchoType.Off);
-            SendCommand("equipment", InputEchoType.Off);
-            SendCommand("time", InputEchoType.Off);
-            SendCommand("spells", InputEchoType.Off);
+            List<string> startupCommands = new List<string>()
+            {
+                "score",
+                "information",
+                "who",
+                "inventory",
+                "equipment",
+                "time",
+                "spells",
+            };
             if ((_initializationSteps & InitializationStep.RemoveAll) == InitializationStep.None)
             {
-                SendCommand("remove all", InputEchoType.Off);
+                startupCommands.Add("remove all");
+            }
+            foreach (string nextStartupCommand in startupCommands)
+            {
+                SendCommand(nextStartupCommand, InputEchoType.Off);
             }
             _initializationSteps |= InitializationStep.Initialization;
             _loginInfo = initialLoginInfo;
@@ -2120,12 +2129,13 @@ namespace IsengardClient
         /// <summary>
         /// happens when looking at a hidden mob
         /// </summary>
-        private static void OnSeeNothingSpecial(FeedLineParameters flParams)
+        private void OnSeeNothingSpecial(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.LookAtMob)
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
+                flParams.SetSuppressEcho(_runningHiddenCommand);
             }
         }
 
@@ -2353,7 +2363,7 @@ namespace IsengardClient
         /// <summary>
         /// triggered by looking or attacking a mob that is not present
         /// </summary>
-        private static void OnYouDontSeeThatHere(FeedLineParameters flParams)
+        private void OnYouDontSeeThatHere(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue)
@@ -2365,7 +2375,7 @@ namespace IsengardClient
                     flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                     if (isLookAtMob)
                     {
-                        flParams.SuppressEcho = true;
+                        flParams.SetSuppressEcho(_runningHiddenCommand);
                     }
                 }
             }
@@ -2423,6 +2433,7 @@ namespace IsengardClient
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
                     _currentMonsterStatus = status;
+                    flParams.SetSuppressEcho(_runningHiddenCommand);
                 }
             }
         }
@@ -3344,8 +3355,9 @@ namespace IsengardClient
                             FeedLineParameters flParams = new FeedLineParameters(sNewLinesList);
                             flParams.BackgroundCommandType = _backgroundCommandType;
                             flParams.IsFightingMob = !string.IsNullOrEmpty(_currentlyFightingMobText) || _currentlyFightingMobType.HasValue;
+                            IsengardSettingData sets = _settingsData;
+                            flParams.ConsoleVerbosity = sets == null ? ConsoleOutputVerbosity.Maximum : sets.ConsoleVerbosity;
                             flParams.PlayerNames = _players;
-                            int previousCommandResultCounter = _commandResultCounter;
                             CommandResult? previousCommandResult = _commandResult;
 
                             foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
@@ -3361,7 +3373,7 @@ namespace IsengardClient
                                         _newConsoleText.Add(ex.ToString());
                                     }
                                 }
-                                if (flParams.SuppressEcho && !GetVerboseMode())
+                                if (flParams.SuppressEcho)
                                 {
                                     echoType = InputEchoType.Off;
                                 }
@@ -3391,8 +3403,9 @@ namespace IsengardClient
                             haveContent = !string.IsNullOrWhiteSpace(sNewLine);
                             if (haveContent)
                             {
-                                int newCommandResultCounter = _commandResultCounter;
-                                if (!GetVerboseMode() && previousCommandResultCounter == newCommandResultCounter && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
+                                //if this set of output completed the command, include the command input in the console output,
+                                //except for maximum verbosity in which case the input was sent to the console immediately
+                                if (!IsMaximumConsoleVerbosity() && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
                                 {
                                     sNewLine = _lastCommand + Environment.NewLine + sNewLine;
                                 }
@@ -4000,6 +4013,7 @@ namespace IsengardClient
                 _commandInventoryItem = null;
                 _lastCommand = null;
                 _lastCommandDamage = 0;
+                _runningHiddenCommand = false;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
                 bool setMobToFirstAvailable = true;
                 if (bwp.AtDestination && (!string.IsNullOrEmpty(bwp.MobText) || bwp.MobType.HasValue))
@@ -4900,7 +4914,8 @@ BeforeHazy:
                         }
                     }
 
-                    bool runScore = pms.DoScore;
+                    bool userInitiatedScore = pms.DoScore;
+                    bool runScore = userInitiatedScore;
                     if (!runScore)
                     {
                         lock (_currentEntityInfo.SkillsLock)
@@ -4918,12 +4933,11 @@ BeforeHazy:
                     if (runScore)
                     {
                         _backgroundProcessPhase = BackgroundProcessPhase.Score;
-                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, true);
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, null, !userInitiatedScore);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return;
                         }
-                        pms.DoScore = false;
                     }
                 }
 
@@ -7118,11 +7132,6 @@ BeforeHazy:
             }
         }
 
-        private InputEchoType GetHiddenMessageEchoType()
-        {
-            return GetVerboseMode() ? InputEchoType.On : InputEchoType.Off;
-        }
-
         private CommandResultObject RunSingleCommandForCommandResultBase(BackgroundCommandType commandType, string command, BackgroundWorkerParameters pms, Func<bool> abortLogic, bool hidden)
         {
             //quitting and commands that could cause room transition can't be aborted if sent to the server
@@ -7130,18 +7139,13 @@ BeforeHazy:
             DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
             _commandResult = null;
             _commandSpecificResult = 0;
-            _commandResultCounter++;
             _lastCommand = null;
             _lastCommandDamage = 0;
+            _runningHiddenCommand = hidden;
             try
             {
                 _lastCommand = command;
-                InputEchoType echoType;
-                if (hidden)
-                    echoType = InputEchoType.Off;
-                else
-                    echoType = GetHiddenMessageEchoType();
-                SendCommand(command, echoType);
+                SendCommand(command, IsMaximumConsoleVerbosity() ? InputEchoType.On : InputEchoType.Off);
                 CommandResult? currentResult = null;
                 int specificResult = 0;
                 while (!currentResult.HasValue)
@@ -7185,6 +7189,7 @@ BeforeHazy:
                 _commandSpecificResult = 0;
                 _commandInventoryItem = null;
                 _lastCommand = null;
+                _runningHiddenCommand = false;
             }
         }
 
@@ -9263,12 +9268,11 @@ BeforeHazy:
             {
                 bwp = new BackgroundWorkerParameters();
                 bwp.DoScore = true;
-                bwp.Foreground = true;
                 RunBackgroundProcess(bwp);
             }
             else
             {
-                bwp.DoScore = true;
+                SendCommand("score", InputEchoType.On);
             }
         }
 
@@ -9488,9 +9492,9 @@ BeforeHazy:
             }
         }
 
-        private bool GetVerboseMode()
+        private bool IsMaximumConsoleVerbosity()
         {
-            return _settingsData == null ? true : _settingsData.VerboseMode;
+            return _settingsData == null ? true : _settingsData.ConsoleVerbosity == ConsoleOutputVerbosity.Maximum;
         }
 
         private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)

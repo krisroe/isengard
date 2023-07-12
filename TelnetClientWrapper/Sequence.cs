@@ -33,7 +33,14 @@ namespace IsengardClient
         public BackgroundCommandType? BackgroundCommandType { get; set; }
         public bool IsFightingMob { get; set; }
         public bool FinishedProcessing { get; set; }
-        public bool SuppressEcho { get; set; }
+        public bool SuppressEcho { get; private set; }
+        public void SetSuppressEcho(bool suppressEcho)
+        {
+            if (ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+            {
+                SuppressEcho = suppressEcho;
+            }
+        }
         /// <summary>
         /// general result type common to all background commands
         /// </summary>
@@ -46,6 +53,7 @@ namespace IsengardClient
         public int NextLineIndex { get; set; }
         public List<InformationalMessages> InfoMessages { get; set; }
         public List<string> ErrorMessages { get; set; }
+        public ConsoleOutputVerbosity ConsoleVerbosity { get; set; }
     }
 
     internal class ConstantOutputItemSequence : IOutputItemSequence
@@ -2367,7 +2375,6 @@ StartProcessRoom:
                     if (status != MonsterStatus.None)
                     {
                         flParams.FinishedProcessing = true;
-                        flParams.SuppressEcho = flParams.IsFightingMob;
                         _onSatisfied(status, flParams);
                         return;
                     }
@@ -2431,9 +2438,14 @@ StartProcessRoom:
                         {
                             lastWaitSeconds = _lastPotionsWaitSeconds;
                         }
-                        if (lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds && flParams.InfoMessages.Count == 1)
+                        if (flParams.InfoMessages.Count == 1)
                         {
-                            flParams.SuppressEcho = true;
+                            bool suppressEcho = false;
+                            if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum)
+                                suppressEcho = true;
+                            else if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Default)
+                                suppressEcho = lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds;
+                            if (suppressEcho) flParams.SetSuppressEcho(true);
                         }
                         if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
                         {
@@ -3203,7 +3215,7 @@ StartProcessRoom:
             }
 
             //remove from output lines that shouldn't display
-            if (linesToRemove != null)
+            if (linesToRemove != null & Parameters.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
             {
                 linesToRemove.Reverse();
                 foreach (int i in linesToRemove)
@@ -3212,7 +3224,7 @@ StartProcessRoom:
                 }
                 if (!haveDataToDisplay)
                 {
-                    Parameters.SuppressEcho = true;
+                    Parameters.SetSuppressEcho(true);
                     Parameters.FinishedProcessing = true;
                 }
             }

@@ -766,4 +766,11 @@ namespace IsengardClient
         ChangeAndRun,
         Run,
     }
+
+    internal enum ConsoleOutputVerbosity
+    {
+        Minimum = 0,
+        Default = 1,
+        Maximum = 2,
+    }
 }

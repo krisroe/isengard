@@ -65,7 +65,7 @@ namespace IsengardClient
 
             chkQueryMonsterStatus.Checked = settingsData.QueryMonsterStatus;
             chkGetNewPermRunOnBoatExitMissing.Checked = settingsData.GetNewPermRunOnBoatExitMissing;
-            chkVerboseOutput.Checked = settingsData.VerboseMode;
+            cboConsoleVerbosity.SelectedIndex = (int)settingsData.ConsoleVerbosity;
             chkRemoveAllOnStartup.Checked = settingsData.RemoveAllOnStartup;
             chkDisplayStunLength.Checked = settingsData.DisplayStunLength;
             chkSaveSettingsOnQuit.Checked = settingsData.SaveSettingsOnQuit;
@@ -217,7 +217,7 @@ namespace IsengardClient
 
             _settings.QueryMonsterStatus = chkQueryMonsterStatus.Checked;
             _settings.GetNewPermRunOnBoatExitMissing = chkGetNewPermRunOnBoatExitMissing.Checked;
-            _settings.VerboseMode = chkVerboseOutput.Checked;
+            _settings.ConsoleVerbosity = (ConsoleOutputVerbosity)cboConsoleVerbosity.SelectedIndex;
             _settings.RemoveAllOnStartup = chkRemoveAllOnStartup.Checked;
             _settings.DisplayStunLength = chkDisplayStunLength.Checked;
             _settings.SaveSettingsOnQuit = chkSaveSettingsOnQuit.Checked;

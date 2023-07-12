@@ -48,7 +48,7 @@ namespace IsengardClient.Tests
             settings.QueryMonsterStatus = false;
             settings.GetNewPermRunOnBoatExitMissing = true;
             settings.RemoveAllOnStartup = false;
-            settings.VerboseMode = true;
+            settings.ConsoleVerbosity = ConsoleOutputVerbosity.Minimum;
             settings.Weapon = ItemTypeEnum.SilimaBlade;
             settings.HeldItem = ItemTypeEnum.Diamond;
             DynamicItemData did = new DynamicItemData();
@@ -176,7 +176,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.QueryMonsterStatus, sets2.QueryMonsterStatus);
             Assert.AreEqual(settings.GetNewPermRunOnBoatExitMissing, sets2.GetNewPermRunOnBoatExitMissing);
             Assert.AreEqual(settings.RemoveAllOnStartup, sets2.RemoveAllOnStartup);
-            Assert.AreEqual(settings.VerboseMode, sets2.VerboseMode);
+            Assert.AreEqual(settings.ConsoleVerbosity, sets2.ConsoleVerbosity);
             Assert.AreEqual(settings.Weapon, sets2.Weapon);
             Assert.AreEqual(settings.HeldItem, sets2.HeldItem);
             Assert.AreEqual(settings.DynamicItemData.Count, sets2.DynamicItemData.Count);

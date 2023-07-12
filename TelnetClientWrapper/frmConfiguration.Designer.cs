@@ -45,7 +45,6 @@
             this.tsmiCurrentAutoEscapeActive = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCurrentAutoEscapeInactive = new System.Windows.Forms.ToolStripMenuItem();
             this.chkQueryMonsterStatus = new System.Windows.Forms.CheckBox();
-            this.chkVerboseOutput = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblPreferredAlignmentValue = new System.Windows.Forms.Label();
@@ -70,6 +69,7 @@
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
             this.pnlSettings = new System.Windows.Forms.Panel();
+            this.chkGetNewPermRunOnBoatExitMissing = new System.Windows.Forms.CheckBox();
             this.chkSaveSettingsOnQuit = new System.Windows.Forms.CheckBox();
             this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
             this.chkDisplayStunLength = new System.Windows.Forms.CheckBox();
@@ -110,7 +110,8 @@
             this.colAreaPawnShop = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colAreaInventorySinkRoom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.chkGetNewPermRunOnBoatExitMissing = new System.Windows.Forms.CheckBox();
+            this.lblConsoleVerbosity = new System.Windows.Forms.Label();
+            this.cboConsoleVerbosity = new System.Windows.Forms.ComboBox();
             this.ctxRealm.SuspendLayout();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
@@ -136,34 +137,34 @@
             this.tsmiCurrentRealmWater,
             this.tsmiCurrentRealmWind});
             this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(116, 100);
+            this.ctxRealm.Size = new System.Drawing.Size(104, 92);
             this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
             // 
             // tsmiCurrentRealmEarth
             // 
             this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmEarth.Text = "earth";
             this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmFire
             // 
             this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmFire.Text = "fire";
             this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWater
             // 
             this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmWater.Text = "water";
             this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
             // tsmiCurrentRealmWind
             // 
             this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(115, 24);
+            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(103, 22);
             this.tsmiCurrentRealmWind.Text = "wind";
             this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
             // 
@@ -172,7 +173,7 @@
             this.lblPreferredAlignment.AutoSize = true;
             this.lblPreferredAlignment.Location = new System.Drawing.Point(17, 133);
             this.lblPreferredAlignment.Name = "lblPreferredAlignment";
-            this.lblPreferredAlignment.Size = new System.Drawing.Size(119, 15);
+            this.lblPreferredAlignment.Size = new System.Drawing.Size(101, 13);
             this.lblPreferredAlignment.TabIndex = 128;
             this.lblPreferredAlignment.Text = "Preferred alignment:";
             // 
@@ -189,58 +190,58 @@
             this.tsmiCurrentAutoEscapeActive,
             this.tsmiCurrentAutoEscapeInactive});
             this.ctxAutoEscape.Name = "ctxAutoEscape";
-            this.ctxAutoEscape.Size = new System.Drawing.Size(234, 160);
+            this.ctxAutoEscape.Size = new System.Drawing.Size(200, 148);
             this.ctxAutoEscape.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAutoEscape_Opening);
             // 
             // tsmiSetCurrentAutoEscapeThreshold
             // 
             this.tsmiSetCurrentAutoEscapeThreshold.Name = "tsmiSetCurrentAutoEscapeThreshold";
-            this.tsmiSetCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(233, 24);
+            this.tsmiSetCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(199, 22);
             this.tsmiSetCurrentAutoEscapeThreshold.Text = "Set Current Threshold";
             this.tsmiSetCurrentAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiSetCurrentAutoEscapeThreshold_Click);
             // 
             // tsmiClearCurrentAutoEscapeThreshold
             // 
             this.tsmiClearCurrentAutoEscapeThreshold.Name = "tsmiClearCurrentAutoEscapeThreshold";
-            this.tsmiClearCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(233, 24);
+            this.tsmiClearCurrentAutoEscapeThreshold.Size = new System.Drawing.Size(199, 22);
             this.tsmiClearCurrentAutoEscapeThreshold.Text = "Clear Current Threshold";
             this.tsmiClearCurrentAutoEscapeThreshold.Click += new System.EventHandler(this.tsmiClearCurrentAutoEscapeThreshold_Click);
             // 
             // sepAutoEscape1
             // 
             this.sepAutoEscape1.Name = "sepAutoEscape1";
-            this.sepAutoEscape1.Size = new System.Drawing.Size(230, 6);
+            this.sepAutoEscape1.Size = new System.Drawing.Size(196, 6);
             // 
             // tsmiCurrentAutoEscapeFlee
             // 
             this.tsmiCurrentAutoEscapeFlee.Name = "tsmiCurrentAutoEscapeFlee";
-            this.tsmiCurrentAutoEscapeFlee.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeFlee.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeFlee.Text = "Flee";
             this.tsmiCurrentAutoEscapeFlee.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeFlee_Click);
             // 
             // tsmiCurrentAutoEscapeHazy
             // 
             this.tsmiCurrentAutoEscapeHazy.Name = "tsmiCurrentAutoEscapeHazy";
-            this.tsmiCurrentAutoEscapeHazy.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeHazy.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeHazy.Text = "Hazy";
             this.tsmiCurrentAutoEscapeHazy.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeHazy_Click);
             // 
             // sepAutoEscape2
             // 
             this.sepAutoEscape2.Name = "sepAutoEscape2";
-            this.sepAutoEscape2.Size = new System.Drawing.Size(230, 6);
+            this.sepAutoEscape2.Size = new System.Drawing.Size(196, 6);
             // 
             // tsmiCurrentAutoEscapeActive
             // 
             this.tsmiCurrentAutoEscapeActive.Name = "tsmiCurrentAutoEscapeActive";
-            this.tsmiCurrentAutoEscapeActive.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeActive.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeActive.Text = "Active";
             this.tsmiCurrentAutoEscapeActive.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeActive_Click);
             // 
             // tsmiCurrentAutoEscapeInactive
             // 
             this.tsmiCurrentAutoEscapeInactive.Name = "tsmiCurrentAutoEscapeInactive";
-            this.tsmiCurrentAutoEscapeInactive.Size = new System.Drawing.Size(233, 24);
+            this.tsmiCurrentAutoEscapeInactive.Size = new System.Drawing.Size(199, 22);
             this.tsmiCurrentAutoEscapeInactive.Text = "Inactive";
             this.tsmiCurrentAutoEscapeInactive.Click += new System.EventHandler(this.tsmiCurrentAutoEscapeInactive_Click);
             // 
@@ -249,20 +250,10 @@
             this.chkQueryMonsterStatus.AutoSize = true;
             this.chkQueryMonsterStatus.Location = new System.Drawing.Point(358, 28);
             this.chkQueryMonsterStatus.Name = "chkQueryMonsterStatus";
-            this.chkQueryMonsterStatus.Size = new System.Drawing.Size(151, 19);
+            this.chkQueryMonsterStatus.Size = new System.Drawing.Size(131, 17);
             this.chkQueryMonsterStatus.TabIndex = 135;
             this.chkQueryMonsterStatus.Text = "Query monster status?";
             this.chkQueryMonsterStatus.UseVisualStyleBackColor = true;
-            // 
-            // chkVerboseOutput
-            // 
-            this.chkVerboseOutput.AutoSize = true;
-            this.chkVerboseOutput.Location = new System.Drawing.Point(358, 51);
-            this.chkVerboseOutput.Name = "chkVerboseOutput";
-            this.chkVerboseOutput.Size = new System.Drawing.Size(118, 19);
-            this.chkVerboseOutput.TabIndex = 136;
-            this.chkVerboseOutput.Text = "Verbose output?";
-            this.chkVerboseOutput.UseVisualStyleBackColor = true;
             // 
             // btnOK
             // 
@@ -303,20 +294,20 @@
             this.tsmiPreferredAlignmentGood,
             this.tsmiPreferredAlignmentEvil});
             this.ctxPreferredAlignment.Name = "ctxPreferredAlignment";
-            this.ctxPreferredAlignment.Size = new System.Drawing.Size(116, 52);
+            this.ctxPreferredAlignment.Size = new System.Drawing.Size(104, 48);
             this.ctxPreferredAlignment.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPreferredAlignment_Opening);
             // 
             // tsmiPreferredAlignmentGood
             // 
             this.tsmiPreferredAlignmentGood.Name = "tsmiPreferredAlignmentGood";
-            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(115, 24);
+            this.tsmiPreferredAlignmentGood.Size = new System.Drawing.Size(103, 22);
             this.tsmiPreferredAlignmentGood.Text = "Good";
             this.tsmiPreferredAlignmentGood.Click += new System.EventHandler(this.tsmiPreferredAlignmentGood_Click);
             // 
             // tsmiPreferredAlignmentEvil
             // 
             this.tsmiPreferredAlignmentEvil.Name = "tsmiPreferredAlignmentEvil";
-            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(115, 24);
+            this.tsmiPreferredAlignmentEvil.Size = new System.Drawing.Size(103, 22);
             this.tsmiPreferredAlignmentEvil.Text = "Evil";
             this.tsmiPreferredAlignmentEvil.Click += new System.EventHandler(this.tsmiPreferredAlignmentEvil_Click);
             // 
@@ -370,7 +361,7 @@
             this.lblEmptyColor.AutoSize = true;
             this.lblEmptyColor.Location = new System.Drawing.Point(17, 105);
             this.lblEmptyColor.Name = "lblEmptyColor";
-            this.lblEmptyColor.Size = new System.Drawing.Size(74, 15);
+            this.lblEmptyColor.Size = new System.Drawing.Size(65, 13);
             this.lblEmptyColor.TabIndex = 142;
             this.lblEmptyColor.Text = "Empty color:";
             // 
@@ -390,7 +381,7 @@
             this.lblFullColor.AutoSize = true;
             this.lblFullColor.Location = new System.Drawing.Point(17, 81);
             this.lblFullColor.Name = "lblFullColor";
-            this.lblFullColor.Size = new System.Drawing.Size(60, 15);
+            this.lblFullColor.Size = new System.Drawing.Size(52, 13);
             this.lblFullColor.TabIndex = 140;
             this.lblFullColor.Text = "Full color:";
             // 
@@ -415,50 +406,50 @@
             this.tsmiMoveEntryUp,
             this.tsmiMoveEntryDown});
             this.ctxListModification.Name = "ctxStrategies";
-            this.ctxListModification.Size = new System.Drawing.Size(159, 124);
+            this.ctxListModification.Size = new System.Drawing.Size(139, 114);
             this.ctxListModification.Opening += new System.ComponentModel.CancelEventHandler(this.ctxListModification_Opening);
             // 
             // tsmiAddEntry
             // 
             this.tsmiAddEntry.Name = "tsmiAddEntry";
-            this.tsmiAddEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiAddEntry.Size = new System.Drawing.Size(138, 22);
             this.tsmiAddEntry.Text = "Add";
             this.tsmiAddEntry.Click += new System.EventHandler(this.tsmiAddEntry_Click);
             // 
             // tsmiEditEntry
             // 
             this.tsmiEditEntry.Name = "tsmiEditEntry";
-            this.tsmiEditEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiEditEntry.Size = new System.Drawing.Size(138, 22);
             this.tsmiEditEntry.Text = "Edit";
             this.tsmiEditEntry.Click += new System.EventHandler(this.tsmiEditEntry_Click);
             // 
             // tsmiRemoveEntry
             // 
             this.tsmiRemoveEntry.Name = "tsmiRemoveEntry";
-            this.tsmiRemoveEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiRemoveEntry.Size = new System.Drawing.Size(138, 22);
             this.tsmiRemoveEntry.Text = "Remove";
             this.tsmiRemoveEntry.Click += new System.EventHandler(this.tsmiRemoveEntry_Click);
             // 
             // tsmiMoveEntryUp
             // 
             this.tsmiMoveEntryUp.Name = "tsmiMoveEntryUp";
-            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(138, 22);
             this.tsmiMoveEntryUp.Text = "Move Up";
             this.tsmiMoveEntryUp.Click += new System.EventHandler(this.tsmiMoveEntryUp_Click);
             // 
             // tsmiMoveEntryDown
             // 
             this.tsmiMoveEntryDown.Name = "tsmiMoveEntryDown";
-            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(138, 22);
             this.tsmiMoveEntryDown.Text = "Move Down";
             this.tsmiMoveEntryDown.Click += new System.EventHandler(this.tsmiMoveEntryDown_Click);
             // 
             // chkRemoveAllOnStartup
             // 
             this.chkRemoveAllOnStartup.AutoSize = true;
-            this.chkRemoveAllOnStartup.Location = new System.Drawing.Point(358, 73);
+            this.chkRemoveAllOnStartup.Location = new System.Drawing.Point(358, 53);
             this.chkRemoveAllOnStartup.Name = "chkRemoveAllOnStartup";
-            this.chkRemoveAllOnStartup.Size = new System.Drawing.Size(155, 19);
+            this.chkRemoveAllOnStartup.Size = new System.Drawing.Size(135, 17);
             this.chkRemoveAllOnStartup.TabIndex = 146;
             this.chkRemoveAllOnStartup.Text = "Remove all on startup?";
             this.chkRemoveAllOnStartup.UseVisualStyleBackColor = true;
@@ -491,6 +482,8 @@
             // 
             // pnlSettings
             // 
+            this.pnlSettings.Controls.Add(this.cboConsoleVerbosity);
+            this.pnlSettings.Controls.Add(this.lblConsoleVerbosity);
             this.pnlSettings.Controls.Add(this.chkGetNewPermRunOnBoatExitMissing);
             this.pnlSettings.Controls.Add(this.chkSaveSettingsOnQuit);
             this.pnlSettings.Controls.Add(this.txtMagicMendWhenDownXHP);
@@ -506,7 +499,6 @@
             this.pnlSettings.Controls.Add(this.lblCurrentRealmValue);
             this.pnlSettings.Controls.Add(this.txtPotionsVigorWhenDownXHP);
             this.pnlSettings.Controls.Add(this.lblPotionsVigorWhenDownXHP);
-            this.pnlSettings.Controls.Add(this.chkVerboseOutput);
             this.pnlSettings.Controls.Add(this.lblCurrentAutoEscapeValue);
             this.pnlSettings.Controls.Add(this.chkQueryMonsterStatus);
             this.pnlSettings.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
@@ -523,29 +515,39 @@
             this.pnlSettings.Size = new System.Drawing.Size(812, 546);
             this.pnlSettings.TabIndex = 150;
             // 
+            // chkGetNewPermRunOnBoatExitMissing
+            // 
+            this.chkGetNewPermRunOnBoatExitMissing.AutoSize = true;
+            this.chkGetNewPermRunOnBoatExitMissing.Location = new System.Drawing.Point(358, 126);
+            this.chkGetNewPermRunOnBoatExitMissing.Name = "chkGetNewPermRunOnBoatExitMissing";
+            this.chkGetNewPermRunOnBoatExitMissing.Size = new System.Drawing.Size(211, 17);
+            this.chkGetNewPermRunOnBoatExitMissing.TabIndex = 158;
+            this.chkGetNewPermRunOnBoatExitMissing.Text = "Get new perm run on boat exit missing?";
+            this.chkGetNewPermRunOnBoatExitMissing.UseVisualStyleBackColor = true;
+            // 
             // chkSaveSettingsOnQuit
             // 
             this.chkSaveSettingsOnQuit.AutoSize = true;
-            this.chkSaveSettingsOnQuit.Location = new System.Drawing.Point(358, 121);
+            this.chkSaveSettingsOnQuit.Location = new System.Drawing.Point(358, 101);
             this.chkSaveSettingsOnQuit.Name = "chkSaveSettingsOnQuit";
-            this.chkSaveSettingsOnQuit.Size = new System.Drawing.Size(148, 19);
+            this.chkSaveSettingsOnQuit.Size = new System.Drawing.Size(131, 17);
             this.chkSaveSettingsOnQuit.TabIndex = 157;
             this.chkSaveSettingsOnQuit.Text = "Save settings on quit?";
             this.chkSaveSettingsOnQuit.UseVisualStyleBackColor = true;
             // 
             // txtMagicMendWhenDownXHP
             // 
-            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(209, 187);
+            this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(196, 187);
             this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
-            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(87, 20);
             this.txtMagicMendWhenDownXHP.TabIndex = 152;
             // 
             // chkDisplayStunLength
             // 
             this.chkDisplayStunLength.AutoSize = true;
-            this.chkDisplayStunLength.Location = new System.Drawing.Point(358, 96);
+            this.chkDisplayStunLength.Location = new System.Drawing.Point(358, 76);
             this.chkDisplayStunLength.Name = "chkDisplayStunLength";
-            this.chkDisplayStunLength.Size = new System.Drawing.Size(139, 19);
+            this.chkDisplayStunLength.Size = new System.Drawing.Size(121, 17);
             this.chkDisplayStunLength.TabIndex = 149;
             this.chkDisplayStunLength.Text = "Display stun length?";
             this.chkDisplayStunLength.UseVisualStyleBackColor = true;
@@ -555,7 +557,7 @@
             this.lblMagicMendWhenDownXHP.AutoSize = true;
             this.lblMagicMendWhenDownXHP.Location = new System.Drawing.Point(19, 190);
             this.lblMagicMendWhenDownXHP.Name = "lblMagicMendWhenDownXHP";
-            this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(179, 15);
+            this.lblMagicMendWhenDownXHP.Size = new System.Drawing.Size(158, 13);
             this.lblMagicMendWhenDownXHP.TabIndex = 151;
             this.lblMagicMendWhenDownXHP.Text = "Magic: Mend when down X HP:";
             // 
@@ -571,9 +573,9 @@
             // 
             // txtMagicVigorWhenDownXHP
             // 
-            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(209, 162);
+            this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(196, 162);
             this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
-            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(87, 20);
             this.txtMagicVigorWhenDownXHP.TabIndex = 150;
             // 
             // lblMagicVigorWhenDownXHP
@@ -581,7 +583,7 @@
             this.lblMagicVigorWhenDownXHP.AutoSize = true;
             this.lblMagicVigorWhenDownXHP.Location = new System.Drawing.Point(19, 166);
             this.lblMagicVigorWhenDownXHP.Name = "lblMagicVigorWhenDownXHP";
-            this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(175, 15);
+            this.lblMagicVigorWhenDownXHP.Size = new System.Drawing.Size(155, 13);
             this.lblMagicVigorWhenDownXHP.TabIndex = 149;
             this.lblMagicVigorWhenDownXHP.Text = "Magic: Vigor when down X HP:";
             // 
@@ -597,9 +599,9 @@
             // 
             // txtPotionsMendWhenDownXHP
             // 
-            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(209, 239);
+            this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(196, 239);
             this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
-            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(87, 20);
             this.txtPotionsMendWhenDownXHP.TabIndex = 156;
             // 
             // lblPotionsMendWhenDownXHP
@@ -607,15 +609,15 @@
             this.lblPotionsMendWhenDownXHP.AutoSize = true;
             this.lblPotionsMendWhenDownXHP.Location = new System.Drawing.Point(19, 242);
             this.lblPotionsMendWhenDownXHP.Name = "lblPotionsMendWhenDownXHP";
-            this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(186, 15);
+            this.lblPotionsMendWhenDownXHP.Size = new System.Drawing.Size(164, 13);
             this.lblPotionsMendWhenDownXHP.TabIndex = 155;
             this.lblPotionsMendWhenDownXHP.Text = "Potions: Mend when down X HP:";
             // 
             // txtPotionsVigorWhenDownXHP
             // 
-            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(209, 214);
+            this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(196, 214);
             this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
-            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(74, 20);
+            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(87, 20);
             this.txtPotionsVigorWhenDownXHP.TabIndex = 154;
             // 
             // lblPotionsVigorWhenDownXHP
@@ -623,7 +625,7 @@
             this.lblPotionsVigorWhenDownXHP.AutoSize = true;
             this.lblPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(19, 217);
             this.lblPotionsVigorWhenDownXHP.Name = "lblPotionsVigorWhenDownXHP";
-            this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(182, 15);
+            this.lblPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(161, 13);
             this.lblPotionsVigorWhenDownXHP.TabIndex = 153;
             this.lblPotionsVigorWhenDownXHP.Text = "Potions: Vigor when down X HP:";
             // 
@@ -763,7 +765,7 @@
             this.lblHeldItem.AutoSize = true;
             this.lblHeldItem.Location = new System.Drawing.Point(10, 39);
             this.lblHeldItem.Name = "lblHeldItem";
-            this.lblHeldItem.Size = new System.Drawing.Size(36, 15);
+            this.lblHeldItem.Size = new System.Drawing.Size(32, 13);
             this.lblHeldItem.TabIndex = 145;
             this.lblHeldItem.Text = "Held:";
             // 
@@ -780,7 +782,7 @@
             this.lblWeapon.AutoSize = true;
             this.lblWeapon.Location = new System.Drawing.Point(10, 15);
             this.lblWeapon.Name = "lblWeapon";
-            this.lblWeapon.Size = new System.Drawing.Size(56, 15);
+            this.lblWeapon.Size = new System.Drawing.Size(51, 13);
             this.lblWeapon.TabIndex = 143;
             this.lblWeapon.Text = "Weapon:";
             // 
@@ -914,15 +916,27 @@
             this.pnlBottom.Size = new System.Drawing.Size(824, 44);
             this.pnlBottom.TabIndex = 148;
             // 
-            // chkGetNewPermRunOnBoatExitMissing
+            // lblConsoleVerbosity
             // 
-            this.chkGetNewPermRunOnBoatExitMissing.AutoSize = true;
-            this.chkGetNewPermRunOnBoatExitMissing.Location = new System.Drawing.Point(358, 146);
-            this.chkGetNewPermRunOnBoatExitMissing.Name = "chkGetNewPermRunOnBoatExitMissing";
-            this.chkGetNewPermRunOnBoatExitMissing.Size = new System.Drawing.Size(308, 24);
-            this.chkGetNewPermRunOnBoatExitMissing.TabIndex = 158;
-            this.chkGetNewPermRunOnBoatExitMissing.Text = "Get new perm run on boat exit missing?";
-            this.chkGetNewPermRunOnBoatExitMissing.UseVisualStyleBackColor = true;
+            this.lblConsoleVerbosity.AutoSize = true;
+            this.lblConsoleVerbosity.Location = new System.Drawing.Point(19, 269);
+            this.lblConsoleVerbosity.Name = "lblConsoleVerbosity";
+            this.lblConsoleVerbosity.Size = new System.Drawing.Size(93, 13);
+            this.lblConsoleVerbosity.TabIndex = 159;
+            this.lblConsoleVerbosity.Text = "Console verbosity:";
+            // 
+            // cboConsoleVerbosity
+            // 
+            this.cboConsoleVerbosity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboConsoleVerbosity.FormattingEnabled = true;
+            this.cboConsoleVerbosity.Items.AddRange(new object[] {
+            "Minimum",
+            "Default",
+            "Maximum"});
+            this.cboConsoleVerbosity.Location = new System.Drawing.Point(196, 266);
+            this.cboConsoleVerbosity.Name = "cboConsoleVerbosity";
+            this.cboConsoleVerbosity.Size = new System.Drawing.Size(87, 21);
+            this.cboConsoleVerbosity.TabIndex = 160;
             // 
             // frmConfiguration
             // 
@@ -959,7 +973,6 @@
         #endregion
         private System.Windows.Forms.Label lblPreferredAlignment;
         private System.Windows.Forms.CheckBox chkQueryMonsterStatus;
-        private System.Windows.Forms.CheckBox chkVerboseOutput;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.ContextMenuStrip ctxAutoEscape;
@@ -1039,5 +1052,7 @@
         private System.Windows.Forms.Button btnClearHeldItem;
         private System.Windows.Forms.ContextMenuStrip ctxItems;
         private System.Windows.Forms.CheckBox chkGetNewPermRunOnBoatExitMissing;
+        private System.Windows.Forms.ComboBox cboConsoleVerbosity;
+        private System.Windows.Forms.Label lblConsoleVerbosity;
     }
 }

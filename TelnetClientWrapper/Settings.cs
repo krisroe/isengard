@@ -17,7 +17,7 @@ namespace IsengardClient
         public ItemTypeEnum? HeldItem { get; set; }
         public RealmType Realm { get; set; }
         public AlignmentType PreferredAlignment { get; set; }
-        public bool VerboseMode { get; set; }
+        public ConsoleOutputVerbosity ConsoleVerbosity { get; set; }
         public bool QueryMonsterStatus { get; set; }
         public bool GetNewPermRunOnBoatExitMissing { get; set; }
         public Color FullColor { get; set; }
@@ -47,7 +47,7 @@ namespace IsengardClient
             HeldItem = null;
             Realm = RealmType.Earth;
             PreferredAlignment = AlignmentType.Blue;
-            VerboseMode = false;
+            ConsoleVerbosity = ConsoleOutputVerbosity.Default;
             FullColor = Color.Green;
             EmptyColor = Color.Red;
             QueryMonsterStatus = true;
@@ -78,7 +78,7 @@ namespace IsengardClient
             HeldItem = copied.HeldItem;
             Realm = copied.Realm;
             PreferredAlignment = copied.PreferredAlignment;
-            VerboseMode = copied.VerboseMode;
+            ConsoleVerbosity = copied.ConsoleVerbosity;
             QueryMonsterStatus = copied.QueryMonsterStatus;
             GetNewPermRunOnBoatExitMissing = copied.GetNewPermRunOnBoatExitMissing;
             FullColor = copied.FullColor;
@@ -1395,27 +1395,10 @@ namespace IsengardClient
         {
             Dictionary<string, string> existingSettings = new Dictionary<string, string>();
             Dictionary<string, string> newSettings = new Dictionary<string, string>();
-            if (Weapon.HasValue) newSettings["Weapon"] = Weapon.Value.ToString();
-            if (HeldItem.HasValue) newSettings["HeldItem"] = HeldItem.Value.ToString();
-            newSettings["Realm"] = Realm.ToString();
-            newSettings["PreferredAlignment"] = PreferredAlignment.ToString();
-            newSettings["VerboseMode"] = VerboseMode.ToString();
-            newSettings["QueryMonsterStatus"] = QueryMonsterStatus.ToString();
-            newSettings["GetNewPermRunOnBoatExitMissing"] = GetNewPermRunOnBoatExitMissing.ToString();
-            newSettings["RemoveAllOnStartup"] = RemoveAllOnStartup.ToString();
-            newSettings["DisplayStunLength"] = DisplayStunLength.ToString();
-            newSettings["FullColor"] = FullColor.ToArgb().ToString();
-            newSettings["EmptyColor"] = EmptyColor.ToArgb().ToString();
-            newSettings["AutoSpellLevelMin"] = AutoSpellLevelMin.ToString();
-            newSettings["AutoSpellLevelMax"] = AutoSpellLevelMax.ToString();
-            newSettings["AutoEscapeThreshold"] = AutoEscapeThreshold.ToString();
-            newSettings["AutoEscapeType"] = AutoEscapeType.ToString();
-            newSettings["AutoEscapeActive"] = AutoEscapeActive.ToString();
-            newSettings["MagicVigorOnlyWhenDownXHP"] = MagicVigorOnlyWhenDownXHP.ToString();
-            newSettings["MagicMendOnlyWhenDownXHP"] = MagicMendOnlyWhenDownXHP.ToString();
-            newSettings["PotionsVigorOnlyWhenDownXHP"] = PotionsVigorOnlyWhenDownXHP.ToString();
-            newSettings["PotionsMendOnlyWhenDownXHP"] = PotionsMendOnlyWhenDownXHP.ToString();
-            newSettings["SaveSettingsOnQuit"] = SaveSettingsOnQuit.ToString();
+            foreach (var next in GetSettingsToSave())
+            {
+                newSettings[next.Key] = next.Value;
+            }
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
                 cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
@@ -2234,11 +2217,11 @@ namespace IsengardClient
                     else
                         errorMessages.Add("Invalid preferred alignment: " + sValue);
                     break;
-                case "VerboseMode":
-                    if (bool.TryParse(sValue, out bValue))
-                        VerboseMode = bValue;
+                case "ConsoleVerbosity":
+                    if (Enum.TryParse(sValue, out ConsoleOutputVerbosity verbosity))
+                        ConsoleVerbosity = verbosity;
                     else
-                        errorMessages.Add("Invalid VerboseMode: " + sValue);
+                        errorMessages.Add("Invalid ConsoleVerbosity: " + sValue);
                     break;
                 case "FullColor":
                     if (int.TryParse(sValue, out iValue))
@@ -2533,30 +2516,41 @@ namespace IsengardClient
                 writer.WriteEndElement(); //end the strategy list
             }
         }
+        
+        private IEnumerable<KeyValuePair<string, string>> GetSettingsToSave()
+        {
+            if (Weapon.HasValue) yield return new KeyValuePair<string, string>("Weapon", Weapon.Value.ToString());
+            if (HeldItem.HasValue) yield return new KeyValuePair<string, string>("HeldItem", HeldItem.Value.ToString());
+            yield return new KeyValuePair<string, string>("Realm", Realm.ToString());
+            yield return new KeyValuePair<string, string>("PreferredAlignment", PreferredAlignment.ToString());
+            yield return new KeyValuePair<string, string>("ConsoleVerbosity", ConsoleVerbosity.ToString());
+            yield return new KeyValuePair<string, string>("FullColor", FullColor.ToArgb().ToString());
+            yield return new KeyValuePair<string, string>("EmptyColor", EmptyColor.ToArgb().ToString());
+            yield return new KeyValuePair<string, string>("QueryMonsterStatus", QueryMonsterStatus.ToString());
+            yield return new KeyValuePair<string, string>("GetNewPermRunOnBoatExitMissing", GetNewPermRunOnBoatExitMissing.ToString());
+            yield return new KeyValuePair<string, string>("AutoSpellLevelMin", AutoSpellLevelMin.ToString());
+            yield return new KeyValuePair<string, string>("AutoSpellLevelMax", AutoSpellLevelMax.ToString());
+            yield return new KeyValuePair<string, string>("RemoveAllOnStartup", RemoveAllOnStartup.ToString());
+            yield return new KeyValuePair<string, string>("SaveSettingsOnQuit", SaveSettingsOnQuit.ToString());
+            yield return new KeyValuePair<string, string>("AutoEscapeThreshold", AutoEscapeThreshold.ToString());
+            yield return new KeyValuePair<string, string>("AutoEscapeType", AutoEscapeType.ToString());
+            yield return new KeyValuePair<string, string>("AutoEscapeActive", AutoEscapeActive.ToString());
+            yield return new KeyValuePair<string, string>("MagicVigorOnlyWhenDownXHP", MagicVigorOnlyWhenDownXHP.ToString());
+            yield return new KeyValuePair<string, string>("MagicMendOnlyWhenDownXHP", MagicMendOnlyWhenDownXHP.ToString());
+            yield return new KeyValuePair<string, string>("PotionsVigorOnlyWhenDownXHP", PotionsVigorOnlyWhenDownXHP.ToString());
+            yield return new KeyValuePair<string, string>("PotionsMendOnlyWhenDownXHP", PotionsMendOnlyWhenDownXHP.ToString());
+        }
 
         private void WriteSettingsXML(XmlWriter writer)
         {
             writer.WriteStartElement("Settings");
-            if (Weapon.HasValue) WriteSetting(writer, "Weapon", Weapon.Value.ToString());
-            if (HeldItem.HasValue) WriteSetting(writer, "HeldItem", HeldItem.Value.ToString());
-            WriteSetting(writer, "Realm", Realm.ToString());
-            WriteSetting(writer, "PreferredAlignment", PreferredAlignment.ToString());
-            WriteSetting(writer, "VerboseMode", VerboseMode.ToString());
-            WriteSetting(writer, "FullColor", FullColor.ToArgb().ToString());
-            WriteSetting(writer, "EmptyColor", EmptyColor.ToArgb().ToString());
-            WriteSetting(writer, "QueryMonsterStatus", QueryMonsterStatus.ToString());
-            WriteSetting(writer, "GetNewPermRunOnBoatExitMissing", GetNewPermRunOnBoatExitMissing.ToString());
-            WriteSetting(writer, "AutoSpellLevelMin", AutoSpellLevelMin.ToString());
-            WriteSetting(writer, "AutoSpellLevelMax", AutoSpellLevelMax.ToString());
-            WriteSetting(writer, "RemoveAllOnStartup", RemoveAllOnStartup.ToString());
-            WriteSetting(writer, "SaveSettingsOnQuit", SaveSettingsOnQuit.ToString());
-            WriteSetting(writer, "AutoEscapeThreshold", AutoEscapeThreshold.ToString());
-            WriteSetting(writer, "AutoEscapeType", AutoEscapeType.ToString());
-            WriteSetting(writer, "AutoEscapeActive", AutoEscapeActive.ToString());
-            WriteSetting(writer, "MagicVigorOnlyWhenDownXHP", MagicVigorOnlyWhenDownXHP.ToString());
-            WriteSetting(writer, "MagicMendOnlyWhenDownXHP", MagicMendOnlyWhenDownXHP.ToString());
-            WriteSetting(writer, "PotionsVigorOnlyWhenDownXHP", PotionsVigorOnlyWhenDownXHP.ToString());
-            WriteSetting(writer, "PotionsMendOnlyWhenDownXHP", PotionsMendOnlyWhenDownXHP.ToString());
+            foreach (var next in GetSettingsToSave())
+            {
+                writer.WriteStartElement("Setting");
+                writer.WriteAttributeString("name", next.Key);
+                writer.WriteAttributeString("value", next.Value);
+                writer.WriteEndElement();
+            }
             writer.WriteEndElement();
         }
 
@@ -2657,14 +2651,6 @@ namespace IsengardClient
                     WriteLocation(childNode, writer);
                 }
             }
-            writer.WriteEndElement();
-        }
-
-        public void WriteSetting(XmlWriter writer, string Name, string Value)
-        {
-            writer.WriteStartElement("Setting");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("value", Value);
             writer.WriteEndElement();
         }
 

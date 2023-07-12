@@ -55,7 +55,6 @@ namespace IsengardClient
         /// inventory items
         /// </summary>
         public List<SelectedInventoryOrEquipmentItem> InventoryItems { get; set; }
-        public bool Foreground { get; set; }
         /// <summary>
         /// whether to cure poison if needed. This is used by the standalone cure-poison option.
         /// </summary>
