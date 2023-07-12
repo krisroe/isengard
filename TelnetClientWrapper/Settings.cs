@@ -261,7 +261,7 @@ namespace IsengardClient
                         bool expanded = Convert.ToInt32(reader["Expanded"]) != 0;
                         oData = reader["ParentID"];
                         int iParentID = oData == DBNull.Value ? 0 : Convert.ToInt32(oData);
-                        LocationNode ln = new LocationNode();
+                        LocationNode ln = new LocationNode(null);
                         ln.ID = iID;
                         ln.DisplayName = sDisplayName;
                         ln.Room = sRoom;
@@ -616,7 +616,7 @@ namespace IsengardClient
                     else if (nextStandardElement == "Areas")
                         HandleAreas(elem, errorMessages, gameMap);
                     else if (nextStandardElement == "Locations")
-                        HandleLocations(elem, errorMessages, Locations, gameMap);
+                        HandleLocations(elem, errorMessages, null, Locations, gameMap);
                     else if (nextStandardElement == "Strategies")
                         HandleStrategies(elem, errorMessages, gameMap);
                     else
@@ -1304,7 +1304,7 @@ namespace IsengardClient
             return p;
         }
 
-        private void HandleLocations(XmlElement elem, List<string> errorMessages, List<LocationNode> locations, IsengardMap gameMap)
+        private void HandleLocations(XmlElement elem, List<string> errorMessages, LocationNode parent, List<LocationNode> locations, IsengardMap gameMap)
         {
             foreach (XmlNode nextLocationNode in elem.ChildNodes)
             {
@@ -1365,13 +1365,13 @@ namespace IsengardClient
 
                         if (isValid)
                         {
-                            LocationNode node = new LocationNode();
+                            LocationNode node = new LocationNode(parent);
                             node.DisplayName = sDisplayName;
                             node.Room = sRoom;
                             node.RoomObject = r;
                             locations.Add(node);
                             List<LocationNode> subNodes = new List<LocationNode>();
-                            HandleLocations(nextLocationElem, errorMessages, subNodes, gameMap);
+                            HandleLocations(nextLocationElem, errorMessages, node, subNodes, gameMap);
                             if (subNodes.Count > 0)
                             {
                                 node.Children = subNodes;

@@ -80,17 +80,18 @@ namespace IsengardClient
             return ret;
         }
 
-        private TreeNode DisplayNodeForm(LocationNode startingPoint)
+        private TreeNode DisplayNodeForm(LocationNode startingPoint, LocationNode parentNode)
         {
             TreeNode ret = null;
             frmLocationNode frm = new frmLocationNode(startingPoint, CurrentRoom, _fullMap, _graphInputs);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
-                LocationNode ln = new LocationNode();
-                ln.DisplayName = frm.DisplayName;
-                ln.RoomObject = frm.SelectedRoom;
-                ln.Room = _fullMap.GetRoomTextIdentifier(ln.RoomObject);
-                ret = CreateLocationNode(ln);
+                startingPoint.DisplayName = frm.DisplayName;
+                startingPoint.RoomObject = frm.SelectedRoom;
+                startingPoint.Room = _fullMap.GetRoomTextIdentifier(startingPoint.RoomObject);
+                startingPoint.Parent = parentNode;
+                startingPoint.ParentID = parentNode == null ? 0 : parentNode.ID;
+                ret = CreateLocationNode(startingPoint);
             }
             return ret;
         }
@@ -109,11 +110,15 @@ namespace IsengardClient
             TreeNodeCollection parentTreeNodes = parentNode == null ? treeLocations.Nodes : selectedNode.Parent.Nodes;
             List<LocationNode> parentLocationNodes = parentNode == null ? _settingsData.Locations : currentLoc.Parent.Children;
             int iCurrentIndex = parentTreeNodes.IndexOf(selectedNode);
-            bool isTopLevel = currentLoc.Parent == null;
             TreeNode newNodeInfo;
             if (tsi == tsmiAddChild || tsi == tsmiAddSiblingAfter || tsi == tsmiAddSiblingBefore)
             {
-                newNodeInfo = DisplayNodeForm(null);
+                LocationNode parentLocNode;
+                if (tsi == tsmiAddChild)
+                    parentLocNode = currentLoc;
+                else
+                    parentLocNode = currentLoc.Parent;
+                newNodeInfo = DisplayNodeForm(new LocationNode(parentLocNode), parentLocNode);
                 if (newNodeInfo != null)
                 {
                     LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
@@ -128,8 +133,6 @@ namespace IsengardClient
                             selectedNode.Nodes.Add(newNodeInfo);
                             if (currentLoc.Children == null) currentLoc.Children = new List<LocationNode>();
                             currentLoc.Children.Add(newLoc);
-                            newLoc.ParentID = currentLoc.ID;
-                            newLoc.Parent = currentLoc;
                             selectedNode.Expand();
                         }
                     }
@@ -137,11 +140,6 @@ namespace IsengardClient
                     {
                         selectedNode.Parent.Nodes.Insert(iCurrentIndex, newNodeInfo);
                         parentLocationNodes.Insert(iCurrentIndex, newLoc);
-                        newLoc.Parent = currentLoc.Parent;
-                        if (!isTopLevel)
-                        {
-                            newLoc.ParentID = currentLoc.Parent.ID;
-                        }
                     }
                     else if (tsi == tsmiAddSiblingAfter)
                     {
@@ -155,24 +153,15 @@ namespace IsengardClient
                             parentTreeNodes.Insert(iCurrentIndex + 1, newNodeInfo);
                             parentLocationNodes.Insert(iCurrentIndex + 1, newLoc);
                         }
-                        newLoc.Parent = currentLoc.Parent;
-                        if (!isTopLevel)
-                        {
-                            newLoc.ParentID = currentLoc.Parent.ID;
-                        }
                     }
                 }
             }
             else if (tsi == tsmiEdit)
             {
-                newNodeInfo = DisplayNodeForm(currentLoc);
+                newNodeInfo = DisplayNodeForm(currentLoc, currentLoc.Parent);
                 if (newNodeInfo != null)
                 {
-                    LocationNode newLoc = (LocationNode)newNodeInfo.Tag;
-                    currentLoc.DisplayName = newLoc.DisplayName;
-                    currentLoc.Room = newLoc.Room;
-                    currentLoc.RoomObject = newLoc.RoomObject;
-                    selectedNode.Text = newLoc.GetDisplayName();
+                    selectedNode.Text = currentLoc.GetDisplayName();
                 }
             }
             else if (tsi == tsmiRemove)

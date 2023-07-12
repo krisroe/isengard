@@ -9,6 +9,9 @@ namespace IsengardClient
     internal class Area
     {
         public int ID { get; set; }
+        public int ParentID { get; set; }
+        public Area Parent { get; set; }
+        List<Area> Children { get; set; }
         public string DisplayName { get; set; }
         public HealingRoom? TickRoom { get; set; }
         public PawnShoppe? PawnShop { get; set; }

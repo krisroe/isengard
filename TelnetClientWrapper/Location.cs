@@ -12,13 +12,14 @@ namespace IsengardClient
         public Room RoomObject { get; set; }
         public string DisplayName { get; set; }
         public bool Expanded { get; set; }
-        public LocationNode()
+        public LocationNode(LocationNode Parent)
         {
+            this.Parent = Parent;
+            if (Parent != null) ParentID = Parent.ID;
         }
-        public LocationNode(LocationNode copied, LocationNode parent)
+        public LocationNode(LocationNode copied, LocationNode parent) : this(parent)
         {
             ID = copied.ID;
-            Parent = parent;
             if (copied.Children != null)
             {
                 Children = new List<LocationNode>();

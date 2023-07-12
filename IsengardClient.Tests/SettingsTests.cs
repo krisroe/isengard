@@ -1,9 +1,7 @@
-﻿using IsengardClient.Properties;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Xml;
 
@@ -70,14 +68,15 @@ namespace IsengardClient.Tests
             did.KeepCount = 12;
             settings.DynamicItemClassData[DynamicDataItemClass.Money] = did;
 
-            LocationNode node1 = new LocationNode();
+            LocationNode node1 = new LocationNode(null);
             node1.DisplayName = "asdf";
-            node1.ID = 12;
             node1.Expanded = true;
-            LocationNode node2 = new LocationNode();
+            LocationNode node2 = new LocationNode(node1);
             node2.DisplayName = "whozt";
-            node2.Room = "someroom";
+            node2.Room = "Order of Love";
+            node2.RoomObject = gameMap.UnambiguousRoomsByBackendName["Order of Love"];
             node1.Children = new List<LocationNode>() { node2 };
+            settings.Locations.Add(node1);
 
             Area a = new Area();
             a.DisplayName = "test";
@@ -225,7 +224,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(a1.DisplayName, a2.DisplayName);
             Assert.AreEqual(a1.TickRoom, a2.TickRoom);
             Assert.AreEqual(a1.PawnShop, a2.PawnShop);
-            Assert.AreEqual(a1.InventorySinkRoomIdentifier, a2.InventorySinkRoomIdentifier);
+            Assert.AreEqual(a1.InventorySinkRoomIdentifier ?? string.Empty, a2.InventorySinkRoomIdentifier ?? string.Empty);
             Assert.AreEqual(a1.InventorySinkRoomObject, a2.InventorySinkRoomObject);
         }
 
@@ -317,7 +316,7 @@ namespace IsengardClient.Tests
             else
                 Assert.AreEqual(ln1.ID, 0);
             Assert.AreEqual(ln1.DisplayName, ln2.DisplayName);
-            Assert.AreEqual(ln1.Room, ln2.Room);
+            Assert.AreEqual(ln1.Room ?? string.Empty, ln2.Room ?? string.Empty);
             Assert.AreEqual(ln1.RoomObject, ln2.RoomObject);
             Assert.AreEqual(ln1.Expanded, ln2.Expanded);
             Assert.AreEqual(ln1.Children == null, ln2.Children == null);
