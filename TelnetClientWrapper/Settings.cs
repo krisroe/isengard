@@ -448,7 +448,7 @@ namespace IsengardClient
                     else
                         strats.Remove(s.ID);
                 }
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.AreaID,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID LEFT JOIN Areas a ON p.AreaID = a.ID WHERE p.UserID = @UserID AND s.UserID = @UserID AND (a.ID IS NULL OR a.UserID = @UserID) ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.AreaID,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID LEFT JOIN Areas a ON p.AreaID = a.ID WHERE p.UserID = @UserID AND s.UserID = @UserID AND (a.ID IS NULL OR a.UserID = @UserID) ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -458,6 +458,8 @@ namespace IsengardClient
                         permRun.ID = Convert.ToInt32(reader["ID"]);
                         oData = reader["DisplayName"];
                         permRun.DisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
+
+                        permRun.Rehome = Convert.ToInt32(reader["Rehome"]) != 0;
 
                         oData = reader["AreaID"];
                         if (oData != DBNull.Value)
@@ -472,6 +474,12 @@ namespace IsengardClient
                                 permRun.IsValid = false;
                                 errorMessages.Add("Area not found: " + iValue);
                             }
+                        }
+
+                        if (permRun.Rehome && permRun.Area == null)
+                        {
+                            permRun.IsValid = false;
+                            errorMessages.Add("Perm run set as rehome without an area.");
                         }
 
                         oData = reader["BeforeFull"];
@@ -847,6 +855,7 @@ namespace IsengardClient
             {
                 "Order",
                 "DisplayName",
+                "Rehome",
                 "Area",
                 "BeforeFull",
                 "AfterFull",
@@ -1173,6 +1182,17 @@ namespace IsengardClient
 
             p.DisplayName = GetAttributeValueByName(attributeMapping, "DisplayName");
 
+            sValue = GetAttributeValueByName(attributeMapping, "Rehome");
+            if (bool.TryParse(sValue, out bValue))
+            {
+                p.Rehome = bValue;
+            }
+            else
+            {
+                errorMessages.Add("Invalid perm run rehome: " + sValue);
+                isValid = false;
+            }
+
             sValue = GetAttributeValueByName(attributeMapping, "Area");
             if (!string.IsNullOrEmpty(sValue))
             {
@@ -1185,6 +1205,12 @@ namespace IsengardClient
                 {
                     p.Area = foundArea;
                 }
+            }
+
+            if (p.Rehome && p.Area == null)
+            {
+                errorMessages.Add("Perm run set to rehome without an area.");
+                isValid = false;
             }
 
             FullType fullType;
@@ -1678,6 +1704,7 @@ namespace IsengardClient
             {
                 "OrderValue",
                 "DisplayName",
+                "Rehome",
                 "AreaID",
                 "BeforeFull",
                 "AfterFull",
@@ -1708,6 +1735,7 @@ namespace IsengardClient
                 SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
                 SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
                 SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
+                SQLiteParameter rehomeParam = cmd.Parameters.Add("@Rehome", DbType.Int32);
                 SQLiteParameter areaIDParam = cmd.Parameters.Add("@AreaID", DbType.Int32);
                 SQLiteParameter beforeFullParam = cmd.Parameters.Add("@BeforeFull", DbType.Int32);
                 SQLiteParameter afterFullParam = cmd.Parameters.Add("@AfterFull", DbType.Int32);
@@ -1732,6 +1760,7 @@ namespace IsengardClient
                 {
                     orderParam.Value = ++iOrder;
                     displayNameParam.Value = string.IsNullOrEmpty(nextRecord.DisplayName) ? (object)DBNull.Value : nextRecord.DisplayName;
+                    rehomeParam.Value = nextRecord.Rehome;
                     areaIDParam.Value = nextRecord.Area == null ? (object)DBNull.Value : nextRecord.Area.ID;
                     beforeFullParam.Value = nextRecord.BeforeFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.BeforeFull);
                     afterFullParam.Value = nextRecord.AfterFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.AfterFull);
@@ -2584,6 +2613,7 @@ namespace IsengardClient
                             }
                             if (p.Area != null)
                             {
+                                writer.WriteAttributeString("Rehome", p.Rehome.ToString());
                                 writer.WriteAttributeString("Area", p.Area.DisplayName);
                             }
                             if (p.BeforeFull != FullType.None)
@@ -2808,7 +2838,7 @@ namespace IsengardClient
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AreaID INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE, FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE)"
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, AreaID INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE, FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE)"
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

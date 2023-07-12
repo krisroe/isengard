@@ -4091,11 +4091,6 @@ namespace IsengardClient
                     treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
 
-                if (bwp.PermRun != null && bwp.PermRun.Area != null && bwp.EnteredArea)
-                {
-                    cboArea.SelectedItem = bwp.PermRun.Area;
-                }
-
                 ToggleBackgroundProcessUI(bwp, false);
                 _currentBackgroundParameters = null;
                 RefreshEnabledForSingleMoveButtons();
@@ -4141,11 +4136,31 @@ namespace IsengardClient
                     return;
                 }
 
-                Strategy strategy = pms.Strategy;
                 CommandResultObject backgroundCommandResultObject = null;
-                WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
 
-                if ((pms.PermRun != null && pms.PermRun.BeforeFull != FullType.None) || pms.CureIfPoisoned)
+                if (!_hazying && !_fleeing && pms.PermRun != null && pms.PermRun.Rehome && pms.CurrentArea != null && pms.CurrentArea != pms.PermRun.Area && pms.CurrentArea.InventorySinkRoomObject != null)
+                {
+                    Area commonParentArea = pms.CurrentArea.DetermineCommonParentArea(pms.PermRun.Area);
+                    if (commonParentArea != null && commonParentArea.InventorySinkRoomObject != null)
+                    {
+                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.CurrentArea.InventorySinkRoomObject, pms, true);
+                        if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
+                        {
+                            return;
+                        }
+                        if (!_hazying && !_fleeing)
+                        {
+                            backgroundCommandResultObject = DoInventoryManagement(pms, ItemsToProcessType.ProcessAllItemsInRoom, InventoryManagementWorkflow.Ferry, pms.CurrentArea.InventorySinkRoomObject, commonParentArea.InventorySinkRoomObject, true);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
+                if (!_hazying && !_fleeing && ((pms.PermRun != null && pms.PermRun.BeforeFull != FullType.None) || pms.CureIfPoisoned))
                 {
                     PlayerStatusFlags psf = _playerStatusFlags;
                     if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
@@ -4331,6 +4346,7 @@ namespace IsengardClient
                 {
                     sMobText = string.Empty;
                 }
+                Strategy strategy = pms.Strategy;
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
                     try
@@ -4892,7 +4908,7 @@ BeforeHazy:
 
                 if (!pms.Fled && !pms.Hazied)
                 {
-                    backgroundCommandResultObject = DoInventoryManagement(pms);
+                    backgroundCommandResultObject = DoInventoryManagement(pms, pms.InventoryProcessInputType, pms.InventoryManagementFlow, pms.TargetRoom, pms.InventorySinkRoom, false);
                     if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                     {
                         return;
@@ -5051,10 +5067,17 @@ BeforeHazy:
             return RunSingleCommand(BackgroundCommandType.DrinkHazy, "drink hazy", pms, null, false);
         }
 
-        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms)
+        /// <summary>
+        /// runs inventory management logic
+        /// </summary>
+        /// <param name="pms">background worker parameters</param>
+        /// <param name="eInvProcessInputs">what items to process</param>
+        /// <param name="eInventoryWorkflow">whether to ferry or manage inventory items</param>
+        /// <param name="inventorySourceRoom">source room. it is assumed the player is present in this room.</param>
+        /// <param name="inventorySinkRoom">target room for a ferry or inventory sink room for item management</param>
+        /// <returns>result of the operation</returns>
+        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool failureToReturnToSourceRoomIsOK)
         {
-            ItemsToProcessType eInvProcessInputs = pms.InventoryProcessInputType;
-            InventoryManagementWorkflow eInventoryWorkflow = pms.InventoryManagementFlow;
             CommandResultObject backgroundCommandResultObject;
             if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
@@ -5221,7 +5244,7 @@ BeforeHazy:
 
                 if (itemsToSendToInventorySink.Count > 0)
                 {
-                    if (pms.InventorySinkRoom == null)
+                    if (inventorySinkRoom == null)
                     {
                         AddConsoleMessage("No inventory sink room specified.");
                         return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
@@ -5229,7 +5252,7 @@ BeforeHazy:
 
                 StartInventorySinkRoomProcessing:
 
-                    backgroundCommandResultObject = NavigateToInventorySinkRoom(pms, false);
+                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySinkRoom, pms, false);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResultObject;
@@ -5422,8 +5445,14 @@ BeforeHazy:
 
                 if (anythingCouldNotBePickedUpFromSourceRoom)
                 {
-                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, false);
-                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySourceRoom, pms, false);
+                    if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                    {
+                        //getting back to the target room may not work, such as if there is a day-only exit in between. in that case
+                        //treat as successful as whatever has been ferried so far is the best we can do.
+                        return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                    }
+                    else if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResultObject;
                     }
@@ -5488,27 +5517,12 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
-            return NavigateToAreaRoom(pms, _gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], beforeGetToTargetRoom);
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], pms, beforeGetToTargetRoom);
         }
 
         private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms)
         {
-            return NavigateToAreaRoom(pms, _gameMap.PawnShoppes[pms.PermRun.Area.PawnShop.Value], false);
-        }
-
-        private CommandResultObject NavigateToInventorySinkRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
-        {
-            return NavigateToAreaRoom(pms, pms.InventorySinkRoom, beforeGetToTargetRoom);
-        }
-
-        private CommandResultObject NavigateToAreaRoom(BackgroundWorkerParameters pms, Room r, bool beforeGetToTargetRoom)
-        {
-            CommandResultObject ret = NavigateToSpecificRoom(r, pms, beforeGetToTargetRoom);
-            if (ret.Result == CommandResult.CommandSuccessful)
-            {
-                pms.EnteredArea = true;
-            }
-            return ret;
+            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.PermRun.Area.PawnShop.Value], pms, false);
         }
 
         private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
@@ -8379,13 +8393,14 @@ BeforeHazy:
             }
 
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
+            bool inBackgroundProcess = bwp != null;
 
             lock (_currentEntityInfo.EntityLock)
             {
                 Room oCurrentRoom = _currentEntityInfo.CurrentRoom;
                 if (oCurrentRoom != _currentEntityInfo.CurrentRoomUI)
                 {
-                    if (_setCurrentArea && oCurrentRoom != null)
+                    if ((_setCurrentArea || inBackgroundProcess) && oCurrentRoom != null)
                     {
                         foreach (Area a in _settingsData.EnumerateAreas())
                         {
@@ -8595,7 +8610,7 @@ BeforeHazy:
                             if (!hasNodes)
                             {
                                 InsertTopLevelTreeNode(tnObviousMobs);
-                                if (bwp == null)
+                                if (!inBackgroundProcess)
                                 {
                                     string sNewMobText = string.Empty;
                                     if (_currentEntityInfo.CurrentRoomMobs.Count > 0)
@@ -8755,7 +8770,7 @@ BeforeHazy:
             }
 
             EnableDisableActionButtons(bwp);
-            if (bwp == null) //processing that only happens when a background process is not running
+            if (!inBackgroundProcess)
             {
                 RunPollTickIfNecessary(autohpforthistick, autompforthistick, dtUTCNow);
 
@@ -10300,7 +10315,8 @@ BeforeHazy:
         private void DisplayPermRunsForm()
         {
             bool haveBackgroundProcess = _currentBackgroundParameters != null;
-            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess))
+            Area currentArea = cboArea.SelectedItem as Area;
+            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess, currentArea))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
@@ -10315,6 +10331,7 @@ BeforeHazy:
         private void DoPermRun(PermRun p)
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.CurrentArea = cboArea.SelectedItem as Area;
             bwp.SetPermRun(p);
             bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
             bwp.BeforeGold = _gold;

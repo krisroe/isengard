@@ -71,6 +71,7 @@
             this.btnThresholdClear = new System.Windows.Forms.Button();
             this.lblArea = new System.Windows.Forms.Label();
             this.cboArea = new System.Windows.Forms.ComboBox();
+            this.chkRehome = new System.Windows.Forms.CheckBox();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -492,6 +493,17 @@
             this.cboArea.Name = "cboArea";
             this.cboArea.Size = new System.Drawing.Size(528, 27);
             this.cboArea.TabIndex = 3;
+            this.cboArea.SelectedIndexChanged += new System.EventHandler(this.cboArea_SelectedIndexChanged);
+            // 
+            // chkRehome
+            // 
+            this.chkRehome.AutoSize = true;
+            this.chkRehome.Location = new System.Drawing.Point(663, 47);
+            this.chkRehome.Name = "chkRehome";
+            this.chkRehome.Size = new System.Drawing.Size(91, 23);
+            this.chkRehome.TabIndex = 32;
+            this.chkRehome.Text = "Rehome";
+            this.chkRehome.UseVisualStyleBackColor = true;
             // 
             // frmPermRun
             // 
@@ -499,6 +511,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(981, 644);
             this.ControlBox = false;
+            this.Controls.Add(this.chkRehome);
             this.Controls.Add(this.cboArea);
             this.Controls.Add(this.lblArea);
             this.Controls.Add(this.btnThresholdClear);
@@ -588,5 +601,6 @@
         private System.Windows.Forms.Button btnThresholdClear;
         private System.Windows.Forms.Label lblArea;
         private System.Windows.Forms.ComboBox cboArea;
+        private System.Windows.Forms.CheckBox chkRehome;
     }
 }

@@ -11,6 +11,7 @@ namespace IsengardClient
         private CurrentEntityInfo _currentEntityInfo;
         private Func<GraphInputs> _getGraphInputs;
         private bool _inBackgroundProcess;
+        private Area _currentArea;
 
         private DataGridViewTextBoxColumn colName;
         private DataGridViewTextBoxColumn colArea;
@@ -21,7 +22,7 @@ namespace IsengardClient
         private DataGridViewButtonColumn colRun;
         private DataGridViewButtonColumn colGo;
 
-        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess)
+        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess, Area currentArea)
         {
             InitializeComponent();
             _settings = settings;
@@ -29,6 +30,7 @@ namespace IsengardClient
             _currentEntityInfo = entityInfo;
             _getGraphInputs = getGraphInputs;
             _inBackgroundProcess = inBackgroundProcess;
+            _currentArea = currentArea;
             InitializeColumns(inBackgroundProcess);
 
             dgvPermRuns.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
@@ -145,7 +147,7 @@ namespace IsengardClient
             pr.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             pr.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             WorkflowSpells spellsToPotion = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, false))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, false, _currentArea))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
@@ -253,7 +255,7 @@ namespace IsengardClient
                         PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
                         WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
                         WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, false))
+                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, false, _currentArea))
                         {
                             if (frm.ShowDialog(this) == DialogResult.OK)
                             {
@@ -270,7 +272,7 @@ namespace IsengardClient
                         WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
                         if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, false))
                         {
-                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, true))
+                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, true, _currentArea))
                             {
                                 if (frm.ShowDialog(this) == DialogResult.OK)
                                 {
@@ -283,8 +285,6 @@ namespace IsengardClient
                     }
                     else if (col == colRun)
                     {
-                        PermRun prChanged = new PermRun(pr);
-
                         //if power attack is missing, that isn't critical, just turn power attack off
                         PromptedSkills availableSkills = _currentEntityInfo.GetAvailableSkills(false);
                         if (((pr.SkillsToRun & PromptedSkills.PowerAttack) != PromptedSkills.None) &&
@@ -293,7 +293,7 @@ namespace IsengardClient
                             pr.SkillsToRun &= ~PromptedSkills.PowerAttack;
                         }
 
-                        if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap))
+                        if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap, _currentArea))
                         {
                             prToRun = new PermRun(pr);
                             prToRun.Flow = PermRunFlow.Run;

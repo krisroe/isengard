@@ -105,6 +105,7 @@ namespace IsengardClient.Tests
             settings.Strategies.Add(s);
 
             PermRun p = new PermRun();
+            p.Rehome = false;
             p.Area = a;
             p.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
             p.AutoSpellLevelMin = 3;
@@ -256,6 +257,7 @@ namespace IsengardClient.Tests
             else
                 Assert.AreEqual(p1.ID, 0);
             Assert.AreEqual(p1.DisplayName ?? string.Empty, p2.DisplayName ?? string.Empty);
+            Assert.AreEqual(p1.Rehome, p2.Rehome);
             VerifyAreasMatch(p1.Area, p2.Area, expectIDsPopulated);
             Assert.AreEqual(p1.BeforeFull, p2.BeforeFull);
             Assert.AreEqual(p1.AfterFull, p2.AfterFull);

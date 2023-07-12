@@ -9,6 +9,10 @@ namespace IsengardClient
             QueuedCommands = new List<string>();
         }
         /// <summary>
+        /// current area
+        /// </summary>
+        public Area CurrentArea { get; set; }
+        /// <summary>
         /// exits to traverse in the background
         /// </summary>
         public List<Exit> Exits { get; set; }
@@ -66,7 +70,6 @@ namespace IsengardClient
         public bool MonsterKilled { get; set; }
         public MobTypeEnum? MonsterKilledType { get; set; }
         public bool AtDestination { get; set; }
-        public bool EnteredArea { get; set; }
         public bool Success { get; set; }
         /// <summary>
         /// when the perm run started

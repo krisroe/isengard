@@ -7,12 +7,13 @@ namespace IsengardClient
     {
         public PermRun()
         {
-
+            Rehome = true;
         }
         public PermRun(PermRun copied)
         {
             ID = copied.ID;
             DisplayName = copied.DisplayName;
+            Rehome = copied.Rehome;
             Area = copied.Area;
             BeforeFull = copied.BeforeFull;
             AfterFull = copied.AfterFull;
@@ -39,6 +40,13 @@ namespace IsengardClient
         public int ID { get; set; }
         public int OrderValue { get; set; }
         public string DisplayName { get; set; }
+        /// <summary>
+        /// whether to rehome to the area before beginning the workflow
+        /// </summary>
+        public bool Rehome { get; set; }
+        /// <summary>
+        /// area for the perm run
+        /// </summary>
         public Area Area { get; set; }
         public FullType BeforeFull { get; set; }
         public FullType AfterFull { get; set; }
@@ -88,7 +96,7 @@ namespace IsengardClient
         /// </summary>
         public PermRunFlow Flow { get; set; }
 
-        public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap)
+        public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap, Area currentArea)
         {
             Room healingRoom = null;
             Room pawnShop = null;
@@ -121,6 +129,29 @@ namespace IsengardClient
             {
                 MessageBox.Show(parent, "No tick room specified.");
                 return false;
+            }
+
+            if (Rehome && currentArea != null && currentArea.InventorySinkRoomObject != null)
+            {
+                Area commonParentArea = currentArea.DetermineCommonParentArea(Area);
+                if (commonParentArea.InventorySinkRoomObject != null)
+                {
+                    Room rehomeRoom = currentArea.InventorySinkRoomObject;
+                    if (MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path to current area inventory sink room.");
+                        return false;
+                    }
+                    testRoom = rehomeRoom;
+
+                    rehomeRoom = commonParentArea.InventorySinkRoomObject;
+                    if (rehomeRoom != null && MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
+                    {
+                        MessageBox.Show(parent, "Cannot find path to common parent area inventory sink room.");
+                        return false;
+                    }
+                    testRoom = rehomeRoom;
+                }
             }
 
             if (BeforeFull != FullType.None)

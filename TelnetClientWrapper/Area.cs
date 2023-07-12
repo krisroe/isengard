@@ -77,5 +77,28 @@ namespace IsengardClient
 
             return aHome;
         }
+
+        public Area DetermineCommonParentArea(Area other)
+        {
+            //determine all area parents of the second area
+            HashSet<Area> otherAreas = new HashSet<Area>();
+            Area aTemp = other;
+            while (aTemp != null)
+            {
+                otherAreas.Add(aTemp);
+                aTemp = aTemp.Parent;
+            }
+
+            //traverse backward from the current area until a common parent is found
+            aTemp = this;
+            while (aTemp != null)
+            {
+                if (otherAreas.Contains(aTemp)) return aTemp;
+                aTemp = aTemp.Parent;
+            }
+
+            //we should never get here, since all areas should have the home area as a common parent
+            return null;
+        }
     }
 }

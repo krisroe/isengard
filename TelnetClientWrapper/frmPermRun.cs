@@ -15,6 +15,8 @@ namespace IsengardClient
         private CheckBox _chkPowerAttack;
         private CurrentEntityInfo _currentEntityInfo;
         private AutoSpellLevelOverrides _autoSpellLevelInfo;
+        private int _areaSelectedIndex;
+        private Area _currentArea;
 
         public bool? UseMagicCombat
         {
@@ -70,10 +72,10 @@ namespace IsengardClient
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea);
+            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null);
         }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun, Area currentArea)
         {
             InitializeComponent();
             _permRun = permRun;
@@ -101,7 +103,7 @@ namespace IsengardClient
                 sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, _permRun.Area);
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, _permRun.Area, _permRun.Rehome);
         }
 
         /// <summary>
@@ -113,14 +115,16 @@ namespace IsengardClient
         /// <param name="skillsToShow">skills to show checkboxes for</param>
         /// <param name="spellsCastToShow">cast spells to show checkboxes for</param>
         /// <param name="spellsPotionsToShow">potions spells to show checkboxes for</param>
-        /// <param name="currentArea">current area</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea)
+        /// <param name="currentArea">current area where the player currently is</param>
+        /// <param name="targetArea">target area for the perm run</param>
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea, Area targetArea, bool rehome)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
             _settingsData = settingsData;
             _currentRoom = currentRoom;
             _currentEntityInfo = currentEntityInfo;
+            _currentArea = currentArea;
 
             foreach (Enum next in Enum.GetValues(typeof(FullType)))
             {
@@ -281,18 +285,13 @@ namespace IsengardClient
             }
 
             cboArea.Items.Add(string.Empty);
-            foreach (Area a in settingsData.EnumerateAreas())
-            {
-                cboArea.Items.Add(a);
-            }
+            foreach (Area a in settingsData.EnumerateAreas()) cboArea.Items.Add(a);
             if (currentArea == null)
-            {
                 cboArea.SelectedIndex = 0;
-            }
             else
-            {
                 cboArea.SelectedItem = currentArea;
-            }
+            _areaSelectedIndex = cboArea.SelectedIndex;
+            chkRehome.Checked = rehome;
 
             if (_permRun != null && _permRun.Strategy == null)
             {
@@ -521,6 +520,13 @@ namespace IsengardClient
                 return;
             }
 
+            Area a = cboArea.SelectedItem as Area;
+            if (chkRehome.Checked && a == null)
+            {
+                MessageBox.Show("Cannot rehome without a selected area.");
+                return;
+            }
+
             if (ForImmediateRun()) //if running the perm run immediately, validate it can be run
             {
                 ItemsToProcessType ipw = (ItemsToProcessType)cboItemsToProcessType.SelectedItem;
@@ -534,7 +540,7 @@ namespace IsengardClient
 
                 PermRun tempPermRun = new PermRun();
                 SaveFormDataToPermRun(tempPermRun);
-                if (!tempPermRun.IsRunnable(_GraphInputs, _currentEntityInfo, this, _gameMap))
+                if (!tempPermRun.IsRunnable(_GraphInputs, _currentEntityInfo, this, _gameMap, _currentArea))
                 {
                     return;
                 }
@@ -748,6 +754,7 @@ namespace IsengardClient
 
         public void SaveFormDataToPermRun(PermRun pr)
         {
+            pr.Rehome = chkRehome.Checked;
             pr.Area = cboArea.SelectedItem as Area;
             pr.AfterKillMonsterAction = cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
             pr.AutoSpellLevelMin = _autoSpellLevelInfo.PermRunMinimum;
@@ -814,6 +821,19 @@ namespace IsengardClient
         private bool ForImmediateRun()
         {
             return _permRun == null || _forChangeAndRun;
+        }
+
+        private void cboArea_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_initialized)
+            {
+                int iNewSelectedIndex = cboArea.SelectedIndex;
+                if (_areaSelectedIndex == 0 && iNewSelectedIndex > 0)
+                {
+                    chkRehome.Checked = true;
+                }
+                _areaSelectedIndex = iNewSelectedIndex;
+            }
         }
     }
 }
