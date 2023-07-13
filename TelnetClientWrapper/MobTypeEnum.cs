@@ -210,6 +210,10 @@
         [PluralName("carrion crawlers")]
         CarrionCrawler,
 
+        [SingularName("cartographer")]
+        [PluralName("cartographers")]
+        Cartographer,
+
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
         CatapultCrewmember,
