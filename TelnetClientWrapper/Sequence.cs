@@ -2440,12 +2440,7 @@ StartProcessRoom:
                         }
                         if (flParams.InfoMessages.Count == 1)
                         {
-                            bool suppressEcho = false;
-                            if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum)
-                                suppressEcho = true;
-                            else if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Default)
-                                suppressEcho = lastWaitSeconds.HasValue && lastWaitSeconds.Value == newWaitSeconds;
-                            if (suppressEcho) flParams.SetSuppressEcho(true);
+                            if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum) flParams.SetSuppressEcho(true);
                         }
                         if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
                         {
