@@ -131,13 +131,13 @@ namespace IsengardClient
                 return false;
             }
 
-            if (Rehome && currentArea != null && currentArea.InventorySinkRoomObject != null)
+            if (Rehome && currentArea != null && currentArea != Area && currentArea.InventorySinkRoomObject != null)
             {
                 Area commonParentArea = currentArea.DetermineCommonParentArea(Area);
-                if (commonParentArea.InventorySinkRoomObject != null)
+                if (currentArea != commonParentArea && commonParentArea.InventorySinkRoomObject != null && commonParentArea.InventorySinkRoomObject != currentArea.InventorySinkRoomObject)
                 {
                     Room rehomeRoom = currentArea.InventorySinkRoomObject;
-                    if (MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
+                    if (rehomeRoom != testRoom && MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
                     {
                         MessageBox.Show(parent, "Cannot find path to current area inventory sink room.");
                         return false;
@@ -145,7 +145,7 @@ namespace IsengardClient
                     testRoom = rehomeRoom;
 
                     rehomeRoom = commonParentArea.InventorySinkRoomObject;
-                    if (rehomeRoom != null && MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
+                    if (rehomeRoom != testRoom && MapComputation.ComputeLowestCostPath(testRoom, rehomeRoom, graphInputs) == null)
                     {
                         MessageBox.Show(parent, "Cannot find path to common parent area inventory sink room.");
                         return false;

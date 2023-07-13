@@ -286,10 +286,10 @@ namespace IsengardClient
 
             cboArea.Items.Add(string.Empty);
             foreach (Area a in settingsData.EnumerateAreas()) cboArea.Items.Add(a);
-            if (currentArea == null)
+            if (targetArea == null)
                 cboArea.SelectedIndex = 0;
             else
-                cboArea.SelectedItem = currentArea;
+                cboArea.SelectedItem = targetArea;
             _areaSelectedIndex = cboArea.SelectedIndex;
             chkRehome.Checked = rehome;
 
