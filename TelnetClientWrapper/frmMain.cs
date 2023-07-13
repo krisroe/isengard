@@ -319,10 +319,16 @@ namespace IsengardClient
                 {
                     bool isValid = true;
                     PermRun pr = _settingsData.PermRuns[i];
-                    if (pr.Area != null && areasRemoved.Contains(pr.Area))
+                    if (pr.Areas != null)
                     {
-                        isValid = false;
-                        errorMessages.Add("Perm run removed because area became invalid.");
+                        foreach (Area a in pr.Areas)
+                        {
+                            if (areasRemoved.Contains(a))
+                            {
+                                isValid = false;
+                                errorMessages.Add("Perm run removed because area became invalid.");
+                            }
+                        }
                     }
                     if (pr.TargetRoomObject != null)
                     {
@@ -4138,23 +4144,19 @@ namespace IsengardClient
 
                 CommandResultObject backgroundCommandResultObject = null;
 
-                if (!_hazying && !_fleeing && pms.PermRun != null && pms.PermRun.Rehome && pms.CurrentArea != null && pms.CurrentArea != pms.PermRun.Area && pms.CurrentArea.InventorySinkRoomObject != null)
+                if (!_hazying && !_fleeing && pms.PermRun != null && pms.PermRun.Rehome && pms.CurrentArea != null && pms.NewArea != null && pms.CurrentArea != pms.NewArea && pms.CommonParentArea != null && pms.CommonParentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != pms.CommonParentArea.InventorySinkRoomObject)
                 {
-                    Area commonParentArea = pms.CurrentArea.DetermineCommonParentArea(pms.PermRun.Area);
-                    if (commonParentArea != null && commonParentArea.InventorySinkRoomObject != null)
+                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.CurrentArea.InventorySinkRoomObject, pms, true);
+                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                     {
-                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.CurrentArea.InventorySinkRoomObject, pms, true);
+                        return;
+                    }
+                    if (!_hazying && !_fleeing)
+                    {
+                        backgroundCommandResultObject = DoInventoryManagement(pms, ItemsToProcessType.ProcessAllItemsInRoom, InventoryManagementWorkflow.Ferry, pms.CurrentArea.InventorySinkRoomObject, pms.CommonParentArea.InventorySinkRoomObject, true);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
-                        }
-                        if (!_hazying && !_fleeing)
-                        {
-                            backgroundCommandResultObject = DoInventoryManagement(pms, ItemsToProcessType.ProcessAllItemsInRoom, InventoryManagementWorkflow.Ferry, pms.CurrentArea.InventorySinkRoomObject, commonParentArea.InventorySinkRoomObject, true);
-                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
-                            {
-                                return;
-                            }
                         }
                     }
                 }
@@ -5517,12 +5519,12 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.PermRun.Area.TickRoom.Value], pms, beforeGetToTargetRoom);
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom);
         }
 
         private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms)
         {
-            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.PermRun.Area.PawnShop.Value], pms, false);
+            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false);
         }
 
         private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
@@ -5531,7 +5533,7 @@ BeforeHazy:
             CommandResultObject backgroundCommandResultObject;
             if (currentRoom != r)
             {
-                var nextRoute = CalculateRouteExits(currentRoom, r, true);
+                var nextRoute = CalculateRouteExits(currentRoom, r);
                 if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, beforeGetToTargetRoom);
             }
@@ -5588,7 +5590,7 @@ BeforeHazy:
             bool success = true;
             if (items.Count > 0)
             {
-                if (!pms.PermRun.Area.PawnShop.HasValue)
+                if (!pms.NewArea.PawnShop.HasValue)
                 {
                     AddConsoleMessage("No pawn shop available.");
                     return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
@@ -6202,7 +6204,7 @@ BeforeHazy:
                         }
                         else if (eMovementResult == MovementResult.MapFailure)
                         {
-                            List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget, true);
+                            List<Exit> newRoute = CalculateRouteExits(nextExit.Source, oTarget);
                             if (newRoute != null && newRoute.Count > 0)
                             {
                                 exitList.Clear();
@@ -9418,39 +9420,9 @@ BeforeHazy:
             return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
         }
 
-        private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom, bool silent)
+        private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
-            GraphInputs gi = GetGraphInputs();
-            List <Exit> pathExits = MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, gi);
-            if (pathExits == null && !silent)
-            {
-                MessageBox.Show("No path to target room found.");
-            }
-            return pathExits;
-        }
-
-        private void GoToRoom(Room targetRoom)
-        {
-            Room currentRoom = _currentEntityInfo.CurrentRoom;
-            if (currentRoom != null)
-            {
-                if (currentRoom == targetRoom)
-                {
-                    MessageBox.Show("Already at specified room.");
-                }
-                else
-                {
-                    List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom, false);
-                    if (exits != null)
-                    {
-                        NavigateExitsInBackground(exits);
-                    }
-                }
-            }
-            else
-            {
-                MessageBox.Show("No current room, unable to travel to specified room.");
-            }
+            return MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, GetGraphInputs());
         }
 
         private void NavigateSingleExitInBackground(Exit exit)
@@ -9672,17 +9644,63 @@ BeforeHazy:
 
         private void btnGoToHealingRoom_Click(object sender, EventArgs e)
         {
-            GoToRoom(_gameMap.HealingRooms[((Area)cboArea.SelectedItem).TickRoom.Value]);
+            GoToAreaRoom(AreaRoomType.Tick);
         }
 
         private void btnGoToPawnShop_Click(object sender, EventArgs e)
         {
-            GoToRoom(_gameMap.PawnShoppes[((Area)cboArea.SelectedItem).PawnShop.Value]);
+            GoToAreaRoom(AreaRoomType.Pawn);
         }
 
         private void btnGoToInventorySink_Click(object sender, EventArgs e)
         {
-            GoToRoom(((Area)cboArea.SelectedItem).InventorySinkRoomObject);
+            GoToAreaRoom(AreaRoomType.InventorySink);
+        }
+
+        private void GoToAreaRoom(AreaRoomType roomType)
+        {
+            Area a = cboArea.SelectedItem as Area;
+            if (a == null)
+            {
+                MessageBox.Show("No area selected.");
+                return;
+            }
+            Room targetRoom = null;
+            switch (roomType)
+            {
+                case AreaRoomType.Tick:
+                    if (a.TickRoom.HasValue) targetRoom = _gameMap.HealingRooms[a.TickRoom.Value];
+                    break;
+                case AreaRoomType.Pawn:
+                    if (a.PawnShop.HasValue) targetRoom = _gameMap.PawnShoppes[a.PawnShop.Value];
+                    break;
+                case AreaRoomType.InventorySink:
+                    targetRoom = a.InventorySinkRoomObject;
+                    break;
+            }
+            if (targetRoom == null)
+            {
+                MessageBox.Show($"No area {roomType} found.");
+                return;
+            }
+            Room currentRoom = _currentEntityInfo.CurrentRoom;
+            if (currentRoom == null)
+            {
+                MessageBox.Show("No current room, unable to travel to specified room.");
+                return;
+            }
+            if (currentRoom == targetRoom)
+            {
+                MessageBox.Show("Already at specified room.");
+                return;
+            }
+            List<Exit> exits = CalculateRouteExits(currentRoom, targetRoom);
+            if (exits == null)
+            {
+                MessageBox.Show("No path to target room found.");
+                return;
+            }
+            NavigateExitsInBackground(exits);
         }
 
         private void treeCurrentRoom_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

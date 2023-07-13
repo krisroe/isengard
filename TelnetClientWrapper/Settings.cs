@@ -123,9 +123,13 @@ namespace IsengardClient
             {
                 PermRun copyPermRun = new PermRun(p);
                 copyPermRun.Strategy = oStrategyMapping[copyPermRun.Strategy];
-                if (copyPermRun.Area != null)
+                if (copyPermRun.Areas != null)
                 {
-                    copyPermRun.Area = areaMapping[copyPermRun.Area];
+                    copyPermRun.Areas.Clear();
+                    foreach (Area a in p.Areas)
+                    {
+                        copyPermRun.Areas.Add(areaMapping[a]);
+                    }
                 }
                 PermRuns.Add(copyPermRun);
             }
@@ -269,13 +273,13 @@ namespace IsengardClient
                         a.IsValid = false;
                     }
                 }
-                Dictionary<int, Area> areasByID = new Dictionary<int, Area>();
+                areaMapping.Clear();
                 if (HomeArea != null)
                 {
                     if (HomeArea.IsValid)
                     {
                         RemoveInvalidAreas(HomeArea);
-                        PopulateAreaMappings(HomeArea, areasByID);
+                        PopulateAreaMappings(HomeArea, areaMapping);
                     }
                     else
                     {
@@ -448,7 +452,8 @@ namespace IsengardClient
                     else
                         strats.Remove(s.ID);
                 }
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.AreaID,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID LEFT JOIN Areas a ON p.AreaID = a.ID WHERE p.UserID = @UserID AND s.UserID = @UserID AND (a.ID IS NULL OR a.UserID = @UserID) ORDER BY p.OrderValue";
+                Dictionary<int, PermRun> permRunMapping = new Dictionary<int, PermRun>();
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -460,27 +465,6 @@ namespace IsengardClient
                         permRun.DisplayName = oData == DBNull.Value ? string.Empty : oData.ToString();
 
                         permRun.Rehome = Convert.ToInt32(reader["Rehome"]) != 0;
-
-                        oData = reader["AreaID"];
-                        if (oData != DBNull.Value)
-                        {
-                            int iValue = Convert.ToInt32(oData);
-                            if (areasByID.TryGetValue(iValue, out Area aFound))
-                            {
-                                permRun.Area = aFound;
-                            }
-                            else
-                            {
-                                permRun.IsValid = false;
-                                errorMessages.Add("Area not found: " + iValue);
-                            }
-                        }
-
-                        if (permRun.Rehome && permRun.Area == null)
-                        {
-                            permRun.IsValid = false;
-                            errorMessages.Add("Perm run set as rehome without an area.");
-                        }
 
                         oData = reader["BeforeFull"];
                         if (oData != DBNull.Value) permRun.BeforeFull = (FullType)Convert.ToInt32(oData);
@@ -574,6 +558,21 @@ namespace IsengardClient
                         if (permRun.IsValid)
                         {
                             PermRuns.Add(permRun);
+                            permRunMapping[permRun.ID] = permRun;
+                        }
+                    }
+                }
+                cmd.CommandText = "SELECT p2a.PermRunID,p2a.AreaID FROM PermRunToAreas p2a INNER JOIN PermRuns p ON p2a.PermRunID = p.ID INNER JOIN Areas a ON p2a.AreaID = a.ID WHERE p.UserID = @UserID AND a.UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int iPermRunID = Convert.ToInt32(reader["PermRunID"]);
+                        int iAreaID = Convert.ToInt32(reader["AreaID"]);
+                        if (areaMapping.TryGetValue(iAreaID, out Area a) && permRunMapping.TryGetValue(iPermRunID, out PermRun p))
+                        {
+                            if (p.Areas == null) p.Areas = new HashSet<Area>();
+                            p.Areas.Add(a);
                         }
                     }
                 }
@@ -856,7 +855,7 @@ namespace IsengardClient
                 "Order",
                 "DisplayName",
                 "Rehome",
-                "Area",
+                "Areas",
                 "BeforeFull",
                 "AfterFull",
                 "SpellsToCast",
@@ -1194,21 +1193,31 @@ namespace IsengardClient
             }
             p.Rehome = bValue;
 
-            sValue = GetAttributeValueByName(attributeMapping, "Area");
+            sValue = GetAttributeValueByName(attributeMapping, "Areas");
             if (!string.IsNullOrEmpty(sValue))
             {
-                if (!areasByName.TryGetValue(sValue, out Area foundArea))
+                string[] areaDisplayNames = sValue.Split(new char[] { ',' });
+                foreach (string nextDisplayName in areaDisplayNames)
                 {
-                    errorMessages.Add($"Perm run area not found: {sValue}");
-                    isValid = false;
-                }
-                else
-                {
-                    p.Area = foundArea;
+                    if (!areasByName.TryGetValue(nextDisplayName, out Area foundArea))
+                    {
+                        errorMessages.Add($"Perm run area not found: {nextDisplayName}");
+                        isValid = false;
+                    }
+                    else if (p.Areas != null && p.Areas.Contains(foundArea))
+                    {
+                        errorMessages.Add($"Duplicate perm run area found: {sValue}");
+                        isValid = false;
+                    }
+                    else
+                    {
+                        if (p.Areas == null) p.Areas = new HashSet<Area>();
+                        p.Areas.Add(foundArea);
+                    }
                 }
             }
 
-            if (p.Rehome && p.Area == null)
+            if (p.Rehome && p.Areas == null)
             {
                 errorMessages.Add("Perm run set to rehome without an area.");
                 isValid = false;
@@ -1706,7 +1715,6 @@ namespace IsengardClient
                 "OrderValue",
                 "DisplayName",
                 "Rehome",
-                "AreaID",
                 "BeforeFull",
                 "AfterFull",
                 "SpellsToCast",
@@ -1728,33 +1736,39 @@ namespace IsengardClient
             string sInsertBaseRecordCommand = GetInsertCommand("PermRuns", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("PermRuns", baseRecordColumns, "ID");
 
-            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "PermRuns", "ID");
-            using (SQLiteCommand cmd = conn.CreateCommand())
-            {
-                cmd.Parameters.AddWithValue("@UserID", userID);
+            HashSet<string> existingPermRunToAreaRecords = GetExistingIDsForCompoundKey(conn, userID, "SELECT p2a.PermRunID,p2a.AreaID FROM PermRunToAreas p2a INNER JOIN PermRuns p ON p.ID = p2a.PermRunID INNER JOIN Areas a ON a.ID = p2a.AreaID WHERE p.UserID = @UserID AND a.UserID = @UserID", 2);
 
-                SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
-                SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
-                SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
-                SQLiteParameter rehomeParam = cmd.Parameters.Add("@Rehome", DbType.Int32);
-                SQLiteParameter areaIDParam = cmd.Parameters.Add("@AreaID", DbType.Int32);
-                SQLiteParameter beforeFullParam = cmd.Parameters.Add("@BeforeFull", DbType.Int32);
-                SQLiteParameter afterFullParam = cmd.Parameters.Add("@AfterFull", DbType.Int32);
-                SQLiteParameter spellsToCastParam = cmd.Parameters.Add("@SpellsToCast", DbType.Int32);
-                SQLiteParameter spellsToPotionParam = cmd.Parameters.Add("@SpellsToPotion", DbType.Int32);
-                SQLiteParameter skillsToRunParam = cmd.Parameters.Add("@SkillsToRun", DbType.Int32);
-                SQLiteParameter targetRoomParam = cmd.Parameters.Add("@TargetRoom", DbType.String);
-                SQLiteParameter thresholdRoomParam = cmd.Parameters.Add("@ThresholdRoom", DbType.String);
-                SQLiteParameter mobTextParam = cmd.Parameters.Add("@MobText", DbType.String);
-                SQLiteParameter mobIndexParam = cmd.Parameters.Add("@MobIndex", DbType.Int32);
-                SQLiteParameter strategyIDParam = cmd.Parameters.Add("@StrategyID", DbType.Int32);
-                SQLiteParameter useMagicCombatParam = cmd.Parameters.Add("@UseMagicCombat", DbType.Int32);
-                SQLiteParameter useMeleeCombatParam = cmd.Parameters.Add("@UseMeleeCombat", DbType.Int32);
-                SQLiteParameter usePotionsCombatParam = cmd.Parameters.Add("@UsePotionsCombat", DbType.Int32);
-                SQLiteParameter afterKillMonsterActionParam = cmd.Parameters.Add("@AfterKillMonsterAction", DbType.Int32);
-                SQLiteParameter autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
-                SQLiteParameter autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
-                SQLiteParameter itemsToProcessTypeParam = cmd.Parameters.Add("@ItemsToProcessType", DbType.Int32);
+            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "PermRuns", "ID");
+            using (SQLiteCommand cmdSavePermRun = conn.CreateCommand())
+            using (SQLiteCommand cmdSavePermRunToArea = conn.CreateCommand())
+            {
+                cmdSavePermRun.Parameters.AddWithValue("@UserID", userID);
+
+                SQLiteParameter idParameter = cmdSavePermRun.Parameters.Add("@ID", DbType.Int32);
+                SQLiteParameter orderParam = cmdSavePermRun.Parameters.Add("@OrderValue", DbType.Int32);
+                SQLiteParameter displayNameParam = cmdSavePermRun.Parameters.Add("@DisplayName", DbType.String);
+                SQLiteParameter rehomeParam = cmdSavePermRun.Parameters.Add("@Rehome", DbType.Int32);
+                SQLiteParameter beforeFullParam = cmdSavePermRun.Parameters.Add("@BeforeFull", DbType.Int32);
+                SQLiteParameter afterFullParam = cmdSavePermRun.Parameters.Add("@AfterFull", DbType.Int32);
+                SQLiteParameter spellsToCastParam = cmdSavePermRun.Parameters.Add("@SpellsToCast", DbType.Int32);
+                SQLiteParameter spellsToPotionParam = cmdSavePermRun.Parameters.Add("@SpellsToPotion", DbType.Int32);
+                SQLiteParameter skillsToRunParam = cmdSavePermRun.Parameters.Add("@SkillsToRun", DbType.Int32);
+                SQLiteParameter targetRoomParam = cmdSavePermRun.Parameters.Add("@TargetRoom", DbType.String);
+                SQLiteParameter thresholdRoomParam = cmdSavePermRun.Parameters.Add("@ThresholdRoom", DbType.String);
+                SQLiteParameter mobTextParam = cmdSavePermRun.Parameters.Add("@MobText", DbType.String);
+                SQLiteParameter mobIndexParam = cmdSavePermRun.Parameters.Add("@MobIndex", DbType.Int32);
+                SQLiteParameter strategyIDParam = cmdSavePermRun.Parameters.Add("@StrategyID", DbType.Int32);
+                SQLiteParameter useMagicCombatParam = cmdSavePermRun.Parameters.Add("@UseMagicCombat", DbType.Int32);
+                SQLiteParameter useMeleeCombatParam = cmdSavePermRun.Parameters.Add("@UseMeleeCombat", DbType.Int32);
+                SQLiteParameter usePotionsCombatParam = cmdSavePermRun.Parameters.Add("@UsePotionsCombat", DbType.Int32);
+                SQLiteParameter afterKillMonsterActionParam = cmdSavePermRun.Parameters.Add("@AfterKillMonsterAction", DbType.Int32);
+                SQLiteParameter autoSpellLevelMinParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
+                SQLiteParameter autoSpellLevelMaxParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
+                SQLiteParameter itemsToProcessTypeParam = cmdSavePermRun.Parameters.Add("@ItemsToProcessType", DbType.Int32);
+
+                SQLiteParameter saveP2APermRunID = cmdSavePermRunToArea.Parameters.Add("@PermRunID", DbType.Int32);
+                SQLiteParameter saveP2AAreaID = cmdSavePermRunToArea.Parameters.Add("@AreaID", DbType.Int32);
+                cmdSavePermRunToArea.CommandText = "INSERT INTO PermRunToAreas (PermRunID, AreaID) VALUES (@PermRunID, @AreaID)";
 
                 int iOrder = 0;
                 foreach (PermRun nextRecord in PermRuns)
@@ -1762,7 +1776,6 @@ namespace IsengardClient
                     orderParam.Value = ++iOrder;
                     displayNameParam.Value = string.IsNullOrEmpty(nextRecord.DisplayName) ? (object)DBNull.Value : nextRecord.DisplayName;
                     rehomeParam.Value = nextRecord.Rehome;
-                    areaIDParam.Value = nextRecord.Area == null ? (object)DBNull.Value : nextRecord.Area.ID;
                     beforeFullParam.Value = nextRecord.BeforeFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.BeforeFull);
                     afterFullParam.Value = nextRecord.AfterFull == FullType.None ? (object)DBNull.Value : Convert.ToInt32(nextRecord.AfterFull);
                     spellsToCastParam.Value = Convert.ToInt32(nextRecord.SpellsToCast);
@@ -1797,11 +1810,36 @@ namespace IsengardClient
 
                     int iID = nextRecord.ID;
                     bool isNew = iID == 0;
-                    iID = SaveRecord(cmd, nextRecord.ID, sInsertBaseRecordCommand, sUpdateBaseRecordCommand, idParameter, existingIDs);
+                    iID = SaveRecord(cmdSavePermRun, nextRecord.ID, sInsertBaseRecordCommand, sUpdateBaseRecordCommand, idParameter, existingIDs);
                     nextRecord.ID = iID;
+
+                    if (nextRecord.Areas != null)
+                    {
+                        saveP2APermRunID.Value = iID;
+                        foreach (Area a in nextRecord.Areas)
+                        {
+                            bool saveRecord;
+                            if (isNew)
+                            {
+                                saveRecord = true;
+                            }
+                            else
+                            {
+                                string sKey = iID + "," + a.ID;
+                                saveRecord = !existingPermRunToAreaRecords.Contains(sKey);
+                                if (!saveRecord) existingPermRunToAreaRecords.Remove(sKey);
+                            }
+                            if (saveRecord)
+                            {
+                                saveP2AAreaID.Value = a.ID;
+                                cmdSavePermRunToArea.ExecuteNonQuery();
+                            }
+                        }
+                    }
                 }
 
                 DeleteUnprocessedIDs(existingIDs, conn, "PermRuns", "ID");
+                DeleteExistingIDsForCompoundKey(conn, existingPermRunToAreaRecords, "DELETE FROM PermRunToAreas WHERE PermRunID = @ID1 AND AreaID = @ID2", 2);
             }
         }
 
@@ -1827,23 +1865,13 @@ namespace IsengardClient
             string sInsertBaseRecordCommand = GetInsertCommand("Strategies", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Strategies", baseRecordColumns, "ID");
 
+            HashSet<string> existingStrategySteps = GetExistingIDsForCompoundKey(conn, userID, "SELECT ss.StrategyID,ss.CombatType,ss.IndexValue FROM StrategySteps ss INNER JOIN Strategies s ON s.ID = ss.StrategyID WHERE s.UserID = @UserID", 3);
+
             HashSet<int> existingIDs = GetExistingIDs(conn, userID, "Strategies", "ID");
             using (SQLiteCommand cmd = conn.CreateCommand())
             using (SQLiteCommand strategyStepCommand = conn.CreateCommand())
             {
                 cmd.Parameters.AddWithValue("@UserID", userID);
-
-                HashSet<string> existingStrategySteps = new HashSet<string>();
-
-                //determine strategy step records that exist
-                cmd.CommandText = "SELECT ss.StrategyID,ss.CombatType,ss.IndexValue FROM StrategySteps ss INNER JOIN Strategies s ON s.ID = ss.StrategyID WHERE s.UserID = @UserID";
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        existingStrategySteps.Add(reader[0].ToString() + "," + reader[1].ToString() + "," + reader[2].ToString());
-                    }
-                }
 
                 SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
                 SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
@@ -1935,19 +1963,7 @@ namespace IsengardClient
                 }
 
                 DeleteUnprocessedIDs(existingIDs, conn, "Strategies", "ID");
-
-                strategyStepCommand.CommandText = "DELETE FROM StrategySteps WHERE StrategyID = @StrategyID AND CombatType = @CombatType AND IndexValue = @Index";
-                foreach (string sKey in existingStrategySteps)
-                {
-                    string[] split = sKey.Split(new char[] { ',' });
-                    int iStrategyID = int.Parse(split[0]);
-                    if (!existingIDs.Contains(iStrategyID)) //deleted strategies should already be covered by the strategy deletion cascade
-                    {
-                        strategyStepStrategyID.Value = iStrategyID;
-                        strategyStepCombatType.Value = int.Parse(split[1]);
-                        strategyStepIndex.Value = int.Parse(split[2]);
-                    }
-                }
+                DeleteExistingIDsForCompoundKey(conn, existingStrategySteps, "DELETE FROM StrategySteps WHERE StrategyID = @ID1 AND CombatType = @ID2 AND IndexValue = @ID3", 3);
             }
         }
 
@@ -2150,6 +2166,53 @@ namespace IsengardClient
             return ret;
         }
 
+        private void DeleteExistingIDsForCompoundKey(SQLiteConnection conn, HashSet<string> keys, string sql, int numberOfKeys)
+        {
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                List<SQLiteParameter> idParams = new List<SQLiteParameter>();
+                for (int i = 1; i <= numberOfKeys; i++)
+                {
+                    idParams.Add(cmd.Parameters.Add("@ID" + i, DbType.Int32));
+                }
+                foreach (string sKey in keys)
+                {
+                    string[] split = sKey.Split(new char[] { ',' });
+                    for (int i = 0; i < numberOfKeys; i++)
+                    {
+                        idParams[i].Value = int.Parse(split[i]);
+                    }
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private HashSet<string> GetExistingIDsForCompoundKey(SQLiteConnection conn, int userID, string command, int numberOfKeys)
+        {
+            HashSet<string> existingKeys = new HashSet<string>();
+            StringBuilder sb = new StringBuilder();
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                cmd.CommandText = command;
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sb.Clear();
+                        for (int i = 0; i < numberOfKeys; i++)
+                        {
+                            if (i != 0) sb.Append(",");
+                            sb.Append(reader[i].ToString());
+                        }
+                        existingKeys.Add(sb.ToString());
+                    }
+                }
+            }
+            return existingKeys;
+        }
+
         private IEnumerable<LocationNode> EnumerateLocations()
         {
             foreach (LocationNode nextLoc in Locations)
@@ -2208,8 +2271,9 @@ namespace IsengardClient
                     s.AutoSpellLevelMin = s.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
                 }
             }
-            foreach (PermRun p in PermRuns)
+            for (int i = PermRuns.Count - 1; i >= 0; i--)
             {
+                PermRun p = PermRuns[i];
                 if (p.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET)
                 {
                     if (!ValidateAutoSpellMinMax(p.AutoSpellLevelMin, p.AutoSpellLevelMax, errorMessages))
@@ -2220,6 +2284,11 @@ namespace IsengardClient
                 else
                 {
                     p.AutoSpellLevelMin = p.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
+                }
+                if (p.Rehome && p.Areas == null)
+                {
+                    PermRuns.RemoveAt(i);
+                    errorMessages.Add("Perm run set as rehome without an area.");
                 }
             }
         }
@@ -2612,10 +2681,20 @@ namespace IsengardClient
                             {
                                 writer.WriteAttributeString("DisplayName", p.DisplayName);
                             }
-                            if (p.Area != null)
+                            if (p.Areas != null)
                             {
                                 writer.WriteAttributeString("Rehome", p.Rehome.ToString());
-                                writer.WriteAttributeString("Area", p.Area.DisplayName);
+                                StringBuilder sbAreas = new StringBuilder();
+                                bool first = true;
+                                foreach (Area a in p.Areas)
+                                {
+                                    if (first)
+                                        first = false;
+                                    else
+                                        sbAreas.Append(",");
+                                    sbAreas.Append(a.DisplayName);
+                                }
+                                writer.WriteAttributeString("Areas", sbAreas.ToString());
                             }
                             if (p.BeforeFull != FullType.None)
                             {
@@ -2839,7 +2918,8 @@ namespace IsengardClient
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, AreaID INTEGER NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE, FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE)"
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
+                "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

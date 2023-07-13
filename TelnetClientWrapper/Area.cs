@@ -100,5 +100,17 @@ namespace IsengardClient
             //we should never get here, since all areas should have the home area as a common parent
             return null;
         }
+
+        public List<Area> GetAreaPathBackToHome()
+        {
+            List<Area> ret = new List<Area>();
+            Area aTemp = this;
+            while (aTemp != null)
+            {
+                ret.Add(aTemp);
+                aTemp = aTemp.Parent;
+            }
+            return ret;
+        }
     }
 }

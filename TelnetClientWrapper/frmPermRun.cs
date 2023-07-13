@@ -7,7 +7,7 @@ namespace IsengardClient
     {
         private bool _initialized;
         private PermRun _permRun;
-        private bool _forChangeAndRun;
+        private PermRunEditFlow _permRunEditFlow;
         private Func<GraphInputs> _GraphInputs;
         private IsengardMap _gameMap;
         private IsengardSettingData _settingsData;
@@ -17,6 +17,10 @@ namespace IsengardClient
         private AutoSpellLevelOverrides _autoSpellLevelInfo;
         private int _areaSelectedIndex;
         private Area _currentArea;
+        /// <summary>
+        /// current areas when editing a perm run
+        /// </summary>
+        private HashSet<Area> _currentAreasForEdit;
 
         public bool? UseMagicCombat
         {
@@ -75,11 +79,14 @@ namespace IsengardClient
             Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null);
         }
 
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, bool forChangeAndRun, Area currentArea)
+        /// <summary>
+        /// constructor used when editing a perm run or using the change+run workflow
+        /// </summary>
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, PermRunEditFlow permRunEditFlow, Area currentArea)
         {
             InitializeComponent();
             _permRun = permRun;
-            _forChangeAndRun = forChangeAndRun;
+            _permRunEditFlow = permRunEditFlow;
             txtDisplayName.Text = permRun.DisplayName;
             string sCurrentMob = string.Empty;
             bool hasMob = false;
@@ -103,7 +110,8 @@ namespace IsengardClient
                 sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, _permRun.Area, _permRun.Rehome);
+            Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea);
+            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome);
         }
 
         /// <summary>
@@ -284,13 +292,27 @@ namespace IsengardClient
                 }
             }
 
-            cboArea.Items.Add(string.Empty);
-            foreach (Area a in settingsData.EnumerateAreas()) cboArea.Items.Add(a);
-            if (targetArea == null)
-                cboArea.SelectedIndex = 0;
+            if (_permRunEditFlow == PermRunEditFlow.Edit)
+            {
+                cboArea.Visible = false;
+                txtArea.Visible = true;
+                btnEditAreas.Enabled = true;
+                _currentAreasForEdit = _permRun.Areas;
+                txtArea.Text = PermRun.GetAreaListAsText(_currentAreasForEdit);
+            }
             else
-                cboArea.SelectedItem = targetArea;
-            _areaSelectedIndex = cboArea.SelectedIndex;
+            {
+                cboArea.Visible = true;
+                txtArea.Visible = false;
+                btnEditAreas.Enabled = false;
+                cboArea.Items.Add(string.Empty);
+                foreach (Area a in settingsData.EnumerateAreas()) cboArea.Items.Add(a);
+                if (targetArea == null)
+                    cboArea.SelectedIndex = 0;
+                else
+                    cboArea.SelectedItem = targetArea;
+                _areaSelectedIndex = cboArea.SelectedIndex;
+            }
             chkRehome.Checked = rehome;
 
             if (_permRun != null && _permRun.Strategy == null)
@@ -520,11 +542,18 @@ namespace IsengardClient
                 return;
             }
 
-            Area a = cboArea.SelectedItem as Area;
-            if (chkRehome.Checked && a == null)
+            if (chkRehome.Checked)
             {
-                MessageBox.Show("Cannot rehome without a selected area.");
-                return;
+                bool hasArea;
+                if (_permRunEditFlow == PermRunEditFlow.Edit)
+                    hasArea = _currentAreasForEdit != null;
+                else
+                    hasArea = cboArea.SelectedIndex > 0;
+                if (!hasArea)
+                {
+                    MessageBox.Show("Cannot rehome without a selected area.");
+                    return;
+                }
             }
 
             if (ForImmediateRun()) //if running the perm run immediately, validate it can be run
@@ -703,7 +732,7 @@ namespace IsengardClient
 
         private void ctxToggleStrategyModificationOverride_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (_permRun == null || _forChangeAndRun)
+            if (ForImmediateRun())
             {
                 e.Cancel = true;
             }
@@ -755,7 +784,18 @@ namespace IsengardClient
         public void SaveFormDataToPermRun(PermRun pr)
         {
             pr.Rehome = chkRehome.Checked;
-            pr.Area = cboArea.SelectedItem as Area;
+            if (_permRunEditFlow == PermRunEditFlow.Edit)
+            {
+                pr.Areas = _currentAreasForEdit;
+            }
+            else
+            {
+                Area a = cboArea.SelectedItem as Area;
+                if (a == null)
+                    pr.Areas = null;
+                else
+                    pr.Areas = new HashSet<Area>() { a };
+            }
             pr.AfterKillMonsterAction = cboOnKillMonster.Enabled ? (AfterKillMonsterAction?)cboOnKillMonster.SelectedIndex : null;
             pr.AutoSpellLevelMin = _autoSpellLevelInfo.PermRunMinimum;
             pr.AutoSpellLevelMax = _autoSpellLevelInfo.PermRunMaximum;
@@ -820,7 +860,7 @@ namespace IsengardClient
 
         private bool ForImmediateRun()
         {
-            return _permRun == null || _forChangeAndRun;
+            return _permRun == null || _permRunEditFlow == PermRunEditFlow.ChangeAndRun;
         }
 
         private void cboArea_SelectedIndexChanged(object sender, EventArgs e)
@@ -833,6 +873,18 @@ namespace IsengardClient
                     chkRehome.Checked = true;
                 }
                 _areaSelectedIndex = iNewSelectedIndex;
+            }
+        }
+
+        private void btnEditAreas_Click(object sender, EventArgs e)
+        {
+            using (frmChooseAreas frm = new frmChooseAreas(_settingsData, _currentAreasForEdit))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    _currentAreasForEdit = frm.SelectedAreas;
+                    txtArea.Text = PermRun.GetAreaListAsText(_currentAreasForEdit);
+                }
             }
         }
     }

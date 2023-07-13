@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace IsengardClient
@@ -14,7 +17,7 @@ namespace IsengardClient
             ID = copied.ID;
             DisplayName = copied.DisplayName;
             Rehome = copied.Rehome;
-            Area = copied.Area;
+            if (copied.Areas != null) Areas = new HashSet<Area>(copied.Areas);
             BeforeFull = copied.BeforeFull;
             AfterFull = copied.AfterFull;
             SpellsToCast = copied.SpellsToCast;
@@ -45,9 +48,9 @@ namespace IsengardClient
         /// </summary>
         public bool Rehome { get; set; }
         /// <summary>
-        /// area for the perm run
+        /// area(s) for the perm run
         /// </summary>
-        public Area Area { get; set; }
+        public HashSet<Area> Areas { get; set; }
         public FullType BeforeFull { get; set; }
         public FullType AfterFull { get; set; }
         public WorkflowSpells SpellsToCast { get; set; }
@@ -96,22 +99,94 @@ namespace IsengardClient
         /// </summary>
         public PermRunFlow Flow { get; set; }
 
+        public Area DetermineMostCompatibleArea(Area currentArea)
+        {
+            Area aBest = null;
+            if (Areas != null)
+            {
+                int? iValue = null;
+                if (currentArea == null)
+                {
+                    foreach (Area nextArea in Areas)
+                    {
+                        List<Area> pathsBackToHome = nextArea.GetAreaPathBackToHome();
+                        if (!iValue.HasValue || pathsBackToHome.Count < iValue.Value)
+                        {
+                            aBest = nextArea;
+                        }
+                    }
+                }
+                else
+                {
+                    List<Area> currentAreasFromHome = currentArea.GetAreaPathBackToHome();
+                    foreach (Area nextArea in Areas)
+                    {
+                        Area commonParent = nextArea.DetermineCommonParentArea(currentArea);
+                        int iIndex = currentAreasFromHome.IndexOf(commonParent);
+                        if (!iValue.HasValue || iIndex > iValue.Value)
+                        {
+                            iValue = iIndex;
+                            aBest = nextArea;
+                        }
+                    }
+                }
+            }
+            return aBest;
+        }
+
+        public string GetAreaListAsText()
+        {
+            return GetAreaListAsText(Areas);
+        }
+        
+        public static string GetAreaListAsText(HashSet<Area> Areas)
+        {
+            string sAreas;
+            if (Areas == null)
+            {
+                sAreas = "None";
+            }
+            else
+            {
+                List<string> lst = new List<string>();
+                foreach (Area a in Areas)
+                {
+                    lst.Add(a.DisplayName);
+                }
+                lst.Sort();
+                StringBuilder sb = new StringBuilder();
+                bool first = true;
+                foreach (string s in lst)
+                {
+                    if (first)
+                        first = false;
+                    else
+                        sb.Append(",");
+                    sb.Append(s);
+                }
+                sAreas = sb.ToString();
+            }
+            return sAreas;
+        }
+
         public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap, Area currentArea)
         {
             Room healingRoom = null;
             Room pawnShop = null;
             Room inventorySinkRoom = null;
-            if (Area != null)
+            Area afterArea = null;
+            if (Areas != null)
             {
-                if (Area.TickRoom.HasValue)
+                afterArea = DetermineMostCompatibleArea(currentArea);
+                if (afterArea.TickRoom.HasValue)
                 {
-                    healingRoom = gameMap.HealingRooms[Area.TickRoom.Value];
+                    healingRoom = gameMap.HealingRooms[afterArea.TickRoom.Value];
                 }
-                if (Area.PawnShop.HasValue)
+                if (afterArea.PawnShop.HasValue)
                 {
-                    pawnShop = gameMap.PawnShoppes[Area.PawnShop.Value];
+                    pawnShop = gameMap.PawnShoppes[afterArea.PawnShop.Value];
                 }
-                inventorySinkRoom = Area.InventorySinkRoomObject;
+                inventorySinkRoom = afterArea.InventorySinkRoomObject;
             }
 
             GraphInputs graphInputs = GetGraphInputs();
@@ -131,9 +206,9 @@ namespace IsengardClient
                 return false;
             }
 
-            if (Rehome && currentArea != null && currentArea != Area && currentArea.InventorySinkRoomObject != null)
+            if (Rehome && currentArea != null && currentArea != afterArea && currentArea.InventorySinkRoomObject != null)
             {
-                Area commonParentArea = currentArea.DetermineCommonParentArea(Area);
+                Area commonParentArea = currentArea.DetermineCommonParentArea(afterArea);
                 if (currentArea != commonParentArea && commonParentArea.InventorySinkRoomObject != null && commonParentArea.InventorySinkRoomObject != currentArea.InventorySinkRoomObject)
                 {
                     Room rehomeRoom = currentArea.InventorySinkRoomObject;

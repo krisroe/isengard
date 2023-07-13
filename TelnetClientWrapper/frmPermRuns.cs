@@ -53,7 +53,7 @@ namespace IsengardClient
             colName.Name = "colName";
             colName.ReadOnly = true;
             colName.Width = 300;
-            colArea.HeaderText = "Area";
+            colArea.HeaderText = "Area(s)";
             colArea.MinimumWidth = 6;
             colArea.Name = "colArea";
             colArea.ReadOnly = true;
@@ -147,7 +147,7 @@ namespace IsengardClient
             pr.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             pr.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             WorkflowSpells spellsToPotion = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, false, _currentArea))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, PermRunEditFlow.Edit, _currentArea))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
@@ -160,7 +160,7 @@ namespace IsengardClient
         private void UpdatePermRunDisplay(PermRun nextPermRun, int? rowIndex)
         {
             string sDisplayName = string.IsNullOrEmpty(nextPermRun.DisplayName) ? "None" : nextPermRun.DisplayName;
-            string sArea = nextPermRun.Area == null ? "None" : nextPermRun.Area.DisplayName;
+            string sAreas = nextPermRun.GetAreaListAsText();
             string sMob = string.Empty;
             bool hasMobType = false;
             int iMobIndex = nextPermRun.MobIndex;
@@ -188,16 +188,16 @@ namespace IsengardClient
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
                 if (_inBackgroundProcess)
-                    r.SetValues(sDisplayName, sArea, sRoom, sMob, "Edit");
+                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, "Edit");
                 else
-                    r.SetValues(sDisplayName, sArea, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
             }
             else
             {
                 if (_inBackgroundProcess)
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sArea, sRoom, sMob, "Edit");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, "Edit");
                 else
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sArea, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
                 r = dgvPermRuns.Rows[rowIndex.Value];
             }
             r.Tag = nextPermRun;
@@ -255,7 +255,7 @@ namespace IsengardClient
                         PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
                         WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
                         WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, false, _currentArea))
+                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, PermRunEditFlow.Edit, _currentArea))
                         {
                             if (frm.ShowDialog(this) == DialogResult.OK)
                             {
@@ -272,7 +272,7 @@ namespace IsengardClient
                         WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
                         if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, false))
                         {
-                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, true, _currentArea))
+                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, PermRunEditFlow.ChangeAndRun, _currentArea))
                             {
                                 if (frm.ShowDialog(this) == DialogResult.OK)
                                 {

@@ -767,10 +767,24 @@ namespace IsengardClient
         Run,
     }
 
+    internal enum PermRunEditFlow
+    {
+        AdHocStrategy,
+        Edit,
+        ChangeAndRun,
+    }
+
     internal enum ConsoleOutputVerbosity
     {
         Minimum = 0,
         Default = 1,
         Maximum = 2,
+    }
+
+    internal enum AreaRoomType
+    {
+        Tick,
+        Pawn,
+        InventorySink,
     }
 }

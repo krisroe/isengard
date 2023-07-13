@@ -81,6 +81,12 @@
     <Compile Include="frmArea.Designer.cs">
       <DependentUpon>frmArea.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmChooseAreas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmChooseAreas.Designer.cs">
+      <DependentUpon>frmChooseAreas.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmConfiguration.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -170,6 +176,9 @@
     <Compile Include="UIShared.cs" />
     <EmbeddedResource Include="frmArea.resx">
       <DependentUpon>frmArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmChooseAreas.resx">
+      <DependentUpon>frmChooseAreas.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmConfiguration.resx">
       <DependentUpon>frmConfiguration.cs</DependentUpon>

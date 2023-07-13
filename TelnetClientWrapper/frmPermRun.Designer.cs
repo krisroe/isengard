@@ -72,6 +72,8 @@
             this.lblArea = new System.Windows.Forms.Label();
             this.cboArea = new System.Windows.Forms.ComboBox();
             this.chkRehome = new System.Windows.Forms.CheckBox();
+            this.btnEditAreas = new System.Windows.Forms.Button();
+            this.txtArea = new System.Windows.Forms.TextBox();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -498,12 +500,30 @@
             // chkRehome
             // 
             this.chkRehome.AutoSize = true;
-            this.chkRehome.Location = new System.Drawing.Point(663, 47);
+            this.chkRehome.Location = new System.Drawing.Point(774, 47);
             this.chkRehome.Name = "chkRehome";
             this.chkRehome.Size = new System.Drawing.Size(91, 23);
             this.chkRehome.TabIndex = 32;
             this.chkRehome.Text = "Rehome";
             this.chkRehome.UseVisualStyleBackColor = true;
+            // 
+            // btnEditAreas
+            // 
+            this.btnEditAreas.Location = new System.Drawing.Point(670, 44);
+            this.btnEditAreas.Name = "btnEditAreas";
+            this.btnEditAreas.Size = new System.Drawing.Size(96, 27);
+            this.btnEditAreas.TabIndex = 33;
+            this.btnEditAreas.Text = "Edit";
+            this.btnEditAreas.UseVisualStyleBackColor = true;
+            this.btnEditAreas.Click += new System.EventHandler(this.btnEditAreas_Click);
+            // 
+            // txtArea
+            // 
+            this.txtArea.Enabled = false;
+            this.txtArea.Location = new System.Drawing.Point(129, 44);
+            this.txtArea.Name = "txtArea";
+            this.txtArea.Size = new System.Drawing.Size(528, 27);
+            this.txtArea.TabIndex = 34;
             // 
             // frmPermRun
             // 
@@ -511,6 +531,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(981, 644);
             this.ControlBox = false;
+            this.Controls.Add(this.txtArea);
+            this.Controls.Add(this.btnEditAreas);
             this.Controls.Add(this.chkRehome);
             this.Controls.Add(this.cboArea);
             this.Controls.Add(this.lblArea);
@@ -602,5 +624,7 @@
         private System.Windows.Forms.Label lblArea;
         private System.Windows.Forms.ComboBox cboArea;
         private System.Windows.Forms.CheckBox chkRehome;
+        private System.Windows.Forms.Button btnEditAreas;
+        private System.Windows.Forms.TextBox txtArea;
     }
 }

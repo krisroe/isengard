@@ -13,6 +13,14 @@ namespace IsengardClient
         /// </summary>
         public Area CurrentArea { get; set; }
         /// <summary>
+        /// common parent area
+        /// </summary>
+        public Area CommonParentArea { get; set; }
+        /// <summary>
+        /// new area
+        /// </summary>
+        public Area NewArea { get; set; }
+        /// <summary>
         /// exits to traverse in the background
         /// </summary>
         public List<Exit> Exits { get; set; }
@@ -155,9 +163,17 @@ namespace IsengardClient
             {
                 MobTypeCounter = MobTextCounter = 1;
             }
-            if (p.Area != null)
+            if (p.Areas != null)
             {
-                InventorySinkRoom = p.Area.InventorySinkRoomObject;
+                NewArea = p.DetermineMostCompatibleArea(CurrentArea);
+                if (NewArea != null)
+                {
+                    if (CurrentArea != null)
+                    {
+                        CommonParentArea = CurrentArea.DetermineCommonParentArea(NewArea);
+                    }
+                    InventorySinkRoom = NewArea.InventorySinkRoomObject;
+                }
             }
             InventoryProcessInputType = p.ItemsToProcessType;
             TargetRoom = p.TargetRoomObject;

@@ -106,7 +106,7 @@ namespace IsengardClient.Tests
 
             PermRun p = new PermRun();
             p.Rehome = false;
-            p.Area = a;
+            p.Areas = new HashSet<Area>() { a };
             p.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
             p.AutoSpellLevelMin = 3;
             p.AutoSpellLevelMax = 4;
@@ -258,7 +258,28 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(p1.ID, 0);
             Assert.AreEqual(p1.DisplayName ?? string.Empty, p2.DisplayName ?? string.Empty);
             Assert.AreEqual(p1.Rehome, p2.Rehome);
-            VerifyAreasMatch(p1.Area, p2.Area, expectIDsPopulated);
+            Assert.AreEqual(p1.Areas == null, p2.Areas == null);
+            if (p1.Areas != null)
+            {
+                Assert.AreEqual(p1.Areas.Count, p2.Areas.Count);
+                foreach (Area a1 in p1.Areas)
+                {
+                    bool verified = false;
+                    foreach (Area a2 in p2.Areas)
+                    {
+                        if (a1.DisplayName == a2.DisplayName)
+                        {
+                            VerifyAreasMatch(a1, a2, expectIDsPopulated);
+                            verified = true;
+                            break;
+                        }
+                    }
+                    if (!verified)
+                    {
+                        Assert.Fail("Uncorresponding area found.");
+                    }
+                }
+            }
             Assert.AreEqual(p1.BeforeFull, p2.BeforeFull);
             Assert.AreEqual(p1.AfterFull, p2.AfterFull);
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);

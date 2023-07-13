@@ -887,10 +887,17 @@ namespace IsengardClient
                 GetExistingAreas(selectedNode, areasToDelete);
                 foreach (PermRun pr in _settings.PermRuns)
                 {
-                    if (pr.Area != null && areasToDelete.Contains(pr.Area))
+                    if (pr.Areas != null)
                     {
-                        allowRemove = false;
-                        break;
+                        foreach (Area a in pr.Areas)
+                        {
+                            if (areasToDelete.Contains(a))
+                            {
+                                allowRemove = false;
+                                break;
+                            }
+                        }
+                        if (!allowRemove) break;
                     }
                 }
             }
