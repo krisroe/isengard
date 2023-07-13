@@ -1600,6 +1600,7 @@ namespace IsengardClient
         [PluralName("lead hammers")]
         [WeaponType(WeaponType.Blunt)]
         [Weight(5)]
+        [Sellable(643)]
         LeadHammer,
 
         [SingularName("leather armor")]
