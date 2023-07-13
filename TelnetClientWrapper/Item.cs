@@ -1929,6 +1929,10 @@ namespace IsengardClient
         [WeaponType(WeaponType.Unknown)]
         RakshasanEviscerator,
 
+        [SingularName("Ranger's compass")]
+        //CSRTODO: plural
+        RangersCompass,
+
         [SingularName("red bubbly potion")]
         [PluralName("red bubbly potions")]
         [Potion(SpellsEnum.invisibility)]

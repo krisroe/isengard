@@ -1183,15 +1183,16 @@ namespace IsengardClient
             p.DisplayName = GetAttributeValueByName(attributeMapping, "DisplayName");
 
             sValue = GetAttributeValueByName(attributeMapping, "Rehome");
-            if (bool.TryParse(sValue, out bValue))
+            if (string.IsNullOrEmpty(sValue))
             {
-                p.Rehome = bValue;
+                bValue = false;
             }
-            else
+            else if (!bool.TryParse(sValue, out bValue))
             {
                 errorMessages.Add("Invalid perm run rehome: " + sValue);
                 isValid = false;
             }
+            p.Rehome = bValue;
 
             sValue = GetAttributeValueByName(attributeMapping, "Area");
             if (!string.IsNullOrEmpty(sValue))
