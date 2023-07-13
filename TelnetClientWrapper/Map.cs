@@ -2146,6 +2146,11 @@ namespace IsengardClient
             AddBidirectionalExitsWithOut(oWaitingRoom, oOffice, "office");
             breeStreetsGraph.Rooms[oOffice] = new System.Windows.Point(2, 9.25);
 
+            Room oBreesMerchantQuarter = AddRoom("Merchant Quarter", "Bree's Merchant Quarter");
+            AddExit(breeStreets[7, 0], oBreesMerchantQuarter, "gates");
+            AddExit(oBreesMerchantQuarter, breeStreets[7, 0], "southeast");
+            breeStreetsGraph.Rooms[oBreesMerchantQuarter] = new System.Windows.Point(6, 9);
+
             AddHauntedMansion(oHauntedMansionEntrance);
         }
 
