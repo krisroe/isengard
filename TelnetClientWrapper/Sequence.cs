@@ -2988,6 +2988,16 @@ StartProcessRoom:
                     isMessageToKeep = true;
                     haveDataToDisplay = true;
                 }
+                else if (sLine == "The room starts to spin around you.") //not sure what this means but want to keep
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
+                else if (sLine == "You feel confused.") //not sure what this means but want to keep
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
                 else
                 {
                     bool isArrived = false;
