@@ -1427,7 +1427,7 @@ namespace IsengardClient
             {
                 if (previousArea != null && previousArea.DisplayName == a.DisplayName)
                 {
-                    newlySelectedArea = previousArea;
+                    newlySelectedArea = a;
                 }
                 cboArea.Items.Add(a);
             }

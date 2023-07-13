@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 namespace IsengardClient
 {
@@ -35,13 +36,34 @@ namespace IsengardClient
             cboSourceRoom.Items.Add(new RoomEntry(_currentRoom));
             cboSourceRoom.SelectedIndex = 0;
             cboTargetRoom.Items.Add(string.Empty);
+            HashSet<Room> targetRooms = new HashSet<Room>();
+            Room r;
+            foreach (Area a in settings.EnumerateAreas())
+            {
+                r = a.InventorySinkRoomObject;
+                if (r != null && !targetRooms.Contains(r))
+                {
+                    targetRooms.Add(r);
+                    cboTargetRoom.Items.Add(new RoomEntry(r));
+                }
+            }
             foreach (HealingRoom next in Enum.GetValues(typeof(HealingRoom)))
             {
-                cboTargetRoom.Items.Add(new RoomEntry(gameMap.HealingRooms[next]));
+                r = gameMap.HealingRooms[next];
+                if (!targetRooms.Contains(r))
+                {
+                    targetRooms.Add(r);
+                    cboTargetRoom.Items.Add(new RoomEntry(r));
+                }
             }
             foreach (PawnShoppe next in Enum.GetValues(typeof(PawnShoppe)))
             {
-                cboTargetRoom.Items.Add(new RoomEntry(gameMap.PawnShoppes[next]));
+                r = gameMap.PawnShoppes[next];
+                if (!targetRooms.Contains(r))
+                {
+                    targetRooms.Add(r);
+                    cboTargetRoom.Items.Add(new RoomEntry(r));
+                }
             }
         }
 
