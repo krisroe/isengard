@@ -3632,12 +3632,20 @@ StartProcessRoom:
         public static IEnumerable<string> PickWords(string input)
         {
             string sBestWord = string.Empty;
-            List<string> sWords = new List<string>(input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
-            sWords.Sort((a, b) =>
+            List<string> sEffectiveWords = new List<string>();
+            foreach (string sNextWord in (new List<string>(input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))))
+            {
+                int iDashIndex = sNextWord.IndexOf("-");
+                if (iDashIndex < 0)
+                    sEffectiveWords.Add(sNextWord);
+                else if (iDashIndex > 0)
+                    sEffectiveWords.Add(sNextWord.Substring(0, iDashIndex));
+            }
+            sEffectiveWords.Sort((a, b) =>
             {
                 return b.Length.CompareTo(a.Length);
             });
-            foreach (string sNextWord in sWords)
+            foreach (string sNextWord in sEffectiveWords)
             {
                 yield return sNextWord;
             }

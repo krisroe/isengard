@@ -123,7 +123,7 @@ namespace IsengardClient
                     {
                         Area commonParent = nextArea.DetermineCommonParentArea(currentArea);
                         int iIndex = currentAreasFromHome.IndexOf(commonParent);
-                        if (!iValue.HasValue || iIndex > iValue.Value)
+                        if (!iValue.HasValue || iIndex < iValue.Value)
                         {
                             iValue = iIndex;
                             aBest = nextArea;

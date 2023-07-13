@@ -866,6 +866,8 @@ namespace IsengardClient
 
         [SingularName("bracers of ogre-strength")]
         [EquipmentType(EquipmentType.Unknown)]
+        [Weight(8)]
+        [Sellable(618)]
         BracersOfOgreStrength,
 
         [SingularName("brass knuckles")]
