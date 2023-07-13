@@ -1334,8 +1334,9 @@ namespace IsengardClient
 
         [SingularName("gold ring")]
         [PluralName("gold rings")]
-        [EquipmentType(EquipmentType.Unknown)] //when worn, shocks and drops
+        [EquipmentType(EquipmentType.Finger)] //when worn, shocks and drops if cursed
         [Weight(2)]
+        [ArmorClass(0.1)]
         [Sellable(123)]
         GoldRing,
 

@@ -3624,6 +3624,7 @@ StartProcessRoom:
             return ParseList(sFullContent);
         }
 
+        //CSRTODO: for qwerty-asdfg is "asdfg" an allowed word?
         /// <summary>
         /// picks words contained in a list of words
         /// </summary>
