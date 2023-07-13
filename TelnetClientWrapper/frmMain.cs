@@ -149,7 +149,6 @@ namespace IsengardClient
         private int _commandSpecificResult;
         private SelectedInventoryOrEquipmentItem _commandInventoryItem;
         private int _lastCommandDamage;
-        private string _lastCommand;
         private bool _runningHiddenCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
@@ -3370,7 +3369,6 @@ namespace IsengardClient
                             IsengardSettingData sets = _settingsData;
                             flParams.ConsoleVerbosity = sets == null ? ConsoleOutputVerbosity.Maximum : sets.ConsoleVerbosity;
                             flParams.PlayerNames = _players;
-                            CommandResult? previousCommandResult = _commandResult;
 
                             foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
                             {
@@ -3415,12 +3413,6 @@ namespace IsengardClient
                             haveContent = !string.IsNullOrWhiteSpace(sNewLine);
                             if (haveContent)
                             {
-                                //if this set of output completed the command, include the command input in the console output,
-                                //except for maximum verbosity in which case the input was sent to the console immediately
-                                if (!IsMaximumConsoleVerbosity() && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
-                                {
-                                    sNewLine = _lastCommand + Environment.NewLine + sNewLine;
-                                }
                                 if (flParams.CommandResult.HasValue)
                                 {
                                     _commandResult = flParams.CommandResult.Value;
@@ -4023,7 +4015,6 @@ namespace IsengardClient
                 _commandResult = null;
                 _commandSpecificResult = 0;
                 _commandInventoryItem = null;
-                _lastCommand = null;
                 _lastCommandDamage = 0;
                 _runningHiddenCommand = false;
                 _backgroundProcessPhase = BackgroundProcessPhase.None;
@@ -7165,13 +7156,11 @@ BeforeHazy:
             DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
             _commandResult = null;
             _commandSpecificResult = 0;
-            _lastCommand = null;
             _lastCommandDamage = 0;
             _runningHiddenCommand = hidden;
             try
             {
-                _lastCommand = command;
-                SendCommand(command, IsMaximumConsoleVerbosity() ? InputEchoType.On : InputEchoType.Off);
+                SendCommand(command, hidden ? InputEchoType.Off : InputEchoType.On);
                 CommandResult? currentResult = null;
                 int specificResult = 0;
                 while (!currentResult.HasValue)
@@ -7214,7 +7203,6 @@ BeforeHazy:
                 _commandResult = null;
                 _commandSpecificResult = 0;
                 _commandInventoryItem = null;
-                _lastCommand = null;
                 _runningHiddenCommand = false;
             }
         }
@@ -9517,11 +9505,6 @@ BeforeHazy:
                     }
                 }
             }
-        }
-
-        private bool IsMaximumConsoleVerbosity()
-        {
-            return _settingsData == null ? true : _settingsData.ConsoleVerbosity == ConsoleOutputVerbosity.Maximum;
         }
 
         private void tsmiSetAutoEscapeThreshold_Click(object sender, EventArgs e)

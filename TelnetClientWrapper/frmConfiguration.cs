@@ -273,7 +273,7 @@ namespace IsengardClient
         {
             Area a = (Area)tn.Tag;
             a.Parent = parentArea;
-            a.ParentID = parentArea == null ? parentArea.ID : 0;
+            a.ParentID = parentArea == null ? 0 : parentArea.ID;
             if (tn.Nodes.Count > 0)
             {
                 a.Children = new List<Area>();
