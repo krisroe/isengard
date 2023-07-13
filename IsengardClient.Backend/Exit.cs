@@ -1,8 +1,8 @@
 ﻿using Priority_Queue;
 using QuickGraph;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge
+    public class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge
     {
         public override string ToString()
         {
@@ -130,7 +130,7 @@ namespace IsengardClient
         }
     }
 
-    internal class ExitPriorityNode : GenericPriorityQueueNode<int>
+    public class ExitPriorityNode : GenericPriorityQueueNode<int>
     {
         public Exit Exit { get; set; }
         public ExitPriorityNode(Exit e)

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using IsengardClient.Backend;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10379,9 +10380,9 @@ BeforeHazy:
 
         private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _bwFullLog.CancelAsync();
             if (_fullLogLock != null)
             {
+                _bwFullLog.CancelAsync();
                 while (!_fullLogFinished)
                 {
                     Thread.Sleep(100);

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using IsengardClient.Backend;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-
 namespace IsengardClient
 {
     internal partial class frmLocations : Form

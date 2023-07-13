@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IsengardClient")]
+[assembly: AssemblyTitle("IsengardClient.Backend")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Krisroe")]
-[assembly: AssemblyProduct("IsengardClient")]
+[assembly: AssemblyCompany("Paradigm")]
+[assembly: AssemblyProduct("IsengardClient.Backend")]
 [assembly: AssemblyCopyright("Copyright © Paradigm 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c36bbb87-a23e-4114-ba44-125fbd2deba8")]
+[assembly: Guid("0d9b40d5-f079-4081-9d7f-7c75e1622d6d")]
 
 // Version information for an assembly consists of the following four values:
 //

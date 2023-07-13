@@ -1,6 +1,6 @@
-﻿namespace IsengardClient
+﻿namespace IsengardClient.Backend
 {
-    internal enum MobTypeEnum
+    public enum MobTypeEnum
     {
         [SingularName("accuser")]
         [PluralName("accusers")]

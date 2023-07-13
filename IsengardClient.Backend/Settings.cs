@@ -5,13 +5,13 @@ using System.Xml;
 using System.Data.SQLite;
 using System.Data;
 using System.Text;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class IsengardSettingData
+    public class IsengardSettingData
     {
-        internal const int AUTO_SPELL_LEVEL_MINIMUM = 1;
-        internal const int AUTO_SPELL_LEVEL_MAXIMUM = 5;
-        internal const int AUTO_SPELL_LEVEL_NOT_SET = 0;
+        public const int AUTO_SPELL_LEVEL_MINIMUM = 1;
+        public const int AUTO_SPELL_LEVEL_MAXIMUM = 5;
+        public const int AUTO_SPELL_LEVEL_NOT_SET = 0;
 
         public ItemTypeEnum? Weapon { get; set; }
         public ItemTypeEnum? HeldItem { get; set; }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class Area
+    public class Area
     {
         public bool IsValid { get; set; }
         public int ID { get; set; }

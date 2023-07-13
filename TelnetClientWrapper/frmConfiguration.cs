@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualBasic;
+﻿using IsengardClient.Backend;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-
 namespace IsengardClient
 {
     internal partial class frmConfiguration : Form

@@ -67,14 +67,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Area.cs" />
-    <Compile Include="AsciiMapping.cs" />
-    <Compile Include="Attributes.cs" />
-    <Compile Include="BackgroundWorkerParameters.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Exit.cs" />
     <Compile Include="frmArea.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -155,24 +147,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>IsengardSettings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Item.cs" />
-    <Compile Include="Location.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="MobTypeEnum.cs" />
-    <Compile Include="PermRun.cs" />
-    <Compile Include="PriorityQueue\GenericPriorityQueue.cs" />
-    <Compile Include="PriorityQueue\GenericPriorityQueueNode.cs" />
-    <Compile Include="PriorityQueue\IFixedSizePriorityQueue.cs" />
-    <Compile Include="PriorityQueue\IPriorityQueue.cs" />
-    <Compile Include="PriorityQueue\SimplePriorityQueue.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Room.cs" />
-    <Compile Include="RoomGraph.cs" />
-    <Compile Include="Sequence.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="Spells.cs" />
-    <Compile Include="Strategy.cs" />
     <Compile Include="UIShared.cs" />
     <EmbeddedResource Include="frmArea.resx">
       <DependentUpon>frmArea.cs</DependentUpon>
@@ -251,6 +227,10 @@
     <ProjectReference Include="..\Graph#\GraphSharp.csproj">
       <Project>{9c59c516-fca0-4fcf-ae11-e20f0f1b1949}</Project>
       <Name>GraphSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IsengardClient.Backend\IsengardClient.Backend.csproj">
+      <Project>{0d9b40d5-f079-4081-9d7f-7c75e1622d6d}</Project>
+      <Name>IsengardClient.Backend</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

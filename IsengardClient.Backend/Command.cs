@@ -1,6 +1,6 @@
-﻿namespace IsengardClient
+﻿namespace IsengardClient.Backend
 {
-    internal class CommandResultObject
+    public class CommandResultObject
     {
         public CommandResultObject(CommandResult result, int resultCode)
         {
@@ -21,7 +21,7 @@
     /// <summary>
     /// result of a single command
     /// </summary>
-    internal enum CommandResult
+    public enum CommandResult
     {
         /// <summary>
         /// the command completed successfully
@@ -59,7 +59,7 @@
         CommandEscaped,
     }
 
-    internal enum GetItemResult
+    public enum GetItemResult
     {
         Success = 1,
         TooMuchWeight = 2,
@@ -69,7 +69,7 @@
         MobDisallowsTakingItems = 6,
     }
 
-    internal enum MovementResult
+    public enum MovementResult
     {
         Success = 1,
         TotalFailure = 2,
@@ -80,7 +80,7 @@
         FallFailure = 7,
     }
 
-    internal enum BackgroundCommandType
+    public enum BackgroundCommandType
     {
         Movement,
         OpenDoor,

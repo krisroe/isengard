@@ -1,15 +1,15 @@
 ﻿using System;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
     /// <summary>
     /// base attribute for names
     /// </summary>
-    internal class NameAttribute : Attribute
+    public class NameAttribute : Attribute
     {
         public string Name { get; set; }
     }
 
-    internal class MapTypeDisplayNameAttribute : NameAttribute
+    public class MapTypeDisplayNameAttribute : NameAttribute
     {
         public MapTypeDisplayNameAttribute(string Name)
         {
@@ -20,7 +20,7 @@ namespace IsengardClient
     /// <summary>
     /// singular name for items/mobs
     /// </summary>
-    internal class SingularNameAttribute : NameAttribute
+    public class SingularNameAttribute : NameAttribute
     {
         public SingularNameAttribute(string Name)
         {
@@ -31,7 +31,7 @@ namespace IsengardClient
     /// <summary>
     /// singular selection name where the singular name has components that aren't used for selection
     /// </summary>
-    internal class SingularSelectionAttribute : NameAttribute
+    public class SingularSelectionAttribute : NameAttribute
     {
         public SingularSelectionAttribute(string Name)
         {
@@ -42,7 +42,7 @@ namespace IsengardClient
     /// <summary>
     /// plural name for items/mobs
     /// </summary>
-    internal class PluralNameAttribute : NameAttribute
+    public class PluralNameAttribute : NameAttribute
     {
         public PluralNameAttribute(string Name)
         {
@@ -55,7 +55,7 @@ namespace IsengardClient
     /// <summary>
     /// experience gained when killing a mob
     /// </summary>
-    internal class ExperienceAttribute : Attribute
+    public class ExperienceAttribute : Attribute
     {
         public ExperienceAttribute(int Experience)
         {
@@ -67,7 +67,7 @@ namespace IsengardClient
     /// <summary>
     /// alignment of a mob
     /// </summary>
-    internal class AlignmentAttribute : Attribute
+    public class AlignmentAttribute : Attribute
     {
         public AlignmentAttribute(AlignmentType Alignment)
         {
@@ -79,7 +79,7 @@ namespace IsengardClient
     /// <summary>
     /// whether a mob is aggressive. This is binary and so doesn't capture cases where mobs may be aggressive (e.g. warrior bards)
     /// </summary>
-    internal class AggressiveAttribute : Attribute
+    public class AggressiveAttribute : Attribute
     {
         public bool Aggressive { get; set; }
         public AggressiveAttribute()
@@ -88,7 +88,7 @@ namespace IsengardClient
         }
     }
 
-    internal class MobVisibilityAttribute : Attribute
+    public class MobVisibilityAttribute : Attribute
     {
         public MobVisibility MobVisibility { get; set; }
         public MobVisibilityAttribute(MobVisibility MobVisibility)
@@ -104,7 +104,7 @@ namespace IsengardClient
     /// <summary>
     /// equipment type for an item
     /// </summary>
-    internal class EquipmentTypeAttribute : Attribute
+    public class EquipmentTypeAttribute : Attribute
     {
         public EquipmentType EquipmentType { get; set; }
         public EquipmentTypeAttribute(EquipmentType EquipmentType)
@@ -113,7 +113,7 @@ namespace IsengardClient
         }
     }
 
-    internal class ArmorClassAttribute : Attribute
+    public class ArmorClassAttribute : Attribute
     {
         public double ArmorClass { get; set; }
         public ArmorClassAttribute(double ArmorClass)
@@ -122,7 +122,7 @@ namespace IsengardClient
         }
     }
 
-    internal class ItemClassAttribute : Attribute
+    public class ItemClassAttribute : Attribute
     {
         public ItemClass ItemClass;
         public ItemClassAttribute(ItemClass ItemClass)
@@ -147,7 +147,7 @@ namespace IsengardClient
     /// <summary>
     /// weapon type for an item
     /// </summary>
-    internal class WeaponTypeAttribute : Attribute
+    public class WeaponTypeAttribute : Attribute
     {
         public WeaponType WeaponType { get; set; }
         public WeaponTypeAttribute(WeaponType WeaponType)
@@ -156,7 +156,7 @@ namespace IsengardClient
         }
     }
 
-    internal class PotionAttribute : Attribute
+    public class PotionAttribute : Attribute
     {
         public SpellsEnum Spell { get; set; }
         public PotionAttribute(SpellsEnum Spell)
@@ -165,7 +165,7 @@ namespace IsengardClient
         }
     }
 
-    internal class ScrollAttribute : Attribute
+    public class ScrollAttribute : Attribute
     {
         public SpellsEnum Spell { get; set; }
         public ScrollAttribute(SpellsEnum Spell)
@@ -174,7 +174,7 @@ namespace IsengardClient
         }
     }
 
-    internal class WandAttribute : Attribute
+    public class WandAttribute : Attribute
     {
         public SpellsEnum Spell { get; set; }
         public WandAttribute(SpellsEnum Spell)
@@ -183,7 +183,7 @@ namespace IsengardClient
         }
     }
 
-    internal class UseAttribute : Attribute
+    public class UseAttribute : Attribute
     {
         public SpellsEnum Spell { get; set; }
         public UseAttribute(SpellsEnum Spell)
@@ -194,7 +194,7 @@ namespace IsengardClient
 
     #endregion
 
-    internal class SpellInformationAttribute : Attribute
+    public class SpellInformationAttribute : Attribute
     {
         public SpellsEnum SpellType { get; set; }
         public WorkflowSpells? WorkflowSpellType { get; set; }
@@ -245,7 +245,7 @@ namespace IsengardClient
         }
     }
 
-    internal class WeightAttribute : Attribute
+    public class WeightAttribute : Attribute
     {
         public int Pounds { get; set; }
         public WeightAttribute(int Pounds)
@@ -254,7 +254,7 @@ namespace IsengardClient
         }
     }
 
-    internal class SellableAttribute : Attribute
+    public class SellableAttribute : Attribute
     {
         public int Gold { get; set; }
         public SellableEnum Sellable { get; set; }
@@ -269,7 +269,7 @@ namespace IsengardClient
         }
     }
 
-    internal class StrategyStepAttribute : Attribute
+    public class StrategyStepAttribute : Attribute
     {
         public char Letter { get; set; }
         public bool IsCombat { get; set; }
@@ -280,7 +280,7 @@ namespace IsengardClient
         }
     }
 
-    internal class DisallowedClassesAttribute : Attribute
+    public class DisallowedClassesAttribute : Attribute
     {
         public ClassTypeFlags Classes { get; set; }
         public DisallowedClassesAttribute(ClassTypeFlags Classes)

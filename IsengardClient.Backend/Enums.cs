@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal enum FloatRequirement
+    public enum FloatRequirement
     {
         None = 0,
         Fly = 1,
@@ -10,7 +10,7 @@ namespace IsengardClient
         NoLevitation = 3,
     }
 
-    internal enum ExitPresenceType
+    public enum ExitPresenceType
     {
         /// <summary>
         /// exits that are always present
@@ -29,7 +29,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum PromptedSkills
+    public enum PromptedSkills
     {
         None = 0,
         PowerAttack = 1,
@@ -37,7 +37,7 @@ namespace IsengardClient
         Fireshield = 4,
     }
 
-    internal enum MonsterStatus
+    public enum MonsterStatus
     {
         None,
         ExcellentCondition,
@@ -52,14 +52,14 @@ namespace IsengardClient
         BarelyClingingToLife,
     }
 
-    internal enum InputEchoType
+    public enum InputEchoType
     {
         On,
         OnPassword,
         Off,
     }
 
-    internal enum BackgroundProcessPhase
+    public enum BackgroundProcessPhase
     {
         None,
         Initialization,
@@ -73,7 +73,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum CommandType
+    public enum CommandType
     {
         None = 0,
         Melee = 1,
@@ -83,7 +83,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum InitializationStep
+    public enum InitializationStep
     {
         None = 0,
         Initialization = 1,
@@ -100,7 +100,7 @@ namespace IsengardClient
         All = 1023,
     }
 
-    internal enum EntityType
+    public enum EntityType
     {
         Player,
         Mob,
@@ -109,7 +109,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum EntityTypeFlags
+    public enum EntityTypeFlags
     {
         None = 0,
         Player = 1,
@@ -117,46 +117,46 @@ namespace IsengardClient
         Item = 4,
     }
 
-    internal enum ItemLocationType
+    public enum ItemLocationType
     {
         Inventory,
         Equipment,
         Room,
     }
 
-    internal enum MobLocationType
+    public enum MobLocationType
     {
         CurrentRoomMobs,
         PickFromList,
     }
 
-    internal enum ItemsToProcessType
+    public enum ItemsToProcessType
     {
         NoProcessing = 0,
         ProcessMonsterDrops = 1,
         ProcessAllItemsInRoom = 2,
     }
 
-    internal enum InventoryManagementWorkflow
+    public enum InventoryManagementWorkflow
     {
         ManageSourceItems = 0,
         Ferry = 1,
     }
 
-    internal enum MobVisibility
+    public enum MobVisibility
     {
         Visible = 0,
         Hidden = 1,
         Invisible = 2,
     }
 
-    internal enum AutoEscapeType
+    public enum AutoEscapeType
     {
         Flee = 0,
         Hazy = 1,
     }
 
-    internal enum BidirectionalExitType
+    public enum BidirectionalExitType
     {
         WestEast,
         NorthSouth,
@@ -165,7 +165,7 @@ namespace IsengardClient
         UpDown,
     }
 
-    internal enum AlignmentType
+    public enum AlignmentType
     {
         Blue,
         IntenseBlue,
@@ -176,7 +176,7 @@ namespace IsengardClient
         Red,
     }
 
-    internal enum MapType
+    public enum MapType
     {
         [MapTypeDisplayName("Bree Streets")]
         BreeStreets,
@@ -257,7 +257,7 @@ namespace IsengardClient
         Intangible,
     }
 
-    internal enum FinalStepAction
+    public enum FinalStepAction
     {
         None = 0,
         Flee = 1,
@@ -265,7 +265,7 @@ namespace IsengardClient
         FinishCombat = 3,
     }
 
-    internal enum MagicStrategyStep
+    public enum MagicStrategyStep
     {
         [StrategyStep('S', true)]
         Stun,
@@ -301,7 +301,7 @@ namespace IsengardClient
         CurePoison,
     }
 
-    internal enum MeleeStrategyStep
+    public enum MeleeStrategyStep
     {
         [StrategyStep('A', true)]
         RegularAttack,
@@ -310,7 +310,7 @@ namespace IsengardClient
         PowerAttack,
     }
 
-    internal enum PotionsStrategyStep
+    public enum PotionsStrategyStep
     {
         [StrategyStep('v', false)]
         Vigor,
@@ -325,14 +325,14 @@ namespace IsengardClient
         CurePoison,
     }
 
-    internal enum PotionsCommandChoiceResult
+    public enum PotionsCommandChoiceResult
     {
         Drink,
         Skip,
         Fail,
     }
 
-    internal enum MagicCommandChoiceResult
+    public enum MagicCommandChoiceResult
     {
         Cast,
         Skip,
@@ -340,21 +340,21 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum DependentObjectType
+    public enum DependentObjectType
     {
         None = 0,
         Mob = 1,
         Wand = 2,
     }
 
-    internal enum ValidPotionType
+    public enum ValidPotionType
     {
         Invalid,
         Primary,
         Secondary,
     }
 
-    internal enum OutputItemSequenceType
+    public enum OutputItemSequenceType
     {
         UserNamePrompt,
         PasswordPrompt,
@@ -363,7 +363,7 @@ namespace IsengardClient
         Goodbye,
     }
 
-    internal enum ConstantSequenceMatchType
+    public enum ConstantSequenceMatchType
     {
         ExactMatch,
         StartsWith,
@@ -372,7 +372,7 @@ namespace IsengardClient
         Contains,
     }
 
-    internal enum SkillCooldownStatus
+    public enum SkillCooldownStatus
     {
         /// <summary>
         /// currently active
@@ -395,7 +395,7 @@ namespace IsengardClient
         Inactive,
     }
 
-    internal enum RoomTransitionType
+    public enum RoomTransitionType
     {
         Initial,
         Move,
@@ -405,7 +405,7 @@ namespace IsengardClient
         Death,
     }
 
-    internal class InformationalMessages
+    public class InformationalMessages
     {
         public InformationalMessages(InformationalMessageType msgType)
         {
@@ -434,7 +434,7 @@ namespace IsengardClient
         }
     }
 
-    internal enum InformationalMessageType
+    public enum InformationalMessageType
     {
         InitialLogin,
         Death,
@@ -491,7 +491,7 @@ namespace IsengardClient
         ItemMagicallySentToYou,
     }
 
-    internal enum SkillWithCooldownType
+    public enum SkillWithCooldownType
     {
         Unknown,
         PowerAttack,
@@ -499,7 +499,7 @@ namespace IsengardClient
         Fireshield,
     }
 
-    internal enum RealmType
+    public enum RealmType
     {
         Earth = 0,
         Wind = 1,
@@ -507,7 +507,7 @@ namespace IsengardClient
         Fire = 3,
     }
 
-    internal enum RoomDamageType
+    public enum RoomDamageType
     {
         Earth = 0,
         Wind = 1,
@@ -516,7 +516,7 @@ namespace IsengardClient
         Poison = 4,
     }
 
-    internal enum PawnShoppe
+    public enum PawnShoppe
     {
         BreeNortheast,
         BreeSouthwest,
@@ -525,7 +525,7 @@ namespace IsengardClient
         Esgaroth,
     }
 
-    internal enum HealingRoom
+    public enum HealingRoom
     {
         BreeNortheast,
         BreeSouthwest,
@@ -541,7 +541,7 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum TrapType
+    public enum TrapType
     {
         None = 0,
         PoisonDart = 1,
@@ -549,14 +549,14 @@ namespace IsengardClient
     }
 
     [Flags]
-    internal enum PlayerStatusFlags
+    public enum PlayerStatusFlags
     {
         None = 0,
         Poisoned = 1,
         Prone = 2,
     }
 
-    internal enum BoatEmbarkOrDisembark
+    public enum BoatEmbarkOrDisembark
     {
         CelduinExpress,
         CelduinExpressMithlond,
@@ -569,7 +569,7 @@ namespace IsengardClient
         HarbringerTharbad,
     }
 
-    internal enum EntityChangeType
+    public enum EntityChangeType
     {
         RefreshRoom,
         RefreshInventory,
@@ -591,7 +591,7 @@ namespace IsengardClient
         RemoveRoomItems,
     }
 
-    internal enum ItemManagementAction
+    public enum ItemManagementAction
     {
         None,
         PickUpItem,
@@ -607,7 +607,7 @@ namespace IsengardClient
         Trade,
     }
 
-    internal enum EquipmentType
+    public enum EquipmentType
     {
         Unknown,
         Torso,
@@ -626,7 +626,7 @@ namespace IsengardClient
         Wielded,
     }
 
-    internal enum WeaponType
+    public enum WeaponType
     {
         Slash,
         Stab,
@@ -636,7 +636,7 @@ namespace IsengardClient
         Unknown,
     }
 
-    internal enum EquipmentSlot
+    public enum EquipmentSlot
     {
         Torso = 0,
         Arms = 1,
@@ -660,7 +660,7 @@ namespace IsengardClient
     /// <summary>
     /// what action to take for an item beyond that needed to keep in inventory or in tick room
     /// </summary>
-    internal enum ItemInventoryOverflowAction
+    public enum ItemInventoryOverflowAction
     {
         /// <summary>
         /// no action listed
@@ -676,7 +676,7 @@ namespace IsengardClient
         SellOrJunk = 2,
     }
 
-    internal enum SellableEnum
+    public enum SellableEnum
     {
         Unknown,
         Sellable,
@@ -684,7 +684,7 @@ namespace IsengardClient
         Junk,
     }
 
-    internal enum AfterKillMonsterAction
+    public enum AfterKillMonsterAction
     {
         ContinueCombat = 0,
         StopCombat = 1,
@@ -692,7 +692,7 @@ namespace IsengardClient
         SelectFirstMonsterInRoomOfSameType = 3,
     }
 
-    internal enum SpellProficiency
+    public enum SpellProficiency
     {
         Earth,
         Wind,
@@ -704,7 +704,7 @@ namespace IsengardClient
         Sorcery,
     }
 
-    internal enum ClassType
+    public enum ClassType
     {
         Mage,
         Priest,
@@ -714,7 +714,7 @@ namespace IsengardClient
         Rogue,
         Warrior,
     }
-    internal enum ClassTypeFlags
+    public enum ClassTypeFlags
     {
         None = 0,
         Mage = 1,
@@ -726,62 +726,62 @@ namespace IsengardClient
         Warrior = 64,
     }
 
-    internal enum VertexSelectionRequirement
+    public enum VertexSelectionRequirement
     {
         ValidPathFromCurrentLocation,
         UnambiguousRoomBackendOrDisplayName,
     }
 
-    internal enum DisconnectedAction
+    public enum DisconnectedAction
     {
         Reconnect,
         Quit,
         Logout,
     }
 
-    internal enum AvailableSpellTypes
+    public enum AvailableSpellTypes
     {
         All,
         Castable,
         HavePotions,
     }
 
-    internal enum AutoSpellLevelOverridesLevel
+    public enum AutoSpellLevelOverridesLevel
     {
         Settings,
         Strategy,
         PermRun,
     }
 
-    internal enum FullType
+    public enum FullType
     {
         None,
         Total,
         Almost,
     }
 
-    internal enum PermRunFlow
+    public enum PermRunFlow
     {
         AdHocStrategy,
         ChangeAndRun,
         Run,
     }
 
-    internal enum PermRunEditFlow
+    public enum PermRunEditFlow
     {
         AdHocStrategy,
         Edit,
         ChangeAndRun,
     }
 
-    internal enum ConsoleOutputVerbosity
+    public enum ConsoleOutputVerbosity
     {
         Minimum = 0,
         Default = 1,
         Maximum = 2,
     }
 
-    internal enum AreaRoomType
+    public enum AreaRoomType
     {
         Tick,
         Pawn,

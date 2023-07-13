@@ -1,8 +1,10 @@
 ﻿using GraphSharp.Algorithms.Layout;
 using GraphSharp.Controls;
+using IsengardClient.Backend;
 using QuickGraph;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -68,7 +70,7 @@ namespace IsengardClient
             RoomBidirectionalGraph rbg = new RoomBidirectionalGraph();
             rbg.ComputedPositions = rg.Rooms;
             HashSet<Room> addedRooms = new HashSet<Room>();
-            foreach (KeyValuePair<Room, Point> next in rg.Rooms)
+            foreach (KeyValuePair<Room, PointF> next in rg.Rooms)
             {
                 Room nextRoom = next.Key;
                 MapType nextMapType = _fullMap.RoomsToMaps[nextRoom];
@@ -255,14 +257,14 @@ namespace IsengardClient
 
     internal class RoomGraphLayoutAlgorithm : DefaultParameterizedLayoutAlgorithmBase<Room, Exit, RoomBidirectionalGraph, RoomGraphLayoutAlgorithmParameters>
     {
-        public RoomGraphLayoutAlgorithm(RoomBidirectionalGraph g, IDictionary<Room, Point> vertexPositions, RoomGraphLayoutAlgorithmParameters oldParameters) : base(g, vertexPositions, oldParameters)
+        public RoomGraphLayoutAlgorithm(RoomBidirectionalGraph g, IDictionary<Room, System.Windows.Point> vertexPositions, RoomGraphLayoutAlgorithmParameters oldParameters) : base(g, vertexPositions, oldParameters)
         {
         }
         protected override void InternalCompute()
         {
             foreach (var next in this.VisitedGraph.ComputedPositions)
             {
-                VertexPositions[next.Key] = next.Value;
+                VertexPositions[next.Key] = new System.Windows.Point(next.Value.X, next.Value.Y);
             }
         }
     }
@@ -307,7 +309,7 @@ namespace IsengardClient
 
     internal class RoomBidirectionalGraph : BidirectionalGraph<Room, Exit>
     {
-        public Dictionary<Room, Point> ComputedPositions { get; set; }
+        public Dictionary<Room, PointF> ComputedPositions { get; set; }
 
     }
 

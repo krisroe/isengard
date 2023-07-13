@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class Room
+    public class Room
     {
         public const string UNKNOWN_ROOM = "!@#UNKNOWN$%^";
 

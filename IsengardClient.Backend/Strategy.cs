@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class Strategy
+    public class Strategy
     {
         public const string CAST_VIGOR_SPELL = "cast vigor";
         public const string CAST_MENDWOUNDS_SPELL = "cast mend-wounds";

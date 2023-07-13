@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class BackgroundWorkerParameters
+    public class BackgroundWorkerParameters
     {
         public BackgroundWorkerParameters()
         {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class ItemEntity : Entity
+    public class ItemEntity : Entity
     {
         public static Dictionary<string, StaticItemData> ItemMappingByDisplayName = new Dictionary<string, StaticItemData>();
         public static Dictionary<ItemTypeEnum, StaticItemData> StaticItemData = new Dictionary<ItemTypeEnum, StaticItemData>();
@@ -158,7 +158,7 @@ namespace IsengardClient
         /// <param name="itemType">item type</param>
         /// <param name="count">count, relevant for coins items</param>
         /// <returns>text for the item</returns>
-        internal string GetItemString()
+        public string GetItemString()
         {
             string sText;
             if (this is UnknownItemEntity)
@@ -276,7 +276,7 @@ namespace IsengardClient
         }
     }
 
-    internal class UnknownItemEntity : ItemEntity
+    public class UnknownItemEntity : ItemEntity
     {
         public string Name { get; set; }
         public UnknownItemEntity(string Name, int count, int setCount) : base(null, count, setCount)
@@ -285,7 +285,7 @@ namespace IsengardClient
         }
     }
 
-    internal class ItemInInventoryOrEquipmentList
+    public class ItemInInventoryOrEquipmentList
     {
         public ItemEntity Item { get; set; }
         public bool IsInventory { get; set; }
@@ -319,7 +319,7 @@ namespace IsengardClient
     }
 
 
-    internal class SelectedInventoryOrEquipmentItem
+    public class SelectedInventoryOrEquipmentItem
     {
         public SelectedInventoryOrEquipmentItem(ItemTypeEnum ItemType, int Counter, bool IsInventory)
         {
@@ -332,7 +332,7 @@ namespace IsengardClient
         public bool IsInventory;
     }
 
-    internal class StaticItemData
+    public class StaticItemData
     {
         public bool IsCurrency()
         {
@@ -356,7 +356,7 @@ namespace IsengardClient
         public ClassTypeFlags DisallowedClasses { get; set; }
     }
 
-    internal class DynamicItemDataWithInheritance : DynamicItemData
+    public class DynamicItemDataWithInheritance : DynamicItemData
     {
         public DynamicDataItemClass? KeepCountInheritance;
         public DynamicDataItemClass? SinkCountInheritance;
@@ -539,7 +539,7 @@ namespace IsengardClient
         }
     }
 
-    internal class DynamicItemData
+    public class DynamicItemData
     {
         /// <summary>
         /// number of items to keep in inventory
@@ -568,7 +568,7 @@ namespace IsengardClient
         }
     }
 
-    internal enum ItemClass
+    public enum ItemClass
     {
         Equipment,
         Weapon,
@@ -586,7 +586,7 @@ namespace IsengardClient
         Other,
     }
 
-    internal enum DynamicDataItemClass
+    public enum DynamicDataItemClass
     {
         /// <summary>
         /// catchall default for any item
@@ -640,7 +640,7 @@ namespace IsengardClient
     /// 2. coin items use "X gold coins" and "sets of X gold coins" formats. These currently have both singular and plural attributes.
     /// 3. collective items only have a singular name, and use "sets of X" for the plural case. These currently only have a singular attribute.
     /// </summary>
-    internal enum ItemTypeEnum
+    public enum ItemTypeEnum
     {
         [SingularName("adamantine dart")]
         [PluralName("adamantine darts")]
@@ -1622,6 +1622,7 @@ namespace IsengardClient
 
         [SingularName("leather gloves")]
         [EquipmentType(EquipmentType.Hands)]
+        [Weight(2)]
         LeatherGloves,
 
         [SingularName("leather pouch")]

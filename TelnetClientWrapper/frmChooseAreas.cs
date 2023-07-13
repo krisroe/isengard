@@ -1,4 +1,4 @@
-﻿using IsengardClient.Properties;
+﻿using IsengardClient.Backend;
 using System.Collections.Generic;
 using System.Windows.Forms;
 namespace IsengardClient

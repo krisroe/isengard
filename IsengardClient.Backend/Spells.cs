@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
     [Flags]
-    internal enum WorkflowSpells
+    public enum WorkflowSpells
     {
         None = 0,
         Bless = 1,
@@ -18,7 +18,7 @@ namespace IsengardClient
         CurePoison = 256,
     }
 
-    internal class SpellsStatic
+    public class SpellsStatic
     {
         public static Dictionary<SpellsEnum, SpellInformationAttribute> SpellsByEnum = new Dictionary<SpellsEnum, SpellInformationAttribute>();
         public static Dictionary<WorkflowSpells, SpellInformationAttribute> WorkflowSpellsByEnum = new Dictionary<WorkflowSpells, SpellInformationAttribute>();
@@ -61,7 +61,7 @@ namespace IsengardClient
         }
     }
 
-    internal enum SpellsEnum
+    public enum SpellsEnum
     {
         [SpellInformation(SpellProficiency.Earth, 3, 1)]
         rumble,

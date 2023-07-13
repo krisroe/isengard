@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class LocationNode
+    public class LocationNode
     {
         public bool IsValid { get; set; }
         public int ID { get; set; }

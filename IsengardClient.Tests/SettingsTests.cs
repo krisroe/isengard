@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using IsengardClient.Backend;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Text;
 using System.Xml;
-
 namespace IsengardClient.Tests
 {
     [TestClass]

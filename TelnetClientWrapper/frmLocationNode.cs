@@ -1,6 +1,6 @@
-﻿using System;
+﻿using IsengardClient.Backend;
+using System;
 using System.Windows.Forms;
-
 namespace IsengardClient
 {
     internal partial class frmLocationNode : Form

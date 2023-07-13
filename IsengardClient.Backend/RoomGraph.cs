@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
-namespace IsengardClient
+using System.Drawing;
+namespace IsengardClient.Backend
 {
-    internal class RoomGraph
+    public class RoomGraph
     {
         public RoomGraph(MapType mapType, string Name)
         {
             MapType = mapType;
-            Rooms = new Dictionary<Room, Point>();
+            Rooms = new Dictionary<Room, PointF>();
             this.Name = Name;
         }
         public override string ToString()
@@ -15,7 +15,7 @@ namespace IsengardClient
             return Name;
         }
         public MapType MapType { get; set; }
-        public Dictionary<Room, Point> Rooms { get; set; }
+        public Dictionary<Room, PointF> Rooms { get; set; }
         public string Name { get; set; }
         public int ScalingFactor { get; set; }
     }

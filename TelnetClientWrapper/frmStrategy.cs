@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using IsengardClient.Backend;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -19,6 +20,8 @@ namespace IsengardClient
         public frmStrategy(Strategy s, IsengardSettingData settings)
         {
             InitializeComponent();
+
+            _settings = settings;
 
             tsmiAddOffensiveAuto.Tag = MagicStrategyStep.OffensiveSpellAuto;
             tsmiAddOffensiveLevel1.Tag = MagicStrategyStep.OffensiveSpellLevel1;

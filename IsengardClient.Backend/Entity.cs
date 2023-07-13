@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
-    internal class Entity
+    public class Entity
     {
         /// <summary>
         /// number of entities present
@@ -422,7 +421,7 @@ namespace IsengardClient
         }
     }
 
-    internal class MobEntity : Entity
+    public class MobEntity : Entity
     {
         public static Dictionary<string, StaticMobData> MobMappingByDisplayName = new Dictionary<string, StaticMobData>();
         public static Dictionary<MobTypeEnum, StaticMobData> StaticMobData = new Dictionary<MobTypeEnum, StaticMobData>();
@@ -585,7 +584,7 @@ namespace IsengardClient
         }
     }
 
-    internal class StaticMobData
+    public class StaticMobData
     {
         public MobTypeEnum MobType { get; set; }
         public string SingularName { get; set; }
@@ -629,12 +628,12 @@ namespace IsengardClient
         }
     }
 
-    internal class NamedEntity : Entity
+    public class NamedEntity : Entity
     {
         public string Name { get; set; }
     }
 
-    internal class PlayerEntity : NamedEntity
+    public class PlayerEntity : NamedEntity
     {
         /// <summary>
         /// creates an unknown player entity
@@ -689,7 +688,7 @@ namespace IsengardClient
         }
     }
 
-    internal class UnknownMobEntity : MobEntity
+    public class UnknownMobEntity : MobEntity
     {
         public string Name { get; set; }
         public UnknownMobEntity(string Name, int count, int setCount) : base(null, count, setCount)
@@ -701,7 +700,7 @@ namespace IsengardClient
     /// <summary>
     /// entity whose type is not unknown
     /// </summary>
-    internal class UnknownTypeEntity : NamedEntity
+    public class UnknownTypeEntity : NamedEntity
     {
         private EntityTypeFlags PossibleTypes { get; set; }
         public UnknownTypeEntity(string Name, int count, EntityTypeFlags possibleTypes)
@@ -721,7 +720,7 @@ namespace IsengardClient
     }
 
 
-    internal class EntityChange
+    public class EntityChange
     {
         public EntityChange()
         {
@@ -875,7 +874,7 @@ namespace IsengardClient
         }
     }
 
-    internal class CurrentEntityInfo
+    public class CurrentEntityInfo
     {
         public Dictionary<SpellProficiency, int> UserSpellProficiencies { get; set; }
         public object SkillsLock { get; set; }
@@ -1914,7 +1913,7 @@ namespace IsengardClient
             return ret;
         }
     }
-    internal class EntityChangeEntry
+    public class EntityChangeEntry
     {
         /// <summary>
         /// unknown type entity

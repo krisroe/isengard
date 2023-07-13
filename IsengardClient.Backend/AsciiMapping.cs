@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-namespace IsengardClient
+namespace IsengardClient.Backend
 {
     public static class AsciiMapping
     {
