@@ -1492,12 +1492,19 @@ namespace IsengardClient.Backend
         }
 
         /// <summary>
-        /// pick selectio text for a mob, assumes the entity lock is present
+        /// pick selection text for a mob, assumes the entity lock is present
         /// </summary>
         /// <param name="mobType">mob type</param>
         /// <param name="sourceList">source mob list (either room mobs or permanent mobs)</param>
         /// <param name="iActualIndex">actual index in the list to look for the mob at</param>
-        /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
+        /// <param name="validateAgainstOtherSources">
+        /// whether to validate for duplicates in higher priority locations
+        /// The look priority list is as follows:
+        /// 1. Inventory
+        /// 2. Equipment
+        /// 3. Room Items
+        /// 4. Mobs
+        /// </param>
         /// <returns>selection text for the mob</returns>
         public string PickMobTextFromActualIndex(MobTypeEnum mobType, List<MobTypeEnum> sourceList, int iActualIndex, bool validateAgainstOtherSources)
         {
@@ -1605,6 +1612,21 @@ namespace IsengardClient.Backend
             return ret;
         }
 
+        /// <summary>
+        /// retrieves selection text for selecting a specific item
+        /// </summary>
+        /// <param name="locationType">location for the item</param>
+        /// <param name="itemType">item type</param>
+        /// <param name="iActualIndex">actual index of the item in its location</param>
+        /// <param name="validateAgainstOtherSources">
+        /// whether to validate against other source
+        /// The look priority list is as follows:
+        /// 1. Inventory
+        /// 2. Equipment
+        /// 3. Room Items
+        /// 4. Mobs
+        /// </param>
+        /// <returns>selection text for the item, or null/blank if not found</returns>
         public string PickItemTextFromActualIndex(ItemLocationType locationType, ItemTypeEnum itemType, int iActualIndex, bool validateAgainstOtherSources)
         {
             string ret = null;
