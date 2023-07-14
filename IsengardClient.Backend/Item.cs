@@ -1503,6 +1503,9 @@ namespace IsengardClient.Backend
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         [EquipmentType(EquipmentType.Finger)]
+        [Weight(1)]
+        [ArmorClass(0.1)]
+        [Sellable(SellableEnum.Junk)]
         IronRing,
 
         [SingularName("iron spear")]
