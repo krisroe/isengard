@@ -3330,11 +3330,11 @@ StartProcessRoom:
                 }
                 else if (remainder.EndsWith(" maims"))
                 {
-                    matches = true; //typically 21-24
+                    matches = true; //typically 21-25
                 }
                 else if (remainder.EndsWith(" pulverizes"))
                 {
-                    matches = true; //CSRTODO: 26-31
+                    matches = true; //typically 26-31
                 }
                 else if (remainder.EndsWith(" devestates"))
                 {

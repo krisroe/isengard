@@ -972,6 +972,10 @@
         [PluralName("maids")]
         Maid,
 
+        [SingularName("maiden")]
+        [PluralName("maidens")]
+        Maiden,
+
         [SingularName("Malika")]
         //CSRTODO: no plural
         [Experience(380)]
