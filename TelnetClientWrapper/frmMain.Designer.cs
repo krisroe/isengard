@@ -71,7 +71,6 @@
             this.btnGoToInventorySink = new System.Windows.Forms.Button();
             this.btnPermRuns = new System.Windows.Forms.Button();
             this.btnFerry = new System.Windows.Forms.Button();
-            this.lblArmorClassValue = new System.Windows.Forms.Label();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
             this.lblGold = new System.Windows.Forms.Label();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
@@ -163,6 +162,7 @@
             this.tsmiImportFromPlayer = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiQuitWithoutSaving = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRestoreDefaults = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiOpenLogFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbReloadMap = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.tsbLogout = new System.Windows.Forms.ToolStripButton();
@@ -175,7 +175,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.tsmiOpenLogFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -606,7 +605,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1263, 1057);
+            this.tcMain.Size = new System.Drawing.Size(1579, 1306);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -617,7 +616,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1255, 1028);
+            this.tabMain.Size = new System.Drawing.Size(1571, 1277);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -627,7 +626,6 @@
             this.pnlMain.Controls.Add(this.btnGoToInventorySink);
             this.pnlMain.Controls.Add(this.btnPermRuns);
             this.pnlMain.Controls.Add(this.btnFerry);
-            this.pnlMain.Controls.Add(this.lblArmorClassValue);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblGold);
             this.pnlMain.Controls.Add(this.lblToNextLevelValue);
@@ -718,17 +716,6 @@
             this.btnFerry.UseVisualStyleBackColor = true;
             this.btnFerry.Click += new System.EventHandler(this.btnFerry_Click);
             // 
-            // lblArmorClassValue
-            // 
-            this.lblArmorClassValue.BackColor = System.Drawing.Color.DarkKhaki;
-            this.lblArmorClassValue.Location = new System.Drawing.Point(717, 94);
-            this.lblArmorClassValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblArmorClassValue.Name = "lblArmorClassValue";
-            this.lblArmorClassValue.Size = new System.Drawing.Size(144, 22);
-            this.lblArmorClassValue.TabIndex = 152;
-            this.lblArmorClassValue.Text = "Value";
-            this.lblArmorClassValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // btnGoToPawnShop
             // 
             this.btnGoToPawnShop.Enabled = false;
@@ -745,7 +732,7 @@
             // lblGold
             // 
             this.lblGold.BackColor = System.Drawing.Color.YellowGreen;
-            this.lblGold.Location = new System.Drawing.Point(717, 66);
+            this.lblGold.Location = new System.Drawing.Point(717, 64);
             this.lblGold.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblGold.Name = "lblGold";
             this.lblGold.Size = new System.Drawing.Size(144, 22);
@@ -929,7 +916,7 @@
             this.lblAutoEscapeValue.BackColor = System.Drawing.Color.Black;
             this.lblAutoEscapeValue.ContextMenuStrip = this.ctxAutoEscape;
             this.lblAutoEscapeValue.ForeColor = System.Drawing.Color.White;
-            this.lblAutoEscapeValue.Location = new System.Drawing.Point(717, 121);
+            this.lblAutoEscapeValue.Location = new System.Drawing.Point(717, 89);
             this.lblAutoEscapeValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAutoEscapeValue.Name = "lblAutoEscapeValue";
             this.lblAutoEscapeValue.Size = new System.Drawing.Size(144, 22);
@@ -1526,10 +1513,10 @@
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 49);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1057);
+            this.pnlTabControl.Size = new System.Drawing.Size(1579, 1306);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1551,7 +1538,7 @@
             this.tsbLogout});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(1263, 27);
+            this.tsTopMenu.Size = new System.Drawing.Size(1579, 39);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1561,7 +1548,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
+            this.tsbInformation.Size = new System.Drawing.Size(91, 36);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1674,51 +1661,58 @@
             // tsmiEditSettings
             // 
             this.tsmiEditSettings.Name = "tsmiEditSettings";
-            this.tsmiEditSettings.Size = new System.Drawing.Size(224, 26);
+            this.tsmiEditSettings.Size = new System.Drawing.Size(222, 26);
             this.tsmiEditSettings.Text = "Edit";
             this.tsmiEditSettings.Click += new System.EventHandler(this.tsmiEditSettings_Click);
             // 
             // tsmiExportXML
             // 
             this.tsmiExportXML.Name = "tsmiExportXML";
-            this.tsmiExportXML.Size = new System.Drawing.Size(224, 26);
+            this.tsmiExportXML.Size = new System.Drawing.Size(222, 26);
             this.tsmiExportXML.Text = "Export XML";
             this.tsmiExportXML.Click += new System.EventHandler(this.tsmiExportXML_Click);
             // 
             // tsmiImportXML
             // 
             this.tsmiImportXML.Name = "tsmiImportXML";
-            this.tsmiImportXML.Size = new System.Drawing.Size(224, 26);
+            this.tsmiImportXML.Size = new System.Drawing.Size(222, 26);
             this.tsmiImportXML.Text = "Import XML";
             this.tsmiImportXML.Click += new System.EventHandler(this.tsmiImportXML_Click);
             // 
             // tsmiSaveSettings
             // 
             this.tsmiSaveSettings.Name = "tsmiSaveSettings";
-            this.tsmiSaveSettings.Size = new System.Drawing.Size(224, 26);
+            this.tsmiSaveSettings.Size = new System.Drawing.Size(222, 26);
             this.tsmiSaveSettings.Text = "Save Settings";
             this.tsmiSaveSettings.Click += new System.EventHandler(this.tsmiSaveSettings_Click);
             // 
             // tsmiImportFromPlayer
             // 
             this.tsmiImportFromPlayer.Name = "tsmiImportFromPlayer";
-            this.tsmiImportFromPlayer.Size = new System.Drawing.Size(224, 26);
+            this.tsmiImportFromPlayer.Size = new System.Drawing.Size(222, 26);
             this.tsmiImportFromPlayer.Text = "Import from Player";
             this.tsmiImportFromPlayer.Click += new System.EventHandler(this.tsmiImportFromPlayer_Click);
             // 
             // tsmiQuitWithoutSaving
             // 
             this.tsmiQuitWithoutSaving.Name = "tsmiQuitWithoutSaving";
-            this.tsmiQuitWithoutSaving.Size = new System.Drawing.Size(224, 26);
+            this.tsmiQuitWithoutSaving.Size = new System.Drawing.Size(222, 26);
             this.tsmiQuitWithoutSaving.Text = "Quit without Saving";
             this.tsmiQuitWithoutSaving.Click += new System.EventHandler(this.tsmiQuitWithoutSaving_Click);
             // 
             // tsmiRestoreDefaults
             // 
             this.tsmiRestoreDefaults.Name = "tsmiRestoreDefaults";
-            this.tsmiRestoreDefaults.Size = new System.Drawing.Size(224, 26);
+            this.tsmiRestoreDefaults.Size = new System.Drawing.Size(222, 26);
             this.tsmiRestoreDefaults.Text = "Restore Defaults";
             this.tsmiRestoreDefaults.Click += new System.EventHandler(this.tsmiRestoreDefaults_Click);
+            // 
+            // tsmiOpenLogFolder
+            // 
+            this.tsmiOpenLogFolder.Name = "tsmiOpenLogFolder";
+            this.tsmiOpenLogFolder.Size = new System.Drawing.Size(222, 26);
+            this.tsmiOpenLogFolder.Text = "Open Log Folder";
+            this.tsmiOpenLogFolder.Click += new System.EventHandler(this.tsmiOpenLogFolder_Click);
             // 
             // tsbReloadMap
             // 
@@ -1835,13 +1829,6 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(271, 62);
             this.pnlCommand.TabIndex = 30;
-            // 
-            // tsmiOpenLogFolder
-            // 
-            this.tsmiOpenLogFolder.Name = "tsmiOpenLogFolder";
-            this.tsmiOpenLogFolder.Size = new System.Drawing.Size(224, 26);
-            this.tsmiOpenLogFolder.Text = "Open Log Folder";
-            this.tsmiOpenLogFolder.Click += new System.EventHandler(this.tsmiOpenLogFolder_Click);
             // 
             // frmMain
             // 
@@ -2031,7 +2018,6 @@
         private System.Windows.Forms.ToolStripButton tsbReloadMap;
         private System.Windows.Forms.ContextMenuStrip ctxMessages;
         private System.Windows.Forms.ToolStripMenuItem tsmiCopyMessages;
-        private System.Windows.Forms.Label lblArmorClassValue;
         private System.Windows.Forms.ToolStripDropDownButton tsddbSettings;
         private System.Windows.Forms.ToolStripMenuItem tsmiEditSettings;
         private System.Windows.Forms.ToolStripMenuItem tsmiExportXML;

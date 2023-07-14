@@ -572,14 +572,14 @@ namespace IsengardClient.Backend
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -666,8 +666,8 @@ namespace IsengardClient.Backend
                 bool foundHit = false;
                 bool foundMagic = false;
                 bool foundAC = false;
-                double armorClass = 0;
-                string armorClassText = string.Empty;
+                decimal armorClass = 0;
+                bool armorClassIsExact = false;
                 bool foundArmorClass = false;
                 foreach (string nextWord in words)
                 {
@@ -693,11 +693,11 @@ namespace IsengardClient.Backend
                     }
                     else if (foundAC && !foundArmorClass)
                     {
-                        if (!double.TryParse(nextWord, out armorClass))
+                        if (!decimal.TryParse(nextWord, out armorClass))
                         {
                             return;
                         }
-                        armorClassText = nextWord;
+                        armorClassIsExact = nextWord.Contains(".");
                         foundArmorClass = true;
                     }
                     else if (!foundAC && nextWord == "AC:")
@@ -818,7 +818,7 @@ namespace IsengardClient.Backend
                     return;
                 }
 
-                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassText, iGold, iTNL, cooldowns, spells, playerStatusFlags);
+                _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassIsExact, iGold, iTNL, cooldowns, spells, playerStatusFlags);
                 flParams.FinishedProcessing = true;
             }
         }

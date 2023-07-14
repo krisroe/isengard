@@ -350,7 +350,7 @@ namespace IsengardClient.Backend
         /// weight of the item. Null if unknown. It's nullable because a zero pound item has been observed (string of pearls)
         /// </summary>
         public int? Weight { get; set; }
-        public double ArmorClass { get; set; }
+        public decimal ArmorClass { get; set; }
         public SellableEnum Sellable { get; set; }
         public int SellGold { get; set; }
         public ClassTypeFlags DisallowedClasses { get; set; }

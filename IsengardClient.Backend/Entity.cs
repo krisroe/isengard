@@ -877,7 +877,6 @@ namespace IsengardClient.Backend
     public class CurrentEntityInfo
     {
         public Dictionary<SpellProficiency, int> UserSpellProficiencies { get; set; }
-        public object SkillsLock { get; set; }
         public List<SkillCooldown> SkillsCooldowns { get; set; }
         public object SpellsKnownLock { get; set; }
         public List<string> SpellsKnown { get; set; }
@@ -911,6 +910,14 @@ namespace IsengardClient.Backend
         /// unknown equipment
         /// </summary>
         public List<ItemEntity> UnknownEquipment { get; set; }
+
+        public decimal ArmorClassScore { get; set; }
+        public decimal ArmorClassScoreUI { get; set; }
+        public bool ArmorClassScoreExact { get; set; }
+        public bool ArmorClassScoreExactUI { get; set; }
+        public decimal ArmorClassCalculated { get; set; }
+        public decimal ArmorClassCalculatedUI { get; set; }
+
         public List<string> CurrentObviousExits { get; set; }
         public TreeNode tnObviousMobs { get; set; }
         public bool ObviousMobsTNExpanded { get; set; }
@@ -928,7 +935,6 @@ namespace IsengardClient.Backend
         public CurrentEntityInfo()
         {
             UserSpellProficiencies = new Dictionary<SpellProficiency, int>();
-            SkillsLock = new object();
             SkillsCooldowns = new List<SkillCooldown>();
             SpellsKnownLock = new object();
             SpellsKnown = new List<string>();
@@ -972,7 +978,7 @@ namespace IsengardClient.Backend
         {
             DateTime utcNow = DateTime.UtcNow;
             PromptedSkills skills = PromptedSkills.None;
-            lock (SkillsLock)
+            lock (EntityLock)
             {
                 foreach (SkillCooldown nextCooldown in SkillsCooldowns)
                 {

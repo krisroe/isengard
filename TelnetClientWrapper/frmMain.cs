@@ -58,7 +58,6 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
 
-        private object _spellsCastLock = new object();
         private List<string> _spellsCast = new List<string>();
         private bool _refreshSpellsCast = false;
 
@@ -78,12 +77,6 @@ namespace IsengardClient
         private bool _enteredPassword;
         private int _totalhp = 0;
         private int _totalmp = 0;
-        private double _armorClass = 0;
-        private double _armorClassUI = 0;
-        private string _armorClassText = string.Empty;
-        private string _armorClassTextUI = string.Empty;
-        private double _armorClassCalculated = 0;
-        private double _armorClassCalculatedUI = 0;
         private int _gold = -1;
         private int _goldUI = -1;
         private int _experience = -1;
@@ -963,12 +956,9 @@ namespace IsengardClient
             _experienceUI = -1;
             _tnl = -1;
             _tnlUI = -1;
-            lock (_currentEntityInfo.SkillsLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 _currentEntityInfo.SkillsCooldowns.Clear();
-            }
-            lock (_spellsCastLock)
-            {
                 _spellsCast.Clear();
                 _refreshSpellsCast = true;
             }
@@ -1039,12 +1029,12 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, double armorClass, string armorClassText, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, PlayerStatusFlags playerStatusFlags)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, decimal armorClass, bool armorClassIsExact, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, PlayerStatusFlags playerStatusFlags)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
 
-            lock (_currentEntityInfo.SkillsLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 bool clear = false;
                 if (cooldowns.Count != _currentEntityInfo.SkillsCooldowns.Count)
@@ -1077,9 +1067,6 @@ namespace IsengardClient
                         oExisting.NextAvailable = oNew.NextAvailable;
                     }
                 }
-            }
-            lock (_spellsCastLock)
-            {
                 _spellsCast.Clear();
                 _spellsCast.AddRange(spells);
                 _refreshSpellsCast = true;
@@ -1089,39 +1076,12 @@ namespace IsengardClient
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
-            _armorClass = armorClass;
-            _armorClassText = armorClassText;
 
-            bool hasProtection;
-            lock (_spellsCastLock)
-            {
-                hasProtection = _spellsCast.Contains("protection");
-            }
             lock (_currentEntityInfo.EntityLock)
             {
-                bool calculatedArmorClassSuccessful = true;
-                double calculatedArmorClass = hasProtection ? 1 : 0;
-                for (int i = 0; i < (int)EquipmentSlot.Count; i++)
-                {
-                    if (i != (int)EquipmentSlot.Held && i != (int)EquipmentSlot.Weapon1 && i != (int)EquipmentSlot.Weapon2)
-                    {
-                        ItemTypeEnum? nextEquipment = _currentEntityInfo.Equipment[i];
-                        if (nextEquipment.HasValue)
-                        {
-                            StaticItemData sid = ItemEntity.StaticItemData[nextEquipment.Value];
-                            if (sid.ArmorClass > 0)
-                            {
-                                calculatedArmorClass += sid.ArmorClass;
-                            }
-                            else //unknown
-                            {
-                                calculatedArmorClassSuccessful = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-                _armorClassCalculated = calculatedArmorClassSuccessful ? calculatedArmorClass : -1;
+                _currentEntityInfo.ArmorClassScore = armorClass;
+                _currentEntityInfo.ArmorClassScoreExact = armorClassIsExact;
+                CalculateArmorClass();
             }
 
             _gold = gold;
@@ -1927,7 +1887,21 @@ namespace IsengardClient
 
         private void OnManashieldOn(FeedLineParameters flParams)
         {
-            ChangeSkillActive(SkillWithCooldownType.Manashield, true);
+            lock (_currentEntityInfo.EntityLock)
+            {
+                if (ChangeSkillActive(SkillWithCooldownType.Manashield, true))
+                {
+                    decimal armorClassCalculated = _currentEntityInfo.ArmorClassCalculated;
+                    if (armorClassCalculated >= 0)
+                    {
+                        decimal armorClassManashield = GetManashieldArmorClass();
+                        if (armorClassManashield > armorClassCalculated)
+                        {
+                            OnDeltaArmorClass(armorClassManashield - armorClassCalculated);
+                        }
+                    }
+                }
+            }
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
             {
@@ -1945,20 +1919,24 @@ namespace IsengardClient
             }
         }
 
-        private void ChangeSkillActive(SkillWithCooldownType skill, bool active)
+        private bool ChangeSkillActive(SkillWithCooldownType skill, bool active)
         {
-            lock (_currentEntityInfo.SkillsLock)
+            bool ret = false;
+            lock (_currentEntityInfo.EntityLock)
             {
                 foreach (SkillCooldown nextCooldown in _currentEntityInfo.SkillsCooldowns)
                 {
                     if (nextCooldown.SkillType == skill)
                     {
-                        nextCooldown.Status = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
+                        SkillCooldownStatus newStatus = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
+                        ret = newStatus != nextCooldown.Status;
+                        nextCooldown.Status = newStatus;
                         nextCooldown.NextAvailable = DateTime.MinValue;
                         break;
                     }
                 }
             }
+            return ret;
         }
 
         private void OnWaitXSeconds(int waitSeconds, FeedLineParameters flParams)
@@ -2002,8 +1980,9 @@ namespace IsengardClient
             bool changed = false;
             if (spellNames != null && spellNames.Count > 0)
             {
-                lock (_spellsCast)
+                lock (_currentEntityInfo.EntityLock)
                 {
+                    bool addedProtection = false;
                     foreach (string nextSpell in spellNames)
                     {
                         if (!_spellsCast.Contains(nextSpell))
@@ -2012,6 +1991,7 @@ namespace IsengardClient
                             {
                                 _spellsCast.Remove("None");
                             }
+                            addedProtection |= nextSpell == "protection";
                             _spellsCast.Add(nextSpell);
                             changed = true;
                         }
@@ -2019,6 +1999,10 @@ namespace IsengardClient
                     if (changed)
                     {
                         _refreshSpellsCast = true;
+                    }
+                    if (addedProtection)
+                    {
+                        OnDeltaArmorClass(1);
                     }
                 }
             }
@@ -2295,15 +2279,15 @@ namespace IsengardClient
         
         private void OnAttack(bool fumbled, int damage, bool killedMonster, MobTypeEnum? eMobType, int experience, bool powerAttacked, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
-            if (powerAttacked)
+            lock (_currentEntityInfo.EntityLock)
             {
-                ChangeSkillActive(SkillWithCooldownType.PowerAttack, false);
-            }
-            _experience += experience;
-            _tnl = Math.Max(0, _tnl - experience);
-            if (fumbled)
-            {
-                lock (_currentEntityInfo.EntityLock)
+                if (powerAttacked)
+                {
+                    ChangeSkillActive(SkillWithCooldownType.PowerAttack, false);
+                }
+                _experience += experience;
+                _tnl = Math.Max(0, _tnl - experience);
+                if (fumbled)
                 {
                     ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
                     if (weaponIT.HasValue)
@@ -2311,9 +2295,6 @@ namespace IsengardClient
                         AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip, null);
                     }
                 }
-            }
-            lock (_currentEntityInfo.EntityLock)
-            {
                 bool hasMonsterItems = monsterItems.Count > 0;
                 if (flParams.IsFightingMob)
                 {
@@ -2455,6 +2436,95 @@ namespace IsengardClient
                     flParams.SetSuppressEcho(_runningHiddenCommand);
                 }
             }
+        }
+
+        /// <summary>
+        /// handles changing armor class by the specific delta. assumes the entity lock.
+        /// </summary>
+        /// <param name="delta">delta</param>
+        private void OnDeltaArmorClass(decimal? delta)
+        {
+            if (delta.HasValue)
+            {
+                decimal deltaValue = delta.Value;
+                if ((int)deltaValue == deltaValue)
+                {
+                    if (_currentEntityInfo.ArmorClassScore >= 0)
+                    {
+                        _currentEntityInfo.ArmorClassScore += deltaValue;
+                    }
+                }
+                else //fractional change in delta
+                {
+                    _currentEntityInfo.ArmorClassScore = -1;
+                    _currentEntityInfo.ArmorClassScoreExact = false;
+                }
+                CalculateArmorClass();
+            }
+            else
+            {
+                _currentEntityInfo.ArmorClassScore = -1;
+                _currentEntityInfo.ArmorClassScoreExact = false;
+                _currentEntityInfo.ArmorClassCalculated = -1;
+            }
+        }
+
+        /// <summary>
+        /// calculates armor class from current spells, skills, and equipment. assumes the entity lock.
+        /// </summary>
+        private void CalculateArmorClass()
+        {
+            bool hasProtection = _spellsCast.Contains("protection");
+            bool hasManashield = false;
+            foreach (SkillCooldown sc in _currentEntityInfo.SkillsCooldowns)
+            {
+                if (sc.SkillType == SkillWithCooldownType.Manashield)
+                {
+                    hasManashield = sc.Status == SkillCooldownStatus.Active;
+                    break;
+                }
+            }
+            bool calculatedArmorClassSuccessful = true;
+            decimal calculatedArmorClass = hasProtection ? 1 : 0;
+            for (int i = 0; i < (int)EquipmentSlot.Count; i++)
+            {
+                if (i != (int)EquipmentSlot.Held && i != (int)EquipmentSlot.Weapon1 && i != (int)EquipmentSlot.Weapon2)
+                {
+                    ItemTypeEnum? nextEquipment = _currentEntityInfo.Equipment[i];
+                    if (nextEquipment.HasValue)
+                    {
+                        StaticItemData sid = ItemEntity.StaticItemData[nextEquipment.Value];
+                        if (sid.ArmorClass > 0)
+                        {
+                            calculatedArmorClass += sid.ArmorClass;
+                        }
+                        else //unknown
+                        {
+                            calculatedArmorClassSuccessful = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            decimal calculatedArmorClassToSet = -1;
+            if (calculatedArmorClassSuccessful)
+            {
+                calculatedArmorClassToSet = calculatedArmorClass;
+                if (hasManashield)
+                {
+                    decimal armorClassManashield = GetManashieldArmorClass();
+                    if (armorClassManashield > calculatedArmorClassToSet)
+                    {
+                        calculatedArmorClassToSet = armorClassManashield;
+                    }
+                }
+            }
+            _currentEntityInfo.ArmorClassCalculated = calculatedArmorClassToSet;
+        }
+
+        private decimal GetManashieldArmorClass()
+        {
+            return 7 + (_level / 3);
         }
 
         private void OnInformationalMessages(FeedLineParameters flp, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
@@ -2771,12 +2841,14 @@ namespace IsengardClient
             }
             if (spellsOff != null)
             {
-                lock (_spellsCast)
+                lock (_currentEntityInfo.EntityLock)
                 {
+                    bool removedProtection = false;
                     foreach (string nextSpell in spellsOff)
                     {
                         if (_spellsCast.Contains(nextSpell))
                         {
+                            removedProtection |= nextSpell == "protection";
                             _spellsCast.Remove(nextSpell);
                             if (_spellsCast.Count == 0)
                             {
@@ -2784,6 +2856,10 @@ namespace IsengardClient
                             }
                             _refreshSpellsCast = true;
                         }
+                    }
+                    if (removedProtection)
+                    {
+                        OnDeltaArmorClass(-1);
                     }
                 }
             }
@@ -3072,6 +3148,7 @@ namespace IsengardClient
             lock (_currentEntityInfo.EntityLock)
             {
                 EntityChangeEntry changeEntry;
+                decimal? armorClassDelta = 0;
                 foreach (ItemEntity nextItemEntity in items)
                 {
                     bool addChange = false;
@@ -3087,6 +3164,22 @@ namespace IsengardClient
                     }
                     if (changeType == EntityChangeType.EquipItem || removeEquipment)
                     {
+                        if (sid == null)
+                        {
+                            armorClassDelta = null;
+                        }
+                        else if (armorClassDelta.HasValue)
+                        {
+                            if (sid.EquipmentType != EquipmentType.Wielded && sid.EquipmentType != EquipmentType.Holding)
+                            {
+                                if (sid.ArmorClass <= 0)
+                                    armorClassDelta = null;
+                                else if (removeEquipment)
+                                    armorClassDelta = armorClassDelta.Value - sid.ArmorClass;
+                                else
+                                    armorClassDelta = armorClassDelta + sid.ArmorClass;
+                            }
+                        }
                         if (sid != null && sid.EquipmentType != EquipmentType.Unknown)
                         {
                             foreach (EquipmentSlot nextSlot in CurrentEntityInfo.GetSlotsForEquipmentType(sid.EquipmentType, removeEquipment))
@@ -3199,6 +3292,10 @@ namespace IsengardClient
                     {
                         iec.Changes.Add(changeEntry);
                     }
+                }
+                if (armorClassDelta.HasValue && armorClassDelta.Value != 0)
+                {
+                    OnDeltaArmorClass(armorClassDelta.Value);
                 }
                 if (sioei != null && action == ItemManagementAction.Trade) //remove traded item from inventory
                 {
@@ -4949,7 +5046,7 @@ BeforeHazy:
                     bool runScore = userInitiatedScore;
                     if (!runScore)
                     {
-                        lock (_currentEntityInfo.SkillsLock)
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             foreach (SkillCooldown next in _currentEntityInfo.SkillsCooldowns)
                             {
@@ -5004,12 +5101,9 @@ BeforeHazy:
             if (spellsToPot != WorkflowSpells.None)
             {
                 List<string> spellsCast = new List<string>();
-                lock (_spellsCastLock)
-                {
-                    spellsCast.AddRange(_spellsCast);
-                }
                 lock (_currentEntityInfo.EntityLock) //validate spells are either active or have a potion for them
                 {
+                    spellsCast.AddRange(_spellsCast);
                     foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
                     {
                         if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
@@ -5567,7 +5661,7 @@ BeforeHazy:
             castWorkflowSpells &= ~WorkflowSpells.CurePoison;
             if (castWorkflowSpells != WorkflowSpells.None)
             {
-                lock (_spellsCastLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     foreach (WorkflowSpells nextWorkflowSpell in Enum.GetValues(typeof(WorkflowSpells)))
                     {
@@ -5951,7 +6045,7 @@ BeforeHazy:
                                 SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextSpell];
                                 string spellName = sia.SpellName;
                                 bool hasSpellActive;
-                                lock (_spellsCastLock)
+                                lock (_currentEntityInfo.EntityLock)
                                 {
                                     hasSpellActive = _spellsCast.Contains(spellName);
                                 }
@@ -8125,7 +8219,7 @@ BeforeHazy:
 
                 //refresh cooldowns (active and timers)
                 List<SkillCooldown> cooldowns = new List<SkillCooldown>();
-                lock (_currentEntityInfo.SkillsLock)
+                lock (_currentEntityInfo.EntityLock)
                 {
                     cooldowns.AddRange(_currentEntityInfo.SkillsCooldowns);
                 }
@@ -8214,7 +8308,7 @@ BeforeHazy:
                 if (_refreshSpellsCast)
                 {
                     List<string> spells = new List<string>();
-                    lock (_spellsCastLock)
+                    lock (_currentEntityInfo.EntityLock)
                     {
                         spells.AddRange(_spellsCast);
                         _refreshSpellsCast = false;
@@ -8276,11 +8370,41 @@ BeforeHazy:
             }
             if ((initStep & InitializationStep.Equipment) != InitializationStep.None)
             {
-                iTotalWeight = _currentEntityInfo.TotalEquipmentWeight;
-                if (iTotalWeight != _currentEntityInfo.TotalEquipmentWeightUI)
+                decimal dArmorClassScore = _currentEntityInfo.ArmorClassScore;
+                bool bArmorClassScoreIsExact = _currentEntityInfo.ArmorClassScoreExact;
+                decimal dArmorClassCalculated = _currentEntityInfo.ArmorClassCalculated;
+                lock (_currentEntityInfo.EntityLock)
                 {
-                    grpEquipment.Text = "Equipment (" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() + " lbs" : "?") + ")";
+                    dArmorClassScore = _currentEntityInfo.ArmorClassScore;
+                    bArmorClassScoreIsExact = _currentEntityInfo.ArmorClassScoreExact;
+                    dArmorClassCalculated = _currentEntityInfo.ArmorClassCalculated;
+                    iTotalWeight = _currentEntityInfo.TotalEquipmentWeight;
+                }
+                if (iTotalWeight != _currentEntityInfo.TotalEquipmentWeightUI || dArmorClassScore != _currentEntityInfo.ArmorClassScoreUI || bArmorClassScoreIsExact != _currentEntityInfo.ArmorClassScoreExactUI || dArmorClassCalculated != _currentEntityInfo.ArmorClassCalculatedUI)
+                {
+                    string sEquipmentText = "Equipment (#" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() : "?") + " ";
+                    if (dArmorClassCalculated >= 0)
+                    {
+                        sEquipmentText += dArmorClassCalculated.ToString("N1") + "ac)";
+                    }
+                    else if (dArmorClassScore >= 0)
+                    {
+                        if (bArmorClassScoreIsExact)
+                        {
+                            sEquipmentText += dArmorClassScore.ToString("N1") + "ac)";
+                        }
+                        else
+                        {
+                            sEquipmentText += dArmorClassScore.ToString("N0") + "ac)";
+                        }
+                    }
+
+                    grpEquipment.Text = sEquipmentText;
+
                     _currentEntityInfo.TotalEquipmentWeightUI = iTotalWeight;
+                    _currentEntityInfo.ArmorClassScoreUI = dArmorClassScore;
+                    _currentEntityInfo.ArmorClassScoreExactUI = bArmorClassScoreIsExact;
+                    _currentEntityInfo.ArmorClassCalculatedUI = dArmorClassCalculated;
                 }
             }
 
@@ -8330,29 +8454,6 @@ BeforeHazy:
             {
                 grpCurrentPlayer.Text = sCurrentPlayerHeader;
                 _currentPlayerHeaderUI = sCurrentPlayerHeader;
-            }
-
-            double dArmorClass = _armorClass;
-            string sArmorClassText = _armorClassText;
-            double dArmorClassCalculated = _armorClassCalculated;
-            if (dArmorClass != _armorClassUI || dArmorClassCalculated != _armorClassCalculatedUI || sArmorClassText != _armorClassTextUI)
-            {
-                bool isExact = sArmorClassText.Contains(".");
-                if (isExact)
-                {
-                    lblArmorClassValue.Text = "AC: " + sArmorClassText;
-                }
-                else if (dArmorClassCalculated != -1)
-                {
-                    lblArmorClassValue.Text = "AC: " + sArmorClassText + " (" + dArmorClassCalculated.ToString("N1") + ")";
-                }
-                else
-                {
-                    lblArmorClassValue.Text = "AC: " + sArmorClassText;
-                }
-                _armorClassUI = dArmorClass;
-                _armorClassCalculatedUI = dArmorClassCalculated;
-                _armorClassTextUI = sArmorClassText;
             }
 
             int iGold = _gold;
@@ -9413,7 +9514,7 @@ BeforeHazy:
         private GraphInputs GetGraphInputs()
         {
             bool flying, levitating;
-            lock (_spellsCastLock)
+            lock (_currentEntityInfo.EntityLock)
             {
                 flying = _spellsCast.Contains("fly");
                 levitating = _spellsCast.Contains("levitation");

@@ -238,19 +238,19 @@ namespace IsengardClient.Tests
             int iLevel = -1;
             int iMaxHP = -1;
             int iMaxMP = -1;
-            double armorClass = -1;
-            string sArmorClassText = null;
+            decimal armorClass = -1;
+            bool? armorClassIsExact = null;
             int iGold = -1;
             int iTNL = -1;
             PlayerStatusFlags? playerStatusFlags = null;
-            Action<FeedLineParameters, ClassType, int, int, int, double, string, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> a = (flpparam, ct, l, hp, mp, ac, actext, g, tnl, cs, ss, psf) =>
+            Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> a = (flpparam, ct, l, hp, mp, ac, acexact, g, tnl, cs, ss, psf) =>
             {
                 iLevel = l;
                 classType = ct;
                 iMaxHP = hp;
                 iMaxMP = mp;
                 armorClass = ac;
-                sArmorClassText = actext;
+                armorClassIsExact = acexact;
                 iGold = g;
                 iTNL = tnl;
                 cooldowns = cs;
@@ -265,7 +265,7 @@ namespace IsengardClient.Tests
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             armorClass = -1;
-            sArmorClassText = null;
+            armorClassIsExact = null;
             classType = null;
             playerStatusFlags = null;
             input.Clear();
@@ -286,7 +286,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(iMaxHP, 59);
             Assert.AreEqual(iMaxMP, 61);
             Assert.AreEqual(armorClass, 2);
-            Assert.AreEqual(sArmorClassText, "2");
+            Assert.AreEqual(armorClassIsExact, false);
             Assert.AreEqual(iGold, 376933);
             Assert.AreEqual(iTNL, 24115);
             Assert.IsNotNull(cooldowns);
@@ -306,7 +306,7 @@ namespace IsengardClient.Tests
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             armorClass = -1;
-            sArmorClassText = null;
+            armorClassIsExact = null;
             classType = null;
             playerStatusFlags = null;
             input.Clear();
@@ -326,8 +326,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iLevel == 1);
             Assert.IsTrue(iMaxHP == 159);
             Assert.IsTrue(iMaxMP == 261);
-            Assert.AreEqual(armorClass, 3.3);
-            Assert.AreEqual(sArmorClassText, "3.3");
+            Assert.AreEqual(armorClass, 3.3M);
+            Assert.AreEqual(armorClassIsExact, true);
             Assert.IsTrue(iTNL == 0);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
@@ -346,7 +346,7 @@ namespace IsengardClient.Tests
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             armorClass = -1;
-            sArmorClassText = null;
+            armorClassIsExact = null;
             classType = null;
             playerStatusFlags = null;
             input.Clear();
@@ -367,7 +367,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(iMaxHP == 9);
             Assert.IsTrue(iMaxMP == 9);
             Assert.AreEqual(armorClass, 2);
-            Assert.AreEqual(sArmorClassText, "2.0");
+            Assert.AreEqual(armorClassIsExact, true);
             Assert.IsTrue(iTNL == 14);
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);

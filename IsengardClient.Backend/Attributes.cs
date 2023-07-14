@@ -115,10 +115,10 @@ namespace IsengardClient.Backend
 
     public class ArmorClassAttribute : Attribute
     {
-        public double ArmorClass { get; set; }
+        public decimal ArmorClass { get; set; }
         public ArmorClassAttribute(double ArmorClass)
         {
-            this.ArmorClass = ArmorClass;
+            this.ArmorClass = Convert.ToDecimal(ArmorClass);
         }
     }
 

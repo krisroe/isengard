@@ -1,11 +1,6 @@
-﻿using IsengardClient.Properties;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System;
 using System.Net.NetworkInformation;
-using System.Reflection;
 using System.Windows.Forms;
-using System.Xml;
 namespace IsengardClient
 {
     internal static class Program
