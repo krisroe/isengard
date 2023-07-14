@@ -4118,7 +4118,7 @@ namespace IsengardClient
             else
             {
                 TimeSpan permRunTime;
-                if (bwp.Success && bwp.PermRunStart != DateTime.MinValue)
+                if (bwp.Success && bwp.PermRunStart != DateTime.MinValue && bwp.PermRun != null && bwp.PermRun.Flow != PermRunFlow.AdHocStrategy)
                 {
                     permRunTime = DateTime.UtcNow - bwp.PermRunStart;
                     int goldDiff = _gold - bwp.BeforeGold;
