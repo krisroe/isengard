@@ -1140,7 +1140,26 @@ namespace IsengardClient
             _initializationSteps = finishedSteps;
             if (finishedSteps == InitializationStep.BeforeFinalization)
             {
-                ProcessInitialLogin(flp);
+                IsengardSettings sets = IsengardSettings.Default;
+                sets.UserName = _username;
+                sets.Save();
+
+                InitialLoginInfo info = _loginInfo;
+                string sRoomName = info.RoomName;
+                if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false))
+                {
+                    _initializationSteps |= InitializationStep.Finalization;
+                    Room r = _currentEntityInfo.CurrentRoom;
+                    _setCurrentArea = r != null;
+                }
+                else
+                {
+                    flp.ErrorMessages.Add("Initial login failed!");
+                }
+                lock (_currentEntityInfo.EntityLock)
+                {
+                    CalculateArmorClass();
+                }
             }
             flp.SetSuppressEcho(true);
         }
@@ -1396,26 +1415,6 @@ namespace IsengardClient
                 cboArea.SelectedIndex = 0;
             else
                 cboArea.SelectedItem = newlySelectedArea;
-        }
-
-        private void ProcessInitialLogin(FeedLineParameters flp)
-        {
-            IsengardSettings sets = IsengardSettings.Default;
-            sets.UserName = _username;
-            sets.Save();
-
-            InitialLoginInfo info = _loginInfo;
-            string sRoomName = info.RoomName;
-            if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false))
-            {
-                _initializationSteps |= InitializationStep.Finalization;
-                Room r = _currentEntityInfo.CurrentRoom;
-                _setCurrentArea = r != null;
-            }
-            else
-            {
-                flp.ErrorMessages.Add("Initial login failed!");
-            }
         }
 
         private Room GetCurrentRoomIfUnambiguous(string sRoomName)
