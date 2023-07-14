@@ -105,7 +105,7 @@ namespace IsengardClient.Backend
         public bool GetNewPermRun { get; set; }
         public bool ExpectsMob()
         {
-            return MobType.HasValue || !string.IsNullOrEmpty(MobText) || (MobTextCounter >= 1 && MobTypeCounter >= 1);
+            return (MobType.HasValue && MobTypeCounter >= 1) || (!string.IsNullOrEmpty(MobText) && MobTextCounter >= 1);
         }
         public bool HasTargetMob()
         {

@@ -4539,12 +4539,22 @@ namespace IsengardClient
                             if (useMelee)
                             {
                                 backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    AddConsoleMessage("Failed to equip " + weaponItem.Value);
+                                    return;
+                                }
+                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                                 {
                                     return;
                                 }
                                 backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                                {
+                                    AddConsoleMessage("Failed to hold " + weaponItem.Value);
+                                    return;
+                                }
+                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                                 {
                                     return;
                                 }
