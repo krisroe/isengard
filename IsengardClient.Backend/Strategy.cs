@@ -476,36 +476,5 @@ namespace IsengardClient.Backend
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
         }
-
-        public static void GetMinMaxOffensiveSpellLevels(Strategy strategy, int currentMinLevel, int currentMaxLevel, List<string> knownSpells, List<string> realmSpells, out int? calculatedMinLevel, out int? calculatedMaxLevel)
-        {
-            if (strategy == null || strategy.AutoSpellLevelMin <= 0 || strategy.AutoSpellLevelMax <= 0 || strategy.AutoSpellLevelMax < strategy.AutoSpellLevelMin)
-            {
-                calculatedMinLevel = currentMinLevel;
-                calculatedMaxLevel = currentMaxLevel;
-            }
-            else
-            {
-                calculatedMinLevel = strategy.AutoSpellLevelMin;
-                calculatedMaxLevel = strategy.AutoSpellLevelMax;
-            }
-            while (true)
-            {
-                if (knownSpells.Contains(realmSpells[calculatedMaxLevel.Value - 1]))
-                {
-                    break;
-                }
-                else
-                {
-                    calculatedMaxLevel = calculatedMaxLevel.Value - 1;
-                    if (calculatedMaxLevel.Value < calculatedMinLevel.Value)
-                    {
-                        calculatedMaxLevel = null;
-                        calculatedMinLevel = null;
-                        break;
-                    }
-                }
-            }
-        }
     }
 }

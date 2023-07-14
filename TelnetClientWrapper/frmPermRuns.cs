@@ -333,19 +333,19 @@ namespace IsengardClient
             PromptedSkills missingSkills = requiredSkills & ~availableSkills;
             if (missingSkills != PromptedSkills.None)
             {
-                errorMessages.Add("Missing required skills: " + missingSkills.ToString().Replace(" ", ""));
+                errorMessages.Add("Missing required skills: " + StringProcessing.TrimFlagsEnumToString(missingSkills));
             }
             WorkflowSpells requiredCastableSpells = pr.SpellsToCast;
             WorkflowSpells missingCastableSpells = requiredCastableSpells & ~castableSpells;
             if (missingCastableSpells != WorkflowSpells.None)
             {
-                errorMessages.Add("Missing castable spells: " + missingCastableSpells.ToString().Replace(" ", ""));
+                errorMessages.Add("Missing castable spells: " + StringProcessing.TrimFlagsEnumToString(missingCastableSpells));
             }
             WorkflowSpells requiredPotionSpells = pr.SpellsToPotion;
             WorkflowSpells missingPotionSpells = requiredPotionSpells & ~availablePotions;
             if (missingPotionSpells != WorkflowSpells.None)
             {
-                errorMessages.Add("Missing potions for: " + missingPotionSpells.ToString().Replace(" ", ""));
+                errorMessages.Add("Missing potions for: " + StringProcessing.TrimFlagsEnumToString(missingPotionSpells));
             }
             bool ret = errorMessages.Count == 0;
             if (!ret)

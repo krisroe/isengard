@@ -7,23 +7,33 @@ namespace IsengardClient
 {
     internal class UIShared
     {
-        internal static Color GetColorForRealm(RealmType realm)
+        internal static Color GetColorForRealm(RealmTypeFlags realms, bool cycle)
         {
             Color ret = Color.Transparent;
-            switch (realm)
+            if (cycle)
             {
-                case RealmType.Earth:
-                    ret = Color.Tan;
-                    break;
-                case RealmType.Fire:
-                    ret = Color.LightSalmon;
-                    break;
-                case RealmType.Water:
-                    ret = Color.LightBlue;
-                    break;
-                case RealmType.Wind:
-                    ret = Color.LightGray;
-                    break;
+                ret = Color.Lavender;
+            }
+            else
+            {
+                switch (realms)
+                {
+                    case RealmTypeFlags.Earth:
+                        ret = Color.Tan;
+                        break;
+                    case RealmTypeFlags.Fire:
+                        ret = Color.LightSalmon;
+                        break;
+                    case RealmTypeFlags.Water:
+                        ret = Color.LightBlue;
+                        break;
+                    case RealmTypeFlags.Wind:
+                        ret = Color.LightGray;
+                        break;
+                    default:
+                        ret = Color.Magenta;
+                        break;
+                }
             }
             return ret;
         }

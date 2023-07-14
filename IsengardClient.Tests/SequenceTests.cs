@@ -233,7 +233,7 @@ namespace IsengardClient.Tests
         public void TestScoreSequence()
         {
             List<SkillCooldown> cooldowns = null;
-            List<string> spells = null;
+            List<SpellsEnum> spells = null;
             ClassType? classType = null;
             int iLevel = -1;
             int iMaxHP = -1;
@@ -243,7 +243,7 @@ namespace IsengardClient.Tests
             int iGold = -1;
             int iTNL = -1;
             PlayerStatusFlags? playerStatusFlags = null;
-            Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> a = (flpparam, ct, l, hp, mp, ac, acexact, g, tnl, cs, ss, psf) =>
+            Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<SpellsEnum>, PlayerStatusFlags> a = (flpparam, ct, l, hp, mp, ac, acexact, g, tnl, cs, ss, psf) =>
             {
                 iLevel = l;
                 classType = ct;
@@ -292,7 +292,7 @@ namespace IsengardClient.Tests
             Assert.IsNotNull(cooldowns);
             Assert.IsNotNull(spells);
             Assert.IsTrue(cooldowns.Count == 2);
-            Assert.IsTrue(spells.Count == 1);
+            Assert.IsTrue(spells.Count == 0);
             Assert.IsTrue(cooldowns[0].SkillType == SkillWithCooldownType.PowerAttack);
             Assert.IsTrue(cooldowns[0].NextAvailable != DateTime.MinValue);
             Assert.IsTrue(cooldowns[0].Status == SkillCooldownStatus.Waiting);
@@ -301,7 +301,7 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns[1].NextAvailable == DateTime.MinValue);
             Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Available);
             Assert.IsTrue(cooldowns[1].SkillName == "manashield");
-            Assert.IsTrue(spells[0] == "None");
+            Assert.IsTrue(spells.Count == 0);
             Assert.IsTrue(playerStatusFlags == PlayerStatusFlags.Poisoned);
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
@@ -341,8 +341,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns[1].NextAvailable != DateTime.MinValue);
             Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Waiting);
             Assert.IsTrue(cooldowns[1].SkillName == "manashield");
-            Assert.IsTrue(spells[0] == "bless");
-            Assert.IsTrue(spells[1] == "protection");
+            Assert.IsTrue(spells.Contains(SpellsEnum.bless));
+            Assert.IsTrue(spells.Contains(SpellsEnum.protection));
 
             iLevel = iMaxHP = iMaxMP = iTNL = -1;
             armorClass = -1;
@@ -381,8 +381,8 @@ namespace IsengardClient.Tests
             Assert.IsTrue(cooldowns[1].NextAvailable == DateTime.MinValue);
             Assert.IsTrue(cooldowns[1].Status == SkillCooldownStatus.Active);
             Assert.IsTrue(cooldowns[1].SkillName == "manashield");
-            Assert.IsTrue(spells[0] == "bless");
-            Assert.IsTrue(spells[1] == "protection");
+            Assert.IsTrue(spells.Contains(SpellsEnum.bless));
+            Assert.IsTrue(spells.Contains(SpellsEnum.protection));
         }
 
         [TestMethod]
@@ -810,10 +810,10 @@ namespace IsengardClient.Tests
             ItemManagementAction? action = null;
             int? totalGold = null;
             int? soldGold = null;
-            List<string> spells = null;
+            List<SpellsEnum> spells = null;
             bool? potionConsumed = null;
             bool? poisonCured = null;
-            Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> a = (flParams, i, act, gt, gs, sp, pot, pc) =>
+            Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, bool> a = (flParams, i, act, gt, gs, sp, pot, pc) =>
             {
                 items = i;
                 action = act;
@@ -835,7 +835,7 @@ namespace IsengardClient.Tests
             potionConsumed = null;
             flp.Lines = new List<string>() { "You can fly!", string.Empty, "Substance consumed.", "The ice blue potion disintegrates." };
             seq.FeedLine(flp);
-            Assert.IsTrue(spells != null && spells.Contains("fly"));
+            Assert.IsTrue(spells != null && spells.Contains(SpellsEnum.fly));
             Assert.IsTrue(potionConsumed.Value);
             Assert.IsTrue(items.Count == 1);
             Assert.IsTrue(items[0].ItemType.Value == ItemTypeEnum.IceBluePotion);
@@ -871,9 +871,9 @@ namespace IsengardClient.Tests
         public void TestSelfSpellCastSequence()
         {
             BackgroundCommandType? eBCT = null;
-            string spell = null;
+            SpellsEnum? spell = null;
             List<ItemEntity> items = null;
-            Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> a = (flp, bct, sp, it) =>
+            Action<FeedLineParameters, BackgroundCommandType?, SpellsEnum?, List<ItemEntity>> a = (flp, bct, sp, it) =>
             {
                 eBCT = bct;
                 spell = sp;
@@ -896,7 +896,7 @@ namespace IsengardClient.Tests
             flParams.Lines = new List<string>() { "Protection spell cast.", "You feel watched.", string.Empty };
             seq.FeedLine(flParams);
             Assert.IsTrue(eBCT.Value == BackgroundCommandType.Protection);
-            Assert.IsTrue(spell == "protection");
+            Assert.IsTrue(spell.Value == SpellsEnum.protection);
         }
 
         [TestMethod]

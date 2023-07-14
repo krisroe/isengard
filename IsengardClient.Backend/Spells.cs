@@ -3,6 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 namespace IsengardClient.Backend
 {
+    public enum SpellProficiency
+    {
+        Earth,
+        Wind,
+        Fire,
+        Water,
+        Divination,
+        Arcana,
+        Life,
+        Sorcery,
+    }
+
+    public enum RealmType
+    {
+        Earth = 0,
+        Wind = 1,
+        Water = 2,
+        Fire = 3,
+    }
+
+    [Flags]
+    public enum RealmTypeFlags
+    {
+        None = 0,
+        Earth = 1,
+        Wind = 2,
+        Water = 4,
+        Fire = 8,
+        All = 15,
+    }
+
     [Flags]
     public enum WorkflowSpells
     {
@@ -20,6 +51,7 @@ namespace IsengardClient.Backend
 
     public class SpellsStatic
     {
+        public static Dictionary<string, SpellInformationAttribute> SpellsByName = new Dictionary<string, SpellInformationAttribute>();
         public static Dictionary<SpellsEnum, SpellInformationAttribute> SpellsByEnum = new Dictionary<SpellsEnum, SpellInformationAttribute>();
         public static Dictionary<WorkflowSpells, SpellInformationAttribute> WorkflowSpellsByEnum = new Dictionary<WorkflowSpells, SpellInformationAttribute>();
 
@@ -30,13 +62,12 @@ namespace IsengardClient.Backend
             {
                 var memberInfos = t.GetMember(nextSpell.ToString());
                 var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == t);
-
                 object[] valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SpellInformationAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
                     SpellInformationAttribute sia = (SpellInformationAttribute)valueAttributes[0];
                     if (string.IsNullOrEmpty(sia.SpellName)) sia.SpellName = nextSpell.ToString();
-
+                    SpellsByName[sia.SpellName] = sia;
                     SpellsByEnum[nextSpell] = sia;
                     sia.SpellType = nextSpell;
                 }
@@ -222,7 +253,7 @@ namespace IsengardClient.Backend
         [SpellInformation(SpellProficiency.Life, 8, 2)]
         bless,
 
-        [SpellInformation(SpellProficiency.Life, 6, 2)]
+        [SpellInformation(SpellProficiency.Life, 6, 2, "mend-wounds")]
         mend,
 
         [SpellInformation(SpellProficiency.Life, 8, 2)]

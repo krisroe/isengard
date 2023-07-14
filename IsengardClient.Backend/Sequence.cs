@@ -572,14 +572,14 @@ namespace IsengardClient.Backend
 
     public class ScoreOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> _onSatisfied;
+        public Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<SpellsEnum>, PlayerStatusFlags> _onSatisfied;
         private const string SKILLS_PREFIX = "Skills: ";
         private const string SPELLS_PREFIX = "Spells cast: ";
         private const string GOLD_PREFIX = "Gold: ";
         private const string TO_NEXT_LEVEL_PREFIX = " To Next Level:";
 
         private string _username;
-        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<string>, PlayerStatusFlags> onSatisfied)
+        public ScoreOutputSequence(string username, Action<FeedLineParameters, ClassType, int, int, int, decimal, bool, int, int, List<SkillCooldown>, List<SpellsEnum>, PlayerStatusFlags> onSatisfied)
         {
             _username = username;
             _onSatisfied = onSatisfied;
@@ -803,20 +803,8 @@ namespace IsengardClient.Backend
                     cooldowns.Add(cooldown);
                 }
 
-                List<string> spells = new List<string>();
-                foreach (string sNextSpell in spellsRaw)
-                {
-                    string sNext = sNextSpell.Trim();
-                    if (string.IsNullOrEmpty(sNext))
-                    {
-                        return;
-                    }
-                    spells.Add(sNext);
-                }
-                if (spells.Count == 0)
-                {
-                    return;
-                }
+                List<SpellsEnum> spells = SpellsSequence.GetSpellsFromSpellNameList(spellsRaw);
+                if (spells == null) return;
 
                 _onSatisfied(flParams, foundClass.Value, iLevel, iTotalHP, iTotalMP, armorClass, armorClassIsExact, iGold, iTNL, cooldowns, spells, playerStatusFlags);
                 flParams.FinishedProcessing = true;
@@ -950,8 +938,8 @@ namespace IsengardClient.Backend
     {
         private const string SPELLS_KNOWN_PREFIX = "Spells known: ";
         private const string SPELLS_CAST_PREFIX = "Spells cast: ";
-        private Action<FeedLineParameters, List<string>> _onSatisfied;
-        public SpellsSequence(Action<FeedLineParameters, List<string>> onSatisfied)
+        private Action<FeedLineParameters, List<SpellsEnum>> _onSatisfied;
+        public SpellsSequence(Action<FeedLineParameters, List<SpellsEnum>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -969,11 +957,9 @@ namespace IsengardClient.Backend
                         string sList = StringProcessing.GetListAsString(Lines, i, SPELLS_KNOWN_PREFIX, true, out _, SPELLS_CAST_PREFIX);
                         if (string.IsNullOrEmpty(sList)) break;
                         List<string> list = StringProcessing.ParseList(sList);
-                        if (list.Count == 1 && list[0] == "None")
-                        {
-                            list.Clear();
-                        }
-                        _onSatisfied(Parameters, list);
+                        List<SpellsEnum> spells = GetSpellsFromSpellNameList(list);
+                        if (spells == null) return;
+                        _onSatisfied(Parameters, spells);
                         Parameters.FinishedProcessing = true;
                     }
                     else
@@ -982,6 +968,32 @@ namespace IsengardClient.Backend
                     }
                 }
             }
+        }
+
+        public static List<SpellsEnum> GetSpellsFromSpellNameList(List<string> spellNames)
+        {
+            List<SpellsEnum> spells = new List<SpellsEnum>();
+            if (spellNames.Count == 1 && spellNames[0] == "None")
+            {
+                return spells;
+            }
+            foreach (string s in spellNames)
+            {
+                string sActual = s.Trim();
+                if (string.IsNullOrEmpty(sActual))
+                {
+                    return null;
+                }
+                if (SpellsStatic.SpellsByName.TryGetValue(sActual, out SpellInformationAttribute found))
+                {
+                    spells.Add(found.SpellType);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return spells;
         }
     }
 
@@ -1065,8 +1077,8 @@ namespace IsengardClient.Backend
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
         private const string TRADE_MID_TEXT = " gives you ";
-        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<string>, bool, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, bool> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, bool> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1076,7 +1088,7 @@ namespace IsengardClient.Backend
             int iSellGold = 0;
             int? iTotalGold = null;
             ItemManagementAction eAction = ItemManagementAction.None;
-            List<string> activeSpells = null;
+            List<SpellsEnum> activeSpells = null;
             bool potionConsumed = false;
             bool poisonCured = false;
             int iLinesCount = Lines.Count;
@@ -1298,12 +1310,10 @@ namespace IsengardClient.Backend
                         {
                             poisonCured = true;
                         }
-                        else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpell))
+                        else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out SpellsEnum activeSpell))
                         {
-                            if (activeSpells == null)
-                            {
-                                activeSpells = new List<string>() { activeSpell };
-                            }
+                            if (activeSpells == null) activeSpells = new List<SpellsEnum>();
+                            if (!activeSpells.Contains(activeSpell)) activeSpells.Add(activeSpell);
                         }
                         else if (nextLine.StartsWith("You have ") && nextLine.EndsWith(" gold."))
                         {
@@ -1951,27 +1961,27 @@ StartProcessRoom:
 
     public class CastOffensiveSpellSequence : AOutputProcessingSequence
     {
-        internal static List<string> EARTH_OFFENSIVE_SPELLS = new List<string>() { "rumble", "crush", "shatterstone", "engulf", "tremor" };
-        internal static List<string> FIRE_OFFENSIVE_SPELLS = new List<string>() { "burn", "fireball", "burstflame", "immolate", "flamefill" };
-        internal static List<string> WATER_OFFENSIVE_SPELLS = new List<string>() { "blister", "waterbolt", "steamblast", "bloodboil", "iceblade" };
-        internal static List<string> WIND_OFFENSIVE_SPELLS = new List<string>() { "hurt", "dustgust", "shockbolt", "lightning", "thunderbolt" };
-        internal static HashSet<string> ALL_OFFENSIVE_SPELLS;
+        internal static List<SpellsEnum> EARTH_OFFENSIVE_SPELLS = new List<SpellsEnum>() { SpellsEnum.rumble, SpellsEnum.crush, SpellsEnum.shatterstone, SpellsEnum.engulf, SpellsEnum.tremor };
+        internal static List<SpellsEnum> FIRE_OFFENSIVE_SPELLS = new List<SpellsEnum>() { SpellsEnum.burn, SpellsEnum.fireball, SpellsEnum.burstflame, SpellsEnum.immolate, SpellsEnum.flamefill };
+        internal static List<SpellsEnum> WATER_OFFENSIVE_SPELLS = new List<SpellsEnum>() { SpellsEnum.blister, SpellsEnum.waterbolt, SpellsEnum.steamblast, SpellsEnum.bloodboil, SpellsEnum.iceblade };
+        internal static List<SpellsEnum> WIND_OFFENSIVE_SPELLS = new List<SpellsEnum>() { SpellsEnum.hurt, SpellsEnum.dustgust, SpellsEnum.shockbolt, SpellsEnum.lightning, SpellsEnum.thunderbolt };
+        internal static HashSet<SpellsEnum> ALL_OFFENSIVE_SPELLS;
 
-        public static List<string> GetOffensiveSpellsForRealm(RealmType realm)
+        public static List<SpellsEnum> GetOffensiveSpellsForRealm(RealmTypeFlags realm)
         {
-            List<string> ret;
+            List<SpellsEnum> ret;
             switch (realm)
             {
-                case RealmType.Earth:
+                case RealmTypeFlags.Earth:
                     ret = EARTH_OFFENSIVE_SPELLS;
                     break;
-                case RealmType.Fire:
+                case RealmTypeFlags.Fire:
                     ret = FIRE_OFFENSIVE_SPELLS;
                     break;
-                case RealmType.Water:
+                case RealmTypeFlags.Water:
                     ret = WATER_OFFENSIVE_SPELLS;
                     break;
-                case RealmType.Wind:
+                case RealmTypeFlags.Wind:
                     ret = WIND_OFFENSIVE_SPELLS;
                     break;
                 default:
@@ -1986,10 +1996,10 @@ StartProcessRoom:
 
         static CastOffensiveSpellSequence()
         {
-            ALL_OFFENSIVE_SPELLS = new HashSet<string>();
-            foreach (List<string> nextList in new List<string>[] { EARTH_OFFENSIVE_SPELLS, FIRE_OFFENSIVE_SPELLS, WATER_OFFENSIVE_SPELLS, WIND_OFFENSIVE_SPELLS })
+            ALL_OFFENSIVE_SPELLS = new HashSet<SpellsEnum>();
+            foreach (List<SpellsEnum> nextList in new List<SpellsEnum>[] { EARTH_OFFENSIVE_SPELLS, FIRE_OFFENSIVE_SPELLS, WATER_OFFENSIVE_SPELLS, WIND_OFFENSIVE_SPELLS })
             {
-                foreach (string nextSpell in nextList)
+                foreach (SpellsEnum nextSpell in nextList)
                 {
                     ALL_OFFENSIVE_SPELLS.Add(nextSpell);
                 }
@@ -2019,8 +2029,11 @@ StartProcessRoom:
             int startLength = YOU_CAST_A_PREFIX.Length;
             int iStartingPartIndex = nextLine.IndexOf(" ", startLength);
             if (iStartingPartIndex == iLineLength) return;
+
+            //validate the spell that was cast is an offensive spell
             string spellName = nextLine.Substring(startLength, iStartingPartIndex - startLength);
-            if (!ALL_OFFENSIVE_SPELLS.Contains(spellName)) return;
+            if (!SpellsStatic.SpellsByName.TryGetValue(spellName, out SpellInformationAttribute sia) || !ALL_OFFENSIVE_SPELLS.Contains(sia.SpellType)) return;
+
             iStartingPartIndex++;
             bool failed = false;
             foreach (char c in "spell on ")
@@ -3392,25 +3405,25 @@ StartProcessRoom:
 
     public class SelfSpellCastSequence : AOutputProcessingSequence
     {
-        public static Dictionary<string, string> ACTIVE_SPELL_TO_ACTIVE_TEXT = new Dictionary<string, string>()
+        public static Dictionary<string, SpellsEnum> ACTIVE_SPELL_TO_ACTIVE_TEXT = new Dictionary<string, SpellsEnum>()
         {
-            { "You feel holy.", "bless" },
-            { "You feel watched.", "protection" },
-            { "You can fly!", "fly"},
-            { "Your eyes feel funny.", "detect-magic" }, //dark green potion
-            { "You can count magical bonuses now!", "detect-magic" }, //magical tabulator
-            { "You turn invisible.", "invisibility" },
-            { "You become shielded from the normal fire element.", "endure-fire" },
-            { "You become shielded from the normal wind element.", "endure-cold" },
-            { "You become shielded from the normal earth element.", "endure-earth" },
-            { "You become shielded from the normal water element.", "endure-water" },
-            { "You begin to float.", "levitation" },
-            { "Your eyes tingle.", "detect-invisible"},
-            { "You become more perceptive.", "know-aura" },
+            { "You feel holy.", SpellsEnum.bless },
+            { "You feel watched.", SpellsEnum.protection },
+            { "You can fly!", SpellsEnum.fly},
+            { "Your eyes feel funny.", SpellsEnum.detectmagic }, //dark green potion
+            { "You can count magical bonuses now!", SpellsEnum.detectmagic}, //magical tabulator
+            { "You turn invisible.", SpellsEnum.invisibility },
+            { "You become shielded from the normal fire element.", SpellsEnum.endurefire },
+            { "You become shielded from the normal wind element.", SpellsEnum.endurecold },
+            { "You become shielded from the normal earth element.", SpellsEnum.endureearth },
+            { "You become shielded from the normal water element.", SpellsEnum.endurewater },
+            { "You begin to float.", SpellsEnum.levitate },
+            { "Your eyes tingle.", SpellsEnum.detectinvis},
+            { "You become more perceptive.", SpellsEnum.knowaura },
         };
 
-        public Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> _onSatisfied;
-        public SelfSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType?, string, List<ItemEntity>> onSatisfied)
+        public Action<FeedLineParameters, BackgroundCommandType?, SpellsEnum?, List<ItemEntity>> _onSatisfied;
+        public SelfSpellCastSequence(Action<FeedLineParameters, BackgroundCommandType?, SpellsEnum?, List<ItemEntity>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -3420,7 +3433,7 @@ StartProcessRoom:
             BackgroundCommandType? matchingSpell = null;
             List<string> Lines = flParams.Lines;
             int lineCount = Lines.Count;
-            string activeSpell = null;
+            SpellsEnum? activeSpell = null;
             List<ItemEntity> consumedItems = null;
             bool hasSpellCast = false;
             if (Lines.Count > 0)
@@ -3446,21 +3459,21 @@ StartProcessRoom:
                     else if (nextLine == "Light spell cast.")
                     {
                         hasSpellCast = true;
-                        activeSpell = "light";
+                        activeSpell = SpellsEnum.light;
                     }
                     else if (nextLine.EndsWith(" spell cast."))
                     {
                         hasSpellCast = true;
                         continue;
                     }
-                    else if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out string activeSpellTemp))
+                    else if (ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out SpellsEnum activeSpellTemp))
                     {
                         activeSpell = activeSpellTemp;
-                        if (activeSpell == "bless")
+                        if (activeSpellTemp == SpellsEnum.bless)
                         {
                             matchingSpell = BackgroundCommandType.Bless;
                         }
-                        else if (activeSpell == "protection")
+                        else if (activeSpellTemp == SpellsEnum.protection)
                         {
                             matchingSpell = BackgroundCommandType.Protection;
                         }
@@ -3704,6 +3717,11 @@ StartProcessRoom:
                 }
             }
             return sb.ToString();
+        }
+
+        public static string TrimFlagsEnumToString(object obj)
+        {
+            return obj.ToString().Replace(" ", string.Empty);
         }
     }
 }

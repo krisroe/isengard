@@ -15,7 +15,7 @@ namespace IsengardClient.Backend
 
         public ItemTypeEnum? Weapon { get; set; }
         public ItemTypeEnum? HeldItem { get; set; }
-        public RealmType Realm { get; set; }
+        public RealmTypeFlags Realms { get; set; }
         public AlignmentType PreferredAlignment { get; set; }
         public ConsoleOutputVerbosity ConsoleVerbosity { get; set; }
         public bool QueryMonsterStatus { get; set; }
@@ -44,7 +44,7 @@ namespace IsengardClient.Backend
         {
             Weapon = null;
             HeldItem = null;
-            Realm = RealmType.Earth;
+            Realms = RealmTypeFlags.Earth;
             PreferredAlignment = AlignmentType.Blue;
             ConsoleVerbosity = ConsoleOutputVerbosity.Default;
             FullColor = Color.Green;
@@ -74,7 +74,7 @@ namespace IsengardClient.Backend
         {
             Weapon = copied.Weapon;
             HeldItem = copied.HeldItem;
-            Realm = copied.Realm;
+            Realms = copied.Realms;
             PreferredAlignment = copied.PreferredAlignment;
             ConsoleVerbosity = copied.ConsoleVerbosity;
             QueryMonsterStatus = copied.QueryMonsterStatus;
@@ -2448,11 +2448,13 @@ namespace IsengardClient.Backend
                             errorMessages.Add("Invalid held item: " + item);
                     }
                     break;
-                case "Realm":
-                    if (Enum.TryParse(sValue, out RealmType realm))
-                        Realm = realm;
+                case "Realms":
+                    if (!Enum.TryParse(sValue, out RealmTypeFlags realms))
+                        errorMessages.Add("Invalid realms: " + sValue);
+                    else if (realms == RealmTypeFlags.None)
+                        errorMessages.Add("Cannot specify no realms: " + sValue);
                     else
-                        errorMessages.Add("Invalid realm: " + sValue);
+                        Realms = realms;
                     break;
                 case "PreferredAlignment":
                     if (Enum.TryParse(sValue, out AlignmentType alignment))
@@ -2628,8 +2630,8 @@ namespace IsengardClient.Backend
                     if (s.MagicOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("MagicOnlyWhenStunnedForXMS", s.MagicOnlyWhenStunnedForXMS.Value.ToString());
                     if (s.MeleeOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("MeleeOnlyWhenStunnedForXMS", s.MeleeOnlyWhenStunnedForXMS.Value.ToString());
                     if (s.PotionsOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("PotionsOnlyWhenStunnedForXMS", s.PotionsOnlyWhenStunnedForXMS.Value.ToString());
-                    writer.WriteAttributeString("TypesToRunLastCommandIndefinitely", s.TypesToRunLastCommandIndefinitely.ToString().Replace(" ", string.Empty));
-                    writer.WriteAttributeString("TypesWithStepsEnabled", s.TypesWithStepsEnabled.ToString().Replace(" ", string.Empty));
+                    writer.WriteAttributeString("TypesToRunLastCommandIndefinitely", StringProcessing.TrimFlagsEnumToString(s.TypesToRunLastCommandIndefinitely));
+                    writer.WriteAttributeString("TypesWithStepsEnabled", StringProcessing.TrimFlagsEnumToString(s.TypesWithStepsEnabled));
                     if (s.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMin", s.AutoSpellLevelMin.ToString());
                     if (s.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMax", s.AutoSpellLevelMax.ToString());
                     if (s.MagicSteps != null)
@@ -2706,15 +2708,15 @@ namespace IsengardClient.Backend
                             }
                             if (p.SpellsToCast != WorkflowSpells.None)
                             {
-                                writer.WriteAttributeString("SpellsToCast", p.SpellsToCast.ToString().Replace(" ", string.Empty));
+                                writer.WriteAttributeString("SpellsToCast", StringProcessing.TrimFlagsEnumToString(p.SpellsToCast));
                             }
                             if (p.SpellsToPotion != WorkflowSpells.None)
                             {
-                                writer.WriteAttributeString("SpellsToPotion", p.SpellsToPotion.ToString().Replace(" ", string.Empty));
+                                writer.WriteAttributeString("SpellsToPotion", StringProcessing.TrimFlagsEnumToString(p.SpellsToPotion));
                             }
                             if (p.SkillsToRun != PromptedSkills.None)
                             {
-                                writer.WriteAttributeString("SkillsToRun", p.SkillsToRun.ToString().Replace(" ", string.Empty));
+                                writer.WriteAttributeString("SkillsToRun", StringProcessing.TrimFlagsEnumToString(p.SkillsToRun));
                             }
                             writer.WriteAttributeString("TargetRoom", p.TargetRoomIdentifier);
                             if (!string.IsNullOrEmpty(p.ThresholdRoomIdentifier))
@@ -2774,7 +2776,7 @@ namespace IsengardClient.Backend
         {
             if (Weapon.HasValue) yield return new KeyValuePair<string, string>("Weapon", Weapon.Value.ToString());
             if (HeldItem.HasValue) yield return new KeyValuePair<string, string>("HeldItem", HeldItem.Value.ToString());
-            yield return new KeyValuePair<string, string>("Realm", Realm.ToString());
+            yield return new KeyValuePair<string, string>("Realms", StringProcessing.TrimFlagsEnumToString(Realms));
             yield return new KeyValuePair<string, string>("PreferredAlignment", PreferredAlignment.ToString());
             yield return new KeyValuePair<string, string>("ConsoleVerbosity", ConsoleVerbosity.ToString());
             yield return new KeyValuePair<string, string>("FullColor", FullColor.ToArgb().ToString());
@@ -2992,6 +2994,65 @@ namespace IsengardClient.Backend
             get
             {
                 return WorkflowSpells.Bless | WorkflowSpells.Protection;
+            }
+        }
+
+        public RealmTypeFlags GetNextRealmFromStartingPoint(RealmTypeFlags startingPoint)
+        {
+            foreach (RealmTypeFlags nextRealm in GetAvailableRealmsFromStartingPoint(startingPoint))
+            {
+                if (nextRealm != startingPoint)
+                {
+                    return nextRealm;
+                }
+            }
+            return startingPoint;
+        }
+
+        public IEnumerable<RealmTypeFlags> GetAvailableRealmsFromStartingPoint(RealmTypeFlags startingPoint)
+        {
+            foreach (RealmTypeFlags nextRealm in EnumerateRealmsFromStartingPoint(startingPoint))
+            {
+                if ((nextRealm & Realms) != RealmTypeFlags.None)
+                {
+                    yield return nextRealm;
+                }
+            }
+        }
+
+        public static IEnumerable<RealmTypeFlags> EnumerateRealmsFromStartingPoint(RealmTypeFlags startingPoint)
+        {
+            if (startingPoint == RealmTypeFlags.None || startingPoint == RealmTypeFlags.Earth)
+            {
+                yield return RealmTypeFlags.Earth;
+                yield return RealmTypeFlags.Wind;
+                yield return RealmTypeFlags.Fire;
+                yield return RealmTypeFlags.Water;
+            }
+            else if (startingPoint == RealmTypeFlags.Wind)
+            {
+                yield return RealmTypeFlags.Wind;
+                yield return RealmTypeFlags.Fire;
+                yield return RealmTypeFlags.Water;
+                yield return RealmTypeFlags.Earth;
+            }
+            else if (startingPoint == RealmTypeFlags.Fire)
+            {
+                yield return RealmTypeFlags.Fire;
+                yield return RealmTypeFlags.Water;
+                yield return RealmTypeFlags.Earth;
+                yield return RealmTypeFlags.Wind;
+            }
+            else if (startingPoint == RealmTypeFlags.Water)
+            {
+                yield return RealmTypeFlags.Water;
+                yield return RealmTypeFlags.Earth;
+                yield return RealmTypeFlags.Wind;
+                yield return RealmTypeFlags.Fire;
+            }
+            else
+            {
+                throw new InvalidOperationException();
             }
         }
     }

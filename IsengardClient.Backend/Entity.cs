@@ -878,8 +878,7 @@ namespace IsengardClient.Backend
     {
         public Dictionary<SpellProficiency, int> UserSpellProficiencies { get; set; }
         public List<SkillCooldown> SkillsCooldowns { get; set; }
-        public object SpellsKnownLock { get; set; }
-        public List<string> SpellsKnown { get; set; }
+        public List<SpellsEnum> SpellsKnown { get; set; }
         public object EntityLock { get; set; }
         public bool UIProcessed { get; set; }
         public Room CurrentRoom { get; set; }
@@ -936,8 +935,7 @@ namespace IsengardClient.Backend
         {
             UserSpellProficiencies = new Dictionary<SpellProficiency, int>();
             SkillsCooldowns = new List<SkillCooldown>();
-            SpellsKnownLock = new object();
-            SpellsKnown = new List<string>();
+            SpellsKnown = new List<SpellsEnum>();
             EntityLock = new object();
             CurrentEntityChanges = new List<EntityChange>();
             CurrentRoomMobs = new List<MobTypeEnum>();
@@ -1014,12 +1012,25 @@ namespace IsengardClient.Backend
             }
             else
             {
-                lock (spellTypes == AvailableSpellTypes.Castable ? SpellsKnownLock : EntityLock)
+                lock (EntityLock)
                 {
                     ret = GetAvailableSpellsToCastWithLock(spellTypes);
                 }
             }
             return ret;
+        }
+
+        public bool CanCast(SpellsEnum spell)
+        {
+            lock (EntityLock)
+            {
+                if (!SpellsKnown.Contains(spell))
+                {
+                    return false;
+                }
+                SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[spell];
+                return UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
+            }
         }
 
         public WorkflowSpells GetAvailableSpellsToCastWithLock(AvailableSpellTypes spellTypes)
@@ -1038,7 +1049,7 @@ namespace IsengardClient.Backend
                     {
                         SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[wfSpell];
                         if (spellTypes == AvailableSpellTypes.Castable)
-                            include = SpellsKnown.Contains(sia.SpellName) && UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
+                            include = SpellsKnown.Contains(sia.SpellType) && UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
                         else if (spellTypes == AvailableSpellTypes.HavePotions)
                             include = HasPotionForSpell(sia.SpellType, out _, out _);
                         else

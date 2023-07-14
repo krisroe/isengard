@@ -58,7 +58,9 @@ namespace IsengardClient
         private static DateTime? _currentStatusLastComputed;
         private static DateTime? _lastPollTick;
 
-        private List<string> _spellsCast = new List<string>();
+        private RealmTypeFlags _currentRealm;
+
+        private List<SpellsEnum> _spellsCast = new List<SpellsEnum>();
         private bool _refreshSpellsCast = false;
 
         /// <summary>
@@ -1029,7 +1031,7 @@ namespace IsengardClient
         /// <summary>
         /// handler for the output of score
         /// </summary>
-        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, decimal armorClass, bool armorClassIsExact, int gold, int tnl, List<SkillCooldown> cooldowns, List<string> spells, PlayerStatusFlags playerStatusFlags)
+        private void OnScore(FeedLineParameters flParams, ClassType playerClass, int level, int maxHP, int maxMP, decimal armorClass, bool armorClassIsExact, int gold, int tnl, List<SkillCooldown> cooldowns, List<SpellsEnum> spells, PlayerStatusFlags playerStatusFlags)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Score) == InitializationStep.None;
@@ -1105,14 +1107,15 @@ namespace IsengardClient
             flParams.SetSuppressEcho(forInit || runningHiddenCommand);
         }
 
-        private void OnSpells(FeedLineParameters flParams, List<string> SpellsList)
+        private void OnSpells(FeedLineParameters flParams, List<SpellsEnum> SpellsList)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Spells) == InitializationStep.None;
 
-            lock (_currentEntityInfo.SpellsKnownLock)
+            lock (_currentEntityInfo.EntityLock)
             {
-                _currentEntityInfo.SpellsKnown = SpellsList;
+                _currentEntityInfo.SpellsKnown.Clear();
+                _currentEntityInfo.SpellsKnown.AddRange(SpellsList);
             }
 
             if (forInit)
@@ -1396,6 +1399,16 @@ namespace IsengardClient
             }
 
             RefreshAreaDropdown();
+
+            RealmTypeFlags newRealms = _settingsData.Realms;
+            foreach (RealmTypeFlags nextRealm in IsengardSettingData.EnumerateRealmsFromStartingPoint(_currentRealm))
+            {
+                if ((newRealms & nextRealm) != RealmTypeFlags.None)
+                {
+                    _currentRealm = nextRealm;
+                    break;
+                }
+            }
         }
 
         private void RefreshAreaDropdown()
@@ -1966,15 +1979,15 @@ namespace IsengardClient
             }
         }
 
-        private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, string activeSpell, List<ItemEntity> consumedItems)
+        private void OnSelfSpellCast(FeedLineParameters flParams, BackgroundCommandType? commandType, SpellsEnum? activeSpell, List<ItemEntity> consumedItems)
         {
             if (commandType == BackgroundCommandType.CurePoison)
             {
                 _playerStatusFlags &= ~PlayerStatusFlags.Poisoned;
             }
-            if (!string.IsNullOrEmpty(activeSpell))
+            if (activeSpell.HasValue)
             {
-                AddActiveSpell(activeSpell);
+                AddActiveSpell(activeSpell.Value);
             }
             if (consumedItems != null && consumedItems.Count > 0)
             {
@@ -1987,28 +2000,24 @@ namespace IsengardClient
             }
         }
 
-        private void AddActiveSpell(string spellName)
+        private void AddActiveSpell(SpellsEnum spell)
         {
-            AddActiveSpells(new List<string>() { spellName });
+            AddActiveSpells(new List<SpellsEnum>() { spell });
         }
 
-        private void AddActiveSpells(List<string> spellNames)
+        private void AddActiveSpells(List<SpellsEnum> spells)
         {
             bool changed = false;
-            if (spellNames != null && spellNames.Count > 0)
+            if (spells != null && spells.Count > 0)
             {
                 lock (_currentEntityInfo.EntityLock)
                 {
                     bool addedProtection = false;
-                    foreach (string nextSpell in spellNames)
+                    foreach (SpellsEnum nextSpell in spells)
                     {
                         if (!_spellsCast.Contains(nextSpell))
                         {
-                            if (_spellsCast.Contains("None"))
-                            {
-                                _spellsCast.Remove("None");
-                            }
-                            addedProtection |= nextSpell == "protection";
+                            addedProtection |= nextSpell == SpellsEnum.protection;
                             _spellsCast.Add(nextSpell);
                             changed = true;
                         }
@@ -2491,7 +2500,7 @@ namespace IsengardClient
         /// </summary>
         private void CalculateArmorClass()
         {
-            bool hasProtection = _spellsCast.Contains("protection");
+            bool hasProtection = _spellsCast.Contains(SpellsEnum.protection);
             bool hasManashield = false;
             foreach (SkillCooldown sc in _currentEntityInfo.SkillsCooldowns)
             {
@@ -2547,7 +2556,7 @@ namespace IsengardClient
         private void OnInformationalMessages(FeedLineParameters flp, List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
         {
             List<InformationalMessages> infoMsgs = flp.InfoMessages;
-            List<string> spellsOff = null;
+            List<SpellsEnum> spellsOff = null;
             bool finishedProcessing = false;
             Exit currentBackgroundExit = _currentBackgroundExit;
             EntityChange rc;
@@ -2573,56 +2582,56 @@ namespace IsengardClient
                         _timeLastUpdatedUTC = DateTime.UtcNow;
                         break;
                     case InformationalMessageType.BlessOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("bless");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.bless);
                         break;
                     case InformationalMessageType.ProtectionOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("protection");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.protection);
                         break;
                     case InformationalMessageType.FlyOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("fly");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.fly);
                         break;
                     case InformationalMessageType.LevitationOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("levitation");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.levitate);
                         break;
                     case InformationalMessageType.InvisibilityOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("invisibility");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.invisibility);
                         break;
                     case InformationalMessageType.DetectInvisibleOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("detect-invisible");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.detectinvis);
                         break;
                     case InformationalMessageType.KnowAuraOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("know-aura");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.knowaura);
                         break;
                     case InformationalMessageType.EndureFireOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("endure-fire");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.endurefire);
                         break;
                     case InformationalMessageType.EndureColdOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("endure-cold");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.endurecold);
                         break;
                     case InformationalMessageType.EndureEarthOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("endure-earth");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.endureearth);
                         break;
                     case InformationalMessageType.EndureWaterOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("endure-water");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.endurewater);
                         break;
                     case InformationalMessageType.DetectMagicOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("detect-magic");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.detectmagic);
                         break;
                     case InformationalMessageType.LightOver:
-                        if (spellsOff == null) spellsOff = new List<string>();
-                        spellsOff.Add("light");
+                        if (spellsOff == null) spellsOff = new List<SpellsEnum>();
+                        spellsOff.Add(SpellsEnum.light);
                         break;
                     case InformationalMessageType.ManashieldOff:
                         EnsureManashieldStatus(false);
@@ -2861,16 +2870,12 @@ namespace IsengardClient
                 lock (_currentEntityInfo.EntityLock)
                 {
                     bool removedProtection = false;
-                    foreach (string nextSpell in spellsOff)
+                    foreach (SpellsEnum nextSpell in spellsOff)
                     {
                         if (_spellsCast.Contains(nextSpell))
                         {
-                            removedProtection |= nextSpell == "protection";
+                            removedProtection |= nextSpell == SpellsEnum.protection;
                             _spellsCast.Remove(nextSpell);
-                            if (_spellsCast.Count == 0)
-                            {
-                                _spellsCast.Add("None");
-                            }
                             _refreshSpellsCast = true;
                         }
                     }
@@ -3060,7 +3065,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<string> activeSpells, bool potionConsumed, bool poisonCured)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<SpellsEnum> activeSpells, bool potionConsumed, bool poisonCured)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             bool inBackgroundCommand = bct.HasValue;
@@ -4300,7 +4305,7 @@ namespace IsengardClient
                         }
                         else
                         {
-                            backgroundCommandResultObject = CastSpellOnSelf("cure-poison", pms, AbortIfFleeingOrHazying);
+                            backgroundCommandResultObject = CastSpellOnSelf(SpellsEnum.curepoison, pms, AbortIfFleeingOrHazying);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -4493,31 +4498,6 @@ namespace IsengardClient
                                 usedAutoSpellMax = strategy.AutoSpellLevelMax;
                             }
                         }
-                        List<string> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm);
-                        int realmProficiency = 0;
-                        switch (_settingsData.Realm)
-                        {
-                            case RealmType.Earth:
-                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Earth];
-                                break;
-                            case RealmType.Wind:
-                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Wind];
-                                break;
-                            case RealmType.Fire:
-                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Fire];
-                                break;
-                            case RealmType.Water:
-                                realmProficiency = _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Water];
-                                break;
-                        }
-                        List<string> knownSpells;
-                        lock (_currentEntityInfo.SpellsKnownLock)
-                        {
-                            knownSpells = _currentEntityInfo.SpellsKnown;
-                        }
-                        int? calculatedMinLevel, calculatedMaxLevel;
-                        Strategy.GetMinMaxOffensiveSpellLevels(strategy, usedAutoSpellMin, usedAutoSpellMax, knownSpells, offensiveSpells, out calculatedMinLevel, out calculatedMaxLevel);
-
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunnedSince = null;
@@ -4628,7 +4608,8 @@ namespace IsengardClient
                                     int currentHP = _autohp;
                                     int manaDrain;
                                     BackgroundCommandType? bct;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, offensiveSpells, knownSpells, usedAutoSpellMin, usedAutoSpellMax, realmProficiency, sMobTarget, _settingsData);
+                                    RealmTypeFlags? realmToUse;
+                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -4660,6 +4641,13 @@ namespace IsengardClient
                                         else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                                         {
                                             return;
+                                        }
+                                        else //increment realm
+                                        {
+                                            if (realmToUse.HasValue)
+                                            {
+                                                _currentRealm = _settingsData.GetNextRealmFromStartingPoint(realmToUse.Value);
+                                            }
                                         }
                                     }
                                 }
@@ -5127,7 +5115,7 @@ BeforeHazy:
             spellsToPot &= ~WorkflowSpells.CurePoison;
             if (spellsToPot != WorkflowSpells.None)
             {
-                List<string> spellsCast = new List<string>();
+                List<SpellsEnum> spellsCast = new List<SpellsEnum>();
                 lock (_currentEntityInfo.EntityLock) //validate spells are either active or have a potion for them
                 {
                     spellsCast.AddRange(_spellsCast);
@@ -5136,7 +5124,7 @@ BeforeHazy:
                         if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
                         {
                             SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextPotSpell];
-                            if (spellsCast.Contains(sia.SpellName))
+                            if (spellsCast.Contains(sia.SpellType))
                             {
                                 spellsToPot &= ~nextPotSpell;
                             }
@@ -5695,7 +5683,7 @@ BeforeHazy:
                         if ((nextWorkflowSpell & castWorkflowSpells) != WorkflowSpells.None)
                         {
                             SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextWorkflowSpell];
-                            if (_spellsCast.Contains(sia.SpellName))
+                            if (_spellsCast.Contains(sia.SpellType))
                                 needWorkflowSpells &= ~nextWorkflowSpell;
                             else
                                 ret = false;
@@ -6003,7 +5991,7 @@ BeforeHazy:
                 {
                     if (_automp >= siaCurePoison.Mana)
                     {
-                        nextCommandResultObject = CastSpellOnSelf("cure-poison", pms, abortLogic);
+                        nextCommandResultObject = CastSpellOnSelf(SpellsEnum.curepoison, pms, abortLogic);
                         if (nextCommandResultObject.Result == CommandResult.CommandSuccessful)
                         {
                             needCurePoison = false;
@@ -6023,7 +6011,7 @@ BeforeHazy:
             SpellInformationAttribute siaVigor = SpellsStatic.SpellsByEnum[SpellsEnum.vigor];
             while (_autohp < _totalhp && _automp >= siaVigor.Mana)
             {
-                nextCommandResultObject = CastSpellOnSelf("vigor", pms, abortLogic);
+                nextCommandResultObject = CastSpellOnSelf(SpellsEnum.vigor, pms, abortLogic);
                 if (nextCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return nextCommandResultObject;
@@ -6054,7 +6042,7 @@ BeforeHazy:
                 bool castSomething = false;
                 if (numTicksForFullHP > numTicksForFullMP)
                 {
-                    backgroundCommandResultObject = CastSpellOnSelf("vigor", pms, abortLogic);
+                    backgroundCommandResultObject = CastSpellOnSelf(SpellsEnum.vigor, pms, abortLogic);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResultObject;
@@ -6070,15 +6058,15 @@ BeforeHazy:
                             if ((nextSpell & needWorkflowSpells) != WorkflowSpells.None)
                             {
                                 SpellInformationAttribute sia = SpellsStatic.WorkflowSpellsByEnum[nextSpell];
-                                string spellName = sia.SpellName;
+                                SpellsEnum spellType = sia.SpellType;
                                 bool hasSpellActive;
                                 lock (_currentEntityInfo.EntityLock)
                                 {
-                                    hasSpellActive = _spellsCast.Contains(spellName);
+                                    hasSpellActive = _spellsCast.Contains(spellType);
                                 }
                                 if (!hasSpellActive && _automp >= sia.Mana)
                                 {
-                                    backgroundCommandResultObject = CastSpellOnSelf(spellName, pms, abortLogic);
+                                    backgroundCommandResultObject = CastSpellOnSelf(spellType, pms, abortLogic);
                                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                                     {
                                         return backgroundCommandResultObject;
@@ -6510,13 +6498,14 @@ BeforeHazy:
             command = sAttackType + " " + mobTarget;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, List<string> offensiveSpells, List<string> knownSpells, int usedAutoSpellMin, int usedAutoSpellMax, int realmProficiency, string mobTarget, IsengardSettingData settingsData)
+        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
             command = null;
             manaDrain = 0;
             bct = null;
+            realmToUse = null;
             if (nextMagicStep == MagicStrategyStep.Stun)
             {
                 command = "cast stun " + mobTarget;
@@ -6572,75 +6561,102 @@ BeforeHazy:
             }
             else
             {
-                if (nextMagicStep == MagicStrategyStep.OffensiveSpellAuto)
+                int? iLevel = null;
+                SpellsEnum? spellToRun = null;
+                RealmTypeFlags? realmTemp = null;
+                bool isAuto = nextMagicStep == MagicStrategyStep.OffensiveSpellAuto;
+                foreach (RealmTypeFlags nextRealm in settingsData.GetAvailableRealmsFromStartingPoint(currentRealm))
                 {
-                    if (currentMP >= 20 && usedAutoSpellMin <= 5 && usedAutoSpellMax >= 5 && knownSpells.Contains(offensiveSpells[4]) && realmProficiency >= 70)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel5;
-                    }
-                    if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4 && knownSpells.Contains(offensiveSpells[3]) && realmProficiency >= 50)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel4;
-                    }
-                    else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3 && knownSpells.Contains(offensiveSpells[2]) && realmProficiency >= 35)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel3;
-                    }
-                    else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2 && knownSpells.Contains(offensiveSpells[1]) && realmProficiency >= 15)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel2;
-                    }
-                    else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1 && knownSpells.Contains(offensiveSpells[0]) && realmProficiency >= 5)
-                    {
-                        nextMagicStep = MagicStrategyStep.OffensiveSpellLevel1;
-                    }
-                    else //out of mana
-                    {
-                        ret = MagicCommandChoiceResult.OutOfMana;
-                    }
-                }
-                if (ret == MagicCommandChoiceResult.Cast)
-                {
-                    string spell;
+                    int? iNextLevel = null;
+                    SpellsEnum? nextSpell = null;
+                    List<SpellsEnum> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
                     if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel5)
                     {
-                        spell = offensiveSpells[4];
-                        manaDrain = 20;
+                        iNextLevel = 5;
+                        nextSpell = offensiveSpells[4];
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
                     {
-                        spell = offensiveSpells[3];
-                        manaDrain = 15;
+                        iNextLevel = 4;
+                        nextSpell = offensiveSpells[3];
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
                     {
-                        spell = offensiveSpells[2];
-                        manaDrain = 10;
+                        iNextLevel = 3;
+                        nextSpell = offensiveSpells[2];
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
                     {
-                        spell = offensiveSpells[1];
-                        manaDrain = 7;
+                        iNextLevel = 2;
+                        nextSpell = offensiveSpells[1];
                     }
                     else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
                     {
-                        spell = offensiveSpells[0];
-                        manaDrain = 3;
+                        iNextLevel = 1;
+                        nextSpell = offensiveSpells[0];
                     }
-                    else
+                    else //auto
                     {
-                        throw new InvalidOperationException();
+                        if (currentMP >= 20 && usedAutoSpellMin <= 5 && usedAutoSpellMax >= 5)
+                        {
+                            iNextLevel = 5;
+                            nextSpell = offensiveSpells[4];
+                        }
+                        if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4)
+                        {
+                            iNextLevel = 4;
+                            nextSpell = offensiveSpells[3];
+                        }
+                        else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3)
+                        {
+                            iNextLevel = 3;
+                            nextSpell = offensiveSpells[2];
+                        }
+                        else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2)
+                        {
+                            iNextLevel = 2;
+                            nextSpell = offensiveSpells[1];
+                        }
+                        else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1)
+                        {
+                            iNextLevel = 1;
+                            nextSpell = offensiveSpells[0];
+                        }
                     }
-                    if (knownSpells.Contains(spell))
+                    if (nextSpell.HasValue && _currentEntityInfo.CanCast(nextSpell.Value))
                     {
-                        command = "cast " + spell + " " + mobTarget;
-                        bct = BackgroundCommandType.OffensiveSpell;
+                        if (isAuto)
+                        {
+                            if (!iLevel.HasValue || iNextLevel.Value > iLevel.Value)
+                            {
+                                iLevel = iNextLevel.Value;
+                                realmTemp = nextRealm;
+                                spellToRun = nextSpell.Value;
+                            }
+                        }
+                        else
+                        {
+                            realmTemp = nextRealm;
+                            spellToRun = nextSpell.Value;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        manaDrain = 0;
-                        ret = MagicCommandChoiceResult.OutOfMana;
-                    }
+                }
+                if (spellToRun.HasValue)
+                {
+                    SpellsEnum eSpell = spellToRun.Value;
+                    SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[eSpell];
+                    manaDrain = sia.Mana;
+                    command = "cast " + sia.SpellName + " " + mobTarget;
+                    bct = BackgroundCommandType.OffensiveSpell;
+                    realmToUse = realmTemp;
+                }
+                else
+                {
+                    manaDrain = 0;
+                    bct = null;
+                    ret = MagicCommandChoiceResult.OutOfMana;
+                    realmToUse = null;
                 }
             }
             if (manaDrain > 0 && manaDrain > currentMP)
@@ -6648,6 +6664,7 @@ BeforeHazy:
                 manaDrain = 0;
                 bct = null;
                 ret = MagicCommandChoiceResult.OutOfMana;
+                realmToUse = null;
             }
             return ret;
         }
@@ -7152,29 +7169,30 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject CastSpellOnSelf(string spellName, BackgroundWorkerParameters bwp, Func<bool> abortLogic)
+        private CommandResultObject CastSpellOnSelf(SpellsEnum spell, BackgroundWorkerParameters bwp, Func<bool> abortLogic)
         {
             BackgroundCommandType bct;
-            switch (spellName)
+            switch (spell)
             {
-                case "vigor":
+                case SpellsEnum.vigor:
                     bct = BackgroundCommandType.Vigor;
                     break;
-                case "mend-wounds":
+                case SpellsEnum.mend:
                     bct = BackgroundCommandType.MendWounds;
                     break;
-                case "cure-poison":
+                case SpellsEnum.curepoison:
                     bct = BackgroundCommandType.CurePoison;
                     break;
-                case "bless":
+                case SpellsEnum.bless:
                     bct = BackgroundCommandType.Bless;
                     break;
-                case "protection":
+                case SpellsEnum.protection:
                     bct = BackgroundCommandType.Protection;
                     break;
                 default:
                     throw new InvalidOperationException();
             }
+            string spellName = SpellsStatic.SpellsByEnum[spell].SpellName;
             return RunSingleCommand(bct, "cast " + spellName, bwp, abortLogic, false);
         }
 
@@ -7510,11 +7528,40 @@ BeforeHazy:
             else
                 hasMobTarget = !string.IsNullOrEmpty(_mob);
             bool haveSettings = _settingsData != null;
-            List<string> knownSpells;
-            List<string> realmSpells = haveSettings ? CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(_settingsData.Realm) : null;
-            lock (_currentEntityInfo.SpellsKnownLock)
+            List<SpellsEnum> knownSpells = new List<SpellsEnum>();
+            lock (_currentEntityInfo.EntityLock)
             {
-                knownSpells = _currentEntityInfo.SpellsKnown;
+                knownSpells.AddRange(_currentEntityInfo.SpellsKnown);
+            }
+            SpellsEnum? level1Spell = null;
+            SpellsEnum? level2Spell = null;
+            SpellsEnum? level3Spell = null;
+            if (haveSettings)
+            {
+                RealmTypeFlags currentRealms = _settingsData.Realms;
+                foreach (RealmTypeFlags nextRealm in Enum.GetValues(typeof(RealmTypeFlags)))
+                {
+                    if (nextRealm != RealmTypeFlags.None && nextRealm != RealmTypeFlags.All && ((currentRealms & nextRealm) != RealmTypeFlags.None))
+                    {
+                        SpellsEnum nextSpell;
+                        List<SpellsEnum> realmSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
+                        if (!level1Spell.HasValue)
+                        {
+                            nextSpell = realmSpells[0];
+                            if (_currentEntityInfo.CanCast(nextSpell)) level1Spell = nextSpell;
+                        }
+                        if (!level2Spell.HasValue)
+                        {
+                            nextSpell = realmSpells[1];
+                            if (_currentEntityInfo.CanCast(nextSpell)) level2Spell = nextSpell;
+                        }
+                        if (!level3Spell.HasValue)
+                        {
+                            nextSpell = realmSpells[2];
+                            if (_currentEntityInfo.CanCast(nextSpell)) level3Spell = nextSpell;
+                        }
+                    }
+                }
             }
             foreach (CommandButtonTag oTag in GetButtonsForEnablingDisabling())
             {
@@ -7534,25 +7581,22 @@ BeforeHazy:
 
                 if (enabled)
                 {
-                    string sSpell = null;
+                    SpellsEnum? eSpell = null;
                     if (oControl == btnLevel1OffensiveSpell)
-                        sSpell = realmSpells == null ? "unknown" : realmSpells[0];
+                        eSpell = level1Spell;
                     else if (oControl == btnLevel2OffensiveSpell)
-                        sSpell = realmSpells == null ? "unknown" : realmSpells[1];
+                        eSpell = level2Spell;
                     else if (oControl == btnLevel3OffensiveSpell)
-                        sSpell = realmSpells == null ? "unknown" : realmSpells[2];
+                        eSpell = level3Spell;
                     else if (oControl == btnStunMob)
-                        sSpell = "stun";
+                        eSpell = SpellsEnum.stun;
                     else if (oControl == btnCastVigor)
-                        sSpell = "vigor";
+                        eSpell = SpellsEnum.vigor;
                     else if (oControl == btnCastMend)
-                        sSpell = "mend-wounds";
+                        eSpell = SpellsEnum.mend;
                     else if (oControl == btnCastCurePoison)
-                        sSpell = "cure-poison";
-                    if (!string.IsNullOrEmpty(sSpell))
-                    {
-                        enabled = knownSpells.Contains(sSpell);
-                    }
+                        eSpell = SpellsEnum.curepoison;
+                    enabled = eSpell.HasValue && _currentEntityInfo.CanCast(eSpell.Value);
                 }
 
                 bool isToolStripButton = oTag.IsToolStripButton;
@@ -8334,14 +8378,27 @@ BeforeHazy:
 
                 if (_refreshSpellsCast)
                 {
-                    List<string> spells = new List<string>();
+                    List<string> spellNames = new List<string>();
+                    List<SpellsEnum> spells = new List<SpellsEnum>();
                     lock (_currentEntityInfo.EntityLock)
                     {
                         spells.AddRange(_spellsCast);
                         _refreshSpellsCast = false;
                     }
+                    if (spells.Count == 0)
+                    {
+                        spellNames.Add("None");
+                    }
+                    else
+                    {
+                        foreach (SpellsEnum nextSpell in spells)
+                        {
+                            spellNames.Add(SpellsStatic.SpellsByEnum[nextSpell].SpellName);
+                        }
+                    }
+                    spellNames.Sort();
                     flpSpells.Controls.Clear();
-                    foreach (string next in spells)
+                    foreach (string next in spellNames)
                     {
                         Label l = new Label();
                         l.AutoSize = true;
@@ -9543,8 +9600,8 @@ BeforeHazy:
             bool flying, levitating;
             lock (_currentEntityInfo.EntityLock)
             {
-                flying = _spellsCast.Contains("fly");
-                levitating = _spellsCast.Contains("levitation");
+                flying = _spellsCast.Contains(SpellsEnum.fly);
+                levitating = _spellsCast.Contains(SpellsEnum.levitate);
             }
             return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
         }

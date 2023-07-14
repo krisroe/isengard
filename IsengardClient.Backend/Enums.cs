@@ -499,14 +499,6 @@ namespace IsengardClient.Backend
         Fireshield,
     }
 
-    public enum RealmType
-    {
-        Earth = 0,
-        Wind = 1,
-        Water = 2,
-        Fire = 3,
-    }
-
     public enum RoomDamageType
     {
         Earth = 0,
@@ -690,18 +682,6 @@ namespace IsengardClient.Backend
         StopCombat = 1,
         SelectFirstMonsterInRoom = 2,
         SelectFirstMonsterInRoomOfSameType = 3,
-    }
-
-    public enum SpellProficiency
-    {
-        Earth,
-        Wind,
-        Fire,
-        Water,
-        Divination,
-        Arcana,
-        Life,
-        Sorcery,
     }
 
     public enum ClassType

@@ -305,7 +305,7 @@ namespace IsengardClient.Backend
                 PromptedSkills missingSkills = skillsToCheck & ~skillsAvailable;
                 if (missingSkills != PromptedSkills.None)
                 {
-                    MessageBox.Show(parent, "Missing skills: " + missingSkills.ToString().Replace(" ", ""));
+                    MessageBox.Show(parent, "Missing skills: " + StringProcessing.TrimFlagsEnumToString(missingSkills));
                     return false;
                 }
             }
@@ -319,7 +319,7 @@ namespace IsengardClient.Backend
                 missingSpells = SpellsToCast & ~castableSpells;
                 if (missingSpells != WorkflowSpells.None)
                 {
-                    MessageBox.Show(parent, "Cannot cast spells: " + missingSpells.ToString().Replace(" ", ""));
+                    MessageBox.Show(parent, "Cannot cast spells: " + StringProcessing.TrimFlagsEnumToString(missingSpells));
                     return false;
                 }
             }
@@ -331,7 +331,7 @@ namespace IsengardClient.Backend
                 missingSpells = SpellsToPotion & ~availablePotions;
                 if (missingSpells != WorkflowSpells.None)
                 {
-                    MessageBox.Show(parent, "Missing potions: " + missingSpells.ToString().Replace(" ", ""));
+                    MessageBox.Show(parent, "Missing potions: " + StringProcessing.TrimFlagsEnumToString(missingSpells));
                     return false;
                 }
             }

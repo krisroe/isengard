@@ -41,7 +41,7 @@ namespace IsengardClient.Tests
         internal IsengardSettingData GenerateTestSettings(IsengardMap gameMap)
         {
             IsengardSettingData settings = new IsengardSettingData();
-            settings.Realm = RealmType.Fire;
+            settings.Realms = RealmTypeFlags.Fire | RealmTypeFlags.Wind;
             settings.PreferredAlignment = AlignmentType.Red;
             settings.QueryMonsterStatus = false;
             settings.GetNewPermRunOnBoatExitMissing = true;
@@ -170,7 +170,7 @@ namespace IsengardClient.Tests
 
         internal void VerifySettingsMatch(IsengardSettingData settings, IsengardSettingData sets2, bool expectIDsPopulated)
         {
-            Assert.AreEqual(settings.Realm, sets2.Realm);
+            Assert.AreEqual(settings.Realms, sets2.Realms);
             Assert.AreEqual(settings.PreferredAlignment, sets2.PreferredAlignment);
             Assert.AreEqual(settings.QueryMonsterStatus, sets2.QueryMonsterStatus);
             Assert.AreEqual(settings.GetNewPermRunOnBoatExitMissing, sets2.GetNewPermRunOnBoatExitMissing);
