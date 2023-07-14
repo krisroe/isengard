@@ -4609,7 +4609,7 @@ namespace IsengardClient
                                     int manaDrain;
                                     BackgroundCommandType? bct;
                                     RealmTypeFlags? realmToUse;
-                                    MagicCommandChoiceResult result = GetMagicCommand(strategy, nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse);
+                                    MagicCommandChoiceResult result = GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -6498,7 +6498,7 @@ BeforeHazy:
             command = sAttackType + " " + mobTarget;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(Strategy Strategy, MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
+        public MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
