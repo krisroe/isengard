@@ -2139,6 +2139,9 @@ namespace IsengardClient.Backend
         [SingularName("small metal shield")]
         [PluralName("small metal shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [Weight(6)]
+        [ArmorClass(0.4)]
+        [Sellable(SellableEnum.Junk)]
         SmallMetalShield,
 
         [SingularName("small pearl")]

@@ -1886,9 +1886,19 @@ namespace IsengardClient
 
         private void OnManashieldOn(FeedLineParameters flParams)
         {
+            EnsureManashieldStatus(true);
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
+        private void EnsureManashieldStatus(bool active)
+        {
             lock (_currentEntityInfo.EntityLock)
             {
-                if (ChangeSkillActive(SkillWithCooldownType.Manashield, true))
+                if (ChangeSkillActive(SkillWithCooldownType.Manashield, active))
                 {
                     decimal armorClassCalculated = _currentEntityInfo.ArmorClassCalculated;
                     if (armorClassCalculated >= 0)
@@ -1896,15 +1906,15 @@ namespace IsengardClient
                         decimal armorClassManashield = GetManashieldArmorClass();
                         if (armorClassManashield > armorClassCalculated)
                         {
-                            OnDeltaArmorClass(armorClassManashield - armorClassCalculated);
+                            decimal delta;
+                            if (active)
+                                delta = armorClassManashield - armorClassCalculated;
+                            else
+                                delta = armorClassCalculated - armorClassManashield;
+                            OnDeltaArmorClass(delta);
                         }
                     }
                 }
-            }
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Manashield)
-            {
-                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
@@ -1918,6 +1928,12 @@ namespace IsengardClient
             }
         }
 
+        /// <summary>
+        /// changes if a skill is active
+        /// </summary>
+        /// <param name="skill">skill to change</param>
+        /// <param name="active">true to make active, false to make inactive</param>
+        /// <returns>true if the status actually changed, false otherwise</returns>
         private bool ChangeSkillActive(SkillWithCooldownType skill, bool active)
         {
             bool ret = false;
@@ -1927,9 +1943,11 @@ namespace IsengardClient
                 {
                     if (nextCooldown.SkillType == skill)
                     {
-                        SkillCooldownStatus newStatus = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
-                        ret = newStatus != nextCooldown.Status;
-                        nextCooldown.Status = newStatus;
+                        if (active)
+                            ret = nextCooldown.Status != SkillCooldownStatus.Active;
+                        else
+                            ret = nextCooldown.Status == SkillCooldownStatus.Active;
+                        nextCooldown.Status = active ? SkillCooldownStatus.Active : SkillCooldownStatus.Inactive;
                         nextCooldown.NextAvailable = DateTime.MinValue;
                         break;
                     }
@@ -2607,7 +2625,7 @@ namespace IsengardClient
                         spellsOff.Add("light");
                         break;
                     case InformationalMessageType.ManashieldOff:
-                        ChangeSkillActive(SkillWithCooldownType.Manashield, false);
+                        EnsureManashieldStatus(false);
                         break;
                     case InformationalMessageType.FireshieldOff:
                         ChangeSkillActive(SkillWithCooldownType.Fireshield, false);
