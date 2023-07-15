@@ -120,6 +120,10 @@ namespace IsengardClient.Backend
         /// when the perm run was last completed
         /// </summary>
         public DateTime LastCompleted { get; set; }
+        /// <summary>
+        /// whether inventory management has finished
+        /// </summary>
+        public bool InventoryManagementFinished { get; set; }
 
         public override string ToString()
         {

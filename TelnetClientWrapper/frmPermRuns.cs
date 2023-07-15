@@ -13,6 +13,7 @@ namespace IsengardClient
         private Func<GraphInputs> _getGraphInputs;
         private bool _inBackgroundProcess;
         private Area _currentArea;
+        private Func<KeyValuePair<PermRun, bool>> _getCurrentPermRun;
 
         private DataGridViewTextBoxColumn colName;
         private DataGridViewTextBoxColumn colArea;
@@ -24,7 +25,7 @@ namespace IsengardClient
         private DataGridViewButtonColumn colRunOrQueue;
         private DataGridViewButtonColumn colGo;
 
-        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess, Area currentArea)
+        public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess, Area currentArea, Func<KeyValuePair<PermRun, bool>> getCurrentPermRun)
         {
             InitializeComponent();
             _settings = settings;
@@ -33,6 +34,7 @@ namespace IsengardClient
             _getGraphInputs = getGraphInputs;
             _inBackgroundProcess = inBackgroundProcess;
             _currentArea = currentArea;
+            _getCurrentPermRun = getCurrentPermRun;
             InitializeColumns(inBackgroundProcess);
 
             dgvPermRuns.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
@@ -86,6 +88,12 @@ namespace IsengardClient
             colRunOrQueue.Name = "colRunOrQueue";
             colRunOrQueue.ReadOnly = true;
             colRunOrQueue.Width = 75;
+            colChangeAndRun = new DataGridViewButtonColumn();
+            colChangeAndRun.HeaderText = inBackgroundProcess ? "Change+Queue" : "Change+Run";
+            colChangeAndRun.MinimumWidth = 6;
+            colChangeAndRun.Name = "colChangeAndRun";
+            colChangeAndRun.ReadOnly = true;
+            colChangeAndRun.Width = 125;
             dgvPermRuns.Columns.Add(colName);
             dgvPermRuns.Columns.Add(colArea);
             dgvPermRuns.Columns.Add(colRoom);
@@ -93,21 +101,15 @@ namespace IsengardClient
             dgvPermRuns.Columns.Add(colLastCompleted);
             dgvPermRuns.Columns.Add(colEdit);
             dgvPermRuns.Columns.Add(colRunOrQueue);
+            dgvPermRuns.Columns.Add(colChangeAndRun);
             if (!inBackgroundProcess)
             {
-                colChangeAndRun = new DataGridViewButtonColumn();
                 colGo = new DataGridViewButtonColumn();
-                colChangeAndRun.HeaderText = "Change+Run";
-                colChangeAndRun.MinimumWidth = 6;
-                colChangeAndRun.Name = "colChangeAndRun";
-                colChangeAndRun.ReadOnly = true;
-                colChangeAndRun.Width = 125;
                 colGo.HeaderText = "Go";
                 colGo.MinimumWidth = 6;
                 colGo.Name = "colGo";
                 colGo.ReadOnly = true;
                 colGo.Width = 75;
-                dgvPermRuns.Columns.Add(colChangeAndRun);
                 dgvPermRuns.Columns.Add(colGo);
             }
         }
@@ -203,14 +205,14 @@ namespace IsengardClient
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
                 if (_inBackgroundProcess)
-                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue");
+                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue", "Change+Queue");
                 else
                     r.SetValues(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Run", "Change+Run", "Go");
             }
             else
             {
                 if (_inBackgroundProcess)
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue", "Change+Queue");
                 else
                     rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Run", "Change+Run", "Go");
                 r = dgvPermRuns.Rows[rowIndex.Value];
@@ -287,6 +289,13 @@ namespace IsengardClient
                         WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
                         if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, false))
                         {
+                            var currentPermRunInfo = _getCurrentPermRun();
+                            PermRun currentPR = currentPermRunInfo.Key;
+                            bool inBackgroundProcess = currentPermRunInfo.Value;
+                            if (!inBackgroundProcess && currentPR != null && MessageBox.Show($"Perm run {currentPR} is current. Continue anyway?", "Perm Run", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                            {
+                                return;
+                            }
                             using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, PermRunEditFlow.ChangeAndRun, _currentArea))
                             {
                                 if (frm.ShowDialog(this) == DialogResult.OK)
@@ -309,6 +318,13 @@ namespace IsengardClient
                             pr.SkillsToRun &= ~PromptedSkills.PowerAttack;
                         }
 
+                        var currentPermRunInfo = _getCurrentPermRun();
+                        PermRun currentPR = currentPermRunInfo.Key;
+                        bool inBackgroundProcess = currentPermRunInfo.Value;
+                        if (!inBackgroundProcess && currentPR != null && MessageBox.Show($"Perm run {currentPR} is current. Continue anyway?", "Perm Run", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                        {
+                            return;
+                        }
                         if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap, _currentArea))
                         {
                             prToRun = new PermRun(pr);

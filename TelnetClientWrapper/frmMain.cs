@@ -5251,6 +5251,10 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool failureToReturnToSourceRoomIsOK, PermRun pr)
         {
+            if (eInventoryWorkflow == InventoryManagementWorkflow.ManageSourceItems && pr != null && pr.InventoryManagementFinished)
+            {
+                return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            }
             CommandResultObject backgroundCommandResultObject;
             if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
@@ -5646,11 +5650,21 @@ BeforeHazy:
             }
             CommandResultObject ret;
             if (_bwBackgroundProcess.CancellationPending)
+            {
                 ret = new CommandResultObject(CommandResult.CommandAborted, 0);
+            }
             else if (_hazying)
+            {
                 ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
+            }
             else
+            {
                 ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                if (pr != null)
+                {
+                    pr.InventoryManagementFinished = true;
+                }
+            }
             return ret;
         }
 
@@ -9696,6 +9710,15 @@ BeforeHazy:
             return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
         }
 
+        /// <summary>
+        /// returns the current perm run and whether a background process is currently running
+        /// </summary>
+        /// <returns>current perm run and whether background process is currently running</returns>
+        private KeyValuePair<PermRun, bool> GetCurrentPermRun()
+        {
+            return new KeyValuePair<PermRun, bool>(_currentPermRun, _currentBackgroundParameters != null);
+        }
+
         private List<Exit> CalculateRouteExits(Room fromRoom, Room targetRoom)
         {
             return MapComputation.ComputeLowestCostPath(fromRoom, targetRoom, GetGraphInputs());
@@ -10592,7 +10615,7 @@ BeforeHazy:
         {
             bool haveBackgroundProcess = _currentBackgroundParameters != null;
             Area currentArea = cboArea.SelectedItem as Area;
-            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess, currentArea))
+            using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess, currentArea, GetCurrentPermRun))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
