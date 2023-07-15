@@ -8205,6 +8205,7 @@ BeforeHazy:
             DateTime utcNow = DateTime.UtcNow;
 
             PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(false);
+            SupportedKeysFlags keys = _currentEntityInfo.GetAvailableKeys(false);
             WorkflowSpells workflowSpellsCast = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
             lock (_currentEntityInfo.EntityLock)
             {
@@ -8246,7 +8247,7 @@ BeforeHazy:
                 inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
             }
             PermRun p;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions, initArea))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, keys, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions, initArea))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {

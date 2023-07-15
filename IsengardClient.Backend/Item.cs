@@ -644,6 +644,7 @@ namespace IsengardClient.Backend
         SilverKey = 8,
         KasnarsRedKey = 16,
         TombKey = 32,
+        All = 63,
     }
 
     /// <summary>

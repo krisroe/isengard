@@ -376,6 +376,18 @@ namespace IsengardClient.Backend
                 }
             }
 
+            SupportedKeysFlags keysToCheck = SupportedKeys;
+            if (keysToCheck != SupportedKeysFlags.None)
+            {
+                SupportedKeysFlags keysAvailable = cei.GetAvailableKeys(false);
+                SupportedKeysFlags missingKeys = keysToCheck & ~keysAvailable;
+                if (missingKeys != SupportedKeysFlags.None)
+                {
+                    MessageBox.Show(parent, "Missing keys: " + StringProcessing.TrimFlagsEnumToString(missingKeys));
+                    return false;
+                }
+            }
+
             WorkflowSpells missingSpells;
 
             //check that spells can actually be casted

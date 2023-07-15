@@ -972,6 +972,31 @@ namespace IsengardClient.Backend
             tnUnknownEntities.Text = "Unknown Entities";
         }
 
+        public SupportedKeysFlags GetAvailableKeys(bool getAllKeys)
+        {
+            SupportedKeysFlags ret;
+            if (getAllKeys)
+            {
+                ret = SupportedKeysFlags.All;
+            }
+            else
+            {
+                ret = SupportedKeysFlags.None;
+                lock (EntityLock)
+                {
+                    foreach (ItemTypeEnum itemType in EnumerateInventoryAndEquipmentItems())
+                    {
+                        StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                        if (sid.ItemClass == ItemClass.Key && Enum.TryParse(itemType.ToString(), out SupportedKeysFlags keyFlag))
+                        {
+                            ret |= keyFlag;
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
         public PromptedSkills GetAvailableSkills(bool getAllSkills)
         {
             DateTime utcNow = DateTime.UtcNow;

@@ -70,20 +70,20 @@ namespace IsengardClient
         /// <summary>
         /// constructor used when initiating a perm run ad hoc from a strategy
         /// </summary>
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, Area currentArea)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, SupportedKeysFlags keys, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, Area currentArea)
         {
             InitializeComponent();
             txtDisplayName.Enabled = false;
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, null, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, null, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null);
         }
 
         /// <summary>
         /// constructor used when editing a perm run or using the change+run workflow
         /// </summary>
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, PermRunEditFlow permRunEditFlow, Area currentArea)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, SupportedKeysFlags keys, Room currentRoom, Func<GraphInputs> GetGraphInputs, CurrentEntityInfo currentEntityInfo, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, PermRun permRun, PermRunEditFlow permRunEditFlow, Area currentArea)
         {
             InitializeComponent();
             _permRun = permRun;
@@ -112,7 +112,7 @@ namespace IsengardClient
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
             Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea);
-            Initialize(gameMap, settingsData, skills, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.Realms, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.Realms, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome);
         }
 
         /// <summary>
@@ -124,9 +124,10 @@ namespace IsengardClient
         /// <param name="skillsToShow">skills to show checkboxes for</param>
         /// <param name="spellsCastToShow">cast spells to show checkboxes for</param>
         /// <param name="spellsPotionsToShow">potions spells to show checkboxes for</param>
+        /// <param name="keysToShow">keys to show checkboxes for</param>
         /// <param name="currentArea">current area where the player currently is</param>
         /// <param name="targetArea">target area for the perm run</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, RealmTypeFlags? realms, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea, Area targetArea, bool rehome)
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, SupportedKeysFlags keysToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, RealmTypeFlags? realms, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea, Area targetArea, bool rehome)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
@@ -283,7 +284,7 @@ namespace IsengardClient
                             isChecked = nextSpell == WorkflowSpells.Bless || nextSpell == WorkflowSpells.Protection || nextSpell == WorkflowSpells.CurePoison;
                         else
                             isChecked = (_permRun.SpellsToCast & nextSpell) != WorkflowSpells.None;
-                        AddSpellCheckbox(flpSpellsCast, nextSpell, isChecked);
+                        AddCheckbox(flpSpellsCast, nextSpell, isChecked);
                     }
                     if ((spellsPotionsToShow & nextSpell) == nextSpell)
                     {
@@ -291,7 +292,21 @@ namespace IsengardClient
                             isChecked = false;
                         else
                             isChecked = (_permRun.SpellsToPotion & nextSpell) != WorkflowSpells.None;
-                        AddSpellCheckbox(flpSpellsPotions, nextSpell, isChecked);
+                        AddCheckbox(flpSpellsPotions, nextSpell, isChecked);
+                    }
+                }
+            }
+            foreach (SupportedKeysFlags nextKey in Enum.GetValues(typeof(SupportedKeysFlags)))
+            {
+                if (nextKey != SupportedKeysFlags.None && nextKey != SupportedKeysFlags.All)
+                {
+                    if ((keysToShow & nextKey) == nextKey)
+                    {
+                        if (_permRun == null)
+                            isChecked = false;
+                        else
+                            isChecked = (_permRun.SupportedKeys & nextKey) != SupportedKeysFlags.None;
+                        AddCheckbox(flpKeys, nextKey, isChecked);
                     }
                 }
             }
@@ -333,16 +348,17 @@ namespace IsengardClient
             _initialized = true;
         }
 
-        private void AddSpellCheckbox(FlowLayoutPanel flp, WorkflowSpells spell, bool isChecked)
+        private CheckBox AddCheckbox(FlowLayoutPanel flp, object tag, bool isChecked)
         {
             CheckBox chk = new CheckBox();
             chk.AutoSize = true;
             chk.Checked = isChecked;
             chk.Margin = new Padding(4);
-            chk.Tag = spell;
-            chk.Text = spell.ToString();
+            chk.Tag = tag;
+            chk.Text = tag.ToString();
             chk.UseVisualStyleBackColor = true;
             flp.Controls.Add(chk);
+            return chk;
         }
 
         /// <summary>
@@ -454,6 +470,22 @@ namespace IsengardClient
                     if (nextSkillCheckbox.Checked)
                     {
                         ret |= (PromptedSkills)nextSkillCheckbox.Tag;
+                    }
+                }
+                return ret;
+            }
+        }
+
+        private SupportedKeysFlags SelectedKeys
+        {
+            get
+            {
+                SupportedKeysFlags ret = SupportedKeysFlags.None;
+                foreach (CheckBox nextKeyCheckbox in flpKeys.Controls)
+                {
+                    if (nextKeyCheckbox.Checked)
+                    {
+                        ret |= (SupportedKeysFlags)nextKeyCheckbox.Tag;
                     }
                 }
                 return ret;
@@ -820,6 +852,7 @@ namespace IsengardClient
             pr.SpellsToCast = GetSelectedSpells(flpSpellsCast);
             pr.SpellsToPotion = GetSelectedSpells(flpSpellsPotions);
             pr.SkillsToRun = SelectedSkills;
+            pr.SupportedKeys = SelectedKeys;
             pr.Strategy = (Strategy)cboStrategy.SelectedItem;
             Room rTemp;
             rTemp = (Room)cboTargetRoom.SelectedItem;

@@ -150,15 +150,17 @@ namespace IsengardClient
             pr.BeforeFull = FullType.Total;
             pr.AfterFull = FullType.Almost;
             PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
+            SupportedKeysFlags keys = _currentEntityInfo.GetAvailableKeys(true);
             WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
             pr.SpellsToCast = castableSpells & (WorkflowSpells.Bless | WorkflowSpells.Protection | WorkflowSpells.CurePoison);
             pr.SpellsToPotion = WorkflowSpells.None;
             pr.SkillsToRun = PromptedSkills.PowerAttack;
+            pr.SupportedKeys = SupportedKeysFlags.None;
             pr.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             pr.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             pr.Realms = null;
             WorkflowSpells spellsToPotion = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, PermRunEditFlow.Edit, _currentArea))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, keys, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, PermRunEditFlow.Edit, _currentArea))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
@@ -270,9 +272,10 @@ namespace IsengardClient
                     if (col == colEdit)
                     {
                         PromptedSkills skills = _currentEntityInfo.GetAvailableSkills(true);
+                        SupportedKeysFlags keys = _currentEntityInfo.GetAvailableKeys(true);
                         WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
                         WorkflowSpells potionableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
-                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, PermRunEditFlow.Edit, _currentArea))
+                        using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, keys, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, potionableSpells, pr, PermRunEditFlow.Edit, _currentArea))
                         {
                             if (frm.ShowDialog(this) == DialogResult.OK)
                             {
@@ -285,9 +288,10 @@ namespace IsengardClient
                     {
                         PermRun prChanged = new PermRun(pr);
                         PromptedSkills availableSkills = _currentEntityInfo.GetAvailableSkills(false);
+                        SupportedKeysFlags availableKeys = _currentEntityInfo.GetAvailableKeys(false);
                         WorkflowSpells castableSpells = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.Castable);
                         WorkflowSpells availablePotions = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.HavePotions);
-                        if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, false))
+                        if (ValidateAvailableSkillsAndSpellsAgainstPermRun(prChanged, ref availableSkills, ref castableSpells, ref availablePotions, ref availableKeys, false))
                         {
                             var currentPermRunInfo = _getCurrentPermRun();
                             PermRun currentPR = currentPermRunInfo.Key;
@@ -296,7 +300,7 @@ namespace IsengardClient
                             {
                                 return;
                             }
-                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, PermRunEditFlow.ChangeAndRun, _currentArea))
+                            using (frmPermRun frm = new frmPermRun(_gameMap, _settings, availableSkills, availableKeys, pr.TargetRoomObject, _getGraphInputs, _currentEntityInfo, castableSpells, availablePotions, pr, PermRunEditFlow.ChangeAndRun, _currentArea))
                             {
                                 if (frm.ShowDialog(this) == DialogResult.OK)
                                 {
@@ -351,7 +355,7 @@ namespace IsengardClient
             }
         }
 
-        public bool ValidateAvailableSkillsAndSpellsAgainstPermRun(PermRun pr, ref PromptedSkills availableSkills, ref WorkflowSpells castableSpells, ref WorkflowSpells availablePotions, bool hardStop)
+        public bool ValidateAvailableSkillsAndSpellsAgainstPermRun(PermRun pr, ref PromptedSkills availableSkills, ref WorkflowSpells castableSpells, ref WorkflowSpells availablePotions, ref SupportedKeysFlags availableKeys, bool hardStop)
         {
             List<string> errorMessages = new List<string>();
 
@@ -378,6 +382,12 @@ namespace IsengardClient
             if (missingPotionSpells != WorkflowSpells.None)
             {
                 errorMessages.Add("Missing potions for: " + StringProcessing.TrimFlagsEnumToString(missingPotionSpells));
+            }
+            SupportedKeysFlags requiredKeys = pr.SupportedKeys;
+            SupportedKeysFlags missingKeys = requiredKeys & ~availableKeys;
+            if (missingKeys != SupportedKeysFlags.None)
+            {
+                errorMessages.Add("Missing keys for: " + StringProcessing.TrimFlagsEnumToString(missingKeys));
             }
             bool ret = errorMessages.Count == 0;
             if (!ret)
