@@ -124,6 +124,10 @@ namespace IsengardClient.Backend
         /// whether inventory management has finished
         /// </summary>
         public bool InventoryManagementFinished { get; set; }
+        /// <summary>
+        /// supported keys
+        /// </summary>
+        public SupportedKeysFlags SupportedKeys { get; set; }
 
         public override string ToString()
         {

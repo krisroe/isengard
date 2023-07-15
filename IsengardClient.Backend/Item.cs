@@ -145,7 +145,7 @@ namespace IsengardClient.Backend
             {
                 sSingular = sid.SingularName;
             }
-            foreach (string s in StringProcessing.PickWords(sid.SingularName))
+            foreach (string s in StringProcessing.PickWords(sSingular))
             {
                 yield return s;
             }
@@ -632,6 +632,18 @@ namespace IsengardClient.Backend
         /// item class not covered by other item classes
         /// </summary>
         Other,
+    }
+
+    [Flags]
+    public enum SupportedKeysFlags
+    {
+        None = 0,
+        GateKey = 1,
+        BridgeKey = 2,
+        BoilerKey = 4,
+        SilverKey = 8,
+        KasnarsRedKey = 16,
+        TombKey = 32,
     }
 
     /// <summary>

@@ -287,6 +287,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
             Assert.AreEqual(p1.SpellsToPotion, p2.SpellsToPotion);
             Assert.AreEqual(p1.SkillsToRun, p2.SkillsToRun);
+            Assert.AreEqual(p1.SupportedKeys, p2.SupportedKeys);
             Assert.AreEqual(p1.TargetRoomIdentifier, p2.TargetRoomIdentifier);
             Assert.AreEqual(p1.TargetRoomObject, p2.TargetRoomObject);
             Assert.AreEqual(p1.ThresholdRoomIdentifier, p2.ThresholdRoomIdentifier);

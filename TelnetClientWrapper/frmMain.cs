@@ -4310,7 +4310,7 @@ namespace IsengardClient
 
                 CommandResultObject backgroundCommandResultObject = null;
                 PermRun pr = pms.PermRun;
-                bool hasMob = pms.MobType.HasValue || !string.IsNullOrEmpty(pms.MobText);
+                bool hasMob = pms.MobType.HasValue || !string.IsNullOrEmpty(pms.MobText) || pms.MobTypeCounter > 0;
                 PromptedSkills skillsToRun = pr == null ? PromptedSkills.None : pr.SkillsToRun;
                 WorkflowSpells spellsToCast = pr == null ? WorkflowSpells.None : pr.SpellsToCast;
 
@@ -4332,64 +4332,65 @@ namespace IsengardClient
                     }
                 }
 
-                if (hasMob)
+                if (!_hazying && !_fleeing && ((pr != null && pr.BeforeFull != FullType.None) || pms.CureIfPoisoned))
                 {
-                    if (!_hazying && !_fleeing && ((pr != null && pr.BeforeFull != FullType.None) || pms.CureIfPoisoned))
+                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                    PlayerStatusFlags psf = _playerStatusFlags;
+                    if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
                     {
-                        _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                        PlayerStatusFlags psf = _playerStatusFlags;
-                        if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, AbortIfFleeingOrHazying, true);
+                        if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return;
+                        psf = _playerStatusFlags;
+                        if ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)
                         {
-                            backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Score, "score", pms, AbortIfFleeingOrHazying, true);
-                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return;
-                            psf = _playerStatusFlags;
-                            if ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)
+                            AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
+                            return;
+                        }
+                    }
+                    if (!_fleeing && !_hazying && ((psf & PlayerStatusFlags.Poisoned) != PlayerStatusFlags.None))
+                    {
+                        SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
+                        if (_automp < sia.Mana)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            backgroundCommandResultObject = CastSpellOnSelf(SpellsEnum.curepoison, pms, AbortIfFleeingOrHazying);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
-                                AddConsoleMessage("Not poisoned, thus cure-poison not cast.");
                                 return;
                             }
                         }
-                        if (!_fleeing && !_hazying && ((psf & PlayerStatusFlags.Poisoned) != PlayerStatusFlags.None))
-                        {
-                            SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
-                            if (_automp < sia.Mana)
-                            {
-                                return;
-                            }
-                            else
-                            {
-                                backgroundCommandResultObject = CastSpellOnSelf(SpellsEnum.curepoison, pms, AbortIfFleeingOrHazying);
-                                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
-                                {
-                                    return;
-                                }
-                            }
-                        }
-                        if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
+                    }
+                    if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                        if (!_fleeing && !_hazying && !IsFull(pr.BeforeFull, spellsToCast, out _))
+                    if (!_fleeing && !_hazying && !IsFull(pr.BeforeFull, spellsToCast, out _))
+                    {
+                        backgroundCommandResultObject = NavigateToTickRoom(pms, true, pr);
+                        if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                         {
-                            backgroundCommandResultObject = NavigateToTickRoom(pms, true, pr);
-                            if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                            return;
+                        }
+                        if (!_hazying && !_fleeing)
+                        {
+                            _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                            backgroundCommandResultObject = GetFullInBackground(pms, pr.BeforeFull, spellsToCast, AbortIfFleeingOrHazying);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
                             }
-                            if (!_hazying && !_fleeing)
-                            {
-                                _backgroundProcessPhase = BackgroundProcessPhase.Heal;
-                                backgroundCommandResultObject = GetFullInBackground(pms, pr.BeforeFull, spellsToCast, AbortIfFleeingOrHazying);
-                                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
-                                {
-                                    return;
-                                }
-                            }
                         }
                     }
-                    if (!_fleeing && !_hazying && pr != null && !pms.Resume)
-                    {
-                        pr.PermRunStart = DateTime.UtcNow;
-                    }
-                    bool haveThreshold = pr != null && pr.ThresholdRoomObject != null;
+                }
+                if (hasMob && !_fleeing && !_hazying && pr != null && !pms.Resume)
+                {
+                    pr.PermRunStart = DateTime.UtcNow;
+                }
+
+                bool haveThreshold = pr != null && pr.ThresholdRoomObject != null;
+                if (hasMob || pr == null)
+                {
                     if (!_fleeing && !_hazying)
                     {
                         bool moved = true;
@@ -4413,6 +4414,10 @@ namespace IsengardClient
                             }
                         }
                     }
+                }
+
+                if (hasMob)
+                {
 
                     //activate potions/skills at the threshold if there is a threshold
                     if (!_fleeing && !_hazying && haveThreshold)
@@ -4423,20 +4428,23 @@ namespace IsengardClient
                             return;
                         }
                     }
+                }
 
-                    if (!_fleeing && !_hazying && haveThreshold)
+                if ((hasMob || pr == null) && !_fleeing && !_hazying && haveThreshold)
+                {
+                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true, pr);
+                    if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                     {
-                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true, pr);
-                        if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
-                        {
-                            pms.AtDestination = true;
-                        }
-                        else if (backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
-                        {
-                            return;
-                        }
+                        pms.AtDestination = true;
                     }
+                    else if (backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
+                    {
+                        return;
+                    }
+                }
 
+                if (hasMob)
+                {
                     //verify the mob is present and attackable before activating skills
                     if (_bwBackgroundProcess.CancellationPending) return;
                     if (!_hazying && !_fleeing && pms.ExpectsMob() && !FoundMob(pms))
@@ -5077,6 +5085,7 @@ BeforeHazy:
                             pr.MobType = null;
                             pr.MobText = null;
                             pr.MobIndex = 0;
+                            pr.BeforeFull = FullType.None;
                         }
                     }
                 }
