@@ -4642,7 +4642,7 @@ namespace IsengardClient
                                         {
                                             return;
                                         }
-                                        else //increment realm
+                                        else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                                         {
                                             if (realmToUse.HasValue)
                                             {

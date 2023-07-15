@@ -2276,6 +2276,7 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/6/23
+        [Sellable(1237)]
         TattooOfASnake,
 
         [SingularName("tattoo of a wench")]
