@@ -3724,9 +3724,26 @@ StartProcessRoom:
             return obj.ToString().Replace(" ", string.Empty);
         }
 
-        public static string GetDateTimeForDisplay(DateTime dt)
+        public static string GetDateTimeForDisplay(DateTime dt, bool addSpaces, bool includeMS)
         {
-            return dt.Year + dt.Month.ToString().PadLeft(2, '0') + dt.Day.ToString().PadLeft(2, '0') + dt.Hour.ToString().PadLeft(2, '0') + dt.Minute.ToString().PadLeft(2, '0') + dt.Second.ToString().PadLeft(2, '0') + dt.Millisecond.ToString().PadLeft(3, '0');
+            StringBuilder sb = new StringBuilder();
+            sb.Append(dt.Year.ToString());
+            if (addSpaces) sb.Append(" ");
+            sb.Append(dt.Month.ToString().PadLeft(2, '0'));
+            if (addSpaces) sb.Append(" ");
+            sb.Append(dt.Day.ToString().PadLeft(2, '0'));
+            if (addSpaces) sb.Append(" ");
+            sb.Append(dt.Hour.ToString().PadLeft(2, '0'));
+            if (addSpaces) sb.Append(" ");
+            sb.Append(dt.Minute.ToString().PadLeft(2, '0'));
+            if (addSpaces) sb.Append(" ");
+            sb.Append(dt.Second.ToString().PadLeft(2, '0'));
+            if (includeMS)
+            {
+                if (addSpaces) sb.Append(" ");
+                sb.Append(dt.Millisecond.ToString().PadLeft(3, '0'));
+            }
+            return sb.ToString();
         }
     }
 }

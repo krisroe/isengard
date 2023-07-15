@@ -196,7 +196,7 @@ namespace IsengardClient
             if (nextPermRun.LastCompleted != DateTime.MinValue)
             {
                 DateTime dt = TimeZoneInfo.ConvertTime(nextPermRun.LastCompleted, TimeZoneInfo.Local);
-                sLastCompleted = StringProcessing.GetDateTimeForDisplay(dt);
+                sLastCompleted = StringProcessing.GetDateTimeForDisplay(dt, true, false);
             }
             DataGridViewRow r;
             if (rowIndex.HasValue)
