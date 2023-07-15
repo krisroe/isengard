@@ -90,6 +90,7 @@ namespace IsengardClient.Tests
             s.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoom;
             s.AutoSpellLevelMin = 2;
             s.AutoSpellLevelMax = 3;
+            s.Realms = RealmTypeFlags.Earth | RealmTypeFlags.Wind;
             s.DisplayName = "something";
             s.FinalMagicAction = FinalStepAction.Flee;
             s.FinalMeleeAction = FinalStepAction.Hazy;
@@ -110,6 +111,7 @@ namespace IsengardClient.Tests
             p.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
             p.AutoSpellLevelMin = 3;
             p.AutoSpellLevelMax = 4;
+            p.Realms = RealmTypeFlags.Fire;
             p.DisplayName = "asfdsdaf";
             p.BeforeFull = FullType.Total;
             p.AfterFull = FullType.Almost;
@@ -298,6 +300,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.AfterKillMonsterAction, p2.AfterKillMonsterAction);
             Assert.AreEqual(p1.AutoSpellLevelMin, p2.AutoSpellLevelMin);
             Assert.AreEqual(p1.AutoSpellLevelMax, p2.AutoSpellLevelMax);
+            Assert.AreEqual(p1.Realms, p2.Realms);
             Assert.AreEqual(p1.ItemsToProcessType, p2.ItemsToProcessType);
             VerifyStrategiesMatch(p1.Strategy, p2.Strategy, expectIDsPopulated);
         }
@@ -322,6 +325,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(s1.TypesWithStepsEnabled, s2.TypesWithStepsEnabled);
             Assert.AreEqual(s1.AutoSpellLevelMin, s2.AutoSpellLevelMin);
             Assert.AreEqual(s1.AutoSpellLevelMax, s2.AutoSpellLevelMax);
+            Assert.AreEqual(s1.Realms, s2.Realms);
             Assert.AreEqual(s1.MagicSteps == null, s2.MagicSteps == null);
             Assert.AreEqual(s1.MeleeSteps == null, s2.MeleeSteps == null);
             Assert.AreEqual(s1.PotionsSteps == null, s2.PotionsSteps == null);

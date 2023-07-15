@@ -122,6 +122,10 @@ namespace IsengardClient.Backend
                 Strategy.AutoSpellLevelMin = p.AutoSpellLevelMin;
                 Strategy.AutoSpellLevelMax = p.AutoSpellLevelMax;
             }
+            if (p.Realms.HasValue)
+            {
+                Strategy.Realms = p.Realms;
+            }
             if (p.AfterKillMonsterAction.HasValue)
             {
                 Strategy.AfterKillMonsterAction = p.AfterKillMonsterAction.Value;

@@ -20,6 +20,7 @@ namespace IsengardClient.Backend
         public FinalStepAction FinalMagicAction { get; set; }
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
+        public RealmTypeFlags? Realms { get; set; }
         public int? MagicOnlyWhenStunnedForXMS { get; set; }
 
         public List<MeleeStrategyStep> MeleeSteps { get; set; }
@@ -35,41 +36,43 @@ namespace IsengardClient.Backend
 
         public Strategy()
         {
-            this.TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
-            this.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
-            this.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            TypesWithStepsEnabled = CommandType.Magic | CommandType.Melee | CommandType.Potions;
+            AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            Realms = null;
         }
 
         public Strategy(Strategy copied)
         {
-            this.DisplayName = copied.DisplayName;
-            this.AfterKillMonsterAction = copied.AfterKillMonsterAction;
-            this.ManaPool = copied.ManaPool;
-            this.FinalMagicAction = copied.FinalMagicAction;
-            this.AutoSpellLevelMin = copied.AutoSpellLevelMin;
-            this.AutoSpellLevelMax = copied.AutoSpellLevelMax;
-            this.MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
+            DisplayName = copied.DisplayName;
+            AfterKillMonsterAction = copied.AfterKillMonsterAction;
+            ManaPool = copied.ManaPool;
+            FinalMagicAction = copied.FinalMagicAction;
+            AutoSpellLevelMin = copied.AutoSpellLevelMin;
+            AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            Realms = copied.Realms;
+            MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
             if (copied.MagicSteps != null)
             {
-                this.MagicSteps = new List<MagicStrategyStep>(copied.MagicSteps);
+                MagicSteps = new List<MagicStrategyStep>(copied.MagicSteps);
             }
 
-            this.FinalMeleeAction = copied.FinalMeleeAction;
-            this.MeleeOnlyWhenStunnedForXMS = copied.MeleeOnlyWhenStunnedForXMS;
+            FinalMeleeAction = copied.FinalMeleeAction;
+            MeleeOnlyWhenStunnedForXMS = copied.MeleeOnlyWhenStunnedForXMS;
             if (copied.MeleeSteps != null)
             {
-                this.MeleeSteps = new List<MeleeStrategyStep>(copied.MeleeSteps);
+                MeleeSteps = new List<MeleeStrategyStep>(copied.MeleeSteps);
             }
 
-            this.FinalPotionsAction = copied.FinalPotionsAction;
-            this.PotionsOnlyWhenStunnedForXMS = copied.PotionsOnlyWhenStunnedForXMS;
+            FinalPotionsAction = copied.FinalPotionsAction;
+            PotionsOnlyWhenStunnedForXMS = copied.PotionsOnlyWhenStunnedForXMS;
             if (copied.PotionsSteps != null)
             {
-                this.PotionsSteps = new List<PotionsStrategyStep>(copied.PotionsSteps);
+                PotionsSteps = new List<PotionsStrategyStep>(copied.PotionsSteps);
             }
 
-            this.TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
-            this.TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
+            TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
+            TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
         }
 
         public override string ToString()

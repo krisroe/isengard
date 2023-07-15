@@ -8,7 +8,7 @@ namespace IsengardClient
     internal partial class frmStrategy : Form
     {
         private IsengardSettingData _settings;
-        private AutoSpellLevelOverrides _autoSpellLevelInfo;
+        private StrategyOverridesUI _strategyOverridesUI;
 
         private Strategy Strategy { get; set; }
 
@@ -58,7 +58,7 @@ namespace IsengardClient
 
             cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
 
-            _autoSpellLevelInfo = new AutoSpellLevelOverrides(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, s.AutoSpellLevelMin, s.AutoSpellLevelMax, _settings.AutoSpellLevelMin, _settings.AutoSpellLevelMax, lblAutoSpellLevels, AutoSpellLevelOverridesLevel.Strategy);
+            _strategyOverridesUI = new StrategyOverridesUI(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, s.AutoSpellLevelMin, s.AutoSpellLevelMax, lblAutoSpellLevels, null, s.Realms, lblCurrentRealmValue, StrategyOverridesLevel.Strategy, _settings);
 
             if (s.ManaPool > 0) txtManaPool.Text = s.ManaPool.ToString();
 
@@ -177,10 +177,9 @@ namespace IsengardClient
 
             Strategy.DisplayName = txtName.Text;
             Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-            int iAutoSpellMin, iAutoSpellMax;
-            _autoSpellLevelInfo.GetEffectiveMinMax(out iAutoSpellMin, out iAutoSpellMax);
-            Strategy.AutoSpellLevelMin = iAutoSpellMin;
-            Strategy.AutoSpellLevelMax = iAutoSpellMax;
+            Strategy.AutoSpellLevelMin = _strategyOverridesUI.StrategyAutoSpellLevelMinimum;
+            Strategy.AutoSpellLevelMax = _strategyOverridesUI.StrategyAutoSpellLevelMaximum;
+            Strategy.Realms = _strategyOverridesUI.StrategyRealms;
 
             sInt = txtManaPool.Text;
             Strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);

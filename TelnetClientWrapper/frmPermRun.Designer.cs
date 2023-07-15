@@ -43,7 +43,6 @@
             this.chkMagic = new System.Windows.Forms.CheckBox();
             this.ctxToggleStrategyModificationOverride = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiToggleEnabled = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.chkMelee = new System.Windows.Forms.CheckBox();
             this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
             this.chkPotions = new System.Windows.Forms.CheckBox();
@@ -74,6 +73,7 @@
             this.chkRehome = new System.Windows.Forms.CheckBox();
             this.btnEditAreas = new System.Windows.Forms.Button();
             this.txtArea = new System.Windows.Forms.TextBox();
+            this.lblCurrentRealmValue = new System.Windows.Forms.Label();
             this.grpStrategyModifications.SuspendLayout();
             this.pnlStrategyModifications.SuspendLayout();
             this.ctxToggleStrategyModificationOverride.SuspendLayout();
@@ -82,7 +82,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(677, 593);
+            this.btnOK.Location = new System.Drawing.Point(677, 568);
             this.btnOK.Margin = new System.Windows.Forms.Padding(4);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(140, 43);
@@ -95,7 +95,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(828, 593);
+            this.btnCancel.Location = new System.Drawing.Point(828, 568);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(140, 43);
@@ -176,15 +176,15 @@
             this.grpStrategyModifications.Controls.Add(this.pnlStrategyModifications);
             this.grpStrategyModifications.Location = new System.Drawing.Point(122, 436);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
-            this.grpStrategyModifications.Size = new System.Drawing.Size(528, 129);
+            this.grpStrategyModifications.Size = new System.Drawing.Size(844, 103);
             this.grpStrategyModifications.TabIndex = 25;
             this.grpStrategyModifications.TabStop = false;
             this.grpStrategyModifications.Text = "Strategy Modifications";
             // 
             // pnlStrategyModifications
             // 
+            this.pnlStrategyModifications.Controls.Add(this.lblCurrentRealmValue);
             this.pnlStrategyModifications.Controls.Add(this.chkMagic);
-            this.pnlStrategyModifications.Controls.Add(this.lblAutoSpellLevels);
             this.pnlStrategyModifications.Controls.Add(this.chkMelee);
             this.pnlStrategyModifications.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
             this.pnlStrategyModifications.Controls.Add(this.chkPotions);
@@ -193,7 +193,7 @@
             this.pnlStrategyModifications.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlStrategyModifications.Location = new System.Drawing.Point(3, 23);
             this.pnlStrategyModifications.Name = "pnlStrategyModifications";
-            this.pnlStrategyModifications.Size = new System.Drawing.Size(522, 103);
+            this.pnlStrategyModifications.Size = new System.Drawing.Size(838, 77);
             this.pnlStrategyModifications.TabIndex = 151;
             this.pnlStrategyModifications.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnlStrategyModifications_MouseUp);
             // 
@@ -201,7 +201,7 @@
             // 
             this.chkMagic.AutoSize = true;
             this.chkMagic.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMagic.Location = new System.Drawing.Point(3, 3);
+            this.chkMagic.Location = new System.Drawing.Point(16, 8);
             this.chkMagic.Name = "chkMagic";
             this.chkMagic.Size = new System.Drawing.Size(75, 23);
             this.chkMagic.TabIndex = 0;
@@ -225,20 +225,11 @@
             this.tsmiToggleEnabled.Text = "Toggle";
             this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
             // 
-            // lblAutoSpellLevels
-            // 
-            this.lblAutoSpellLevels.AutoSize = true;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(7, 66);
-            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
-            this.lblAutoSpellLevels.Size = new System.Drawing.Size(128, 19);
-            this.lblAutoSpellLevels.TabIndex = 5;
-            this.lblAutoSpellLevels.Text = "Auto spell levels:";
-            // 
             // chkMelee
             // 
             this.chkMelee.AutoSize = true;
             this.chkMelee.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMelee.Location = new System.Drawing.Point(109, 3);
+            this.chkMelee.Location = new System.Drawing.Point(122, 8);
             this.chkMelee.Name = "chkMelee";
             this.chkMelee.Size = new System.Drawing.Size(74, 23);
             this.chkMelee.TabIndex = 1;
@@ -250,9 +241,9 @@
             // 
             this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(165, 62);
+            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(423, 3);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
-            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(234, 27);
+            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(294, 27);
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 6;
             this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
             this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -261,7 +252,7 @@
             // 
             this.chkPotions.AutoSize = true;
             this.chkPotions.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkPotions.Location = new System.Drawing.Point(208, 3);
+            this.chkPotions.Location = new System.Drawing.Point(221, 8);
             this.chkPotions.Name = "chkPotions";
             this.chkPotions.Size = new System.Drawing.Size(85, 23);
             this.chkPotions.TabIndex = 2;
@@ -274,7 +265,7 @@
             this.cboOnKillMonster.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
             this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboOnKillMonster.FormattingEnabled = true;
-            this.cboOnKillMonster.Location = new System.Drawing.Point(165, 32);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(165, 37);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
             this.cboOnKillMonster.TabIndex = 4;
@@ -282,7 +273,7 @@
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(7, 37);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(7, 42);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
             this.lblOnKillMonster.Size = new System.Drawing.Size(121, 19);
             this.lblOnKillMonster.TabIndex = 3;
@@ -292,7 +283,7 @@
             // 
             this.cboItemsToProcessType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboItemsToProcessType.FormattingEnabled = true;
-            this.cboItemsToProcessType.Location = new System.Drawing.Point(122, 572);
+            this.cboItemsToProcessType.Location = new System.Drawing.Point(122, 546);
             this.cboItemsToProcessType.Margin = new System.Windows.Forms.Padding(4);
             this.cboItemsToProcessType.Name = "cboItemsToProcessType";
             this.cboItemsToProcessType.Size = new System.Drawing.Size(528, 27);
@@ -301,7 +292,7 @@
             // lblItemsToProcessType
             // 
             this.lblItemsToProcessType.AutoSize = true;
-            this.lblItemsToProcessType.Location = new System.Drawing.Point(3, 575);
+            this.lblItemsToProcessType.Location = new System.Drawing.Point(3, 549);
             this.lblItemsToProcessType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblItemsToProcessType.Name = "lblItemsToProcessType";
             this.lblItemsToProcessType.Size = new System.Drawing.Size(108, 19);
@@ -452,7 +443,7 @@
             // 
             this.cboAfterFull.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboAfterFull.FormattingEnabled = true;
-            this.cboAfterFull.Location = new System.Drawing.Point(122, 607);
+            this.cboAfterFull.Location = new System.Drawing.Point(122, 581);
             this.cboAfterFull.Margin = new System.Windows.Forms.Padding(4);
             this.cboAfterFull.Name = "cboAfterFull";
             this.cboAfterFull.Size = new System.Drawing.Size(528, 27);
@@ -461,7 +452,7 @@
             // lblAfterFull
             // 
             this.lblAfterFull.AutoSize = true;
-            this.lblAfterFull.Location = new System.Drawing.Point(4, 610);
+            this.lblAfterFull.Location = new System.Drawing.Point(4, 584);
             this.lblAfterFull.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAfterFull.Name = "lblAfterFull";
             this.lblAfterFull.Size = new System.Drawing.Size(74, 19);
@@ -525,11 +516,22 @@
             this.txtArea.Size = new System.Drawing.Size(528, 27);
             this.txtArea.TabIndex = 34;
             // 
+            // lblCurrentRealmValue
+            // 
+            this.lblCurrentRealmValue.BackColor = System.Drawing.Color.White;
+            this.lblCurrentRealmValue.Location = new System.Drawing.Point(423, 37);
+            this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
+            this.lblCurrentRealmValue.Size = new System.Drawing.Size(294, 27);
+            this.lblCurrentRealmValue.TabIndex = 149;
+            this.lblCurrentRealmValue.Text = "Realm";
+            this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(981, 644);
+            this.ClientSize = new System.Drawing.Size(981, 619);
             this.ControlBox = false;
             this.Controls.Add(this.txtArea);
             this.Controls.Add(this.btnEditAreas);
@@ -604,7 +606,6 @@
         private System.Windows.Forms.Label lblStrategy;
         private System.Windows.Forms.ComboBox cboStrategy;
         private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
-        private System.Windows.Forms.Label lblAutoSpellLevels;
         private System.Windows.Forms.FlowLayoutPanel flpSpellsPotions;
         private System.Windows.Forms.Label lblSpellsPotions;
         private System.Windows.Forms.Label lblDisplayName;
@@ -626,5 +627,6 @@
         private System.Windows.Forms.CheckBox chkRehome;
         private System.Windows.Forms.Button btnEditAreas;
         private System.Windows.Forms.TextBox txtArea;
+        private System.Windows.Forms.Label lblCurrentRealmValue;
     }
 }

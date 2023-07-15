@@ -94,6 +94,7 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
+            this.lblCurrentRealmValue = new System.Windows.Forms.Label();
             this.grpMagic.SuspendLayout();
             this.ctxMagicSteps.SuspendLayout();
             this.grpMelee.SuspendLayout();
@@ -104,6 +105,7 @@
             // 
             // grpMagic
             // 
+            this.grpMagic.Controls.Add(this.lblCurrentRealmValue);
             this.grpMagic.Controls.Add(this.txtMagicOnlyWhenStunnedForXMS);
             this.grpMagic.Controls.Add(this.lblMagicOnlyWhenStunnedForXMS);
             this.grpMagic.Controls.Add(this.chkMagicEnabled);
@@ -114,36 +116,39 @@
             this.grpMagic.Controls.Add(this.chkMagicLastStepIndefinite);
             this.grpMagic.Controls.Add(this.lblManaPool);
             this.grpMagic.Controls.Add(this.lstMagicSteps);
-            this.grpMagic.Location = new System.Drawing.Point(30, 10);
+            this.grpMagic.Location = new System.Drawing.Point(40, 12);
+            this.grpMagic.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpMagic.Name = "grpMagic";
-            this.grpMagic.Size = new System.Drawing.Size(225, 319);
+            this.grpMagic.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMagic.Size = new System.Drawing.Size(300, 410);
             this.grpMagic.TabIndex = 0;
             this.grpMagic.TabStop = false;
             this.grpMagic.Text = "Magic";
             // 
             // txtMagicOnlyWhenStunnedForXMS
             // 
-            this.txtMagicOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(142, 228);
+            this.txtMagicOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(189, 281);
+            this.txtMagicOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtMagicOnlyWhenStunnedForXMS.Name = "txtMagicOnlyWhenStunnedForXMS";
-            this.txtMagicOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(62, 20);
+            this.txtMagicOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(81, 22);
             this.txtMagicOnlyWhenStunnedForXMS.TabIndex = 147;
             // 
             // lblMagicOnlyWhenStunnedForXMS
             // 
             this.lblMagicOnlyWhenStunnedForXMS.AutoSize = true;
-            this.lblMagicOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(4, 228);
-            this.lblMagicOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMagicOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(5, 281);
             this.lblMagicOnlyWhenStunnedForXMS.Name = "lblMagicOnlyWhenStunnedForXMS";
-            this.lblMagicOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(162, 15);
+            this.lblMagicOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(171, 16);
             this.lblMagicOnlyWhenStunnedForXMS.TabIndex = 146;
             this.lblMagicOnlyWhenStunnedForXMS.Text = "Only when stunned for X ms:";
             // 
             // chkMagicEnabled
             // 
             this.chkMagicEnabled.AutoSize = true;
-            this.chkMagicEnabled.Location = new System.Drawing.Point(43, 247);
+            this.chkMagicEnabled.Location = new System.Drawing.Point(57, 304);
+            this.chkMagicEnabled.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkMagicEnabled.Name = "chkMagicEnabled";
-            this.chkMagicEnabled.Size = new System.Drawing.Size(82, 19);
+            this.chkMagicEnabled.Size = new System.Drawing.Size(87, 20);
             this.chkMagicEnabled.TabIndex = 145;
             this.chkMagicEnabled.Text = "Enabled?";
             this.chkMagicEnabled.UseVisualStyleBackColor = true;
@@ -152,9 +157,10 @@
             // 
             this.lblAutoSpellLevels.BackColor = System.Drawing.Color.Silver;
             this.lblAutoSpellLevels.ForeColor = System.Drawing.Color.Black;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(4, 293);
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(5, 361);
+            this.lblAutoSpellLevels.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
-            this.lblAutoSpellLevels.Size = new System.Drawing.Size(218, 15);
+            this.lblAutoSpellLevels.Size = new System.Drawing.Size(291, 18);
             this.lblAutoSpellLevels.TabIndex = 138;
             this.lblAutoSpellLevels.Text = "AutoSpell lvls";
             this.lblAutoSpellLevels.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -162,9 +168,10 @@
             // lblMagicFinalAction
             // 
             this.lblMagicFinalAction.AutoSize = true;
-            this.lblMagicFinalAction.Location = new System.Drawing.Point(4, 206);
+            this.lblMagicFinalAction.Location = new System.Drawing.Point(5, 254);
+            this.lblMagicFinalAction.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMagicFinalAction.Name = "lblMagicFinalAction";
-            this.lblMagicFinalAction.Size = new System.Drawing.Size(73, 15);
+            this.lblMagicFinalAction.Size = new System.Drawing.Size(78, 16);
             this.lblMagicFinalAction.TabIndex = 4;
             this.lblMagicFinalAction.Text = "Final action:";
             // 
@@ -176,24 +183,27 @@
             "",
             "Flee",
             "End Combat"});
-            this.cboMagicFinalAction.Location = new System.Drawing.Point(83, 203);
+            this.cboMagicFinalAction.Location = new System.Drawing.Point(111, 250);
+            this.cboMagicFinalAction.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cboMagicFinalAction.Name = "cboMagicFinalAction";
-            this.cboMagicFinalAction.Size = new System.Drawing.Size(121, 21);
+            this.cboMagicFinalAction.Size = new System.Drawing.Size(160, 24);
             this.cboMagicFinalAction.TabIndex = 3;
             // 
             // txtManaPool
             // 
-            this.txtManaPool.Location = new System.Drawing.Point(68, 270);
+            this.txtManaPool.Location = new System.Drawing.Point(91, 332);
+            this.txtManaPool.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtManaPool.Name = "txtManaPool";
-            this.txtManaPool.Size = new System.Drawing.Size(134, 20);
+            this.txtManaPool.Size = new System.Drawing.Size(177, 22);
             this.txtManaPool.TabIndex = 9;
             // 
             // chkMagicLastStepIndefinite
             // 
             this.chkMagicLastStepIndefinite.AutoSize = true;
-            this.chkMagicLastStepIndefinite.Location = new System.Drawing.Point(43, 181);
+            this.chkMagicLastStepIndefinite.Location = new System.Drawing.Point(57, 223);
+            this.chkMagicLastStepIndefinite.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkMagicLastStepIndefinite.Name = "chkMagicLastStepIndefinite";
-            this.chkMagicLastStepIndefinite.Size = new System.Drawing.Size(185, 19);
+            this.chkMagicLastStepIndefinite.Size = new System.Drawing.Size(200, 20);
             this.chkMagicLastStepIndefinite.TabIndex = 2;
             this.chkMagicLastStepIndefinite.Text = "Repeat last step indefinitely?";
             this.chkMagicLastStepIndefinite.UseVisualStyleBackColor = true;
@@ -201,9 +211,10 @@
             // lblManaPool
             // 
             this.lblManaPool.AutoSize = true;
-            this.lblManaPool.Location = new System.Drawing.Point(2, 274);
+            this.lblManaPool.Location = new System.Drawing.Point(3, 337);
+            this.lblManaPool.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblManaPool.Name = "lblManaPool";
-            this.lblManaPool.Size = new System.Drawing.Size(69, 15);
+            this.lblManaPool.Size = new System.Drawing.Size(74, 16);
             this.lblManaPool.TabIndex = 8;
             this.lblManaPool.Text = "Mana pool:";
             // 
@@ -212,9 +223,11 @@
             this.lstMagicSteps.ContextMenuStrip = this.ctxMagicSteps;
             this.lstMagicSteps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstMagicSteps.FormattingEnabled = true;
-            this.lstMagicSteps.Location = new System.Drawing.Point(3, 16);
+            this.lstMagicSteps.ItemHeight = 16;
+            this.lstMagicSteps.Location = new System.Drawing.Point(4, 19);
+            this.lstMagicSteps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstMagicSteps.Name = "lstMagicSteps";
-            this.lstMagicSteps.Size = new System.Drawing.Size(219, 160);
+            this.lstMagicSteps.Size = new System.Drawing.Size(292, 196);
             this.lstMagicSteps.TabIndex = 0;
             // 
             // ctxMagicSteps
@@ -352,36 +365,39 @@
             this.grpMelee.Controls.Add(this.cboMeleeFinalAction);
             this.grpMelee.Controls.Add(this.chkMeleeRepeatLastStepIndefinitely);
             this.grpMelee.Controls.Add(this.lstMeleeSteps);
-            this.grpMelee.Location = new System.Drawing.Point(266, 10);
+            this.grpMelee.Location = new System.Drawing.Point(355, 12);
+            this.grpMelee.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpMelee.Name = "grpMelee";
-            this.grpMelee.Size = new System.Drawing.Size(230, 272);
+            this.grpMelee.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMelee.Size = new System.Drawing.Size(307, 335);
             this.grpMelee.TabIndex = 1;
             this.grpMelee.TabStop = false;
             this.grpMelee.Text = "Melee";
             // 
             // txtMeleeOnlyWhenStunnedForXMS
             // 
-            this.txtMeleeOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(149, 228);
+            this.txtMeleeOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(199, 281);
+            this.txtMeleeOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtMeleeOnlyWhenStunnedForXMS.Name = "txtMeleeOnlyWhenStunnedForXMS";
-            this.txtMeleeOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(62, 20);
+            this.txtMeleeOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(81, 22);
             this.txtMeleeOnlyWhenStunnedForXMS.TabIndex = 149;
             // 
             // lblMeleeOnlyWhenStunnedForXMS
             // 
             this.lblMeleeOnlyWhenStunnedForXMS.AutoSize = true;
-            this.lblMeleeOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(11, 231);
-            this.lblMeleeOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblMeleeOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(15, 284);
             this.lblMeleeOnlyWhenStunnedForXMS.Name = "lblMeleeOnlyWhenStunnedForXMS";
-            this.lblMeleeOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(162, 15);
+            this.lblMeleeOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(171, 16);
             this.lblMeleeOnlyWhenStunnedForXMS.TabIndex = 148;
             this.lblMeleeOnlyWhenStunnedForXMS.Text = "Only when stunned for X ms:";
             // 
             // chkMeleeEnabled
             // 
             this.chkMeleeEnabled.AutoSize = true;
-            this.chkMeleeEnabled.Location = new System.Drawing.Point(50, 247);
+            this.chkMeleeEnabled.Location = new System.Drawing.Point(67, 304);
+            this.chkMeleeEnabled.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkMeleeEnabled.Name = "chkMeleeEnabled";
-            this.chkMeleeEnabled.Size = new System.Drawing.Size(82, 19);
+            this.chkMeleeEnabled.Size = new System.Drawing.Size(87, 20);
             this.chkMeleeEnabled.TabIndex = 147;
             this.chkMeleeEnabled.Text = "Enabled?";
             this.chkMeleeEnabled.UseVisualStyleBackColor = true;
@@ -389,9 +405,10 @@
             // lblMeleeFinalAction
             // 
             this.lblMeleeFinalAction.AutoSize = true;
-            this.lblMeleeFinalAction.Location = new System.Drawing.Point(11, 206);
+            this.lblMeleeFinalAction.Location = new System.Drawing.Point(15, 254);
+            this.lblMeleeFinalAction.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMeleeFinalAction.Name = "lblMeleeFinalAction";
-            this.lblMeleeFinalAction.Size = new System.Drawing.Size(73, 15);
+            this.lblMeleeFinalAction.Size = new System.Drawing.Size(78, 16);
             this.lblMeleeFinalAction.TabIndex = 6;
             this.lblMeleeFinalAction.Text = "Final action:";
             // 
@@ -403,17 +420,19 @@
             "",
             "Flee",
             "End Combat"});
-            this.cboMeleeFinalAction.Location = new System.Drawing.Point(90, 203);
+            this.cboMeleeFinalAction.Location = new System.Drawing.Point(120, 250);
+            this.cboMeleeFinalAction.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cboMeleeFinalAction.Name = "cboMeleeFinalAction";
-            this.cboMeleeFinalAction.Size = new System.Drawing.Size(121, 21);
+            this.cboMeleeFinalAction.Size = new System.Drawing.Size(160, 24);
             this.cboMeleeFinalAction.TabIndex = 5;
             // 
             // chkMeleeRepeatLastStepIndefinitely
             // 
             this.chkMeleeRepeatLastStepIndefinitely.AutoSize = true;
-            this.chkMeleeRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 181);
+            this.chkMeleeRepeatLastStepIndefinitely.Location = new System.Drawing.Point(67, 223);
+            this.chkMeleeRepeatLastStepIndefinitely.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkMeleeRepeatLastStepIndefinitely.Name = "chkMeleeRepeatLastStepIndefinitely";
-            this.chkMeleeRepeatLastStepIndefinitely.Size = new System.Drawing.Size(185, 19);
+            this.chkMeleeRepeatLastStepIndefinitely.Size = new System.Drawing.Size(200, 20);
             this.chkMeleeRepeatLastStepIndefinitely.TabIndex = 3;
             this.chkMeleeRepeatLastStepIndefinitely.Text = "Repeat last step indefinitely?";
             this.chkMeleeRepeatLastStepIndefinitely.UseVisualStyleBackColor = true;
@@ -423,9 +442,11 @@
             this.lstMeleeSteps.ContextMenuStrip = this.ctxMeleeSteps;
             this.lstMeleeSteps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstMeleeSteps.FormattingEnabled = true;
-            this.lstMeleeSteps.Location = new System.Drawing.Point(3, 16);
+            this.lstMeleeSteps.ItemHeight = 16;
+            this.lstMeleeSteps.Location = new System.Drawing.Point(4, 19);
+            this.lstMeleeSteps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstMeleeSteps.Name = "lstMeleeSteps";
-            this.lstMeleeSteps.Size = new System.Drawing.Size(224, 160);
+            this.lstMeleeSteps.Size = new System.Drawing.Size(299, 196);
             this.lstMeleeSteps.TabIndex = 1;
             // 
             // ctxMeleeSteps
@@ -491,36 +512,39 @@
             this.grpPotions.Controls.Add(this.cboPotionsFinalAction);
             this.grpPotions.Controls.Add(this.chkPotionsRepeatLastStepIndefinitely);
             this.grpPotions.Controls.Add(this.lstPotionsSteps);
-            this.grpPotions.Location = new System.Drawing.Point(502, 10);
+            this.grpPotions.Location = new System.Drawing.Point(669, 12);
+            this.grpPotions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpPotions.Name = "grpPotions";
-            this.grpPotions.Size = new System.Drawing.Size(230, 272);
+            this.grpPotions.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpPotions.Size = new System.Drawing.Size(307, 335);
             this.grpPotions.TabIndex = 2;
             this.grpPotions.TabStop = false;
             this.grpPotions.Text = "Potions";
             // 
             // txtPotionsOnlyWhenStunnedForXMS
             // 
-            this.txtPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(146, 228);
+            this.txtPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(195, 281);
+            this.txtPotionsOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPotionsOnlyWhenStunnedForXMS.Name = "txtPotionsOnlyWhenStunnedForXMS";
-            this.txtPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(62, 20);
+            this.txtPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(81, 22);
             this.txtPotionsOnlyWhenStunnedForXMS.TabIndex = 151;
             // 
             // lblPotionsOnlyWhenStunnedForXMS
             // 
             this.lblPotionsOnlyWhenStunnedForXMS.AutoSize = true;
-            this.lblPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(8, 230);
-            this.lblPotionsOnlyWhenStunnedForXMS.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblPotionsOnlyWhenStunnedForXMS.Location = new System.Drawing.Point(11, 283);
             this.lblPotionsOnlyWhenStunnedForXMS.Name = "lblPotionsOnlyWhenStunnedForXMS";
-            this.lblPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(162, 15);
+            this.lblPotionsOnlyWhenStunnedForXMS.Size = new System.Drawing.Size(171, 16);
             this.lblPotionsOnlyWhenStunnedForXMS.TabIndex = 150;
             this.lblPotionsOnlyWhenStunnedForXMS.Text = "Only when stunned for X ms:";
             // 
             // chkPotionsEnabled
             // 
             this.chkPotionsEnabled.AutoSize = true;
-            this.chkPotionsEnabled.Location = new System.Drawing.Point(50, 247);
+            this.chkPotionsEnabled.Location = new System.Drawing.Point(67, 304);
+            this.chkPotionsEnabled.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkPotionsEnabled.Name = "chkPotionsEnabled";
-            this.chkPotionsEnabled.Size = new System.Drawing.Size(82, 19);
+            this.chkPotionsEnabled.Size = new System.Drawing.Size(87, 20);
             this.chkPotionsEnabled.TabIndex = 149;
             this.chkPotionsEnabled.Text = "Enabled?";
             this.chkPotionsEnabled.UseVisualStyleBackColor = true;
@@ -528,9 +552,10 @@
             // lblPotionsFinalAction
             // 
             this.lblPotionsFinalAction.AutoSize = true;
-            this.lblPotionsFinalAction.Location = new System.Drawing.Point(4, 206);
+            this.lblPotionsFinalAction.Location = new System.Drawing.Point(5, 254);
+            this.lblPotionsFinalAction.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPotionsFinalAction.Name = "lblPotionsFinalAction";
-            this.lblPotionsFinalAction.Size = new System.Drawing.Size(73, 15);
+            this.lblPotionsFinalAction.Size = new System.Drawing.Size(78, 16);
             this.lblPotionsFinalAction.TabIndex = 8;
             this.lblPotionsFinalAction.Text = "Final action:";
             // 
@@ -542,17 +567,19 @@
             "",
             "Flee",
             "End Combat"});
-            this.cboPotionsFinalAction.Location = new System.Drawing.Point(83, 203);
+            this.cboPotionsFinalAction.Location = new System.Drawing.Point(111, 250);
+            this.cboPotionsFinalAction.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cboPotionsFinalAction.Name = "cboPotionsFinalAction";
-            this.cboPotionsFinalAction.Size = new System.Drawing.Size(125, 21);
+            this.cboPotionsFinalAction.Size = new System.Drawing.Size(165, 24);
             this.cboPotionsFinalAction.TabIndex = 7;
             // 
             // chkPotionsRepeatLastStepIndefinitely
             // 
             this.chkPotionsRepeatLastStepIndefinitely.AutoSize = true;
-            this.chkPotionsRepeatLastStepIndefinitely.Location = new System.Drawing.Point(50, 180);
+            this.chkPotionsRepeatLastStepIndefinitely.Location = new System.Drawing.Point(67, 222);
+            this.chkPotionsRepeatLastStepIndefinitely.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkPotionsRepeatLastStepIndefinitely.Name = "chkPotionsRepeatLastStepIndefinitely";
-            this.chkPotionsRepeatLastStepIndefinitely.Size = new System.Drawing.Size(185, 19);
+            this.chkPotionsRepeatLastStepIndefinitely.Size = new System.Drawing.Size(200, 20);
             this.chkPotionsRepeatLastStepIndefinitely.TabIndex = 4;
             this.chkPotionsRepeatLastStepIndefinitely.Text = "Repeat last step indefinitely?";
             this.chkPotionsRepeatLastStepIndefinitely.UseVisualStyleBackColor = true;
@@ -562,9 +589,11 @@
             this.lstPotionsSteps.ContextMenuStrip = this.ctxPotionsSteps;
             this.lstPotionsSteps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstPotionsSteps.FormattingEnabled = true;
-            this.lstPotionsSteps.Location = new System.Drawing.Point(3, 16);
+            this.lstPotionsSteps.ItemHeight = 16;
+            this.lstPotionsSteps.Location = new System.Drawing.Point(4, 19);
+            this.lstPotionsSteps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstPotionsSteps.Name = "lstPotionsSteps";
-            this.lstPotionsSteps.Size = new System.Drawing.Size(224, 160);
+            this.lstPotionsSteps.Size = new System.Drawing.Size(299, 196);
             this.lstPotionsSteps.TabIndex = 2;
             // 
             // ctxPotionsSteps
@@ -639,26 +668,29 @@
             // 
             // txtName
             // 
-            this.txtName.Location = new System.Drawing.Point(356, 288);
+            this.txtName.Location = new System.Drawing.Point(475, 354);
+            this.txtName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(151, 20);
+            this.txtName.Size = new System.Drawing.Size(200, 22);
             this.txtName.TabIndex = 4;
             // 
             // lblName
             // 
             this.lblName.AutoSize = true;
-            this.lblName.Location = new System.Drawing.Point(264, 290);
+            this.lblName.Location = new System.Drawing.Point(352, 357);
+            this.lblName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblName.Name = "lblName";
-            this.lblName.Size = new System.Drawing.Size(44, 15);
+            this.lblName.Size = new System.Drawing.Size(47, 16);
             this.lblName.TabIndex = 7;
             this.lblName.Text = "Name:";
             // 
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(576, 311);
+            this.btnOK.Location = new System.Drawing.Point(768, 383);
+            this.btnOK.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(75, 23);
+            this.btnOK.Size = new System.Drawing.Size(100, 28);
             this.btnOK.TabIndex = 12;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
@@ -668,9 +700,10 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(654, 312);
+            this.btnCancel.Location = new System.Drawing.Point(872, 384);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(100, 28);
             this.btnCancel.TabIndex = 13;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -678,10 +711,9 @@
             // lblOnKillMonster
             // 
             this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(260, 317);
-            this.lblOnKillMonster.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblOnKillMonster.Location = new System.Drawing.Point(347, 390);
             this.lblOnKillMonster.Name = "lblOnKillMonster";
-            this.lblOnKillMonster.Size = new System.Drawing.Size(92, 15);
+            this.lblOnKillMonster.Size = new System.Drawing.Size(97, 16);
             this.lblOnKillMonster.TabIndex = 14;
             this.lblOnKillMonster.Text = "On kill monster:";
             // 
@@ -694,17 +726,28 @@
             "Stop Combat",
             "Fight First Monster",
             "Fight First Same Monster"});
-            this.cboOnKillMonster.Location = new System.Drawing.Point(356, 313);
-            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(2);
+            this.cboOnKillMonster.Location = new System.Drawing.Point(475, 385);
+            this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";
-            this.cboOnKillMonster.Size = new System.Drawing.Size(151, 21);
+            this.cboOnKillMonster.Size = new System.Drawing.Size(200, 24);
             this.cboOnKillMonster.TabIndex = 146;
+            // 
+            // lblCurrentRealmValue
+            // 
+            this.lblCurrentRealmValue.BackColor = System.Drawing.Color.White;
+            this.lblCurrentRealmValue.Location = new System.Drawing.Point(5, 382);
+            this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
+            this.lblCurrentRealmValue.Size = new System.Drawing.Size(291, 18);
+            this.lblCurrentRealmValue.TabIndex = 148;
+            this.lblCurrentRealmValue.Text = "Realm";
+            this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // frmStrategy
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(740, 347);
+            this.ClientSize = new System.Drawing.Size(987, 427);
             this.Controls.Add(this.cboOnKillMonster);
             this.Controls.Add(this.lblOnKillMonster);
             this.Controls.Add(this.btnCancel);
@@ -715,6 +758,7 @@
             this.Controls.Add(this.grpMelee);
             this.Controls.Add(this.grpMagic);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmStrategy";
@@ -801,5 +845,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddMendWounds;
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddGenericHeal;
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsAddCurePoison;
+        private System.Windows.Forms.Label lblCurrentRealmValue;
     }
 }

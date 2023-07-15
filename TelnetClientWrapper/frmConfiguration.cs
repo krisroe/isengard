@@ -22,10 +22,7 @@ namespace IsengardClient
         private Color _fullColor;
         private Color _emptyColor;
 
-        private RealmTypeFlags _currentRealms;
-        private bool _currentRealmsCycle;
-
-        private AutoSpellLevelOverrides _autoSpellLevelOverrides;
+        private StrategyOverridesUI _strategyOverridesUI;
 
 
         public frmConfiguration(IsengardSettingData settingsData, int autoEscapeThreshold, AutoEscapeType autoEscapeType, bool autoEscapeActive, IsengardMap gameMap, Func<GraphInputs> getGraphInputs, CurrentEntityInfo cei)
@@ -37,16 +34,7 @@ namespace IsengardClient
             _getGraphInputs = getGraphInputs;
             _cei = cei;
 
-            tsmiCurrentRealmEarth.Tag = RealmTypeFlags.Earth;
-            tsmiCurrentRealmFire.Tag = RealmTypeFlags.Fire;
-            tsmiCurrentRealmWater.Tag = RealmTypeFlags.Water;
-            tsmiCurrentRealmWind.Tag = RealmTypeFlags.Wind;
-
-            _currentRealms = settingsData.Realms;
-            _currentRealmsCycle = _currentRealms != RealmTypeFlags.Earth && _currentRealms != RealmTypeFlags.Fire && _currentRealms != RealmTypeFlags.Water && _currentRealms != RealmTypeFlags.Wind;
-            RefreshRealmUI();
-
-            _autoSpellLevelOverrides = new AutoSpellLevelOverrides(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, settingsData.AutoSpellLevelMin, settingsData.AutoSpellLevelMax, lblCurrentAutoSpellLevelsValue, AutoSpellLevelOverridesLevel.Settings);
+            _strategyOverridesUI = new StrategyOverridesUI(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, lblCurrentAutoSpellLevelsValue, null, null, lblCurrentRealmValue, StrategyOverridesLevel.Settings, settingsData);
 
             txtCurrentWeaponValue.Text = settingsData.Weapon.HasValue ? settingsData.Weapon.Value.ToString() : string.Empty;
             txtHeldItem.Text = settingsData.HeldItem.HasValue ? settingsData.HeldItem.Value.ToString() : string.Empty;
@@ -246,9 +234,8 @@ namespace IsengardClient
             _settings.SaveSettingsOnQuit = chkSaveSettingsOnQuit.Checked;
             _settings.FullColor = _fullColor;
             _settings.EmptyColor = _emptyColor;
-            _settings.Realms = _currentRealms;
             _settings.PreferredAlignment = _preferredAlignment;
-            SaveAutoSpellToSettingsObject(_settings);
+            SaveOverrideableSettingsToSettingsObject(_settings);
             _settings.Weapon = eWeapon;
             _settings.HeldItem = eHeldItem;
             _settings.MagicVigorOnlyWhenDownXHP = iMagicVigorWhenDownXHP;
@@ -291,19 +278,19 @@ namespace IsengardClient
             return a;
         }
 
-        private IsengardSettingData CreateTempSettingsObjectWithAutoSpell()
+        private IsengardSettingData CreateTempSettingsObjectWithCurrentOverrides()
         {
             IsengardSettingData ret = new IsengardSettingData();
-            SaveAutoSpellToSettingsObject(ret);
+            SaveOverrideableSettingsToSettingsObject(ret);
             return ret;
         }
 
-        private void SaveAutoSpellToSettingsObject(IsengardSettingData settings)
+        private void SaveOverrideableSettingsToSettingsObject(IsengardSettingData settings)
         {
-            int iAutoSpellMin, iAutoSpellMax;
-            _autoSpellLevelOverrides.GetEffectiveMinMax(out iAutoSpellMin, out iAutoSpellMax);
+            _strategyOverridesUI.GetCurrentAutoSpellLevels(out int iAutoSpellMin, out int iAutoSpellMax);
             settings.AutoSpellLevelMin = iAutoSpellMin;
             settings.AutoSpellLevelMax = iAutoSpellMax;
+            settings.Realms = _strategyOverridesUI.GetCurrentRealms().Value;
         }
 
         #region preferred alignment
@@ -336,71 +323,6 @@ namespace IsengardClient
         {
             _preferredAlignment = AlignmentType.Red;
             RefreshAlignmentTypeUI();
-        }
-
-        #endregion
-
-        #region current realm
-
-        public RealmTypeFlags CurrentRealms
-        {
-            get
-            {
-                return _currentRealms;
-            }
-        }
-
-        private void RefreshRealmUI()
-        {
-            lblCurrentRealmValue.Text = StringProcessing.TrimFlagsEnumToString(_currentRealms);
-            lblCurrentRealmValue.BackColor = UIShared.GetColorForRealm(_currentRealms, _currentRealmsCycle);
-        }
-
-        private void tsmiCurrentRealm_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
-            RealmTypeFlags selectedRealm = (RealmTypeFlags)tsmi.Tag;
-            if (tsmi.Checked) //unchecking (only available when cycling)
-            {
-                _currentRealms = CurrentRealms & ~selectedRealm;
-            }
-            else //checking
-            {
-                if (_currentRealmsCycle)
-                    _currentRealms = _currentRealms | selectedRealm;
-                else
-                    _currentRealms = selectedRealm;
-            }
-            RefreshRealmUI();
-        }
-
-        private void tsmiCurrentRealmCycle_Click(object sender, EventArgs e)
-        {
-            _currentRealmsCycle = !tsmiCurrentRealmCycle.Checked;
-            if (!_currentRealmsCycle)
-            {
-                foreach (RealmTypeFlags nextRealm in new RealmTypeFlags[] { RealmTypeFlags.Earth, RealmTypeFlags.Fire, RealmTypeFlags.Water, RealmTypeFlags.Wind })
-                {
-                    if ((nextRealm & _currentRealms) != RealmTypeFlags.None)
-                    {
-                        _currentRealms = nextRealm;
-                        break;
-                    }
-                }
-            }
-            RefreshRealmUI();
-        }
-
-        private void ctxRealm_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            foreach (ToolStripMenuItem tsmi in new List<ToolStripMenuItem>() { tsmiCurrentRealmEarth, tsmiCurrentRealmFire, tsmiCurrentRealmWater, tsmiCurrentRealmWind })
-            {
-                RealmTypeFlags eTag = (RealmTypeFlags)tsmi.Tag;
-                bool isSelected = (eTag & _currentRealms) != RealmTypeFlags.None;
-                tsmi.Checked = isSelected;
-                tsmi.Enabled = _currentRealms != eTag;
-            }
-            tsmiCurrentRealmCycle.Checked = _currentRealmsCycle;
         }
 
         #endregion
@@ -608,7 +530,7 @@ namespace IsengardClient
         private void tsmiAddEntry_Click(object sender, EventArgs e)
         {
             Strategy s = new Strategy();
-            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
@@ -621,7 +543,7 @@ namespace IsengardClient
         {
             int index = lstStrategies.SelectedIndex;
             Strategy s = (Strategy)lstStrategies.Items[index];
-            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithAutoSpell()))
+            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {

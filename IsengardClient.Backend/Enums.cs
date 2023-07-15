@@ -726,7 +726,11 @@ namespace IsengardClient.Backend
         HavePotions,
     }
 
-    public enum AutoSpellLevelOverridesLevel
+    /// <summary>
+    /// level at which strategy properties are specified. some strategy properties have a default at the settings level.
+    /// strategy properties can also be specified at strategy or perm run levels
+    /// </summary>
+    public enum StrategyOverridesLevel
     {
         Settings,
         Strategy,
@@ -766,5 +770,11 @@ namespace IsengardClient.Backend
         Tick,
         Pawn,
         InventorySink,
+    }
+
+    public enum OverrideStrategyPropertyType
+    {
+        AutoSpellLevels,
+        Realms,
     }
 }

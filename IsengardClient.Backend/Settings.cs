@@ -352,7 +352,7 @@ namespace IsengardClient.Backend
 
                 List<Strategy> strategiesTemp = new List<Strategy>();
                 Dictionary<int, Strategy> strats = new Dictionary<int, Strategy>();
-                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MeleeOnlyWhenStunnedForXMS,PotionsOnlyWhenStunnedForXMS,TypesToRunLastCommandIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
+                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MeleeOnlyWhenStunnedForXMS,PotionsOnlyWhenStunnedForXMS,TypesToRunLastCommandIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax,Realms FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -380,6 +380,14 @@ namespace IsengardClient.Backend
                         if (oData != DBNull.Value) s.AutoSpellLevelMin = Convert.ToInt32(oData);
                         oData = reader["AutoSpellLevelMax"];
                         if (oData != DBNull.Value) s.AutoSpellLevelMax = Convert.ToInt32(oData);
+                        oData = reader["Realms"];
+                        if (oData != DBNull.Value) s.Realms = (RealmTypeFlags)Convert.ToInt32(oData);
+
+                        if (!ValidateStrategy(s, errorMessages))
+                        {
+                            s.IsValid = false;
+                        }
+
                         strategiesTemp.Add(s);
                         strats[s.ID] = s;
                     }
@@ -453,7 +461,7 @@ namespace IsengardClient.Backend
                         strats.Remove(s.ID);
                 }
                 Dictionary<int, PermRun> permRunMapping = new Dictionary<int, PermRun>();
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.Realms,p.ItemsToProcessType FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -553,6 +561,8 @@ namespace IsengardClient.Backend
                         if (oData != DBNull.Value) permRun.AutoSpellLevelMin = Convert.ToInt32(oData);
                         oData = reader["AutoSpellLevelMax"];
                         if (oData != DBNull.Value) permRun.AutoSpellLevelMax = Convert.ToInt32(oData);
+                        oData = reader["Realms"];
+                        if (oData != DBNull.Value) permRun.Realms = (RealmTypeFlags)Convert.ToInt32(oData);
                         permRun.ItemsToProcessType = (ItemsToProcessType)Convert.ToInt32(reader["ItemsToProcessType"]);
 
                         if (permRun.IsValid)
@@ -849,6 +859,7 @@ namespace IsengardClient.Backend
                 "TypesWithStepsEnabled",
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
+                "Realms",
             };
             HashSet<string> permRunAttributes = new HashSet<string>()
             {
@@ -871,6 +882,7 @@ namespace IsengardClient.Backend
                 "AfterKillMonsterAction",
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
+                "Realms",
                 "ItemsToProcessType",
             };
             string sValue;
@@ -1010,12 +1022,23 @@ namespace IsengardClient.Backend
                 s.TypesWithStepsEnabled = commandTypes;
 
                 int iAutoSpellLevelMin, iAutoSpellLevelMax;
-                if (!ProcessAutoSpellLevelMinMax(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out iAutoSpellLevelMin, out iAutoSpellLevelMax, errorMessages, "strategy"))
+                if (!ProcessNonRequiredAutoSpellLevelMinMaxFromText(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out iAutoSpellLevelMin, out iAutoSpellLevelMax, errorMessages, "strategy"))
                 {
                     s.IsValid = false;
                 }
                 s.AutoSpellLevelMin = iAutoSpellLevelMin;
                 s.AutoSpellLevelMax = iAutoSpellLevelMax;
+
+                if (!ProcessNonRequiredNonBlankRealmsText(GetAttributeValueByName(attributeMapping, "Realms"), out RealmTypeFlags? realms, errorMessages, "strategy"))
+                {
+                    s.IsValid = false;
+                }
+                s.Realms = realms;
+
+                if (!ValidateStrategy(s, errorMessages))
+                {
+                    s.IsValid = false;
+                }
 
                 foreach (XmlNode nextNode in nextStrategyElem.ChildNodes)
                 {
@@ -1104,7 +1127,31 @@ namespace IsengardClient.Backend
             PermRuns.Sort((a, b) => { return a.OrderValue.CompareTo(b.OrderValue); });
         }
 
-        private bool ProcessAutoSpellLevelMinMax(string sMin, string sMax, out int autoSpellLevelMin, out int autoSpellLevelMax, List<string> errorMessages, string objectType)
+        private bool ProcessNonRequiredNonBlankRealmsText(string sRealms, out RealmTypeFlags? realms, List<string> errorMessages, string objectType)
+        {
+            bool bRet = true;
+            if (string.IsNullOrEmpty(sRealms))
+            {
+                realms = null;
+            }
+            else
+            {
+                bool success = false;
+                if (Enum.TryParse(sRealms, out RealmTypeFlags realmsValue))
+                {
+                    success = realmsValue != RealmTypeFlags.None;
+                }
+                if (!success)
+                {
+                    errorMessages.Add($"Invalid {objectType} realms: {StringProcessing.TrimFlagsEnumToString(realmsValue)}");
+                    bRet = false;
+                }
+                realms = realmsValue;
+            }
+            return bRet;
+        }
+
+        private bool ProcessNonRequiredAutoSpellLevelMinMaxFromText(string sMin, string sMax, out int autoSpellLevelMin, out int autoSpellLevelMax, List<string> errorMessages, string objectType)
         {
             bool ret = true;
             autoSpellLevelMin = AUTO_SPELL_LEVEL_NOT_SET;
@@ -1419,12 +1466,18 @@ namespace IsengardClient.Backend
                 }
             }
 
-            if (!ProcessAutoSpellLevelMinMax(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out int autoSpellLevelMin, out int autoSpellLevelMax, errorMessages, "perm run"))
+            if (!ProcessNonRequiredAutoSpellLevelMinMaxFromText(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out int autoSpellLevelMin, out int autoSpellLevelMax, errorMessages, "perm run"))
             {
                 isValid = false;
             }
             p.AutoSpellLevelMin = autoSpellLevelMin;
             p.AutoSpellLevelMax = autoSpellLevelMax;
+
+            if (!ProcessNonRequiredNonBlankRealmsText(GetAttributeValueByName(attributeMapping, "Realms"), out RealmTypeFlags? realms, errorMessages, "perm run"))
+            {
+                isValid = false;
+            }
+            p.Realms = realms;
 
             sValue = GetAttributeValueByName(attributeMapping, "ItemsToProcessType");
             if (string.IsNullOrEmpty(sValue))
@@ -1731,6 +1784,7 @@ namespace IsengardClient.Backend
                 "AfterKillMonsterAction",
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
+                "Realms",
                 "ItemsToProcessType",
             };
             string sInsertBaseRecordCommand = GetInsertCommand("PermRuns", baseRecordColumns);
@@ -1764,6 +1818,7 @@ namespace IsengardClient.Backend
                 SQLiteParameter afterKillMonsterActionParam = cmdSavePermRun.Parameters.Add("@AfterKillMonsterAction", DbType.Int32);
                 SQLiteParameter autoSpellLevelMinParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
                 SQLiteParameter autoSpellLevelMaxParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
+                SQLiteParameter realmsParam = cmdSavePermRun.Parameters.Add("@Realms", DbType.Int32);
                 SQLiteParameter itemsToProcessTypeParam = cmdSavePermRun.Parameters.Add("@ItemsToProcessType", DbType.Int32);
 
                 SQLiteParameter saveP2APermRunID = cmdSavePermRunToArea.Parameters.Add("@PermRunID", DbType.Int32);
@@ -1806,6 +1861,7 @@ namespace IsengardClient.Backend
                     afterKillMonsterActionParam.Value = nextRecord.AfterKillMonsterAction.HasValue ? (object)Convert.ToInt32(nextRecord.AfterKillMonsterAction.Value) : DBNull.Value;
                     autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
                     autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
+                    realmsParam.Value = nextRecord.Realms.HasValue ? (object)Convert.ToInt32(nextRecord.Realms.Value) : DBNull.Value;
                     itemsToProcessTypeParam.Value = Convert.ToInt32(nextRecord.ItemsToProcessType);
 
                     int iID = nextRecord.ID;
@@ -1861,6 +1917,7 @@ namespace IsengardClient.Backend
                     "TypesWithStepsEnabled",
                     "AutoSpellLevelMin",
                     "AutoSpellLevelMax",
+                    "Realms",
             };
             string sInsertBaseRecordCommand = GetInsertCommand("Strategies", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Strategies", baseRecordColumns, "ID");
@@ -1888,6 +1945,7 @@ namespace IsengardClient.Backend
                 SQLiteParameter typesWithStepsEnabledParam = cmd.Parameters.Add("@TypesWithStepsEnabled", DbType.Int32);
                 SQLiteParameter autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
                 SQLiteParameter autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
+                SQLiteParameter realmsParam = cmd.Parameters.Add("@Realms", DbType.Int32);
 
                 string sInsertStrategyStepCommand = "INSERT INTO StrategySteps (StrategyID,CombatType,IndexValue,StepType) VALUES (@StrategyID,@CombatType,@IndexValue,@StepType)";
                 string sUpdateStrategyStepCommand = "UPDATE StrategySteps SET StepType = @StepType WHERE StrategyID = @StrategyID AND CombatType = @CombatType AND IndexValue = @IndexValue";
@@ -1914,6 +1972,7 @@ namespace IsengardClient.Backend
                     typesWithStepsEnabledParam.Value = Convert.ToInt32(nextRecord.TypesWithStepsEnabled);
                     autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin > 0 ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
                     autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax > 0 ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
+                    realmsParam.Value = nextRecord.Realms.HasValue ? (object)Convert.ToInt32(nextRecord.Realms.Value) : DBNull.Value;
 
                     int iID = nextRecord.ID;
                     bool isNew = iID == 0;
@@ -2241,6 +2300,21 @@ namespace IsengardClient.Backend
             existingKeys.Remove(key);
         }
 
+        private bool ValidateStrategy(Strategy s, List<string> errorMessages)
+        {
+            bool ret = true;
+            if (!ValidateNonRequiredAutoSpellMinMax(s.AutoSpellLevelMin, s.AutoSpellLevelMax, errorMessages, "strategy"))
+            {
+                ret = false;
+            }
+            if (s.Realms.HasValue && s.Realms.Value == RealmTypeFlags.None)
+            {
+                errorMessages.Add($"Invalid realms: {s.Realms.Value}");
+                ret = false;
+            }
+            return ret;
+        }
+
         private void ValidateSettings(List<string> errorMessages)
         {
             if (AutoEscapeType != AutoEscapeType.Flee && AutoEscapeType != AutoEscapeType.Hazy)
@@ -2264,50 +2338,46 @@ namespace IsengardClient.Backend
                 AutoSpellLevelMin = AUTO_SPELL_LEVEL_MINIMUM;
                 AutoSpellLevelMax = AUTO_SPELL_LEVEL_MAXIMUM;
             }
-            foreach (Strategy s in Strategies)
-            {
-                if (!ValidateAutoSpellMinMax(s.AutoSpellLevelMin, s.AutoSpellLevelMax, errorMessages))
-                {
-                    s.AutoSpellLevelMin = s.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
-                }
-            }
             for (int i = PermRuns.Count - 1; i >= 0; i--)
             {
                 PermRun p = PermRuns[i];
-                if (p.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET)
+                bool isValid = true;
+                if (!ValidateNonRequiredAutoSpellMinMax(p.AutoSpellLevelMin, p.AutoSpellLevelMax, errorMessages, "perm run"))
                 {
-                    if (!ValidateAutoSpellMinMax(p.AutoSpellLevelMin, p.AutoSpellLevelMax, errorMessages))
-                    {
-                        p.AutoSpellLevelMin = p.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
-                    }
+                    isValid = false;
                 }
-                else
+                if (p.Realms.HasValue && p.Realms.Value == RealmTypeFlags.None)
                 {
-                    p.AutoSpellLevelMin = p.AutoSpellLevelMax = AUTO_SPELL_LEVEL_NOT_SET;
+                    errorMessages.Add($"Invalid realms: {p.Realms.Value}");
+                    isValid = false;
                 }
                 if (p.Rehome && p.Areas == null)
                 {
-                    PermRuns.RemoveAt(i);
+                    isValid = false;
                     errorMessages.Add("Perm run set as rehome without an area.");
+                }
+                if (!isValid)
+                {
+                    PermRuns.RemoveAt(i);
                 }
             }
         }
 
-        private bool ValidateAutoSpellMinMax(int iMin, int iMax, List<string> errorMessages)
+        private bool ValidateNonRequiredAutoSpellMinMax(int iMin, int iMax, List<string> errorMessages, string objectType)
         {
             bool hasMin = iMin > 0;
             bool hasMax = iMax > 0;
             bool isValid = true;
             bool ret = true;
             if (!hasMin && !hasMax)
-                ret = false;
+                ret = true;
             else if (hasMin && hasMax)
                 isValid = iMin <= iMax && iMax >= AUTO_SPELL_LEVEL_MINIMUM && iMax <= AUTO_SPELL_LEVEL_MAXIMUM && iMin >= AUTO_SPELL_LEVEL_MINIMUM && iMin <= AUTO_SPELL_LEVEL_MAXIMUM;
             else
                 isValid = false;
             if (!isValid)
             {
-                errorMessages.Add($"Invalid strategy auto spell min/max found: {iMin}-{iMax}, using no min/max");
+                errorMessages.Add($"Invalid {objectType} auto spell min/max found: {iMin}-{iMax}");
                 ret = false;
             }
             return ret;
@@ -2634,6 +2704,7 @@ namespace IsengardClient.Backend
                     writer.WriteAttributeString("TypesWithStepsEnabled", StringProcessing.TrimFlagsEnumToString(s.TypesWithStepsEnabled));
                     if (s.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMin", s.AutoSpellLevelMin.ToString());
                     if (s.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMax", s.AutoSpellLevelMax.ToString());
+                    if (s.Realms.HasValue) writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(s.Realms.Value));
                     if (s.MagicSteps != null)
                     {
                         foreach (MagicStrategyStep step in s.MagicSteps)
@@ -2759,6 +2830,10 @@ namespace IsengardClient.Backend
                             {
                                 writer.WriteAttributeString("AutoSpellLevelMin", p.AutoSpellLevelMin.ToString());
                                 writer.WriteAttributeString("AutoSpellLevelMax", p.AutoSpellLevelMax.ToString());
+                            }
+                            if (p.Realms.HasValue)
+                            {
+                                writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(p.Realms.Value));
                             }
                             writer.WriteAttributeString("ItemsToProcessType", p.ItemsToProcessType.ToString());
 
@@ -2918,9 +2993,9 @@ namespace IsengardClient.Backend
                 "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, SinkCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE Areas (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NOT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, InventorySinkRoom TEXT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES Areas(ID))",
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
-                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
+                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())

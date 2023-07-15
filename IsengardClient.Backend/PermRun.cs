@@ -34,6 +34,7 @@ namespace IsengardClient.Backend
             AfterKillMonsterAction = copied.AfterKillMonsterAction;
             AutoSpellLevelMin = copied.AutoSpellLevelMin;
             AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            Realms = copied.Realms;
             ItemsToProcessType = copied.ItemsToProcessType;
             Strategy = copied.Strategy;
         }
@@ -91,6 +92,7 @@ namespace IsengardClient.Backend
         public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
+        public RealmTypeFlags? Realms { get; set; }
         public ItemsToProcessType ItemsToProcessType { get; set; }
         /// <summary>
         /// flow used to initiate a perm run. This is not saved.

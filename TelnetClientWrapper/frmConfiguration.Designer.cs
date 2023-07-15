@@ -29,12 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.ctxRealm = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiCurrentRealmEarth = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCurrentRealmFire = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCurrentRealmWater = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCurrentRealmWind = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCurrentRealmCycle = new System.Windows.Forms.ToolStripMenuItem();
             this.lblPreferredAlignment = new System.Windows.Forms.Label();
             this.ctxAutoEscape = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiSetCurrentAutoEscapeThreshold = new System.Windows.Forms.ToolStripMenuItem();
@@ -117,7 +111,9 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.ctxRealm.SuspendLayout();
+            this.lblRealm = new System.Windows.Forms.Label();
+            this.lblAutoEscape = new System.Windows.Forms.Label();
+            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -132,54 +128,6 @@
             this.ctxAreas.SuspendLayout();
             this.pnlBottom.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // ctxRealm
-            // 
-            this.ctxRealm.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxRealm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiCurrentRealmEarth,
-            this.tsmiCurrentRealmFire,
-            this.tsmiCurrentRealmWater,
-            this.tsmiCurrentRealmWind,
-            this.tsmiCurrentRealmCycle});
-            this.ctxRealm.Name = "ctxRealm";
-            this.ctxRealm.Size = new System.Drawing.Size(211, 152);
-            this.ctxRealm.Opening += new System.ComponentModel.CancelEventHandler(this.ctxRealm_Opening);
-            // 
-            // tsmiCurrentRealmEarth
-            // 
-            this.tsmiCurrentRealmEarth.Name = "tsmiCurrentRealmEarth";
-            this.tsmiCurrentRealmEarth.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCurrentRealmEarth.Text = "earth";
-            this.tsmiCurrentRealmEarth.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
-            // 
-            // tsmiCurrentRealmFire
-            // 
-            this.tsmiCurrentRealmFire.Name = "tsmiCurrentRealmFire";
-            this.tsmiCurrentRealmFire.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCurrentRealmFire.Text = "fire";
-            this.tsmiCurrentRealmFire.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
-            // 
-            // tsmiCurrentRealmWater
-            // 
-            this.tsmiCurrentRealmWater.Name = "tsmiCurrentRealmWater";
-            this.tsmiCurrentRealmWater.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCurrentRealmWater.Text = "water";
-            this.tsmiCurrentRealmWater.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
-            // 
-            // tsmiCurrentRealmWind
-            // 
-            this.tsmiCurrentRealmWind.Name = "tsmiCurrentRealmWind";
-            this.tsmiCurrentRealmWind.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCurrentRealmWind.Text = "wind";
-            this.tsmiCurrentRealmWind.Click += new System.EventHandler(this.tsmiCurrentRealm_Click);
-            // 
-            // tsmiCurrentRealmCycle
-            // 
-            this.tsmiCurrentRealmCycle.Name = "tsmiCurrentRealmCycle";
-            this.tsmiCurrentRealmCycle.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCurrentRealmCycle.Text = "cycle";
-            this.tsmiCurrentRealmCycle.Click += new System.EventHandler(this.tsmiCurrentRealmCycle_Click);
             // 
             // lblPreferredAlignment
             // 
@@ -344,7 +292,6 @@
             // lblCurrentRealmValue
             // 
             this.lblCurrentRealmValue.BackColor = System.Drawing.Color.White;
-            this.lblCurrentRealmValue.ContextMenuStrip = this.ctxRealm;
             this.lblCurrentRealmValue.Location = new System.Drawing.Point(156, 10);
             this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
@@ -510,6 +457,9 @@
             // 
             // pnlSettings
             // 
+            this.pnlSettings.Controls.Add(this.lblAutoSpellLevels);
+            this.pnlSettings.Controls.Add(this.lblAutoEscape);
+            this.pnlSettings.Controls.Add(this.lblRealm);
             this.pnlSettings.Controls.Add(this.cboConsoleVerbosity);
             this.pnlSettings.Controls.Add(this.lblConsoleVerbosity);
             this.pnlSettings.Controls.Add(this.chkGetNewPermRunOnBoatExitMissing);
@@ -1004,6 +954,36 @@
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
             // 
+            // lblRealm
+            // 
+            this.lblRealm.AutoSize = true;
+            this.lblRealm.Location = new System.Drawing.Point(25, 12);
+            this.lblRealm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblRealm.Name = "lblRealm";
+            this.lblRealm.Size = new System.Drawing.Size(63, 20);
+            this.lblRealm.TabIndex = 161;
+            this.lblRealm.Text = "Realm:";
+            // 
+            // lblAutoEscape
+            // 
+            this.lblAutoEscape.AutoSize = true;
+            this.lblAutoEscape.Location = new System.Drawing.Point(25, 39);
+            this.lblAutoEscape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAutoEscape.Name = "lblAutoEscape";
+            this.lblAutoEscape.Size = new System.Drawing.Size(108, 20);
+            this.lblAutoEscape.TabIndex = 162;
+            this.lblAutoEscape.Text = "Auto escape:";
+            // 
+            // lblAutoSpellLevels
+            // 
+            this.lblAutoSpellLevels.AutoSize = true;
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(23, 67);
+            this.lblAutoSpellLevels.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
+            this.lblAutoSpellLevels.Size = new System.Drawing.Size(135, 20);
+            this.lblAutoSpellLevels.TabIndex = 163;
+            this.lblAutoSpellLevels.Text = "Auto spell levels:";
+            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1017,7 +997,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Configuration";
-            this.ctxRealm.ResumeLayout(false);
             this.ctxAutoEscape.ResumeLayout(false);
             this.ctxPreferredAlignment.ResumeLayout(false);
             this.ctxListModification.ResumeLayout(false);
@@ -1061,11 +1040,6 @@
         private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
         private System.Windows.Forms.Label lblCurrentRealmValue;
         private System.Windows.Forms.Label lblCurrentAutoEscapeValue;
-        private System.Windows.Forms.ContextMenuStrip ctxRealm;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmEarth;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmFire;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmWater;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmWind;
         private System.Windows.Forms.ToolStripMenuItem tsmiSetCurrentAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearCurrentAutoEscapeThreshold;
         private System.Windows.Forms.ToolStripMenuItem tsmiCurrentAutoEscapeFlee;
@@ -1125,6 +1099,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiRemove;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveUp;
         private System.Windows.Forms.ToolStripMenuItem tsmiMoveDown;
-        private System.Windows.Forms.ToolStripMenuItem tsmiCurrentRealmCycle;
+        private System.Windows.Forms.Label lblAutoSpellLevels;
+        private System.Windows.Forms.Label lblAutoEscape;
+        private System.Windows.Forms.Label lblRealm;
     }
 }
