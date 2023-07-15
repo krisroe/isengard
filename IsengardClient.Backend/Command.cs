@@ -88,6 +88,7 @@
         LookAtMob,
         Prepare,
         Search,
+        Hide,
         Knock,
         Stand,
         Vigor,

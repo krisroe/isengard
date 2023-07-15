@@ -72,7 +72,7 @@ namespace IsengardClient.Backend
         /// </summary>
         public bool CureIfPoisoned { get; set; }
         public BackgroundCommandType? SingleCommandType { get; set; }
-        public CommandResult SingleCommandResult { get; set; }
+        public CommandResultObject SingleCommandResultObject { get; set; }
         public bool SaveSettingsOnQuit { get; set; }
         public bool LogoutOnQuit { get; set; }
         public bool MonsterKilled { get; set; }

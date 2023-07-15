@@ -2057,15 +2057,6 @@ namespace IsengardClient
             }
         }
 
-        private static void FailSearch(FeedLineParameters flParams)
-        {
-            BackgroundCommandType? bct = flParams.BackgroundCommandType;
-            if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
-            {
-                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
-            }
-        }
-
         private static void OpenDoorSuccess(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -2084,6 +2075,15 @@ namespace IsengardClient
             }
         }
 
+        private static void FailSearch(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Search)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
         private void SuccessfulSearch(List<string> exits, FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -2091,6 +2091,24 @@ namespace IsengardClient
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
                 _foundSearchedExits = exits;
+            }
+        }
+
+        private static void FailHide(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Hide)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
+        private void SuccessfulHide(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.Hide)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
             }
         }
 
@@ -3669,6 +3687,9 @@ namespace IsengardClient
                 new ConstantOutputSequence("You need a ", " to use this weapon effectively.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon}),
                 new ConstantOutputSequence("You can't wield that.", OnCannotWieldWeapon, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
                 new ConstantOutputSequence("You can't hold that.", OnCannotHoldItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.HoldItem }),
+                new ConstantOutputSequence("You attempt to hide in the shadows.", FailHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
+                new ConstantOutputSequence("You slip into the shadows unnoticed.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
+                new ConstantOutputSequence("You are already hidden.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
             };
             return seqs;
         }
@@ -4111,7 +4132,7 @@ namespace IsengardClient
         private void _bwBackgroundProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             BackgroundWorkerParameters bwp = _currentBackgroundParameters;
-            if (bwp.SingleCommandType.HasValue && bwp.SingleCommandType.Value == BackgroundCommandType.Quit && bwp.SingleCommandResult == CommandResult.CommandSuccessful)
+            if (bwp.SingleCommandType.HasValue && bwp.SingleCommandType.Value == BackgroundCommandType.Quit && bwp.SingleCommandResultObject != null && bwp.SingleCommandResultObject.Result == CommandResult.CommandSuccessful)
             {
                 if (bwp.SaveSettingsOnQuit)
                 {
@@ -4236,30 +4257,35 @@ namespace IsengardClient
                 if (pms.SingleCommandType.HasValue)
                 {
                     BackgroundCommandType cmdType = pms.SingleCommandType.Value;
-                    CommandResult commandResult;
+                    CommandResultObject commandResultObj;
                     if (cmdType == BackgroundCommandType.Look)
                     {
-                        commandResult = RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, AbortIfFleeingOrHazying, false).Result;
+                        commandResultObj = RunSingleCommandForCommandResult(pms.SingleCommandType.Value, "look", pms, AbortIfFleeingOrHazying, false);
                     }
                     else
                     {
-                        bool success;
                         if (cmdType == BackgroundCommandType.Search)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying, false).Result == CommandResult.CommandSuccessful;
+                            commandResultObj = RunSingleCommand(BackgroundCommandType.Search, "search", pms, AbortIfFleeingOrHazying, false);
+                        }
+                        else if (cmdType == BackgroundCommandType.Hide)
+                        {
+                            commandResultObj = RunSingleCommand(BackgroundCommandType.Hide, "hide", pms, AbortIfFleeingOrHazying, false);
                         }
                         else if (cmdType == BackgroundCommandType.Quit)
                         {
-                            success = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, AbortIfFleeingOrHazying, false).Result == CommandResult.CommandSuccessful;
+                            commandResultObj = RunSingleCommand(BackgroundCommandType.Quit, "quit", pms, AbortIfFleeingOrHazying, false);
                         }
                         else
                         {
                             throw new InvalidOperationException();
                         }
-                        commandResult = success ? CommandResult.CommandSuccessful : CommandResult.CommandUnsuccessfulThisTime;
                     }
-                    pms.SingleCommandResult = commandResult;
-                    return;
+                    if (commandResultObj.Result != CommandResult.CommandEscaped)
+                    {
+                        pms.SingleCommandResultObject = commandResultObj;
+                        return;
+                    }
                 }
 
                 CommandResultObject backgroundCommandResultObject = null;
@@ -7462,9 +7488,18 @@ BeforeHazy:
             {
                 tsmi.Enabled = enabled;
             }
+            foreach (ToolStripDropDownButton tsdd in GetToolStripDropDownsToDisableForBackgroundProcess())
+            {
+                tsdd.Enabled = enabled;
+            }
             btnAbort.Enabled = inBackground;
             EnableDisableActionButtons(bwp);
             RefreshCurrentAreaButtons(inBackground);
+        }
+
+        private IEnumerable<ToolStripDropDownButton> GetToolStripDropDownsToDisableForBackgroundProcess()
+        {
+            yield return tsddActions;
         }
 
         private IEnumerable<ToolStripButton> GetToolStripButtonsToDisableForBackgroundProcess()
@@ -7494,7 +7529,6 @@ BeforeHazy:
             {
                 yield return btn;
             }
-            yield return btnFerry;
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -7507,8 +7541,6 @@ BeforeHazy:
             yield return btnDn;
             yield return btnOut;
             yield return btnOtherSingleMove;
-            yield return btnSearch;
-            yield return btnHide;
             yield return btnSet;
             yield return btnLook;
         }
@@ -8092,20 +8124,6 @@ BeforeHazy:
         private void chkSetOn_CheckedChanged(object sender, EventArgs e)
         {
             cboSetOption_SelectedIndexChanged(null, null);
-        }
-
-        private void btnFerry_Click(object sender, EventArgs e)
-        {
-            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            using (frmFerry frm = new frmFerry(_currentEntityInfo, _gameMap, GetGraphInputs, _settingsData))
-            {
-                if (frm.ShowDialog(this) != DialogResult.OK) return;
-                bwp.InventoryProcessInputType = ItemsToProcessType.ProcessAllItemsInRoom;
-                bwp.InventoryManagementFlow = InventoryManagementWorkflow.Ferry;
-                bwp.TargetRoom = frm.SourceRoom;
-                bwp.InventorySinkRoom = frm.SinkRoom;
-            }
-            RunBackgroundProcess(bwp);
         }
 
         private void RunStrategy(Strategy strategy)
@@ -10082,14 +10100,6 @@ BeforeHazy:
             RunBackgroundProcess(bwp);
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            if (_currentBackgroundParameters == null)
-            {
-                RunSingleBackgroundCommand(BackgroundCommandType.Search);
-            }
-        }
-
         private void ctxInventoryOrEquipmentItem_Opening(object sender, CancelEventArgs e)
         {
             bool inBackground = _currentBackgroundParameters != null;
@@ -10596,6 +10606,36 @@ BeforeHazy:
         {
             string sLogFolder = Path.Combine(Path.GetTempPath(), "Isengard");
             Process.Start("explorer.exe", sLogFolder);
+        }
+
+        private void tsmiSearch_Click(object sender, EventArgs e)
+        {
+            if (_currentBackgroundParameters == null)
+            {
+                RunSingleBackgroundCommand(BackgroundCommandType.Search);
+            }
+        }
+
+        private void tsmiHide_Click(object sender, EventArgs e)
+        {
+            if (_currentBackgroundParameters == null)
+            {
+                RunSingleBackgroundCommand(BackgroundCommandType.Hide);
+            }
+        }
+
+        private void tsmiFerry_Click(object sender, EventArgs e)
+        {
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            using (frmFerry frm = new frmFerry(_currentEntityInfo, _gameMap, GetGraphInputs, _settingsData))
+            {
+                if (frm.ShowDialog(this) != DialogResult.OK) return;
+                bwp.InventoryProcessInputType = ItemsToProcessType.ProcessAllItemsInRoom;
+                bwp.InventoryManagementFlow = InventoryManagementWorkflow.Ferry;
+                bwp.TargetRoom = frm.SourceRoom;
+                bwp.InventorySinkRoom = frm.SinkRoom;
+            }
+            RunBackgroundProcess(bwp);
         }
     }
 }

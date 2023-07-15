@@ -70,7 +70,6 @@
             this.pnlMain = new System.Windows.Forms.Panel();
             this.btnGoToInventorySink = new System.Windows.Forms.Button();
             this.btnPermRuns = new System.Windows.Forms.Button();
-            this.btnFerry = new System.Windows.Forms.Button();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
             this.lblGold = new System.Windows.Forms.Label();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
@@ -124,8 +123,6 @@
             this.btnStunMob = new System.Windows.Forms.Button();
             this.btnCastMend = new System.Windows.Forms.Button();
             this.btnDrinkMend = new System.Windows.Forms.Button();
-            this.btnHide = new System.Windows.Forms.Button();
-            this.btnSearch = new System.Windows.Forms.Button();
             this.tabAncillary = new System.Windows.Forms.TabPage();
             this.pnlAncillary = new System.Windows.Forms.Panel();
             this.tabEmotes = new System.Windows.Forms.TabPage();
@@ -154,6 +151,10 @@
             this.tsbSpells = new System.Windows.Forms.ToolStripButton();
             this.tsbScore = new System.Windows.Forms.ToolStripButton();
             this.tsbTime = new System.Windows.Forms.ToolStripButton();
+            this.tsddActions = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsmiSearch = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiHide = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiFerry = new System.Windows.Forms.ToolStripMenuItem();
             this.tsddbSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsmiEditSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExportXML = new System.Windows.Forms.ToolStripMenuItem();
@@ -605,7 +606,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1579, 1306);
+            this.tcMain.Size = new System.Drawing.Size(1263, 1057);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -616,7 +617,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1571, 1277);
+            this.tabMain.Size = new System.Drawing.Size(1255, 1028);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -625,7 +626,6 @@
             // 
             this.pnlMain.Controls.Add(this.btnGoToInventorySink);
             this.pnlMain.Controls.Add(this.btnPermRuns);
-            this.pnlMain.Controls.Add(this.btnFerry);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblGold);
             this.pnlMain.Controls.Add(this.lblToNextLevelValue);
@@ -650,8 +650,6 @@
             this.pnlMain.Controls.Add(this.btnStunMob);
             this.pnlMain.Controls.Add(this.btnCastMend);
             this.pnlMain.Controls.Add(this.btnDrinkMend);
-            this.pnlMain.Controls.Add(this.btnHide);
-            this.pnlMain.Controls.Add(this.btnSearch);
             this.pnlMain.Controls.Add(this.btnLevel1OffensiveSpell);
             this.pnlMain.Controls.Add(this.lblMob);
             this.pnlMain.Controls.Add(this.txtMob);
@@ -703,18 +701,6 @@
             this.btnPermRuns.Text = "Perm Runs";
             this.btnPermRuns.UseVisualStyleBackColor = true;
             this.btnPermRuns.Click += new System.EventHandler(this.btnPermRuns_Click);
-            // 
-            // btnFerry
-            // 
-            this.btnFerry.Location = new System.Drawing.Point(489, 166);
-            this.btnFerry.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnFerry.Name = "btnFerry";
-            this.btnFerry.Size = new System.Drawing.Size(105, 34);
-            this.btnFerry.TabIndex = 153;
-            this.btnFerry.Tag = "";
-            this.btnFerry.Text = "Ferry";
-            this.btnFerry.UseVisualStyleBackColor = true;
-            this.btnFerry.Click += new System.EventHandler(this.btnFerry_Click);
             // 
             // btnGoToPawnShop
             // 
@@ -1294,30 +1280,6 @@
             this.btnDrinkMend.UseVisualStyleBackColor = true;
             this.btnDrinkMend.Click += new System.EventHandler(this.btnMendPotion_Click);
             // 
-            // btnHide
-            // 
-            this.btnHide.Location = new System.Drawing.Point(600, 166);
-            this.btnHide.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnHide.Name = "btnHide";
-            this.btnHide.Size = new System.Drawing.Size(105, 34);
-            this.btnHide.TabIndex = 80;
-            this.btnHide.Tag = "hide";
-            this.btnHide.Text = "Hide";
-            this.btnHide.UseVisualStyleBackColor = true;
-            this.btnHide.Click += new System.EventHandler(this.btnDoAction_Click);
-            // 
-            // btnSearch
-            // 
-            this.btnSearch.Location = new System.Drawing.Point(600, 128);
-            this.btnSearch.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(105, 34);
-            this.btnSearch.TabIndex = 79;
-            this.btnSearch.Tag = "";
-            this.btnSearch.Text = "Search";
-            this.btnSearch.UseVisualStyleBackColor = true;
-            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
-            // 
             // tabAncillary
             // 
             this.tabAncillary.Controls.Add(this.pnlAncillary);
@@ -1513,10 +1475,10 @@
             // 
             this.pnlTabControl.Controls.Add(this.tcMain);
             this.pnlTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTabControl.Location = new System.Drawing.Point(0, 49);
+            this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1579, 1306);
+            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1057);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1532,13 +1494,14 @@
             this.tsbSpells,
             this.tsbScore,
             this.tsbTime,
+            this.tsddActions,
             this.tsddbSettings,
             this.tsbReloadMap,
             this.tsbQuit,
             this.tsbLogout});
             this.tsTopMenu.Location = new System.Drawing.Point(0, 0);
             this.tsTopMenu.Name = "tsTopMenu";
-            this.tsTopMenu.Size = new System.Drawing.Size(1579, 39);
+            this.tsTopMenu.Size = new System.Drawing.Size(1263, 27);
             this.tsTopMenu.TabIndex = 80;
             this.tsTopMenu.Text = "toolStrip1";
             // 
@@ -1548,7 +1511,7 @@
             this.tsbInformation.Image = ((System.Drawing.Image)(resources.GetObject("tsbInformation.Image")));
             this.tsbInformation.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInformation.Name = "tsbInformation";
-            this.tsbInformation.Size = new System.Drawing.Size(91, 36);
+            this.tsbInformation.Size = new System.Drawing.Size(91, 24);
             this.tsbInformation.Tag = "information";
             this.tsbInformation.Text = "Information";
             this.tsbInformation.Click += new System.EventHandler(this.btnDoAction_Click);
@@ -1639,6 +1602,40 @@
             this.tsbTime.Tag = "time";
             this.tsbTime.Text = "Time";
             this.tsbTime.Click += new System.EventHandler(this.btnDoAction_Click);
+            // 
+            // tsddActions
+            // 
+            this.tsddActions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsddActions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSearch,
+            this.tsmiHide,
+            this.tsmiFerry});
+            this.tsddActions.Image = ((System.Drawing.Image)(resources.GetObject("tsddActions.Image")));
+            this.tsddActions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddActions.Name = "tsddActions";
+            this.tsddActions.Size = new System.Drawing.Size(72, 24);
+            this.tsddActions.Text = "Actions";
+            // 
+            // tsmiSearch
+            // 
+            this.tsmiSearch.Name = "tsmiSearch";
+            this.tsmiSearch.Size = new System.Drawing.Size(224, 26);
+            this.tsmiSearch.Text = "Search";
+            this.tsmiSearch.Click += new System.EventHandler(this.tsmiSearch_Click);
+            // 
+            // tsmiHide
+            // 
+            this.tsmiHide.Name = "tsmiHide";
+            this.tsmiHide.Size = new System.Drawing.Size(224, 26);
+            this.tsmiHide.Text = "Hide";
+            this.tsmiHide.Click += new System.EventHandler(this.tsmiHide_Click);
+            // 
+            // tsmiFerry
+            // 
+            this.tsmiFerry.Name = "tsmiFerry";
+            this.tsmiFerry.Size = new System.Drawing.Size(224, 26);
+            this.tsmiFerry.Text = "Ferry";
+            this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
             // 
             // tsddbSettings
             // 
@@ -1928,8 +1925,6 @@
         private System.Windows.Forms.Panel pnlMain;
         private System.Windows.Forms.TabPage tabAncillary;
         private System.Windows.Forms.Panel pnlAncillary;
-        private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.Button btnHide;
         private System.Windows.Forms.Button btnDrinkMend;
         private System.Windows.Forms.Button btnCastMend;
         private System.Windows.Forms.Button btnStunMob;
@@ -2027,11 +2022,14 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiQuitWithoutSaving;
         private System.Windows.Forms.ToolStripMenuItem tsmiRestoreDefaults;
         private System.Windows.Forms.ToolStripButton tsbLogout;
-        private System.Windows.Forms.Button btnFerry;
         private System.Windows.Forms.Button btnPermRuns;
         private System.Windows.Forms.ContextMenuStrip ctxCurrentRoom;
         private System.Windows.Forms.Button btnGoToInventorySink;
         private System.Windows.Forms.ToolStripMenuItem tsmiOpenLogFolder;
+        private System.Windows.Forms.ToolStripDropDownButton tsddActions;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSearch;
+        private System.Windows.Forms.ToolStripMenuItem tsmiHide;
+        private System.Windows.Forms.ToolStripMenuItem tsmiFerry;
     }
 }
 
