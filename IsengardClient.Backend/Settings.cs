@@ -3072,9 +3072,9 @@ namespace IsengardClient.Backend
             }
         }
 
-        public RealmTypeFlags GetNextRealmFromStartingPoint(RealmTypeFlags startingPoint)
+        public static RealmTypeFlags GetNextRealmFromStartingPoint(RealmTypeFlags startingPoint, RealmTypeFlags availableRealms)
         {
-            foreach (RealmTypeFlags nextRealm in GetAvailableRealmsFromStartingPoint(startingPoint))
+            foreach (RealmTypeFlags nextRealm in GetAvailableRealmsFromStartingPoint(startingPoint, availableRealms))
             {
                 if (nextRealm != startingPoint)
                 {
@@ -3084,11 +3084,11 @@ namespace IsengardClient.Backend
             return startingPoint;
         }
 
-        public IEnumerable<RealmTypeFlags> GetAvailableRealmsFromStartingPoint(RealmTypeFlags startingPoint)
+        public static IEnumerable<RealmTypeFlags> GetAvailableRealmsFromStartingPoint(RealmTypeFlags startingPoint, RealmTypeFlags availableRealms)
         {
             foreach (RealmTypeFlags nextRealm in EnumerateRealmsFromStartingPoint(startingPoint))
             {
-                if ((nextRealm & Realms) != RealmTypeFlags.None)
+                if ((nextRealm & availableRealms) != RealmTypeFlags.None)
                 {
                     yield return nextRealm;
                 }

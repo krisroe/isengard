@@ -4481,7 +4481,7 @@ namespace IsengardClient
                         AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
                         int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
                         int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
-
+                        RealmTypeFlags availableRealms = _settingsData.Realms;
                         bool haveMeleeStrategySteps = false;
                         bool haveMagicStrategySteps = false;
                         bool havePotionsStrategySteps = false;
@@ -4497,6 +4497,7 @@ namespace IsengardClient
                                 usedAutoSpellMin = strategy.AutoSpellLevelMin;
                                 usedAutoSpellMax = strategy.AutoSpellLevelMax;
                             }
+                            if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
                         }
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
@@ -4609,7 +4610,7 @@ namespace IsengardClient
                                     int manaDrain;
                                     BackgroundCommandType? bct;
                                     RealmTypeFlags? realmToUse;
-                                    MagicCommandChoiceResult result = GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse);
+                                    MagicCommandChoiceResult result = GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse, availableRealms);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -4646,7 +4647,7 @@ namespace IsengardClient
                                         {
                                             if (realmToUse.HasValue)
                                             {
-                                                _currentRealm = _settingsData.GetNextRealmFromStartingPoint(realmToUse.Value);
+                                                _currentRealm = IsengardSettingData.GetNextRealmFromStartingPoint(realmToUse.Value, availableRealms);
                                             }
                                         }
                                     }
@@ -6498,7 +6499,7 @@ BeforeHazy:
             command = sAttackType + " " + mobTarget;
         }
 
-        public static MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
+        public static MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse, RealmTypeFlags availableRealms)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -6567,7 +6568,7 @@ BeforeHazy:
                 bool isAuto = nextMagicStep == MagicStrategyStep.OffensiveSpellAuto;
                 lock (cei.EntityLock)
                 {
-                    foreach (RealmTypeFlags nextRealm in settingsData.GetAvailableRealmsFromStartingPoint(currentRealm))
+                    foreach (RealmTypeFlags nextRealm in IsengardSettingData.GetAvailableRealmsFromStartingPoint(currentRealm, availableRealms))
                     {
                         int? iNextLevel = null;
                         SpellsEnum? nextSpell = null;
