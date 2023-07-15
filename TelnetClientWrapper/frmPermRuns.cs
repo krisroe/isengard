@@ -18,9 +18,10 @@ namespace IsengardClient
         private DataGridViewTextBoxColumn colArea;
         private DataGridViewTextBoxColumn colRoom;
         private DataGridViewTextBoxColumn colMob;
+        private DataGridViewTextBoxColumn colLastCompleted;
         private DataGridViewButtonColumn colEdit;
         private DataGridViewButtonColumn colChangeAndRun;
-        private DataGridViewButtonColumn colRun;
+        private DataGridViewButtonColumn colRunOrQueue;
         private DataGridViewButtonColumn colGo;
 
         public frmPermRuns(IsengardSettingData settings, IsengardMap gameMap, CurrentEntityInfo entityInfo, Func<GraphInputs> getGraphInputs, bool inBackgroundProcess, Area currentArea)
@@ -45,62 +46,68 @@ namespace IsengardClient
         private void InitializeColumns(bool inBackgroundProcess)
         {
             colName = new DataGridViewTextBoxColumn();
-            colArea = new DataGridViewTextBoxColumn();
-            colRoom = new DataGridViewTextBoxColumn();
-            colMob = new DataGridViewTextBoxColumn();
-            colEdit = new DataGridViewButtonColumn();
             colName.HeaderText = "Name";
             colName.MinimumWidth = 6;
             colName.Name = "colName";
             colName.ReadOnly = true;
             colName.Width = 300;
+            colArea = new DataGridViewTextBoxColumn();
             colArea.HeaderText = "Area(s)";
             colArea.MinimumWidth = 6;
             colArea.Name = "colArea";
             colArea.ReadOnly = true;
             colArea.Width = 150;
+            colRoom = new DataGridViewTextBoxColumn();
             colRoom.HeaderText = "Room";
             colRoom.MinimumWidth = 6;
             colRoom.Name = "colRoom";
             colRoom.ReadOnly = true;
             colRoom.Width = 300;
+            colMob = new DataGridViewTextBoxColumn();
             colMob.HeaderText = "Mob";
             colMob.MinimumWidth = 6;
             colMob.Name = "colMob";
             colMob.ReadOnly = true;
             colMob.Width = 200;
+            colLastCompleted = new DataGridViewTextBoxColumn();
+            colLastCompleted.HeaderText = "Last Completed";
+            colLastCompleted.MinimumWidth = 6;
+            colLastCompleted.Name = "colLastCompleted";
+            colLastCompleted.Width = 200;
+            colEdit = new DataGridViewButtonColumn();
             colEdit.HeaderText = "Edit";
             colEdit.MinimumWidth = 6;
             colEdit.Name = "colEdit";
             colEdit.ReadOnly = true;
             colEdit.Width = 75;
+            colRunOrQueue = new DataGridViewButtonColumn();
+            colRunOrQueue.HeaderText = inBackgroundProcess ? "Queue": "Run";
+            colRunOrQueue.MinimumWidth = 6;
+            colRunOrQueue.Name = "colRunOrQueue";
+            colRunOrQueue.ReadOnly = true;
+            colRunOrQueue.Width = 75;
             dgvPermRuns.Columns.Add(colName);
             dgvPermRuns.Columns.Add(colArea);
             dgvPermRuns.Columns.Add(colRoom);
             dgvPermRuns.Columns.Add(colMob);
+            dgvPermRuns.Columns.Add(colLastCompleted);
             dgvPermRuns.Columns.Add(colEdit);
+            dgvPermRuns.Columns.Add(colRunOrQueue);
             if (!inBackgroundProcess)
             {
                 colChangeAndRun = new DataGridViewButtonColumn();
-                colRun = new DataGridViewButtonColumn();
                 colGo = new DataGridViewButtonColumn();
                 colChangeAndRun.HeaderText = "Change+Run";
                 colChangeAndRun.MinimumWidth = 6;
                 colChangeAndRun.Name = "colChangeAndRun";
                 colChangeAndRun.ReadOnly = true;
                 colChangeAndRun.Width = 125;
-                colRun.HeaderText = "Run";
-                colRun.MinimumWidth = 6;
-                colRun.Name = "colRun";
-                colRun.ReadOnly = true;
-                colRun.Width = 75;
                 colGo.HeaderText = "Go";
                 colGo.MinimumWidth = 6;
                 colGo.Name = "colGo";
                 colGo.ReadOnly = true;
                 colGo.Width = 75;
                 dgvPermRuns.Columns.Add(colChangeAndRun);
-                dgvPermRuns.Columns.Add(colRun);
                 dgvPermRuns.Columns.Add(colGo);
             }
         }
@@ -164,6 +171,7 @@ namespace IsengardClient
             string sDisplayName = string.IsNullOrEmpty(nextPermRun.DisplayName) ? "None" : nextPermRun.DisplayName;
             string sAreas = nextPermRun.GetAreaListAsText();
             string sMob = string.Empty;
+            string sLastCompleted = string.Empty;
             bool hasMobType = false;
             int iMobIndex = nextPermRun.MobIndex;
             if (nextPermRun.MobType.HasValue)
@@ -185,21 +193,26 @@ namespace IsengardClient
                 sMob += " " + iMobIndex;
             }
             string sRoom = nextPermRun.TargetRoomObject.BackendName;
+            if (nextPermRun.LastCompleted != DateTime.MinValue)
+            {
+                DateTime dt = TimeZoneInfo.ConvertTime(nextPermRun.LastCompleted, TimeZoneInfo.Local);
+                sLastCompleted = StringProcessing.GetDateTimeForDisplay(dt);
+            }
             DataGridViewRow r;
             if (rowIndex.HasValue)
             {
                 r = dgvPermRuns.Rows[rowIndex.Value];
                 if (_inBackgroundProcess)
-                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, "Edit");
+                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue");
                 else
-                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    r.SetValues(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Run", "Change+Run", "Go");
             }
             else
             {
                 if (_inBackgroundProcess)
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, "Edit");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Queue");
                 else
-                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, "Edit", "Change+Run", "Run", "Go");
+                    rowIndex = dgvPermRuns.Rows.Add(sDisplayName, sAreas, sRoom, sMob, sLastCompleted, "Edit", "Run", "Change+Run", "Go");
                 r = dgvPermRuns.Rows[rowIndex.Value];
             }
             r.Tag = nextPermRun;
@@ -280,12 +293,13 @@ namespace IsengardClient
                                 {
                                     frm.SaveFormDataToPermRun(prChanged);
                                     prToRun = prChanged;
+                                    prToRun.SourcePermRun = pr;
                                     prToRun.Flow = PermRunFlow.ChangeAndRun;
                                 }
                             }
                         }
                     }
-                    else if (col == colRun)
+                    else if (col == colRunOrQueue)
                     {
                         //if power attack is missing, that isn't critical, just turn power attack off
                         PromptedSkills availableSkills = _currentEntityInfo.GetAvailableSkills(false);
@@ -298,6 +312,7 @@ namespace IsengardClient
                         if (pr.IsRunnable(_getGraphInputs, _currentEntityInfo, this, _gameMap, _currentArea))
                         {
                             prToRun = new PermRun(pr);
+                            prToRun.SourcePermRun = pr;
                             prToRun.Flow = PermRunFlow.Run;
                         }
                     }

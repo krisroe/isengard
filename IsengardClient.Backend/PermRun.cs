@@ -9,6 +9,7 @@ namespace IsengardClient.Backend
         public PermRun()
         {
             Rehome = true;
+            LastCompleted = DateTime.MinValue;
         }
         public PermRun(PermRun copied)
         {
@@ -36,6 +37,7 @@ namespace IsengardClient.Backend
             AutoSpellLevelMax = copied.AutoSpellLevelMax;
             Realms = copied.Realms;
             ItemsToProcessType = copied.ItemsToProcessType;
+            LastCompleted = copied.LastCompleted;
             Strategy = copied.Strategy;
         }
         public bool IsValid { get; set; }
@@ -98,6 +100,59 @@ namespace IsengardClient.Backend
         /// flow used to initiate a perm run. This is not saved.
         /// </summary>
         public PermRunFlow Flow { get; set; }
+        /// <summary>
+        /// when the perm run started
+        /// </summary>
+        public DateTime PermRunStart { get; set; }
+        /// <summary>
+        /// experience before starting the perm run
+        /// </summary>
+        public int BeforeExperience { get; set; }
+        /// <summary>
+        /// gold before starting the perm run
+        /// </summary>
+        public int BeforeGold { get; set; }
+        /// <summary>
+        /// source perm run when running a perm run or using the change+run workflow
+        /// </summary>
+        public PermRun SourcePermRun { get; set; }
+        /// <summary>
+        /// when the perm run was last completed
+        /// </summary>
+        public DateTime LastCompleted { get; set; }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool hasText = false;
+            if (MobType.HasValue)
+            {
+                sb.Append(MobType.Value);
+                hasText = true;
+            }
+            else if (!string.IsNullOrEmpty(MobText))
+            {
+                sb.Append(MobText);
+                hasText = true;
+            }
+            if (!string.IsNullOrEmpty(DisplayName))
+            {
+                if (hasText) sb.Append(" ");
+                sb.Append(DisplayName);
+                hasText = true;
+            }
+            if (Flow == PermRunFlow.AdHocStrategy)
+            {
+                if (hasText) sb.Append(" ");
+                sb.Append("Ad hoc");
+            }
+            else if (Flow == PermRunFlow.ChangeAndRun)
+            {
+                if (hasText) sb.Append(" ");
+                sb.Append("Changed");
+            }
+            return sb.ToString();
+        }
 
         public Area DetermineMostCompatibleArea(Area currentArea)
         {

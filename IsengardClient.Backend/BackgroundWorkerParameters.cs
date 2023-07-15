@@ -80,18 +80,6 @@ namespace IsengardClient.Backend
         public bool AtDestination { get; set; }
         public bool Success { get; set; }
         /// <summary>
-        /// when the perm run started
-        /// </summary>
-        public DateTime PermRunStart { get; set; }
-        /// <summary>
-        /// experience before starting the perm run
-        /// </summary>
-        public int BeforeExperience { get; set; }
-        /// <summary>
-        /// gold before starting the perm run
-        /// </summary>
-        public int BeforeGold { get; set; }
-        /// <summary>
         /// perm run info
         /// </summary>
         public PermRun PermRun { get; set; }
@@ -100,9 +88,9 @@ namespace IsengardClient.Backend
         /// </summary>
         public ItemsToProcessType InventoryProcessInputType { get; set; }
         /// <summary>
-        /// whether to get a new perm run after finishing
+        /// whether resuming an existing perm run
         /// </summary>
-        public bool GetNewPermRun { get; set; }
+        public bool Resume { get; set; }
         public bool ExpectsMob()
         {
             return (MobType.HasValue && MobTypeCounter >= 1) || (!string.IsNullOrEmpty(MobText) && MobTextCounter >= 1);

@@ -1,5 +1,6 @@
 ﻿using IsengardClient.Backend;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
@@ -44,7 +45,6 @@ namespace IsengardClient.Tests
             settings.Realms = RealmTypeFlags.Fire | RealmTypeFlags.Wind;
             settings.PreferredAlignment = AlignmentType.Red;
             settings.QueryMonsterStatus = false;
-            settings.GetNewPermRunOnBoatExitMissing = true;
             settings.RemoveAllOnStartup = false;
             settings.ConsoleVerbosity = ConsoleOutputVerbosity.Minimum;
             settings.Weapon = ItemTypeEnum.SilimaBlade;
@@ -116,6 +116,7 @@ namespace IsengardClient.Tests
             p.BeforeFull = FullType.Total;
             p.AfterFull = FullType.Almost;
             p.ItemsToProcessType = ItemsToProcessType.ProcessMonsterDrops;
+            p.LastCompleted = DateTime.UtcNow;
             p.MobIndex = 2;
             p.MobType = MobTypeEnum.Amlug;
             p.OrderValue = 12;
@@ -175,7 +176,6 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.Realms, sets2.Realms);
             Assert.AreEqual(settings.PreferredAlignment, sets2.PreferredAlignment);
             Assert.AreEqual(settings.QueryMonsterStatus, sets2.QueryMonsterStatus);
-            Assert.AreEqual(settings.GetNewPermRunOnBoatExitMissing, sets2.GetNewPermRunOnBoatExitMissing);
             Assert.AreEqual(settings.RemoveAllOnStartup, sets2.RemoveAllOnStartup);
             Assert.AreEqual(settings.ConsoleVerbosity, sets2.ConsoleVerbosity);
             Assert.AreEqual(settings.Weapon, sets2.Weapon);
@@ -302,6 +302,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.AutoSpellLevelMax, p2.AutoSpellLevelMax);
             Assert.AreEqual(p1.Realms, p2.Realms);
             Assert.AreEqual(p1.ItemsToProcessType, p2.ItemsToProcessType);
+            Assert.AreEqual(p1.LastCompleted, p2.LastCompleted);
             VerifyStrategiesMatch(p1.Strategy, p2.Strategy, expectIDsPopulated);
         }
 

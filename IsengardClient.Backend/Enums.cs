@@ -68,6 +68,7 @@ namespace IsengardClient.Backend
         Movement,
         Combat,
         Flee,
+        InventoryManagement,
         Hazy,
         Score,
     }

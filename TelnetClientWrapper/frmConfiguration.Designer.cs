@@ -64,9 +64,11 @@
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
             this.pnlSettings = new System.Windows.Forms.Panel();
+            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
+            this.lblAutoEscape = new System.Windows.Forms.Label();
+            this.lblRealm = new System.Windows.Forms.Label();
             this.cboConsoleVerbosity = new System.Windows.Forms.ComboBox();
             this.lblConsoleVerbosity = new System.Windows.Forms.Label();
-            this.chkGetNewPermRunOnBoatExitMissing = new System.Windows.Forms.CheckBox();
             this.chkSaveSettingsOnQuit = new System.Windows.Forms.CheckBox();
             this.txtMagicMendWhenDownXHP = new System.Windows.Forms.TextBox();
             this.chkDisplayStunLength = new System.Windows.Forms.CheckBox();
@@ -111,9 +113,6 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.lblRealm = new System.Windows.Forms.Label();
-            this.lblAutoEscape = new System.Windows.Forms.Label();
-            this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -462,7 +461,6 @@
             this.pnlSettings.Controls.Add(this.lblRealm);
             this.pnlSettings.Controls.Add(this.cboConsoleVerbosity);
             this.pnlSettings.Controls.Add(this.lblConsoleVerbosity);
-            this.pnlSettings.Controls.Add(this.chkGetNewPermRunOnBoatExitMissing);
             this.pnlSettings.Controls.Add(this.chkSaveSettingsOnQuit);
             this.pnlSettings.Controls.Add(this.txtMagicMendWhenDownXHP);
             this.pnlSettings.Controls.Add(this.chkDisplayStunLength);
@@ -493,6 +491,36 @@
             this.pnlSettings.Size = new System.Drawing.Size(1085, 676);
             this.pnlSettings.TabIndex = 150;
             // 
+            // lblAutoSpellLevels
+            // 
+            this.lblAutoSpellLevels.AutoSize = true;
+            this.lblAutoSpellLevels.Location = new System.Drawing.Point(23, 67);
+            this.lblAutoSpellLevels.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
+            this.lblAutoSpellLevels.Size = new System.Drawing.Size(108, 16);
+            this.lblAutoSpellLevels.TabIndex = 163;
+            this.lblAutoSpellLevels.Text = "Auto spell levels:";
+            // 
+            // lblAutoEscape
+            // 
+            this.lblAutoEscape.AutoSize = true;
+            this.lblAutoEscape.Location = new System.Drawing.Point(25, 39);
+            this.lblAutoEscape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAutoEscape.Name = "lblAutoEscape";
+            this.lblAutoEscape.Size = new System.Drawing.Size(86, 16);
+            this.lblAutoEscape.TabIndex = 162;
+            this.lblAutoEscape.Text = "Auto escape:";
+            // 
+            // lblRealm
+            // 
+            this.lblRealm.AutoSize = true;
+            this.lblRealm.Location = new System.Drawing.Point(25, 12);
+            this.lblRealm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblRealm.Name = "lblRealm";
+            this.lblRealm.Size = new System.Drawing.Size(50, 16);
+            this.lblRealm.TabIndex = 161;
+            this.lblRealm.Text = "Realm:";
+            // 
             // cboConsoleVerbosity
             // 
             this.cboConsoleVerbosity.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -516,17 +544,6 @@
             this.lblConsoleVerbosity.Size = new System.Drawing.Size(118, 16);
             this.lblConsoleVerbosity.TabIndex = 159;
             this.lblConsoleVerbosity.Text = "Console verbosity:";
-            // 
-            // chkGetNewPermRunOnBoatExitMissing
-            // 
-            this.chkGetNewPermRunOnBoatExitMissing.AutoSize = true;
-            this.chkGetNewPermRunOnBoatExitMissing.Location = new System.Drawing.Point(477, 155);
-            this.chkGetNewPermRunOnBoatExitMissing.Margin = new System.Windows.Forms.Padding(4);
-            this.chkGetNewPermRunOnBoatExitMissing.Name = "chkGetNewPermRunOnBoatExitMissing";
-            this.chkGetNewPermRunOnBoatExitMissing.Size = new System.Drawing.Size(259, 20);
-            this.chkGetNewPermRunOnBoatExitMissing.TabIndex = 158;
-            this.chkGetNewPermRunOnBoatExitMissing.Text = "Get new perm run on boat exit missing?";
-            this.chkGetNewPermRunOnBoatExitMissing.UseVisualStyleBackColor = true;
             // 
             // chkSaveSettingsOnQuit
             // 
@@ -954,36 +971,6 @@
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
             // 
-            // lblRealm
-            // 
-            this.lblRealm.AutoSize = true;
-            this.lblRealm.Location = new System.Drawing.Point(25, 12);
-            this.lblRealm.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblRealm.Name = "lblRealm";
-            this.lblRealm.Size = new System.Drawing.Size(63, 20);
-            this.lblRealm.TabIndex = 161;
-            this.lblRealm.Text = "Realm:";
-            // 
-            // lblAutoEscape
-            // 
-            this.lblAutoEscape.AutoSize = true;
-            this.lblAutoEscape.Location = new System.Drawing.Point(25, 39);
-            this.lblAutoEscape.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblAutoEscape.Name = "lblAutoEscape";
-            this.lblAutoEscape.Size = new System.Drawing.Size(108, 20);
-            this.lblAutoEscape.TabIndex = 162;
-            this.lblAutoEscape.Text = "Auto escape:";
-            // 
-            // lblAutoSpellLevels
-            // 
-            this.lblAutoSpellLevels.AutoSize = true;
-            this.lblAutoSpellLevels.Location = new System.Drawing.Point(23, 67);
-            this.lblAutoSpellLevels.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblAutoSpellLevels.Name = "lblAutoSpellLevels";
-            this.lblAutoSpellLevels.Size = new System.Drawing.Size(135, 20);
-            this.lblAutoSpellLevels.TabIndex = 163;
-            this.lblAutoSpellLevels.Text = "Auto spell levels:";
-            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1087,7 +1074,6 @@
         private System.Windows.Forms.Button btnClearWeapon;
         private System.Windows.Forms.Button btnClearHeldItem;
         private System.Windows.Forms.ContextMenuStrip ctxItems;
-        private System.Windows.Forms.CheckBox chkGetNewPermRunOnBoatExitMissing;
         private System.Windows.Forms.ComboBox cboConsoleVerbosity;
         private System.Windows.Forms.Label lblConsoleVerbosity;
         private System.Windows.Forms.TreeView treeAreas;

@@ -3723,5 +3723,10 @@ StartProcessRoom:
         {
             return obj.ToString().Replace(" ", string.Empty);
         }
+
+        public static string GetDateTimeForDisplay(DateTime dt)
+        {
+            return dt.Year + dt.Month.ToString().PadLeft(2, '0') + dt.Day.ToString().PadLeft(2, '0') + dt.Hour.ToString().PadLeft(2, '0') + dt.Minute.ToString().PadLeft(2, '0') + dt.Second.ToString().PadLeft(2, '0') + dt.Millisecond.ToString().PadLeft(3, '0');
+        }
     }
 }

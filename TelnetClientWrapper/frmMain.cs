@@ -63,6 +63,11 @@ namespace IsengardClient
         private List<SpellsEnum> _spellsCast = new List<SpellsEnum>();
         private bool _refreshSpellsCast = false;
 
+        private PermRun _currentPermRun;
+        private PermRun _currentPermRunUI;
+        private PermRun _nextPermRun;
+        private PermRun _nextPermRunUI;
+
         /// <summary>
         /// current list of players. This list is not necessarily accurate since invisible players
         /// are hidden from the who output when you cannot detect them.
@@ -3375,7 +3380,7 @@ namespace IsengardClient
                     Directory.CreateDirectory(logPath);
                 }
                 DateTime dtNow = DateTime.UtcNow;
-                string sFileName = Path.Combine(logPath, dtNow.Year + dtNow.Month.ToString().PadLeft(2, '0') + dtNow.Day.ToString().PadLeft(2, '0') + dtNow.Hour.ToString().PadLeft(2, '0') + dtNow.Minute.ToString().PadLeft(2, '0') + dtNow.Second.ToString().PadLeft(2, '0') + dtNow.Millisecond.ToString().PadLeft(3, '0') + ".txt");
+                string sFileName = Path.Combine(logPath, StringProcessing.GetDateTimeForDisplay(dtNow) + ".txt");
                 List<string> nextLines = new List<string>();
                 using (StreamWriter sw = new StreamWriter(sFileName, true))
                 {
@@ -4143,29 +4148,10 @@ namespace IsengardClient
             }
             else
             {
-                TimeSpan permRunTime;
-                if (bwp.Success && bwp.PermRunStart != DateTime.MinValue && bwp.PermRun != null && bwp.PermRun.Flow != PermRunFlow.AdHocStrategy)
+                PermRun pr = bwp.PermRun;
+                if (bwp.Success  && pr != null)
                 {
-                    permRunTime = DateTime.UtcNow - bwp.PermRunStart;
-                    int goldDiff = _gold - bwp.BeforeGold;
-                    int xpDiff = _experience - bwp.BeforeExperience;
-                    double seconds = permRunTime.TotalSeconds;
-                    List<string> messages = new List<string>();
-                    bool gainedGold = goldDiff > 0;
-                    bool gainedXP = xpDiff > 0;
-                    if (gainedGold || gainedXP)
-                    {
-                        messages.Add("Perm run complete in " + seconds.ToString("N1") + " seconds.");
-                        if (gainedGold)
-                        {
-                            messages.Add("Gold: " + goldDiff + " (" + (goldDiff / seconds * 60).ToString("N1") + " per minute)");
-                        }
-                        if (gainedXP)
-                        {
-                            messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
-                        }
-                    }
-                    AddConsoleMessages(messages);
+                    CompletePermRun(pr);
                 }
                 _commandResult = null;
                 _commandSpecificResult = 0;
@@ -4238,14 +4224,48 @@ namespace IsengardClient
                     treeCurrentRoom.SelectedNode = _currentEntityInfo.tnObviousMobs.Nodes[0];
                 }
 
-                ToggleBackgroundProcessUI(bwp, false);
-                _currentBackgroundParameters = null;
-                RefreshEnabledForSingleMoveButtons();
-
-                if (bwp.GetNewPermRun)
+                PermRun nextPR = _nextPermRun;
+                if (nextPR == null)
                 {
-                    DisplayPermRunsForm();
+                    ToggleBackgroundProcessUI(bwp, false);
+                    _currentBackgroundParameters = null;
+                    RefreshEnabledForSingleMoveButtons();
                 }
+                else
+                {
+                    _nextPermRun = null;
+                    _currentPermRun = nextPR;
+                    DoPermRun(nextPR, false);
+                }
+            }
+        }
+
+        private void CompletePermRun(PermRun pr)
+        {
+            _currentPermRun = null;
+            if (pr.PermRunStart != DateTime.MinValue && pr.Flow != PermRunFlow.AdHocStrategy)
+            {
+                TimeSpan permRunTime = DateTime.UtcNow - pr.PermRunStart;
+                int goldDiff = _gold - pr.BeforeGold;
+                int xpDiff = _experience - pr.BeforeExperience;
+                double seconds = permRunTime.TotalSeconds;
+                List<string> messages = new List<string>();
+                bool gainedGold = goldDiff > 0;
+                bool gainedXP = xpDiff > 0;
+                if (gainedGold || gainedXP)
+                {
+                    messages.Add("Perm run complete in " + seconds.ToString("N1") + " seconds.");
+                    if (gainedGold)
+                    {
+                        messages.Add("Gold: " + goldDiff + " (" + (goldDiff / seconds * 60).ToString("N1") + " per minute)");
+                    }
+                    if (gainedXP)
+                    {
+                        messages.Add("XP: " + xpDiff + " (" + (xpDiff / seconds * 60).ToString("N1") + " per minute)");
+                    }
+                }
+                pr.SourcePermRun.LastCompleted = DateTime.UtcNow;
+                AddConsoleMessages(messages);
             }
         }
 
@@ -4289,17 +4309,19 @@ namespace IsengardClient
                 }
 
                 CommandResultObject backgroundCommandResultObject = null;
+                PermRun pr = pms.PermRun;
 
-                if (!_hazying && !_fleeing && pms.PermRun != null && pms.PermRun.Rehome && pms.CurrentArea != null && pms.NewArea != null && pms.CurrentArea != pms.NewArea && pms.CommonParentArea != null && pms.CommonParentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != pms.CommonParentArea.InventorySinkRoomObject)
+                //rehome inventory sink room contents
+                if (!_hazying && !_fleeing && pr != null && pr.Rehome && pms.CurrentArea != null && pms.NewArea != null && pms.CurrentArea != pms.NewArea && pms.CommonParentArea != null && pms.CommonParentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != null && pms.CurrentArea.InventorySinkRoomObject != pms.CommonParentArea.InventorySinkRoomObject)
                 {
-                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.CurrentArea.InventorySinkRoomObject, pms, true);
+                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.CurrentArea.InventorySinkRoomObject, pms, true, pr);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                     {
                         return;
                     }
                     if (!_hazying && !_fleeing)
                     {
-                        backgroundCommandResultObject = DoInventoryManagement(pms, ItemsToProcessType.ProcessAllItemsInRoom, InventoryManagementWorkflow.Ferry, pms.CurrentArea.InventorySinkRoomObject, pms.CommonParentArea.InventorySinkRoomObject, true);
+                        backgroundCommandResultObject = DoInventoryManagement(pms, ItemsToProcessType.ProcessAllItemsInRoom, InventoryManagementWorkflow.Ferry, pms.CurrentArea.InventorySinkRoomObject, pms.CommonParentArea.InventorySinkRoomObject, true, pr);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4307,9 +4329,10 @@ namespace IsengardClient
                     }
                 }
 
-                WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToCast;
-                if (!_hazying && !_fleeing && ((pms.PermRun != null && pms.PermRun.BeforeFull != FullType.None) || pms.CureIfPoisoned))
+                WorkflowSpells spellsToCast = pr == null ? WorkflowSpells.None : pr.SpellsToCast;
+                if (!_hazying && !_fleeing && ((pr != null && pr.BeforeFull != FullType.None) || pms.CureIfPoisoned))
                 {
+                    _backgroundProcessPhase = BackgroundProcessPhase.Heal;
                     PlayerStatusFlags psf = _playerStatusFlags;
                     if (pms.CureIfPoisoned && ((psf & PlayerStatusFlags.Poisoned) == PlayerStatusFlags.None)) //validate not poisoned if the user initiated the cure poisoned
                     {
@@ -4340,16 +4363,17 @@ namespace IsengardClient
                     }
                     if (pms.CureIfPoisoned) return; //for standalone cure-poison that's all we need to do
 
-                    if (!_fleeing && !_hazying && !IsFull(pms.PermRun.BeforeFull, spellsToCast, out _))
+                    if (!_fleeing && !_hazying && !IsFull(pr.BeforeFull, spellsToCast, out _))
                     {
-                        backgroundCommandResultObject = NavigateToTickRoom(pms, true);
+                        backgroundCommandResultObject = NavigateToTickRoom(pms, true, pr);
                         if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                         {
                             return;
                         }
                         if (!_hazying && !_fleeing)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.BeforeFull, spellsToCast, AbortIfFleeingOrHazying);
+                            _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                            backgroundCommandResultObject = GetFullInBackground(pms, pr.BeforeFull, spellsToCast, AbortIfFleeingOrHazying);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                             {
                                 return;
@@ -4357,21 +4381,21 @@ namespace IsengardClient
                         }
                     }
                 }
-                if (!_fleeing && !_hazying && pms.PermRun != null)
+                if (!_fleeing && !_hazying && pr != null && !pms.Resume)
                 {
-                    pms.PermRunStart = DateTime.UtcNow;
+                    pr.PermRunStart = DateTime.UtcNow;
                 }
 
-                bool haveThreshold = pms.PermRun != null && pms.PermRun.ThresholdRoomObject != null;
+                bool haveThreshold = pr != null && pr.ThresholdRoomObject != null;
                 if (!_fleeing && !_hazying)
                 {
                     bool moved = true;
                     if (haveThreshold)
-                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.PermRun.ThresholdRoomObject, pms, true);
+                        backgroundCommandResultObject = NavigateToSpecificRoom(pr.ThresholdRoomObject, pms, true, pr);
                     else if (pms.TargetRoom != null)
-                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true);
+                        backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true, pr);
                     else if (pms.Exits != null && pms.Exits.Count > 0)
-                        backgroundCommandResultObject = TraverseExitsAlreadyInBackground(pms.Exits, pms, true);
+                        backgroundCommandResultObject = TraverseExitsAlreadyInBackground(pms.Exits, pms, true, pr);
                     else
                         moved = false;
                     if (moved)
@@ -4387,12 +4411,12 @@ namespace IsengardClient
                     }
                 }
 
-                PromptedSkills skillsToRun = pms.PermRun == null ? PromptedSkills.None : pms.PermRun.SkillsToRun;
+                PromptedSkills skillsToRun = pr == null ? PromptedSkills.None : pr.SkillsToRun;
 
                 //activate potions/skills at the threshold if there is a threshold
                 if (!_fleeing && !_hazying && haveThreshold)
                 {
-                    backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun);
+                    backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun, pr);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                     {
                         return;
@@ -4401,7 +4425,7 @@ namespace IsengardClient
 
                 if (!_fleeing && !_hazying && haveThreshold)
                 {
-                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true);
+                    backgroundCommandResultObject = NavigateToSpecificRoom(pms.TargetRoom, pms, true, pr);
                     if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                     {
                         pms.AtDestination = true;
@@ -4459,7 +4483,7 @@ namespace IsengardClient
                 //activate potions/skills at the target if there is no threshold
                 if (!_fleeing && !_hazying && !haveThreshold)
                 {
-                    backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun);
+                    backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun, pr);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                     {
                         return;
@@ -5050,21 +5074,22 @@ BeforeHazy:
 
                 if (!pms.Fled && !pms.Hazied)
                 {
-                    backgroundCommandResultObject = DoInventoryManagement(pms, pms.InventoryProcessInputType, pms.InventoryManagementFlow, pms.TargetRoom, pms.InventorySinkRoom, false);
+                    backgroundCommandResultObject = DoInventoryManagement(pms, pms.InventoryProcessInputType, pms.InventoryManagementFlow, pms.TargetRoom, pms.InventorySinkRoom, false, pr);
                     if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                     {
                         return;
                     }
-                    if (!_hazying && pms.PermRun != null && !IsFull(pms.PermRun.AfterFull, spellsToCast, out _))
+                    if (!_hazying && pr != null && !IsFull(pr.AfterFull, spellsToCast, out _))
                     {
-                        backgroundCommandResultObject = NavigateToTickRoom(pms, false);
+                        backgroundCommandResultObject = NavigateToTickRoom(pms, false, pr);
                         if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                         {
                             return;
                         }
                         if (!_hazying)
                         {
-                            backgroundCommandResultObject = GetFullInBackground(pms, pms.PermRun.AfterFull, spellsToCast, AbortIfHazying);
+                            _backgroundProcessPhase = BackgroundProcessPhase.Heal;
+                            backgroundCommandResultObject = GetFullInBackground(pms, pr.AfterFull, spellsToCast, AbortIfHazying);
                             if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
                             {
                                 return;
@@ -5135,10 +5160,10 @@ BeforeHazy:
             }
         }
 
-        private CommandResultObject ActivatePotionsAndSkills(BackgroundWorkerParameters pms, PromptedSkills skillsToRun)
+        private CommandResultObject ActivatePotionsAndSkills(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr)
         {
             CommandResultObject backgroundCommandResultObject;
-            WorkflowSpells spellsToPot = pms.PermRun == null ? WorkflowSpells.None : pms.PermRun.SpellsToPotion;
+            WorkflowSpells spellsToPot = pr == null ? WorkflowSpells.None : pr.SpellsToPotion;
             spellsToPot &= ~WorkflowSpells.CurePoison;
             if (spellsToPot != WorkflowSpells.None)
             {
@@ -5215,11 +5240,12 @@ BeforeHazy:
         /// <param name="inventorySourceRoom">source room. it is assumed the player is present in this room.</param>
         /// <param name="inventorySinkRoom">target room for a ferry or inventory sink room for item management</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool failureToReturnToSourceRoomIsOK)
+        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool failureToReturnToSourceRoomIsOK, PermRun pr)
         {
             CommandResultObject backgroundCommandResultObject;
             if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
+                _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
                 lock (_currentEntityInfo.EntityLock)
                 {
@@ -5374,7 +5400,7 @@ BeforeHazy:
                 }
 
                 //sell/junk anything that was picked up and should immediately be sold or junked
-                backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
@@ -5391,11 +5417,12 @@ BeforeHazy:
 
                 StartInventorySinkRoomProcessing:
 
-                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySinkRoom, pms, false);
+                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySinkRoom, pms, false, pr);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
                         return backgroundCommandResultObject;
                     }
+                    _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
 
                     bool anythingCouldNotBePickedUpFromTickRoom = false;
                     bool anythingFailedForTickRoom = false;
@@ -5497,7 +5524,7 @@ BeforeHazy:
                     //sell/junk anything from the inventory that should be sold or junked
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -5569,7 +5596,7 @@ BeforeHazy:
 
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone);
+                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -5584,8 +5611,8 @@ BeforeHazy:
 
                 if (anythingCouldNotBePickedUpFromSourceRoom)
                 {
-                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySourceRoom, pms, false);
-                    if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                    backgroundCommandResultObject = NavigateToSpecificRoom(inventorySourceRoom, pms, false, pr);
+                    if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways && failureToReturnToSourceRoomIsOK)
                     {
                         //getting back to the target room may not work, such as if there is a day-only exit in between. in that case
                         //treat as successful as whatever has been ferried so far is the best we can do.
@@ -5595,6 +5622,7 @@ BeforeHazy:
                     {
                         return backgroundCommandResultObject;
                     }
+                    _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                     pms.AtDestination = true;
                     if (somethingDone)
                     {
@@ -5654,17 +5682,17 @@ BeforeHazy:
         /// <param name="pms">background parameter</param>
         /// <param name="beforeGetToTargetRoom">whether flee is allowed</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
+        private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom);
+            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom, pr);
         }
 
-        private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms)
+        private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms, PermRun pr)
         {
-            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false);
+            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false, pr);
         }
 
-        private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
+        private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
         {
             Room currentRoom = _currentEntityInfo.CurrentRoom;
             CommandResultObject backgroundCommandResultObject;
@@ -5672,7 +5700,7 @@ BeforeHazy:
             {
                 var nextRoute = CalculateRouteExits(currentRoom, r);
                 if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
-                backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, beforeGetToTargetRoom);
+                backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, beforeGetToTargetRoom, pr);
             }
             else
             {
@@ -5721,7 +5749,7 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone)
+        private CommandResultObject SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone, PermRun pr)
         {
             CommandResultObject backgroundCommandResultObject;
             bool success = true;
@@ -5732,11 +5760,12 @@ BeforeHazy:
                     AddConsoleMessage("No pawn shop available.");
                     return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 }
-                backgroundCommandResultObject = NavigateToPawnShop(pms);
+                backgroundCommandResultObject = NavigateToPawnShop(pms, pr);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
                 }
+                _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                 foreach (ItemEntity nextItem in items)
                 {
                     ItemTypeEnum itemType = nextItem.ItemType.Value;
@@ -5994,11 +6023,11 @@ BeforeHazy:
         /// <param name="needCurePoison">whether cure-poison is needed</param>
         /// <param name="abortLogic">abort logic</param>
         /// <returns>true if cure-poison was successfully cast if needed and hitpoints got to maximum</returns>
-        private CommandResultObject GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison, Func<bool> abortLogic)
+        private CommandResultObject GetFullHitpoints(BackgroundWorkerParameters pms, bool needCurePoison, Func<bool> abortLogic, PermRun pr)
         {
             CommandResultObject nextCommandResultObject;
-            WorkflowSpells spellsToCast = pms.PermRun == null ? WorkflowSpells.CurePoison : pms.PermRun.SpellsToCast;
-            WorkflowSpells spellsToPotion = pms.PermRun == null ? WorkflowSpells.CurePoison : pms.PermRun.SpellsToPotion;
+            WorkflowSpells spellsToCast = pr == null ? WorkflowSpells.CurePoison : pr.SpellsToCast;
+            WorkflowSpells spellsToPotion = pr == null ? WorkflowSpells.CurePoison : pr.SpellsToPotion;
             if (needCurePoison)
             {
                 SpellInformationAttribute siaCurePoison = SpellsStatic.SpellsByEnum[SpellsEnum.curepoison];
@@ -6180,15 +6209,15 @@ BeforeHazy:
             return string.IsNullOrEmpty(command) ? PotionsCommandChoiceResult.Fail : PotionsCommandChoiceResult.Drink;
         }
 
-        private CommandResultObject TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom)
+        private CommandResultObject TraverseExitsAlreadyInBackground(List<Exit> exits, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
         {
+            _backgroundProcessPhase = BackgroundProcessPhase.Movement;
             Func<bool> abortLogic;
             if (beforeGetToTargetRoom)
                 abortLogic = AbortIfFleeingOrHazying;
             else
                 abortLogic = AbortIfHazying;
             Exit previousExit = null;
-            _backgroundProcessPhase = BackgroundProcessPhase.Movement;
             List<Exit> exitList = new List<Exit>(exits);
             Room oTarget = exitList[exitList.Count - 1].Target;
             bool needHeal = false;
@@ -6226,11 +6255,6 @@ BeforeHazy:
                                     }
                                     else
                                     {
-                                        if (beforeGetToTargetRoom && _settingsData.GetNewPermRunOnBoatExitMissing && pms.PermRun != null && (pms.PermRun.Flow == PermRunFlow.ChangeAndRun || pms.PermRun.Flow == PermRunFlow.Run))
-                                        {
-                                            pms.GetNewPermRun = true;
-                                            return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
-                                        }
                                         WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
                                     }
                                 }
@@ -6373,7 +6397,7 @@ BeforeHazy:
                         }
                         else if (eMovementResult == MovementResult.FallFailure)
                         {
-                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic);
+                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic, pr);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                             {
                                 return backgroundCommandResultObject;
@@ -6407,7 +6431,7 @@ BeforeHazy:
                         }
                         if (doHealingLogic)
                         {
-                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic);
+                            backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic, pr);
                             if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                             {
                                 return backgroundCommandResultObject;
@@ -7563,20 +7587,18 @@ BeforeHazy:
                 hasMobTarget = true;
             else
                 hasMobTarget = !string.IsNullOrEmpty(_mob);
-            bool haveSettings = _settingsData != null;
+            IsengardSettingData settingsData = _settingsData;
+            bool haveSettings = settingsData != null;
             List<SpellsEnum> knownSpells = new List<SpellsEnum>();
-            lock (_currentEntityInfo.EntityLock)
-            {
-                knownSpells.AddRange(_currentEntityInfo.SpellsKnown);
-            }
             SpellsEnum? level1Spell = null;
             SpellsEnum? level2Spell = null;
             SpellsEnum? level3Spell = null;
             lock (_currentEntityInfo.EntityLock)
             {
+                knownSpells.AddRange(_currentEntityInfo.SpellsKnown);
                 if (haveSettings)
                 {
-                    RealmTypeFlags currentRealms = _settingsData.Realms;
+                    RealmTypeFlags currentRealms = settingsData.Realms;
                     foreach (RealmTypeFlags nextRealm in Enum.GetValues(typeof(RealmTypeFlags)))
                     {
                         if (nextRealm != RealmTypeFlags.None && nextRealm != RealmTypeFlags.All && ((currentRealms & nextRealm) != RealmTypeFlags.None))
@@ -7622,11 +7644,11 @@ BeforeHazy:
                 {
                     SpellsEnum? eSpell = null;
                     if (oControl == btnLevel1OffensiveSpell)
-                        eSpell = level1Spell;
+                        enabled = level1Spell.HasValue;
                     else if (oControl == btnLevel2OffensiveSpell)
-                        eSpell = level2Spell;
+                        enabled = level2Spell.HasValue;
                     else if (oControl == btnLevel3OffensiveSpell)
-                        eSpell = level3Spell;
+                        enabled = level3Spell.HasValue;
                     else if (oControl == btnStunMob)
                         eSpell = SpellsEnum.stun;
                     else if (oControl == btnCastVigor)
@@ -7641,10 +7663,6 @@ BeforeHazy:
                         {
                             enabled = _currentEntityInfo.CanCast(eSpell.Value);
                         }
-                    }
-                    else
-                    {
-                        enabled = false;
                     }
                 }
 
@@ -7695,6 +7713,19 @@ BeforeHazy:
                 enabled = true;
             if (enabled != tsbScore.Enabled)
                 tsbScore.Enabled = enabled;
+
+            PermRun currentPermRun = _currentPermRun;
+            PermRun nextPermRun = _nextPermRun;
+            
+            if (inForeground)
+                enabled = currentPermRun != null;
+            else
+                enabled = false;
+            btnRemoveCurrentPermRun.Enabled = enabled;
+            btnCompleteCurrentPermRun.Enabled = enabled;
+            btnResumeCurrentPermRun.Enabled = enabled;
+
+            btnRemoveNextPermRun.Enabled = nextPermRun != null;
         }
 
         private IEnumerable<CommandButtonTag> GetButtonsForEnablingDisabling()
@@ -8194,7 +8225,8 @@ BeforeHazy:
                 p.Flow = PermRunFlow.AdHocStrategy;
                 frm.SaveFormDataToPermRun(p);
             }
-            DoPermRun(p);
+            _currentPermRun = null;
+            DoPermRun(p, false);
         }
 
         internal class CommandButtonTag
@@ -8593,6 +8625,18 @@ BeforeHazy:
                 lblToNextLevelValue.Text = tnlText;
                 _tnlUI = iTNL;
                 _experienceUI = iExperience;
+            }
+
+            PermRun pr = _currentPermRun;
+            if (pr != _currentPermRunUI)
+            {
+                txtCurrentPermRun.Text = pr == null ? string.Empty : pr.ToString();
+                _currentPermRunUI = pr;
+            }
+            pr = _nextPermRun;
+            if (pr != _nextPermRunUI)
+            {
+                
             }
 
             if (haveSettings)
@@ -10535,33 +10579,45 @@ BeforeHazy:
 
         private void btnPermRuns_Click(object sender, EventArgs e)
         {
-            DisplayPermRunsForm();
-        }
-
-        private void DisplayPermRunsForm()
-        {
             bool haveBackgroundProcess = _currentBackgroundParameters != null;
             Area currentArea = cboArea.SelectedItem as Area;
             using (frmPermRuns frm = new frmPermRuns(_settingsData, _gameMap, _currentEntityInfo, GetGraphInputs, haveBackgroundProcess, currentArea))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (frm.PermRunToRun != null)
-                        DoPermRun(frm.PermRunToRun);
+                    PermRun prToRun = frm.PermRunToRun;
+                    if (prToRun != null)
+                    {
+                        if (haveBackgroundProcess)
+                        {
+                            _nextPermRun = prToRun;
+                        }
+                        else
+                        {
+                            _currentPermRun = prToRun;
+                            DoPermRun(frm.PermRunToRun, false);
+                        }
+                    }
                     else
+                    {
                         NavigateExitsInBackground(frm.NavigateToRoom);
+                    }
                 }
             }
         }
 
-        private void DoPermRun(PermRun p)
+        private void DoPermRun(PermRun p, bool resume)
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
             bwp.CurrentArea = cboArea.SelectedItem as Area;
             bwp.SetPermRun(p);
             bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
-            bwp.BeforeGold = _gold;
-            bwp.BeforeExperience = _experience;
+            bwp.Resume = resume;
+            if (!resume)
+            {
+                p.BeforeGold = _gold;
+                p.BeforeExperience = _experience;
+            }
             RunBackgroundProcess(bwp);
         }
 
@@ -10636,6 +10692,37 @@ BeforeHazy:
                 bwp.InventorySinkRoom = frm.SinkRoom;
             }
             RunBackgroundProcess(bwp);
+        }
+
+        private void btnRemoveCurrentPermRun_Click(object sender, EventArgs e)
+        {
+            if (_currentBackgroundParameters == null)
+            {
+                _currentPermRun = null;
+            }
+        }
+
+        private void btnRemoveNextPermRun_Click(object sender, EventArgs e)
+        {
+            _nextPermRun = null;
+        }
+
+        private void btnCompleteCurrentPermRun_Click(object sender, EventArgs e)
+        {
+            PermRun pr = _currentPermRun;
+            if (pr != null)
+            {
+                CompletePermRun(pr);
+            }
+        }
+
+        private void btnResumeCurrentPermRun_Click(object sender, EventArgs e)
+        {
+            PermRun pr = _currentPermRun;
+            if (pr != null)
+            {
+                DoPermRun(pr, true);
+            }
         }
     }
 }

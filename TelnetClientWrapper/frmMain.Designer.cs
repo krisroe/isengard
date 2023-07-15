@@ -68,8 +68,17 @@
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
-            this.btnGoToInventorySink = new System.Windows.Forms.Button();
+            this.grpPermRuns = new System.Windows.Forms.GroupBox();
+            this.btnResumeCurrentPermRun = new System.Windows.Forms.Button();
+            this.btnCompleteCurrentPermRun = new System.Windows.Forms.Button();
+            this.btnRemoveNextPermRun = new System.Windows.Forms.Button();
+            this.btnRemoveCurrentPermRun = new System.Windows.Forms.Button();
             this.btnPermRuns = new System.Windows.Forms.Button();
+            this.txtNextPermRun = new System.Windows.Forms.TextBox();
+            this.lblNextPermRun = new System.Windows.Forms.Label();
+            this.txtCurrentPermRun = new System.Windows.Forms.TextBox();
+            this.lblCurrent = new System.Windows.Forms.Label();
+            this.btnGoToInventorySink = new System.Windows.Forms.Button();
             this.btnGoToPawnShop = new System.Windows.Forms.Button();
             this.lblGold = new System.Windows.Forms.Label();
             this.lblToNextLevelValue = new System.Windows.Forms.Label();
@@ -180,6 +189,7 @@
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
+            this.grpPermRuns.SuspendLayout();
             this.grpInventory.SuspendLayout();
             this.grpEquipment.SuspendLayout();
             this.grpCurrentRoom.SuspendLayout();
@@ -463,11 +473,11 @@
             // grpOneClickStrategies
             // 
             this.grpOneClickStrategies.Controls.Add(this.flpOneClickStrategies);
-            this.grpOneClickStrategies.Location = new System.Drawing.Point(31, 206);
+            this.grpOneClickStrategies.Location = new System.Drawing.Point(31, 178);
             this.grpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
             this.grpOneClickStrategies.Name = "grpOneClickStrategies";
             this.grpOneClickStrategies.Padding = new System.Windows.Forms.Padding(4);
-            this.grpOneClickStrategies.Size = new System.Drawing.Size(801, 119);
+            this.grpOneClickStrategies.Size = new System.Drawing.Size(407, 125);
             this.grpOneClickStrategies.TabIndex = 65;
             this.grpOneClickStrategies.TabStop = false;
             this.grpOneClickStrategies.Text = "Strategies";
@@ -478,7 +488,7 @@
             this.flpOneClickStrategies.Location = new System.Drawing.Point(4, 19);
             this.flpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
             this.flpOneClickStrategies.Name = "flpOneClickStrategies";
-            this.flpOneClickStrategies.Size = new System.Drawing.Size(793, 96);
+            this.flpOneClickStrategies.Size = new System.Drawing.Size(399, 102);
             this.flpOneClickStrategies.TabIndex = 0;
             // 
             // txtPotion
@@ -624,8 +634,8 @@
             // 
             // pnlMain
             // 
+            this.pnlMain.Controls.Add(this.grpPermRuns);
             this.pnlMain.Controls.Add(this.btnGoToInventorySink);
-            this.pnlMain.Controls.Add(this.btnPermRuns);
             this.pnlMain.Controls.Add(this.btnGoToPawnShop);
             this.pnlMain.Controls.Add(this.lblGold);
             this.pnlMain.Controls.Add(this.lblToNextLevelValue);
@@ -677,6 +687,114 @@
             this.pnlMain.Size = new System.Drawing.Size(1356, 1108);
             this.pnlMain.TabIndex = 0;
             // 
+            // grpPermRuns
+            // 
+            this.grpPermRuns.Controls.Add(this.btnResumeCurrentPermRun);
+            this.grpPermRuns.Controls.Add(this.btnCompleteCurrentPermRun);
+            this.grpPermRuns.Controls.Add(this.btnRemoveNextPermRun);
+            this.grpPermRuns.Controls.Add(this.btnRemoveCurrentPermRun);
+            this.grpPermRuns.Controls.Add(this.btnPermRuns);
+            this.grpPermRuns.Controls.Add(this.txtNextPermRun);
+            this.grpPermRuns.Controls.Add(this.lblNextPermRun);
+            this.grpPermRuns.Controls.Add(this.txtCurrentPermRun);
+            this.grpPermRuns.Controls.Add(this.lblCurrent);
+            this.grpPermRuns.Location = new System.Drawing.Point(445, 180);
+            this.grpPermRuns.Name = "grpPermRuns";
+            this.grpPermRuns.Size = new System.Drawing.Size(386, 123);
+            this.grpPermRuns.TabIndex = 156;
+            this.grpPermRuns.TabStop = false;
+            this.grpPermRuns.Text = "Perm Runs";
+            // 
+            // btnResumeCurrentPermRun
+            // 
+            this.btnResumeCurrentPermRun.Location = new System.Drawing.Point(258, 76);
+            this.btnResumeCurrentPermRun.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnResumeCurrentPermRun.Name = "btnResumeCurrentPermRun";
+            this.btnResumeCurrentPermRun.Size = new System.Drawing.Size(88, 34);
+            this.btnResumeCurrentPermRun.TabIndex = 156;
+            this.btnResumeCurrentPermRun.Tag = "";
+            this.btnResumeCurrentPermRun.Text = "Resume";
+            this.btnResumeCurrentPermRun.UseVisualStyleBackColor = true;
+            this.btnResumeCurrentPermRun.Click += new System.EventHandler(this.btnResumeCurrentPermRun_Click);
+            // 
+            // btnCompleteCurrentPermRun
+            // 
+            this.btnCompleteCurrentPermRun.Location = new System.Drawing.Point(164, 76);
+            this.btnCompleteCurrentPermRun.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnCompleteCurrentPermRun.Name = "btnCompleteCurrentPermRun";
+            this.btnCompleteCurrentPermRun.Size = new System.Drawing.Size(88, 34);
+            this.btnCompleteCurrentPermRun.TabIndex = 155;
+            this.btnCompleteCurrentPermRun.Tag = "";
+            this.btnCompleteCurrentPermRun.Text = "Complete";
+            this.btnCompleteCurrentPermRun.UseVisualStyleBackColor = true;
+            this.btnCompleteCurrentPermRun.Click += new System.EventHandler(this.btnCompleteCurrentPermRun_Click);
+            // 
+            // btnRemoveNextPermRun
+            // 
+            this.btnRemoveNextPermRun.Location = new System.Drawing.Point(347, 49);
+            this.btnRemoveNextPermRun.Name = "btnRemoveNextPermRun";
+            this.btnRemoveNextPermRun.Size = new System.Drawing.Size(26, 22);
+            this.btnRemoveNextPermRun.TabIndex = 5;
+            this.btnRemoveNextPermRun.Text = "X";
+            this.btnRemoveNextPermRun.UseVisualStyleBackColor = true;
+            this.btnRemoveNextPermRun.Click += new System.EventHandler(this.btnRemoveNextPermRun_Click);
+            // 
+            // btnRemoveCurrentPermRun
+            // 
+            this.btnRemoveCurrentPermRun.Location = new System.Drawing.Point(347, 21);
+            this.btnRemoveCurrentPermRun.Name = "btnRemoveCurrentPermRun";
+            this.btnRemoveCurrentPermRun.Size = new System.Drawing.Size(26, 22);
+            this.btnRemoveCurrentPermRun.TabIndex = 4;
+            this.btnRemoveCurrentPermRun.Text = "X";
+            this.btnRemoveCurrentPermRun.UseVisualStyleBackColor = true;
+            this.btnRemoveCurrentPermRun.Click += new System.EventHandler(this.btnRemoveCurrentPermRun_Click);
+            // 
+            // btnPermRuns
+            // 
+            this.btnPermRuns.Location = new System.Drawing.Point(70, 76);
+            this.btnPermRuns.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnPermRuns.Name = "btnPermRuns";
+            this.btnPermRuns.Size = new System.Drawing.Size(88, 34);
+            this.btnPermRuns.TabIndex = 154;
+            this.btnPermRuns.Tag = "";
+            this.btnPermRuns.Text = "Edit";
+            this.btnPermRuns.UseVisualStyleBackColor = true;
+            this.btnPermRuns.Click += new System.EventHandler(this.btnPermRuns_Click);
+            // 
+            // txtNextPermRun
+            // 
+            this.txtNextPermRun.Enabled = false;
+            this.txtNextPermRun.Location = new System.Drawing.Point(70, 49);
+            this.txtNextPermRun.Name = "txtNextPermRun";
+            this.txtNextPermRun.Size = new System.Drawing.Size(271, 22);
+            this.txtNextPermRun.TabIndex = 3;
+            // 
+            // lblNextPermRun
+            // 
+            this.lblNextPermRun.AutoSize = true;
+            this.lblNextPermRun.Location = new System.Drawing.Point(11, 52);
+            this.lblNextPermRun.Name = "lblNextPermRun";
+            this.lblNextPermRun.Size = new System.Drawing.Size(37, 16);
+            this.lblNextPermRun.TabIndex = 2;
+            this.lblNextPermRun.Text = "Next:";
+            // 
+            // txtCurrentPermRun
+            // 
+            this.txtCurrentPermRun.Enabled = false;
+            this.txtCurrentPermRun.Location = new System.Drawing.Point(70, 21);
+            this.txtCurrentPermRun.Name = "txtCurrentPermRun";
+            this.txtCurrentPermRun.Size = new System.Drawing.Size(271, 22);
+            this.txtCurrentPermRun.TabIndex = 1;
+            // 
+            // lblCurrent
+            // 
+            this.lblCurrent.AutoSize = true;
+            this.lblCurrent.Location = new System.Drawing.Point(11, 24);
+            this.lblCurrent.Name = "lblCurrent";
+            this.lblCurrent.Size = new System.Drawing.Size(52, 16);
+            this.lblCurrent.TabIndex = 0;
+            this.lblCurrent.Text = "Current:";
+            // 
             // btnGoToInventorySink
             // 
             this.btnGoToInventorySink.Enabled = false;
@@ -689,18 +807,6 @@
             this.btnGoToInventorySink.Text = "Inv";
             this.btnGoToInventorySink.UseVisualStyleBackColor = true;
             this.btnGoToInventorySink.Click += new System.EventHandler(this.btnGoToInventorySink_Click);
-            // 
-            // btnPermRuns
-            // 
-            this.btnPermRuns.Location = new System.Drawing.Point(379, 166);
-            this.btnPermRuns.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnPermRuns.Name = "btnPermRuns";
-            this.btnPermRuns.Size = new System.Drawing.Size(105, 34);
-            this.btnPermRuns.TabIndex = 154;
-            this.btnPermRuns.Tag = "";
-            this.btnPermRuns.Text = "Perm Runs";
-            this.btnPermRuns.UseVisualStyleBackColor = true;
-            this.btnPermRuns.Click += new System.EventHandler(this.btnPermRuns_Click);
             // 
             // btnGoToPawnShop
             // 
@@ -1041,11 +1147,11 @@
             // grpMessages
             // 
             this.grpMessages.Controls.Add(this.lstMessages);
-            this.grpMessages.Location = new System.Drawing.Point(35, 332);
+            this.grpMessages.Location = new System.Drawing.Point(35, 311);
             this.grpMessages.Margin = new System.Windows.Forms.Padding(4);
             this.grpMessages.Name = "grpMessages";
             this.grpMessages.Padding = new System.Windows.Forms.Padding(4);
-            this.grpMessages.Size = new System.Drawing.Size(797, 222);
+            this.grpMessages.Size = new System.Drawing.Size(797, 243);
             this.grpMessages.TabIndex = 121;
             this.grpMessages.TabStop = false;
             this.grpMessages.Text = "Messages";
@@ -1061,7 +1167,7 @@
             this.lstMessages.Margin = new System.Windows.Forms.Padding(4);
             this.lstMessages.Name = "lstMessages";
             this.lstMessages.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstMessages.Size = new System.Drawing.Size(789, 199);
+            this.lstMessages.Size = new System.Drawing.Size(789, 220);
             this.lstMessages.TabIndex = 0;
             // 
             // ctxMessages
@@ -1619,21 +1725,21 @@
             // tsmiSearch
             // 
             this.tsmiSearch.Name = "tsmiSearch";
-            this.tsmiSearch.Size = new System.Drawing.Size(224, 26);
+            this.tsmiSearch.Size = new System.Drawing.Size(136, 26);
             this.tsmiSearch.Text = "Search";
             this.tsmiSearch.Click += new System.EventHandler(this.tsmiSearch_Click);
             // 
             // tsmiHide
             // 
             this.tsmiHide.Name = "tsmiHide";
-            this.tsmiHide.Size = new System.Drawing.Size(224, 26);
+            this.tsmiHide.Size = new System.Drawing.Size(136, 26);
             this.tsmiHide.Text = "Hide";
             this.tsmiHide.Click += new System.EventHandler(this.tsmiHide_Click);
             // 
             // tsmiFerry
             // 
             this.tsmiFerry.Name = "tsmiFerry";
-            this.tsmiFerry.Size = new System.Drawing.Size(224, 26);
+            this.tsmiFerry.Size = new System.Drawing.Size(136, 26);
             this.tsmiFerry.Text = "Ferry";
             this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
             // 
@@ -1846,6 +1952,8 @@
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
             this.pnlMain.PerformLayout();
+            this.grpPermRuns.ResumeLayout(false);
+            this.grpPermRuns.PerformLayout();
             this.grpInventory.ResumeLayout(false);
             this.grpEquipment.ResumeLayout(false);
             this.grpCurrentRoom.ResumeLayout(false);
@@ -2030,6 +2138,15 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiSearch;
         private System.Windows.Forms.ToolStripMenuItem tsmiHide;
         private System.Windows.Forms.ToolStripMenuItem tsmiFerry;
+        private System.Windows.Forms.GroupBox grpPermRuns;
+        private System.Windows.Forms.TextBox txtNextPermRun;
+        private System.Windows.Forms.Label lblNextPermRun;
+        private System.Windows.Forms.TextBox txtCurrentPermRun;
+        private System.Windows.Forms.Label lblCurrent;
+        private System.Windows.Forms.Button btnRemoveCurrentPermRun;
+        private System.Windows.Forms.Button btnRemoveNextPermRun;
+        private System.Windows.Forms.Button btnCompleteCurrentPermRun;
+        private System.Windows.Forms.Button btnResumeCurrentPermRun;
     }
 }
 
