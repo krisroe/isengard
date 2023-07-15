@@ -6498,7 +6498,7 @@ BeforeHazy:
             command = sAttackType + " " + mobTarget;
         }
 
-        public MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
+        public static MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -6565,66 +6565,66 @@ BeforeHazy:
                 SpellsEnum? spellToRun = null;
                 RealmTypeFlags? realmTemp = null;
                 bool isAuto = nextMagicStep == MagicStrategyStep.OffensiveSpellAuto;
-                foreach (RealmTypeFlags nextRealm in settingsData.GetAvailableRealmsFromStartingPoint(currentRealm))
+                lock (cei.EntityLock)
                 {
-                    int? iNextLevel = null;
-                    SpellsEnum? nextSpell = null;
-                    List<SpellsEnum> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
-                    if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel5)
+                    foreach (RealmTypeFlags nextRealm in settingsData.GetAvailableRealmsFromStartingPoint(currentRealm))
                     {
-                        iNextLevel = 5;
-                        nextSpell = offensiveSpells[4];
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
-                    {
-                        iNextLevel = 4;
-                        nextSpell = offensiveSpells[3];
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
-                    {
-                        iNextLevel = 3;
-                        nextSpell = offensiveSpells[2];
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
-                    {
-                        iNextLevel = 2;
-                        nextSpell = offensiveSpells[1];
-                    }
-                    else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
-                    {
-                        iNextLevel = 1;
-                        nextSpell = offensiveSpells[0];
-                    }
-                    else //auto
-                    {
-                        if (currentMP >= 20 && usedAutoSpellMin <= 5 && usedAutoSpellMax >= 5)
+                        int? iNextLevel = null;
+                        SpellsEnum? nextSpell = null;
+                        List<SpellsEnum> offensiveSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
+                        if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel5)
                         {
                             iNextLevel = 5;
                             nextSpell = offensiveSpells[4];
                         }
-                        if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4)
+                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel4)
                         {
                             iNextLevel = 4;
                             nextSpell = offensiveSpells[3];
                         }
-                        else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3)
+                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel3)
                         {
                             iNextLevel = 3;
                             nextSpell = offensiveSpells[2];
                         }
-                        else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2)
+                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel2)
                         {
                             iNextLevel = 2;
                             nextSpell = offensiveSpells[1];
                         }
-                        else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1)
+                        else if (nextMagicStep == MagicStrategyStep.OffensiveSpellLevel1)
                         {
                             iNextLevel = 1;
                             nextSpell = offensiveSpells[0];
                         }
-                    }
-                    if (nextSpell.HasValue && _currentEntityInfo.CanCast(nextSpell.Value))
-                    {
+                        else //auto
+                        {
+                            if (currentMP >= 20 && usedAutoSpellMin <= 5 && usedAutoSpellMax >= 5 && cei.CanCast(offensiveSpells[4]))
+                            {
+                                iNextLevel = 5;
+                                nextSpell = offensiveSpells[4];
+                            }
+                            if (currentMP >= 15 && usedAutoSpellMin <= 4 && usedAutoSpellMax >= 4 && cei.CanCast(offensiveSpells[3]))
+                            {
+                                iNextLevel = 4;
+                                nextSpell = offensiveSpells[3];
+                            }
+                            else if (currentMP >= 10 && usedAutoSpellMin <= 3 && usedAutoSpellMax >= 3 && cei.CanCast(offensiveSpells[2]))
+                            {
+                                iNextLevel = 3;
+                                nextSpell = offensiveSpells[2];
+                            }
+                            else if (currentMP >= 7 && usedAutoSpellMin <= 2 && usedAutoSpellMax >= 2 && cei.CanCast(offensiveSpells[1]))
+                            {
+                                iNextLevel = 2;
+                                nextSpell = offensiveSpells[1];
+                            }
+                            else if (currentMP >= 3 && usedAutoSpellMin <= 1 && usedAutoSpellMax >= 1 && cei.CanCast(offensiveSpells[0]))
+                            {
+                                iNextLevel = 1;
+                                nextSpell = offensiveSpells[0];
+                            }
+                        }
                         if (isAuto)
                         {
                             if (!iLevel.HasValue || iNextLevel.Value > iLevel.Value)
@@ -6634,11 +6634,14 @@ BeforeHazy:
                                 spellToRun = nextSpell.Value;
                             }
                         }
-                        else
+                        else //specific level offensive spell
                         {
-                            realmTemp = nextRealm;
-                            spellToRun = nextSpell.Value;
-                            break;
+                            if (nextSpell.HasValue && cei.CanCast(nextSpell.Value))
+                            {
+                                realmTemp = nextRealm;
+                                spellToRun = nextSpell.Value;
+                                break;
+                            }
                         }
                     }
                 }
@@ -7536,29 +7539,32 @@ BeforeHazy:
             SpellsEnum? level1Spell = null;
             SpellsEnum? level2Spell = null;
             SpellsEnum? level3Spell = null;
-            if (haveSettings)
+            lock (_currentEntityInfo.EntityLock)
             {
-                RealmTypeFlags currentRealms = _settingsData.Realms;
-                foreach (RealmTypeFlags nextRealm in Enum.GetValues(typeof(RealmTypeFlags)))
+                if (haveSettings)
                 {
-                    if (nextRealm != RealmTypeFlags.None && nextRealm != RealmTypeFlags.All && ((currentRealms & nextRealm) != RealmTypeFlags.None))
+                    RealmTypeFlags currentRealms = _settingsData.Realms;
+                    foreach (RealmTypeFlags nextRealm in Enum.GetValues(typeof(RealmTypeFlags)))
                     {
-                        SpellsEnum nextSpell;
-                        List<SpellsEnum> realmSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
-                        if (!level1Spell.HasValue)
+                        if (nextRealm != RealmTypeFlags.None && nextRealm != RealmTypeFlags.All && ((currentRealms & nextRealm) != RealmTypeFlags.None))
                         {
-                            nextSpell = realmSpells[0];
-                            if (_currentEntityInfo.CanCast(nextSpell)) level1Spell = nextSpell;
-                        }
-                        if (!level2Spell.HasValue)
-                        {
-                            nextSpell = realmSpells[1];
-                            if (_currentEntityInfo.CanCast(nextSpell)) level2Spell = nextSpell;
-                        }
-                        if (!level3Spell.HasValue)
-                        {
-                            nextSpell = realmSpells[2];
-                            if (_currentEntityInfo.CanCast(nextSpell)) level3Spell = nextSpell;
+                            SpellsEnum nextSpell;
+                            List<SpellsEnum> realmSpells = CastOffensiveSpellSequence.GetOffensiveSpellsForRealm(nextRealm);
+                            if (!level1Spell.HasValue)
+                            {
+                                nextSpell = realmSpells[0];
+                                if (_currentEntityInfo.CanCast(nextSpell)) level1Spell = nextSpell;
+                            }
+                            if (!level2Spell.HasValue)
+                            {
+                                nextSpell = realmSpells[1];
+                                if (_currentEntityInfo.CanCast(nextSpell)) level2Spell = nextSpell;
+                            }
+                            if (!level3Spell.HasValue)
+                            {
+                                nextSpell = realmSpells[2];
+                                if (_currentEntityInfo.CanCast(nextSpell)) level3Spell = nextSpell;
+                            }
                         }
                     }
                 }
@@ -7596,7 +7602,17 @@ BeforeHazy:
                         eSpell = SpellsEnum.mend;
                     else if (oControl == btnCastCurePoison)
                         eSpell = SpellsEnum.curepoison;
-                    enabled = eSpell.HasValue && _currentEntityInfo.CanCast(eSpell.Value);
+                    if (eSpell.HasValue)
+                    {
+                        lock (_currentEntityInfo.EntityLock)
+                        {
+                            enabled = _currentEntityInfo.CanCast(eSpell.Value);
+                        }
+                    }
+                    else
+                    {
+                        enabled = false;
+                    }
                 }
 
                 bool isToolStripButton = oTag.IsToolStripButton;

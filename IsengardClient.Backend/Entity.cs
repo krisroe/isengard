@@ -1020,17 +1020,24 @@ namespace IsengardClient.Backend
             return ret;
         }
 
+        /// <summary>
+        /// whether a spell can be cast, assumes the entity lock
+        /// </summary>
+        /// <param name="spell">spell to cast</param>
+        /// <returns>true if the spell can be cast, false otherwise</returns>
         public bool CanCast(SpellsEnum spell)
         {
-            lock (EntityLock)
+            bool ret;
+            if (SpellsKnown.Contains(spell))
             {
-                if (!SpellsKnown.Contains(spell))
-                {
-                    return false;
-                }
                 SpellInformationAttribute sia = SpellsStatic.SpellsByEnum[spell];
-                return UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
+                ret = UserSpellProficiencies[sia.Proficiency] >= sia.GetMinimumProficiencyForTier();
             }
+            else
+            {
+                ret = false;
+            }
+            return ret;
         }
 
         public WorkflowSpells GetAvailableSpellsToCastWithLock(AvailableSpellTypes spellTypes)
