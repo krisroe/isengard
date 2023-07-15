@@ -116,6 +116,8 @@ namespace IsengardClient.Tests
             p.BeforeFull = FullType.Total;
             p.AfterFull = FullType.Almost;
             p.ItemsToProcessType = ItemsToProcessType.ProcessMonsterDrops;
+            p.SkillsToRun = PromptedSkills.Fireshield | PromptedSkills.Manashield;
+            p.SupportedKeys = SupportedKeysFlags.BoilerKey | SupportedKeysFlags.BridgeKey;
             p.LastCompleted = DateTime.UtcNow;
             p.MobIndex = 2;
             p.MobType = MobTypeEnum.Amlug;

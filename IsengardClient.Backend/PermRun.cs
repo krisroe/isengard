@@ -22,6 +22,7 @@ namespace IsengardClient.Backend
             SpellsToCast = copied.SpellsToCast;
             SpellsToPotion = copied.SpellsToPotion;
             SkillsToRun = copied.SkillsToRun;
+            SupportedKeys = copied.SupportedKeys;
             TargetRoomIdentifier = copied.TargetRoomIdentifier;
             TargetRoomObject = copied.TargetRoomObject;
             ThresholdRoomIdentifier = copied.ThresholdRoomIdentifier;

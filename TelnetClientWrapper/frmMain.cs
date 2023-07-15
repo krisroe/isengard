@@ -4310,7 +4310,7 @@ namespace IsengardClient
 
                 CommandResultObject backgroundCommandResultObject = null;
                 PermRun pr = pms.PermRun;
-                bool hasMob = pms.MobType.HasValue || !string.IsNullOrEmpty(pms.MobText) || pms.MobTypeCounter > 0;
+                bool hasMob = pms.HasTargetMob();
                 PromptedSkills skillsToRun = pr == null ? PromptedSkills.None : pr.SkillsToRun;
                 WorkflowSpells spellsToCast = pr == null ? WorkflowSpells.None : pr.SpellsToCast;
 
@@ -4447,7 +4447,7 @@ namespace IsengardClient
                 {
                     //verify the mob is present and attackable before activating skills
                     if (_bwBackgroundProcess.CancellationPending) return;
-                    if (!_hazying && !_fleeing && pms.ExpectsMob() && !FoundMob(pms))
+                    if (!_hazying && !_fleeing && hasMob && !FoundMob(pms))
                     {
                         AddConsoleMessage("Target mob not present.");
                         return;
@@ -4509,9 +4509,8 @@ namespace IsengardClient
                     hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
                     hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
                 }
-                bool hasCombat = pms.HasTargetMob();
                 string sMobText;
-                if (hasCombat)
+                if (hasMob)
                 {
                     if (pms.MobType.HasValue)
                     {
@@ -5154,10 +5153,9 @@ BeforeHazy:
                     }
                 }
 
-                //determine success. if the user indicated success using the complete button don't question that
-                if (!pms.Success)
+                if (!pms.Success) //determine success
                 {
-                    pms.Success = !pms.Fled && !pms.Hazied && (!hasCombat || pms.MonsterKilled);
+                    pms.Success = !pms.Fled && !pms.Hazied && (!hasMob || pms.MonsterKilled);
                 }
             }
             catch (Exception ex)

@@ -91,13 +91,13 @@ namespace IsengardClient.Backend
         /// whether resuming an existing perm run
         /// </summary>
         public bool Resume { get; set; }
-        public bool ExpectsMob()
-        {
-            return (MobType.HasValue && MobTypeCounter >= 1) || (!string.IsNullOrEmpty(MobText) && MobTextCounter >= 1);
-        }
+        /// <summary>
+        /// whether a mob is targeted for combat
+        /// </summary>
+        /// <returns>true if a mob is targeted, false otherwise</returns>
         public bool HasTargetMob()
         {
-            return !string.IsNullOrEmpty(MobText) || MobType.HasValue;
+            return !string.IsNullOrEmpty(MobText) || MobType.HasValue || MobTypeCounter >= 1;
         }
         public void SetPermRun(PermRun p)
         {
