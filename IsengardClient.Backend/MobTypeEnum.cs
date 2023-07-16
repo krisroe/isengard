@@ -247,6 +247,10 @@
         [PluralName("citizens")]
         Citizen,
 
+        [SingularName("citizen of tharbad")]
+        //CSRTODO: plural
+        CitizenOfTharbad,
+
         [SingularName("clockwork dragon")]
         [PluralName("clockwork dragons")]
         ClockworkDragon,
