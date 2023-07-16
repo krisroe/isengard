@@ -10320,7 +10320,6 @@ BeforeHazy:
             ListBox lst = (ListBox)ctxInventoryOrEquipmentItem.SourceControl;
             bool isInventory = lst == lstInventory;
             StaticItemData sid = null;
-            int iCounter = 0;
             ItemTypeEnum itemType = ItemTypeEnum.GoldCoins;
             Room r = _currentEntityInfo.CurrentRoom;
             List<SelectedInventoryOrEquipmentItem> sioeiList = new List<SelectedInventoryOrEquipmentItem>();
@@ -10341,6 +10340,7 @@ BeforeHazy:
                     e.Cancel = true;
                     return;
                 }
+                int iCounter = 0;
                 if (isInventory)
                 {
                     foreach (ItemInInventoryOrEquipmentList nextEntry in lstInventory.Items)
