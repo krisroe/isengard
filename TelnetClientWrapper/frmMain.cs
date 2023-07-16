@@ -694,7 +694,7 @@ namespace IsengardClient
                 "fireshield",
                 "flamefill",
                 "flaming", //also fist
-                "flee",
+                "flee", //also run
                 "flood",
                 "flurry",
                 "fly",
