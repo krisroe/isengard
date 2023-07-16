@@ -771,11 +771,17 @@ namespace IsengardClient.Tests
             RoomTransitionInfo oRTI = null;
             int? iDamage = null;
             TrapType? trapType = null;
-            Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> a = (flp, rti, d, tt) =>
+            List<string> broadcastMessages = null;
+            List<string> addedPlayers = null;
+            List<string> removedPlayers = null;
+            Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> a = (flp, rti, d, tt, bm, ap, rp) =>
             {
                 oRTI = rti;
                 iDamage = d;
                 trapType = tt;
+                broadcastMessages = bm;
+                addedPlayers = ap;
+                removedPlayers = rp;
             };
 
             RoomTransitionSequence seq = new RoomTransitionSequence(a);

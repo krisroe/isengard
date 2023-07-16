@@ -1154,7 +1154,7 @@ namespace IsengardClient
 
                 InitialLoginInfo info = _loginInfo;
                 string sRoomName = info.RoomName;
-                if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false))
+                if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false, null, null, null))
                 {
                     _initializationSteps |= InitializationStep.Finalization;
                     Room r = _currentEntityInfo.CurrentRoom;
@@ -1442,7 +1442,7 @@ namespace IsengardClient
             return ret;
         }
 
-        private void OnRoomTransition(FeedLineParameters flParams, RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType)
+        private void OnRoomTransition(FeedLineParameters flParams, RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType, List<string> broadcastMessages, List<string> addedPlayers, List<string> removedPlayers)
         {
             Exit currentBackgroundExit = _currentBackgroundExit;
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
@@ -1601,6 +1601,8 @@ namespace IsengardClient
             {
                 newRoom = previousRoom;
             }
+
+            ProcessBroadcastMessages(broadcastMessages, addedPlayers, removedPlayers);
 
             lock (_currentEntityInfo.EntityLock) //update the room change list with the next room
             {
@@ -2954,6 +2956,16 @@ namespace IsengardClient
                 }
             }
 
+            ProcessBroadcastMessages(broadcasts, addedPlayers, removedPlayers);
+
+            if (finishedProcessing)
+            {
+                flp.FinishedProcessing = true;
+            }
+        }
+
+        private void ProcessBroadcastMessages(List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
+        {
             if (broadcasts != null)
             {
                 lock (_broadcastMessagesLock)
@@ -2985,11 +2997,6 @@ namespace IsengardClient
                         _players.Remove(s);
                     }
                 }
-            }
-
-            if (finishedProcessing)
-            {
-                flp.FinishedProcessing = true;
             }
         }
 

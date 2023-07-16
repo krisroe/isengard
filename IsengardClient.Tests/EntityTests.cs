@@ -141,11 +141,17 @@ namespace IsengardClient.Tests
             RoomTransitionInfo oRTI = null;
             int? iDamage = null;
             TrapType? trapType = null;
-            Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> a = (flParams, rti, d, tt) =>
+            List<string> broadcastMessages = null;
+            List<string> addedPlayers = null;
+            List<string> removedPlayers = null;
+            Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> a = (flParams, rti, d, tt, bm, ap, rp) =>
             {
                 oRTI = rti;
                 iDamage = d;
                 trapType = tt;
+                broadcastMessages = bm;
+                addedPlayers = ap;
+                removedPlayers = rp;
             };
 
             FeedLineParameters flp = new FeedLineParameters(null);
@@ -153,7 +159,7 @@ namespace IsengardClient.Tests
             oRTI = null;
             iDamage = null;
             trapType = null;
-            RoomTransitionSequence.ProcessRoom("Room", "None", "an elven guard", null, null, a, flp, RoomTransitionType.Initial, 0, TrapType.None, false);
+            RoomTransitionSequence.ProcessRoom("Room", "None", "an elven guard", null, null, a, flp, RoomTransitionType.Initial, 0, TrapType.None, false, null, null, null);
             Assert.IsTrue(oRTI != null);
             Assert.IsTrue(oRTI.Mobs.Count == 1);
             Assert.IsTrue(oRTI.Mobs[0] is MobEntity);

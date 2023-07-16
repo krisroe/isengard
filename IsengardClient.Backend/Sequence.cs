@@ -1466,8 +1466,8 @@ namespace IsengardClient.Backend
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
         private const string YOU_SEE_PREFIX = "You see ";
-        private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> _onSatisfied;
-        public RoomTransitionSequence(Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied)
+        private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> _onSatisfied;
+        public RoomTransitionSequence(Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1506,8 +1506,84 @@ namespace IsengardClient.Backend
                     }
                 }
             }
-            if (ProcessRoom(Lines, flParams.NextLineIndex, rtType, flParams, _onSatisfied, iDamage, ref eTrapType))
+
+            List<string> broadcastMessages = null;
+            List<string> addedPlayers = null;
+            List<string> removedPlayers = null;
+            List<int> linesToRemove = null;
+            int nextLineIndex = flParams.NextLineIndex;
+
+            int lineCount = Lines.Count;
+
+        StartProcessRoom:
+
+            if (!ProcessRoomContent(Lines, ref nextLineIndex, out string sRoomName, out string exitsString, out string list1String, out string list2String, out string list3String))
             {
+                return;
+            }
+
+            bool drankHazy = false;
+
+            if (nextLineIndex < lineCount)
+            {
+                string sNextLine = Lines[nextLineIndex];
+                if (string.IsNullOrEmpty(sNextLine))
+                {
+                    nextLineIndex++;
+                    for (int i = nextLineIndex; i < lineCount; i++)
+                    {
+                        bool removeLine = false;
+                        sNextLine = Lines[i];
+                        if (sNextLine == "You triggered a hidden dart!")
+                        {
+                            eTrapType |= TrapType.PoisonDart;
+                        }
+                        else if (sNextLine == "You fell into a pit trap!")
+                        {
+                            nextLineIndex = i + 1;
+                            goto StartProcessRoom;
+                        }
+                        else if (sNextLine == "The hazy potion disintegrates.")
+                        {
+                            drankHazy = true;
+                        }
+                        else if (sNextLine == "You tingle all over" || //part of word of recall / hazy
+                                 sNextLine == "Substance consumed.") //part of drinking hazy
+                        {
+                            //skipped
+                        }
+                        else if (InformationalMessagesSequence.ProcessBroadcastMessage(sNextLine, ref addedPlayers, ref removedPlayers))
+                        {
+                            if (broadcastMessages == null) broadcastMessages = new List<string>();
+                            broadcastMessages.Add(sNextLine);
+                            removeLine = true;
+                        }
+                        else
+                        {
+                            int trapDamage = StringProcessing.PullDamageFromString("You lost ", " hit points.", sNextLine);
+                            if (trapDamage > 0) iDamage += trapDamage;
+                        }
+                        if (removeLine)
+                        {
+                            if (linesToRemove == null) linesToRemove = new List<int>();
+                            linesToRemove.Add(i);
+                        }
+                    }
+                }
+            }
+
+            if (ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, _onSatisfied, flParams, rtType, iDamage, eTrapType, drankHazy, broadcastMessages, addedPlayers, removedPlayers))
+            {
+                //remove from output lines that shouldn't display
+                if (linesToRemove != null & flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                {
+                    linesToRemove.Reverse();
+                    foreach (int i in linesToRemove)
+                    {
+                        Lines.RemoveAt(i);
+                    }
+                }
+
                 flParams.FinishedProcessing = true;
             }
         }
@@ -1581,7 +1657,7 @@ namespace IsengardClient.Backend
             return true;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType, bool drankHazy)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType, bool drankHazy, List<string> broadcastMessages, List<string> addedPlayers, List<string> removedPlayers)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1772,60 +1848,8 @@ namespace IsengardClient.Backend
             rti.Items = items;
             rti.UnknownEntities = unknownEntities;
             rti.DrankHazy = drankHazy;
-            onSatisfied(flParams, rti, damage, trapType);
+            onSatisfied(flParams, rti, damage, trapType, broadcastMessages, addedPlayers, removedPlayers);
             return true;
-        }
-
-        internal static bool ProcessRoom(List<string> Lines, int nextLineIndex, RoomTransitionType rtType, FeedLineParameters flParams, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType> onSatisfied, int damage, ref TrapType trapType)
-        {
-            int lineCount = Lines.Count;
-
-StartProcessRoom:
-
-            if (!ProcessRoomContent(Lines, ref nextLineIndex, out string sRoomName, out string exitsString, out string list1String, out string list2String, out string list3String))
-            {
-                return false;
-            }
-
-            bool drankHazy = false;
-
-            if (nextLineIndex < lineCount)
-            {
-                string sNextLine = Lines[nextLineIndex];
-                if (string.IsNullOrEmpty(sNextLine))
-                {
-                    nextLineIndex++;
-                    for (int i = nextLineIndex; i < lineCount; i++)
-                    {
-                        sNextLine = Lines[i];
-                        if (sNextLine == "You triggered a hidden dart!")
-                        {
-                            trapType = trapType | TrapType.PoisonDart;
-                        }
-                        else if (sNextLine == "You fell into a pit trap!")
-                        {
-                            nextLineIndex = i + 1;
-                            goto StartProcessRoom;
-                        }
-                        else if (sNextLine == "The hazy potion disintegrates.")
-                        {
-                            drankHazy = true;
-                        }
-                        else if (sNextLine == "You tingle all over" || //part of word of recall / hazy
-                                 sNextLine == "Substance consumed.") //part of drinking hazy
-                        {
-                            //skipped
-                        }
-                        else
-                        {
-                            int trapDamage = StringProcessing.PullDamageFromString("You lost ", " hit points.", sNextLine);
-                            if (trapDamage > 0) damage += trapDamage;
-                        }
-                    }
-                }
-            }
-
-            return ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, onSatisfied, flParams, rtType, damage, trapType, drankHazy);
         }
 
         public static void LoadMustBeItems(List<ItemEntity> items, List<string> itemNames, List<string> errorMessages)
@@ -2975,41 +2999,7 @@ StartProcessRoom:
                 {
                     //These lines are ignored
                 }
-                else if (sLine.StartsWith("###"))
-                {
-                    if (sLine.StartsWith("### "))
-                    {
-                        bool? logFlag = null;
-                        if (sLine.EndsWith(" just logged in."))
-                        {
-                            logFlag = true;
-                        }
-                        else if (sLine.EndsWith(" just logged off."))
-                        {
-                            logFlag = false;
-                        }
-                        if (logFlag.HasValue)
-                        {
-                            bool logFlagValue = logFlag.Value;
-                            int startCharacters = "### ".Length;
-                            int iSpaceIndex = sLine.IndexOf(' ', startCharacters);
-                            List<string> playerList;
-                            if (logFlagValue)
-                            {
-                                if (addedPlayers == null) addedPlayers = new List<string>();
-                                playerList = addedPlayers;
-                            }
-                            else
-                            {
-                                if (removedPlayers == null) removedPlayers = new List<string>();
-                                playerList = removedPlayers;
-                            }
-                            playerList.Add(sLine.Substring(startCharacters, iSpaceIndex - startCharacters));
-                        }
-                    }
-                    isBroadcast = true;
-                }
-                else if (sLine.StartsWith(" ###"))
+                else if (ProcessBroadcastMessage(sLine, ref addedPlayers, ref removedPlayers))
                 {
                     isBroadcast = true;
                 }
@@ -3227,10 +3217,8 @@ StartProcessRoom:
                 }
 
                 bool removeLine = false;
-                bool addAsBroadcastMessage = false;
                 if (isBroadcast)
                 {
-                    addAsBroadcastMessage = true;
                     removeLine = true;
                 }
                 else if (im.HasValue || nextMsg != null)
@@ -3245,7 +3233,7 @@ StartProcessRoom:
                 {
                     removeLine = true;
                 }
-                if (addAsBroadcastMessage)
+                if (isBroadcast)
                 {
                     if (broadcastMessages == null)
                         broadcastMessages = new List<string>();
@@ -3278,6 +3266,50 @@ StartProcessRoom:
             {
                 _onSatisfied(Parameters, broadcastMessages, addedPlayers, removedPlayers);
             }
+        }
+
+        internal static bool ProcessBroadcastMessage(string sLine, ref List<string> addedPlayers, ref List<string> removedPlayers)
+        {
+            bool ret = false;
+            if (sLine.StartsWith("###"))
+            {
+                if (sLine.StartsWith("### "))
+                {
+                    bool? logFlag = null;
+                    if (sLine.EndsWith(" just logged in."))
+                    {
+                        logFlag = true;
+                    }
+                    else if (sLine.EndsWith(" just logged off."))
+                    {
+                        logFlag = false;
+                    }
+                    if (logFlag.HasValue)
+                    {
+                        bool logFlagValue = logFlag.Value;
+                        int startCharacters = "### ".Length;
+                        int iSpaceIndex = sLine.IndexOf(' ', startCharacters);
+                        List<string> playerList;
+                        if (logFlagValue)
+                        {
+                            if (addedPlayers == null) addedPlayers = new List<string>();
+                            playerList = addedPlayers;
+                        }
+                        else
+                        {
+                            if (removedPlayers == null) removedPlayers = new List<string>();
+                            playerList = removedPlayers;
+                        }
+                        playerList.Add(sLine.Substring(startCharacters, iSpaceIndex - startCharacters));
+                    }
+                }
+                ret = true;
+            }
+            else if (sLine.StartsWith(" ###"))
+            {
+                ret = true;
+            }
+            return ret;
         }
 
         private ItemEntity ProcessEquipmentFellApartMessage(string sLine, string prefix, string suffix, List<string> errorMessages)
