@@ -807,7 +807,7 @@ namespace IsengardClient.Backend
         /// <summary>
         /// Enter and exit in Nindamos. This is synchronized with Celduin Express in Bree.
         /// </summary>
-        EnterInNindamos,
+        InNindamos,
         /// <summary>
         /// at sea
         /// </summary>
@@ -823,7 +823,7 @@ namespace IsengardClient.Backend
         /// <summary>
         /// Enter at mithlond, exit to Nindamos (glitched). This is synchronized with Celduin express in Bree.
         /// </summary>
-        EnterInMithlond,
+        EnterInMithlondExitToNindamos,
         /// <summary>
         /// at sea
         /// </summary>
@@ -836,5 +836,25 @@ namespace IsengardClient.Backend
         /// at sea
         /// </summary>
         AtSea4,
+    }
+
+    public enum HarbringerCycle
+    {
+        /// <summary>
+        /// board in tharbad, not possible to disembark
+        /// </summary>
+        BoardInTharbad,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        ToMithlond,
+        /// <summary>
+        /// enter and exit in mithlond
+        /// </summary>
+        InMithlond,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        ToTharbad,
     }
 }

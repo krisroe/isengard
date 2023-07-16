@@ -642,17 +642,45 @@ namespace IsengardClient.Backend
             AddHarbringer(oHarbringerGangplank, tharbadDocks);
             AddBullroarer(oBullroarerSlip, nindamosDocks);
             AddCelduinExpress(boatswain, breeDocks);
+            AddOmaniPrincess(oOmaniPrincessSlip);
+        }
+
+        private void AddOmaniPrincess(Room oOmaniPrincessSlip)
+        {
+            RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+
+            Room oStem = AddRoom("Stem", "Stem of the Omani Princess");
+            mithlondGraph.Rooms[oStem] = new PointF(-0.5F, 5.5F);
+
+            Room oMainDeck1 = AddRoom("Main Deck", "Main Deck of the Omani Princess");
+            AddExit(oMainDeck1, oStem, "bow");
+            AddExit(oStem, oMainDeck1, "stern");
+            Exit e = AddExit(oOmaniPrincessSlip, oMainDeck1, "dhow");
+            e.PresenceType = ExitPresenceType.Periodic;
+            e = AddExit(oMainDeck1, oOmaniPrincessSlip, "gangway");
+            e.PresenceType = ExitPresenceType.Periodic;
+            mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
+
+            Room oMainDeck2 = AddRoom("Main Deck", "Maindeck of the Omani Princess");
+            AddExit(oMainDeck2, oStem, "bow");
+            AddExit(oMainDeck1, oMainDeck2, "starboard");
+            AddExit(oMainDeck2, oMainDeck1, "portside");
+            mithlondGraph.Rooms[oMainDeck2] = new PointF(-1.5F, 6.5F);
+
+            Room oForwardCabin = AddRoom("Forward Cabin", "Forward Cabin of the Omani Princess");
+            AddBidirectionalSameNameExit(oMainDeck1, oForwardCabin, "door");
+            mithlondGraph.Rooms[oForwardCabin] = new PointF(-0.5F, 6);
         }
 
         private void AddCelduinExpress(Room boatswain, Room breeDocks)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
 
-            mithlondGraph.Rooms[boatswain] = new PointF(1, 4);
-            mithlondGraph.Rooms[breeDocks] = new PointF(1, 3.5F);
+            mithlondGraph.Rooms[boatswain] = new PointF(1, 3);
+            mithlondGraph.Rooms[breeDocks] = new PointF(1, 2.5F);
 
             Room oBeneathBridge = AddRoom("Under Bridge", "Beneath the Bridge of the Celduin Express");
-            mithlondGraph.Rooms[oBeneathBridge] = new PointF(-0.5F, 4.5F);
+            mithlondGraph.Rooms[oBeneathBridge] = new PointF(-0.5F, 3.5F);
             AddBidirectionalExits(boatswain, oBeneathBridge, BidirectionalExitType.SouthwestNortheast);
 
             Room oBridge = AddRoom("Capt. Felagund", "Bridge of the Celduin Express");
@@ -662,15 +690,15 @@ namespace IsengardClient.Backend
             e.MustOpen = true;
             e = AddExit(oBridge, oBeneathBridge, "down");
             e.MustOpen = true;
-            mithlondGraph.Rooms[oBridge] = new PointF(-0.5F, 4.25F);
+            mithlondGraph.Rooms[oBridge] = new PointF(-0.5F, 3.25F);
 
             Room oUnderDeck = AddRoom("Under Deck", "Beneath the Deck of the Celduin Express");
             AddBidirectionalSameNameExit(oBeneathBridge, oUnderDeck, "stairway");
-            mithlondGraph.Rooms[oUnderDeck] = new PointF(-1, 5.5F);
+            mithlondGraph.Rooms[oUnderDeck] = new PointF(-1, 4.5F);
 
             Room oPassengerLounge = AddRoom("Passenger Lounge", "Passenger Lounge");
             AddBidirectionalExits(oUnderDeck, oPassengerLounge, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oPassengerLounge] = new PointF(-1, 5.75F);
+            mithlondGraph.Rooms[oPassengerLounge] = new PointF(-1, 4.75F);
 
             Room oBoilerRoom = AddRoom("Boiler Room", "Boiler Room");
             e = AddExit(oUnderDeck, oBoilerRoom, "door");
@@ -678,28 +706,28 @@ namespace IsengardClient.Backend
             e.MustOpen = true;
             e = AddExit(oBoilerRoom, oUnderDeck, "door");
             e.MustOpen = true;
-            mithlondGraph.Rooms[oBoilerRoom] = new PointF(0, 5.5F);
+            mithlondGraph.Rooms[oBoilerRoom] = new PointF(0, 4.5F);
 
             Room oCelduinExpressNW = AddRoom("Stern", "Stern of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, boatswain, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oCelduinExpressNW, oBeneathBridge, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oCelduinExpressNW] = new PointF(-2, 4);
+            mithlondGraph.Rooms[oCelduinExpressNW] = new PointF(-2, 3);
 
             Room oCelduinExpressMainDeckW = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, oCelduinExpressMainDeckW, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckW, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckW] = new PointF(-2, 6);
+            mithlondGraph.Rooms[oCelduinExpressMainDeckW] = new PointF(-2, 5);
 
             Room oCelduinExpressMainDeckE = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(boatswain, oCelduinExpressMainDeckE, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckE, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressMainDeckE, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckE] = new PointF(1, 6);
+            mithlondGraph.Rooms[oCelduinExpressMainDeckE] = new PointF(1, 5);
 
             Room oCelduinExpressBow = AddRoom("Bow", "Bow of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressMainDeckE, oCelduinExpressBow, BidirectionalExitType.SouthwestNortheast);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressBow, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oCelduinExpressBow] = new PointF(-0.5F, 7);
+            mithlondGraph.Rooms[oCelduinExpressBow] = new PointF(-0.5F, 5.25F);
         }
 
         /// <summary>

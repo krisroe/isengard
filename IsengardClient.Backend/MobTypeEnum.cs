@@ -1173,6 +1173,10 @@
         [PluralName("nymphs")]
         Nymph,
 
+        [SingularName("oarsman")]
+        [PluralName("oarsmen")]
+        Oarsman,
+
         [SingularName("ogre")]
         [PluralName("ogres")]
         [Experience(150)]
@@ -1246,6 +1250,10 @@
         [SingularName("pilgrim")]
         [PluralName("pilgrims")]
         Pilgrim,
+
+        [SingularName("pilot")]
+        [PluralName("pilots")]
+        Pilot,
 
         [SingularName("pirate")]
         [PluralName("pirates")]
@@ -1622,6 +1630,10 @@
         [SingularName("ugly kid")]
         [PluralName("ugly kids")]
         UglyKid,
+
+        [SingularName("Umbar Sailor")]
+        [PluralName("Umbar Sailors")]
+        UmbarSailor,
 
         [SingularName("vagrant")]
         [PluralName("vagrants")]
