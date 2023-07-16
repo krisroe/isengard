@@ -2466,21 +2466,27 @@ namespace IsengardClient.Backend
             AddBidirectionalSameNameExit(oRockyAlcove, oSewerDrain, "grate");
             underBreeGraph.Rooms[oSewerDrain] = new PointF(7, 0);
 
-            Room oDrainTunnel1 = AddRoom("Drain Tunnel", "Drain Tunnel");
-            AddExit(oSewerDrain, oDrainTunnel1, "south");
-            underBreeGraph.Rooms[oDrainTunnel1] = new PointF(7, 1);
-
             Room oDrainTunnel2 = AddRoom("Drain Tunnel", "Drain Tunnel");
-            AddExit(oDrainTunnel1, oDrainTunnel2, "north");
-            underBreeGraph.Rooms[oDrainTunnel2] = new PointF(8, 0);
+            underBreeGraph.Rooms[oDrainTunnel2] = new PointF(8, 1.5F);
 
             Room oDrainTunnel3 = AddRoom("Drain Tunnel", "Drain Tunnel");
-            AddExit(oDrainTunnel2, oDrainTunnel3, "south");
-            underBreeGraph.Rooms[oDrainTunnel3] = new PointF(8, 1);
+            AddBidirectionalExits(oDrainTunnel2, oDrainTunnel3, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oDrainTunnel3] = new PointF(8, 2);
 
             Room oDrainTunnel4 = AddRoom("Drain Tunnel", "Drain Tunnel");
-            AddExit(oDrainTunnel3, oDrainTunnel4, "south");
-            underBreeGraph.Rooms[oDrainTunnel4] = new PointF(8, 2);
+            AddBidirectionalExits(oDrainTunnel3, oDrainTunnel4, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oDrainTunnel4] = new PointF(8, 2.5F);
+
+            Room oDrainTunnelDeadEnd1 = AddRoom("Drain Tunnel", "Drain Tunnel");
+            AddExit(oDrainTunnel2, oDrainTunnelDeadEnd1, "north");
+            AddExit(oDrainTunnelDeadEnd1, oDrainTunnel2, "north");
+            AddExit(oSewerDrain, oDrainTunnelDeadEnd1, "south");
+            underBreeGraph.Rooms[oDrainTunnelDeadEnd1] = new PointF(8, 1);
+
+            Room oDrainTunnelDeadEnd2 = AddRoom("Drain Tunnel", "Drain Tunnel");
+            AddExit(oDrainTunnelDeadEnd1, oDrainTunnelDeadEnd2, "south");
+            AddExit(oDrainTunnelDeadEnd2, oDrainTunnelDeadEnd1, "south");
+            underBreeGraph.Rooms[oDrainTunnelDeadEnd2] = new PointF(8, 0.5F);
 
             Room sewerTunnelToTConnection = AddRoom("Tunnel", "Sewer Tunnel");
             AddBidirectionalExits(oDrainTunnel4, sewerTunnelToTConnection, BidirectionalExitType.NorthSouth);
