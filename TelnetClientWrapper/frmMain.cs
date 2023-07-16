@@ -2153,6 +2153,20 @@ namespace IsengardClient
             }
         }
 
+        private static void ExitIsNotLocked(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue)
+            {
+                BackgroundCommandType bctValue = bct.Value;
+                if (bctValue == BackgroundCommandType.Knock || bctValue == BackgroundCommandType.UnlockExit)
+                {
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
+
+                }
+            }
+        }
+
         private static void FailKnock(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -3692,7 +3706,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
                 new ConstantOutputSequence("You cannot harm him.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
                 new ConstantOutputSequence("You cannot harm her.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
-                new ConstantOutputSequence("It's not locked.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
+                new ConstantOutputSequence("It's not locked.", ExitIsNotLocked, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock, BackgroundCommandType.UnlockExit }),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
                 new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon, BackgroundCommandType.HoldItem }),
@@ -3724,6 +3738,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("You are already hidden.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
                 new ConstantOutputSequence("Unlock what?", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
                 new ConstantOutputSequence("Wrong key.", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
+                new ConstantOutputSequence("Click.", SucceedUnlock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
+                new ConstantOutputSequence(" is broken.", FailUnlockThisTime, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
             };
             return seqs;
         }
