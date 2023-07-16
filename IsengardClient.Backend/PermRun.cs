@@ -427,6 +427,60 @@ namespace IsengardClient.Backend
                     return false;
                 }
             }
+
+            bool usePotionsInStrategy = false;
+            if (Strategy != null && Strategy.PotionsSteps != null)
+            {
+                if (UsePotionsCombat.HasValue)
+                    usePotionsInStrategy = UsePotionsCombat.Value;
+                else
+                    usePotionsInStrategy = ((Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
+            }
+            if (usePotionsInStrategy)
+            {
+                List<SpellsEnum> spellsInStrategy = new List<SpellsEnum>();
+                foreach (PotionsStrategyStep step in Strategy.PotionsSteps)
+                {
+                    if (step == PotionsStrategyStep.CurePoison)
+                    {
+                        if (!spellsInStrategy.Contains(SpellsEnum.curepoison)) spellsInStrategy.Add(SpellsEnum.curepoison);
+                    }
+                    else if (step == PotionsStrategyStep.Vigor)
+                    {
+                        if (!spellsInStrategy.Contains(SpellsEnum.vigor)) spellsInStrategy.Add(SpellsEnum.vigor);
+                    }
+                    else if (step == PotionsStrategyStep.MendWounds)
+                    {
+                        if (!spellsInStrategy.Contains(SpellsEnum.mend)) spellsInStrategy.Add(SpellsEnum.mend);
+                    }
+                    else if (step == PotionsStrategyStep.GenericHeal)
+                    {
+                        if (!spellsInStrategy.Contains(SpellsEnum.vigor)) spellsInStrategy.Add(SpellsEnum.vigor);
+                        if (!spellsInStrategy.Contains(SpellsEnum.mend)) spellsInStrategy.Add(SpellsEnum.mend);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+                bool hasPotion = false;
+                lock (cei.EntityLock)
+                {
+                    foreach (SpellsEnum nextSpell in spellsInStrategy)
+                    {
+                        if (cei.HasPotionForSpell(nextSpell, out _, out _))
+                        {
+                            hasPotion = true;
+                            break;
+                        }
+                    }
+                }
+                if (!hasPotion)
+                {
+                    MessageBox.Show("No potions to use for strategy.");
+                    return false;
+                }
+            }
             
             return true;
         }
