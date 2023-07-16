@@ -2256,7 +2256,9 @@ namespace IsengardClient.Backend
 
         [SingularName("stone hammer")]
         [PluralName("stone hammers")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Blunt)]
+        [Weight(6)]
+        [Sellable(1485)]
         StoneHammer,
 
         //dropped by sewer orcs
