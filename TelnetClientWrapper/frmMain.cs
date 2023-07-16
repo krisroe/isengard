@@ -2923,9 +2923,13 @@ namespace IsengardClient
                             }
                         }
                         break;
-                    case InformationalMessageType.RoomPoisoned:
+                    case InformationalMessageType.SomethingPoisoned:
                     case InformationalMessageType.PoisonDamage:
                         _playerStatusFlags |= PlayerStatusFlags.Poisoned;
+                        break;
+                    case InformationalMessageType.SomethingDiseased:
+                    case InformationalMessageType.DiseaseDamage:
+                        _playerStatusFlags |= PlayerStatusFlags.Diseased;
                         break;
                 }
             }
@@ -3129,7 +3133,7 @@ namespace IsengardClient
             return rc;
         }
 
-        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<SpellsEnum> activeSpells, bool potionConsumed, bool poisonCured)
+        private void OnInventoryManagement(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, int? gold, int sellGold, List<SpellsEnum> activeSpells, bool potionConsumed, PlayerStatusFlags statusFlagsRemoved)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             bool inBackgroundCommand = bct.HasValue;
@@ -3163,9 +3167,9 @@ namespace IsengardClient
             {
                 flParams.CommandResult = CommandResult.CommandSuccessful;
             }
-            if (poisonCured)
+            if (statusFlagsRemoved != PlayerStatusFlags.None)
             {
-                _playerStatusFlags &= ~PlayerStatusFlags.Poisoned;
+                _playerStatusFlags &= ~statusFlagsRemoved;
             }
             if (inBackgroundCommand)
             {
@@ -6440,9 +6444,11 @@ BeforeHazy:
                         if (!exitAvailable && !nextExit.RequiresKey()) //knock
                         {
                             backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, abortLogic, false);
-                            exitAvailable = backgroundCommandResultObject.Result == CommandResult.CommandSuccessful;
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                            {
+                                return backgroundCommandResultObject;
+                            }
                         }
-                        if (!exitAvailable) return backgroundCommandResultObject;
                     }
 
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))

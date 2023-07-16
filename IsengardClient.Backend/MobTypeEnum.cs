@@ -1401,6 +1401,7 @@
         SewerOrcGuard,
 
         [SingularName("sewer orc mummy")]
+        [Experience(1000)]
         [Aggressive]
         SewerOrcMummy,
 

@@ -462,7 +462,9 @@ namespace IsengardClient.Backend
         EarthDamage,
         WindDamage,
         PoisonDamage,
-        RoomPoisoned,
+        SomethingPoisoned,
+        DiseaseDamage,
+        SomethingDiseased,
         FleeWithoutDropWeapon,
         FleeWithDropWeapon,
         FleeFailed,
@@ -547,6 +549,7 @@ namespace IsengardClient.Backend
         None = 0,
         Poisoned = 1,
         Prone = 2,
+        Diseased = 4,
     }
 
     public enum BoatEmbarkOrDisembark

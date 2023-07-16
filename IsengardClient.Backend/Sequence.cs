@@ -655,6 +655,10 @@ namespace IsengardClient.Backend
                     {
                         playerStatusFlags |= PlayerStatusFlags.Prone;
                     }
+                    if (sNextLine.Contains("*Diseased*"))
+                    {
+                        playerStatusFlags |= PlayerStatusFlags.Diseased;
+                    }
                 }
 
                 //third line contains hit points, magic points, and armor class
@@ -1077,8 +1081,8 @@ namespace IsengardClient.Backend
         private const string YOU_REMOVED_PREFIX = "You removed ";
         private const string THE_SHOPKEEP_GIVES_YOU_PREFIX = "The shopkeep gives you ";
         private const string TRADE_MID_TEXT = " gives you ";
-        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, bool> _onSatisfied;
-        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, bool> onSatisfied)
+        private Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, PlayerStatusFlags> _onSatisfied;
+        public InventoryEquipmentManagementSequence(Action<FeedLineParameters, List<ItemEntity>, ItemManagementAction, int?, int, List<SpellsEnum>, bool, PlayerStatusFlags> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -1090,7 +1094,7 @@ namespace IsengardClient.Backend
             ItemManagementAction eAction = ItemManagementAction.None;
             List<SpellsEnum> activeSpells = null;
             bool potionConsumed = false;
-            bool poisonCured = false;
+            PlayerStatusFlags statusFlagsRemoved = PlayerStatusFlags.None;
             int iLinesCount = Lines.Count;
             if (iLinesCount > 0)
             {
@@ -1107,13 +1111,13 @@ namespace IsengardClient.Backend
                         string objectText = string.Empty;
                         if (nextLine == "You aren't wearing anything that can be removed.")
                         {
-                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false, false);
+                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Unequip, null, 0, null, false, PlayerStatusFlags.None);
                             flp.FinishedProcessing = true;
                             return;
                         }
                         else if (nextLine.StartsWith("You can't trade with the ") || nextLine.EndsWith(" says, \"I don't want that!\""))
                         {
-                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Trade, null, 0, null, false, false);
+                            _onSatisfied(flp, new List<ItemEntity>(), ItemManagementAction.Trade, null, 0, null, false, PlayerStatusFlags.None);
                             flp.FinishedProcessing = true;
                             return;
                         }
@@ -1308,7 +1312,11 @@ namespace IsengardClient.Backend
                         }
                         else if (nextLine == "You feel the poison subside.")
                         {
-                            poisonCured = true;
+                            statusFlagsRemoved |= PlayerStatusFlags.Poisoned;
+                        }
+                        else if (nextLine == "You feel your fever subside.")
+                        {
+                            statusFlagsRemoved |= PlayerStatusFlags.Diseased;
                         }
                         else if (SelfSpellCastSequence.ACTIVE_SPELL_TO_ACTIVE_TEXT.TryGetValue(nextLine, out SpellsEnum activeSpell))
                         {
@@ -1365,7 +1373,7 @@ namespace IsengardClient.Backend
                 }
                 if (itemsManaged != null || potionConsumed || iTotalGold.HasValue)
                 {
-                    _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed, poisonCured);
+                    _onSatisfied(flp, itemsManaged, eAction, iTotalGold, iSellGold, activeSpells, potionConsumed, statusFlagsRemoved);
                     flp.FinishedProcessing = true;
                 }
             }
@@ -2645,6 +2653,10 @@ StartProcessRoom:
                 {
                     result = MovementResult.TotalFailure;
                 }
+                else if (firstLine == "Your equipment prevents you from using that exit.")
+                {
+                    result = MovementResult.TotalFailure; //CSRTODO: this is solvable by removing equipment
+                }
                 else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
                 {
                     result = MovementResult.TotalFailure;
@@ -2879,12 +2891,22 @@ StartProcessRoom:
                 else if (sLine.EndsWith(" poisoned you."))
                 {
                     haveDataToDisplay = true;
-                    im = InformationalMessageType.RoomPoisoned;
+                    im = InformationalMessageType.SomethingPoisoned;
                 }
                 else if (sLine == "Poison courses through your veins.")
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.PoisonDamage;
+                }
+                else if (sLine.EndsWith(" infects you."))
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.SomethingDiseased;
+                }
+                else if (sLine == "Fever grips your mind.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.DiseaseDamage;
                 }
                 else if (sLine == FLEE_WITHOUT_DROP_WEAPON)
                 {
@@ -3007,6 +3029,11 @@ StartProcessRoom:
                     haveDataToDisplay = true;
                 }
                 else if (sLine == "You feel confused.") //not sure what this means but want to keep
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
+                else if (sLine == "You feel nauseous.") //not sure what this means (goes along with disease) but want to keep
                 {
                     isMessageToKeep = true;
                     haveDataToDisplay = true;

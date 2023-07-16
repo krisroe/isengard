@@ -2563,6 +2563,7 @@ namespace IsengardClient.Backend
             Room oDustyGrotto = AddRoom("Dusty Grotto", "Dusty Grotto");
             e = AddExit(oDustyPassage4, oDustyGrotto, "down");
             e.Hidden = true;
+            AddExit(oDustyGrotto, oDustyPassage4, "up");
             underBreeGraph.Rooms[oDustyGrotto] = new PointF(16, 3.5F);
 
             Room oFungalGrotto = AddRoom("Fungal Grotto", "Fungal Grotto");
