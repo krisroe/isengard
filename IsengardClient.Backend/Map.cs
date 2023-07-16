@@ -7062,6 +7062,7 @@ namespace IsengardClient.Backend
             this.IsDay = IsDay;
             this.Flying = Flying;
             this.Levitating = Levitating;
+            this.Keys = Keys;
         }
         public bool Flying { get; set; }
         public bool Levitating { get; set; }
