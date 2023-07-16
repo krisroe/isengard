@@ -1015,6 +1015,12 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Finger)]
         CopperRing,
 
+        [SingularName("cracker")]
+        [PluralName("crackers")]
+        [Use(SpellsEnum.rumble)]
+        [Weight(1)]
+        Cracker,
+
         [SingularName("criminal records book")]
         [PluralName("criminal records books")]
         [Weight(20)]
@@ -1235,6 +1241,19 @@ namespace IsengardClient.Backend
         [PluralName("Faded maps")]
         [Weight(1)]
         FadedMap,
+
+        [SingularName("firecracker")]
+        [PluralName("firecrackers")]
+        [Use(SpellsEnum.burn)]
+        [Weight(1)]
+        Firecracker,
+
+        [SingularName("fish mail hood")]
+        [PluralName("fish mail hoods")]
+        [EquipmentType(EquipmentType.Head)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(5)]
+        FishMailHood,
 
         [SingularName("flint blade")]
         [PluralName("flint blades")]
@@ -1507,6 +1526,12 @@ namespace IsengardClient.Backend
         [Weight(2)]
         [Sellable(SellableEnum.NotSellable)]
         IceBluePotion,
+
+        [SingularName("ice cube")]
+        [PluralName("ice cubes")]
+        [Use(SpellsEnum.blister)]
+        [Weight(1)]
+        IceCube,
 
         [SingularName("information kiosk")]
         [PluralName("information kiosks")]
@@ -2394,6 +2419,8 @@ namespace IsengardClient.Backend
 
         [SingularName("vanishing cream")]
         [PluralName("vanishing creams")]
+        [Use(SpellsEnum.invisibility)]
+        [Weight(1)]
         VanishingCream,
 
         [SingularName("verdant green scroll")]
@@ -2467,6 +2494,12 @@ namespace IsengardClient.Backend
         [Weight(15)]
         WhiteArmor,
 
+        [SingularName("whoopie cushion")]
+        [PluralName("whoopie cushions")]
+        [Use(SpellsEnum.hurt)]
+        [Weight(2)]
+        WhoopieCushion,
+
         [SingularName("yellow beholder's eye")]
         [PluralName("yellow beholder's eyes")]
         [Wand(SpellsEnum.lightning)]
@@ -2477,5 +2510,10 @@ namespace IsengardClient.Backend
         [Potion(SpellsEnum.vigor)]
         [Weight(3)]
         YellowPotion,
+
+        [SingularName("yo-yo")]
+        [PluralName("yo-yos")]
+        [Weight(1)]
+        YoYo,
     }
 }
