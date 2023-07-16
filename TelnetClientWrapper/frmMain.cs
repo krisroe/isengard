@@ -6399,7 +6399,7 @@ BeforeHazy:
                                 ItemTypeEnum? eHeldItem = _currentEntityInfo.Equipment[iHeldSlot];
                                 if (eHeldItem == keyItemType)
                                 {
-                                    removeFromEquipment = true;
+                                    removeFromEquipment = true; //can't unlock an exit using a key in the held slot, so remove if there
                                     sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, keyItemType, iHeldSlot, false);
                                 }
                             }
