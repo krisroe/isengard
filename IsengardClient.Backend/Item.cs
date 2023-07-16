@@ -869,6 +869,7 @@ namespace IsengardClient.Backend
         [PluralName("bo sticks")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(4)]
+        [Sellable(SellableEnum.Junk)]
         BoStick,
 
         [SingularName("box of strawberries")]
@@ -1380,7 +1381,9 @@ namespace IsengardClient.Backend
         [SingularName("grey cloak")]
         [PluralName("grey cloaks")]
         [EquipmentType(EquipmentType.Neck)]
+        [Weight(2)]
         [ArmorClass(0.1)]
+        [Sellable(50)]
         GreyCloak,
 
         [SingularName("grey rune")]
@@ -2312,6 +2315,7 @@ namespace IsengardClient.Backend
         TBone,
 
         [SingularName("thieves' boots")]
+        [EquipmentType(EquipmentType.Feet)]
         [Weight(3)]
         [ArmorClass(0.2)]
         [Sellable(193)]

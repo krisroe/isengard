@@ -1400,6 +1400,10 @@
         [Aggressive]
         SewerOrcGuard,
 
+        [SingularName("sewer orc mummy")]
+        [Aggressive]
+        SewerOrcMummy,
+
         [SingularName("sewer rat")]
         [PluralName("sewer rats")]
         [Alignment(AlignmentType.DullRed)]

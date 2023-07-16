@@ -2533,6 +2533,7 @@ namespace IsengardClient.Backend
             e = AddExit(oSewerPassageInFrontOfGate, oGatedPassage, "gate");
             AddExit(oGatedPassage, oSewerPassageInFrontOfGate, "gate");
             e.KeyType = SupportedKeysFlags.TombKey;
+            e.MustOpen = true;
             underBreeGraph.Rooms[oGatedPassage] = new PointF(13, 4);
 
             Room oDustyPassage1 = AddRoom("Dusty Passage", "Dusty Passage");
@@ -2542,6 +2543,56 @@ namespace IsengardClient.Backend
             Room oDustyPassage2 = AddRoom("Dusty Passage", "Dusty Passage");
             AddBidirectionalExits(oDustyPassage1, oDustyPassage2, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oDustyPassage2] = new PointF(15, 4);
+
+            Room oDustyPassage3 = AddRoom("Dusty Passage", "Dusty Passage");
+            AddExit(oDustyPassage3, oDustyPassage2, "east");
+            underBreeGraph.Rooms[oDustyPassage3] = new PointF(16, 4);
+
+            Room oDustyPassage4 = AddRoom("Dusty Passage", "Dusty Passage");
+            AddExit(oDustyPassage3, oDustyPassage4, "west");
+            AddExit(oDustyPassage4, oDustyPassage1, "west");
+            AddExit(oDustyPassage4, oDustyPassage3, "east");
+            underBreeGraph.Rooms[oDustyPassage4] = new PointF(15, 3.5F);
+
+            Room oDustyGrotto = AddRoom("Dusty Grotto", "Dusty Grotto");
+            e = AddExit(oDustyPassage4, oDustyGrotto, "down");
+            e.Hidden = true;
+            underBreeGraph.Rooms[oDustyGrotto] = new PointF(16, 3.5F);
+
+            Room oFungalGrotto = AddRoom("Fungal Grotto", "Fungal Grotto");
+            AddBidirectionalExits(oDustyGrotto, oFungalGrotto, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oFungalGrotto] = new PointF(17, 3.5F);
+
+            Room oFungalSewerCrypt = AddRoom("Fungal Sewer Crypt", "Sewer Crypt");
+            AddBidirectionalExits(oFungalGrotto, oFungalSewerCrypt, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oFungalSewerCrypt] = new PointF(18, 3.5F);
+
+            Room oSewerOrcTomb1 = AddRoom("Sewer Orc Tomb", "Sewer Orc Tomb");
+            AddBidirectionalExits(oSewerOrcTomb1, oFungalSewerCrypt, BidirectionalExitType.SoutheastNorthwest);
+            underBreeGraph.Rooms[oSewerOrcTomb1] = new PointF(17, 2.5F);
+
+            Room oSewerOrcTomb2 = AddRoom("Sewer Orc Tomb", "Sewer Orc Tomb");
+            AddBidirectionalExits(oSewerOrcTomb2, oFungalSewerCrypt, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerOrcTomb2] = new PointF(18, 2.5F);
+
+            Room oSewerOrcTomb3 = AddRoom("Mummy Threshold", "Sewer Orc Tomb");
+            AddBidirectionalExits(oSewerOrcTomb3, oFungalSewerCrypt, BidirectionalExitType.SouthwestNortheast);
+            underBreeGraph.Rooms[oSewerOrcTomb3] = new PointF(19, 2.5F);
+
+            Room oSewerOrcTomb4 = AddRoom("Sewer Orc Tomb", "Sewer Orc Tomb");
+            AddBidirectionalExits(oFungalSewerCrypt, oSewerOrcTomb4, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oSewerOrcTomb4] = new PointF(18, 4.5F);
+
+            Room oSewerOrcTomb5 = AddRoom("Sewer Orc Tomb", "Sewer Orc Tomb");
+            AddBidirectionalExits(oFungalSewerCrypt, oSewerOrcTomb5, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oSewerOrcTomb5] = new PointF(19, 3.5F);
+
+            Room oScrawledPit = AddRoom("Sewer Orc Mummy", "Scrawled Pit");
+            AddPermanentMobs(oScrawledPit, MobTypeEnum.SewerOrcMummy);
+            e = AddExit(oSewerOrcTomb3, oScrawledPit, "sarcophagus");
+            e.Hidden = true;
+            AddExit(oScrawledPit, oSewerOrcTomb3, "up");
+            underBreeGraph.Rooms[oScrawledPit] = new PointF(19, 1.5F);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)
