@@ -10920,12 +10920,14 @@ BeforeHazy:
             DateTime? dtCycle = _mainBoatCycle;
             StringBuilder sb = new StringBuilder();
             double minutesIntoCycle;
+            double minutesIntoCurrentCycle;
             int cycleNumber;
             string secondsRemaining;
             if (dtCycle.HasValue)
             {
                 minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 4;
-                cycleNumber = Convert.ToInt32(minutesIntoCycle);
+                minutesIntoCurrentCycle = minutesIntoCycle % 1;
+                cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
                 secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
                 switch (cycleNumber)
                 {
@@ -10955,7 +10957,8 @@ BeforeHazy:
             if (dtCycle.HasValue)
             {
                 minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 8;
-                cycleNumber = Convert.ToInt32(minutesIntoCycle);
+                minutesIntoCurrentCycle = minutesIntoCycle % 1;
+                cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
                 secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
                 switch (cycleNumber)
                 {

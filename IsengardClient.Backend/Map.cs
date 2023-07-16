@@ -678,6 +678,7 @@ namespace IsengardClient.Backend
 
             Room oMidship = AddRoom("Midship", "Midship of the Omani Princess");
             AddExit(oMainDeck1, oMidship, "stern");
+            AddExit(oMainDeck2, oMidship, "stern");
             AddExit(oMidship, oMainDeck1, "bow");
             mithlondGraph.Rooms[oMidship] = new PointF(-0.5F, 7);
 
