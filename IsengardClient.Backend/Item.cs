@@ -2090,6 +2090,9 @@ namespace IsengardClient.Backend
 
         [SingularName("silver arm-bands")]
         [EquipmentType(EquipmentType.Arms)]
+        [Weight(5)]
+        [ArmorClass(0.2)]
+        [Sellable(595)]
         SilverArmBands,
 
         [SingularName("Silver-blue scale")]
