@@ -2108,6 +2108,33 @@ namespace IsengardClient
             }
         }
 
+        private static void FailUnlockAlways(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.UnlockExit)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
+        private static void FailUnlockThisTime(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.UnlockExit)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime;
+            }
+        }
+
+        private static void SucceedUnlock(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.UnlockExit)
+            {
+                flParams.CommandResult = CommandResult.CommandSuccessful;
+            }
+        }
+
         private void SuccessfulHide(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -3695,6 +3722,8 @@ namespace IsengardClient
                 new ConstantOutputSequence("You attempt to hide in the shadows.", FailHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
                 new ConstantOutputSequence("You slip into the shadows unnoticed.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
                 new ConstantOutputSequence("You are already hidden.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
+                new ConstantOutputSequence("Unlock what?", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
+                new ConstantOutputSequence("Wrong key.", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
             };
             return seqs;
         }
@@ -5403,7 +5432,7 @@ BeforeHazy:
                             int inventoryCount;
                             lock (_currentEntityInfo.EntityLock)
                             {
-                                inventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
+                                inventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType, true, true);
                             }
                             if (didWithInherit.KeepCount > 0 && inventoryCount <= didWithInherit.KeepCount)
                                 itemsToProcess.Remove(nextItemPickedUp);
@@ -5468,7 +5497,7 @@ BeforeHazy:
                                 int iTickRoomCount;
                                 lock (_currentEntityInfo.EntityLock)
                                 {
-                                    int iInventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType);
+                                    int iInventoryCount = _currentEntityInfo.GetTotalInventoryCount(itemType, true, true);
                                     if (didWithInherit.KeepCount == -1)
                                         iCountToGetRidOfFromInventory = iInventoryCount;
                                     else if (iInventoryCount > didWithInherit.KeepCount)
@@ -6335,13 +6364,80 @@ BeforeHazy:
                     if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
                     if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
 
-                    if ((nextExit.KeyType.HasValue || nextExit.IsUnknownKnockableKeyType) && !nextExit.RequiresKey())
+                    bool useGo;
+                    string sExitWord = GetExitWord(nextExit, out useGo);
+
+                    SupportedKeysFlags keyType = nextExit.KeyType;
+                    if (keyType != SupportedKeysFlags.None || nextExit.IsUnknownKnockableKeyType)
                     {
-                        backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, abortLogic, false);
-                        if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                        bool exitAvailable = false;
+                        backgroundCommandResultObject = null;
+                        if (keyType != SupportedKeysFlags.None && pr != null && ((pr.SupportedKeys & keyType) == keyType))
                         {
-                            return backgroundCommandResultObject;
+                            ItemTypeEnum keyItemType = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), keyType.ToString());
+                            bool removeFromEquipment = false;
+                            string sItemText = null;
+                            lock (_currentEntityInfo.EntityLock)
+                            {
+                                int iHeldSlot = (int)EquipmentSlot.Held;
+                                ItemTypeEnum? eHeldItem = _currentEntityInfo.Equipment[iHeldSlot];
+                                if (eHeldItem == keyItemType)
+                                {
+                                    sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, keyItemType, iHeldSlot, true);
+                                    removeFromEquipment = string.IsNullOrEmpty(sItemText);
+                                }
+                            }
+                            if (removeFromEquipment)
+                            {
+                                TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, keyItemType, sItemText, pms, abortLogic);
+                            }
+                            else if (!string.IsNullOrEmpty(sItemText))
+                            {
+                                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.UnlockExit, "unlock " + sExitWord + " " + sItemText, pms, abortLogic, false);
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                                {
+                                    exitAvailable = true;
+                                }
+                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                                {
+                                    return backgroundCommandResultObject;
+                                }
+                            }
+                            if (!exitAvailable)
+                            {
+                                int numberInInventory;
+                                lock (_currentEntityInfo.EntityLock)
+                                {
+                                    numberInInventory = _currentEntityInfo.GetTotalInventoryCount(keyItemType, false, true);
+                                }
+                                for (int i = 1; i <= numberInInventory; i++)
+                                {
+                                    lock (_currentEntityInfo.EntityLock)
+                                    {
+                                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, keyItemType, i, false, false);
+                                    }
+                                    if (!string.IsNullOrEmpty(sItemText))
+                                    {
+                                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.UnlockExit, "unlock " + sExitWord + " " + sItemText, pms, abortLogic, false);
+                                        if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                                        {
+                                            exitAvailable = true;
+                                            break;
+                                        }
+                                        else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                                        {
+                                            return backgroundCommandResultObject;
+                                        }
+                                    }
+                                }
+                            }
                         }
+                        if (!exitAvailable && !nextExit.RequiresKey()) //knock
+                        {
+                            backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Knock, "knock " + exitText, pms, abortLogic, false);
+                            exitAvailable = backgroundCommandResultObject.Result == CommandResult.CommandSuccessful;
+                        }
+                        if (!exitAvailable) return backgroundCommandResultObject;
                     }
 
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
@@ -6352,8 +6448,6 @@ BeforeHazy:
                             return backgroundCommandResultObject;
                         }
                     }
-                    bool useGo;
-                    string sExitWord = GetExitWord(nextExit, out useGo);
                     backgroundCommandResultObject = PreOpenDoorExit(nextExit, sExitWord, pms);
                     if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
@@ -6709,7 +6803,7 @@ BeforeHazy:
                         }
                         if (isAuto)
                         {
-                            if (!iLevel.HasValue || iNextLevel.Value > iLevel.Value)
+                            if (iNextLevel.HasValue && (!iLevel.HasValue || iNextLevel.Value > iLevel.Value))
                             {
                                 iLevel = iNextLevel.Value;
                                 realmTemp = nextRealm;
@@ -6772,9 +6866,10 @@ BeforeHazy:
                     }
                     else
                     {
-                        if (!_monsterKilledType.HasValue) return false;
-                        monsterType = _monsterKilledType.Value;
-                        index = _currentEntityInfo.CurrentRoomMobs.IndexOf(_monsterKilledType.Value);
+                        MobTypeEnum? monsterKilledType = _monsterKilledType;
+                        if (!monsterKilledType.HasValue) return false;
+                        monsterType = monsterKilledType.Value;
+                        index = _currentEntityInfo.CurrentRoomMobs.IndexOf(monsterKilledType.Value);
                         if (index < 0) return false;
                     }
                     bwp.MobText = string.Empty;
@@ -9710,12 +9805,14 @@ BeforeHazy:
         private GraphInputs GetGraphInputs()
         {
             bool flying, levitating;
+            SupportedKeysFlags keys;
             lock (_currentEntityInfo.EntityLock)
             {
                 flying = _spellsCast.Contains(SpellsEnum.fly);
                 levitating = _spellsCast.Contains(SpellsEnum.levitate);
+                keys = _currentEntityInfo.GetAvailableKeys(false);
             }
-            return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating);
+            return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating, keys);
         }
 
         /// <summary>

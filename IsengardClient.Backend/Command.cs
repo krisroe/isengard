@@ -84,6 +84,7 @@
     {
         Movement,
         OpenDoor,
+        UnlockExit,
         Look,
         LookAtMob,
         Prepare,

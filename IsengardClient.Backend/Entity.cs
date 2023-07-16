@@ -1787,16 +1787,22 @@ namespace IsengardClient.Backend
         /// </summary>
         /// <param name="itemType">item type</param>
         /// <returns>number of those item type possessed</returns>
-        public int GetTotalInventoryCount(ItemTypeEnum itemType)
+        public int GetTotalInventoryCount(ItemTypeEnum itemType, bool checkEquipment, bool checkInventory)
         {
             int iCount = 0;
-            foreach (ItemEntity nextItemEntity in InventoryItems)
+            if (checkInventory)
             {
-                if (itemType == nextItemEntity.ItemType) iCount++;
+                foreach (ItemEntity nextItemEntity in InventoryItems)
+                {
+                    if (itemType == nextItemEntity.ItemType) iCount++;
+                }
             }
-            foreach (ItemTypeEnum? nextItemType in Equipment)
+            if (checkEquipment)
             {
-                if (nextItemType == itemType) iCount++;
+                foreach (ItemTypeEnum? nextItemType in Equipment)
+                {
+                    if (nextItemType == itemType) iCount++;
+                }
             }
             return iCount;
         }

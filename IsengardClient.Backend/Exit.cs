@@ -31,7 +31,7 @@ namespace IsengardClient.Backend
         /// <summary>
         /// what type of key is needed to use the exit
         /// </summary>
-        public ItemTypeEnum? KeyType { get; set; }
+        public SupportedKeysFlags KeyType { get; set; }
         /// <summary>
         /// if true, the exit is locked and knockable but the key type is unknown
         /// </summary>
@@ -76,7 +76,7 @@ namespace IsengardClient.Backend
         /// <returns>true if the key is required, false otherwise</returns>
         public bool RequiresKey()
         {
-            return KeyType.HasValue && KeyType == ItemTypeEnum.GateKey;
+            return KeyType == SupportedKeysFlags.GateKey;
         }
 
         public int GetCost(GraphInputs graphInputs)
@@ -84,7 +84,8 @@ namespace IsengardClient.Backend
             int ret;
             int level = graphInputs.Level;
             bool levitating = graphInputs.Levitating;
-            bool isKeyExit = KeyType.HasValue;
+            bool isKeyExit = KeyType != SupportedKeysFlags.None;
+            bool hasNeededKey = isKeyExit ? (graphInputs.Keys & KeyType) == KeyType : false;
             bool requiresKey = RequiresKey();
             if (RequiresDay && !graphInputs.IsDay)
                 ret = int.MaxValue;
@@ -98,7 +99,7 @@ namespace IsengardClient.Backend
                 ret = int.MaxValue;
             else if (FloatRequirement == FloatRequirement.NoLevitation && levitating)
                 ret = int.MaxValue;
-            else if (isKeyExit && requiresKey)
+            else if (isKeyExit && requiresKey && !hasNeededKey)
                 ret = int.MaxValue;
             else if (Target.BackendName == Room.UNKNOWN_ROOM)
                 ret = int.MaxValue;
@@ -112,7 +113,7 @@ namespace IsengardClient.Backend
                 ret = 2000;
             else if (Target.IsTrapRoom)
                 ret = 2000;
-            else if (isKeyExit) //knockable locked exit
+            else if (isKeyExit && !requiresKey && !hasNeededKey)
                 ret = 2000;
             else
                 ret = 1;

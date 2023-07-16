@@ -658,7 +658,7 @@ namespace IsengardClient.Backend
             Room oBridge = AddRoom("Capt. Felagund", "Bridge of the Celduin Express");
             AddPermanentMobs(oBridge, MobTypeEnum.CaptainFelagund);
             Exit e = AddExit(oBeneathBridge, oBridge, "hatchway");
-            e.KeyType = ItemTypeEnum.BridgeKey;
+            e.KeyType = SupportedKeysFlags.BridgeKey;
             e.MustOpen = true;
             e = AddExit(oBridge, oBeneathBridge, "down");
             e.MustOpen = true;
@@ -674,7 +674,7 @@ namespace IsengardClient.Backend
 
             Room oBoilerRoom = AddRoom("Boiler Room", "Boiler Room");
             e = AddExit(oUnderDeck, oBoilerRoom, "door");
-            e.KeyType = ItemTypeEnum.BoilerKey;
+            e.KeyType = SupportedKeysFlags.BoilerKey;
             e.MustOpen = true;
             e = AddExit(oBoilerRoom, oUnderDeck, "door");
             e.MustOpen = true;
@@ -2230,7 +2230,7 @@ namespace IsengardClient.Backend
             Room oOldGardener = AddRoom("Old Gardener", "Path to Mansion");
             AddPermanentMobs(oOldGardener, MobTypeEnum.OldGardener);
             Exit e = AddExit(hauntedMansionEntrance, oOldGardener, "gate");
-            e.KeyType = ItemTypeEnum.SilverKey;
+            e.KeyType = SupportedKeysFlags.SilverKey;
             e.MustOpen = true;
             AddExit(oOldGardener, hauntedMansionEntrance, "gate");
             breeStreetsGraph.Rooms[oOldGardener] = new PointF(2, 2.5F);
@@ -2239,7 +2239,7 @@ namespace IsengardClient.Backend
 
             Room oFoyer = AddRoom("Foyer", "Foyer of the Old Mansion");
             e = AddBidirectionalExitsWithOut(oOldGardener, oFoyer, "door");
-            e.KeyType = ItemTypeEnum.SilverKey;
+            e.KeyType = SupportedKeysFlags.SilverKey;
             e.MustOpen = true;
             hauntedMansionGraph.Rooms[oFoyer] = new PointF(2, 6);
 
@@ -2704,7 +2704,7 @@ namespace IsengardClient.Backend
 
             AddExit(aqueduct, oKasnarTheGuard, "north");
             e = AddExit(oKasnarTheGuard, aqueduct, "south");
-            e.KeyType = ItemTypeEnum.KasnarsRedKey;
+            e.KeyType = SupportedKeysFlags.KasnarsRedKey;
             e.MustOpen = true;
 
             Room oOldMansReadingRoom = AddRoom("Reading Room", "Old man's reading room");
@@ -4166,7 +4166,7 @@ namespace IsengardClient.Backend
 
             AddExit(oSmoulderingVillage, oShepherd, "gate");
             e = AddExit(oShepherd, oSmoulderingVillage, "gate");
-            e.KeyType = ItemTypeEnum.GateKey; //not actually a usable exit since full key support is not there yet
+            e.KeyType = SupportedKeysFlags.GateKey;
             westOfBreeMap.Rooms[oSmoulderingVillage] = new PointF(13, -2.5F);
             AddMapBoundaryPoint(oShepherd, oSmoulderingVillage, MapType.WestOfBree, MapType.BreeSewers);
         }
@@ -7041,7 +7041,7 @@ namespace IsengardClient.Backend
 
     public class GraphInputs
     {
-        public GraphInputs(ClassType Class, int Level, bool IsDay, bool Flying, bool Levitating)
+        public GraphInputs(ClassType Class, int Level, bool IsDay, bool Flying, bool Levitating, SupportedKeysFlags Keys)
         {
             this.Class = Class;
             this.Level = Level;
@@ -7054,5 +7054,6 @@ namespace IsengardClient.Backend
         public bool IsDay { get; set; }
         public int Level { get; set; }
         public ClassType Class { get; set; }
+        public SupportedKeysFlags Keys { get; set; }
     }
 }
