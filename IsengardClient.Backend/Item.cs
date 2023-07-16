@@ -772,6 +772,7 @@ namespace IsengardClient.Backend
         [SingularName("bec de corbin")]
         [PluralName("bec de corbins")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(5)]
         [Sellable(99)]
         BecDeCorbin,
 
@@ -2462,6 +2463,8 @@ namespace IsengardClient.Backend
         [SingularName("white armor")]
         [PluralName("white armors")] //verified 6/29/23
         [EquipmentType(EquipmentType.Torso)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(15)]
         WhiteArmor,
 
         [SingularName("yellow beholder's eye")]
