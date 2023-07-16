@@ -8672,7 +8672,7 @@ BeforeHazy:
                 iTotalWeight = _currentEntityInfo.TotalInventoryWeight;
                 if (iTotalWeight != _currentEntityInfo.TotalInventoryWeightUI)
                 {
-                    grpInventory.Text = "Inventory (" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() + " lbs" : "?") + ")";
+                    grpInventory.Text = "Inventory (#" + (iTotalWeight.HasValue ? iTotalWeight.Value.ToString() : "?") + ")";
                     _currentEntityInfo.TotalInventoryWeightUI = iTotalWeight;
                 }
             }
