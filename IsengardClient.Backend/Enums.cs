@@ -478,6 +478,8 @@ namespace IsengardClient.Backend
         CelduinExpressInBree,
         CelduinExpressLeftBree,
         CelduinExpressLeftMithlond,
+        OmaniPrincessInMithlond,
+        OmaniPrincessInUmbar,
         HarbringerInPort,
         HarbringerSailed,
         EnemyAttacksYou,
@@ -566,6 +568,10 @@ namespace IsengardClient.Backend
         Harbringer,
         HarbringerMithlond,
         HarbringerTharbad,
+        OmaniPrincessMithlondBoat,
+        OmaniPrincessMithlondDock,
+        OmaniPrincessUmbarBoat,
+        OmaniPrincessUmbarDock,
     }
 
     public enum EntityChangeType

@@ -2881,6 +2881,16 @@ namespace IsengardClient.Backend
                     haveDataToDisplay = true;
                     im = InformationalMessageType.BullroarerReadyForBoarding;
                 }
+                else if (sLine == "Landfall at Mithlond!")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.OmaniPrincessInMithlond;
+                }
+                else if (sLine == "Landfall at Umbar!")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.OmaniPrincessInUmbar;
+                }
                 else if (sLine == "The Harbringer has set sail.")
                 {
                     haveDataToDisplay = true;

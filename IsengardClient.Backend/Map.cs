@@ -563,6 +563,7 @@ namespace IsengardClient.Backend
             mithlondGraph.Rooms[oBullroarerSlip] = new PointF(2, 6);
 
             Room oOmaniPrincessSlip = AddRoom("Omani Princess Slip", "Pier - Slip for the Omani Princess");
+            oOmaniPrincessSlip.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessMithlondDock;
             AddBidirectionalExits(oBullroarerSlip, oOmaniPrincessSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oOmaniPrincessSlip] = new PointF(2, 7);
 
@@ -658,6 +659,7 @@ namespace IsengardClient.Backend
             mithlondGraph.Rooms[oStem] = new PointF(-0.5F, 5.5F);
 
             Room oMainDeck1 = AddRoom("Main Deck", "Main Deck of the Omani Princess");
+            oMainDeck1.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessMithlondBoat;
             AddExit(oMainDeck1, oStem, "bow");
             AddExit(oStem, oMainDeck1, "stern");
             Exit e = AddExit(oOmaniPrincessSlip, oMainDeck1, "dhow");
@@ -667,6 +669,7 @@ namespace IsengardClient.Backend
             mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
 
             Room oMainDeck2 = AddRoom("Main Deck", "Maindeck of the Omani Princess");
+            oMainDeck2.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessUmbarBoat;
             AddExit(oMainDeck2, oStem, "bow");
             AddExit(oMainDeck1, oMainDeck2, "starboard");
             AddExit(oMainDeck2, oMainDeck1, "portside");
@@ -703,6 +706,14 @@ namespace IsengardClient.Backend
             AddExit(oGangway, oCaptainBelfalas, "up");
             AddExit(oCaptainBelfalas, oGangway, "gangway");
             mithlondGraph.Rooms[oCaptainBelfalas] = new PointF(0.5F, 7.5F);
+
+            Room oUmbarPort = AddRoom("Umbar Port", "Umbar Port");
+            oUmbarPort.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessUmbarDock;
+            e = AddExit(oMainDeck2, oUmbarPort, "gangway");
+            e.PresenceType = ExitPresenceType.Periodic;
+            e = AddExit(oUmbarPort, oMainDeck2, "dhow");
+            e.PresenceType = ExitPresenceType.Periodic;
+            mithlondGraph.Rooms[oUmbarPort] = new PointF(-2.5F, 6.5F);
         }
 
         private void AddCelduinExpress(Room boatswain, Room breeDocks)
