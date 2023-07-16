@@ -2806,6 +2806,24 @@ namespace IsengardClient
                             }
                         }
                         break;
+                    case InformationalMessageType.OmaniPrincessReadyForBoarding:
+                        lock (_currentEntityInfo.EntityLock)
+                        {
+                            Room currentRoom = _currentEntityInfo.CurrentRoom;
+                            if (currentRoom != null && currentRoom.BoatLocationType.HasValue)
+                            {
+                                switch (currentRoom.BoatLocationType.Value)
+                                {
+                                    case BoatEmbarkOrDisembark.OmaniPrincessMithlondDock:
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dhow"));
+                                        break;
+                                    case BoatEmbarkOrDisembark.OmaniPrincessUmbarDock:
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dhow"));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
                     case InformationalMessageType.CelduinExpressInBree:
                         //broadcast the first celduin express in bree message
                         if (!_mainBoatCycle.HasValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)

@@ -480,6 +480,7 @@ namespace IsengardClient.Backend
         CelduinExpressLeftMithlond,
         OmaniPrincessInMithlond,
         OmaniPrincessInUmbar,
+        OmaniPrincessReadyForBoarding,
         HarbringerInPort,
         HarbringerSailed,
         EnemyAttacksYou,

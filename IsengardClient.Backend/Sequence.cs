@@ -2891,6 +2891,11 @@ namespace IsengardClient.Backend
                     haveDataToDisplay = true;
                     im = InformationalMessageType.OmaniPrincessInUmbar;
                 }
+                else if (sLine == "The Omani Princess is now ready for boarding.")
+                {
+                    haveDataToDisplay = true;
+                    im = InformationalMessageType.OmaniPrincessReadyForBoarding;
+                }
                 else if (sLine == "The Harbringer has set sail.")
                 {
                     haveDataToDisplay = true;
