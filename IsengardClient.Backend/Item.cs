@@ -2311,6 +2311,12 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         TBone,
 
+        [SingularName("thieves' boots")]
+        [Weight(3)]
+        [ArmorClass(0.2)]
+        [Sellable(193)]
+        ThievesBoots,
+
         [SingularName("throwing axe")]
         [PluralName("throwing axes")]
         [WeaponType(WeaponType.Missile)]
