@@ -1059,6 +1059,14 @@ namespace IsengardClient.Backend
         [WeaponType(WeaponType.Slash)]
         DarkBlade,
 
+        [SingularName("dark goggles")]
+        //CSRTODO: plural
+        [EquipmentType(EquipmentType.Face)]
+        [Weight(5)]
+        [ArmorClass(0.2)]
+        [Sellable(123)]
+        DarkGoggles,
+
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
         [Potion(SpellsEnum.detectmagic)]
@@ -1421,6 +1429,12 @@ namespace IsengardClient.Backend
         [Scroll(SpellsEnum.vigor)]
         [Weight(1)]
         GreyScroll,
+
+        [SingularName("guide to the Ituk Glacier")]
+        //CSRTODO: plural
+        [Weight(0)]
+        [Sellable(SellableEnum.Junk)]
+        GuideToTheItukGlacier,
 
         [SingularName("gypsy battle crescent")]
         [PluralName("gypsy battle crescents")]
