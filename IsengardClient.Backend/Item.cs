@@ -2341,6 +2341,7 @@ namespace IsengardClient.Backend
 
         [SingularName("tomb key")]
         [PluralName("tomb keys")]
+        [ItemClass(ItemClass.Key)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
         TombKey,
