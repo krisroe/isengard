@@ -172,6 +172,9 @@ namespace IsengardClient
         private MobTypeEnum? _monsterKilledType;
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
 
+        private DateTime? _mainBoatCycle;
+        private DateTime? _bullroarerBoatCycle;
+
         /// <summary>
         /// number of times to try to attempt a background command before giving up
         /// </summary>
@@ -2772,9 +2775,11 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
+                                        _bullroarerBoatCycle = DateTime.UtcNow.Subtract(new TimeSpan(0, 4, 0));
                                         _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
+                                        _bullroarerBoatCycle = DateTime.UtcNow;
                                         _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
@@ -2782,6 +2787,15 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
+                        //broadcast the first celduin express in bree message
+                        if (!_mainBoatCycle.HasValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                        {
+                            lock (_broadcastMessagesLock)
+                            {
+                                _broadcastMessages.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
+                            }
+                        }
+                        _mainBoatCycle = DateTime.UtcNow;
                         lock (_currentEntityInfo.EntityLock)
                         {
                             bool removeMessage = true;
@@ -10899,6 +10913,84 @@ BeforeHazy:
             {
                 DoPermRun(pr, true);
             }
+        }
+
+        private void tsmiShipInfo_Click(object sender, EventArgs e)
+        {
+            DateTime? dtCycle = _mainBoatCycle;
+            StringBuilder sb = new StringBuilder();
+            double minutesIntoCycle;
+            int cycleNumber;
+            string secondsRemaining;
+            if (dtCycle.HasValue)
+            {
+                minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 4;
+                cycleNumber = Convert.ToInt32(minutesIntoCycle);
+                secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
+                switch (cycleNumber)
+                {
+                    case 0:
+                        sb.AppendLine($"Celduin Express in Bree for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Harbringer in Tharbad for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Omani Princess in Mithlond for {secondsRemaining} seconds.");
+                        break;
+                    case 1:
+                        sb.AppendLine($"Celduin Express sailing to Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Harbringer sailing to Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Omani Princess sailing to Umbar for {secondsRemaining} seconds.");
+                        break;
+                    case 2:
+                        sb.AppendLine($"Celduin Express in Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Harbringer in Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Omani Princess in Umbar for {secondsRemaining} seconds.");
+                        break;
+                    case 3:
+                        sb.AppendLine($"Celduin Express sailing to Bree for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Harbringer sailing to Tharbad for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Omani Princess sailing to Mithlond for {secondsRemaining} seconds.");
+                        break;
+                }
+            }
+            dtCycle = _bullroarerBoatCycle;
+            if (dtCycle.HasValue)
+            {
+                minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 8;
+                cycleNumber = Convert.ToInt32(minutesIntoCycle);
+                secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
+                switch (cycleNumber)
+                {
+                    case 0:
+                        sb.AppendLine($"Bullroarer in Nindamos for {secondsRemaining} seconds.");
+                        break;
+                    case 1:
+                        sb.AppendLine($"Bullroarer at sea for {secondsRemaining} seconds.");
+                        break;
+                    case 2:
+                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
+                        break;
+                    case 3:
+                        sb.AppendLine($"Bullroarer sailing for Mithlond for {secondsRemaining} seconds.");
+                        break;
+                    case 4:
+                        sb.AppendLine($"Bullroarer can board in Mithlond, exit to Nindamos for {secondsRemaining} seconds.");
+                        break;
+                    case 5:
+                        sb.AppendLine($"Bullroarer at sea for {secondsRemaining} seconds.");
+                        break;
+                    case 6:
+                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
+                        break;
+                    case 7:
+                        sb.AppendLine($"Bullroarer sailing for Nindamos for {secondsRemaining} seconds.");
+                        break;
+                }
+            }
+            string message = sb.ToString();
+            if (string.IsNullOrEmpty(message))
+            {
+                message = "No ship information available.";
+            }
+            MessageBox.Show(message);
         }
     }
 }

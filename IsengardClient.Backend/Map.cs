@@ -570,6 +570,11 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oOmaniPrincessSlip, oHarbringerSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oHarbringerSlip] = new PointF(2, 8);
 
+            Room oBayOfSomund = AddRoom("Bay of Somund", "Bay of Somund");
+            AddExit(oHarbringerSlip, oBayOfSomund, "down");
+            AddExit(oBayOfSomund, oHarbringerSlip, "east");
+            mithlondGraph.Rooms[oBayOfSomund] = new PointF(2, 9);
+
             Room oHarbringerGangplank = AddRoom("Gangplank", "Gangplank");
             oHarbringerGangplank.BoatLocationType = BoatEmbarkOrDisembark.HarbringerMithlond;
             AddExit(oHarbringerSlip, oHarbringerGangplank, "gangplank");

@@ -185,6 +185,7 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
+            this.tsmiShipInfo = new System.Windows.Forms.ToolStripMenuItem();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -1715,7 +1716,8 @@
             this.tsddActions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSearch,
             this.tsmiHide,
-            this.tsmiFerry});
+            this.tsmiFerry,
+            this.tsmiShipInfo});
             this.tsddActions.Image = ((System.Drawing.Image)(resources.GetObject("tsddActions.Image")));
             this.tsddActions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsddActions.Name = "tsddActions";
@@ -1725,21 +1727,21 @@
             // tsmiSearch
             // 
             this.tsmiSearch.Name = "tsmiSearch";
-            this.tsmiSearch.Size = new System.Drawing.Size(136, 26);
+            this.tsmiSearch.Size = new System.Drawing.Size(224, 26);
             this.tsmiSearch.Text = "Search";
             this.tsmiSearch.Click += new System.EventHandler(this.tsmiSearch_Click);
             // 
             // tsmiHide
             // 
             this.tsmiHide.Name = "tsmiHide";
-            this.tsmiHide.Size = new System.Drawing.Size(136, 26);
+            this.tsmiHide.Size = new System.Drawing.Size(224, 26);
             this.tsmiHide.Text = "Hide";
             this.tsmiHide.Click += new System.EventHandler(this.tsmiHide_Click);
             // 
             // tsmiFerry
             // 
             this.tsmiFerry.Name = "tsmiFerry";
-            this.tsmiFerry.Size = new System.Drawing.Size(136, 26);
+            this.tsmiFerry.Size = new System.Drawing.Size(224, 26);
             this.tsmiFerry.Text = "Ferry";
             this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
             // 
@@ -1932,6 +1934,13 @@
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(271, 62);
             this.pnlCommand.TabIndex = 30;
+            // 
+            // tsmiShipInfo
+            // 
+            this.tsmiShipInfo.Name = "tsmiShipInfo";
+            this.tsmiShipInfo.Size = new System.Drawing.Size(224, 26);
+            this.tsmiShipInfo.Text = "Ship Info";
+            this.tsmiShipInfo.Click += new System.EventHandler(this.tsmiShipInfo_Click);
             // 
             // frmMain
             // 
@@ -2147,6 +2156,7 @@
         private System.Windows.Forms.Button btnRemoveNextPermRun;
         private System.Windows.Forms.Button btnCompleteCurrentPermRun;
         private System.Windows.Forms.Button btnResumeCurrentPermRun;
+        private System.Windows.Forms.ToolStripMenuItem tsmiShipInfo;
     }
 }
 
