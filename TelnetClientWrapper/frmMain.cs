@@ -1806,7 +1806,7 @@ namespace IsengardClient
                         toProcess.Remove(e.ExitText);
                     }
                 }
-                else if (e.PresenceType != ExitPresenceType.Periodic)
+                else if (e.PresenceType != ExitPresenceType.Periodic && !e.WaitForMessage.HasValue)
                 {
                     errorMessages.Add("Cannot see visible exit " + sExitText + " for " + sBackendName);
                 }
@@ -3083,10 +3083,10 @@ namespace IsengardClient
                     switch (currentRoom.BoatLocationType.Value)
                     {
                         case BoatEmbarkOrDisembark.Harbringer:
-                            sExit = "ship";
+                            sExit = "gangplank";
                             break;
                         case BoatEmbarkOrDisembark.HarbringerMithlond:
-                            sExit = "gangplank";
+                            sExit = "ship";
                             break;
                         case BoatEmbarkOrDisembark.HarbringerTharbad:
                             sExit = "gangway";

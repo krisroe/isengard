@@ -784,4 +784,57 @@ namespace IsengardClient.Backend
         AutoSpellLevels,
         Realms,
     }
+
+    /// <summary>
+    /// one minute cycles for the celduin express
+    /// </summary>
+    public enum CelduinExpressCycle
+    {
+        /// <summary>
+        /// in bree, global notification
+        /// </summary>
+        InBree,
+        ToMithlond,
+        InMithlond,
+        ToBree,
+    }
+
+    /// <summary>
+    /// one minute cycles for bullroarer
+    /// </summary>
+    public enum BullroarerCycle
+    {
+        /// <summary>
+        /// Enter and exit in Nindamos. This is synchronized with Celduin Express in Bree.
+        /// </summary>
+        EnterInNindamos,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        AtSea1,
+        /// <summary>
+        /// can exit to Mithlond but not board
+        /// </summary>
+        ExitToMithlond1,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        AtSea2,
+        /// <summary>
+        /// Enter at mithlond, exit to Nindamos (glitched). This is synchronized with Celduin express in Bree.
+        /// </summary>
+        EnterInMithlond,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        AtSea3,
+        /// <summary>
+        /// can exit to Mithlond but not board
+        /// </summary>
+        ExitToMithlond2,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        AtSea4,
+    }
 }
