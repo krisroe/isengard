@@ -1060,6 +1060,8 @@ namespace IsengardClient.Backend
         [SingularName("dark flask")]
         [PluralName("dark flasks")]
         [Potion(SpellsEnum.mend)]
+        [Weight(3)]
+        [Sellable(SellableEnum.Junk)]
         DarkFlask,
 
         [SingularName("dead rat carcass")]
