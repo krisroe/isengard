@@ -76,7 +76,7 @@ namespace IsengardClient.Backend
         /// <returns>true if the key is required, false otherwise</returns>
         public bool RequiresKey()
         {
-            return KeyType == SupportedKeysFlags.GateKey;
+            return KeyType == SupportedKeysFlags.GateKey || KeyType == SupportedKeysFlags.TombKey;
         }
 
         public int GetCost(GraphInputs graphInputs)

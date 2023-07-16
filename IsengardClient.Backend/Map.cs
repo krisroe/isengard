@@ -2528,6 +2528,20 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oStagnantCesspool, oSlopingSewerPassage2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oSlopingSewerPassage2, oSmoothedSewerPassage, BidirectionalExitType.WestEast);
             underBreeGraph.Rooms[oSlopingSewerPassage2] = new PointF(11, 5);
+
+            Room oGatedPassage = AddRoom("Gated Passage", "Gated Passage");
+            e = AddExit(oSewerPassageInFrontOfGate, oGatedPassage, "gate");
+            AddExit(oGatedPassage, oSewerPassageInFrontOfGate, "gate");
+            e.KeyType = SupportedKeysFlags.TombKey;
+            underBreeGraph.Rooms[oGatedPassage] = new PointF(13, 4);
+
+            Room oDustyPassage1 = AddRoom("Dusty Passage", "Dusty Passage");
+            AddBidirectionalExits(oGatedPassage, oDustyPassage1, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oDustyPassage1] = new PointF(14, 4);
+
+            Room oDustyPassage2 = AddRoom("Dusty Passage", "Dusty Passage");
+            AddBidirectionalExits(oDustyPassage1, oDustyPassage2, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oDustyPassage2] = new PointF(15, 4);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)
