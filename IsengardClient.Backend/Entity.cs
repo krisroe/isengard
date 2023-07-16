@@ -470,6 +470,9 @@ namespace IsengardClient.Backend
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(AggressiveAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.Aggressive = ((AggressiveAttribute)valueAttributes[0]).Aggressive;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DestroysItemsAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.DestroysItems = ((DestroysItemsAttribute)valueAttributes[0]).DestroysItems;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ExperienceAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -591,6 +594,7 @@ namespace IsengardClient.Backend
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
         public bool Aggressive { get; set; }
+        public bool DestroysItems { get; set; }
         public int Experience { get; set; }
         public MobVisibility Visibility { get; set; }
         public AlignmentType? Alignment { get; set; }

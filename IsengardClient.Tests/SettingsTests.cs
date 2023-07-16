@@ -117,6 +117,7 @@ namespace IsengardClient.Tests
             p.AfterFull = FullType.Almost;
             p.ItemsToProcessType = ItemsToProcessType.ProcessMonsterDrops;
             p.SkillsToRun = PromptedSkills.Fireshield | PromptedSkills.Manashield;
+            p.RemoveAllEquipment = true;
             p.SupportedKeys = SupportedKeysFlags.BoilerKey | SupportedKeysFlags.BridgeKey;
             p.LastCompleted = DateTime.UtcNow;
             p.MobIndex = 2;
@@ -289,6 +290,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.SpellsToCast, p2.SpellsToCast);
             Assert.AreEqual(p1.SpellsToPotion, p2.SpellsToPotion);
             Assert.AreEqual(p1.SkillsToRun, p2.SkillsToRun);
+            Assert.AreEqual(p1.RemoveAllEquipment, p2.RemoveAllEquipment);
             Assert.AreEqual(p1.SupportedKeys, p2.SupportedKeys);
             Assert.AreEqual(p1.TargetRoomIdentifier, p2.TargetRoomIdentifier);
             Assert.AreEqual(p1.TargetRoomObject, p2.TargetRoomObject);

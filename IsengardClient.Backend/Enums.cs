@@ -64,7 +64,10 @@ namespace IsengardClient.Backend
         None,
         Initialization,
         Heal,
-        ActivateSkills,
+        /// <summary>
+        /// drink potions, activate skills, remove all equipment
+        /// </summary>
+        PostHealPreCombatLogic,
         Movement,
         Combat,
         Flee,

@@ -4471,7 +4471,7 @@ namespace IsengardClient
                     //activate potions/skills at the threshold if there is a threshold
                     if (!_fleeing && !_hazying && haveThreshold)
                     {
-                        backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun, pr);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4541,7 +4541,7 @@ namespace IsengardClient
                     //activate potions/skills at the target if there is no threshold
                     if (!_fleeing && !_hazying && !haveThreshold)
                     {
-                        backgroundCommandResultObject = ActivatePotionsAndSkills(pms, skillsToRun, pr);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4625,7 +4625,11 @@ namespace IsengardClient
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
                             bool failedToEquip = false;
-                            if (useMelee)
+                            if (pr != null && pr.RemoveAllEquipment)
+                            {
+                                failedToEquip = true;
+                            }
+                            else if (useMelee)
                             {
                                 backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
                                 if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
@@ -4647,8 +4651,8 @@ namespace IsengardClient
                                 {
                                     return;
                                 }
-                                doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             }
+                            doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
                             IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
                             IEnumerator<PotionsStrategyStep> potionsSteps = strategy?.GetPotionsSteps().GetEnumerator();
@@ -5134,6 +5138,7 @@ BeforeHazy:
                             pr.MobText = null;
                             pr.MobIndex = 0;
                             pr.BeforeFull = FullType.None;
+                            pr.Strategy = null;
                         }
                     }
                 }
@@ -5225,8 +5230,16 @@ BeforeHazy:
             }
         }
 
-        private CommandResultObject ActivatePotionsAndSkills(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr)
+        /// <summary>
+        /// runs logic that runs after fulling is finished but before combatstarts
+        /// </summary>
+        /// <param name="pms">background worker parameters</param>
+        /// <param name="skillsToRun">skills to run</param>
+        /// <param name="pr">perm run</param>
+        /// <returns>result of the operation</returns>
+        private CommandResultObject PerformPostTickPreCombatActions(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr)
         {
+            _backgroundProcessPhase = BackgroundProcessPhase.PostHealPreCombatLogic;
             CommandResultObject backgroundCommandResultObject;
             WorkflowSpells spellsToPot = pr == null ? WorkflowSpells.None : pr.SpellsToPotion;
             spellsToPot &= ~WorkflowSpells.CurePoison;
@@ -5268,7 +5281,6 @@ BeforeHazy:
             }
             if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Manashield) == PromptedSkills.Manashield))
             {
-                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                 backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Manashield, "manashield", pms, AbortIfFleeingOrHazying, false);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
@@ -5277,14 +5289,21 @@ BeforeHazy:
             }
             if (!_hazying && !_fleeing && ((skillsToRun & PromptedSkills.Fireshield) == PromptedSkills.Fireshield))
             {
-                _backgroundProcessPhase = BackgroundProcessPhase.ActivateSkills;
                 backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
                 }
             }
-            if (_hazying) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandEscaped, 0);
+            if (!_hazying && !_fleeing && pr != null && pr.RemoveAllEquipment)
+            {
+                backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, AbortIfFleeingOrHazying);
+                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResultObject;
+                }
+            }
+            if (_hazying || _fleeing) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandEscaped, 0);
             else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted, 0);
             else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
             return backgroundCommandResultObject;
@@ -5987,14 +6006,14 @@ BeforeHazy:
         /// <param name="itemText">precomputed item text respecting the item's current location</param>
         /// <param name="pms">background command parameters</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum itemType, string itemText, BackgroundWorkerParameters pms, Func<bool> abortLogic)
+        private CommandResultObject TryCommandAddingOrRemovingFromInventory(BackgroundCommandType commandType, ItemTypeEnum? itemType, string itemText, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             CommandResultObject backgroundCommandResultObject;
-            StaticItemData sid = ItemEntity.StaticItemData[itemType];
+            StaticItemData sid = itemType.HasValue ? ItemEntity.StaticItemData[itemType.Value] : null;
             BackgroundCommandType checkWeightCommandType = BackgroundCommandType.Quit;
             bool checkWeightIsEquipment = false;
             string checkWeightCommand = null;
-            bool checkWeight = !sid.Weight.HasValue && !sid.IsCurrency();
+            bool checkWeight = sid != null && !sid.Weight.HasValue && !sid.IsCurrency();
             int beforeWeight = 0;
             int afterWeight;
             int beforeGold = _gold;
@@ -6050,7 +6069,7 @@ BeforeHazy:
             if (ret.Result == CommandResult.CommandSuccessful)
             {
                 List<string> broadcastMessages = null;
-                if (commandType == BackgroundCommandType.SellItem)
+                if (commandType == BackgroundCommandType.SellItem && sid != null)
                 {
                     int goldDifference = _gold - beforeGold;
                     if (goldDifference > 0 && (sid.SellGold == 0 || goldDifference > sid.SellGold))

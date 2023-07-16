@@ -88,6 +88,15 @@ namespace IsengardClient.Backend
         }
     }
 
+    public class DestroysItemsAttribute : Attribute
+    {
+        public bool DestroysItems { get; set; }
+        public DestroysItemsAttribute()
+        {
+            this.DestroysItems = true;
+        }
+    }
+
     public class MobVisibilityAttribute : Attribute
     {
         public MobVisibility MobVisibility { get; set; }

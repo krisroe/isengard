@@ -22,6 +22,7 @@ namespace IsengardClient.Backend
             SpellsToCast = copied.SpellsToCast;
             SpellsToPotion = copied.SpellsToPotion;
             SkillsToRun = copied.SkillsToRun;
+            RemoveAllEquipment = copied.RemoveAllEquipment;
             SupportedKeys = copied.SupportedKeys;
             TargetRoomIdentifier = copied.TargetRoomIdentifier;
             TargetRoomObject = copied.TargetRoomObject;
@@ -55,9 +56,22 @@ namespace IsengardClient.Backend
         public HashSet<Area> Areas { get; set; }
         public FullType BeforeFull { get; set; }
         public FullType AfterFull { get; set; }
+        /// <summary>
+        /// spells to ensure are applied via casting
+        /// </summary>
         public WorkflowSpells SpellsToCast { get; set; }
+        /// <summary>
+        /// spells to ensure are applied via potions
+        /// </summary>
         public WorkflowSpells SpellsToPotion { get; set; }
+        /// <summary>
+        /// skills to ensure are applied
+        /// </summary>
         public PromptedSkills SkillsToRun { get; set; }
+        /// <summary>
+        /// whether to remove all equipment
+        /// </summary>
+        public bool RemoveAllEquipment { get; set; }
         /// <summary>
         /// identifier for the target room
         /// </summary>

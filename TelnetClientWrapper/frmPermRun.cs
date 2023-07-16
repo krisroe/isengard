@@ -77,7 +77,7 @@ namespace IsengardClient
             bool useMagic = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
             bool useMelee = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
             bool usePotions = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-            Initialize(gameMap, settingsData, skills, keys, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, null, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, currentMob, GetGraphInputs, strategy, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, null, useMagic, useMelee, usePotions, AfterKillMonsterAction.StopCombat, currentArea, currentArea, currentArea != null, false);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace IsengardClient
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
             Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea);
-            Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.Realms, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.Realms, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome, _permRun.RemoveAllEquipment);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace IsengardClient
         /// <param name="keysToShow">keys to show checkboxes for</param>
         /// <param name="currentArea">current area where the player currently is</param>
         /// <param name="targetArea">target area for the perm run</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, SupportedKeysFlags keysToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, RealmTypeFlags? realms, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea, Area targetArea, bool rehome)
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, SupportedKeysFlags keysToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, int autoSpellLevelMin, int autoSpellLevelMax, RealmTypeFlags? realms, bool? useMagicCombat, bool? useMeleeCombat, bool? usePotionsCombat, AfterKillMonsterAction? afterMonsterKillAction, Area currentArea, Area targetArea, bool rehome, bool removeAllEquipment)
         {
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
@@ -333,6 +333,7 @@ namespace IsengardClient
                 _areaSelectedIndex = cboArea.SelectedIndex;
             }
             chkRehome.Checked = rehome;
+            chkRemoveAllEquipment.Checked = removeAllEquipment;
 
             if (_permRun != null && _permRun.Strategy == null)
             {
@@ -852,6 +853,7 @@ namespace IsengardClient
             pr.SpellsToCast = GetSelectedSpells(flpSpellsCast);
             pr.SpellsToPotion = GetSelectedSpells(flpSpellsPotions);
             pr.SkillsToRun = SelectedSkills;
+            pr.RemoveAllEquipment = chkRemoveAllEquipment.Checked;
             pr.SupportedKeys = SelectedKeys;
             pr.Strategy = (Strategy)cboStrategy.SelectedItem;
             Room rTemp;

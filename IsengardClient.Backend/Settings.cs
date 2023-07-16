@@ -458,7 +458,7 @@ namespace IsengardClient.Backend
                         strats.Remove(s.ID);
                 }
                 Dictionary<int, PermRun> permRunMapping = new Dictionary<int, PermRun>();
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.SupportedKeys,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.Realms,p.ItemsToProcessType,p.LastCompleted FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.RemoveAllEquipment,p.SupportedKeys,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.Realms,p.ItemsToProcessType,p.LastCompleted FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -478,6 +478,7 @@ namespace IsengardClient.Backend
                         permRun.SpellsToCast = (WorkflowSpells)Convert.ToInt32(reader["SpellsToCast"]);
                         permRun.SpellsToPotion = (WorkflowSpells)Convert.ToInt32(reader["SpellsToPotion"]);
                         permRun.SkillsToRun = (PromptedSkills)Convert.ToInt32(reader["SkillsToRun"]);
+                        permRun.RemoveAllEquipment = Convert.ToInt32(reader["RemoveAllEquipment"]) != 0;
                         permRun.SupportedKeys = (SupportedKeysFlags)Convert.ToInt32(reader["SupportedKeys"]);
 
                         Room rTemp;
@@ -872,6 +873,7 @@ namespace IsengardClient.Backend
                 "SpellsToCast",
                 "SpellsToPotion",
                 "SkillsToRun",
+                "RemoveAllEquipment",
                 "SupportedKeys",
                 "TargetRoom",
                 "ThresholdRoom",
@@ -1349,6 +1351,20 @@ namespace IsengardClient.Backend
                 isValid = false;
             }
 
+            sValue = GetAttributeValueByName(attributeMapping, "RemoveAllEquipment");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (bool.TryParse(sValue, out bValue))
+                {
+                    p.RemoveAllEquipment = bValue;
+                }
+                else
+                {
+                    errorMessages.Add("Invalid perm run remove all equipment: " + sValue);
+                    isValid = false;
+                }
+            }
+
             sValue = GetAttributeValueByName(attributeMapping, "SupportedKeys");
             if (string.IsNullOrEmpty(sValue))
             {
@@ -1804,6 +1820,7 @@ namespace IsengardClient.Backend
                 "SpellsToCast",
                 "SpellsToPotion",
                 "SkillsToRun",
+                "RemoveAllEquipment",
                 "SupportedKeys",
                 "TargetRoom",
                 "ThresholdRoom",
@@ -1840,6 +1857,7 @@ namespace IsengardClient.Backend
                 SQLiteParameter spellsToCastParam = cmdSavePermRun.Parameters.Add("@SpellsToCast", DbType.Int32);
                 SQLiteParameter spellsToPotionParam = cmdSavePermRun.Parameters.Add("@SpellsToPotion", DbType.Int32);
                 SQLiteParameter skillsToRunParam = cmdSavePermRun.Parameters.Add("@SkillsToRun", DbType.Int32);
+                SQLiteParameter removeAllEquipmentParam = cmdSavePermRun.Parameters.Add("@RemoveAllEquipment", DbType.Int32);
                 SQLiteParameter supportedKeysParam = cmdSavePermRun.Parameters.Add("@SupportedKeys", DbType.Int32);
                 SQLiteParameter targetRoomParam = cmdSavePermRun.Parameters.Add("@TargetRoom", DbType.String);
                 SQLiteParameter thresholdRoomParam = cmdSavePermRun.Parameters.Add("@ThresholdRoom", DbType.String);
@@ -1871,6 +1889,7 @@ namespace IsengardClient.Backend
                     spellsToCastParam.Value = Convert.ToInt32(nextRecord.SpellsToCast);
                     spellsToPotionParam.Value = Convert.ToInt32(nextRecord.SpellsToPotion);
                     skillsToRunParam.Value = Convert.ToInt32(nextRecord.SkillsToRun);
+                    removeAllEquipmentParam.Value = nextRecord.RemoveAllEquipment ? 1 : 0;
                     supportedKeysParam.Value = Convert.ToInt32(nextRecord.SupportedKeys);
                     targetRoomParam.Value = nextRecord.TargetRoomIdentifier;
                     thresholdRoomParam.Value = string.IsNullOrEmpty(nextRecord.ThresholdRoomIdentifier) ? (object)DBNull.Value : nextRecord.ThresholdRoomIdentifier;
@@ -2820,6 +2839,10 @@ namespace IsengardClient.Backend
                             {
                                 writer.WriteAttributeString("SkillsToRun", StringProcessing.TrimFlagsEnumToString(p.SkillsToRun));
                             }
+                            if (p.RemoveAllEquipment)
+                            {
+                                writer.WriteAttributeString("RemoveAllEquipment", p.RemoveAllEquipment.ToString());
+                            }
                             if (p.SupportedKeys != SupportedKeysFlags.None)
                             {
                                 writer.WriteAttributeString("SupportedKeys", StringProcessing.TrimFlagsEnumToString(p.SupportedKeys));
@@ -3032,7 +3055,7 @@ namespace IsengardClient.Backend
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
+                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, RemoveAllEquipment INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())

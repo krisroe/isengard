@@ -602,6 +602,7 @@
         //CSRTODO: plurals are hard to get since hidden
         [MobVisibility(MobVisibility.Hidden)]
         [Experience(35)]
+        [DestroysItems]
         GreenSlime,
 
         [SingularName("Gregory Hiester")]
@@ -985,6 +986,7 @@
         //CSRTODO: no plural?
         [Experience(600)]
         [Alignment(AlignmentType.Blue)]
+        [DestroysItems]
         ManagerMulloy,
 
         [SingularName("Mark Frey")]
