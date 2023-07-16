@@ -473,6 +473,9 @@ namespace IsengardClient.Backend
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DestroysItemsAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.DestroysItems = ((DestroysItemsAttribute)valueAttributes[0]).DestroysItems;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(InfectsWithDiseaseAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.InfectsWithDisease = ((InfectsWithDiseaseAttribute)valueAttributes[0]).InfectsWithDisease;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ExperienceAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -595,6 +598,7 @@ namespace IsengardClient.Backend
         public string PluralName { get; set; }
         public bool Aggressive { get; set; }
         public bool DestroysItems { get; set; }
+        public bool InfectsWithDisease { get; set; }
         public int Experience { get; set; }
         public MobVisibility Visibility { get; set; }
         public AlignmentType? Alignment { get; set; }

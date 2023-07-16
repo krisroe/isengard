@@ -1307,6 +1307,8 @@
 
         [SingularName("Radbug")]
         //CSRTODO: no plural
+        [Aggressive]
+        [InfectsWithDisease]
         Radbug,
 
         [SingularName("ram")]
@@ -1420,6 +1422,7 @@
         [SingularName("sewer orc mummy")]
         [Experience(1000)]
         [Aggressive]
+        [InfectsWithDisease]
         SewerOrcMummy,
 
         [SingularName("sewer rat")]

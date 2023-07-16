@@ -84,7 +84,7 @@ namespace IsengardClient.Backend
         public bool Aggressive { get; set; }
         public AggressiveAttribute()
         {
-            this.Aggressive = true;
+            Aggressive = true;
         }
     }
 
@@ -93,7 +93,16 @@ namespace IsengardClient.Backend
         public bool DestroysItems { get; set; }
         public DestroysItemsAttribute()
         {
-            this.DestroysItems = true;
+            DestroysItems = true;
+        }
+    }
+
+    public class InfectsWithDiseaseAttribute : Attribute
+    {
+        public bool InfectsWithDisease { get; set; }
+        public InfectsWithDiseaseAttribute()
+        {
+            InfectsWithDisease = true;
         }
     }
 

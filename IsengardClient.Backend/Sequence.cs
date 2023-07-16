@@ -3043,6 +3043,11 @@ namespace IsengardClient.Backend
                     isMessageToKeep = true;
                     haveDataToDisplay = true;
                 }
+                else if (sLine == "Your Chaos timer has been extended.") //death message when don't lose xp
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
                 else
                 {
                     bool isArrived = false;
