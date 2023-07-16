@@ -3159,6 +3159,11 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oGreatEastRoad4, oGreatEastRoad5, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad5] = new PointF(8, 4);
 
+            Room oNorthOfGreatEastRoadUnknown = AddRoom("North of Road Unknown", Room.UNKNOWN_ROOM);
+            e = AddExit(oGreatEastRoad5, oNorthOfGreatEastRoadUnknown, "north");
+            e.MinimumLevel = 15;
+            breeToImladrisGraph.Rooms[oNorthOfGreatEastRoadUnknown] = new PointF(8, 3);
+
             Room oGreatEastRoad6 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad5, oGreatEastRoad6, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad6] = new PointF(9, 4);
