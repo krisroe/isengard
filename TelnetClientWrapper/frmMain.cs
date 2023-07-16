@@ -6414,6 +6414,8 @@ BeforeHazy:
                                     else
                                     {
                                         WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
+                                        if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped, 0);
+                                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
                                     }
                                 }
                                 else //look is not supposed to fail (but could be aborted)
