@@ -670,6 +670,33 @@ namespace IsengardClient.Backend
             Room oForwardCabin = AddRoom("Forward Cabin", "Forward Cabin of the Omani Princess");
             AddBidirectionalSameNameExit(oMainDeck1, oForwardCabin, "door");
             mithlondGraph.Rooms[oForwardCabin] = new PointF(-0.5F, 6);
+
+            Room oMidship = AddRoom("Midship", "Midship of the Omani Princess");
+            AddExit(oMainDeck1, oMidship, "stern");
+            AddExit(oMidship, oMainDeck1, "bow");
+            mithlondGraph.Rooms[oMidship] = new PointF(-0.5F, 7);
+
+            Room oMainCabin = AddRoom("Main Cabin", "Main Cabin of the Omani Princess");
+            AddBidirectionalExitsWithOut(oMidship, oMainCabin, "door");
+            mithlondGraph.Rooms[oMainCabin] = new PointF(-0.5F, 6.75F);
+
+            Room oCargoHold = AddRoom("Cargo Hold", "Cargo Hold of the Omani Princess");
+            AddBidirectionalSameNameExit(oMidship, oCargoHold, "hatch");
+            mithlondGraph.Rooms[oCargoHold] = new PointF(-0.5F, 8);
+
+            Room oCrowsNest = AddRoom("Crow's Nest", "Crow's Nest of the Omani Princess");
+            AddBidirectionalExits(oCrowsNest, oMidship, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oCrowsNest] = new PointF(-1.5F, 8);
+
+            Room oGangway = AddRoom("Gangway", "Gangway of the Omani Princess");
+            AddExit(oMidship, oGangway, "gangway");
+            AddExit(oGangway, oMidship, "down");
+            mithlondGraph.Rooms[oGangway] = new PointF(0.5F, 8);
+
+            Room oCaptainBelfalas = AddRoom("Captain Belfalas", "Transom Deck of the Omani Princess");
+            AddExit(oGangway, oCaptainBelfalas, "up");
+            AddExit(oCaptainBelfalas, oGangway, "gangway");
+            mithlondGraph.Rooms[oCaptainBelfalas] = new PointF(0.5F, 7.5F);
         }
 
         private void AddCelduinExpress(Room boatswain, Room breeDocks)

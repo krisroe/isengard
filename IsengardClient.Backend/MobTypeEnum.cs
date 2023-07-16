@@ -191,6 +191,9 @@
         [PluralName("campus officers")]
         CampusOfficer,
 
+        [SingularName("Captain Belfalas")]
+        CaptainBelfalas,
+
         [SingularName("Captain Felagund")]
         //CSRTODO: no plural
         [Alignment(AlignmentType.Blue)]

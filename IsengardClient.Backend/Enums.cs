@@ -841,7 +841,7 @@ namespace IsengardClient.Backend
     public enum HarbringerCycle
     {
         /// <summary>
-        /// board in tharbad, not possible to disembark
+        /// board in tharbad, not possible to disembark. This is synchronized with the celduin express in bree message.
         /// </summary>
         BoardInTharbad,
         /// <summary>
@@ -856,5 +856,18 @@ namespace IsengardClient.Backend
         /// at sea
         /// </summary>
         ToTharbad,
+    }
+
+    public enum OmaniPrincessCycle
+    {
+        /// <summary>
+        /// embark/disembark in Mithlond. This is synchronized with the celduin express in bree message.
+        /// </summary>
+        InMithlond,
+
+        /// <summary>
+        /// at sea
+        /// </summary>
+        ToUmber,
     }
 }
