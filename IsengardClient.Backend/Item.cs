@@ -1019,6 +1019,7 @@ namespace IsengardClient.Backend
         [PluralName("crackers")]
         [Use(SpellsEnum.rumble)]
         [Weight(1)]
+        [Sellable(24)]
         Cracker,
 
         [SingularName("criminal records book")]
@@ -1246,6 +1247,7 @@ namespace IsengardClient.Backend
         [PluralName("firecrackers")]
         [Use(SpellsEnum.burn)]
         [Weight(1)]
+        [Sellable(24)]
         Firecracker,
 
         [SingularName("fish mail hood")]
@@ -1253,6 +1255,7 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Head)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(5)]
+        [Sellable(1485)]
         FishMailHood,
 
         [SingularName("flint blade")]
@@ -1531,6 +1534,7 @@ namespace IsengardClient.Backend
         [PluralName("ice cubes")]
         [Use(SpellsEnum.blister)]
         [Weight(1)]
+        [Sellable(24)]
         IceCube,
 
         [SingularName("information kiosk")]
@@ -2421,6 +2425,7 @@ namespace IsengardClient.Backend
         [PluralName("vanishing creams")]
         [Use(SpellsEnum.invisibility)]
         [Weight(1)]
+        [Sellable(36)]
         VanishingCream,
 
         [SingularName("verdant green scroll")]
@@ -2492,12 +2497,14 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Torso)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
+        [Sellable(209)]
         WhiteArmor,
 
         [SingularName("whoopie cushion")]
         [PluralName("whoopie cushions")]
         [Use(SpellsEnum.hurt)]
         [Weight(2)]
+        [Sellable(61)]
         WhoopieCushion,
 
         [SingularName("yellow beholder's eye")]
