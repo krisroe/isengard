@@ -729,7 +729,7 @@
             // 
             // colSinkCount
             // 
-            this.colSinkCount.Text = "Tick #";
+            this.colSinkCount.Text = "Sink #";
             this.colSinkCount.Width = 84;
             // 
             // colOverflowAction
