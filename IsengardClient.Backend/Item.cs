@@ -1319,7 +1319,7 @@ namespace IsengardClient.Backend
 
         [SingularName("goblin blade")]
         [PluralName("goblin blades")]
-        [WeaponType(WeaponType.Unknown)]
+        [WeaponType(WeaponType.Slash)]
         [Weight(5)]
         [Sellable(116)]
         GoblinBlade,

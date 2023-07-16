@@ -1305,6 +1305,10 @@
         [PluralName("raccoons")]
         Raccoon,
 
+        [SingularName("Radbug")]
+        //CSRTODO: no plural
+        Radbug,
+
         [SingularName("ram")]
         [PluralName("rams")]
         Ram,
@@ -1676,6 +1680,10 @@
         [PluralName("waitresses")]
         [Experience(7)]
         Waitress,
+
+        [SingularName("warg")]
+        [PluralName("wargs")]
+        Warg,
 
         [SingularName("warrant officer")]
         [PluralName("warrant officers")]
