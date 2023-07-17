@@ -3459,7 +3459,8 @@ namespace IsengardClient.Backend
 
             Room oRoadToFarm7HoundDog = AddRoom("Hound Dog", "Front Porch");
             AddPermanentMobs(oRoadToFarm7HoundDog, MobTypeEnum.HoundDog);
-            AddBidirectionalExitsWithOut(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
+            e = AddBidirectionalExitsWithOut(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
+            e.MinimumLevel = 7;
             breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new PointF(2, 7.5F);
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor", "Parlor");
@@ -5215,10 +5216,7 @@ namespace IsengardClient.Backend
 
             Room oMadameDespana = AddRoom("Madame Despana", "Private Bedchamber");
             AddPermanentMobs(oMadameDespana, MobTypeEnum.MadameDespana);
-            Exit e = AddExit(oHouseOfPleasure, oMadameDespana, "crimson");
-            e.MustOpen = true;
-            e = AddExit(oMadameDespana, oHouseOfPleasure, "crimson");
-            e.MustOpen = true;
+            AddBidirectionalSameNameMustOpenExit(oHouseOfPleasure, oMadameDespana, "crimson door");
             oShantyTownGraph.Rooms[oMadameDespana] = new PointF(3, -1);
 
             Room oNorthEdgeOfShantyTown = AddRoom("Shanty Town", "North Edge of Shanty Town");
