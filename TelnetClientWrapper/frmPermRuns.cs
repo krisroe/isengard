@@ -199,8 +199,7 @@ namespace IsengardClient
             string sRoom = nextPermRun.TargetRoomObject.BackendName;
             if (nextPermRun.LastCompleted != DateTime.MinValue)
             {
-                DateTime dt = TimeZoneInfo.ConvertTime(nextPermRun.LastCompleted, TimeZoneInfo.Local);
-                sLastCompleted = StringProcessing.GetDateTimeForDisplay(dt, true, false);
+                sLastCompleted = StringProcessing.GetDateTimeForDisplay(StringProcessing.ConvertUTCToLocalTime(nextPermRun.LastCompleted), true, false);
             }
             DataGridViewRow r;
             if (rowIndex.HasValue)

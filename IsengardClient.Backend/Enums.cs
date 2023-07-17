@@ -98,10 +98,11 @@ namespace IsengardClient.Backend
         Who = 32,
         Spells = 64,
         Inventory = 128,
-        RemoveAll = 256,
-        BeforeFinalization = 511,
-        Finalization = 512,
-        All = 1023,
+        Uptime = 256,
+        RemoveAll = 512,
+        BeforeFinalization = 1023,
+        Finalization = 1024,
+        All = 2047,
     }
 
     public enum EntityType

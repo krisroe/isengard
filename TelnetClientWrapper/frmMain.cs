@@ -172,8 +172,9 @@ namespace IsengardClient
         private MobTypeEnum? _monsterKilledType;
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
 
-        private DateTime? _mainBoatCycle;
-        private DateTime? _bullroarerBoatCycle;
+        private DateTime _serverStartTime;
+        private DateTime _mainBoatCycle;
+        private DateTime _bullroarerBoatCycle;
 
         /// <summary>
         /// number of times to try to attempt a background command before giving up
@@ -360,13 +361,7 @@ namespace IsengardClient
                 RefreshAreaDropdown();
                 ProcessLocationRoomsAfterReload(_settingsData.Locations, newMap, errorMessages);
             }
-            if (errorMessages.Count > 0)
-            {
-                lock (_broadcastMessagesLock)
-                {
-                    _broadcastMessages.AddRange(errorMessages);
-                }
-            }
+            AddBroadcastMessages(errorMessages);
             lock (_currentEntityInfo.EntityLock)
             {
                 Room r = _currentEntityInfo.CurrentRoom;
@@ -1132,6 +1127,20 @@ namespace IsengardClient
             }
         }
 
+        private void OnUptime(FeedLineParameters flParams, TimeSpan uptime)
+        {
+            InitializationStep currentStep = _initializationSteps;
+            bool forInit = (currentStep & InitializationStep.Uptime) == InitializationStep.None;
+
+            _serverStartTime = DateTime.UtcNow.Subtract(uptime);
+            AddBroadcastMessage("Server up since " + StringProcessing.GetDateTimeForDisplay(StringProcessing.ConvertUTCToLocalTime(_serverStartTime), true, false));
+
+            if (forInit)
+            {
+                AfterProcessInitializationStep(currentStep, InitializationStep.Uptime, flParams);
+            }
+        }
+
         private void OnWho(FeedLineParameters flParams, HashSet<string> playerNames)
         {
             InitializationStep currentStep = _initializationSteps;
@@ -1370,6 +1379,7 @@ namespace IsengardClient
                 "score",
                 "information",
                 "who",
+                "uptime",
                 "inventory",
                 "equipment",
                 "time",
@@ -1776,13 +1786,7 @@ namespace IsengardClient
 
                     List<string> errorMessages = new List<string>();
                     ValidateObviousExits(newRoom, _currentEntityInfo.CurrentObviousExits, errorMessages);
-                    if (errorMessages.Count > 0)
-                    {
-                        lock (_broadcastMessagesLock)
-                        {
-                            _broadcastMessages.AddRange(errorMessages);
-                        }
-                    }
+                    AddBroadcastMessages(errorMessages);
                 }
             }
         }
@@ -2835,7 +2839,7 @@ namespace IsengardClient
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
                         //broadcast the first celduin express in bree message
-                        if (!_mainBoatCycle.HasValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                        if (_mainBoatCycle != DateTime.MinValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
                         {
                             if (broadcasts == null) broadcasts = new List<string>();
                             broadcasts.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
@@ -3031,13 +3035,7 @@ namespace IsengardClient
 
         private void ProcessBroadcastMessages(List<string> broadcasts, List<string> addedPlayers, List<string> removedPlayers)
         {
-            if (broadcasts != null)
-            {
-                lock (_broadcastMessagesLock)
-                {
-                    _broadcastMessages.AddRange(broadcasts);
-                }
-            }
+            AddBroadcastMessages(broadcasts);
 
             //add/remove players logging in or out
             //don't worry if the list doesn't match up since the player list isn't necessarily accurate
@@ -3496,8 +3494,8 @@ namespace IsengardClient
                 {
                     Directory.CreateDirectory(logPath);
                 }
-                DateTime dtNow = DateTime.UtcNow;
-                string sFileName = Path.Combine(logPath, StringProcessing.GetDateTimeForDisplay(dtNow, false, true) + ".txt");
+                DateTime dtUTCNow = DateTime.UtcNow;
+                string sFileName = Path.Combine(logPath, StringProcessing.GetDateTimeForDisplay(dtUTCNow, false, true) + ".txt");
                 List<string> nextLines = new List<string>();
                 using (StreamWriter sw = new StreamWriter(sFileName, true))
                 {
@@ -3661,16 +3659,7 @@ namespace IsengardClient
                                 }
                             }
 
-                            if (flParams.ErrorMessages.Count > 0)
-                            {
-                                lock (_broadcastMessagesLock)
-                                {
-                                    foreach (string s in flParams.ErrorMessages)
-                                    {
-                                        _broadcastMessages.Add(s);
-                                    }
-                                }
-                            }
+                            AddBroadcastMessages(flParams.ErrorMessages);
 
                             //recompute the lines if they were changed by sequence logic
                             bool linesChanged = sNewLinesList.Count != initialCount;
@@ -3755,6 +3744,7 @@ namespace IsengardClient
                 new ScoreOutputSequence(_username, OnScore),
                 new InformationOutputSequence(OnInformation),
                 new WhoOutputSequence(OnWho),
+                new UptimeOutputSequence(OnUptime),
                 new SpellsSequence(OnSpells),
                 new InventorySequence(OnInventory),
                 new EquipmentSequence(OnEquipment),
@@ -6178,13 +6168,7 @@ BeforeHazy:
                         sid.Weight = weightDifference;
                     }
                 }
-                if (broadcastMessages != null)
-                {
-                    lock (_broadcastMessagesLock)
-                    {
-                        _broadcastMessages.AddRange(broadcastMessages);
-                    }
-                }
+                AddBroadcastMessages(broadcastMessages);
             }
             return ret;
         }
@@ -8886,8 +8870,7 @@ BeforeHazy:
                 {
                     foreach (string nextMessage in _broadcastMessages)
                     {
-                        DateTime dtNow = DateTime.Now;
-                        lstMessages.Items.Add(dtNow.Day.ToString().PadLeft(2, '0') + "/" + dtNow.Month.ToString().PadLeft(2, '0') + "/" + dtNow.Year.ToString().Substring(2, 2) + " " + dtNow.Hour.ToString().PadLeft(2, '0') + ":" + dtNow.Minute.ToString().PadLeft(2, '0') + ":" + dtNow.Second.ToString().PadLeft(2, '0') + " " + nextMessage);
+                        lstMessages.Items.Add(StringProcessing.GetDateTimeForDisplay(DateTime.Now, true, false) + " " + nextMessage);
                     }
                     lstMessages.TopIndex = lstMessages.Items.Count - 1;
                     _broadcastMessages.Clear();
@@ -10732,18 +10715,34 @@ BeforeHazy:
                     {
                         AddConsoleMessage("Import failed: " + ex.ToString());
                     }
-                    if (errorMessages.Count > 0)
-                    {
-                        lock (_broadcastMessagesLock)
-                        {
-                            _broadcastMessages.AddRange(errorMessages);
-                        }
-                    }
+                    AddBroadcastMessages(errorMessages);
                     if (success)
                     {
                         AfterLoadSettings();
                         MessageBox.Show("Imported!");
                     }
+                }
+            }
+        }
+
+        private void AddBroadcastMessage(string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.Add(message);
+                }
+            }
+        }
+
+        private void AddBroadcastMessages(List<string> messages)
+        {
+            if (messages != null && messages.Count > 0)
+            {
+                lock (_broadcastMessagesLock)
+                {
+                    _broadcastMessages.AddRange(messages);
                 }
             }
         }
@@ -10791,13 +10790,7 @@ BeforeHazy:
         {
             List<string> errorMessages = new List<string>();
             IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages, _gameMap);
-            if (errorMessages.Count > 0)
-            {
-                lock (_broadcastMessagesLock)
-                {
-                    _broadcastMessages.AddRange(errorMessages);
-                }
-            }
+            AddBroadcastMessages(errorMessages);
             return ret;
         }
 
@@ -10973,15 +10966,15 @@ BeforeHazy:
 
         private void tsmiShipInfo_Click(object sender, EventArgs e)
         {
-            DateTime? dtCycle = _mainBoatCycle;
+            DateTime dtCycle = _mainBoatCycle;
             StringBuilder sb = new StringBuilder();
             double minutesIntoCycle;
             double minutesIntoCurrentCycle;
             int cycleNumber;
             string secondsRemaining;
-            if (dtCycle.HasValue)
+            if (dtCycle != DateTime.MinValue)
             {
-                minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 4;
+                minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 4;
                 minutesIntoCurrentCycle = minutesIntoCycle % 1;
                 cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
                 secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
@@ -11010,9 +11003,9 @@ BeforeHazy:
                 }
             }
             dtCycle = _bullroarerBoatCycle;
-            if (dtCycle.HasValue)
+            if (dtCycle != DateTime.MinValue)
             {
-                minutesIntoCycle = (DateTime.UtcNow - dtCycle.Value).TotalMinutes % 8;
+                minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 8;
                 minutesIntoCurrentCycle = minutesIntoCycle % 1;
                 cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
                 secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");

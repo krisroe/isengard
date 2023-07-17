@@ -1001,6 +1001,38 @@ namespace IsengardClient.Backend
         }
     }
 
+    public class UptimeOutputSequence : AOutputProcessingSequence
+    {
+        private Action<FeedLineParameters, TimeSpan> _onSatisfied;
+        public UptimeOutputSequence(Action<FeedLineParameters, TimeSpan> onSatisfied)
+        {
+            _onSatisfied = onSatisfied;
+        }
+
+        public override void FeedLine(FeedLineParameters flParams)
+        {
+            List<string> Lines = flParams.Lines;
+            if (Lines.Count > 0)
+            {
+                string sFirstLine = Lines[0];
+                if (!sFirstLine.StartsWith("Uptime: ")) return;
+                string[] segments = sFirstLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length <= 4) return;
+                if (!int.TryParse(segments[1], out int days)) return;
+                if (segments[2] != "days") return;
+                string hhmmss = segments[3] ?? string.Empty;
+                if (!hhmmss.Contains(":")) return;
+                string[] remainingSegments = hhmmss.Split(new char[] { ':' });
+                if (remainingSegments.Length != 3) return;
+                if (!int.TryParse(remainingSegments[0], out int hours)) return;
+                if (!int.TryParse(remainingSegments[1], out int minutes)) return;
+                if (!int.TryParse(remainingSegments[2], out int seconds)) return;
+                flParams.FinishedProcessing = true;
+                _onSatisfied(flParams, new TimeSpan(days, hours, minutes, seconds));
+            }
+        }
+    }
+
     public class WhoOutputSequence : AOutputProcessingSequence
     {
         private Action<FeedLineParameters, HashSet<string>> _onSatisfied;
@@ -3805,23 +3837,28 @@ namespace IsengardClient.Backend
             return obj.ToString().Replace(" ", string.Empty);
         }
 
+        public static DateTime ConvertUTCToLocalTime(DateTime utcDT)
+        {
+            return TimeZoneInfo.ConvertTime(utcDT, TimeZoneInfo.Local);
+        }
+
         public static string GetDateTimeForDisplay(DateTime dt, bool addSpaces, bool includeMS)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(dt.Year.ToString());
-            if (addSpaces) sb.Append(" ");
+            if (addSpaces) sb.Append("/");
             sb.Append(dt.Month.ToString().PadLeft(2, '0'));
-            if (addSpaces) sb.Append(" ");
+            if (addSpaces) sb.Append("/");
             sb.Append(dt.Day.ToString().PadLeft(2, '0'));
             if (addSpaces) sb.Append(" ");
             sb.Append(dt.Hour.ToString().PadLeft(2, '0'));
-            if (addSpaces) sb.Append(" ");
+            if (addSpaces) sb.Append(":");
             sb.Append(dt.Minute.ToString().PadLeft(2, '0'));
-            if (addSpaces) sb.Append(" ");
+            if (addSpaces) sb.Append(":");
             sb.Append(dt.Second.ToString().PadLeft(2, '0'));
             if (includeMS)
             {
-                if (addSpaces) sb.Append(" ");
+                if (addSpaces) sb.Append(".");
                 sb.Append(dt.Millisecond.ToString().PadLeft(3, '0'));
             }
             return sb.ToString();
