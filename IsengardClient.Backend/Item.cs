@@ -1287,6 +1287,14 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Finger)]
         GalvornRing,
 
+        [SingularName("galvorn shield")]
+        [PluralName("galvorn shields")]
+        [EquipmentType(EquipmentType.Shield)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(7)]
+        [Sellable(4950)]
+        GalvornShield,
+
         [SingularName("gate key")]
         [PluralName("gate keys")]
         [ItemClass(ItemClass.Key)]
