@@ -1350,7 +1350,6 @@ namespace IsengardClient
                 "uptime",
                 "inventory",
                 "equipment",
-                "time",
                 "spells",
             };
             if ((_initializationSteps & InitializationStep.RemoveAll) == InitializationStep.None)
