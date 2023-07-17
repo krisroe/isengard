@@ -2498,8 +2498,10 @@ namespace IsengardClient
                 if (bctValue == BackgroundCommandType.LookAtMob)
                 {
                     flParams.CommandResult = CommandResult.CommandSuccessful;
-                    _currentMonsterStatus = status;
-                    flParams.SetSuppressEcho(_runningHiddenCommand);
+                    if (flParams.IsFightingMob)
+                    {
+                        _currentMonsterStatus = status;
+                    }
                 }
             }
         }
@@ -3588,6 +3590,7 @@ namespace IsengardClient
                             IsengardSettingData sets = _settingsData;
                             flParams.ConsoleVerbosity = sets == null ? ConsoleOutputVerbosity.Maximum : sets.ConsoleVerbosity;
                             flParams.PlayerNames = _players;
+                            flParams.RunningHiddenCommand = _runningHiddenCommand;
                             CommandResult? previousCommandResult = _commandResult;
 
                             foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
@@ -3693,6 +3696,7 @@ namespace IsengardClient
             List<AOutputProcessingSequence> seqs = new List<AOutputProcessingSequence>
             {
                 new SearchSequence(SuccessfulSearch, FailSearch),
+                new MobStatusSequence(OnMobStatusSequence),
                 new InformationalMessagesSequence(_username, OnInformationalMessages),
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
@@ -3702,7 +3706,6 @@ namespace IsengardClient
                 new SpellsSequence(OnSpells),
                 new InventorySequence(OnInventory),
                 new EquipmentSequence(OnEquipment),
-                new MobStatusSequence(OnMobStatusSequence),
                 _pleaseWaitSequence,
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),

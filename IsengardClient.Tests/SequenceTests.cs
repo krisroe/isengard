@@ -230,6 +230,36 @@ namespace IsengardClient.Tests
         }
 
         [TestMethod]
+        public void TestMobStatusSequence()
+        {
+            MonsterStatus? monsterStatus = null;
+            Action<MonsterStatus, FeedLineParameters> a = (ms, flp) =>
+            {
+                monsterStatus = ms;
+            };
+
+            MobStatusSequence mss = new MobStatusSequence(a);
+            FeedLineParameters flParams = new FeedLineParameters(null);
+            flParams.ConsoleVerbosity = ConsoleOutputVerbosity.Default;
+            flParams.RunningHiddenCommand = true;
+
+            flParams.Lines = new List<string>()
+            {
+"You see Manager Mulloy.",
+"He's big and tanned from working the fields.",
+"    He is barely clinging to life.",
+"    .. looks very agressive.",
+"    .. is attacking you.",
+"He is a perfect match for you!",
+"Manager Mulloy pulverizes you for 28 damage!",
+            };
+
+            mss.FeedLine(flParams);
+            Assert.IsTrue(monsterStatus == MonsterStatus.BarelyClingingToLife);
+            Assert.IsTrue(flParams.Lines.Count == 1);
+        }
+
+        [TestMethod]
         public void TestScoreSequence()
         {
             List<SkillCooldown> cooldowns = null;

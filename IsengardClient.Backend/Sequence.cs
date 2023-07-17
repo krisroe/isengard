@@ -34,6 +34,7 @@ namespace IsengardClient.Backend
         public bool IsFightingMob { get; set; }
         public bool FinishedProcessing { get; set; }
         public bool SuppressEcho { get; private set; }
+        public bool RunningHiddenCommand { get; set; }
         public void SetSuppressEcho(bool suppressEcho)
         {
             if (ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
@@ -2284,11 +2285,11 @@ namespace IsengardClient.Backend
         public override void FeedLine(FeedLineParameters flParams)
         {
             List<string> Lines = flParams.Lines;
-            if (!flParams.IsFightingMob) return;
             bool firstLine = true;
             MonsterStatus status = MonsterStatus.None;
-            foreach (string nextLine in Lines)
+            for (int i = 0; i < Lines.Count; i++)
             {
+                string nextLine = Lines[i];
                 if (firstLine)
                 {
                     if (!nextLine.StartsWith("You see "))
@@ -2297,53 +2298,103 @@ namespace IsengardClient.Backend
                     }
                     firstLine = false;
                 }
+                else if (nextLine == "He is a perfect match for you!" || nextLine == "She is a perfect match for you!" ||
+                         nextLine == "He is a little better than you." || nextLine == "She is a little better than you." ||
+                         nextLine == "He is not quite as good as you." || nextLine == "She is not quite as good as you." ||
+                         nextLine == "He might be tough to kill." || nextLine == "She might be tough to kill." ||
+                         nextLine == "He shouldn't be too tough to kill." || nextLine == "She shouldn't be too tough to kill." ||
+                         nextLine == "He should be really hard to kill." || nextLine == "She should be really hard to kill." ||
+                         nextLine == "He should be easy to kill." || nextLine == "She should be easy to kill." ||
+                         nextLine == "He could kill you with a needle." || nextLine == "She could kill you with a needle." ||
+                         nextLine == "You could kill him with a needle." || nextLine == "You could kill her with a needle.")
+                {
+                    if (status != MonsterStatus.None)
+                    {
+                        if (flParams.RunningHiddenCommand && flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                        {
+                            bool hasAdditionalData = false;
+                            for (int j = i+1; j < flParams.Lines.Count; j++)
+                            {
+                                if (!string.IsNullOrEmpty(flParams.Lines[j]))
+                                {
+                                    hasAdditionalData = true;
+                                    break;
+                                }
+                            }
+                            if (hasAdditionalData)
+                            {
+                                //remove the look results from the output and leave the rest
+                                for (int k = i; k >= 0; k--)
+                                {
+                                    flParams.Lines.RemoveAt(k);
+                                }
+                            }
+                            else
+                            {
+                                flParams.SetSuppressEcho(true);
+                            }
+                        }
+                        else
+                        {
+                            flParams.NextLineIndex = i + 1;
+                        }
+                        _onSatisfied(status, flParams);
+                    }
+                    return;
+                }
                 else
                 {
+                    MonsterStatus foundStatus = MonsterStatus.None;
                     if (nextLine.EndsWith(" is in excellent condition."))
                     {
-                        status = MonsterStatus.ExcellentCondition;
+                        foundStatus = MonsterStatus.ExcellentCondition;
                     }
                     else if (nextLine.EndsWith(" has a few small scratches."))
                     {
-                        status = MonsterStatus.FewSmallScratches;
+                        foundStatus = MonsterStatus.FewSmallScratches;
                     }
                     else if (nextLine.EndsWith(" is wincing in pain."))
                     {
-                        status = MonsterStatus.WincingInPain;
+                        foundStatus = MonsterStatus.WincingInPain;
                     }
                     else if (nextLine.EndsWith(" is slightly bruised and battered."))
                     {
-                        status = MonsterStatus.SlightlyBruisedAndBattered;
+                        foundStatus = MonsterStatus.SlightlyBruisedAndBattered;
                     }
                     else if (nextLine.EndsWith(" has some minor wounds."))
                     {
-                        status = MonsterStatus.SomeMinorWounds;
+                        foundStatus = MonsterStatus.SomeMinorWounds;
                     }
                     else if (nextLine.EndsWith(" is bleeding profusely."))
                     {
-                        status = MonsterStatus.BleedingProfusely;
+                        foundStatus = MonsterStatus.BleedingProfusely;
                     }
                     else if (nextLine.EndsWith(" has a nasty and gaping wound."))
                     {
-                        status = MonsterStatus.NastyAndGapingWound;
+                        foundStatus = MonsterStatus.NastyAndGapingWound;
                     }
                     else if (nextLine.EndsWith(" has many grevious wounds."))
                     {
-                        status = MonsterStatus.ManyGreviousWounds;
+                        foundStatus = MonsterStatus.ManyGreviousWounds;
                     }
                     else if (nextLine.EndsWith(" is mortally wounded."))
                     {
-                        status = MonsterStatus.MortallyWounded;
+                        foundStatus = MonsterStatus.MortallyWounded;
                     }
                     else if (nextLine.EndsWith(" is barely clinging to life."))
                     {
-                        status = MonsterStatus.BarelyClingingToLife;
+                        foundStatus = MonsterStatus.BarelyClingingToLife;
                     }
-                    if (status != MonsterStatus.None)
+                    if (foundStatus != MonsterStatus.None)
                     {
-                        flParams.FinishedProcessing = true;
-                        _onSatisfied(status, flParams);
-                        return;
+                        if (status != MonsterStatus.None)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            status = foundStatus;
+                        }
                     }
                 }
             }
@@ -2664,7 +2715,7 @@ namespace IsengardClient.Backend
 
             //process the initial user login. This happenens first because of a blank line before the message, so it needs to be
             //handled beforehand because the later logic stops at a blank line.
-            int iStartIndex = 0;
+            int iStartIndex = Parameters.NextLineIndex;
             for (int i = 0; i < Lines.Count; i++)
             {
                 string sNextLine = Lines[i];
