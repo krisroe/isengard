@@ -1472,8 +1472,9 @@ namespace IsengardClient.Backend
         [Sellable(176)]
         Halberd,
 
-        [SingularName("half giant chain mail armor")]
+        [SingularName("half-giant chain mail armor")]
         [EquipmentType(EquipmentType.Torso)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(24)]
         [Sellable(371)]
         HalfGiantChainMailArmor,

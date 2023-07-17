@@ -164,6 +164,7 @@
             this.tsmiSearch = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiHide = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiFerry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiTimeInfo = new System.Windows.Forms.ToolStripMenuItem();
             this.tsddbSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsmiEditSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExportXML = new System.Windows.Forms.ToolStripMenuItem();
@@ -185,7 +186,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.tsmiShipInfo = new System.Windows.Forms.ToolStripMenuItem();
             this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
@@ -617,7 +617,7 @@
             this.tcMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
-            this.tcMain.Size = new System.Drawing.Size(1263, 1057);
+            this.tcMain.Size = new System.Drawing.Size(1263, 1028);
             this.tcMain.TabIndex = 79;
             this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
@@ -628,7 +628,7 @@
             this.tabMain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabMain.Name = "tabMain";
             this.tabMain.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabMain.Size = new System.Drawing.Size(1255, 1028);
+            this.tabMain.Size = new System.Drawing.Size(1255, 999);
             this.tabMain.TabIndex = 0;
             this.tabMain.Text = "Main";
             this.tabMain.UseVisualStyleBackColor = true;
@@ -1575,7 +1575,7 @@
             this.pnlOverallLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlOverallLeft.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlOverallLeft.Name = "pnlOverallLeft";
-            this.pnlOverallLeft.Size = new System.Drawing.Size(1263, 1084);
+            this.pnlOverallLeft.Size = new System.Drawing.Size(1263, 1055);
             this.pnlOverallLeft.TabIndex = 0;
             // 
             // pnlTabControl
@@ -1585,7 +1585,7 @@
             this.pnlTabControl.Location = new System.Drawing.Point(0, 27);
             this.pnlTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.pnlTabControl.Name = "pnlTabControl";
-            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1057);
+            this.pnlTabControl.Size = new System.Drawing.Size(1263, 1028);
             this.pnlTabControl.TabIndex = 81;
             // 
             // tsTopMenu
@@ -1717,7 +1717,7 @@
             this.tsmiSearch,
             this.tsmiHide,
             this.tsmiFerry,
-            this.tsmiShipInfo});
+            this.tsmiTimeInfo});
             this.tsddActions.Image = ((System.Drawing.Image)(resources.GetObject("tsddActions.Image")));
             this.tsddActions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsddActions.Name = "tsddActions";
@@ -1744,6 +1744,13 @@
             this.tsmiFerry.Size = new System.Drawing.Size(224, 26);
             this.tsmiFerry.Text = "Ferry";
             this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
+            // 
+            // tsmiTimeInfo
+            // 
+            this.tsmiTimeInfo.Name = "tsmiTimeInfo";
+            this.tsmiTimeInfo.Size = new System.Drawing.Size(224, 26);
+            this.tsmiTimeInfo.Text = "Time Info";
+            this.tsmiTimeInfo.Click += new System.EventHandler(this.tsmiShipInfo_Click);
             // 
             // tsddbSettings
             // 
@@ -1879,7 +1886,7 @@
             this.grpConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpConsole.Name = "grpConsole";
             this.grpConsole.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.grpConsole.Size = new System.Drawing.Size(277, 1084);
+            this.grpConsole.Size = new System.Drawing.Size(277, 1055);
             this.grpConsole.TabIndex = 110;
             this.grpConsole.TabStop = false;
             this.grpConsole.Text = "Console";
@@ -1891,7 +1898,7 @@
             this.pnlConsoleHolder.Location = new System.Drawing.Point(3, 17);
             this.pnlConsoleHolder.Margin = new System.Windows.Forms.Padding(4);
             this.pnlConsoleHolder.Name = "pnlConsoleHolder";
-            this.pnlConsoleHolder.Size = new System.Drawing.Size(271, 1003);
+            this.pnlConsoleHolder.Size = new System.Drawing.Size(271, 974);
             this.pnlConsoleHolder.TabIndex = 31;
             // 
             // rtbConsole
@@ -1906,7 +1913,7 @@
             this.rtbConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rtbConsole.Name = "rtbConsole";
             this.rtbConsole.ReadOnly = true;
-            this.rtbConsole.Size = new System.Drawing.Size(271, 1003);
+            this.rtbConsole.Size = new System.Drawing.Size(271, 974);
             this.rtbConsole.TabIndex = 0;
             this.rtbConsole.Text = "";
             // 
@@ -1929,24 +1936,17 @@
             // 
             this.pnlCommand.Controls.Add(this.txtOneOffCommand);
             this.pnlCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCommand.Location = new System.Drawing.Point(3, 1020);
+            this.pnlCommand.Location = new System.Drawing.Point(3, 991);
             this.pnlCommand.Margin = new System.Windows.Forms.Padding(4);
             this.pnlCommand.Name = "pnlCommand";
             this.pnlCommand.Size = new System.Drawing.Size(271, 62);
             this.pnlCommand.TabIndex = 30;
             // 
-            // tsmiShipInfo
-            // 
-            this.tsmiShipInfo.Name = "tsmiShipInfo";
-            this.tsmiShipInfo.Size = new System.Drawing.Size(224, 26);
-            this.tsmiShipInfo.Text = "Ship Info";
-            this.tsmiShipInfo.Click += new System.EventHandler(this.tsmiShipInfo_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1540, 1084);
+            this.ClientSize = new System.Drawing.Size(1540, 1055);
             this.Controls.Add(this.grpConsole);
             this.Controls.Add(this.pnlOverallLeft);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -2156,7 +2156,7 @@
         private System.Windows.Forms.Button btnRemoveNextPermRun;
         private System.Windows.Forms.Button btnCompleteCurrentPermRun;
         private System.Windows.Forms.Button btnResumeCurrentPermRun;
-        private System.Windows.Forms.ToolStripMenuItem tsmiShipInfo;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTimeInfo;
     }
 }
 

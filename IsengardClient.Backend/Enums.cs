@@ -94,15 +94,14 @@ namespace IsengardClient.Backend
         Equipment = 2,
         Score = 4,
         Information = 8,
-        Time = 16,
-        Who = 32,
-        Spells = 64,
-        Inventory = 128,
-        Uptime = 256,
-        RemoveAll = 512,
-        BeforeFinalization = 1023,
-        Finalization = 1024,
-        All = 2047,
+        Who = 16,
+        Spells = 32,
+        Inventory = 64,
+        Uptime = 128,
+        RemoveAll = 256,
+        BeforeFinalization = 511,
+        Finalization = 512,
+        All = 1023,
     }
 
     public enum EntityType
@@ -794,48 +793,28 @@ namespace IsengardClient.Backend
     }
 
     /// <summary>
-    /// one minute cycles for the celduin express
+    /// one minute cycles for the celduin express (4 minutes total)
     /// </summary>
     public enum CelduinExpressCycle
     {
         /// <summary>
-        /// in bree, global notification
+        /// sailing to mithlond. this is the state when the server starts up.
         /// </summary>
-        InBree,
-        ToMithlond,
+        SailingToMithlond,
         InMithlond,
-        ToBree,
+        SailingToBree,
+        InBree,
     }
 
     /// <summary>
-    /// one minute cycles for bullroarer
+    /// one minute cycles for bullroarer (8 minutes total)
     /// </summary>
     public enum BullroarerCycle
     {
         /// <summary>
-        /// Enter and exit in Nindamos. This is synchronized with Celduin Express in Bree.
+        /// sailing from mithlond. this is the state when the server starts up.
         /// </summary>
-        InNindamos,
-        /// <summary>
-        /// at sea
-        /// </summary>
-        AtSea1,
-        /// <summary>
-        /// can exit to Mithlond but not board
-        /// </summary>
-        ExitToMithlond1,
-        /// <summary>
-        /// at sea
-        /// </summary>
-        AtSea2,
-        /// <summary>
-        /// Enter at mithlond, exit to Nindamos (glitched). This is synchronized with Celduin express in Bree.
-        /// </summary>
-        EnterInMithlondExitToNindamos,
-        /// <summary>
-        /// at sea
-        /// </summary>
-        AtSea3,
+        SailingFromMithlond,
         /// <summary>
         /// can exit to Mithlond but not board
         /// </summary>
@@ -843,19 +822,38 @@ namespace IsengardClient.Backend
         /// <summary>
         /// at sea
         /// </summary>
-        AtSea4,
-    }
-
-    public enum HarbringerCycle
-    {
+        SailingToNindamos,
         /// <summary>
-        /// board in tharbad, not possible to disembark. This is synchronized with the celduin express in bree message.
+        /// Enter and exit in Nindamos.
         /// </summary>
-        BoardInTharbad,
+        InNindamos,
         /// <summary>
         /// at sea
         /// </summary>
-        ToMithlond,
+        SailingFromNindamos,
+        /// <summary>
+        /// can exit to Mithlond but not board
+        /// </summary>
+        ExitToMithlond1,
+        /// <summary>
+        /// at sea
+        /// </summary>
+        SailingToMithlond,
+        /// <summary>
+        /// Enter at mithlond, exit to Nindamos (glitched).
+        /// </summary>
+        EnterInMithlondExitToNindamos,
+    }
+
+    /// <summary>
+    /// one minute cycles for Harbringer (4 minutes total)
+    /// </summary>
+    public enum HarbringerCycle
+    {
+        /// <summary>
+        /// sailing to mithlond. this is the state when the server starts up.
+        /// </summary>
+        SailingToMithlond,
         /// <summary>
         /// enter and exit in mithlond
         /// </summary>
@@ -863,19 +861,36 @@ namespace IsengardClient.Backend
         /// <summary>
         /// at sea
         /// </summary>
-        ToTharbad,
+        SailingToTharbad,
+        /// <summary>
+        /// board in tharbad, not possible to disembark.
+        /// </summary>
+        BoardInTharbad,
     }
 
+    /// <summary>
+    /// one minute cycles for omani princess (4 minutes total)
+    /// </summary>
     public enum OmaniPrincessCycle
     {
         /// <summary>
-        /// embark/disembark in Mithlond. This is synchronized with the celduin express in bree message.
+        /// sailing to umbar. this is the state when the server starts up.
         /// </summary>
-        InMithlond,
+        SailingToUmbar,
+
+        /// <summary>
+        /// embark/disembark in Umbar,
+        /// </summary>
+        InUmbar,
 
         /// <summary>
         /// at sea
         /// </summary>
-        ToUmber,
+        SailingToMithlond,
+
+        /// <summary>
+        /// embark/disembark in Mithlond. This is synchronized with the celduin express in bree message.
+        /// </summary>
+        InMithlond,
     }
 }

@@ -30,10 +30,7 @@ namespace IsengardClient
         private const int SECONDS_PER_GAME_HOUR = 150;
         private const int SUNRISE_GAME_HOUR = 6;
         private const int SUNSET_GAME_HOUR = 20;
-        private int _time = -1; //time from 0 (midnight) to 23 (11 PM)
-        private DateTime _timeLastUpdatedUTC = DateTime.MinValue;
         private int _timeUI = -1;
-        private object _timeLock = new object();
 
         private byte _hpColorR;
         private byte _hpColorG;
@@ -173,8 +170,6 @@ namespace IsengardClient
         private List<ItemEntity> _monsterKilledItems = new List<ItemEntity>();
 
         private DateTime _serverStartTime;
-        private DateTime _mainBoatCycle;
-        private DateTime _bullroarerBoatCycle;
 
         /// <summary>
         /// number of times to try to attempt a background command before giving up
@@ -942,11 +937,6 @@ namespace IsengardClient
             _initializationSteps = InitializationStep.None;
             _loginInfo = null;
             _players = null;
-            lock (_timeLock)
-            {
-                _time = -1;
-                _timeLastUpdatedUTC = DateTime.MinValue;
-            }
             _timeUI = -1;
             _level = 0;
             _totalhp = 0;
@@ -1131,10 +1121,7 @@ namespace IsengardClient
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Uptime) == InitializationStep.None;
-
             _serverStartTime = DateTime.UtcNow.Subtract(uptime);
-            AddBroadcastMessage("Server up since " + StringProcessing.GetDateTimeForDisplay(StringProcessing.ConvertUTCToLocalTime(_serverStartTime), true, false));
-
             if (forInit)
             {
                 AfterProcessInitializationStep(currentStep, InitializationStep.Uptime, flParams);
@@ -1182,25 +1169,6 @@ namespace IsengardClient
                 }
             }
             flp.SetSuppressEcho(true);
-        }
-
-        private void OnTime(FeedLineParameters flParams, int hour)
-        {
-            InitializationStep currentStep = _initializationSteps;
-            bool forInit = (currentStep & InitializationStep.Time) == InitializationStep.None;
-
-            lock (_timeLock)
-            {
-                if (_time != hour)
-                {
-                    _time = hour;
-                    _timeLastUpdatedUTC = DateTime.UtcNow;
-                }
-            }
-            if (forInit)
-            {
-                AfterProcessInitializationStep(currentStep, InitializationStep.Time, flParams);
-            }
         }
 
         private void OnEquipment(FeedLineParameters flParams, List<KeyValuePair<string, string>> equipment, int equipmentWeight)
@@ -2652,16 +2620,12 @@ namespace IsengardClient
                         broadcasts.Add(InformationalMessagesSequence.TIME_SUN_RISES);
                         if (messagesToRemove == null) messagesToRemove = new List<string>();
                         messagesToRemove.Add(InformationalMessagesSequence.TIME_SUN_RISES);
-                        _time = SUNRISE_GAME_HOUR;
-                        _timeLastUpdatedUTC = DateTime.UtcNow;
                         break;
                     case InformationalMessageType.NightStart:
                         if (broadcasts == null) broadcasts = new List<string>();
                         broadcasts.Add(InformationalMessagesSequence.TIME_SUN_SETS);
                         if (messagesToRemove == null) messagesToRemove = new List<string>();
                         messagesToRemove.Add(InformationalMessagesSequence.TIME_SUN_SETS);
-                        _time = SUNSET_GAME_HOUR;
-                        _timeLastUpdatedUTC = DateTime.UtcNow;
                         break;
                     case InformationalMessageType.BlessOver:
                         if (spellsOff == null) spellsOff = new List<SpellsEnum>();
@@ -2788,11 +2752,9 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _bullroarerBoatCycle = DateTime.UtcNow.Subtract(new TimeSpan(0, 4, 0));
                                         _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _bullroarerBoatCycle = DateTime.UtcNow;
                                         _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
                                         break;
                                 }
@@ -2838,13 +2800,6 @@ namespace IsengardClient
                         }
                         break;
                     case InformationalMessageType.CelduinExpressInBree:
-                        //broadcast the first celduin express in bree message
-                        if (_mainBoatCycle != DateTime.MinValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
-                        {
-                            if (broadcasts == null) broadcasts = new List<string>();
-                            broadcasts.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
-                        }
-                        _mainBoatCycle = DateTime.UtcNow;
                         lock (_currentEntityInfo.EntityLock)
                         {
                             bool removeMessage = true;
@@ -3749,7 +3704,6 @@ namespace IsengardClient
                 new InventorySequence(OnInventory),
                 new EquipmentSequence(OnEquipment),
                 new MobStatusSequence(OnMobStatusSequence),
-                new TimeOutputSequence(OnTime),
                 _pleaseWaitSequence,
                 new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
@@ -8478,6 +8432,11 @@ BeforeHazy:
 
         }
 
+        public static bool IsDay(int hour)
+        {
+            return hour >= SUNRISE_GAME_HOUR && hour < SUNSET_GAME_HOUR;
+        }
+
         private void HandleTimerTick()
         {
             DateTime dtUTCNow = DateTime.UtcNow;
@@ -8692,40 +8651,28 @@ BeforeHazy:
                     }
                 }
             }
-            if ((initStep & InitializationStep.Time) != InitializationStep.None)
+            
+            double dGameSecondsFromResetPoint = (DateTime.UtcNow - _serverStartTime).TotalSeconds % 3600;
+            double dGameExtraSeconds = dGameSecondsFromResetPoint % SECONDS_PER_GAME_HOUR;
+            int iTime = (Convert.ToInt32(dGameSecondsFromResetPoint - dGameExtraSeconds) / SECONDS_PER_GAME_HOUR) + 1;
+            if (iTime == 24) iTime = 0;
+            if (iTime != _timeUI)
             {
-                int iTime = _time;
-                lock (_timeLock) //auto-advance the hour if an hour's worth of game time has elapsed
+                _timeUI = iTime;
+                Color backColor, foreColor;
+                if (IsDay(iTime))
                 {
-                    DateTime dtTimeLastUpdatedUTC = _timeLastUpdatedUTC;
-                    if ((dtUTCNow - dtTimeLastUpdatedUTC).TotalSeconds >= SECONDS_PER_GAME_HOUR)
-                    {
-                        if (iTime == 23)
-                            iTime = 0;
-                        else
-                            iTime++;
-                        _time = iTime;
-                        _timeLastUpdatedUTC = dtTimeLastUpdatedUTC.AddSeconds(SECONDS_PER_GAME_HOUR);
-                    }
+                    backColor = Color.Yellow;
+                    foreColor = Color.Black;
                 }
-                if (iTime != _timeUI)
+                else //night
                 {
-                    _timeUI = iTime;
-                    Color backColor, foreColor;
-                    if (_time >= SUNRISE_GAME_HOUR && _time < SUNSET_GAME_HOUR) //day
-                    {
-                        backColor = Color.Yellow;
-                        foreColor = Color.Black;
-                    }
-                    else //night
-                    {
-                        backColor = Color.Black;
-                        foreColor = Color.White;
-                    }
-                    lblTime.BackColor = backColor;
-                    lblTime.ForeColor = foreColor;
-                    lblTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
+                    backColor = Color.Black;
+                    foreColor = Color.White;
                 }
+                lblTime.BackColor = backColor;
+                lblTime.ForeColor = foreColor;
+                lblTime.Text = iTime.ToString().PadLeft(2, '0') + "00";
             }
             int? iTotalWeight;
             if ((initStep & InitializationStep.Inventory) != InitializationStep.None)
@@ -9902,7 +9849,7 @@ BeforeHazy:
                 levitating = _spellsCast.Contains(SpellsEnum.levitate);
                 keys = _currentEntityInfo.GetAvailableKeys(false);
             }
-            return new GraphInputs(_class, _level, TimeOutputSequence.IsDay(_time), flying, levitating, keys);
+            return new GraphInputs(_class, _level, IsDay(_timeUI), flying, levitating, keys);
         }
 
         /// <summary>
@@ -10966,7 +10913,7 @@ BeforeHazy:
 
         private void tsmiShipInfo_Click(object sender, EventArgs e)
         {
-            DateTime dtCycle = _mainBoatCycle;
+            DateTime dtCycle = _serverStartTime;
             StringBuilder sb = new StringBuilder();
             double minutesIntoCycle;
             double minutesIntoCurrentCycle;
@@ -10974,6 +10921,12 @@ BeforeHazy:
             string secondsRemaining;
             if (dtCycle != DateTime.MinValue)
             {
+                double dGameSecondsFromResetPoint = (DateTime.UtcNow - _serverStartTime).TotalSeconds % 3600;
+                double dGameExtraSeconds = dGameSecondsFromResetPoint % SECONDS_PER_GAME_HOUR;
+                int iTime = (Convert.ToInt32(dGameSecondsFromResetPoint - dGameExtraSeconds) / SECONDS_PER_GAME_HOUR) + 1;
+                string sTime = iTime.ToString().PadLeft(2, '0') + "00";
+                sb.AppendLine($"Current time " + sTime + " for " + (SECONDS_PER_GAME_HOUR - dGameExtraSeconds).ToString("N1") + " seconds.");
+
                 minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 4;
                 minutesIntoCurrentCycle = minutesIntoCycle % 1;
                 cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
@@ -10981,30 +10934,26 @@ BeforeHazy:
                 switch (cycleNumber)
                 {
                     case 0:
-                        sb.AppendLine($"Celduin Express in Bree for {secondsRemaining} seconds.");
-                        sb.AppendLine($"Harbringer in Tharbad for {secondsRemaining} seconds.");
-                        sb.AppendLine($"Omani Princess in Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 1:
                         sb.AppendLine($"Celduin Express sailing to Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer sailing to Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess sailing to Umbar for {secondsRemaining} seconds.");
                         break;
-                    case 2:
+                    case 1:
                         sb.AppendLine($"Celduin Express in Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer in Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess in Umbar for {secondsRemaining} seconds.");
                         break;
-                    case 3:
+                    case 2:
                         sb.AppendLine($"Celduin Express sailing to Bree for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer sailing to Tharbad for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess sailing to Mithlond for {secondsRemaining} seconds.");
                         break;
+                    case 3:
+                        sb.AppendLine($"Celduin Express in Bree for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Harbringer in Tharbad for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Omani Princess in Mithlond for {secondsRemaining} seconds.");
+                        break;
                 }
-            }
-            dtCycle = _bullroarerBoatCycle;
-            if (dtCycle != DateTime.MinValue)
-            {
                 minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 8;
                 minutesIntoCurrentCycle = minutesIntoCycle % 1;
                 cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
@@ -11012,35 +10961,35 @@ BeforeHazy:
                 switch (cycleNumber)
                 {
                     case 0:
-                        sb.AppendLine($"Bullroarer in Nindamos for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer sailing from Mithlond for {secondsRemaining} seconds.");
                         break;
                     case 1:
-                        sb.AppendLine($"Bullroarer at sea for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
                         break;
                     case 2:
-                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer sailing for Nindamos for {secondsRemaining} seconds.");
                         break;
                     case 3:
-                        sb.AppendLine($"Bullroarer sailing for Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer in Nindamos for {secondsRemaining} seconds.");
                         break;
                     case 4:
-                        sb.AppendLine($"Bullroarer can board in Mithlond, exit to Nindamos for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer sailing from Nindamos for {secondsRemaining} seconds.");
                         break;
                     case 5:
-                        sb.AppendLine($"Bullroarer at sea for {secondsRemaining} seconds.");
-                        break;
-                    case 6:
                         sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
                         break;
+                    case 6:
+                        sb.AppendLine($"Bullroarer sailing for Mithlond for {secondsRemaining} seconds.");
+                        break;
                     case 7:
-                        sb.AppendLine($"Bullroarer sailing for Nindamos for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer can board in Mithlond, exit to Nindamos for {secondsRemaining} seconds.");
                         break;
                 }
             }
             string message = sb.ToString();
             if (string.IsNullOrEmpty(message))
             {
-                message = "No ship information available.";
+                message = "No time information available.";
             }
             MessageBox.Show(message);
         }
