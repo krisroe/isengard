@@ -2715,6 +2715,8 @@ namespace IsengardClient.Backend
     public class InformationalMessagesSequence : AOutputProcessingSequence
     {
         public const string CELDUIN_EXPRESS_IN_BREE_MESSAGE = "### The Celduin Express is ready for boarding in Bree.";
+        public const string TIME_SUN_RISES = "The sun rises.";
+        public const string TIME_SUN_SETS = "The sun disappears over the horizon.";
         public const string FLEE_WITHOUT_DROP_WEAPON = "You run like a chicken.";
         public const string FLEE_WITH_DROP_WEAPON = "You drop your weapon and run like a chicken.";
 
@@ -2766,12 +2768,12 @@ namespace IsengardClient.Backend
                     Parameters.NextLineIndex = i;
                     break;
                 }
-                else if (sLine == "The sun rises.")
+                else if (sLine == TIME_SUN_RISES)
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.DayStart;
                 }
-                else if (sLine == "The sun disappears over the horizon.")
+                else if (sLine == TIME_SUN_SETS)
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.NightStart;

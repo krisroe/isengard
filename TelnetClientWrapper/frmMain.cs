@@ -2631,6 +2631,7 @@ namespace IsengardClient
             EntityChange rc;
             BackgroundCommandType? bct = flp.BackgroundCommandType;
             bool isFightingMob = flp.IsFightingMob;
+            List<string> messagesToRemove = null;
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
@@ -2643,10 +2644,18 @@ namespace IsengardClient
                 switch (nextMessage)
                 {
                     case InformationalMessageType.DayStart:
+                        if (broadcasts == null) broadcasts = new List<string>();
+                        broadcasts.Add(InformationalMessagesSequence.TIME_SUN_RISES);
+                        if (messagesToRemove == null) messagesToRemove = new List<string>();
+                        messagesToRemove.Add(InformationalMessagesSequence.TIME_SUN_RISES);
                         _time = SUNRISE_GAME_HOUR;
                         _timeLastUpdatedUTC = DateTime.UtcNow;
                         break;
                     case InformationalMessageType.NightStart:
+                        if (broadcasts == null) broadcasts = new List<string>();
+                        broadcasts.Add(InformationalMessagesSequence.TIME_SUN_SETS);
+                        if (messagesToRemove == null) messagesToRemove = new List<string>();
+                        messagesToRemove.Add(InformationalMessagesSequence.TIME_SUN_SETS);
                         _time = SUNSET_GAME_HOUR;
                         _timeLastUpdatedUTC = DateTime.UtcNow;
                         break;
@@ -2828,10 +2837,8 @@ namespace IsengardClient
                         //broadcast the first celduin express in bree message
                         if (!_mainBoatCycle.HasValue && _settingsData != null && _settingsData.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
                         {
-                            lock (_broadcastMessagesLock)
-                            {
-                                _broadcastMessages.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
-                            }
+                            if (broadcasts == null) broadcasts = new List<string>();
+                            broadcasts.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
                         }
                         _mainBoatCycle = DateTime.UtcNow;
                         lock (_currentEntityInfo.EntityLock)
@@ -2854,14 +2861,8 @@ namespace IsengardClient
                             }
                             if (removeMessage)
                             {
-                                for (int i = 0; i < flp.Lines.Count; i++)
-                                {
-                                    if (flp.Lines[i] == InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE)
-                                    {
-                                        flp.Lines.RemoveAt(i);
-                                        break;
-                                    }
-                                }
+                                if (messagesToRemove == null) messagesToRemove = new List<string>();
+                                messagesToRemove.Add(InformationalMessagesSequence.CELDUIN_EXPRESS_IN_BREE_MESSAGE);
                             }
                         }
                         break;
@@ -2987,6 +2988,7 @@ namespace IsengardClient
                         break;
                 }
             }
+
             if (spellsOff != null)
             {
                 lock (_currentEntityInfo.EntityLock)
@@ -3004,6 +3006,17 @@ namespace IsengardClient
                     if (removedProtection)
                     {
                         OnDeltaArmorClass(-1);
+                    }
+                }
+            }
+
+            if (messagesToRemove != null)
+            {
+                for (int i = flp.Lines.Count - 1; i >= 0; i--)
+                {
+                    if (messagesToRemove.Contains(flp.Lines[i]))
+                    {
+                        flp.Lines.RemoveAt(i);
                     }
                 }
             }
