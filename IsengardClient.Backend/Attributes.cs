@@ -160,7 +160,8 @@ namespace IsengardClient.Backend
                 ItemClass == ItemClass.Key ||
                 ItemClass == ItemClass.Fixed ||
                 ItemClass == ItemClass.Chest ||
-                ItemClass == ItemClass.Gem)
+                ItemClass == ItemClass.Gem ||
+                ItemClass == ItemClass.HeldItem)
             {
                 this.ItemClass = ItemClass;
             }
