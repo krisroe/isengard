@@ -1743,6 +1743,7 @@ namespace IsengardClient.Backend
         [LookText("You see a small brown jug with a cork in it.")]
         [Potion(SpellsEnum.endurecold)]
         [Weight(3)]
+        [Sellable(SellableEnum.Junk)]
         LittleBrownJug,
 
         [SingularName("lollipop")]

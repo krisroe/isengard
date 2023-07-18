@@ -1299,6 +1299,7 @@
         [SingularName("Prucilla the Groupie")]
         //CSRTODO: no plural?
         [Alignment(AlignmentType.Blue)]
+        [CannotHarm]
         PrucillaTheGroupie,
 
         [SingularName("rabbit")]

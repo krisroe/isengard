@@ -476,6 +476,9 @@ namespace IsengardClient.Backend
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(InfectsWithDiseaseAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                     smd.InfectsWithDisease = ((InfectsWithDiseaseAttribute)valueAttributes[0]).InfectsWithDisease;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CannotHarmAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                    smd.CannotHarm = ((CannotHarmAttribute)valueAttributes[0]).CannotHarm;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ExperienceAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -599,6 +602,7 @@ namespace IsengardClient.Backend
         public bool Aggressive { get; set; }
         public bool DestroysItems { get; set; }
         public bool InfectsWithDisease { get; set; }
+        public bool CannotHarm { get; set; }
         public int Experience { get; set; }
         public MobVisibility Visibility { get; set; }
         public AlignmentType? Alignment { get; set; }
@@ -1995,6 +1999,26 @@ namespace IsengardClient.Backend
                 }
             }
 
+            return ret;
+        }
+
+        /// <summary>
+        /// gets the first attackable mob, assumes the entity lock
+        /// </summary>
+        /// <returns>first attackable mob</returns>
+        public MobTypeEnum? GetFirstAttackableMob()
+        {
+            MobTypeEnum? ret = null;
+            for (int i = 0; i < CurrentRoomMobs.Count; i++)
+            {
+                MobTypeEnum next = CurrentRoomMobs[i];
+                StaticMobData smd = MobEntity.StaticMobData[next];
+                if (!smd.CannotHarm)
+                {
+                    ret = next;
+                    break;
+                }
+            }
             return ret;
         }
     }

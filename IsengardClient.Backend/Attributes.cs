@@ -106,6 +106,15 @@ namespace IsengardClient.Backend
         }
     }
 
+    public class CannotHarmAttribute : Attribute
+    {
+        public bool CannotHarm { get; set; }
+        public CannotHarmAttribute()
+        {
+            CannotHarm = true;
+        }
+    }
+
     public class MobVisibilityAttribute : Attribute
     {
         public MobVisibility MobVisibility { get; set; }

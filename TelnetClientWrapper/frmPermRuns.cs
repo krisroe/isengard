@@ -140,9 +140,10 @@ namespace IsengardClient
             {
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    if (_currentEntityInfo.CurrentRoomMobs.Count > 0)
+                    MobTypeEnum? firstAttackableMob = _currentEntityInfo.GetFirstAttackableMob();
+                    if (firstAttackableMob.HasValue)
                     {
-                        pr.MobType = _currentEntityInfo.CurrentRoomMobs[0];
+                        pr.MobType = firstAttackableMob.Value;
                         pr.MobIndex = 1;
                     }
                 }

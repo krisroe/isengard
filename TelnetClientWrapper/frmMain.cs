@@ -4349,12 +4349,12 @@ namespace IsengardClient
                 if (setMobToFirstAvailable)
                 {
                     string sText = null;
-                    List<MobTypeEnum> currentRoomMobs = _currentEntityInfo.CurrentRoomMobs;
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        if (currentRoomMobs.Count > 0)
+                        MobTypeEnum? firstAttackableMob = _currentEntityInfo.GetFirstAttackableMob();
+                        if (firstAttackableMob.HasValue)
                         {
-                            sText = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, currentRoomMobs[0], 1, false, true);
+                            sText = _currentEntityInfo.PickMobTextFromMobCounter(null, MobLocationType.CurrentRoomMobs, firstAttackableMob.Value, 1, false, true);
                         }
                     }
                     if (!string.IsNullOrEmpty(sText))
@@ -6978,19 +6978,24 @@ BeforeHazy:
                 lock (_currentEntityInfo.EntityLock)
                 {
                     MobTypeEnum monsterType = MobTypeEnum.LittleMouse;
-                    int index;
                     if (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom)
                     {
-                        if (_currentEntityInfo.CurrentRoomMobs.Count == 0) return false;
-                        index = 0;
-                        monsterType = _currentEntityInfo.CurrentRoomMobs[0];
+                        MobTypeEnum? firstAttackableMob = _currentEntityInfo.GetFirstAttackableMob();
+                        if (firstAttackableMob.HasValue)
+                        {
+                            monsterType = firstAttackableMob.Value;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                     else
                     {
                         MobTypeEnum? monsterKilledType = _monsterKilledType;
                         if (!monsterKilledType.HasValue) return false;
                         monsterType = monsterKilledType.Value;
-                        index = _currentEntityInfo.CurrentRoomMobs.IndexOf(monsterKilledType.Value);
+                        int index = _currentEntityInfo.CurrentRoomMobs.IndexOf(monsterKilledType.Value);
                         if (index < 0) return false;
                     }
                     bwp.MobText = string.Empty;
@@ -9121,9 +9126,10 @@ BeforeHazy:
                                 if (!inBackgroundProcess)
                                 {
                                     string sNewMobText = string.Empty;
-                                    if (_currentEntityInfo.CurrentRoomMobs.Count > 0)
+                                    MobTypeEnum? firstAttackableMob = _currentEntityInfo.GetFirstAttackableMob();
+                                    if (firstAttackableMob.HasValue)
                                     {
-                                        sNewMobText = _currentEntityInfo.CurrentRoomMobs[0].ToString();
+                                        sNewMobText = firstAttackableMob.Value.ToString();
                                     }
                                     txtMob.Text = sNewMobText;
                                 }
