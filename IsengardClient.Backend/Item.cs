@@ -1006,7 +1006,11 @@ namespace IsengardClient.Backend
         ClothHat,
 
         [SingularName("cloth pants")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Legs)]
+        [Weight(2)]
+        [ArmorClass(0.1)]
+        [Sellable(SellableEnum.Junk)]
         ClothPants,
 
         [SingularName("club")]
@@ -1062,6 +1066,7 @@ namespace IsengardClient.Backend
 
         [SingularName("dagger")]
         [PluralName("daggers")]
+        [LookText("A well balanced knife.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -2123,6 +2128,10 @@ namespace IsengardClient.Backend
         [Weight(1)]
         [Sellable(297)]
         RoguesMask,
+
+        [SingularName("rope of snaring")]
+        //CSRTODO: plural?
+        RopeOfSnaring,
 
         [SingularName("ruby")]
         [PluralName("rubys")] //verified 6/21/23
