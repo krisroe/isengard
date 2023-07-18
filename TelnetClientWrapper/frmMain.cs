@@ -3271,13 +3271,16 @@ namespace IsengardClient
                             messages.Add("Missing armor class for " + itemType);
                         }
                     }
-                    if (!sid.Weight.HasValue)
+                    if (!sid.IsCurrency())
                     {
-                        messages.Add("Unknown weight for " + itemType);
-                    }
-                    if (sid.Sellable == SellableEnum.Unknown)
-                    {
-                        messages.Add("Unknown sellable for " + itemType);
+                        if (!sid.Weight.HasValue)
+                        {
+                            messages.Add("Unknown weight for " + itemType);
+                        }
+                        if (sid.Sellable == SellableEnum.Unknown)
+                        {
+                            messages.Add("Unknown sellable for " + itemType);
+                        }
                     }
                     if (messages.Count > 0)
                     {
