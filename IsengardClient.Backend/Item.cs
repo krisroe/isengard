@@ -755,6 +755,7 @@ namespace IsengardClient.Backend
         [SingularName("A statuette of Balthazar")]
         [SingularSelection("A")]
         //CSRTODO: no plural?
+        //CSRTODO: cannot seem to look at because "look all" takes precendence.
         [ItemClass(ItemClass.Fixed)]
         AStatuetteOfBalthazar,
 
@@ -1719,6 +1720,7 @@ namespace IsengardClient.Backend
         [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(2)]
+        [ArmorClass(0.2)]
         [Sellable(SellableEnum.Junk)]
         LeatherCap,
 
@@ -1916,6 +1918,7 @@ namespace IsengardClient.Backend
 
         [SingularName("orange potion")]
         [PluralName("orange potions")]
+        [LookText("It's an aqueous solution with a slightly orange tint.")]
         [Potion(SpellsEnum.knowaura)]
         [Weight(1)]
         [Sellable(SellableEnum.NotSellable)]
@@ -2228,6 +2231,7 @@ namespace IsengardClient.Backend
 
         [SingularName("sling")]
         [PluralName("slings")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
         [Sellable(SellableEnum.Junk)]

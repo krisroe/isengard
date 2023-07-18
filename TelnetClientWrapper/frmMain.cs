@@ -3252,7 +3252,8 @@ namespace IsengardClient
                     {
                         messages.Add("Unknown item type for " + itemType);
                     }
-                    if (string.IsNullOrEmpty(sid.LookText))
+                    //signs typically have multiple lines of look text which currently isn't handled by the structure
+                    if (sid.ItemClass != ItemClass.Fixed && string.IsNullOrEmpty(sid.LookText))
                     {
                         messages.Add("No look text for " + itemType);
                     }
