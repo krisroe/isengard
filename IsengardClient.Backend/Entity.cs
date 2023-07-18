@@ -899,6 +899,9 @@ namespace IsengardClient.Backend
         public List<MobTypeEnum> CurrentRoomMobs { get; set; }
         public List<ItemEntity> CurrentRoomItems { get; set; }
         public List<UnknownTypeEntity> CurrentUnknownEntities { get; set; }
+        /// <summary>
+        /// items in inventory
+        /// </summary>
         public List<ItemEntity> InventoryItems { get; set; }
         /// <summary>
         /// total inventory weight.
@@ -916,7 +919,10 @@ namespace IsengardClient.Backend
         /// total equipment weight as last displayed by the UI
         /// </summary>
         public int? TotalEquipmentWeightUI { get; set; }
-        public ItemTypeEnum?[] Equipment { get; set; }
+        /// <summary>
+        /// equipment items
+        /// </summary>
+        public ItemEntity[] Equipment { get; set; }
         /// <summary>
         /// unknown equipment
         /// </summary>
@@ -954,7 +960,7 @@ namespace IsengardClient.Backend
             CurrentRoomItems = new List<ItemEntity>();
             CurrentUnknownEntities = new List<UnknownTypeEntity>();
             InventoryItems = new List<ItemEntity>();
-            Equipment = new ItemTypeEnum?[(int)EquipmentSlot.Count];
+            Equipment = new ItemEntity[(int)EquipmentSlot.Count];
             UnknownEquipment = new List<ItemEntity>();
             CurrentObviousExits = new List<string>();
             ObviousExitsTNExpanded = true;
@@ -1497,7 +1503,8 @@ namespace IsengardClient.Backend
             {
                 for (int i = reverseOrder ? Equipment.Length - 1 : 0; reverseOrder ? i >= 0 : i < Equipment.Length; i += iIncrement)
                 {
-                    if (Equipment[i] == itemType)
+                    ItemEntity ie = Equipment[i];
+                    if (ie != null && ie.ItemType == itemType)
                     {
                         iCounter++;
                         if (itemCounter == iCounter)
@@ -1619,11 +1626,11 @@ namespace IsengardClient.Backend
                     if (!isDuplicate)
                     {
                         iDuplicateCounter = 0;
-                        foreach (ItemTypeEnum? nextItem in Equipment)
+                        foreach (ItemEntity nextItemEntity in Equipment)
                         {
-                            if (nextItem.HasValue)
+                            if (nextItemEntity != null && nextItemEntity.ItemType.HasValue)
                             {
-                                sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                                sSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
                                 foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                                 {
                                     if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
@@ -1700,7 +1707,7 @@ namespace IsengardClient.Backend
                     }
                     else if (locationType == ItemLocationType.Equipment)
                     {
-                        eItem = Equipment[i];
+                        eItem = Equipment[i].ItemType;
                     }
                     else if (locationType == ItemLocationType.Room)
                     {
@@ -1764,11 +1771,11 @@ namespace IsengardClient.Backend
                         if (!isDuplicate && locationType != ItemLocationType.Equipment)
                         {
                             iDuplicateCounter = 0;
-                            foreach (ItemTypeEnum? nextItem in Equipment)
+                            foreach (ItemEntity nextItemEntity in Equipment)
                             {
-                                if (nextItem.HasValue)
+                                if (nextItemEntity != null && nextItemEntity.ItemType.HasValue)
                                 {
-                                    sSingular = ItemEntity.StaticItemData[nextItem.Value].SingularName;
+                                    sSingular = ItemEntity.StaticItemData[nextItemEntity.ItemType.Value].SingularName;
                                     foreach (string nextWord in sSingular.Split(new char[] { ' ' }))
                                     {
                                         if (nextWord.StartsWith(word, StringComparison.OrdinalIgnoreCase) && ++iDuplicateCounter == iCounter)
@@ -1811,9 +1818,9 @@ namespace IsengardClient.Backend
             }
             if (checkEquipment)
             {
-                foreach (ItemTypeEnum? nextItemType in Equipment)
+                foreach (ItemEntity nextItemEntity in Equipment)
                 {
-                    if (nextItemType == itemType) iCount++;
+                    if (nextItemEntity != null && nextItemEntity.ItemType == itemType) iCount++;
                 }
             }
             return iCount;
@@ -1822,9 +1829,9 @@ namespace IsengardClient.Backend
         public int GetTotalKnownEquipmentCount()
         {
             int iCounter = 0;
-            foreach (ItemTypeEnum? nextItemType in Equipment)
+            foreach (ItemEntity nextItemEntity in Equipment)
             {
-                if (nextItemType.HasValue)
+                if (nextItemEntity != null)
                 {
                     iCounter++;
                 }
@@ -1842,11 +1849,11 @@ namespace IsengardClient.Backend
             bool unknown = false;
             if (UnknownEquipment.Count == 0)
             {
-                foreach (ItemTypeEnum? nextItemType in Equipment)
+                foreach (ItemEntity nextItemEntity in Equipment)
                 {
-                    if (nextItemType.HasValue)
+                    if (nextItemEntity != null && nextItemEntity.ItemType.HasValue)
                     {
-                        ItemTypeEnum nextItem = nextItemType.Value;
+                        ItemTypeEnum nextItem = nextItemEntity.ItemType.Value;
                         StaticItemData sid = ItemEntity.StaticItemData[nextItem];
                         if (sid.Weight.HasValue)
                         {
@@ -1943,25 +1950,58 @@ namespace IsengardClient.Backend
             return iCount;
         }
 
+        public List<SelectedInventoryOrEquipmentItem> GetInvEqItems(Func<ItemEntity, bool> classifier, bool inventory, bool equipment)
+        {
+            List<SelectedInventoryOrEquipmentItem> ret = new List<SelectedInventoryOrEquipmentItem>();
+            ItemTypeEnum? ePrevious = null;
+            int iCounter = 0;
+            foreach (ItemEntity ie in EnumerateItems(inventory, equipment))
+            {
+                if (ie.ItemType.HasValue)
+                {
+                    if (classifier == null || classifier(ie))
+                    {
+                        ItemTypeEnum eValue = ie.ItemType.Value;
+                        if (!ePrevious.HasValue || ePrevious != eValue)
+                        {
+                            iCounter = 0;
+                            ePrevious = eValue;
+                        }
+                        iCounter++;
+                        ret.Add(new SelectedInventoryOrEquipmentItem(eValue, iCounter, true));
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public IEnumerable<ItemEntity> EnumerateItems(bool inventory, bool equipment)
+        {
+            if (inventory)
+            {
+                foreach (ItemEntity next in InventoryItems)
+                {
+                    yield return next;
+                }
+            }
+            if (equipment)
+            {
+                foreach (ItemEntity next in Equipment)
+                {
+                    if (next != null) yield return next;
+                }
+            }
+        }
+
         /// <summary>
         /// enumerates inventory and equipment items, assumes the entity lock
         /// </summary>
         /// <returns>inventory and equipment items</returns>
         public IEnumerable<ItemTypeEnum> EnumerateInventoryAndEquipmentItems()
         {
-            foreach (ItemEntity next in InventoryItems)
+            foreach (ItemEntity ie in EnumerateItems(true, true))
             {
-                if (next.ItemType.HasValue)
-                {
-                    yield return next.ItemType.Value;
-                }
-            }
-            foreach (ItemTypeEnum? next in Equipment)
-            {
-                if (next.HasValue)
-                {
-                    yield return next.Value;
-                }
+                if (ie.ItemType.HasValue) yield return ie.ItemType.Value;
             }
         }
 
@@ -1985,14 +2025,15 @@ namespace IsengardClient.Backend
                 }
             }
 
-            foreach (ItemTypeEnum? next in Equipment)
+            foreach (ItemEntity next in Equipment)
             {
-                if (next.HasValue)
+                if (next != null && next.ItemType.HasValue)
                 {
-                    StaticItemData sid = ItemEntity.StaticItemData[next.Value];
+                    ItemTypeEnum eItemType = next.ItemType.Value;
+                    StaticItemData sid = ItemEntity.StaticItemData[eItemType];
                     if (sid.ItemClass == ItemClass.Potion && sid.Spell.Value == spell)
                     {
-                        foundItem = next.Value;
+                        foundItem = eItemType;
                         inInventory = false;
                         ret = true;
                     }

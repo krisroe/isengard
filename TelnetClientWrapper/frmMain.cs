@@ -1219,7 +1219,7 @@ namespace IsengardClient
                                 int iNextSlot = (int)nextSlot;
                                 if (_currentEntityInfo.Equipment[iNextSlot] == null)
                                 {
-                                    _currentEntityInfo.Equipment[iNextSlot] = itemType;
+                                    _currentEntityInfo.Equipment[iNextSlot] = itemInfo;
                                     foundSlot = true;
                                     break;
                                 }
@@ -2372,10 +2372,10 @@ namespace IsengardClient
                 _tnl = Math.Max(0, _tnl - experience);
                 if (fumbled)
                 {
-                    ItemTypeEnum? weaponIT = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
-                    if (weaponIT.HasValue)
+                    ItemEntity ieWeapon = _currentEntityInfo.Equipment[(int)EquipmentSlot.Weapon1];
+                    if (ieWeapon != null)
                     {
-                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(weaponIT.Value, 1, 1) }, ItemManagementAction.Unequip, null);
+                        AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { ieWeapon }, ItemManagementAction.Unequip, null);
                     }
                 }
                 bool hasMonsterItems = monsterItems.Count > 0;
@@ -2575,10 +2575,10 @@ namespace IsengardClient
             {
                 if (i != (int)EquipmentSlot.Held && i != (int)EquipmentSlot.Weapon1 && i != (int)EquipmentSlot.Weapon2)
                 {
-                    ItemTypeEnum? nextEquipment = _currentEntityInfo.Equipment[i];
-                    if (nextEquipment.HasValue)
+                    ItemEntity nextEquipmentEntity = _currentEntityInfo.Equipment[i];
+                    if (nextEquipmentEntity != null && nextEquipmentEntity.ItemType.HasValue)
                     {
-                        StaticItemData sid = ItemEntity.StaticItemData[nextEquipment.Value];
+                        StaticItemData sid = ItemEntity.StaticItemData[nextEquipmentEntity.ItemType.Value];
                         if (sid.ArmorClass > 0)
                         {
                             calculatedArmorClass += sid.ArmorClass;
@@ -3382,14 +3382,15 @@ namespace IsengardClient
                                     {
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindNewEquipmentInsertionPoint(nextSlot);
                                         changeEntry.EquipmentAction = true;
-                                        _currentEntityInfo.Equipment[iSlotIndex] = sid.ItemType;
+                                        _currentEntityInfo.Equipment[iSlotIndex] = nextItemEntity;
                                         addChange = true;
                                         break;
                                     }
                                 }
                                 else //remove
                                 {
-                                    if (_currentEntityInfo.Equipment[iSlotIndex] == nextItem)
+                                    ItemEntity existingEquipment = _currentEntityInfo.Equipment[iSlotIndex];
+                                    if (existingEquipment != null && existingEquipment.ItemType == nextItem)
                                     {
                                         changeEntry.EquipmentIndex = _currentEntityInfo.FindEquipmentRemovalPoint(nextSlot);
                                         changeEntry.EquipmentAction = false;
@@ -3666,6 +3667,7 @@ namespace IsengardClient
                             flParams.ConsoleVerbosity = sets == null ? ConsoleOutputVerbosity.Maximum : sets.ConsoleVerbosity;
                             flParams.PlayerNames = _players;
                             flParams.RunningHiddenCommand = _runningHiddenCommand;
+                            flParams.SIOEI = _commandInventoryItem;
                             CommandResult? previousCommandResult = _commandResult;
 
                             foreach (AOutputProcessingSequence nextProcessingSequence in seqs)
@@ -3772,6 +3774,7 @@ namespace IsengardClient
             {
                 new SearchSequence(SuccessfulSearch, FailSearch),
                 new MobStatusSequence(OnMobStatusSequence),
+                new ItemStatusSequence(),
                 new InformationalMessagesSequence(_username, OnInformationalMessages),
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
@@ -5429,6 +5432,7 @@ BeforeHazy:
             CommandResultObject backgroundCommandResultObject;
             if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
+                bool junkUselessBrokenItems = true;
                 NavigateToSpecificRoom(inventorySourceRoom, pms, false, pr);
                 _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
@@ -5585,7 +5589,7 @@ BeforeHazy:
                 }
 
                 //sell/junk anything that was picked up and should immediately be sold or junked
-                backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
+                backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr, ref junkUselessBrokenItems);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
@@ -5709,7 +5713,7 @@ BeforeHazy:
                     //sell/junk anything from the inventory that should be sold or junked
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
+                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr, ref junkUselessBrokenItems);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -5781,7 +5785,7 @@ BeforeHazy:
 
                     if (itemsToSellOrJunk.Count > 0)
                     {
-                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr);
+                        backgroundCommandResultObject = SellOrJunkItems(itemsToSellOrJunk, pms, ref somethingDone, pr, ref junkUselessBrokenItems);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                         {
                             return backgroundCommandResultObject;
@@ -5882,11 +5886,6 @@ BeforeHazy:
             return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom, pr);
         }
 
-        private CommandResultObject NavigateToPawnShop(BackgroundWorkerParameters pms, PermRun pr)
-        {
-            return NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false, pr);
-        }
-
         private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
         {
             Room currentRoom = _currentEntityInfo.CurrentRoom;
@@ -5944,7 +5943,7 @@ BeforeHazy:
             return ret;
         }
 
-        private CommandResultObject SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone, PermRun pr)
+        private CommandResultObject SellOrJunkItems(List<ItemEntity> items, BackgroundWorkerParameters pms, ref bool somethingDone, PermRun pr, ref bool junkUselessBrokenItems)
         {
             CommandResultObject backgroundCommandResultObject;
             bool success = true;
@@ -5955,12 +5954,49 @@ BeforeHazy:
                     AddConsoleMessage("No pawn shop available.");
                     return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                 }
-                backgroundCommandResultObject = NavigateToPawnShop(pms, pr);
+                backgroundCommandResultObject = NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false, pr);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                 {
                     return backgroundCommandResultObject;
                 }
                 _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
+                if (junkUselessBrokenItems)
+                {
+                    RemoveKeyFromHeldSlot(null, pms, AbortIfHazying);
+                    List<SelectedInventoryOrEquipmentItem> lst;
+                    lock (_currentEntityInfo.EntityLock)
+                    {
+                        lst = _currentEntityInfo.GetInvEqItems((ie) => { return ie.IsItemClass(ItemClass.Key); }, true, false);
+                    }
+                    lst.Reverse(); //handle in reverse order to prevent index shifting
+                    foreach (SelectedInventoryOrEquipmentItem sioei in lst)
+                    {
+                        string sItemText;
+                        ItemTypeEnum eKeyType = sioei.ItemType;
+                        lock (_currentEntityInfo.EntityLock)
+                        {
+                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eKeyType, sioei.Counter, false, false);
+                        }
+                        _commandInventoryItem = sioei;
+                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, AbortIfHazying, false);
+                        if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                        {
+                            return backgroundCommandResultObject;
+                        }
+                        else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                        {
+                            ItemStatus eStatus = (ItemStatus)_commandSpecificResult;
+                            if (eStatus == ItemStatus.Broken)
+                            {
+                                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, eKeyType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
+                                    somethingDone = true;
+                                else
+                                    AddConsoleMessage("Failed to junk " + sItemText);
+                            }
+                        }
+                    }
+                    junkUselessBrokenItems = false;
+                }
                 foreach (ItemEntity nextItem in items)
                 {
                     ItemTypeEnum itemType = nextItem.ItemType.Value;
@@ -5994,7 +6030,7 @@ BeforeHazy:
                         else
                         {
                             AddConsoleMessage("Failed to junk " + itemType);
-                            success = true;
+                            success = false;
                         }
                     }
                     else
@@ -6378,10 +6414,10 @@ BeforeHazy:
                 if (!string.IsNullOrEmpty(command))
                 {
                     int iHeldSlot = (int)EquipmentSlot.Held;
-                    ItemTypeEnum? heldItem = _currentEntityInfo.Equipment[iHeldSlot];
-                    if (heldItem.HasValue)
+                    ItemEntity heldItemEntity = _currentEntityInfo.Equipment[iHeldSlot];
+                    if (heldItemEntity != null && heldItemEntity.ItemType.HasValue)
                     {
-                        ItemTypeEnum eHeldItem = heldItem.Value;
+                        ItemTypeEnum eHeldItem = heldItemEntity.ItemType.Value;
                         StaticItemData sid = ItemEntity.StaticItemData[eHeldItem];
                         ValidPotionType potionValidity = GetPotionValidity(sid, nextPotionsStep, canMend, canVigor);
                         if (potionValidity == ValidPotionType.Primary || potionValidity == ValidPotionType.Secondary)
@@ -6506,22 +6542,7 @@ BeforeHazy:
                         if (keyType != SupportedKeysFlags.None && pr != null && ((pr.SupportedKeys & keyType) == keyType))
                         {
                             ItemTypeEnum keyItemType = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), keyType.ToString());
-                            bool removeFromEquipment = false;
-                            string sItemText = null;
-                            lock (_currentEntityInfo.EntityLock)
-                            {
-                                int iHeldSlot = (int)EquipmentSlot.Held;
-                                ItemTypeEnum? eHeldItem = _currentEntityInfo.Equipment[iHeldSlot];
-                                if (eHeldItem == keyItemType)
-                                {
-                                    removeFromEquipment = true; //can't unlock an exit using a key in the held slot, so remove if there
-                                    sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, keyItemType, iHeldSlot, false);
-                                }
-                            }
-                            if (removeFromEquipment && !string.IsNullOrEmpty(sItemText))
-                            {
-                                TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, keyItemType, sItemText, pms, abortLogic);
-                            }
+                            RemoveKeyFromHeldSlot(keyItemType, pms, abortLogic); //can't unlock an exit using a key in the held slot, so remove if there
                             int numberInInventory;
                             lock (_currentEntityInfo.EntityLock)
                             {
@@ -6529,6 +6550,7 @@ BeforeHazy:
                             }
                             for (int i = 1; i <= numberInInventory; i++)
                             {
+                                string sItemText;
                                 lock (_currentEntityInfo.EntityLock)
                                 {
                                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, keyItemType, i, false, false);
@@ -6702,6 +6724,38 @@ BeforeHazy:
             else
                 ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
             return ret;
+        }
+
+        private void RemoveKeyFromHeldSlot(ItemTypeEnum? keyItemType, BackgroundWorkerParameters pms, Func<bool> abortLogic)
+        {
+            string sItemText = null;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                int iHeldSlot = (int)EquipmentSlot.Held;
+                ItemEntity eHeldItemEntity = _currentEntityInfo.Equipment[iHeldSlot];
+                if (eHeldItemEntity != null && eHeldItemEntity.ItemType.HasValue)
+                {
+                    bool removeFromEquipment;
+                    ItemTypeEnum eHeldItemValue = eHeldItemEntity.ItemType.Value;
+                    if (keyItemType.HasValue)
+                    {
+                        removeFromEquipment = eHeldItemValue == keyItemType;
+                    }
+                    else
+                    {
+                        StaticItemData sid = ItemEntity.StaticItemData[eHeldItemValue];
+                        removeFromEquipment = sid.ItemClass == ItemClass.Key;
+                    }
+                    if (removeFromEquipment)
+                    {
+                        sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItemValue, iHeldSlot, false);
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(sItemText))
+            {
+                TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, keyItemType, sItemText, pms, abortLogic);
+            }
         }
 
         private CommandResultObject TryStand(BackgroundWorkerParameters pms, Func<bool> abortLogic)
@@ -7024,10 +7078,10 @@ BeforeHazy:
                 lock (_currentEntityInfo.EntityLock)
                 {
                     int iIndex = (int)nextWeaponSlot;
-                    ItemTypeEnum? weapon = _currentEntityInfo.Equipment[iIndex];
-                    if (weapon.HasValue)
+                    ItemEntity weaponEntity = _currentEntityInfo.Equipment[iIndex];
+                    if (weaponEntity != null && weaponEntity.ItemType.HasValue)
                     {
-                        weaponValue = weapon.Value;
+                        weaponValue = weaponEntity.ItemType.Value;
                         sWeaponText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, weaponValue, iIndex, false);
                         if (string.IsNullOrEmpty(sWeaponText))
                         {

@@ -276,6 +276,17 @@ namespace IsengardClient.Backend
             ItemEntity ie = Entity.GetEntity(ObjectText, EntityTypeFlags.Item, flp.ErrorMessages, null, expectCapitalized) as ItemEntity;
             ProcessAndSplitItemEntity(ie, ref itemList, flp, true);
         }
+
+        public bool IsItemClass(ItemClass ic)
+        {
+            bool ret = false;
+            if (ItemType.HasValue)
+            {
+                StaticItemData sid = StaticItemData[ItemType.Value];
+                ret = sid.ItemClass == ic;
+            }
+            return ret;
+        }
     }
 
     public class UnknownItemEntity : ItemEntity
@@ -541,6 +552,10 @@ namespace IsengardClient.Backend
             {
                 yield return DynamicDataItemClass.Gem;
             }
+            else if (ic == ItemClass.HeldItem)
+            {
+                yield return DynamicDataItemClass.HeldItem;
+            }
             yield return DynamicDataItemClass.Item;
         }
     }
@@ -589,6 +604,7 @@ namespace IsengardClient.Backend
         Money,
         Fixed,
         Chest,
+        HeldItem,
         Other,
     }
 
@@ -633,6 +649,7 @@ namespace IsengardClient.Backend
         Gem,
         Coins,
         Money,
+        HeldItem,
 
         /// <summary>
         /// item class not covered by other item classes
@@ -884,6 +901,7 @@ namespace IsengardClient.Backend
 
         [SingularName("box of strawberries")]
         [LookText("It looks like about a pint of red berries.")]
+        [ItemClass(ItemClass.HeldItem)]
         //CSRTODO: plural?
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]

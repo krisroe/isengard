@@ -893,4 +893,13 @@ namespace IsengardClient.Backend
         /// </summary>
         InMithlond,
     }
+
+    /// <summary>
+    /// item status - currently whether the item is broken or not
+    /// </summary>
+    public enum ItemStatus
+    {
+        NotBroken,
+        Broken,
+    }
 }

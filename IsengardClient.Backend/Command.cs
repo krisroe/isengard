@@ -86,6 +86,7 @@
         OpenDoor,
         UnlockExit,
         Look,
+        LookAtItem,
         LookAtMob,
         Prepare,
         Search,

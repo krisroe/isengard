@@ -50,6 +50,7 @@ namespace IsengardClient.Backend
         /// result specific to each background command. Positive values are specific to the command.
         /// </summary>
         public int CommandSpecificResult { get; set; }
+        public SelectedInventoryOrEquipmentItem SIOEI { get; set; }
         public HashSet<string> PlayerNames { get; set; }
         public int NextLineIndex { get; set; }
         public List<InformationalMessages> InfoMessages { get; set; }
@@ -2249,6 +2250,43 @@ namespace IsengardClient.Backend
                 }
             }
             return characterCount > 0;
+        }
+    }
+
+    public class ItemStatusSequence : AOutputProcessingSequence
+    {
+        public ItemStatusSequence()
+        {
+        }
+
+        public override void FeedLine(FeedLineParameters Parameters)
+        {
+            List<string> lines = Parameters.Lines;
+            int iLineCount = lines.Count;
+            if (iLineCount == 0) return;
+            BackgroundCommandType? bct = Parameters.BackgroundCommandType;
+            if (!bct.HasValue || bct != BackgroundCommandType.LookAtItem) return;
+            SelectedInventoryOrEquipmentItem sioei = Parameters.SIOEI;
+            if (sioei == null) return;
+            StaticItemData sid = ItemEntity.StaticItemData[sioei.ItemType];
+            if (string.IsNullOrEmpty(sid.LookText)) return;
+            string firstLine = lines[0];
+            if (firstLine != sid.LookText) return;
+            ItemStatus status = ItemStatus.NotBroken;
+            if (lines.Count > 1)
+            {
+                for (int i = 1; i < iLineCount; i++)
+                {
+                    if (lines[i] == "It's broken or used up.")
+                    {
+                        status = ItemStatus.Broken;
+                        break;
+                    }
+                }
+            }
+            Parameters.CommandResult = CommandResult.CommandSuccessful;
+            Parameters.FinishedProcessing = true;
+            Parameters.CommandSpecificResult = Convert.ToInt32(status);
         }
     }
 
