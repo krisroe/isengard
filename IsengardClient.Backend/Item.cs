@@ -2224,6 +2224,7 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Unknown)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(4)]
+        [Sellable(247)]
         SilverBlueScale,
 
         [SingularName("silver dagger")]
