@@ -825,6 +825,7 @@ namespace IsengardClient.Backend
         [LookText("You see a blue potion that fizzes when you swirl it.")]
         [Potion(SpellsEnum.detectinvis)]
         [Weight(2)]
+        [Sellable(SellableEnum.NotSellable)]
         BlueBubblyPotion,
 
         [SingularName("blue rune")]
@@ -1865,6 +1866,7 @@ namespace IsengardClient.Backend
 
         [SingularName("MOM tattoo")]
         [PluralName("MOM tattoo")] //verified 7/5/23
+        [LookText("A tattoo of a heart with MOM written across it.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [Sellable(1237)]
@@ -2002,7 +2004,7 @@ namespace IsengardClient.Backend
         [LookText("It's a purple wand, emitting a glowing light.")]
         [Wand(SpellsEnum.stun)]
         [Weight(5)]
-        //CSRTODO: wand
+        [Sellable(74)]
         PurpleWand,
 
         [SingularName("quarterstaff")]
@@ -2390,6 +2392,7 @@ namespace IsengardClient.Backend
 
         [SingularName("tattoo of a wench")]
         //CSRTODO: plural?
+        [LookText("A tattoo of a saucy looking wench.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [Sellable(1237)]

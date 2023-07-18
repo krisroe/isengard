@@ -1822,37 +1822,16 @@ namespace IsengardClient.Backend
                 else if (e is ItemEntity)
                 {
                     if (e is UnknownItemEntity)
-                    {
                         errorMessages.Add("Unknown item entity: " + next);
-                    }
                     else
-                    {
-                        ItemEntity ient = (ItemEntity)e;
-                        if (ient.ItemType.HasValue)
-                        {
-                            StaticItemData sid = ItemEntity.StaticItemData[ient.ItemType.Value];
-                            if (sid.WeaponType.HasValue && sid.WeaponType.Value == WeaponType.Unknown)
-                            {
-                                errorMessages.Add("found unknown weapon type: " + ient.ItemType.Value.ToString());
-                            }
-                            if (sid.EquipmentType == EquipmentType.Unknown)
-                            {
-                                errorMessages.Add("found unknown equipment type: " + ient.ItemType.Value.ToString());
-                            }
-                        }
                         ret = true;
-                    }
                 }
                 else
                 {
                     if (possibleEntityTypes == EntityTypeFlags.Item)
-                    {
                         errorMessages.Add("Nonitem found in item list: " + next);
-                    }
                     else
-                    {
                         errorMessages.Add("Unexpected " + possibleEntityTypes.ToString() + ": " + next);
-                    }
                 }
             }
             return ret;

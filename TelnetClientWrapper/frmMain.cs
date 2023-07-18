@@ -171,6 +171,8 @@ namespace IsengardClient
 
         private DateTime _serverStartTime;
 
+        private HashSet<ItemTypeEnum> _itemsSeen = new HashSet<ItemTypeEnum>();
+
         /// <summary>
         /// number of times to try to attempt a background command before giving up
         /// </summary>
@@ -1176,6 +1178,8 @@ namespace IsengardClient
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Equipment) == InitializationStep.None;
 
+            List<ItemTypeEnum> itemEnums = new List<ItemTypeEnum>();
+
             lock (_currentEntityInfo.EntityLock)
             {
                 _currentEntityInfo.TotalEquipmentWeight = equipmentWeight;
@@ -1200,6 +1204,7 @@ namespace IsengardClient
                     else
                     {
                         ItemTypeEnum itemType = itemInfo.ItemType.Value;
+                        itemEnums.Add(itemType);
                         if (Enum.TryParse(nextEntry.Value, out EquipmentType eqType))
                         {
                             StaticItemData sid = ItemEntity.StaticItemData[itemType];
@@ -1251,6 +1256,14 @@ namespace IsengardClient
                     _currentEntityInfo.CurrentEntityChanges.Add(changes);
                 }
             }
+
+            List<ItemEntity> ies = new List<ItemEntity>();
+            foreach (ItemTypeEnum nextItemType in itemEnums)
+            {
+                ies.Add(new ItemEntity(nextItemType, 1, 1));
+            }
+            ProcessItemSeen(ies);
+
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
             bool runningHiddenCommand = false;
             if (bct.HasValue && bct == BackgroundCommandType.Equipment)
@@ -1269,6 +1282,8 @@ namespace IsengardClient
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Inventory) == InitializationStep.None;
+
+            ProcessItemSeen(items);
 
             lock (_currentEntityInfo.EntityLock)
             {
@@ -1424,6 +1439,8 @@ namespace IsengardClient
 
         private void OnRoomTransition(FeedLineParameters flParams, RoomTransitionInfo roomTransitionInfo, int damage, TrapType trapType, List<string> broadcastMessages, List<string> addedPlayers, List<string> removedPlayers)
         {
+            ProcessItemSeen(roomTransitionInfo.Items);
+
             Exit currentBackgroundExit = _currentBackgroundExit;
             RoomTransitionType rtType = roomTransitionInfo.TransitionType;
             string sRoomName = roomTransitionInfo.RoomName;
@@ -3220,6 +3237,57 @@ namespace IsengardClient
             }
         }
 
+        private void ProcessItemSeen(IEnumerable<ItemEntity> items)
+        {
+            foreach (ItemEntity ie in items)
+            {
+                if (ie.ItemType.HasValue && !_itemsSeen.Contains(ie.ItemType.Value))
+                {
+                    ItemTypeEnum itemType = ie.ItemType.Value;
+                    StaticItemData sid = ItemEntity.StaticItemData[itemType];
+
+                    List<string> messages = new List<string>();
+
+                    if (sid.ItemClass == ItemClass.Other)
+                    {
+                        messages.Add("Unknown item type for " + itemType);
+                    }
+                    if (string.IsNullOrEmpty(sid.LookText))
+                    {
+                        messages.Add("No look text for " + itemType);
+                    }
+                    if (sid.WeaponType.HasValue && sid.WeaponType == WeaponType.Unknown)
+                    {
+                        messages.Add("Unknown weapon type for " + itemType);
+                    }
+                    if (((sid.DisallowedClasses & ClassTypeFlags.Mage) == ClassTypeFlags.None))
+                    {
+                        if (sid.EquipmentType == EquipmentType.Unknown)
+                        {
+                            messages.Add("Unknown equipment type for " + itemType);
+                        }
+                        else if (sid.EquipmentType != EquipmentType.Wielded && sid.EquipmentType != EquipmentType.Holding && sid.ArmorClass <= 0)
+                        {
+                            messages.Add("Missing armor class for " + itemType);
+                        }
+                    }
+                    if (!sid.Weight.HasValue)
+                    {
+                        messages.Add("Unknown weight for " + itemType);
+                    }
+                    if (sid.Sellable == SellableEnum.Unknown)
+                    {
+                        messages.Add("Unknown sellable for " + itemType);
+                    }
+                    if (messages.Count > 0)
+                    {
+                        AddBroadcastMessages(messages);
+                    }
+                    _itemsSeen.Add(itemType);
+                }
+            }
+        }
+
         private void AddOrRemoveItemsFromInventoryOrEquipment(FeedLineParameters flParams, List<ItemEntity> items, ItemManagementAction action, SelectedInventoryOrEquipmentItem sioei)
         {
             EntityChangeType changeType;
@@ -3259,6 +3327,9 @@ namespace IsengardClient
             {
                 throw new InvalidOperationException();
             }
+
+            ProcessItemSeen(items);
+
             EntityChange iec = new EntityChange();
             iec.ChangeType = changeType;
             lock (_currentEntityInfo.EntityLock)
