@@ -306,4 +306,13 @@ namespace IsengardClient.Backend
             this.Classes = Classes;
         }
     }
+
+    public class LookTextAttribute : Attribute
+    {
+        public string LookText { get; set; }
+        public LookTextAttribute(string LookText)
+        {
+            this.LookText = LookText;
+        }
+    }
 }

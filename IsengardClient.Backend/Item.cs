@@ -103,6 +103,8 @@ namespace IsengardClient.Backend
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.ArmorClass = ((ArmorClassAttribute)valueAttributes[0]).ArmorClass;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DisallowedClassesAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.DisallowedClasses = ((DisallowedClassesAttribute)valueAttributes[0]).Classes;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(LookTextAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.LookText = ((LookTextAttribute)valueAttributes[0]).LookText;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellableAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -346,6 +348,10 @@ namespace IsengardClient.Backend
         public string SingularName { get; set; }
         public string SingularSelection { get; set; }
         public string PluralName { get; set; }
+        /// <summary>
+        /// look text for the item
+        /// </summary>
+        public string LookText { get; set; }
         /// <summary>
         /// weight of the item. Null if unknown. It's nullable because a zero pound item has been observed (string of pearls)
         /// </summary>
@@ -816,6 +822,7 @@ namespace IsengardClient.Backend
 
         [SingularName("blue bubbly potion")]
         [PluralName("blue bubbly potions")]
+        [LookText("You see a blue potion that fizzes when you swirl it.")]
         [Potion(SpellsEnum.detectinvis)]
         [Weight(2)]
         BlueBubblyPotion,
@@ -874,6 +881,7 @@ namespace IsengardClient.Backend
         BoStick,
 
         [SingularName("box of strawberries")]
+        [LookText("It looks like about a pint of red berries.")]
         //CSRTODO: plural?
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -988,6 +996,7 @@ namespace IsengardClient.Backend
 
         [SingularName("cloth hat")]
         [PluralName("cloth hats")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
         [ArmorClass(0.1)]
@@ -1017,6 +1026,7 @@ namespace IsengardClient.Backend
 
         [SingularName("cracker")]
         [PluralName("crackers")]
+        [LookText("A small party snapper.")]
         [Use(SpellsEnum.rumble)]
         [Weight(1)]
         [Sellable(24)]
@@ -1166,6 +1176,7 @@ namespace IsengardClient.Backend
         ElvenChainMailGloves,
 
         [SingularName("elven cured leather armor")] //collective plural verified 7/6/23
+        [LookText("You see some exquisite elven leather armor.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(1)]
         [ArmorClass(1.2)]
@@ -1173,6 +1184,7 @@ namespace IsengardClient.Backend
         ElvenCuredLeatherArmor,
 
         [SingularName("elven cured leather boots")] //collective plural verified 7/6/23
+        [LookText("You see some well crafted boots that are so light, you don't feel them on.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(1)]
         [ArmorClass(0.4)]
@@ -1180,6 +1192,7 @@ namespace IsengardClient.Backend
         ElvenCuredLeatherBoots,
 
         [SingularName("elven cured leather gloves")] //collective plural verified 7/6/23
+        [LookText("You see a fantastic pair of leather gloves.")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(1)]
         [ArmorClass(0.4)]
@@ -1188,6 +1201,7 @@ namespace IsengardClient.Backend
 
         [SingularName("elven cured leather hood")]
         [PluralName("elven cured leather hoods")]
+        [LookText("You see an elven hood which fits around your head like a glove.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(1)]
         [ArmorClass(0.8)]
@@ -1195,6 +1209,7 @@ namespace IsengardClient.Backend
         ElvenCuredLeatherHood,
 
         [SingularName("elven cured leather leggings")] //collective plural verified 7/6/23
+        [LookText("You see a smooth elven pair of leggings to match your armor.")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(1)]
         [ArmorClass(0.4)]
@@ -1202,6 +1217,7 @@ namespace IsengardClient.Backend
         ElvenCuredLeatherLeggings,
 
         [SingularName("elven cured leather sleeves")] //collective plural verified 7/6/23
+        [LookText("You see some cured leather sleeves to match the elven leather armor.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [ArmorClass(0.4)]
@@ -1253,6 +1269,7 @@ namespace IsengardClient.Backend
 
         [SingularName("firecracker")]
         [PluralName("firecrackers")]
+        [LookText("This looks more like a party-popper.")]
         [Use(SpellsEnum.burn)]
         [Weight(1)]
         [Sellable(24)]
@@ -1520,6 +1537,7 @@ namespace IsengardClient.Backend
 
         [SingularName("hazy potion")]
         [PluralName("hazy potions")]
+        [LookText("The potion is a murky grey color, with a slight blue hue.")]
         [Potion(SpellsEnum.wordofrecall)]
         [Weight(5)]
         [Sellable(SellableEnum.NotSellable)]
@@ -1548,6 +1566,7 @@ namespace IsengardClient.Backend
 
         [SingularName("ice blue potion")]
         [PluralName("ice blue potions")]
+        [LookText("You see a vial of some slushy, blue liquid.")]
         [Potion(SpellsEnum.fly)]
         [Weight(2)]
         [Sellable(SellableEnum.NotSellable)]
@@ -1555,6 +1574,7 @@ namespace IsengardClient.Backend
 
         [SingularName("ice cube")]
         [PluralName("ice cubes")]
+        [LookText("A cube of ice with a fly in the center.")]
         [Use(SpellsEnum.blister)]
         [Weight(1)]
         [Sellable(24)]
@@ -1606,6 +1626,7 @@ namespace IsengardClient.Backend
 
         [SingularName("kelp necklace")]
         [PluralName("kelp necklaces")]
+        [LookText("It is a loop of river kelp interlaced with small fresh water pearls.")]
         [EquipmentType(EquipmentType.Neck)]
         [Weight(2)]
         [ArmorClass(0.3)]
@@ -1649,6 +1670,7 @@ namespace IsengardClient.Backend
 
         [SingularName("large egg")]
         [PluralName("large eggs")]
+        [LookText("This is the precious egg of the mighty condor.")]
         [Use(SpellsEnum.curemalady)]
         [Weight(3)]
         [Sellable(49)]
@@ -1682,6 +1704,7 @@ namespace IsengardClient.Backend
         LeatherArmor,
 
         [SingularName("leather boots")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(4)]
         [Sellable(SellableEnum.Junk)]
@@ -1689,6 +1712,7 @@ namespace IsengardClient.Backend
 
         [SingularName("leather cap")]
         [PluralName("leather caps")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
@@ -1714,6 +1738,7 @@ namespace IsengardClient.Backend
 
         [SingularName("little brown jug")]
         [PluralName("little brown jugs")]
+        [LookText("You see a small brown jug with a cork in it.")]
         [Potion(SpellsEnum.endurecold)]
         [Weight(3)]
         LittleBrownJug,
@@ -1974,6 +1999,7 @@ namespace IsengardClient.Backend
 
         [SingularName("purple wand")]
         [PluralName("purple wands")]
+        [LookText("It's a purple wand, emitting a glowing light.")]
         [Wand(SpellsEnum.stun)]
         [Weight(5)]
         //CSRTODO: wand
@@ -2027,6 +2053,7 @@ namespace IsengardClient.Backend
 
         [SingularName("red potion")]
         [PluralName("red potions")]
+        [LookText("You see a strange-looking potion in a darkened beaker.")]
         [Potion(SpellsEnum.endurefire)]
         [Weight(1)]
         [Sellable(SellableEnum.NotSellable)]
@@ -2104,6 +2131,7 @@ namespace IsengardClient.Backend
 
         [SingularName("sapphire")]
         [PluralName("sapphires")]
+        [LookText("You see nothing special about it.")]
         [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(179)]
@@ -2152,6 +2180,9 @@ namespace IsengardClient.Backend
 
         [SingularName("Silver-blue scale")]
         [PluralName("Silver-blue scales")]
+        [LookText("The shimmering scale of a large dragon is almost impenetrable.")]
+        [EquipmentType(EquipmentType.Unknown)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(4)]
         SilverBlueScale,
 
@@ -2168,6 +2199,7 @@ namespace IsengardClient.Backend
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
+        [LookText("You see a sharp single edged blade.")]
         [WeaponType(WeaponType.Slash)]
         [Weight(5)]
         SilverScimitar,
@@ -2198,6 +2230,7 @@ namespace IsengardClient.Backend
 
         [SingularName("small bag")]
         [PluralName("small bags")]
+        [LookText("Several objects can be put inside this bag.")]
         [ItemClass(ItemClass.Bag)]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
@@ -2405,6 +2438,7 @@ namespace IsengardClient.Backend
 
         [SingularName("tomb key")]
         [PluralName("tomb keys")]
+        [LookText("This key has some badly worn orcish runes on it.")]
         [ItemClass(ItemClass.Key)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -2446,6 +2480,7 @@ namespace IsengardClient.Backend
 
         [SingularName("vanishing cream")]
         [PluralName("vanishing creams")]
+        [LookText("You don't see that.")] //close to but not exactly the not here text
         [Use(SpellsEnum.invisibility)]
         [Weight(1)]
         [Sellable(36)]
@@ -2525,6 +2560,7 @@ namespace IsengardClient.Backend
 
         [SingularName("whoopie cushion")]
         [PluralName("whoopie cushions")]
+        [LookText("A brown bladder that looks like a water bottle.")]
         [Use(SpellsEnum.hurt)]
         [Weight(2)]
         [Sellable(61)]
@@ -2543,6 +2579,7 @@ namespace IsengardClient.Backend
 
         [SingularName("yo-yo")]
         [PluralName("yo-yos")]
+        [LookText("This thing looks more like a dumbell on a rope.")]
         [Weight(1)]
         YoYo,
     }
