@@ -1390,6 +1390,7 @@ namespace IsengardClient.Backend
 
         [SingularName("gold coins")]
         [PluralName("gold coins")]
+        [LookText("My, how it glitters.")]
         [ItemClass(ItemClass.Coins)]
         GoldCoins,
 
@@ -1846,6 +1847,7 @@ namespace IsengardClient.Backend
 
         [SingularName("mithron hood")]
         [PluralName("mithron hoods")]
+        [LookText("You see a long hood made from an alloy of mithril and iron.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(5)]
         [Sellable(247)]
