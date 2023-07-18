@@ -1010,6 +1010,7 @@ namespace IsengardClient.Backend
 
         [SingularName("club")]
         [PluralName("clubs")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Blunt)]
         [Weight(2)]
         [Sellable(24)]
@@ -1709,6 +1710,7 @@ namespace IsengardClient.Backend
         [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(4)]
+        [ArmorClass(0.2)]
         [Sellable(SellableEnum.Junk)]
         LeatherBoots,
 
@@ -1780,6 +1782,7 @@ namespace IsengardClient.Backend
 
         [SingularName("marble chess set")]
         [PluralName("marble chess sets")]
+        [LookText("The pieces are each hand carved and the board is very solid")]
         [Weight(12)]
         [Sellable(49)]
         MarbleChessSet,
@@ -1925,6 +1928,7 @@ namespace IsengardClient.Backend
 
         [SingularName("ork blade")]
         [PluralName("ork blades")]
+        [LookText("You see a large knife with a bone handle")]
         [WeaponType(WeaponType.Slash)]
         [Weight(5)]
         [Sellable(841)]
@@ -2012,6 +2016,7 @@ namespace IsengardClient.Backend
 
         [SingularName("quarterstaff")]
         [PluralName("quarterstaffs")]
+        [LookText("a wooden stave.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
@@ -2243,6 +2248,7 @@ namespace IsengardClient.Backend
 
         [SingularName("small knife")]
         [PluralName("small knifes")] //verified 6/21/23
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -2267,6 +2273,7 @@ namespace IsengardClient.Backend
 
         [SingularName("small wooden shield")]
         [PluralName("small wooden shields")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
         [ArmorClass(0.2)]
@@ -2579,8 +2586,10 @@ namespace IsengardClient.Backend
 
         [SingularName("yellow potion")]
         [PluralName("yellow potions")]
+        [LookText("You see nothing special about it.")]
         [Potion(SpellsEnum.vigor)]
         [Weight(3)]
+        [Sellable(SellableEnum.NotSellable)]
         YellowPotion,
 
         [SingularName("yo-yo")]

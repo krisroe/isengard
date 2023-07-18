@@ -3271,7 +3271,7 @@ namespace IsengardClient
                             messages.Add("Missing armor class for " + itemType);
                         }
                     }
-                    if (!sid.IsCurrency())
+                    if (!sid.IsCurrency() && sid.ItemClass != ItemClass.Fixed && sid.ItemClass != ItemClass.Chest)
                     {
                         if (!sid.Weight.HasValue)
                         {
