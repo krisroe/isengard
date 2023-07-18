@@ -2599,6 +2599,7 @@ namespace IsengardClient.Backend
         [SingularName("yo-yo")]
         [PluralName("yo-yos")]
         [LookText("This thing looks more like a dumbell on a rope.")]
+        [Use(SpellsEnum.unknown)]
         [Weight(1)]
         YoYo,
     }

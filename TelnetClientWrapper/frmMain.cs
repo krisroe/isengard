@@ -10475,7 +10475,7 @@ BeforeHazy:
 
             ctxInventoryOrEquipmentItem.Tag = sioeiList;
 
-            string sActionTransferBetweenInventoryAndEquipment;
+            string sInventoryEquipmentAction;
             ItemClass iclass = sid.ItemClass;
             ToolStripMenuItem tsmi;
 
@@ -10508,22 +10508,19 @@ BeforeHazy:
                     tsmi.Text = "read";
                     ctxInventoryOrEquipmentItem.Items.Add(tsmi);
                 }
-                else if (iclass == ItemClass.Usable)
-                {
-                    tsmi = new ToolStripMenuItem();
-                    tsmi.Text = "use";
-                    ctxInventoryOrEquipmentItem.Items.Add(tsmi);
-                }
                 switch (iclass)
                 {
                     case ItemClass.Equipment:
-                        sActionTransferBetweenInventoryAndEquipment = "wear";
+                        sInventoryEquipmentAction = "wear";
                         break;
                     case ItemClass.Weapon:
-                        sActionTransferBetweenInventoryAndEquipment = "wield";
+                        sInventoryEquipmentAction = "wield";
+                        break;
+                    case ItemClass.Usable: //can't hold, can only use
+                        sInventoryEquipmentAction = "use";
                         break;
                     default:
-                        sActionTransferBetweenInventoryAndEquipment = "hold";
+                        sInventoryEquipmentAction = "hold";
                         break;
                 }
                 tsmi = new ToolStripMenuItem();
@@ -10532,12 +10529,12 @@ BeforeHazy:
             }
             else
             {
-                sActionTransferBetweenInventoryAndEquipment = "remove";
+                sInventoryEquipmentAction = "remove";
             }
-            if (sActionTransferBetweenInventoryAndEquipment != null)
+            if (sInventoryEquipmentAction != null)
             {
                 tsmi = new ToolStripMenuItem();
-                tsmi.Text = sActionTransferBetweenInventoryAndEquipment;
+                tsmi.Text = sInventoryEquipmentAction;
                 ctxInventoryOrEquipmentItem.Items.Add(tsmi);
             }
             if (!hasMultiple)
