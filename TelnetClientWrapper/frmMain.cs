@@ -4568,15 +4568,6 @@ namespace IsengardClient
                 }
 
                 bool failedToEquip = false;
-                bool hasInitialQueuedMagicStep;
-                bool hasInitialQueuedMeleeStep;
-                bool hasInitialQueuedPotionsStep;
-                lock (_queuedCommandLock)
-                {
-                    hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
-                    hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
-                    hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
-                }
                 bool useManaPool = false;
                 AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
                 int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
@@ -4600,7 +4591,6 @@ namespace IsengardClient
                     }
                     if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
                 }
-                bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
 
                 if (hasMob)
                 {
@@ -4608,7 +4598,7 @@ namespace IsengardClient
                     //activate potions/skills at the threshold if there is a threshold
                     if (!_fleeing && !_hazying && haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, useMelee);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4678,7 +4668,7 @@ namespace IsengardClient
                     //activate potions/skills at the target if there is no threshold
                     if (!_fleeing && !_hazying && !haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, useMelee);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4704,7 +4694,14 @@ namespace IsengardClient
                 {
                     sMobText = string.Empty;
                 }
-                if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
+                bool hasInitialQueuedMagicStep;
+                bool hasInitialQueuedPotionsStep;
+                lock (_queuedCommandLock)
+                {
+                    hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
+                    hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
+                }
+                if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep)
                 {
                     try
                     {
@@ -4724,7 +4721,7 @@ namespace IsengardClient
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         ItemTypeEnum? heldItem = _settingsData.HeldItem;
-                        if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
+                        if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
@@ -4868,7 +4865,6 @@ namespace IsengardClient
                                 }
 
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
-                                if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
 
                                 dtUtcNow = DateTime.UtcNow;
@@ -4928,7 +4924,6 @@ namespace IsengardClient
 
                                 if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
-                                if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
 
                                 //flee or stop combat once steps complete
                                 if (!nextMeleeStep.HasValue && meleeStepsFinished && meleeStepsEnabled)
@@ -5071,7 +5066,6 @@ namespace IsengardClient
                                 }
 
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
-                                if (meleeStepsFinished) CheckForQueuedMeleeStep(pms, ref nextMeleeStep);
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
 
                                 //stop combat if all combat types are finished
@@ -7393,23 +7387,6 @@ BeforeHazy:
             }
         }
 
-        private void CheckForQueuedMeleeStep(BackgroundWorkerParameters pms, ref MeleeStrategyStep? nextMeleeStep)
-        {
-            MeleeStrategyStep? queuedMeleeStep;
-            if (!nextMeleeStep.HasValue)
-            {
-                lock (_queuedCommandLock)
-                {
-                    queuedMeleeStep = pms.QueuedMeleeStep;
-                    if (queuedMeleeStep.HasValue)
-                    {
-                        nextMeleeStep = queuedMeleeStep;
-                        pms.QueuedMeleeStep = null;
-                    }
-                }
-            }
-        }
-
         private void CheckForQueuedPotionsStep(BackgroundWorkerParameters pms, ref PotionsStrategyStep? nextPotionsStep)
         {
             PotionsStrategyStep? queuedPotionsStep;
@@ -8334,10 +8311,7 @@ BeforeHazy:
             }
             else
             {
-                lock (_queuedCommandLock)
-                {
-                    bwp.QueuedMeleeStep = step;
-                }
+                AddConsoleMessage($"Unable to run {step} since a background process is running.");
             }
         }
 

@@ -40,7 +40,6 @@ namespace IsengardClient.Backend
         public Strategy Strategy { get; set; }
         public List<string> QueuedCommands { get; set; }
         public MagicStrategyStep? QueuedMagicStep { get; set; }
-        public MeleeStrategyStep? QueuedMeleeStep { get; set; }
         public PotionsStrategyStep? QueuedPotionsStep { get; set; }
         public bool Hazy { get; set; }
         public bool Hazied { get; set; }
