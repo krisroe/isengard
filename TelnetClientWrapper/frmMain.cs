@@ -10342,45 +10342,48 @@ BeforeHazy:
         private void treeCurrentRoom_DoubleClick(object sender, EventArgs e)
         {
             TreeNode selectedNode = treeCurrentRoom.SelectedNode;
-            TreeNode parentNode = selectedNode.Parent;
-            object oTag = selectedNode.Tag;
-            if (parentNode == _currentEntityInfo.tnObviousItems) //pick up item
+            if (selectedNode != null)
             {
-                RunCommandOnRoomItemTreeNode("look", selectedNode);
-            }
-            else if (parentNode == _currentEntityInfo.tnObviousExits || parentNode == _currentEntityInfo.tnOtherExits)
-            {
-                if (oTag is Exit)
+                TreeNode parentNode = selectedNode.Parent;
+                object oTag = selectedNode.Tag;
+                if (parentNode == _currentEntityInfo.tnObviousItems) //pick up item
                 {
-                    NavigateSingleExitInBackground((Exit)oTag);
+                    RunCommandOnRoomItemTreeNode("look", selectedNode);
                 }
-                else //string
+                else if (parentNode == _currentEntityInfo.tnObviousExits || parentNode == _currentEntityInfo.tnOtherExits)
                 {
-                    string sTarget = oTag.ToString();
-                    DoSingleMove(sTarget, sTarget.Contains(" "));
-                }
-            }
-            else if (parentNode == _currentEntityInfo.tnObviousMobs || parentNode == _currentEntityInfo.tnPermanentMobs) //look at mob
-            {
-                int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
-                if (counter == 0)
-                {
-                    MessageBox.Show("Cannot look at unknown mob.");
-                    return;
-                }
-                MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
-                MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.CurrentRoomMobs : MobLocationType.PickFromList;
-                lock (_currentEntityInfo.EntityLock)
-                {
-                    Room currentRoom = _currentEntityInfo.CurrentRoom;
-                    string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(currentRoom.PermanentMobs, mtLocType, mt, counter, false, true);
-                    if (string.IsNullOrEmpty(sMobText))
+                    if (oTag is Exit)
                     {
-                        MessageBox.Show("Unable to look at mob.");
+                        NavigateSingleExitInBackground((Exit)oTag);
                     }
-                    else
+                    else //string
                     {
-                        SendCommand("look " + sMobText, InputEchoType.On);
+                        string sTarget = oTag.ToString();
+                        DoSingleMove(sTarget, sTarget.Contains(" "));
+                    }
+                }
+                else if (parentNode == _currentEntityInfo.tnObviousMobs || parentNode == _currentEntityInfo.tnPermanentMobs) //look at mob
+                {
+                    int counter = FindItemOrMobCounterInRoomUI(selectedNode, false);
+                    if (counter == 0)
+                    {
+                        MessageBox.Show("Cannot look at unknown mob.");
+                        return;
+                    }
+                    MobTypeEnum mt = (MobTypeEnum)selectedNode.Tag;
+                    MobLocationType mtLocType = parentNode == _currentEntityInfo.tnObviousMobs ? MobLocationType.CurrentRoomMobs : MobLocationType.PickFromList;
+                    lock (_currentEntityInfo.EntityLock)
+                    {
+                        Room currentRoom = _currentEntityInfo.CurrentRoom;
+                        string sMobText = _currentEntityInfo.PickMobTextFromMobCounter(currentRoom.PermanentMobs, mtLocType, mt, counter, false, true);
+                        if (string.IsNullOrEmpty(sMobText))
+                        {
+                            MessageBox.Show("Unable to look at mob.");
+                        }
+                        else
+                        {
+                            SendCommand("look " + sMobText, InputEchoType.On);
+                        }
                     }
                 }
             }

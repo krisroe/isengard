@@ -981,6 +981,7 @@ namespace IsengardClient.Backend
 
         [SingularName("carved ivory key")]
         [PluralName("carved ivory keys")]
+        [LookText("You see a large white shinny key.")]
         [ItemClass(ItemClass.Key)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -1672,8 +1673,10 @@ namespace IsengardClient.Backend
 
         [SingularName("Kasnar's red key")]
         [PluralName("Kasnar's red keys")]
+        [LookText("a large red iron key, it feals very heavy.")]
         [ItemClass(ItemClass.Key)]
         [Weight(3)]
+        [Sellable(SellableEnum.Junk)]
         KasnarsRedKey,
 
         [SingularName("kelp necklace")]
@@ -1879,6 +1882,7 @@ namespace IsengardClient.Backend
 
         [SingularName("mithril jo stick")]
         [PluralName("mithril jo sticks")]
+        [LookText("You see a ebony stick inlaid with ornate mithril.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(5)]
         [Sellable(2376)]
@@ -2290,6 +2294,7 @@ namespace IsengardClient.Backend
         [LookText("You see a sharp single edged blade.")]
         [WeaponType(WeaponType.Slash)]
         [Weight(5)]
+        [Sellable(866)]
         SilverScimitar,
 
         [SingularName("silver wand")]
