@@ -1394,7 +1394,6 @@ namespace IsengardClient
                 btnOneClick.Text = oStrategy.ToString();
                 btnOneClick.UseVisualStyleBackColor = true;
                 btnOneClick.Click += btnOneClick_Click;
-                btnOneClick.ContextMenuStrip = ctxStrategy;
                 flpOneClickStrategies.Controls.Add(btnOneClick);
             }
 
@@ -9872,23 +9871,6 @@ BeforeHazy:
             else
             {
                 SendCommand("score", InputEchoType.On);
-            }
-        }
-
-        private void ctxStrategy_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            ContextMenuStrip ctx = (ContextMenuStrip)sender;
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem)e.ClickedItem;
-            Button sourceButton = (Button)ctx.SourceControl;
-            if (clickedItem.Text == "Edit")
-            {
-                Strategy s = (Strategy)sourceButton.Tag;
-                frmStrategy frm = new frmStrategy(s, _settingsData);
-                if (frm.ShowDialog(this) == DialogResult.OK)
-                {
-                    sourceButton.Tag = s;
-                    sourceButton.Text = s.ToString();
-                }
             }
         }
 

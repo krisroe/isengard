@@ -177,8 +177,6 @@
             this.tsbReloadMap = new System.Windows.Forms.ToolStripButton();
             this.tsbQuit = new System.Windows.Forms.ToolStripButton();
             this.tsbLogout = new System.Windows.Forms.ToolStripButton();
-            this.ctxStrategy = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiEditStrategy = new System.Windows.Forms.ToolStripMenuItem();
             this.tmr = new System.Windows.Forms.Timer(this.components);
             this.grpConsole = new System.Windows.Forms.GroupBox();
             this.pnlConsoleHolder = new System.Windows.Forms.Panel();
@@ -211,7 +209,6 @@
             this.pnlOverallLeft.SuspendLayout();
             this.pnlTabControl.SuspendLayout();
             this.tsTopMenu.SuspendLayout();
-            this.ctxStrategy.SuspendLayout();
             this.grpConsole.SuspendLayout();
             this.pnlConsoleHolder.SuspendLayout();
             this.ctxConsole.SuspendLayout();
@@ -1394,7 +1391,7 @@
             this.tabAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabAncillary.Name = "tabAncillary";
             this.tabAncillary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabAncillary.Size = new System.Drawing.Size(1255, 1028);
+            this.tabAncillary.Size = new System.Drawing.Size(1255, 999);
             this.tabAncillary.TabIndex = 1;
             this.tabAncillary.Text = "Ancillary";
             this.tabAncillary.UseVisualStyleBackColor = true;
@@ -1409,7 +1406,7 @@
             this.pnlAncillary.Location = new System.Drawing.Point(3, 2);
             this.pnlAncillary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlAncillary.Name = "pnlAncillary";
-            this.pnlAncillary.Size = new System.Drawing.Size(1249, 1024);
+            this.pnlAncillary.Size = new System.Drawing.Size(1249, 995);
             this.pnlAncillary.TabIndex = 0;
             // 
             // tabEmotes
@@ -1418,7 +1415,7 @@
             this.tabEmotes.Location = new System.Drawing.Point(4, 25);
             this.tabEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabEmotes.Name = "tabEmotes";
-            this.tabEmotes.Size = new System.Drawing.Size(1255, 1028);
+            this.tabEmotes.Size = new System.Drawing.Size(1255, 999);
             this.tabEmotes.TabIndex = 2;
             this.tabEmotes.Text = "Emotes";
             this.tabEmotes.UseVisualStyleBackColor = true;
@@ -1437,7 +1434,7 @@
             this.pnlEmotes.Location = new System.Drawing.Point(0, 0);
             this.pnlEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pnlEmotes.Name = "pnlEmotes";
-            this.pnlEmotes.Size = new System.Drawing.Size(1255, 1028);
+            this.pnlEmotes.Size = new System.Drawing.Size(1255, 999);
             this.pnlEmotes.TabIndex = 12;
             // 
             // btnSay
@@ -1516,7 +1513,7 @@
             // 
             this.grpEmotes.Controls.Add(this.flpEmotes);
             this.grpEmotes.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpEmotes.Location = new System.Drawing.Point(0, -14);
+            this.grpEmotes.Location = new System.Drawing.Point(0, -43);
             this.grpEmotes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.grpEmotes.Name = "grpEmotes";
             this.grpEmotes.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -1540,7 +1537,7 @@
             this.tabHelp.Location = new System.Drawing.Point(4, 25);
             this.tabHelp.Margin = new System.Windows.Forms.Padding(4);
             this.tabHelp.Name = "tabHelp";
-            this.tabHelp.Size = new System.Drawing.Size(1255, 1028);
+            this.tabHelp.Size = new System.Drawing.Size(1255, 999);
             this.tabHelp.TabIndex = 3;
             this.tabHelp.Text = "Help";
             this.tabHelp.UseVisualStyleBackColor = true;
@@ -1553,7 +1550,7 @@
             this.grpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.grpHelp.Name = "grpHelp";
             this.grpHelp.Padding = new System.Windows.Forms.Padding(4);
-            this.grpHelp.Size = new System.Drawing.Size(1255, 1028);
+            this.grpHelp.Size = new System.Drawing.Size(1255, 999);
             this.grpHelp.TabIndex = 0;
             this.grpHelp.TabStop = false;
             this.grpHelp.Text = "Help";
@@ -1564,7 +1561,7 @@
             this.flpHelp.Location = new System.Drawing.Point(4, 19);
             this.flpHelp.Margin = new System.Windows.Forms.Padding(4);
             this.flpHelp.Name = "flpHelp";
-            this.flpHelp.Size = new System.Drawing.Size(1247, 1005);
+            this.flpHelp.Size = new System.Drawing.Size(1247, 976);
             this.flpHelp.TabIndex = 0;
             // 
             // pnlOverallLeft
@@ -1727,28 +1724,28 @@
             // tsmiSearch
             // 
             this.tsmiSearch.Name = "tsmiSearch";
-            this.tsmiSearch.Size = new System.Drawing.Size(224, 26);
+            this.tsmiSearch.Size = new System.Drawing.Size(155, 26);
             this.tsmiSearch.Text = "Search";
             this.tsmiSearch.Click += new System.EventHandler(this.tsmiSearch_Click);
             // 
             // tsmiHide
             // 
             this.tsmiHide.Name = "tsmiHide";
-            this.tsmiHide.Size = new System.Drawing.Size(224, 26);
+            this.tsmiHide.Size = new System.Drawing.Size(155, 26);
             this.tsmiHide.Text = "Hide";
             this.tsmiHide.Click += new System.EventHandler(this.tsmiHide_Click);
             // 
             // tsmiFerry
             // 
             this.tsmiFerry.Name = "tsmiFerry";
-            this.tsmiFerry.Size = new System.Drawing.Size(224, 26);
+            this.tsmiFerry.Size = new System.Drawing.Size(155, 26);
             this.tsmiFerry.Text = "Ferry";
             this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
             // 
             // tsmiTimeInfo
             // 
             this.tsmiTimeInfo.Name = "tsmiTimeInfo";
-            this.tsmiTimeInfo.Size = new System.Drawing.Size(224, 26);
+            this.tsmiTimeInfo.Size = new System.Drawing.Size(155, 26);
             this.tsmiTimeInfo.Text = "Time Info";
             this.tsmiTimeInfo.Click += new System.EventHandler(this.tsmiShipInfo_Click);
             // 
@@ -1855,21 +1852,6 @@
             this.tsbLogout.Size = new System.Drawing.Size(60, 24);
             this.tsbLogout.Text = "Logout";
             this.tsbLogout.Click += new System.EventHandler(this.tsbLogout_Click);
-            // 
-            // ctxStrategy
-            // 
-            this.ctxStrategy.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxStrategy.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiEditStrategy});
-            this.ctxStrategy.Name = "ctxStrategy";
-            this.ctxStrategy.Size = new System.Drawing.Size(105, 28);
-            this.ctxStrategy.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxStrategy_ItemClicked);
-            // 
-            // tsmiEditStrategy
-            // 
-            this.tsmiEditStrategy.Name = "tsmiEditStrategy";
-            this.tsmiEditStrategy.Size = new System.Drawing.Size(104, 24);
-            this.tsmiEditStrategy.Text = "Edit";
             // 
             // tmr
             // 
@@ -1989,7 +1971,6 @@
             this.pnlTabControl.ResumeLayout(false);
             this.tsTopMenu.ResumeLayout(false);
             this.tsTopMenu.PerformLayout();
-            this.ctxStrategy.ResumeLayout(false);
             this.grpConsole.ResumeLayout(false);
             this.pnlConsoleHolder.ResumeLayout(false);
             this.ctxConsole.ResumeLayout(false);
@@ -2068,7 +2049,6 @@
         private System.Windows.Forms.CheckBox chkShowEmotesWithoutTarget;
         private System.Windows.Forms.ContextMenuStrip ctxConsole;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearConsole;
-        private System.Windows.Forms.ContextMenuStrip ctxStrategy;
         private System.Windows.Forms.Button btnSay;
         private System.Windows.Forms.GroupBox grpSingleMove;
         private System.Windows.Forms.TabPage tabHelp;
@@ -2125,7 +2105,6 @@
         private System.Windows.Forms.ToolStripButton tsbRemoveAll;
         private System.Windows.Forms.ToolStripButton tsbWearAll;
         private System.Windows.Forms.ContextMenuStrip ctxInventoryOrEquipmentItem;
-        private System.Windows.Forms.ToolStripMenuItem tsmiEditStrategy;
         private System.Windows.Forms.Button btnGoToPawnShop;
         private System.Windows.Forms.ToolStripButton tsbReloadMap;
         private System.Windows.Forms.ContextMenuStrip ctxMessages;
