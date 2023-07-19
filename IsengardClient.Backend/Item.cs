@@ -2169,6 +2169,7 @@ namespace IsengardClient.Backend
 
         [SingularName("rope of snaring")]
         //CSRTODO: plural?
+        [LookText("You see a long rope that tangles everything it comes near.")]
         RopeOfSnaring,
 
         [SingularName("ruby")]
