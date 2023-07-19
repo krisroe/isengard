@@ -824,7 +824,10 @@ namespace IsengardClient.Backend
 
         [SingularName("blackened scroll")]
         [PluralName("blackened scrolls")]
+        [LookText("You see nothing special about it.")]
         [Scroll(SpellsEnum.light)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         BlackenedScroll,
 
         [SingularName("black rune")]
@@ -893,6 +896,7 @@ namespace IsengardClient.Backend
 
         [SingularName("boomerang")]
         [PluralName("boomerangs")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
         [Sellable(54)]
@@ -932,6 +936,7 @@ namespace IsengardClient.Backend
 
         [SingularName("bridge key")]
         [PluralName("bridge keys")]
+        [LookText("It looks like it may fit in one of the hatchways.")]
         [ItemClass(ItemClass.Key)]
         [Weight(5)]
         [Sellable(SellableEnum.Junk)]
@@ -1015,7 +1020,8 @@ namespace IsengardClient.Backend
         [Weight(3)]
         ClawGauntlet,
 
-        [SingularName("cloth armor")]
+        [SingularName("cloth armor")] //verified collective 7/18/23
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(5)]
         [ArmorClass(0.3)]
@@ -2211,6 +2217,7 @@ namespace IsengardClient.Backend
 
         [SingularName("signet ring")]
         [PluralName("signet rings")]
+        [LookText("A token of state power.")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
         [ArmorClass(0.1)]
@@ -2245,6 +2252,14 @@ namespace IsengardClient.Backend
         [Weight(4)]
         [Sellable(247)]
         SilverBlueScale,
+
+        [SingularName("silver-blue staff")]
+        [PluralName("silver-blue staffs")]
+        [LookText("You see a shimmering staff forged from the scales of Smaug the bard killer.")]
+        [WeaponType(WeaponType.Polearm)]
+        [Weight(6)]
+        [Sellable(2103)]
+        SilverBlueStaff,
 
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
@@ -2495,6 +2510,7 @@ namespace IsengardClient.Backend
         TinKey,
 
         [SingularName("toilet paper")] //verified collective 7/5/23
+        [LookText("You see a roll of toilet paper with cute little animals adorning it.")]
         [Wand(SpellsEnum.stun)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
@@ -2590,6 +2606,7 @@ namespace IsengardClient.Backend
 
         [SingularName("wagonmaster's whip")]
         [PluralName("wagonmaster's whips")]
+        [LookText("Each of the six ends on this whip are tipped with shards of wyvern bone.")]
         [WeaponType(WeaponType.Missile)]
         [Weight(3)]
         [Sellable(1262)]
@@ -2614,6 +2631,7 @@ namespace IsengardClient.Backend
 
         [SingularName("welcome sign")]
         [PluralName("welcome signs")]
+        [LookTextType(LookTextType.Multiline)]
         [ItemClass(ItemClass.Fixed)]
         WelcomeSign,
 
