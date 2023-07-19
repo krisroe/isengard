@@ -112,5 +112,18 @@ namespace IsengardClient.Backend
             }
             return ret;
         }
+
+        public Room GetAnyRoom(IsengardMap gameMap)
+        {
+            if (TickRoom.HasValue)
+            {
+                return gameMap.HealingRooms[TickRoom.Value];
+            }
+            if (PawnShop.HasValue)
+            {
+                return gameMap.PawnShoppes[PawnShop.Value];
+            }
+            return InventorySinkRoomObject;
+        }
     }
 }

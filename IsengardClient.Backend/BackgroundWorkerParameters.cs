@@ -99,7 +99,7 @@ namespace IsengardClient.Backend
         {
             return !string.IsNullOrEmpty(MobText) || MobType.HasValue || MobTypeCounter >= 1;
         }
-        public void SetPermRun(PermRun p)
+        public void SetPermRun(PermRun p, IsengardMap gameMap, GraphInputs graphInputs)
         {
             PermRun = p;
 
@@ -157,7 +157,7 @@ namespace IsengardClient.Backend
             }
             if (p.Areas != null)
             {
-                NewArea = p.DetermineMostCompatibleArea(CurrentArea);
+                NewArea = p.DetermineMostCompatibleArea(CurrentArea, gameMap, graphInputs);
                 if (NewArea != null)
                 {
                     if (CurrentArea != null)

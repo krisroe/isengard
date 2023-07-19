@@ -177,7 +177,7 @@ namespace IsengardClient.Backend
             return sb.ToString();
         }
 
-        public Area DetermineMostCompatibleArea(Area currentArea)
+        public Area DetermineMostCompatibleArea(Area currentArea, IsengardMap gameMap, GraphInputs graphInputs)
         {
             Area aBest = null;
             if (Areas != null)
@@ -187,6 +187,11 @@ namespace IsengardClient.Backend
                 {
                     foreach (Area nextArea in Areas)
                     {
+                        Room anyRoom = nextArea.GetAnyRoom(gameMap);
+                        if (anyRoom != null && anyRoom != TargetRoomObject && MapComputation.ComputeLowestCostPath(TargetRoomObject, anyRoom, graphInputs) == null)
+                        {
+                            continue;
+                        }
                         List<Area> pathsBackToHome = nextArea.GetAreaPathBackToHome();
                         if (!iValue.HasValue || pathsBackToHome.Count < iValue.Value)
                         {
@@ -199,6 +204,11 @@ namespace IsengardClient.Backend
                     List<Area> currentAreasFromHome = currentArea.GetAreaPathBackToHome();
                     foreach (Area nextArea in Areas)
                     {
+                        Room anyRoom = nextArea.GetAnyRoom(gameMap);
+                        if (anyRoom != null && anyRoom != TargetRoomObject && MapComputation.ComputeLowestCostPath(TargetRoomObject, anyRoom, graphInputs) == null)
+                        {
+                            continue;
+                        }
                         Area commonParent = nextArea.DetermineCommonParentArea(currentArea);
                         int iIndex = currentAreasFromHome.IndexOf(commonParent);
                         if (!iValue.HasValue || iIndex < iValue.Value)
@@ -249,13 +259,15 @@ namespace IsengardClient.Backend
 
         public bool IsRunnable(Func<GraphInputs> GetGraphInputs, CurrentEntityInfo cei, IWin32Window parent, IsengardMap gameMap, Area currentArea)
         {
+            GraphInputs graphInputs = GetGraphInputs();
+
             Room healingRoom = null;
             Room pawnShop = null;
             Room inventorySinkRoom = null;
             Area afterArea = null;
             if (Areas != null)
             {
-                afterArea = DetermineMostCompatibleArea(currentArea);
+                afterArea = DetermineMostCompatibleArea(currentArea, gameMap, graphInputs);
                 if (afterArea.TickRoom.HasValue)
                 {
                     healingRoom = gameMap.HealingRooms[afterArea.TickRoom.Value];
@@ -267,7 +279,6 @@ namespace IsengardClient.Backend
                 inventorySinkRoom = afterArea.InventorySinkRoomObject;
             }
 
-            GraphInputs graphInputs = GetGraphInputs();
             Room currentRoom = cei.CurrentRoom;
 
             if (currentRoom == null)

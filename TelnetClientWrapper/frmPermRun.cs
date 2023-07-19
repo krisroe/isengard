@@ -111,7 +111,7 @@ namespace IsengardClient
                 sCurrentMob += " " + iMobIndex.ToString();
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
-            Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea);
+            Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea, gameMap, GetGraphInputs());
             Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.Strategy, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, _permRun.AutoSpellLevelMin, _permRun.AutoSpellLevelMax, _permRun.Realms, _permRun.UseMagicCombat, _permRun.UseMeleeCombat, _permRun.UsePotionsCombat, _permRun.AfterKillMonsterAction, currentArea, mostCompatibleArea, _permRun.Rehome, _permRun.RemoveAllEquipment);
         }
 

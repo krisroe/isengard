@@ -10933,7 +10933,7 @@ BeforeHazy:
         {
             BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
             bwp.CurrentArea = cboArea.SelectedItem as Area;
-            bwp.SetPermRun(p);
+            bwp.SetPermRun(p, _gameMap, GetGraphInputs());
             bwp.InventoryManagementFlow = InventoryManagementWorkflow.ManageSourceItems;
             bwp.Resume = resume;
             if (!resume)
