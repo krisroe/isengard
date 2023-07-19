@@ -3775,8 +3775,10 @@ namespace IsengardClient
             List<AOutputProcessingSequence> seqs = new List<AOutputProcessingSequence>
             {
                 new SearchSequence(SuccessfulSearch, FailSearch),
-                new MobStatusSequence(OnMobStatusSequence),
+                new MobStatusSequence(OnMobStatusSequence), //goes before informational messages since informational messages can hang off look at mob results
                 new ItemStatusSequence(),
+                new AttackSequence(OnAttack), //goes before informational messages since informational messages can hang off attack results
+                new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new InformationalMessagesSequence(_username, OnInformationalMessages),
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
@@ -3801,8 +3803,6 @@ namespace IsengardClient
                 new ConstantOutputSequence("Your spell fails.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. alignment out of whack
                 new ConstantOutputSequence("You don't know that spell.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells),
                 new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
-                new AttackSequence(OnAttack),
-                new CastOffensiveSpellSequence(OnCastOffensiveSpell),
                 new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
                 new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.Trade }), //triggered by power attack
                 new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),

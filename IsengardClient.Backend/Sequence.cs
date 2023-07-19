@@ -1998,8 +1998,8 @@ namespace IsengardClient.Backend
             List<ItemEntity> items = new List<ItemEntity>();
             int iExperience;
             MobTypeEnum? mobType;
-            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(flParams, lineIndex, out iExperience, out mobType, items);
-            flParams.FinishedProcessing = true;
+            bool monsterKilled = AttackSequence.ProcessMonsterKilledMessages(flParams, ref lineIndex, out iExperience, out mobType, items);
+            flParams.NextLineIndex = lineIndex;
             _onSatisfied(damage, monsterKilled, mobType, iExperience, items, flParams);
         }
     }
@@ -2087,31 +2087,32 @@ namespace IsengardClient.Backend
                 bool monsterKilled = false;
                 int iExperience = 0;
                 MobTypeEnum? eMobType = null;
+                iIndex++;
                 if (damage > 0)
                 {
-                    monsterKilled = ProcessMonsterKilledMessages(flParams, iIndex + 1, out iExperience, out eMobType, items);
+                    monsterKilled = ProcessMonsterKilledMessages(flParams, ref iIndex, out iExperience, out eMobType, items);
                 }
-                flParams.FinishedProcessing = true;
+                flParams.NextLineIndex = iIndex;
                 _onSatisfied(fumbled, damage, monsterKilled, eMobType, iExperience, powerAttacked, items, flParams);
             }
         }
 
-        internal static bool ProcessMonsterKilledMessages(FeedLineParameters flParams, int startLineIndex, out int experience, out MobTypeEnum? monsterType, List<ItemEntity> items)
+        internal static bool ProcessMonsterKilledMessages(FeedLineParameters flParams, ref int lineIndex, out int experience, out MobTypeEnum? monsterType, List<ItemEntity> items)
         {
             List<string> Lines = flParams.Lines;
             experience = 0;
             monsterType = null;
             int lineCount = Lines.Count;
-            if (startLineIndex >= lineCount)
+            if (lineIndex >= lineCount)
             {
                 return false;
             }
             bool monsterKilled = false;
-            int i = startLineIndex;
+            int iNextIndex = lineIndex;
             while (true)
             {
                 bool skipToNextLine = true;
-                string nextLine = Lines[i];
+                string nextLine = Lines[lineIndex];
                 if (nextLine == null) continue;
                 if (nextLine.StartsWith(YOU_GAINED_PREFIX))
                 {
@@ -2142,6 +2143,7 @@ namespace IsengardClient.Backend
                     }
 
                     experience += iNextExperience;
+                    iNextIndex = lineIndex + 1;
                     monsterKilled = true;
                 }
                 else
@@ -2150,7 +2152,8 @@ namespace IsengardClient.Backend
                     if (iFoundCarrying > 0)
                     {
                         string sPrefix = nextLine.Substring(0, iFoundCarrying + WAS_CARRYING_MID.Length);
-                        string itemList = StringProcessing.GetListAsString(Lines, i, sPrefix, true, out i, null);
+                        string itemList = StringProcessing.GetListAsString(Lines, lineIndex, sPrefix, true, out lineIndex, null);
+                        iNextIndex = lineIndex;
                         skipToNextLine = false;
                         List<string> itemsString = StringProcessing.ParseList(itemList);
                         List<ItemEntity> itemsFirstPass = new List<ItemEntity>();
@@ -2163,13 +2166,14 @@ namespace IsengardClient.Backend
                 }
                 if (skipToNextLine)
                 {
-                    i++;
+                    lineIndex++;
                 }
-                if (i >= lineCount)
+                if (lineIndex >= lineCount)
                 {
                     break;
                 }
             }
+            lineIndex = iNextIndex;
             return monsterKilled;
         }
 
@@ -3767,6 +3771,12 @@ namespace IsengardClient.Backend
             return ret;
         }
 
+        /// <summary>
+        /// pulls a full message including line continuations
+        /// </summary>
+        /// <param name="Lines">lines to process</param>
+        /// <param name="LineIndex">starting line to process, set to the next unprocessed line</param>
+        /// <returns>full message</returns>
         public static string PullFullMessageWithLineContinuations(List<string> Lines, ref int LineIndex)
         {
             StringBuilder sb = new StringBuilder();
