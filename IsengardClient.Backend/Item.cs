@@ -874,6 +874,7 @@ namespace IsengardClient.Backend
 
         [SingularName("bone armor")]
         [PluralName("bone armors")] //verified 6/21/23
+        [LookText("This is the coveted armor of the troll chieftain, Oohlgrist.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(10)]
         [ArmorClass(0.7)]

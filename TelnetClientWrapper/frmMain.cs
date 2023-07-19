@@ -2361,6 +2361,7 @@ namespace IsengardClient
         
         private void OnAttack(bool fumbled, int damage, bool killedMonster, MobTypeEnum? eMobType, int experience, bool powerAttacked, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
+            ProcessItemSeen(monsterItems);
             lock (_currentEntityInfo.EntityLock)
             {
                 if (powerAttacked)
@@ -2407,6 +2408,7 @@ namespace IsengardClient
 
         private void OnCastOffensiveSpell(int damage, bool killedMonster, MobTypeEnum? mobType, int experience, List<ItemEntity> monsterItems, FeedLineParameters flParams)
         {
+            ProcessItemSeen(monsterItems);
             _experience += experience;
             _tnl = Math.Max(0, _tnl - experience);
             bool hasMonsterItems = monsterItems.Count > 0;
@@ -3238,58 +3240,61 @@ namespace IsengardClient
 
         private void ProcessItemSeen(IEnumerable<ItemEntity> items)
         {
-            foreach (ItemEntity ie in items)
+            if (items != null)
             {
-                if (ie.ItemType.HasValue && !_itemsSeen.Contains(ie.ItemType.Value))
+                foreach (ItemEntity ie in items)
                 {
-                    ItemTypeEnum itemType = ie.ItemType.Value;
-                    StaticItemData sid = ItemEntity.StaticItemData[itemType];
+                    if (ie.ItemType.HasValue && !_itemsSeen.Contains(ie.ItemType.Value))
+                    {
+                        ItemTypeEnum itemType = ie.ItemType.Value;
+                        StaticItemData sid = ItemEntity.StaticItemData[itemType];
 
-                    List<string> messages = new List<string>();
+                        List<string> messages = new List<string>();
 
-                    if (sid.ItemClass == ItemClass.Other)
-                    {
-                        messages.Add("Unknown item type for " + itemType);
-                    }
-                    if (sid.LookTextType == LookTextType.None)
-                    {
-                        messages.Add("No look text information for " + itemType);
-                    }
-                    else if (sid.LookTextType == LookTextType.Known && string.IsNullOrEmpty(sid.LookText))
-                    {
-                        messages.Add("Missing look text information for " + itemType);
-                    }
-                    if (sid.WeaponType.HasValue && sid.WeaponType == WeaponType.Unknown)
-                    {
-                        messages.Add("Unknown weapon type for " + itemType);
-                    }
-                    if (((sid.DisallowedClasses & ClassTypeFlags.Mage) == ClassTypeFlags.None))
-                    {
-                        if (sid.EquipmentType == EquipmentType.Unknown)
+                        if (sid.ItemClass == ItemClass.Other)
                         {
-                            messages.Add("Unknown equipment type for " + itemType);
+                            messages.Add("Unknown item type for " + itemType);
                         }
-                        else if (sid.EquipmentType != EquipmentType.Wielded && sid.EquipmentType != EquipmentType.Holding && sid.ArmorClass <= 0)
+                        if (sid.LookTextType == LookTextType.None)
                         {
-                            messages.Add("Missing armor class for " + itemType);
+                            messages.Add("No look text information for " + itemType);
                         }
-                    }
-                    if (!sid.IsCurrency() && sid.ItemClass != ItemClass.Fixed && sid.ItemClass != ItemClass.Chest)
-                    {
-                        if (!sid.Weight.HasValue)
+                        else if (sid.LookTextType == LookTextType.Known && string.IsNullOrEmpty(sid.LookText))
                         {
-                            messages.Add("Unknown weight for " + itemType);
+                            messages.Add("Missing look text information for " + itemType);
                         }
-                        if (sid.Sellable == SellableEnum.Unknown)
+                        if (sid.WeaponType.HasValue && sid.WeaponType == WeaponType.Unknown)
                         {
-                            messages.Add("Unknown sellable for " + itemType);
+                            messages.Add("Unknown weapon type for " + itemType);
                         }
+                        if (((sid.DisallowedClasses & ClassTypeFlags.Mage) == ClassTypeFlags.None))
+                        {
+                            if (sid.EquipmentType == EquipmentType.Unknown)
+                            {
+                                messages.Add("Unknown equipment type for " + itemType);
+                            }
+                            else if (sid.EquipmentType != EquipmentType.Wielded && sid.EquipmentType != EquipmentType.Holding && sid.ArmorClass <= 0)
+                            {
+                                messages.Add("Missing armor class for " + itemType);
+                            }
+                        }
+                        if (!sid.IsCurrency() && sid.ItemClass != ItemClass.Fixed && sid.ItemClass != ItemClass.Chest)
+                        {
+                            if (!sid.Weight.HasValue)
+                            {
+                                messages.Add("Unknown weight for " + itemType);
+                            }
+                            if (sid.Sellable == SellableEnum.Unknown)
+                            {
+                                messages.Add("Unknown sellable for " + itemType);
+                            }
+                        }
+                        if (messages.Count > 0)
+                        {
+                            AddBroadcastMessages(messages);
+                        }
+                        _itemsSeen.Add(itemType);
                     }
-                    if (messages.Count > 0)
-                    {
-                        AddBroadcastMessages(messages);
-                    }
-                    _itemsSeen.Add(itemType);
                 }
             }
         }
