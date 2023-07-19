@@ -2183,6 +2183,11 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Unknown)]
         SailorsLocket,
 
+        [SingularName("sand crystal")]
+        [PluralName("sand crystals")]
+        [LookText("It gleams like quartz.")]
+        SandCrystal,
+
         [SingularName("sapphire")]
         [PluralName("sapphires")]
         [LookText("You see nothing special about it.")]

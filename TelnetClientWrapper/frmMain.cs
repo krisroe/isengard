@@ -5312,7 +5312,7 @@ BeforeHazy:
             _backgroundProcessPhase = BackgroundProcessPhase.PostHealPreCombatLogic;
             CommandResultObject backgroundCommandResultObject;
             bool removeAllEquipment = pr != null && pr.RemoveAllEquipment;
-            if (!_hazying && !_fleeing)
+            if (!_hazying && !_fleeing && removeAllEquipment)
             {
                 backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, AbortIfFleeingOrHazying);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
