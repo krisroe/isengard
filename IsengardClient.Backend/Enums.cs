@@ -902,4 +902,12 @@ namespace IsengardClient.Backend
         NotBroken,
         Broken,
     }
+
+    public enum LookTextType
+    {
+        None,
+        Known,
+        Unknown,
+        Multiline,
+    }
 }

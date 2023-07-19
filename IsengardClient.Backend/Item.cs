@@ -104,7 +104,14 @@ namespace IsengardClient.Backend
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DisallowedClassesAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.DisallowedClasses = ((DisallowedClassesAttribute)valueAttributes[0]).Classes;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(LookTextAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0) sid.LookText = ((LookTextAttribute)valueAttributes[0]).LookText;
+                if (valueAttributes != null && valueAttributes.Length > 0)
+                {
+                    sid.LookText = ((LookTextAttribute)valueAttributes[0]).LookText;
+                    sid.LookTextType = LookTextType.Known;
+                }
+
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(LookTextTypeAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.LookTextType = ((LookTextTypeAttribute)valueAttributes[0]).LookTextType;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SellableAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
@@ -363,6 +370,10 @@ namespace IsengardClient.Backend
         /// look text for the item
         /// </summary>
         public string LookText { get; set; }
+        /// <summary>
+        /// what kind of look text it is
+        /// </summary>
+        public LookTextType LookTextType { get; set; }
         /// <summary>
         /// weight of the item. Null if unknown. It's nullable because a zero pound item has been observed (string of pearls)
         /// </summary>
@@ -772,7 +783,7 @@ namespace IsengardClient.Backend
         [SingularName("A statuette of Balthazar")]
         [SingularSelection("A")]
         //CSRTODO: no plural?
-        //CSRTODO: cannot seem to look at because "look all" takes precendence.
+        [LookTextType(LookTextType.Unknown)] //unknown because "look all" takes precedence over looking at it
         [ItemClass(ItemClass.Fixed)]
         AStatuetteOfBalthazar,
 
@@ -875,6 +886,7 @@ namespace IsengardClient.Backend
 
         [SingularName("book of knowledge")]
         [PluralName("books of knowledge")]
+        [LookTextType(LookTextType.Multiline)]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
         BookOfKnowledge,
@@ -1041,6 +1053,7 @@ namespace IsengardClient.Backend
 
         [SingularName("copper pieces")]
         [PluralName("copper pieces")]
+        [LookText("You see nothing special about it.")]
         [ItemClass(ItemClass.Coins)]
         CopperPieces,
 
@@ -1345,6 +1358,7 @@ namespace IsengardClient.Backend
 
         [SingularName("gate warning")]
         [PluralName("gate warnings")]
+        [LookTextType(LookTextType.Multiline)]
         [ItemClass(ItemClass.Fixed)]
         GateWarning,
 

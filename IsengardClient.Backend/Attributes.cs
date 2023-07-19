@@ -81,37 +81,29 @@ namespace IsengardClient.Backend
     /// </summary>
     public class AggressiveAttribute : Attribute
     {
-        public bool Aggressive { get; set; }
         public AggressiveAttribute()
         {
-            Aggressive = true;
         }
     }
 
     public class DestroysItemsAttribute : Attribute
     {
-        public bool DestroysItems { get; set; }
         public DestroysItemsAttribute()
         {
-            DestroysItems = true;
         }
     }
 
     public class InfectsWithDiseaseAttribute : Attribute
     {
-        public bool InfectsWithDisease { get; set; }
         public InfectsWithDiseaseAttribute()
         {
-            InfectsWithDisease = true;
         }
     }
 
     public class CannotHarmAttribute : Attribute
     {
-        public bool CannotHarm { get; set; }
         public CannotHarmAttribute()
         {
-            CannotHarm = true;
         }
     }
 
@@ -314,6 +306,15 @@ namespace IsengardClient.Backend
         public DisallowedClassesAttribute(ClassTypeFlags Classes)
         {
             this.Classes = Classes;
+        }
+    }
+
+    public class LookTextTypeAttribute : Attribute
+    {
+        public LookTextType LookTextType { get; set; }
+        public LookTextTypeAttribute(LookTextType LookTextType)
+        {
+            this.LookTextType = LookTextType;
         }
     }
 

@@ -468,17 +468,13 @@ namespace IsengardClient.Backend
                 if (!string.IsNullOrEmpty(sPlural)) smd.PluralName = sPlural;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(AggressiveAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    smd.Aggressive = ((AggressiveAttribute)valueAttributes[0]).Aggressive;
+                if (valueAttributes != null && valueAttributes.Length > 0) smd.Aggressive = true;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DestroysItemsAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    smd.DestroysItems = ((DestroysItemsAttribute)valueAttributes[0]).DestroysItems;
+                if (valueAttributes != null && valueAttributes.Length > 0) smd.DestroysItems = true;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(InfectsWithDiseaseAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    smd.InfectsWithDisease = ((InfectsWithDiseaseAttribute)valueAttributes[0]).InfectsWithDisease;
+                if (valueAttributes != null && valueAttributes.Length > 0) smd.InfectsWithDisease = true;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(CannotHarmAttribute), false);
-                if (valueAttributes != null && valueAttributes.Length > 0)
-                    smd.CannotHarm = ((CannotHarmAttribute)valueAttributes[0]).CannotHarm;
+                if (valueAttributes != null && valueAttributes.Length > 0) smd.CannotHarm = true;
 
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(ExperienceAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
