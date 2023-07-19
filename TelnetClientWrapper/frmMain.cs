@@ -4567,13 +4567,48 @@ namespace IsengardClient
                     }
                 }
 
+                bool failedToEquip = false;
+                bool hasInitialQueuedMagicStep;
+                bool hasInitialQueuedMeleeStep;
+                bool hasInitialQueuedPotionsStep;
+                lock (_queuedCommandLock)
+                {
+                    hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
+                    hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
+                    hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
+                }
+                bool useManaPool = false;
+                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
+                int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
+                int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
+                RealmTypeFlags availableRealms = _settingsData.Realms;
+                bool haveMeleeStrategySteps = false;
+                bool haveMagicStrategySteps = false;
+                bool havePotionsStrategySteps = false;
+                Strategy strategy = pms.Strategy;
+                if (strategy != null)
+                {
+                    useManaPool = strategy.ManaPool > 0;
+                    haveMagicStrategySteps = strategy.HasAnyMagicSteps();
+                    haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
+                    havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
+                    onMonsterKilledAction = strategy.AfterKillMonsterAction;
+                    if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+                    {
+                        usedAutoSpellMin = strategy.AutoSpellLevelMin;
+                        usedAutoSpellMax = strategy.AutoSpellLevelMax;
+                    }
+                    if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
+                }
+                bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
+
                 if (hasMob)
                 {
 
                     //activate potions/skills at the threshold if there is a threshold
                     if (!_fleeing && !_hazying && haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, useMelee);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4643,7 +4678,7 @@ namespace IsengardClient
                     //activate potions/skills at the target if there is no threshold
                     if (!_fleeing && !_hazying && !haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, useMelee);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4651,15 +4686,6 @@ namespace IsengardClient
                     }
                 }
 
-                bool hasInitialQueuedMagicStep;
-                bool hasInitialQueuedMeleeStep;
-                bool hasInitialQueuedPotionsStep;
-                lock (_queuedCommandLock)
-                {
-                    hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
-                    hasInitialQueuedMeleeStep = pms.QueuedMeleeStep.HasValue;
-                    hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
-                }
                 string sMobText;
                 if (hasMob)
                 {
@@ -4678,7 +4704,6 @@ namespace IsengardClient
                 {
                     sMobText = string.Empty;
                 }
-                Strategy strategy = pms.Strategy;
                 if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep)
                 {
                     try
@@ -4687,28 +4712,6 @@ namespace IsengardClient
                         _currentlyFightingMobText = pms.MobText;
                         _currentlyFightingMobType = pms.MobType;
                         _currentlyFightingMobCounter = pms.MobType.HasValue ? pms.MobTypeCounter : pms.MobTextCounter;
-                        bool useManaPool = false;
-                        AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
-                        int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
-                        int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
-                        RealmTypeFlags availableRealms = _settingsData.Realms;
-                        bool haveMeleeStrategySteps = false;
-                        bool haveMagicStrategySteps = false;
-                        bool havePotionsStrategySteps = false;
-                        if (strategy != null)
-                        {
-                            useManaPool = strategy.ManaPool > 0;
-                            haveMagicStrategySteps = strategy.HasAnyMagicSteps();
-                            haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
-                            havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
-                            onMonsterKilledAction = strategy.AfterKillMonsterAction;
-                            if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
-                            {
-                                usedAutoSpellMin = strategy.AutoSpellLevelMin;
-                                usedAutoSpellMax = strategy.AutoSpellLevelMax;
-                            }
-                            if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
-                        }
                         _monsterDamage = 0;
                         _currentMonsterStatus = MonsterStatus.None;
                         _monsterStunnedSince = null;
@@ -4721,39 +4724,10 @@ namespace IsengardClient
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         ItemTypeEnum? heldItem = _settingsData.HeldItem;
-                        bool useMelee = haveMeleeStrategySteps || hasInitialQueuedMeleeStep;
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedMeleeStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
-                            bool failedToEquip = false;
-                            if (pr != null && pr.RemoveAllEquipment)
-                            {
-                                failedToEquip = true;
-                            }
-                            else if (useMelee)
-                            {
-                                backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                                {
-                                    AddConsoleMessage("Failed to equip " + weaponItem.Value);
-                                    return;
-                                }
-                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
-                                {
-                                    return;
-                                }
-                                backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                                {
-                                    AddConsoleMessage("Failed to hold " + weaponItem.Value);
-                                    return;
-                                }
-                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
-                                {
-                                    return;
-                                }
-                            }
                             doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
                             IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
                             IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
@@ -5339,7 +5313,7 @@ BeforeHazy:
         /// <param name="skillsToRun">skills to run</param>
         /// <param name="pr">perm run</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject PerformPostTickPreCombatActions(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr)
+        private CommandResultObject PerformPostTickPreCombatActions(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr, ref bool failedToEquip, bool useMelee)
         {
             _backgroundProcessPhase = BackgroundProcessPhase.PostHealPreCombatLogic;
             CommandResultObject backgroundCommandResultObject;
@@ -5401,6 +5375,32 @@ BeforeHazy:
             {
                 backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, AbortIfFleeingOrHazying);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResultObject;
+                }
+                failedToEquip = true;
+            }
+            if (!_hazying && !_fleeing && useMelee)
+            {
+                ItemTypeEnum? weaponItem = _settingsData.Weapon;
+                ItemTypeEnum? heldItem = _settingsData.HeldItem;
+                backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
+                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                {
+                    AddConsoleMessage("Failed to equip " + weaponItem.Value);
+                    return backgroundCommandResultObject;
+                }
+                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
+                {
+                    return backgroundCommandResultObject;
+                }
+                backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
+                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                {
+                    AddConsoleMessage("Failed to hold " + weaponItem.Value);
+                    return backgroundCommandResultObject;
+                }
+                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                 {
                     return backgroundCommandResultObject;
                 }
