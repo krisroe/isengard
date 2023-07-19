@@ -98,7 +98,8 @@ namespace IsengardClient.Tests
             s.MagicOnlyWhenStunnedForXMS = 100;
             s.MeleeOnlyWhenStunnedForXMS = 200;
             s.PotionsOnlyWhenStunnedForXMS = 300;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Magic | CommandType.Melee;
+            s.MagicLastCommandsToRunIndefinitely = 2;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Potions;
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.OffensiveSpellLevel1, MagicStrategyStep.OffensiveSpellLevel2 };
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.PowerAttack, MeleeStrategyStep.RegularAttack };
@@ -327,7 +328,9 @@ namespace IsengardClient.Tests
             Assert.AreEqual(s1.MagicOnlyWhenStunnedForXMS, s2.MagicOnlyWhenStunnedForXMS);
             Assert.AreEqual(s1.MeleeOnlyWhenStunnedForXMS, s2.MeleeOnlyWhenStunnedForXMS);
             Assert.AreEqual(s1.PotionsOnlyWhenStunnedForXMS, s2.PotionsOnlyWhenStunnedForXMS);
-            Assert.AreEqual(s1.TypesToRunLastCommandIndefinitely, s2.TypesToRunLastCommandIndefinitely);
+            Assert.AreEqual(s1.MagicLastCommandsToRunIndefinitely, s2.MagicLastCommandsToRunIndefinitely);
+            Assert.AreEqual(s1.MeleeLastCommandsToRunIndefinitely, s2.MeleeLastCommandsToRunIndefinitely);
+            Assert.AreEqual(s1.PotionsLastCommandsToRunIndefinitely, s2.PotionsLastCommandsToRunIndefinitely);
             Assert.AreEqual(s1.TypesWithStepsEnabled, s2.TypesWithStepsEnabled);
             Assert.AreEqual(s1.AutoSpellLevelMin, s2.AutoSpellLevelMin);
             Assert.AreEqual(s1.AutoSpellLevelMax, s2.AutoSpellLevelMax);

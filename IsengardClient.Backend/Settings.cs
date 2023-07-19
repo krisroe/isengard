@@ -349,7 +349,7 @@ namespace IsengardClient.Backend
 
                 List<Strategy> strategiesTemp = new List<Strategy>();
                 Dictionary<int, Strategy> strats = new Dictionary<int, Strategy>();
-                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MeleeOnlyWhenStunnedForXMS,PotionsOnlyWhenStunnedForXMS,TypesToRunLastCommandIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax,Realms FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
+                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MagicLastCommandsToRunIndefinitely,MeleeOnlyWhenStunnedForXMS,MeleeLastCommandsToRunIndefinitely,PotionsOnlyWhenStunnedForXMS,PotionsLastCommandsToRunIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax,Realms FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -371,7 +371,9 @@ namespace IsengardClient.Backend
                         if (oData != DBNull.Value) s.MeleeOnlyWhenStunnedForXMS = Convert.ToInt32(oData);
                         oData = reader["PotionsOnlyWhenStunnedForXMS"];
                         if (oData != DBNull.Value) s.PotionsOnlyWhenStunnedForXMS = Convert.ToInt32(oData);
-                        s.TypesToRunLastCommandIndefinitely = (CommandType)Convert.ToInt32(reader["TypesToRunLastCommandIndefinitely"]);
+                        s.MagicLastCommandsToRunIndefinitely = Convert.ToInt32(reader["MagicLastCommandsToRunIndefinitely"]);
+                        s.MeleeLastCommandsToRunIndefinitely = Convert.ToInt32(reader["MeleeLastCommandsToRunIndefinitely"]);
+                        s.PotionsLastCommandsToRunIndefinitely = Convert.ToInt32(reader["PotionsLastCommandsToRunIndefinitely"]);
                         s.TypesWithStepsEnabled = (CommandType)Convert.ToInt32(reader["TypesWithStepsEnabled"]);
                         oData = reader["AutoSpellLevelMin"];
                         if (oData != DBNull.Value) s.AutoSpellLevelMin = Convert.ToInt32(oData);
@@ -452,6 +454,7 @@ namespace IsengardClient.Backend
                 }
                 foreach (Strategy s in strategiesTemp)
                 {
+                    ValidateStrategyAfterStepsLoaded(s, errorMessages);
                     if (s.IsValid)
                         Strategies.Add(s);
                     else
@@ -856,7 +859,9 @@ namespace IsengardClient.Backend
                 "MagicOnlyWhenStunnedForXMS",
                 "MeleeOnlyWhenStunnedForXMS",
                 "PotionsOnlyWhenStunnedForXMS",
-                "TypesToRunLastCommandIndefinitely",
+                "MagicLastCommandsToRunIndefinitely",
+                "MeleeLastCommandsToRunIndefinitely",
+                "PotionsLastCommandsToRunIndefinitely",
                 "TypesWithStepsEnabled",
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
@@ -1008,17 +1013,41 @@ namespace IsengardClient.Backend
                 }
                 s.PotionsOnlyWhenStunnedForXMS = iValueNullable;
 
-                sValue = GetAttributeValueByName(attributeMapping, "TypesToRunLastCommandIndefinitely");
-                CommandType commandTypes;
-                if (!Enum.TryParse(sValue, out commandTypes))
+                sValue = GetAttributeValueByName(attributeMapping, "MagicLastCommandsToRunIndefinitely");
+                if (!string.IsNullOrEmpty(sValue))
                 {
-                    s.IsValid = false;
-                    errorMessages.Add("Invalid strategy command types to run last step indefinitely: " + sValue);
+                    if (!int.TryParse(sValue, out iValue))
+                    {
+                        s.IsValid = false;
+                        errorMessages.Add("Invalid MagicLastCommandsToRunIndefinitely: " + sValue);
+                    }
+                    s.MagicLastCommandsToRunIndefinitely = iValue;
                 }
-                s.TypesToRunLastCommandIndefinitely = commandTypes;
+
+                sValue = GetAttributeValueByName(attributeMapping, "MeleeLastCommandsToRunIndefinitely");
+                if (!string.IsNullOrEmpty(sValue))
+                {
+                    if (!int.TryParse(sValue, out iValue))
+                    {
+                        s.IsValid = false;
+                        errorMessages.Add("Invalid MeleeLastCommandsToRunIndefinitely: " + sValue);
+                    }
+                    s.MeleeLastCommandsToRunIndefinitely = iValue;
+                }
+
+                sValue = GetAttributeValueByName(attributeMapping, "PotionsLastCommandsToRunIndefinitely");
+                if (!string.IsNullOrEmpty(sValue))
+                {
+                    if (!int.TryParse(sValue, out iValue))
+                    {
+                        s.IsValid = false;
+                        errorMessages.Add("Invalid PotionsLastCommandsToRunIndefinitely: " + sValue);
+                    }
+                    s.PotionsLastCommandsToRunIndefinitely = iValue;
+                }
 
                 sValue = GetAttributeValueByName(attributeMapping, "TypesWithStepsEnabled");
-                if (!Enum.TryParse(sValue, out commandTypes))
+                if (!Enum.TryParse(sValue, out CommandType commandTypes))
                 {
                     s.IsValid = false;
                     errorMessages.Add("Invalid strategy command types enabled: " + sValue);
@@ -1121,6 +1150,8 @@ namespace IsengardClient.Backend
                         continue;
                     }
                 }
+
+                ValidateStrategyAfterStepsLoaded(s, errorMessages);
 
                 if (s.IsValid)
                 {
@@ -1969,7 +2000,9 @@ namespace IsengardClient.Backend
                     "MagicOnlyWhenStunnedForXMS",
                     "MeleeOnlyWhenStunnedForXMS",
                     "PotionsOnlyWhenStunnedForXMS",
-                    "TypesToRunLastCommandIndefinitely",
+                    "MagicLastCommandsToRunIndefinitely",
+                    "MeleeLastCommandsToRunIndefinitely",
+                    "PotionsLastCommandsToRunIndefinitely",
                     "TypesWithStepsEnabled",
                     "AutoSpellLevelMin",
                     "AutoSpellLevelMax",
@@ -1997,7 +2030,9 @@ namespace IsengardClient.Backend
                 SQLiteParameter magicOnlyWhenStunnedForXMSParam = cmd.Parameters.Add("@MagicOnlyWhenStunnedForXMS", DbType.Int32);
                 SQLiteParameter meleeOnlyWhenStunnedForXMSParam = cmd.Parameters.Add("@MeleeOnlyWhenStunnedForXMS", DbType.Int32);
                 SQLiteParameter potionsOnlyWhenStunnedForXMSParam = cmd.Parameters.Add("@PotionsOnlyWhenStunnedForXMS", DbType.Int32);
-                SQLiteParameter typesToRunLastCommandIndefinitelyParam = cmd.Parameters.Add("@TypesToRunLastCommandIndefinitely", DbType.Int32);
+                SQLiteParameter magicLastCommandsToRunIndefinitelyParam = cmd.Parameters.Add("@MagicLastCommandsToRunIndefinitely", DbType.Int32);
+                SQLiteParameter meleeLastCommandsToRunIndefinitelyParam = cmd.Parameters.Add("@MeleeLastCommandsToRunIndefinitely", DbType.Int32);
+                SQLiteParameter potionsLastCommandsToRunIndefinitelyParam = cmd.Parameters.Add("@PotionsLastCommandsToRunIndefinitely", DbType.Int32);
                 SQLiteParameter typesWithStepsEnabledParam = cmd.Parameters.Add("@TypesWithStepsEnabled", DbType.Int32);
                 SQLiteParameter autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
                 SQLiteParameter autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
@@ -2024,7 +2059,9 @@ namespace IsengardClient.Backend
                     magicOnlyWhenStunnedForXMSParam.Value = nextRecord.MagicOnlyWhenStunnedForXMS.HasValue ? (object)nextRecord.MagicOnlyWhenStunnedForXMS.Value : DBNull.Value;
                     meleeOnlyWhenStunnedForXMSParam.Value = nextRecord.MeleeOnlyWhenStunnedForXMS.HasValue ? (object)nextRecord.MeleeOnlyWhenStunnedForXMS.Value : DBNull.Value;
                     potionsOnlyWhenStunnedForXMSParam.Value = nextRecord.PotionsOnlyWhenStunnedForXMS.HasValue ? (object)nextRecord.PotionsOnlyWhenStunnedForXMS.Value : DBNull.Value;
-                    typesToRunLastCommandIndefinitelyParam.Value = Convert.ToInt32(nextRecord.TypesToRunLastCommandIndefinitely);
+                    magicLastCommandsToRunIndefinitelyParam.Value = nextRecord.MagicLastCommandsToRunIndefinitely;
+                    meleeLastCommandsToRunIndefinitelyParam.Value = nextRecord.MeleeLastCommandsToRunIndefinitely;
+                    potionsLastCommandsToRunIndefinitelyParam.Value = nextRecord.PotionsLastCommandsToRunIndefinitely;
                     typesWithStepsEnabledParam.Value = Convert.ToInt32(nextRecord.TypesWithStepsEnabled);
                     autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin > 0 ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
                     autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax > 0 ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
@@ -2369,6 +2406,25 @@ namespace IsengardClient.Backend
                 ret = false;
             }
             return ret;
+        }
+
+        private void ValidateStrategyAfterStepsLoaded(Strategy s, List<string> errorMessages)
+        {
+            if (s.MagicLastCommandsToRunIndefinitely > 0 && (s.MagicSteps == null || s.MagicLastCommandsToRunIndefinitely > s.MagicSteps.Count))
+            {
+                errorMessages.Add("Invalid MagicLastCommandsToRunIndefinitely for strategy.");
+                s.IsValid = false;
+            }
+            if (s.MeleeLastCommandsToRunIndefinitely > 0 && (s.MeleeSteps == null || s.MeleeLastCommandsToRunIndefinitely > s.MeleeSteps.Count))
+            {
+                errorMessages.Add("Invalid MeleeLastCommandsToRunIndefinitely for strategy.");
+                s.IsValid = false;
+            }
+            if (s.PotionsLastCommandsToRunIndefinitely > 0 && (s.PotionsSteps == null || s.PotionsLastCommandsToRunIndefinitely > s.PotionsSteps.Count))
+            {
+                errorMessages.Add("Invalid PotionsLastCommandsToRunIndefinitely for strategy.");
+                s.IsValid = false;
+            }
         }
 
         private void ValidateSettings(List<string> errorMessages)
@@ -2748,9 +2804,11 @@ namespace IsengardClient.Backend
                     writer.WriteAttributeString("FinalMeleeAction", s.FinalMeleeAction.ToString());
                     writer.WriteAttributeString("FinalPotionsAction", s.FinalPotionsAction.ToString());
                     if (s.MagicOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("MagicOnlyWhenStunnedForXMS", s.MagicOnlyWhenStunnedForXMS.Value.ToString());
+                    if (s.MagicLastCommandsToRunIndefinitely > 0) writer.WriteAttributeString("MagicLastCommandsToRunIndefinitely", s.MagicLastCommandsToRunIndefinitely.ToString());
                     if (s.MeleeOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("MeleeOnlyWhenStunnedForXMS", s.MeleeOnlyWhenStunnedForXMS.Value.ToString());
+                    if (s.MeleeLastCommandsToRunIndefinitely > 0) writer.WriteAttributeString("MeleeLastCommandsToRunIndefinitely", s.MeleeLastCommandsToRunIndefinitely.ToString());
                     if (s.PotionsOnlyWhenStunnedForXMS.HasValue) writer.WriteAttributeString("PotionsOnlyWhenStunnedForXMS", s.PotionsOnlyWhenStunnedForXMS.Value.ToString());
-                    writer.WriteAttributeString("TypesToRunLastCommandIndefinitely", StringProcessing.TrimFlagsEnumToString(s.TypesToRunLastCommandIndefinitely));
+                    if (s.PotionsLastCommandsToRunIndefinitely > 0) writer.WriteAttributeString("PotionsLastCommandsToRunIndefinitely", s.PotionsLastCommandsToRunIndefinitely.ToString());
                     writer.WriteAttributeString("TypesWithStepsEnabled", StringProcessing.TrimFlagsEnumToString(s.TypesWithStepsEnabled));
                     if (s.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMin", s.AutoSpellLevelMin.ToString());
                     if (s.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMax", s.AutoSpellLevelMax.ToString());
@@ -3053,7 +3111,7 @@ namespace IsengardClient.Backend
                 "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, SinkCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE Areas (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NOT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, InventorySinkRoom TEXT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES Areas(ID))",
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
-                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, TypesToRunLastCommandIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
+                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MagicLastCommandsToRunIndefinitely INTEGER NOT NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, MeleeLastCommandsToRunIndefinitely INTEGER NOT NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, PotionsLastCommandsToRunIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, RemoveAllEquipment INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",

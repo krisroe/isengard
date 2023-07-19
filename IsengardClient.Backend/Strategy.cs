@@ -22,16 +22,18 @@ namespace IsengardClient.Backend
         public int AutoSpellLevelMax { get; set; }
         public RealmTypeFlags? Realms { get; set; }
         public int? MagicOnlyWhenStunnedForXMS { get; set; }
+        public int MagicLastCommandsToRunIndefinitely { get; set; }
 
         public List<MeleeStrategyStep> MeleeSteps { get; set; }
         public FinalStepAction FinalMeleeAction { get; set; }
         public int? MeleeOnlyWhenStunnedForXMS { get; set; }
+        public int MeleeLastCommandsToRunIndefinitely { get; set; }
 
         public List<PotionsStrategyStep> PotionsSteps { get; set; }
         public FinalStepAction FinalPotionsAction { get; set; }
         public int? PotionsOnlyWhenStunnedForXMS { get; set; }
+        public int PotionsLastCommandsToRunIndefinitely { get; set; }
 
-        public CommandType TypesToRunLastCommandIndefinitely { get; set; }
         public CommandType TypesWithStepsEnabled { get; set; }
 
         public Strategy()
@@ -52,6 +54,7 @@ namespace IsengardClient.Backend
             AutoSpellLevelMax = copied.AutoSpellLevelMax;
             Realms = copied.Realms;
             MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
+            MagicLastCommandsToRunIndefinitely = copied.MagicLastCommandsToRunIndefinitely;
             if (copied.MagicSteps != null)
             {
                 MagicSteps = new List<MagicStrategyStep>(copied.MagicSteps);
@@ -59,6 +62,7 @@ namespace IsengardClient.Backend
 
             FinalMeleeAction = copied.FinalMeleeAction;
             MeleeOnlyWhenStunnedForXMS = copied.MeleeOnlyWhenStunnedForXMS;
+            MeleeLastCommandsToRunIndefinitely = copied.MeleeLastCommandsToRunIndefinitely;
             if (copied.MeleeSteps != null)
             {
                 MeleeSteps = new List<MeleeStrategyStep>(copied.MeleeSteps);
@@ -66,12 +70,12 @@ namespace IsengardClient.Backend
 
             FinalPotionsAction = copied.FinalPotionsAction;
             PotionsOnlyWhenStunnedForXMS = copied.PotionsOnlyWhenStunnedForXMS;
+            PotionsLastCommandsToRunIndefinitely = copied.PotionsLastCommandsToRunIndefinitely;
             if (copied.PotionsSteps != null)
             {
                 PotionsSteps = new List<PotionsStrategyStep>(copied.PotionsSteps);
             }
 
-            TypesToRunLastCommandIndefinitely = copied.TypesToRunLastCommandIndefinitely;
             TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
         }
 
@@ -96,8 +100,13 @@ namespace IsengardClient.Backend
                         sb.Append(GetMagicStrategyStepCharacter(next));
                     }
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
+                if (MagicLastCommandsToRunIndefinitely == 1)
                 {
+                    sb.Append("*");
+                }
+                else if (MagicLastCommandsToRunIndefinitely > 1)
+                {
+                    sb.Insert(sb.Length - MagicLastCommandsToRunIndefinitely, "(");
                     sb.Append("*");
                 }
                 if (FinalMagicAction == FinalStepAction.Flee)
@@ -126,8 +135,13 @@ namespace IsengardClient.Backend
                         sb.Append(GetMeleeStrategyStepCharacter(next));
                     }
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
+                if (MeleeLastCommandsToRunIndefinitely == 1)
                 {
+                    sb.Append("*");
+                }
+                else if (MeleeLastCommandsToRunIndefinitely > 1)
+                {
+                    sb.Insert(sb.Length - MeleeLastCommandsToRunIndefinitely, "(");
                     sb.Append("*");
                 }
                 if (FinalMeleeAction == FinalStepAction.Flee)
@@ -156,8 +170,13 @@ namespace IsengardClient.Backend
                         sb.Append(GetPotionsStrategyStepCharacter(next));
                     }
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
+                if (PotionsLastCommandsToRunIndefinitely == 1)
                 {
+                    sb.Append("*");
+                }
+                else if (PotionsLastCommandsToRunIndefinitely > 1)
+                {
+                    sb.Insert(sb.Length - PotionsLastCommandsToRunIndefinitely, "(");
                     sb.Append("*");
                 }
                 if (FinalPotionsAction == FinalStepAction.Flee)
@@ -282,17 +301,19 @@ namespace IsengardClient.Backend
         {
             if ((TypesWithStepsEnabled & CommandType.Magic) != CommandType.None && MagicSteps != null)
             {
-                MagicStrategyStep eLastStepValue = MagicStrategyStep.GenericHeal;
                 foreach (var nextStep in MagicSteps)
                 {
-                    eLastStepValue = nextStep;
                     yield return nextStep;
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None)
+                if (MagicLastCommandsToRunIndefinitely > 0)
                 {
+                    int iCount = MagicSteps.Count;
                     while (true)
                     {
-                        yield return eLastStepValue;
+                        for (int i = iCount - MagicLastCommandsToRunIndefinitely; i < iCount; i++)
+                        {
+                            yield return MagicSteps[i];
+                        }
                     }
                 }
             }
@@ -302,7 +323,6 @@ namespace IsengardClient.Backend
         {
             if ((TypesWithStepsEnabled & CommandType.Melee) != CommandType.None && MeleeSteps != null)
             {
-                MeleeStrategyStep eLastStepValue = MeleeStrategyStep.RegularAttack;
                 foreach (var nextStep in MeleeSteps)
                 {
                     MeleeStrategyStep nextStepActual;
@@ -315,14 +335,17 @@ namespace IsengardClient.Backend
                     {
                         nextStepActual = nextStep;
                     }
-                    eLastStepValue = nextStep; //never power attack
                     yield return nextStepActual; //could be power attack or regular attack
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None)
+                if (MeleeLastCommandsToRunIndefinitely > 0)
                 {
+                    int iCount = MeleeSteps.Count;
                     while (true)
                     {
-                        yield return eLastStepValue;
+                        for (int i = iCount - MeleeLastCommandsToRunIndefinitely; i < iCount; i++)
+                        {
+                            yield return MeleeSteps[i];
+                        }
                     }
                 }
             }
@@ -332,17 +355,19 @@ namespace IsengardClient.Backend
         {
             if ((TypesWithStepsEnabled & CommandType.Potions) != CommandType.None && PotionsSteps != null)
             {
-                PotionsStrategyStep eLastStepValue = PotionsStrategyStep.GenericHeal;
                 foreach (var nextStep in PotionsSteps)
                 {
-                    eLastStepValue = nextStep;
                     yield return nextStep;
                 }
-                if ((TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None)
+                if (PotionsLastCommandsToRunIndefinitely > 0)
                 {
+                    int iCount = PotionsSteps.Count;
                     while (true)
                     {
-                        yield return eLastStepValue;
+                        for (int i = iCount - PotionsLastCommandsToRunIndefinitely; i < iCount; i++)
+                        {
+                            yield return PotionsSteps[i];
+                        }
                     }
                 }
             }
@@ -412,7 +437,9 @@ namespace IsengardClient.Backend
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.GenericHeal };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.MagicLastCommandsToRunIndefinitely = 1;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
+            s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
@@ -422,7 +449,9 @@ namespace IsengardClient.Backend
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.OffensiveSpellAuto };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.MagicLastCommandsToRunIndefinitely = 1;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
+            s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
@@ -437,7 +466,9 @@ namespace IsengardClient.Backend
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.MagicLastCommandsToRunIndefinitely = 1;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
+            s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
@@ -455,7 +486,9 @@ namespace IsengardClient.Backend
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Magic | CommandType.Potions;
+            s.MagicLastCommandsToRunIndefinitely = 1;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
+            s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
@@ -475,7 +508,8 @@ namespace IsengardClient.Backend
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.TypesToRunLastCommandIndefinitely = CommandType.Melee | CommandType.Potions;
+            s.MeleeLastCommandsToRunIndefinitely = 1;
+            s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
         }

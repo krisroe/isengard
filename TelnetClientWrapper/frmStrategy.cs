@@ -50,10 +50,6 @@ namespace IsengardClient
                 cboPotionsFinalAction.Items.Add(nextFinalAction.ToString());
             }
 
-            chkMagicLastStepIndefinite.Enabled = false;
-            chkMeleeRepeatLastStepIndefinitely.Enabled = false;
-            chkPotionsRepeatLastStepIndefinitely.Enabled = false;
-
             txtName.Text = s.DisplayName;
 
             cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
@@ -84,8 +80,8 @@ namespace IsengardClient
                     lstMagicSteps.Items.Add(nextStep);
                 }
             }
-            chkMagicLastStepIndefinite.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Magic) != CommandType.None;
-            chkMagicLastStepIndefinite.Enabled = hasSteps;
+            txtMagicLastXStepsRunIndefinitely.Text = hasSteps && s.MagicLastCommandsToRunIndefinitely > 0 ? s.MagicLastCommandsToRunIndefinitely.ToString() : string.Empty;
+            txtMagicLastXStepsRunIndefinitely.Enabled = hasSteps;
 
             hasSteps = s.MeleeSteps != null;
             if (hasSteps)
@@ -95,8 +91,8 @@ namespace IsengardClient
                     lstMeleeSteps.Items.Add(nextStep);
                 }
             }
-            chkMeleeRepeatLastStepIndefinitely.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Melee) != CommandType.None;
-            chkMeleeRepeatLastStepIndefinitely.Enabled = hasSteps;
+            txtMeleeLastXStepsRunIndefinitely.Text = hasSteps && s.MeleeLastCommandsToRunIndefinitely > 0 ? s.MeleeLastCommandsToRunIndefinitely.ToString() : string.Empty;
+            txtMeleeLastXStepsRunIndefinitely.Enabled = hasSteps;
 
             hasSteps = s.PotionsSteps != null;
             if (hasSteps)
@@ -106,8 +102,8 @@ namespace IsengardClient
                     lstPotionsSteps.Items.Add(nextStep);
                 }
             }
-            chkPotionsRepeatLastStepIndefinitely.Checked = hasSteps && (s.TypesToRunLastCommandIndefinitely & CommandType.Potions) != CommandType.None;
-            chkPotionsRepeatLastStepIndefinitely.Enabled = hasSteps;
+            txtPotionsLastXStepsRunIndefinitely.Text = hasSteps && s.PotionsLastCommandsToRunIndefinitely > 0 ? s.PotionsLastCommandsToRunIndefinitely.ToString() : string.Empty;
+            txtPotionsLastXStepsRunIndefinitely.Enabled = hasSteps;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -118,27 +114,55 @@ namespace IsengardClient
             {
                 MessageBox.Show("Invalid mana pool", "Strategy");
                 txtManaPool.Focus();
+                return;
             }
             sInt = txtMagicOnlyWhenStunnedForXMS.Text;
             if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
             {
                 MessageBox.Show("Invalid magic only when stunned for X MS", "Strategy");
                 txtMagicOnlyWhenStunnedForXMS.Focus();
+                return;
             }
             sInt = txtMeleeOnlyWhenStunnedForXMS.Text;
             if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
             {
                 MessageBox.Show("Invalid melee only when stunned for X MS", "Strategy");
                 txtMeleeOnlyWhenStunnedForXMS.Focus();
+                return;
             }
             sInt = txtPotionsOnlyWhenStunnedForXMS.Text;
             if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0))
             {
                 MessageBox.Show("Invalid potions only when stunned for X MS", "Strategy");
                 txtPotionsOnlyWhenStunnedForXMS.Focus();
+                return;
+            }
+            sInt = txtMagicLastXStepsRunIndefinitely.Text;
+            int iMagicStepsCount = lstMagicSteps.Items.Count;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0 || iTemp > iMagicStepsCount))
+            {
+                MessageBox.Show("Invalid magic last X steps run indefinitely", "Strategy");
+                txtMagicLastXStepsRunIndefinitely.Focus();
+                return;
+            }
+            sInt = txtMeleeLastXStepsRunIndefinitely.Text;
+            int iMeleeStepsCount = lstMeleeSteps.Items.Count;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0 || iTemp > iMeleeStepsCount))
+            {
+                MessageBox.Show("Invalid melee last X steps run indefinitely", "Strategy");
+                txtMeleeLastXStepsRunIndefinitely.Focus();
+                return;
+            }
+            sInt = txtPotionsLastXStepsRunIndefinitely.Text;
+            int iPotionsStepsCount = lstPotionsSteps.Items.Count;
+            if (!string.IsNullOrEmpty(sInt) && (!int.TryParse(sInt, out iTemp) || iTemp < 0 || iTemp > iPotionsStepsCount))
+            {
+                MessageBox.Show("Invalid potions last X steps run indefinitely", "Strategy");
+                txtPotionsLastXStepsRunIndefinitely.Focus();
+                return;
             }
 
-            if (lstMagicSteps.Items.Count > 0)
+            if (iMagicStepsCount > 0)
             {
                 Strategy.MagicSteps = new List<MagicStrategyStep>();
                 foreach (MagicStrategyStep nextStep in lstMagicSteps.Items)
@@ -150,7 +174,7 @@ namespace IsengardClient
             {
                 Strategy.MagicSteps = null;
             }
-            if (lstMeleeSteps.Items.Count > 0)
+            if (iMeleeStepsCount > 0)
             {
                 Strategy.MeleeSteps = new List<MeleeStrategyStep>();
                 foreach (MeleeStrategyStep nextStep in lstMeleeSteps.Items)
@@ -162,7 +186,7 @@ namespace IsengardClient
             {
                 Strategy.MeleeSteps = null;
             }
-            if (lstPotionsSteps.Items.Count > 0)
+            if (iPotionsStepsCount > 0)
             {
                 Strategy.PotionsSteps = new List<PotionsStrategyStep>();
                 foreach (PotionsStrategyStep nextStep in lstPotionsSteps.Items)
@@ -184,22 +208,20 @@ namespace IsengardClient
             sInt = txtManaPool.Text;
             Strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
 
-            CommandType ct;
-
-            ct = CommandType.None;
-            if (chkMagicLastStepIndefinite.Checked) ct |= CommandType.Magic;
-            if (chkMeleeRepeatLastStepIndefinitely.Checked) ct |= CommandType.Melee;
-            if (chkPotionsRepeatLastStepIndefinitely.Checked) ct |= CommandType.Potions;
-            Strategy.TypesToRunLastCommandIndefinitely = ct;
-
             sInt = txtMagicOnlyWhenStunnedForXMS.Text;
             Strategy.MagicOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
             sInt = txtMeleeOnlyWhenStunnedForXMS.Text;
             Strategy.MeleeOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
             sInt = txtPotionsOnlyWhenStunnedForXMS.Text;
             Strategy.PotionsOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
+            sInt = txtMagicLastXStepsRunIndefinitely.Text;
+            Strategy.MagicLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            sInt = txtMeleeLastXStepsRunIndefinitely.Text;
+            Strategy.MeleeLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            sInt = txtPotionsLastXStepsRunIndefinitely.Text;
+            Strategy.PotionsLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
 
-            ct = CommandType.None;
+            CommandType ct = CommandType.None;
             if (chkMagicEnabled.Checked) ct |= CommandType.Magic;
             if (chkMeleeEnabled.Checked) ct |= CommandType.Melee;
             if (chkPotionsEnabled.Checked) ct |= CommandType.Potions;
@@ -239,20 +261,20 @@ namespace IsengardClient
 
         private void ctxMagicSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            HandleContextMenuItemClicked(e, lstMagicSteps, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown, chkMagicLastStepIndefinite);
+            HandleContextMenuItemClicked(e, lstMagicSteps, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown, txtMagicLastXStepsRunIndefinitely);
         }
 
         private void ctxMeleeSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            HandleContextMenuItemClicked(e, lstMeleeSteps, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown,chkMeleeRepeatLastStepIndefinitely);
+            HandleContextMenuItemClicked(e, lstMeleeSteps, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown,txtMeleeLastXStepsRunIndefinitely);
         }
 
         private void ctxPotionsSteps_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            HandleContextMenuItemClicked(e, lstPotionsSteps, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown, chkPotionsRepeatLastStepIndefinitely);
+            HandleContextMenuItemClicked(e, lstPotionsSteps, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown, txtPotionsLastXStepsRunIndefinitely);
         }
 
-        private void HandleContextMenuItemClicked(ToolStripItemClickedEventArgs e, ListBox lst, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown, CheckBox repeatLastStepIndefinitely)
+        private void HandleContextMenuItemClicked(ToolStripItemClickedEventArgs e, ListBox lst, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown, TextBox txtRepeatLastStepsIndefinitely)
         {
             ToolStripItem clickedItem = e.ClickedItem;
             object selectedItem = lst.SelectedItem;
@@ -275,8 +297,8 @@ namespace IsengardClient
                 {
                     if (lst.Items.Count == 0)
                     {
-                        repeatLastStepIndefinitely.Checked = false;
-                        repeatLastStepIndefinitely.Enabled = false;
+                        txtRepeatLastStepsIndefinitely.Text = string.Empty;
+                        txtRepeatLastStepsIndefinitely.Enabled = false;
                     }
                 }
             }
@@ -285,17 +307,17 @@ namespace IsengardClient
         private void tsmiMagicAdd_Click(object sender, EventArgs e)
         {
             lstMagicSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
-            chkMagicLastStepIndefinite.Enabled = true;
+            txtMagicLastXStepsRunIndefinitely.Enabled = true;
         }
         private void tsmiMeleeAdd_Click(object sender, EventArgs e)
         {
             lstMeleeSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
-            chkMeleeRepeatLastStepIndefinitely.Enabled = true;
+            txtMeleeLastXStepsRunIndefinitely.Enabled = true;
         }
         private void tsmiPotionsAdd_Click(object sender, EventArgs e)
         {
             lstPotionsSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
-            chkPotionsRepeatLastStepIndefinitely.Enabled = true;
+            txtPotionsLastXStepsRunIndefinitely.Enabled = true;
         }
     }
 }
