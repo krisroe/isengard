@@ -1853,8 +1853,10 @@ namespace IsengardClient.Backend
 
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
+        [LookText("It's a simple helmet, forged in normal metal.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(5)]
+        [ArmorClass(0.4)]
         [Sellable(49)]
         MetalHelmet,
 
@@ -2246,6 +2248,8 @@ namespace IsengardClient.Backend
         SilkVest,
 
         [SingularName("silver arm-bands")]
+        //CSRTODO: plural
+        [LookText("They're made from the finest silver.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(5)]
         [ArmorClass(0.2)]
@@ -2309,7 +2313,10 @@ namespace IsengardClient.Backend
 
         [SingularName("small ash bow")]
         [PluralName("small ash bows")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(3)]
+        [Sellable(69)]
         SmallAshBow,
 
         [SingularName("small bag")]
