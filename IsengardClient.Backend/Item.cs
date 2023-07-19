@@ -1125,8 +1125,10 @@ namespace IsengardClient.Backend
 
         [SingularName("dark green potion")]
         [PluralName("dark green potions")]
+        [LookText("You see a deep green liquid in a heavy, lead beaker.")]
         [Potion(SpellsEnum.detectmagic)]
         [Weight(2)] //CSRTODO: wiki says this could also be 4
+        [Sellable(SellableEnum.NotSellable)]
         DarkGreenPotion,
 
         [SingularName("dark flask")]
@@ -1293,6 +1295,7 @@ namespace IsengardClient.Backend
 
         [SingularName("engagement ring")]
         [PluralName("engagement rings")]
+        [LookText("It's a beautifull engagement ring of gold and diamonds.")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
         [ArmorClass(0.1)]
@@ -1983,6 +1986,7 @@ namespace IsengardClient.Backend
 
         [SingularName("out of order sign")]
         [PluralName("out of order signs")]
+        [LookText("The sign says, \"Out of order until further notice\"")]
         [ItemClass(ItemClass.Fixed)]
         OutOfOrderSign,
 
@@ -2014,8 +2018,10 @@ namespace IsengardClient.Backend
 
         [SingularName("pipe weed")]
         //CSRTODO: plural?
+        [LookText("You see some dried leaves and flowers.")]
         [Wand(SpellsEnum.stun)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         PipeWeed,
 
         [SingularName("platinum pieces")]

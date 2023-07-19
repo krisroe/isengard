@@ -1125,6 +1125,7 @@
 
         [SingularName("mountain lion")]
         [PluralName("mountain lions")]
+        [Experience(45)]
         MountainLion,
 
         [SingularName("mountain raider")]

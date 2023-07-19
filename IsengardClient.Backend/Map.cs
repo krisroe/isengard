@@ -3356,6 +3356,7 @@ namespace IsengardClient.Backend
             breeToImladrisGraph.Rooms[oNathalin] = new PointF(13, 5);
 
             Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");
+            AddPermanentItems(oBrethilForest, ItemTypeEnum.PipeWeed);
             AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oBrethilForest] = new PointF(12, 6);
 
