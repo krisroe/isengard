@@ -1703,7 +1703,7 @@ namespace IsengardClient.Backend
                     }
                     else if (locationType == ItemLocationType.Equipment)
                     {
-                        eItem = Equipment[i].ItemType;
+                        eItem = Equipment[i]?.ItemType;
                     }
                     else if (locationType == ItemLocationType.Room)
                     {

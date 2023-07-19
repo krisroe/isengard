@@ -2557,7 +2557,10 @@ namespace IsengardClient.Backend
 
         [SingularName("viscous potion")]
         [PluralName("viscous potions")]
+        [LookText("The potion is extremely viscous.  It looks like oil.")]
         [Potion(SpellsEnum.unknown)] //CSRTODO: what is this, causes small amount of damage
+        [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
         ViscousPotion,
 
         [SingularName("volcanic boots")]
