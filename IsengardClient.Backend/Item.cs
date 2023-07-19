@@ -1281,6 +1281,7 @@ namespace IsengardClient.Backend
 
         [SingularName("emerald")]
         [PluralName("emeralds")]
+        [LookText("The green jewel is breath-taking in its simple beauty.")]
         [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(432)]
@@ -2403,6 +2404,7 @@ namespace IsengardClient.Backend
 
         [SingularName("spruce-top guitar")]
         [PluralName("spruce-top guitars")]
+        [LookText("A handsome instument for making music.")]
         [Weight(17)]
         [Sellable(123)]
         SpruceTopGuitar,
