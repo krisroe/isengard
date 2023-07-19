@@ -57,6 +57,7 @@ namespace IsengardClient
             txtMagicMendWhenDownXHP.Text = settingsData.MagicMendOnlyWhenDownXHP <= 0 ? string.Empty :  settingsData.MagicMendOnlyWhenDownXHP.ToString();
             txtPotionsVigorWhenDownXHP.Text = settingsData.PotionsVigorOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.PotionsVigorOnlyWhenDownXHP.ToString();
             txtPotionsMendWhenDownXHP.Text = settingsData.PotionsMendOnlyWhenDownXHP <= 0 ? string.Empty : settingsData.PotionsMendOnlyWhenDownXHP.ToString();
+            txtCommandTimeoutSeconds.Text = settingsData.CommandTimeoutSeconds.ToString();
 
             _fullColor = settingsData.FullColor;
             SetColorUI(lblFullColorValue, _fullColor);
@@ -174,54 +175,63 @@ namespace IsengardClient
                 eHeldItem = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), sItem);
             }
 
-            string sWhenDownXHP;
+            string sInt;
             int iMagicVigorWhenDownXHP, iMagicMendWhenDownXHP, iPotionsVigorWhenDownXHP, iPotionsMendWhenDownXHP;
 
-            sWhenDownXHP = txtMagicVigorWhenDownXHP.Text;
-            if (string.IsNullOrEmpty(sWhenDownXHP))
+            sInt = txtMagicVigorWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sInt))
             {
                 iMagicVigorWhenDownXHP = 0;
             }
-            else if (!int.TryParse(sWhenDownXHP, out iMagicVigorWhenDownXHP) || iMagicVigorWhenDownXHP <= 0)
+            else if (!int.TryParse(sInt, out iMagicVigorWhenDownXHP) || iMagicVigorWhenDownXHP <= 0)
             {
                 MessageBox.Show("Invalid magic vigor when down X HP");
                 txtMagicVigorWhenDownXHP.Focus();
                 return;
             }
 
-            sWhenDownXHP = txtMagicMendWhenDownXHP.Text;
-            if (string.IsNullOrEmpty(sWhenDownXHP))
+            sInt = txtMagicMendWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sInt))
             {
                 iMagicMendWhenDownXHP = 0;
             }
-            else if (!int.TryParse(sWhenDownXHP, out iMagicMendWhenDownXHP) || iMagicMendWhenDownXHP <= 0)
+            else if (!int.TryParse(sInt, out iMagicMendWhenDownXHP) || iMagicMendWhenDownXHP <= 0)
             {
                 MessageBox.Show("Invalid magic mend when down X HP");
                 txtMagicMendWhenDownXHP.Focus();
                 return;
             }
 
-            sWhenDownXHP = txtPotionsVigorWhenDownXHP.Text;
-            if (string.IsNullOrEmpty(sWhenDownXHP))
+            sInt = txtPotionsVigorWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sInt))
             {
                 iPotionsVigorWhenDownXHP = 0;
             }
-            else if (!int.TryParse(sWhenDownXHP, out iPotionsVigorWhenDownXHP) || iPotionsVigorWhenDownXHP <= 0)
+            else if (!int.TryParse(sInt, out iPotionsVigorWhenDownXHP) || iPotionsVigorWhenDownXHP <= 0)
             {
                 MessageBox.Show("Invalid potions vigor when down X HP");
                 txtPotionsVigorWhenDownXHP.Focus();
                 return;
             }
 
-            sWhenDownXHP = txtPotionsMendWhenDownXHP.Text;
-            if (string.IsNullOrEmpty(sWhenDownXHP))
+            sInt = txtPotionsMendWhenDownXHP.Text;
+            if (string.IsNullOrEmpty(sInt))
             {
                 iPotionsMendWhenDownXHP = 0;
             }
-            else if (!int.TryParse(sWhenDownXHP, out iPotionsMendWhenDownXHP) || iPotionsMendWhenDownXHP <= 0)
+            else if (!int.TryParse(sInt, out iPotionsMendWhenDownXHP) || iPotionsMendWhenDownXHP <= 0)
             {
                 MessageBox.Show("Invalid potions mend when down X HP");
                 txtPotionsMendWhenDownXHP.Focus();
+                return;
+            }
+
+            int iCommandTimeoutSeconds;
+            sInt = txtCommandTimeoutSeconds.Text;
+            if (string.IsNullOrEmpty(sInt) || !int.TryParse(sInt, out iCommandTimeoutSeconds) || iCommandTimeoutSeconds <= 0)
+            {
+                MessageBox.Show("Invalid command timeout seconds.");
+                txtCommandTimeoutSeconds.Focus();
                 return;
             }
 
@@ -240,6 +250,7 @@ namespace IsengardClient
             _settings.MagicMendOnlyWhenDownXHP = iMagicMendWhenDownXHP;
             _settings.PotionsVigorOnlyWhenDownXHP = iPotionsVigorWhenDownXHP;
             _settings.PotionsMendOnlyWhenDownXHP = iPotionsMendWhenDownXHP;
+            _settings.CommandTimeoutSeconds = iCommandTimeoutSeconds;
 
             _settings.Strategies.Clear();
             foreach (Strategy s in lstStrategies.Items)

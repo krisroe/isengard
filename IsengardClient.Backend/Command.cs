@@ -2,6 +2,11 @@
 {
     public class CommandResultObject
     {
+        public CommandResultObject(CommandResult result) : this(result, 0)
+        {
+
+        }
+
         public CommandResultObject(CommandResult result, int resultCode)
         {
             Result = result;

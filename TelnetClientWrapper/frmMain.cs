@@ -178,11 +178,6 @@ namespace IsengardClient
         /// </summary>
         private const int MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND = 20;
 
-        /// <summary>
-        /// time to wait before a single command times out
-        /// </summary>
-        private const int SINGLE_COMMAND_TIMEOUT_SECONDS = 5;
-
         private List<BackgroundCommandType> _backgroundSpells = new List<BackgroundCommandType>()
         {
             BackgroundCommandType.Vigor,
@@ -4976,7 +4971,7 @@ namespace IsengardClient
                                 if (nextPotionsStep.HasValue && allowBasedOnStun &&
                                     (!dtNextPotionsCommand.HasValue || dtUtcNow > dtNextPotionsCommand.Value))
                                 {
-                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(strategy, nextPotionsStep.Value, out command, _autohp, _totalhp, _settingsData);
+                                    PotionsCommandChoiceResult potionChoice = GetPotionsCommand(nextPotionsStep.Value, out command, _autohp, _totalhp, _settingsData);
                                     if (potionChoice == PotionsCommandChoiceResult.Fail)
                                     {
                                         nextPotionsStep = null;
@@ -5369,15 +5364,15 @@ BeforeHazy:
                             }
                             else
                             {
-                                if (!_currentEntityInfo.HasPotionForSpell(sia.SpellType, out _, out _)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                                if (!_currentEntityInfo.HasPotionForSpell(sia.SpellType, out _, out _)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                             }
                         }
                     }
                 }
                 foreach (WorkflowSpells nextPotSpell in Enum.GetValues(typeof(WorkflowSpells)))
                 {
-                    if (_hazying || _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                    if (_hazying || _fleeing) return new CommandResultObject(CommandResult.CommandEscaped);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                     if (nextPotSpell != WorkflowSpells.None && ((nextPotSpell & spellsToPot) != WorkflowSpells.None))
                     {
                         backgroundCommandResultObject = DrinkPotionForSpell(SpellsStatic.WorkflowSpellsByEnum[nextPotSpell], pms, AbortIfFleeingOrHazying);
@@ -5404,9 +5399,9 @@ BeforeHazy:
                     return backgroundCommandResultObject;
                 }
             }
-            if (_hazying || _fleeing) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandEscaped, 0);
-            else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted, 0);
-            else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            if (_hazying || _fleeing) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandEscaped);
+            else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted);
+            else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
             return backgroundCommandResultObject;
         }
 
@@ -5429,7 +5424,7 @@ BeforeHazy:
         {
             if (eInventoryWorkflow == InventoryManagementWorkflow.ManageSourceItems && pr != null && pr.InventoryManagementFinished)
             {
-                return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                return new CommandResultObject(CommandResult.CommandSuccessful);
             }
             CommandResultObject backgroundCommandResultObject;
             bool junkUselessBrokenItems = true;
@@ -5552,7 +5547,7 @@ BeforeHazy:
                 if (failedForSourceRoomMessages.Count > 0)
                 {
                     AddConsoleMessages(failedForSourceRoomMessages);
-                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
 
                 List<ItemEntity> itemsToSendToInventorySink = new List<ItemEntity>();
@@ -5584,7 +5579,7 @@ BeforeHazy:
                             else //don't know what to do with the item
                             {
                                 AddConsoleMessage("Don't know what to do with " + itemType);
-                                return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                                return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                             }
                         }
                     }
@@ -5603,7 +5598,7 @@ BeforeHazy:
                     if (inventorySinkRoom == null)
                     {
                         AddConsoleMessage("No inventory sink room specified.");
-                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                     }
 
                 StartInventorySinkRoomProcessing:
@@ -5700,7 +5695,7 @@ BeforeHazy:
                                 lock (_currentEntityInfo.EntityLock)
                                 {
                                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, 1, true, false);
-                                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                                 }
                             }
                             backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms, AbortIfHazying);
@@ -5783,7 +5778,7 @@ BeforeHazy:
                             }
                         }
                     }
-                    if (anythingFailedForTickRoom) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    if (anythingFailedForTickRoom) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
 
                     if (itemsToSellOrJunk.Count > 0)
                     {
@@ -5807,7 +5802,7 @@ BeforeHazy:
                     {
                         //getting back to the inventory source room may not work, such as if there is a day-only exit in between. in that case
                         //treat as successful as whatever has been ferried so far is the best we can do.
-                        return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                        return new CommandResultObject(CommandResult.CommandSuccessful);
                     }
                     else if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
                     {
@@ -5821,7 +5816,7 @@ BeforeHazy:
                     }
                     else
                     {
-                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                     }
                 }
             }
@@ -5842,15 +5837,15 @@ BeforeHazy:
             CommandResultObject ret;
             if (_bwBackgroundProcess.CancellationPending)
             {
-                ret = new CommandResultObject(CommandResult.CommandAborted, 0);
+                ret = new CommandResultObject(CommandResult.CommandAborted);
             }
             else if (_hazying)
             {
-                ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
+                ret = new CommandResultObject(CommandResult.CommandEscaped);
             }
             else
             {
-                ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                ret = new CommandResultObject(CommandResult.CommandSuccessful);
                 if (pr != null)
                 {
                     pr.InventoryManagementFinished = true;
@@ -5866,7 +5861,7 @@ BeforeHazy:
             ItemTypeEnum? potItem;
             lock (_currentEntityInfo.EntityLock)
             {
-                if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 ItemLocationType ilt = inInventory.Value ? ItemLocationType.Inventory : ItemLocationType.Equipment;
                 sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, potItem.Value, 1, false, ilt == ItemLocationType.Equipment);
                 if (string.IsNullOrEmpty(sItemText) && ilt == ItemLocationType.Equipment)
@@ -5879,14 +5874,14 @@ BeforeHazy:
                 lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
-                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
-                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms, abortLogic).Result != CommandResult.CommandSuccessful) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms, abortLogic).Result != CommandResult.CommandSuccessful) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
                 }
-                if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
             }
             return RunSingleCommand(BackgroundCommandType.DrinkNonHazyPotion, "drink " + sItemText, pms, abortLogic, false);
         }
@@ -5909,12 +5904,12 @@ BeforeHazy:
             if (currentRoom != r)
             {
                 var nextRoute = CalculateRouteExits(currentRoom, r);
-                if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                if (nextRoute == null) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 backgroundCommandResultObject = TraverseExitsAlreadyInBackground(nextRoute, pms, beforeGetToTargetRoom, pr);
             }
             else
             {
-                backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
             }
             pms.AtDestination = r == pms.TargetRoom;
             return backgroundCommandResultObject;
@@ -5968,7 +5963,7 @@ BeforeHazy:
                 if (!pms.NewArea.PawnShop.HasValue)
                 {
                     AddConsoleMessage("No pawn shop available.");
-                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
                 backgroundCommandResultObject = NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false, pr);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
@@ -6030,13 +6025,13 @@ BeforeHazy:
             }
             CommandResultObject ret;
             if (_bwBackgroundProcess.CancellationPending)
-                ret = new CommandResultObject(CommandResult.CommandAborted, 0);
+                ret = new CommandResultObject(CommandResult.CommandAborted);
             else if (_hazying)
-                ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
+                ret = new CommandResultObject(CommandResult.CommandEscaped);
             else if (!success)
-                ret = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                ret = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
             else
-                ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                ret = new CommandResultObject(CommandResult.CommandSuccessful);
             return ret;
         }
 
@@ -6066,7 +6061,7 @@ BeforeHazy:
                 }
                 else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                 {
-                    ItemStatus eStatus = (ItemStatus)_commandSpecificResult;
+                    ItemStatus eStatus = (ItemStatus)backgroundCommandResultObject.ResultCode;
                     if (eStatus == ItemStatus.Broken)
                     {
                         if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, eKeyType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
@@ -6076,7 +6071,7 @@ BeforeHazy:
                     }
                 }
             }
-            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            return new CommandResultObject(CommandResult.CommandSuccessful);
         }
 
         private bool FoundMob(BackgroundWorkerParameters pms)
@@ -6244,7 +6239,7 @@ BeforeHazy:
                 {
                     if (RunSingleCommandForCommandResult(checkWeightCommandType, checkWeightCommand, pms, abortLogic, true).Result != CommandResult.CommandSuccessful)
                     {
-                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                        return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                     }
                     lock (_currentEntityInfo.EntityLock)
                     {
@@ -6313,7 +6308,7 @@ BeforeHazy:
                 if (needCurePoison)
                 {
                     AddConsoleMessage("Unable to cure poison.");
-                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
             }
             SpellInformationAttribute siaVigor = SpellsStatic.SpellsByEnum[SpellsEnum.vigor];
@@ -6325,7 +6320,7 @@ BeforeHazy:
                     return nextCommandResultObject;
                 }
             }
-            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            return new CommandResultObject(CommandResult.CommandSuccessful);
         }
 
         /// <summary>
@@ -6394,19 +6389,19 @@ BeforeHazy:
                     {
                         Thread.Sleep(50);
                         waitInterval -= 50;
-                        if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                        if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped);
+                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                         RunQueuedCommandWhenBackgroundProcessRunning(pms);
                     }
                 }
-                if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                if (_fleeing || _hazying) return new CommandResultObject(CommandResult.CommandEscaped);
+                if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                 RunQueuedCommandWhenBackgroundProcessRunning(pms);
             }
-            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            return new CommandResultObject(CommandResult.CommandSuccessful);
         }
 
-        public PotionsCommandChoiceResult GetPotionsCommand(Strategy Strategy, PotionsStrategyStep nextPotionsStep, out string command, int currentHP, int totalHP, IsengardSettingData settings)
+        public PotionsCommandChoiceResult GetPotionsCommand(PotionsStrategyStep nextPotionsStep, out string command, int currentHP, int totalHP, IsengardSettingData settings)
         {
             command = null;
             lock (_currentEntityInfo.EntityLock)
@@ -6481,7 +6476,7 @@ BeforeHazy:
                 if (previousExit != null && previousExit == nextExit)
                 {
                     AddConsoleMessage("Movement recalculation produced the same path.");
-                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
                 Room nextExitTarget = nextExit.Target;
                 string exitText = nextExit.ExitText;
@@ -6508,8 +6503,8 @@ BeforeHazy:
                                     else
                                     {
                                         WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
-                                        if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                                        if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped);
+                                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                                     }
                                 }
                                 else //look is not supposed to fail (but could be aborted)
@@ -6546,17 +6541,17 @@ BeforeHazy:
                     {
                         while (!_currentBackgroundExitMessageReceived)
                         {
-                            if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                            if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                            if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                            if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped);
+                            if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped);
+                            if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                             Thread.Sleep(50);
                             RunQueuedCommandWhenBackgroundProcessRunning(pms);
                         }
                     }
 
-                    if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                    if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped, 0);
-                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
+                    if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped);
+                    if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
 
                     bool useGo;
                     string sExitWord = GetExitWord(nextExit, out useGo);
@@ -6669,7 +6664,7 @@ BeforeHazy:
                             }
                             else //couldn't recalculate a new route
                             {
-                                return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                                return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                             }
                             keepTryingMovement = false;
                         }
@@ -6705,7 +6700,7 @@ BeforeHazy:
                         else //total failure, abort the background process
                         {
                             keepTryingMovement = false;
-                            return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                            return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                         }
                     }
                     if (needHeal || needCurepoison)
@@ -6745,11 +6740,11 @@ BeforeHazy:
             }
             CommandResultObject ret;
             if (_bwBackgroundProcess.CancellationPending)
-                ret = new CommandResultObject(CommandResult.CommandAborted, 0);
+                ret = new CommandResultObject(CommandResult.CommandAborted);
             else if (_hazying || _fleeing)
-                ret = new CommandResultObject(CommandResult.CommandEscaped, 0);
+                ret = new CommandResultObject(CommandResult.CommandEscaped);
             else
-                ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                ret = new CommandResultObject(CommandResult.CommandSuccessful);
             return ret;
         }
 
@@ -7127,7 +7122,7 @@ BeforeHazy:
                     //flee even if the weapon has to be dropped.
                 }
             }
-            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+            return new CommandResultObject(CommandResult.CommandSuccessful);
         }
 
         /// <summary>
@@ -7173,7 +7168,7 @@ BeforeHazy:
                     {
                         //we could remove the existing item and equip the correct item (if different), but for the moment leave things as is
                         //and let the combat continue.
-                        return new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                        return new CommandResultObject(CommandResult.CommandSuccessful);
                     }
                 }
                 foreach (string sNextWeaponText in itemTexts)
@@ -7187,7 +7182,7 @@ BeforeHazy:
                 if (isBeforeCombat)
                 {
                     //if combat hasn't started yet return failure and let the user take the next action
-                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
+                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
                 else
                 {
@@ -7196,12 +7191,12 @@ BeforeHazy:
 
                     //if combat has started we don't want to fail and stop combat. Current behavior is to display a message to the user and
                     //make them responsible for handling it appropriately
-                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                    backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
                 }
             }
             else //nothing to wield
             {
-                backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
             }
             return backgroundCommandResultObject;
         }
@@ -7535,7 +7530,7 @@ BeforeHazy:
             }
             else //not a door exit
             {
-                ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
+                ret = new CommandResultObject(CommandResult.CommandSuccessful);
             }
             return ret;
         }
@@ -7675,7 +7670,7 @@ BeforeHazy:
         {
             //quitting and commands that could cause room transition can't be aborted if sent to the server
             bool allowAbort = commandType != BackgroundCommandType.Look && commandType != BackgroundCommandType.Movement && commandType != BackgroundCommandType.Flee && commandType != BackgroundCommandType.DrinkHazy && commandType != BackgroundCommandType.Quit;
-            DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(SINGLE_COMMAND_TIMEOUT_SECONDS);
+            DateTime utcTimeoutPoint = DateTime.UtcNow.AddSeconds(_settingsData.CommandTimeoutSeconds);
             _commandResult = null;
             _commandSpecificResult = 0;
             _lastCommand = null;
@@ -7770,8 +7765,8 @@ BeforeHazy:
                 CommandResultObject resultObject = null;
                 while (currentAttempts < MAX_ATTEMPTS_FOR_BACKGROUND_COMMAND)
                 {
-                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted, 0);
-                    if (abortLogic != null && abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped, 0);
+                    if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
+                    if (abortLogic != null && abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped);
                     currentAttempts++;
                     resultObject = RunSingleCommandForCommandResultBase(commandType, command, pms, abortLogic, hidden);
                     CommandResult resultValue = resultObject.Result;

@@ -2273,7 +2273,7 @@ namespace IsengardClient.Backend
             string firstLine = lines[0];
             if (firstLine != sid.LookText) return;
             ItemStatus status = ItemStatus.NotBroken;
-            if (lines.Count > 1)
+            if (iLineCount > 1)
             {
                 for (int i = 1; i < iLineCount; i++)
                 {

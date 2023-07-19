@@ -184,6 +184,8 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.ConsoleVerbosity, sets2.ConsoleVerbosity);
             Assert.AreEqual(settings.Weapon, sets2.Weapon);
             Assert.AreEqual(settings.HeldItem, sets2.HeldItem);
+            Assert.AreEqual(settings.DisplayStunLength, sets2.DisplayStunLength);
+            Assert.AreEqual(settings.CommandTimeoutSeconds, sets2.CommandTimeoutSeconds);
             Assert.AreEqual(settings.DynamicItemData.Count, sets2.DynamicItemData.Count);
             foreach (var next in settings.DynamicItemData)
             {

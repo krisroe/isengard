@@ -113,6 +113,8 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
+            this.txtCommandTimeoutSeconds = new System.Windows.Forms.TextBox();
+            this.lblCommandTimeoutSeconds = new System.Windows.Forms.Label();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -456,6 +458,8 @@
             // 
             // pnlSettings
             // 
+            this.pnlSettings.Controls.Add(this.txtCommandTimeoutSeconds);
+            this.pnlSettings.Controls.Add(this.lblCommandTimeoutSeconds);
             this.pnlSettings.Controls.Add(this.lblAutoSpellLevels);
             this.pnlSettings.Controls.Add(this.lblAutoEscape);
             this.pnlSettings.Controls.Add(this.lblRealm);
@@ -529,7 +533,7 @@
             "Minimum",
             "Default",
             "Maximum"});
-            this.cboConsoleVerbosity.Location = new System.Drawing.Point(261, 327);
+            this.cboConsoleVerbosity.Location = new System.Drawing.Point(262, 354);
             this.cboConsoleVerbosity.Margin = new System.Windows.Forms.Padding(4);
             this.cboConsoleVerbosity.Name = "cboConsoleVerbosity";
             this.cboConsoleVerbosity.Size = new System.Drawing.Size(115, 24);
@@ -538,7 +542,7 @@
             // lblConsoleVerbosity
             // 
             this.lblConsoleVerbosity.AutoSize = true;
-            this.lblConsoleVerbosity.Location = new System.Drawing.Point(25, 331);
+            this.lblConsoleVerbosity.Location = new System.Drawing.Point(26, 358);
             this.lblConsoleVerbosity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblConsoleVerbosity.Name = "lblConsoleVerbosity";
             this.lblConsoleVerbosity.Size = new System.Drawing.Size(118, 16);
@@ -971,6 +975,24 @@
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
             // 
+            // txtCommandTimeoutSeconds
+            // 
+            this.txtCommandTimeoutSeconds.Location = new System.Drawing.Point(261, 324);
+            this.txtCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4);
+            this.txtCommandTimeoutSeconds.Name = "txtCommandTimeoutSeconds";
+            this.txtCommandTimeoutSeconds.Size = new System.Drawing.Size(115, 22);
+            this.txtCommandTimeoutSeconds.TabIndex = 165;
+            // 
+            // lblCommandTimeoutSeconds
+            // 
+            this.lblCommandTimeoutSeconds.AutoSize = true;
+            this.lblCommandTimeoutSeconds.Location = new System.Drawing.Point(25, 328);
+            this.lblCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCommandTimeoutSeconds.Name = "lblCommandTimeoutSeconds";
+            this.lblCommandTimeoutSeconds.Size = new System.Drawing.Size(216, 20);
+            this.lblCommandTimeoutSeconds.TabIndex = 164;
+            this.lblCommandTimeoutSeconds.Text = "Command timeout seconds:";
+            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1088,5 +1110,7 @@
         private System.Windows.Forms.Label lblAutoSpellLevels;
         private System.Windows.Forms.Label lblAutoEscape;
         private System.Windows.Forms.Label lblRealm;
+        private System.Windows.Forms.TextBox txtCommandTimeoutSeconds;
+        private System.Windows.Forms.Label lblCommandTimeoutSeconds;
     }
 }

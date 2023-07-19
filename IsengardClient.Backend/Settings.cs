@@ -28,6 +28,7 @@ namespace IsengardClient.Backend
         public bool AutoEscapeActive { get; set; }
         public bool RemoveAllOnStartup { get; set; }
         public bool DisplayStunLength { get; set; }
+        public int CommandTimeoutSeconds { get; set; }
         public int MagicVigorOnlyWhenDownXHP { get; set; }
         public int MagicMendOnlyWhenDownXHP { get; set; }
         public int PotionsVigorOnlyWhenDownXHP { get; set; }
@@ -53,6 +54,7 @@ namespace IsengardClient.Backend
             AutoSpellLevelMax = AUTO_SPELL_LEVEL_MAXIMUM;
             RemoveAllOnStartup = true;
             DisplayStunLength = false;
+            CommandTimeoutSeconds = 5;
             AutoEscapeThreshold = 0;
             AutoEscapeType = AutoEscapeType.Flee;
             AutoEscapeActive = false;
@@ -85,6 +87,7 @@ namespace IsengardClient.Backend
             AutoEscapeActive = copied.AutoEscapeActive;
             RemoveAllOnStartup = copied.RemoveAllOnStartup;
             DisplayStunLength = copied.DisplayStunLength;
+            CommandTimeoutSeconds = copied.CommandTimeoutSeconds;
             MagicVigorOnlyWhenDownXHP = copied.MagicVigorOnlyWhenDownXHP;
             MagicMendOnlyWhenDownXHP = copied.MagicMendOnlyWhenDownXHP;
             PotionsVigorOnlyWhenDownXHP = copied.PotionsVigorOnlyWhenDownXHP;
@@ -2691,6 +2694,12 @@ namespace IsengardClient.Backend
                         DisplayStunLength = bValue;
                     else
                         errorMessages.Add("Invalid DisplayStunLength: " + sValue);
+                    break;
+                case "CommandTimeoutSeconds":
+                    if (int.TryParse(sValue, out iValue))
+                        CommandTimeoutSeconds = iValue;
+                    else
+                        errorMessages.Add("Invalid CommandTimeoutSeconds: " + sValue);
                     break;
                 case "SaveSettingsOnQuit":
                     if (bool.TryParse(sValue, out bValue))
