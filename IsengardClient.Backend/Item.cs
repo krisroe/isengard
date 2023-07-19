@@ -2298,6 +2298,7 @@ namespace IsengardClient.Backend
 
         [SingularName("slaying sword")]
         [PluralName("slaying swords")]
+        [LookText("You see a sword with a wide blade and short hilt.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
         [Sellable(562)]
