@@ -5421,16 +5421,16 @@ BeforeHazy:
         /// <param name="inventorySourceRoom">source room. it is assumed the player is present in this room.</param>
         /// <param name="inventorySinkRoom">target room for a ferry or inventory sink room for item management</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool failureToReturnToSourceRoomIsOK, PermRun pr)
+        private CommandResultObject DoInventoryManagement(BackgroundWorkerParameters pms, ItemsToProcessType eInvProcessInputs, InventoryManagementWorkflow eInventoryWorkflow, Room inventorySourceRoom, Room inventorySinkRoom, bool beforeTargetRoom, PermRun pr)
         {
             if (eInventoryWorkflow == InventoryManagementWorkflow.ManageSourceItems && pr != null && pr.InventoryManagementFinished)
             {
                 return new CommandResultObject(CommandResult.CommandSuccessful, 0);
             }
             CommandResultObject backgroundCommandResultObject;
+            bool junkUselessBrokenItems = true;
             if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom || (pms.MonsterKilled && eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops))
             {
-                bool junkUselessBrokenItems = true;
                 NavigateToSpecificRoom(inventorySourceRoom, pms, false, pr);
                 _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                 List<ItemEntity> itemsToProcess = new List<ItemEntity>();
@@ -5799,9 +5799,9 @@ BeforeHazy:
                 if (anythingCouldNotBePickedUpFromSourceRoom)
                 {
                     backgroundCommandResultObject = NavigateToSpecificRoom(inventorySourceRoom, pms, false, pr);
-                    if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways && failureToReturnToSourceRoomIsOK)
+                    if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways && beforeTargetRoom)
                     {
-                        //getting back to the target room may not work, such as if there is a day-only exit in between. in that case
+                        //getting back to the inventory source room may not work, such as if there is a day-only exit in between. in that case
                         //treat as successful as whatever has been ferried so far is the best we can do.
                         return new CommandResultObject(CommandResult.CommandSuccessful, 0);
                     }
@@ -5819,6 +5819,20 @@ BeforeHazy:
                     {
                         return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways, 0);
                     }
+                }
+            }
+            if (junkUselessBrokenItems && pr != null && pr.SupportedKeys != SupportedKeysFlags.None && pms.NewArea != null && pms.NewArea.PawnShop.HasValue && !beforeTargetRoom)
+            {
+                backgroundCommandResultObject = NavigateToSpecificRoom(_gameMap.PawnShoppes[pms.NewArea.PawnShop.Value], pms, false, pr);
+                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResultObject;
+                }
+                bool bTemp = false;
+                backgroundCommandResultObject = JunkBrokenKeys(pms, ref bTemp);
+                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResultObject;
                 }
             }
             CommandResultObject ret;
@@ -5960,40 +5974,12 @@ BeforeHazy:
                 _backgroundProcessPhase = BackgroundProcessPhase.InventoryManagement;
                 if (junkUselessBrokenItems)
                 {
-                    RemoveKeyFromHeldSlot(null, pms, AbortIfHazying);
-                    List<SelectedInventoryOrEquipmentItem> lst;
-                    lock (_currentEntityInfo.EntityLock)
-                    {
-                        lst = _currentEntityInfo.GetInvEqItems((ie) => { return ie.IsItemClass(ItemClass.Key); }, true, false);
-                    }
-                    lst.Reverse(); //handle in reverse order to prevent index shifting
-                    foreach (SelectedInventoryOrEquipmentItem sioei in lst)
-                    {
-                        string sItemText;
-                        ItemTypeEnum eKeyType = sioei.ItemType;
-                        lock (_currentEntityInfo.EntityLock)
-                        {
-                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eKeyType, sioei.Counter, false, false);
-                        }
-                        _commandInventoryItem = sioei;
-                        backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, AbortIfHazying, false);
-                        if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
-                        {
-                            return backgroundCommandResultObject;
-                        }
-                        else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
-                        {
-                            ItemStatus eStatus = (ItemStatus)_commandSpecificResult;
-                            if (eStatus == ItemStatus.Broken)
-                            {
-                                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, eKeyType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
-                                    somethingDone = true;
-                                else
-                                    AddConsoleMessage("Failed to junk " + sItemText);
-                            }
-                        }
-                    }
                     junkUselessBrokenItems = false;
+                    backgroundCommandResultObject = JunkBrokenKeys(pms, ref somethingDone);
+                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResultObject;
+                    }
                 }
                 foreach (ItemEntity nextItem in items)
                 {
@@ -6048,6 +6034,45 @@ BeforeHazy:
             else
                 ret = new CommandResultObject(CommandResult.CommandSuccessful, 0);
             return ret;
+        }
+
+        private CommandResultObject JunkBrokenKeys(BackgroundWorkerParameters pms, ref bool somethingDone)
+        {
+            CommandResultObject backgroundCommandResultObject;
+            RemoveKeyFromHeldSlot(null, pms, AbortIfHazying);
+            List<SelectedInventoryOrEquipmentItem> lst;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                lst = _currentEntityInfo.GetInvEqItems((ie) => { return ie.IsItemClass(ItemClass.Key); }, true, false);
+            }
+            lst.Reverse(); //handle in reverse order to prevent index shifting
+            foreach (SelectedInventoryOrEquipmentItem sioei in lst)
+            {
+                string sItemText;
+                ItemTypeEnum eKeyType = sioei.ItemType;
+                lock (_currentEntityInfo.EntityLock)
+                {
+                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eKeyType, sioei.Counter, false, false);
+                }
+                _commandInventoryItem = sioei;
+                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, AbortIfHazying, false);
+                if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                {
+                    return backgroundCommandResultObject;
+                }
+                else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                {
+                    ItemStatus eStatus = (ItemStatus)_commandSpecificResult;
+                    if (eStatus == ItemStatus.Broken)
+                    {
+                        if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, eKeyType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
+                            somethingDone = true;
+                        else
+                            AddConsoleMessage("Failed to junk " + sItemText);
+                    }
+                }
+            }
+            return new CommandResultObject(CommandResult.CommandSuccessful, 0);
         }
 
         private bool FoundMob(BackgroundWorkerParameters pms)
