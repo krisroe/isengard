@@ -5311,6 +5311,41 @@ BeforeHazy:
         {
             _backgroundProcessPhase = BackgroundProcessPhase.PostHealPreCombatLogic;
             CommandResultObject backgroundCommandResultObject;
+            bool removeAllEquipment = pr != null && pr.RemoveAllEquipment;
+            if (!_hazying && !_fleeing)
+            {
+                backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, AbortIfFleeingOrHazying);
+                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                {
+                    return backgroundCommandResultObject;
+                }
+                failedToEquip = true;
+            }
+            if (!_hazying && !_fleeing && useMelee && !removeAllEquipment)
+            {
+                ItemTypeEnum? weaponItem = _settingsData.Weapon;
+                ItemTypeEnum? heldItem = _settingsData.HeldItem;
+                backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
+                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                {
+                    AddConsoleMessage("Failed to equip " + weaponItem.Value);
+                    return backgroundCommandResultObject;
+                }
+                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
+                {
+                    return backgroundCommandResultObject;
+                }
+                backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
+                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
+                {
+                    AddConsoleMessage("Failed to hold " + weaponItem.Value);
+                    return backgroundCommandResultObject;
+                }
+                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
+                {
+                    return backgroundCommandResultObject;
+                }
+            }
             WorkflowSpells spellsToPot = pr == null ? WorkflowSpells.None : pr.SpellsToPotion;
             spellsToPot &= ~WorkflowSpells.CurePoison;
             if (spellsToPot != WorkflowSpells.None)
@@ -5361,40 +5396,6 @@ BeforeHazy:
             {
                 backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Fireshield, "fireshield", pms, AbortIfFleeingOrHazying, false);
                 if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
-                {
-                    return backgroundCommandResultObject;
-                }
-            }
-            if (!_hazying && !_fleeing && pr != null && pr.RemoveAllEquipment)
-            {
-                backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, AbortIfFleeingOrHazying);
-                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
-                {
-                    return backgroundCommandResultObject;
-                }
-                failedToEquip = true;
-            }
-            if (!_hazying && !_fleeing && useMelee)
-            {
-                ItemTypeEnum? weaponItem = _settingsData.Weapon;
-                ItemTypeEnum? heldItem = _settingsData.HeldItem;
-                backgroundCommandResultObject = EquipSingleItem(weaponItem, EquipmentSlot.Weapon1, BackgroundCommandType.WieldWeapon, pms, true, ref failedToEquip);
-                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                {
-                    AddConsoleMessage("Failed to equip " + weaponItem.Value);
-                    return backgroundCommandResultObject;
-                }
-                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
-                {
-                    return backgroundCommandResultObject;
-                }
-                backgroundCommandResultObject = EquipSingleItem(heldItem, EquipmentSlot.Held, BackgroundCommandType.HoldItem, pms, true, ref failedToEquip);
-                if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulAlways)
-                {
-                    AddConsoleMessage("Failed to hold " + weaponItem.Value);
-                    return backgroundCommandResultObject;
-                }
-                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                 {
                     return backgroundCommandResultObject;
                 }
