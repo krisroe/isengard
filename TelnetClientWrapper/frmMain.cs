@@ -186,6 +186,7 @@ namespace IsengardClient
             BackgroundCommandType.CurePoison,
             BackgroundCommandType.Bless,
             BackgroundCommandType.Stun,
+            BackgroundCommandType.StunWithWand,
             BackgroundCommandType.OffensiveSpell
         };
 
@@ -2095,6 +2096,15 @@ namespace IsengardClient
             }
         }
 
+        private static void FailStunWithWandUsedUp(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.UnlockExit)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulThisTime; //could succeed with a different wand
+            }
+        }
+
         private static void FailUnlockAlways(FeedLineParameters flParams)
         {
             BackgroundCommandType? bct = flParams.BackgroundCommandType;
@@ -2482,7 +2492,7 @@ namespace IsengardClient
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun)
+                if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.StunWithWand)
                 {
                     flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
@@ -2495,7 +2505,7 @@ namespace IsengardClient
             if (bct.HasValue)
             {
                 BackgroundCommandType bctValue = bct.Value;
-                if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.Attack)
+                if (bctValue == BackgroundCommandType.OffensiveSpell || bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.StunWithWand || bctValue == BackgroundCommandType.Attack)
                 {
                     flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
                 }
@@ -2715,9 +2725,13 @@ namespace IsengardClient
                         {
                             _monsterStunnedSince = DateTime.UtcNow;
                         }
-                        if (bct.HasValue && bct.Value == BackgroundCommandType.Stun)
+                        if (bct.HasValue)
                         {
-                            flp.CommandResult = CommandResult.CommandSuccessful;
+                            BackgroundCommandType bctValue = bct.Value;
+                            if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.StunWithWand)
+                            {
+                                flp.CommandResult = CommandResult.CommandSuccessful;
+                            }
                         }
                         finishedProcessing = true;
                         break;
@@ -3805,13 +3819,13 @@ namespace IsengardClient
                 new ConstantOutputSequence("Nothing happens.", OnSpellFails, ConstantSequenceMatchType.ExactMatch, 0, _backgroundSpells), //e.g. casting a spell from the tree of life
                 new ConstantOutputSequence("You don't see that here.", OnYouDontSeeThatHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.LookAtMob }),
                 new ConstantOutputSequence("That is not here.", OnThatIsNotHere, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Attack, BackgroundCommandType.Trade }), //triggered by power attack
-                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun }),
-                new ConstantOutputSequence("You cannot harm him.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
-                new ConstantOutputSequence("You cannot harm her.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.Attack }),
+                new ConstantOutputSequence("That's not here.", OnCastOffensiveSpellMobNotPresent, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.StunWithWand }),
+                new ConstantOutputSequence("You cannot harm him.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.StunWithWand, BackgroundCommandType.Attack }),
+                new ConstantOutputSequence("You cannot harm her.", OnTryAttackUnharmableMob, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.OffensiveSpell, BackgroundCommandType.Stun, BackgroundCommandType.StunWithWand, BackgroundCommandType.Attack }),
                 new ConstantOutputSequence("It's not locked.", ExitIsNotLocked, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock, BackgroundCommandType.UnlockExit }),
                 new ConstantOutputSequence("You successfully open the lock.", SuccessfulKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
                 new ConstantOutputSequence("You failed.", FailKnock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Knock }),
-                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon, BackgroundCommandType.HoldItem, BackgroundCommandType.UnlockExit }),
+                new ConstantOutputSequence("You don't have that.", FailItemAction, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion, BackgroundCommandType.SellItem, BackgroundCommandType.DropItem, BackgroundCommandType.Trade, BackgroundCommandType.WieldWeapon, BackgroundCommandType.HoldItem, BackgroundCommandType.UnlockExit, BackgroundCommandType.StunWithWand }),
                 new ConstantOutputSequence(" starts to evaporates before you drink it.", PotionEvaporatesBeforeDrinking, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() { BackgroundCommandType.DrinkHazy, BackgroundCommandType.DrinkNonHazyPotion }),
                 new ConstantOutputSequence("You prepare yourself for traps.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
                 new ConstantOutputSequence("You've already prepared.", OnSuccessfulPrepare, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Prepare }),
@@ -3842,6 +3856,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("Wrong key.", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
                 new ConstantOutputSequence("Click.", SucceedUnlock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
                 new ConstantOutputSequence(" is broken.", FailUnlockThisTime, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}), //e.g. The tomb key is broken.
+                new ConstantOutputSequence("It's used up.", FailStunWithWandUsedUp, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.StunWithWand }),
             };
             return seqs;
         }
@@ -4574,14 +4589,16 @@ namespace IsengardClient
                 RealmTypeFlags availableRealms = _settingsData.Realms;
                 bool haveMeleeStrategySteps = false;
                 bool haveMagicStrategySteps = false;
+                bool haveMagicStunWandStep = false;
                 bool havePotionsStrategySteps = false;
                 Strategy strategy = pms.Strategy;
                 if (strategy != null)
                 {
                     useManaPool = strategy.ManaPool > 0;
-                    haveMagicStrategySteps = strategy.HasAnyMagicSteps();
-                    haveMeleeStrategySteps = strategy.HasAnyMeleeSteps();
-                    havePotionsStrategySteps = strategy.HasAnyPotionsSteps();
+                    haveMagicStrategySteps = strategy.HasAnyMagicSteps(null);
+                    haveMagicStunWandStep = strategy.HasAnyMagicSteps(MagicStrategyStep.StunWand);
+                    haveMeleeStrategySteps = strategy.HasAnyMeleeSteps(null);
+                    havePotionsStrategySteps = strategy.HasAnyPotionsSteps(null);
                     onMonsterKilledAction = strategy.AfterKillMonsterAction;
                     if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
                     {
@@ -4590,6 +4607,7 @@ namespace IsengardClient
                     }
                     if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
                 }
+                List<SelectedInventoryOrEquipmentItem> stunWands = null;
 
                 if (hasMob)
                 {
@@ -4597,7 +4615,7 @@ namespace IsengardClient
                     //activate potions/skills at the threshold if there is a threshold
                     if (!_fleeing && !_hazying && haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps, haveMagicStunWandStep, out stunWands);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4667,7 +4685,7 @@ namespace IsengardClient
                     //activate potions/skills at the target if there is no threshold
                     if (!_fleeing && !_hazying && !haveThreshold)
                     {
-                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps);
+                        backgroundCommandResultObject = PerformPostTickPreCombatActions(pms, skillsToRun, pr, ref failedToEquip, haveMeleeStrategySteps, haveMagicStunWandStep, out stunWands);
                         if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful && backgroundCommandResultObject.Result != CommandResult.CommandEscaped)
                         {
                             return;
@@ -4720,6 +4738,8 @@ namespace IsengardClient
                         }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         ItemTypeEnum? heldItem = _settingsData.HeldItem;
+                        int? stunWandIndex = stunWands == null ? (int?)null : 0;
+                        SelectedInventoryOrEquipmentItem currentWand = stunWands?[0];
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
@@ -4794,7 +4814,7 @@ namespace IsengardClient
                                     int manaDrain;
                                     BackgroundCommandType? bct;
                                     RealmTypeFlags? realmToUse;
-                                    MagicCommandChoiceResult result = GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse, availableRealms);
+                                    MagicCommandChoiceResult result = GetMagicCommand(nextMagicStep.Value, currentHP, _totalhp, currentMana, out manaDrain, out bct, out command, usedAutoSpellMin, usedAutoSpellMax, sMobTarget, _settingsData, _currentEntityInfo, _currentRealm, out realmToUse, availableRealms, currentWand);
                                     if (result == MagicCommandChoiceResult.Skip)
                                     {
                                         if (!magicStepsFinished)
@@ -4818,7 +4838,9 @@ namespace IsengardClient
                                     }
                                     else if (result == MagicCommandChoiceResult.Cast)
                                     {
-                                        backgroundCommandResultObject = RunBackgroundMagicStep(bct.Value, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage);
+CastNextOffensiveSpell:
+                                        BackgroundCommandType bctValue = bct.Value;
+                                        backgroundCommandResultObject = RunBackgroundMagicStep(bctValue, command, pms, useManaPool, manaDrain, magicSteps, ref magicStepsFinished, ref nextMagicStep, ref dtNextMagicCommand, ref didDamage);
                                         if (backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
                                         {
                                             break; //break out of combat
@@ -4832,6 +4854,40 @@ namespace IsengardClient
                                             if (realmToUse.HasValue)
                                             {
                                                 _currentRealm = IsengardSettingData.GetNextRealmFromStartingPoint(realmToUse.Value, availableRealms);
+                                            }
+                                        }
+                                        if (bctValue == BackgroundCommandType.StunWithWand && (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulThisTime))
+                                        {
+                                            bool retry = false;
+                                            bool switchWand = false;
+                                            if (backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulThisTime)
+                                            {
+                                                retry = true;
+                                                switchWand = true;
+                                            }
+                                            else if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                                            {
+                                                CheckIfWandOKToUse(currentWand, pms, AbortIfFleeingOrHazying, out ItemStatus itemStatus);
+                                                switchWand = itemStatus == ItemStatus.Broken;
+                                            }
+                                            if (switchWand)
+                                            {
+                                                int iNewStunWandIndex = stunWandIndex.Value + 1;
+                                                if (iNewStunWandIndex >= stunWands.Count) //this was the last wand
+                                                {
+                                                    stunWandIndex = null;
+                                                    currentWand = null;
+                                                }
+                                                else
+                                                {
+                                                    stunWandIndex = iNewStunWandIndex;
+                                                    currentWand = stunWands[iNewStunWandIndex];
+                                                }
+                                                if (retry && currentWand != null)
+                                                {
+                                                    command = "zap " + GetStunWandItemText(_currentEntityInfo, currentWand) + " " + sMobTarget;
+                                                    goto CastNextOffensiveSpell;
+                                                }
                                             }
                                         }
                                     }
@@ -5306,8 +5362,9 @@ BeforeHazy:
         /// <param name="skillsToRun">skills to run</param>
         /// <param name="pr">perm run</param>
         /// <returns>result of the operation</returns>
-        private CommandResultObject PerformPostTickPreCombatActions(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr, ref bool failedToEquip, bool useMelee)
+        private CommandResultObject PerformPostTickPreCombatActions(BackgroundWorkerParameters pms, PromptedSkills skillsToRun, PermRun pr, ref bool failedToEquip, bool useMelee, bool useStunWand, out List<SelectedInventoryOrEquipmentItem> stunWands)
         {
+            stunWands = null;
             _backgroundProcessPhase = BackgroundProcessPhase.PostHealPreCombatLogic;
             CommandResultObject backgroundCommandResultObject;
             bool removeAllEquipment = pr != null && pr.RemoveAllEquipment;
@@ -5319,6 +5376,14 @@ BeforeHazy:
                     return backgroundCommandResultObject;
                 }
                 failedToEquip = true;
+            }
+            if (!_hazying && !_fleeing) //remove wand in case it was held (e.g. for recharging). This also clears up the slot for the usual held item.
+            {
+                RemoveHeldItem(pms, AbortIfFleeingOrHazying, (ie) => 
+                {
+                    StaticItemData sid = ItemEntity.StaticItemData[ie.ItemType.Value];
+                    return sid.ItemClass == ItemClass.Wand;
+                });
             }
             if (!_hazying && !_fleeing && useMelee && !removeAllEquipment)
             {
@@ -5343,6 +5408,34 @@ BeforeHazy:
                 else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout)
                 {
                     return backgroundCommandResultObject;
+                }
+            }
+            if (!_hazying && !_fleeing && useStunWand) //determine available stun wands
+            {
+                lock (_currentEntityInfo.EntityLock)
+                {
+                    stunWands = _currentEntityInfo.GetInvEqItems((ie) => 
+                    {
+                        StaticItemData sid = ItemEntity.StaticItemData[ie.ItemType.Value];
+                        return sid.ItemClass == ItemClass.Wand && sid.Spell == SpellsEnum.stun;
+                    }, true, false);
+                }
+                for (int i = stunWands.Count - 1; i >= 0; i--)
+                {
+                    backgroundCommandResultObject = CheckIfWandOKToUse(stunWands[i], pms, AbortIfFleeingOrHazying, out ItemStatus itemStatus);
+                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful)
+                    {
+                        return backgroundCommandResultObject;
+                    }
+                    if (itemStatus == ItemStatus.Broken)
+                    {
+                        stunWands.RemoveAt(i);
+                    }
+                }
+                if (stunWands.Count == 0) //no stun wands to use
+                {
+                    AddConsoleMessage("No available stun wands found.");
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 }
             }
             WorkflowSpells spellsToPot = pr == null ? WorkflowSpells.None : pr.SpellsToPotion;
@@ -5403,6 +5496,27 @@ BeforeHazy:
             else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted);
             else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
             return backgroundCommandResultObject;
+        }
+
+        private CommandResultObject CheckIfWandOKToUse(SelectedInventoryOrEquipmentItem sioei, BackgroundWorkerParameters pms, Func<bool> abortLogic, out ItemStatus itemStatus)
+        {
+            itemStatus = ItemStatus.Broken;
+            string sItemText;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType, sioei.Counter, false, false);
+            }
+            if (string.IsNullOrEmpty(sItemText))
+            {
+                return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+            }
+            _commandInventoryItem = sioei;
+            CommandResultObject ret = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, abortLogic, false);
+            if (ret.Result == CommandResult.CommandSuccessful)
+            {
+                itemStatus = (ItemStatus)ret.ResultCode;
+            }
+            return ret;
         }
 
         private CommandResultObject TryDrinkHazy(BackgroundWorkerParameters pms)
@@ -5854,6 +5968,47 @@ BeforeHazy:
             return ret;
         }
 
+        private void RemoveKeyFromHeldSlot(ItemTypeEnum? keyItemType, BackgroundWorkerParameters pms, Func<bool> abortLogic)
+        {
+            RemoveHeldItem(pms, abortLogic, (ie) => 
+            {
+                bool ret;
+                if (keyItemType.HasValue)
+                {
+                    ret = keyItemType == ie.ItemType;
+                }
+                else
+                {
+                    StaticItemData sid = ItemEntity.StaticItemData[keyItemType.Value];
+                    ret = sid.ItemClass == ItemClass.Key;
+                }
+                return ret;
+            });
+        }
+
+        private CommandResultObject RemoveHeldItem(BackgroundWorkerParameters pms, Func<bool> abortLogic, Func<ItemEntity, bool> removeCheck)
+        {
+            string sItemText = null;
+            int iHeldSlot = (int)EquipmentSlot.Held;
+            ItemTypeEnum eItemType = ItemTypeEnum.GoldCoins;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                ItemEntity ie = _currentEntityInfo.Equipment[iHeldSlot];
+                if (ie != null && ie.ItemType.HasValue && (removeCheck == null || removeCheck(ie)))
+                {
+                    eItemType = ie.ItemType.Value;
+                    sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, eItemType, iHeldSlot, false);
+                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+                }
+            }
+            CommandResultObject ret;
+            if (string.IsNullOrEmpty(sItemText))
+                ret = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+            else
+                ret = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, eItemType, sItemText, pms, abortLogic);
+            return ret;
+        }
+
         private CommandResultObject DrinkPotionForSpell(SpellInformationAttribute spellInfo, BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             string sItemText;
@@ -5871,12 +6026,11 @@ BeforeHazy:
             }
             if (removeHeldPotion)
             {
-                lock (_currentEntityInfo.EntityLock)
+                CommandResultObject backgroundCommandResult = RemoveHeldItem(pms, abortLogic, null);
+                if (backgroundCommandResult.Result != CommandResult.CommandSuccessful)
                 {
-                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, potItem.Value, 1, false, false);
-                    if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+                    return backgroundCommandResult;
                 }
-                if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, potItem.Value, sItemText, pms, abortLogic).Result != CommandResult.CommandSuccessful) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 lock (_currentEntityInfo.EntityLock)
                 {
                     sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
@@ -6748,38 +6902,6 @@ BeforeHazy:
             return ret;
         }
 
-        private void RemoveKeyFromHeldSlot(ItemTypeEnum? keyItemType, BackgroundWorkerParameters pms, Func<bool> abortLogic)
-        {
-            string sItemText = null;
-            lock (_currentEntityInfo.EntityLock)
-            {
-                int iHeldSlot = (int)EquipmentSlot.Held;
-                ItemEntity eHeldItemEntity = _currentEntityInfo.Equipment[iHeldSlot];
-                if (eHeldItemEntity != null && eHeldItemEntity.ItemType.HasValue)
-                {
-                    bool removeFromEquipment;
-                    ItemTypeEnum eHeldItemValue = eHeldItemEntity.ItemType.Value;
-                    if (keyItemType.HasValue)
-                    {
-                        removeFromEquipment = eHeldItemValue == keyItemType;
-                    }
-                    else
-                    {
-                        StaticItemData sid = ItemEntity.StaticItemData[eHeldItemValue];
-                        removeFromEquipment = sid.ItemClass == ItemClass.Key;
-                    }
-                    if (removeFromEquipment)
-                    {
-                        sItemText = _currentEntityInfo.PickItemTextFromActualIndex(ItemLocationType.Equipment, eHeldItemValue, iHeldSlot, false);
-                    }
-                }
-            }
-            if (!string.IsNullOrEmpty(sItemText))
-            {
-                TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, keyItemType, sItemText, pms, abortLogic);
-            }
-        }
-
         private CommandResultObject TryStand(BackgroundWorkerParameters pms, Func<bool> abortLogic)
         {
             return RunSingleCommandForCommandResult(BackgroundCommandType.Stand, "stand", pms, abortLogic, false);
@@ -6872,7 +6994,17 @@ BeforeHazy:
             command = sAttackType + " " + mobTarget;
         }
 
-        public static MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse, RealmTypeFlags availableRealms)
+        private static string GetStunWandItemText(CurrentEntityInfo cei, SelectedInventoryOrEquipmentItem sioei)
+        {
+            string sItemText = null;
+            lock (cei.EntityLock)
+            {
+                sItemText = cei.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType, sioei.Counter, false, false);
+            }
+            return sItemText;
+        }
+
+        public static MagicCommandChoiceResult GetMagicCommand(MagicStrategyStep nextMagicStep, int currentHP, int totalHP, int currentMP, out int manaDrain, out BackgroundCommandType? bct, out string command, int usedAutoSpellMin, int usedAutoSpellMax, string mobTarget, IsengardSettingData settingsData, CurrentEntityInfo cei, RealmTypeFlags currentRealm, out RealmTypeFlags? realmToUse, RealmTypeFlags availableRealms, SelectedInventoryOrEquipmentItem wandItemInfo)
         {
             MagicCommandChoiceResult ret = MagicCommandChoiceResult.Cast;
             bool doCast;
@@ -6885,6 +7017,30 @@ BeforeHazy:
                 command = "cast stun " + mobTarget;
                 manaDrain = 10;
                 bct = BackgroundCommandType.Stun;
+            }
+            else if (nextMagicStep == MagicStrategyStep.StunWand)
+            {
+                bool canZap = false;
+                if (wandItemInfo != null)
+                {
+                    string sItemText = GetStunWandItemText(cei, wandItemInfo);
+                    canZap = !string.IsNullOrEmpty(sItemText);
+                    if (canZap)
+                    {
+                        command = "zap " + sItemText + " " + mobTarget;
+                        manaDrain = 0;
+                        ret = MagicCommandChoiceResult.Cast;
+                        realmToUse = null;
+                        bct = BackgroundCommandType.StunWithWand;
+                    }
+                }
+                if (!canZap)
+                {
+                    manaDrain = 0;
+                    bct = null;
+                    ret = MagicCommandChoiceResult.OutOfMana;
+                    realmToUse = null;
+                }
             }
             else if (nextMagicStep == MagicStrategyStep.CurePoison)
             {
@@ -7335,7 +7491,7 @@ BeforeHazy:
         private CommandResultObject RunBackgroundMagicStep(BackgroundCommandType bct, string command, BackgroundWorkerParameters pms, bool useManaPool, int manaDrain, IEnumerator<MagicStrategyStep> magicSteps, ref bool magicStepsFinished, ref MagicStrategyStep? nextMagicStep, ref DateTime? dtNextMagicCommand, ref bool didDamage)
         {
             CommandResultObject backgroundCommandResultObject = RunSingleCommandForCommandResult(bct, command, pms, AbortIfFleeingOrHazying, false);
-            if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+            if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped || backgroundCommandResultObject.Result == CommandResult.CommandUnsuccessfulThisTime)
             {
                 //do nothing
             }

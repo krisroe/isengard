@@ -106,6 +106,7 @@
         Manashield,
         Fireshield,
         Stun,
+        StunWithWand,
         OffensiveSpell,
         Attack,
         Flee,

@@ -30,6 +30,7 @@ namespace IsengardClient
             tsmiAddOffensiveLevel4.Tag = MagicStrategyStep.OffensiveSpellLevel4;
             tsmiAddOffensiveLevel5.Tag = MagicStrategyStep.OffensiveSpellLevel5;
             tsmiAddStun.Tag = MagicStrategyStep.Stun;
+            tsmiAddStunWand.Tag = MagicStrategyStep.StunWand;
             tsmiMagicAddVigor.Tag = MagicStrategyStep.Vigor;
             tsmiMagicAddMendWounds.Tag = MagicStrategyStep.MendWounds;
             tsmiMagicAddGenericHeal.Tag = MagicStrategyStep.GenericHeal;

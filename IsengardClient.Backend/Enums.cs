@@ -274,6 +274,9 @@ namespace IsengardClient.Backend
         [StrategyStep('S', true)]
         Stun,
 
+        [StrategyStep('s', true)]
+        StunWand,
+
         [StrategyStep('C', true)]
         OffensiveSpellAuto,
 

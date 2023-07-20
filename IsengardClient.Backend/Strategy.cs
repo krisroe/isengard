@@ -107,7 +107,7 @@ namespace IsengardClient.Backend
                 else if (MagicLastCommandsToRunIndefinitely > 1)
                 {
                     sb.Insert(sb.Length - MagicLastCommandsToRunIndefinitely, "(");
-                    sb.Append("*");
+                    sb.Append(")*");
                 }
                 if (FinalMagicAction == FinalStepAction.Flee)
                 {
@@ -142,7 +142,7 @@ namespace IsengardClient.Backend
                 else if (MeleeLastCommandsToRunIndefinitely > 1)
                 {
                     sb.Insert(sb.Length - MeleeLastCommandsToRunIndefinitely, "(");
-                    sb.Append("*");
+                    sb.Append(")*");
                 }
                 if (FinalMeleeAction == FinalStepAction.Flee)
                 {
@@ -177,7 +177,7 @@ namespace IsengardClient.Backend
                 else if (PotionsLastCommandsToRunIndefinitely > 1)
                 {
                     sb.Insert(sb.Length - PotionsLastCommandsToRunIndefinitely, "(");
-                    sb.Append("*");
+                    sb.Append(")*");
                 }
                 if (FinalPotionsAction == FinalStepAction.Flee)
                 {
@@ -267,33 +267,33 @@ namespace IsengardClient.Backend
             return ret;
         }
 
-        public bool HasAnyMagicSteps()
+        public bool HasAnyMagicSteps(MagicStrategyStep? stepType)
         {
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Magic) == CommandType.None)
                 ret = false;
             else
-                ret = MagicSteps != null;
+                ret = MagicSteps != null && (!stepType.HasValue || MagicSteps.Contains(stepType.Value));
             return ret;
         }
 
-        public bool HasAnyMeleeSteps()
+        public bool HasAnyMeleeSteps(MeleeStrategyStep? stepType)
         {
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Melee) == CommandType.None)
                 ret = false;
             else
-                ret = MeleeSteps != null;
+                ret = MeleeSteps != null && (!stepType.HasValue || MeleeSteps.Contains(stepType.Value));
             return ret;
         }
 
-        public bool HasAnyPotionsSteps()
+        public bool HasAnyPotionsSteps(PotionsStrategyStep? stepType)
         {
             bool ret;
             if ((TypesWithStepsEnabled & CommandType.Potions) == CommandType.None)
                 ret = false;
             else
-                ret = PotionsSteps != null;
+                ret = PotionsSteps != null && (!stepType.HasValue || PotionsSteps.Contains(stepType.Value));
             return ret;
         }
 
@@ -425,6 +425,7 @@ namespace IsengardClient.Backend
 
             Strategy s;
 
+            //no combat
             s = new Strategy();
             s.FinalMeleeAction = FinalStepAction.FinishCombat;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
@@ -433,6 +434,7 @@ namespace IsengardClient.Backend
             s.TypesWithStepsEnabled = CommandType.None;
             yield return s;
 
+            //attack with melee, heal with magic/potions
             s = new Strategy();
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.GenericHeal };
@@ -443,6 +445,7 @@ namespace IsengardClient.Backend
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
+            //attack with melee/magic, heal with potions
             s = new Strategy();
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
@@ -455,12 +458,13 @@ namespace IsengardClient.Backend
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
+            //attack with melee, stun+attack with magic, heal with potions
             s = new Strategy();
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<MagicStrategyStep>()
             {
                 MagicStrategyStep.Stun,
-                MagicStrategyStep.OffensiveSpellAuto
+                MagicStrategyStep.OffensiveSpellAuto,
             };
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
@@ -472,42 +476,19 @@ namespace IsengardClient.Backend
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
             yield return s;
 
+            //attack with melee, (stunwand+cast)* with magic, heal with potions
             s = new Strategy();
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.MagicSteps = new List<MagicStrategyStep>()
             {
-                MagicStrategyStep.Stun,
+                MagicStrategyStep.StunWand,
                 MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.Stun,
-                MagicStrategyStep.OffensiveSpellAuto
             };
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
             s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            s.MagicLastCommandsToRunIndefinitely = 1;
-            s.MeleeLastCommandsToRunIndefinitely = 1;
-            s.PotionsLastCommandsToRunIndefinitely = 1;
-            s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;
-            yield return s;
-
-            s = new Strategy();
-            s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.MagicSteps = new List<MagicStrategyStep>()
-            {
-                MagicStrategyStep.Stun,
-                MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.Stun,
-                MagicStrategyStep.OffensiveSpellAuto,
-                MagicStrategyStep.OffensiveSpellAuto,
-            };
-            s.FinalMagicAction = FinalStepAction.Flee;
-            s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
-            s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
-            s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.MagicLastCommandsToRunIndefinitely = 2;
             s.MeleeLastCommandsToRunIndefinitely = 1;
             s.PotionsLastCommandsToRunIndefinitely = 1;
             s.TypesWithStepsEnabled = CommandType.Melee | CommandType.Magic;

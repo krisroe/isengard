@@ -2465,7 +2465,7 @@ namespace IsengardClient.Backend
                     {
                         int? lastWaitSeconds = null;
                         int newWaitSeconds = msg.WaitSeconds;
-                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.StunWithWand || bctValue == BackgroundCommandType.OffensiveSpell)
                         {
                             lastWaitSeconds = _lastMagicWaitSeconds;
                         }
@@ -2481,7 +2481,7 @@ namespace IsengardClient.Backend
                         {
                             if (flParams.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum) flParams.SetSuppressEcho(true);
                         }
-                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.OffensiveSpell)
+                        if (bctValue == BackgroundCommandType.Stun || bctValue == BackgroundCommandType.StunWithWand || bctValue == BackgroundCommandType.OffensiveSpell)
                         {
                             _lastMagicWaitSeconds = newWaitSeconds;
                         }
