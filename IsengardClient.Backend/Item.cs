@@ -1603,6 +1603,7 @@ namespace IsengardClient.Backend
         [SingularName("heavy cloth leggings")]
         //CSRTODO: plural
         [LookText("You see some leggings.  They are very warm for the cold mountain air.")]
+        [EquipmentType(EquipmentType.Legs)]
         [Weight(8)]
         [ArmorClass(0.2)]
         [Sellable(SellableEnum.Junk)]
