@@ -6235,10 +6235,15 @@ BeforeHazy:
             string mobTarget = string.Empty;
             if (pms.MobType.HasValue)
             {
+                StaticMobData smd = MobEntity.StaticMobData[pms.MobType.Value];
                 mobTarget = GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false);
                 if (string.IsNullOrEmpty(mobTarget))
                 {
                     return false;
+                }
+                if (smd.Visibility == MobVisibility.Visible)
+                {
+                    return true;
                 }
             }
             else if (!string.IsNullOrEmpty(pms.MobText))
