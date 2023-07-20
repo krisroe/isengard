@@ -1134,6 +1134,7 @@ namespace IsengardClient.Backend
 
         [SingularName("dark flask")]
         [PluralName("dark flasks")]
+        [LookText("You see a flask of goblin gruel.")]
         [Potion(SpellsEnum.mend)]
         [Weight(3)]
         [Sellable(SellableEnum.Junk)]

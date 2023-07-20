@@ -3358,7 +3358,8 @@ namespace IsengardClient.Backend
             breeToImladrisGraph.Rooms[oDeepForest2] = new PointF(11, 4.5F);
 
             Room oSkeletalOak = AddRoom("Skeletal Oak", Room.UNKNOWN_ROOM);
-            AddExit(oDeepForest2, oSkeletalOak, "skeletal oak");
+            e = AddExit(oDeepForest2, oSkeletalOak, "skeletal oak");
+            e.MinimumLevel = 15;
             breeToImladrisGraph.Rooms[oSkeletalOak] = new PointF(11, 4.25F);
 
             Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");
@@ -3412,6 +3413,10 @@ namespace IsengardClient.Backend
             AddExit(oPathThroughForest, oDirtPath, "forest");
             AddExit(oDirtPath, oPathThroughForest, "northeast");
             breeToImladrisGraph.Rooms[oDirtPath] = new PointF(13, 7);
+
+            Room oForest = AddRoom("Forest", "Brethil Forest");
+            AddBidirectionalExits(oDarkForest1, oForest, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oForest] = new PointF(8, 6);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
@@ -4454,9 +4459,7 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMistyTrail5, oMistyTrail6, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oMistyTrail6] = new PointF(4, 5);
 
-            Room oMistyTrailForest = AddRoom("Forest", Room.UNKNOWN_ROOM);
-            AddExit(oMistyTrail6, oMistyTrailForest, "forest");
-            imladrisToTharbadGraph.Rooms[oMistyTrailForest] = new PointF(3, 5);
+            AddSouthernBrethilForest(oMistyTrail6);
 
             Room oMistyTrail7 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail6, oMistyTrail7, BidirectionalExitType.NorthSouth);
@@ -4512,6 +4515,20 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new PointF(0, 14);
             AddMapBoundaryPoint(oMistyTrail14, oTharbadGateOutside, MapType.ImladrisToTharbad, MapType.Tharbad);
+        }
+
+        private void AddSouthernBrethilForest(Room oMistyTrail)
+        {
+            RoomGraph imladrisToTharbadGraph = _graphs[MapType.ImladrisToTharbad];
+
+            Room oMistyTrailForest = AddRoom("Forest", "Southern Brethil Forest");
+            AddExit(oMistyTrail, oMistyTrailForest, "forest");
+            AddExit(oMistyTrailForest, oMistyTrail, "southeast");
+            imladrisToTharbadGraph.Rooms[oMistyTrailForest] = new PointF(1, 4.5F);
+
+            Room oAncientForest = AddRoom("Ancient Forest", "Ancient Brethil Forest");
+            AddBidirectionalExits(oAncientForest, oMistyTrailForest, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oAncientForest] = new PointF(1, 3.5F);
         }
 
         private void AddNorthOfEsgaroth(Room esgarothNorthGateOutside)

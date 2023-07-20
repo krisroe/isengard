@@ -607,6 +607,7 @@
 
         [SingularName("greater spider")]
         [PluralName("greater spiders")]
+        [Experience(150)]
         GreaterSpider,
 
         [SingularName("green slime")]
@@ -930,6 +931,7 @@
         [SingularName("leprechaun")]
         [PluralName("leprechauns")]
         [Alignment(AlignmentType.DullBlue)]
+        [Experience(75)]
         Leprechaun,
 
         [SingularName("little boy")]
