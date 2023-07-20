@@ -56,6 +56,10 @@
         [PluralName("art students")]
         ArtStudent,
 
+        [SingularName("auctioneer")]
+        [PluralName("auctioneers")]
+        Auctioneer,
+
         [SingularName("Aurelius the Scholar")]
         //CSRTODO: no plural
         AureliusTheScholar,
@@ -1292,6 +1296,10 @@
         [SingularName("poor fisherman")]
         [PluralName("poor fishermen")]
         PoorFisherman,
+
+        [SingularName("potion dealer")]
+        [PluralName("potion dealers")]
+        PotionDealer,
 
         [SingularName("pregnant goat")]
         [PluralName("pregnant goats")]

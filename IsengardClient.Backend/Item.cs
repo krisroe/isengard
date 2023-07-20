@@ -678,7 +678,8 @@ namespace IsengardClient.Backend
         SilverKey = 8,
         KasnarsRedKey = 16,
         TombKey = 32,
-        All = 63,
+        FactoryKey = 64,
+        All = 127,
     }
 
     /// <summary>
@@ -1314,6 +1315,14 @@ namespace IsengardClient.Backend
         //CSRTODO: plural?
         EyeOfNewt,
 
+        [SingularName("factory key")]
+        [PluralName("factory keys")]
+        [LookText("A shiny metal key in the shape of a flowing wave.")]
+        [ItemClass(ItemClass.Key)]
+        [Weight(1)]
+        [Sellable(SellableEnum.NotSellable)]
+        FactoryKey,
+
         [SingularName("Faded map")]
         [PluralName("Faded maps")]
         [Weight(1)]
@@ -1835,8 +1844,10 @@ namespace IsengardClient.Backend
 
         [SingularName("magical tabulator")]
         [PluralName("magical tabulators")]
-        [Weight(5)]
+        [LookText("Seems to be a mystic calculator.  But what could it calculate, I wonder?")]
         [Wand(SpellsEnum.detectmagic)]
+        [Weight(5)]
+        [Sellable(120)]
         MagicalTabulator,
 
         [SingularName("magical temper")]

@@ -4427,29 +4427,17 @@ namespace IsengardClient.Backend
 
             Room oMistyTrail2 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail1, oMistyTrail2, BidirectionalExitType.NorthSouth);
-            imladrisToTharbadGraph.Rooms[oMistyTrail2] = new PointF(5, 1);
+            imladrisToTharbadGraph.Rooms[oMistyTrail2] = new PointF(5, 0.5F);
 
             Room oMistyTrail3 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail2, oMistyTrail3, BidirectionalExitType.NorthSouth);
-            imladrisToTharbadGraph.Rooms[oMistyTrail3] = new PointF(5, 2);
+            imladrisToTharbadGraph.Rooms[oMistyTrail3] = new PointF(5, 1);
 
             Room oMistyTrail4 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail3, oMistyTrail4, BidirectionalExitType.SouthwestNortheast);
-            imladrisToTharbadGraph.Rooms[oMistyTrail4] = new PointF(4, 3);
+            imladrisToTharbadGraph.Rooms[oMistyTrail4] = new PointF(4, 1.5F);
 
-            Room oPotionFactoryReception = AddRoom("Potion Factory Guard", "Reception Area of Potion Factory");
-            AddPermanentMobs(oPotionFactoryReception, MobTypeEnum.Guard);
-            AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
-            imladrisToTharbadGraph.Rooms[oPotionFactoryReception] = new PointF(3, 3);
-
-            Room oPotionFactoryAdministrativeOffices = AddRoom("Potion Factory Administrative Offices", "Administrative Offices");
-            AddBidirectionalExits(oPotionFactoryReception, oPotionFactoryAdministrativeOffices, BidirectionalExitType.NorthSouth);
-            imladrisToTharbadGraph.Rooms[oPotionFactoryAdministrativeOffices] = new PointF(3, 4);
-
-            Room oMarkFrey = AddRoom("Mark Frey", "Potent Potions, Inc.");
-            AddPermanentMobs(oMarkFrey, MobTypeEnum.MarkFrey);
-            AddBidirectionalExitsWithOut(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
-            imladrisToTharbadGraph.Rooms[oMarkFrey] = new PointF(3, 4.5F);
+            AddPotionFactory(oMistyTrail4);
 
             Room oMistyTrail5 = AddRoom("Misty Trail", "Misty Trail");
             AddBidirectionalExits(oMistyTrail4, oMistyTrail5, BidirectionalExitType.NorthSouth);
@@ -4515,6 +4503,48 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMistyTrail14, oTharbadGateOutside, BidirectionalExitType.NorthSouth);
             imladrisToTharbadGraph.Rooms[oTharbadGateOutside] = new PointF(0, 14);
             AddMapBoundaryPoint(oMistyTrail14, oTharbadGateOutside, MapType.ImladrisToTharbad, MapType.Tharbad);
+        }
+
+        private void AddPotionFactory(Room oMistyTrail4)
+        {
+            RoomGraph imladrisToTharbadGraph = _graphs[MapType.ImladrisToTharbad];
+
+            Room oPotionFactoryReception = AddRoom("Reception Area", "Reception Area of Potion Factory");
+            AddPermanentMobs(oPotionFactoryReception, MobTypeEnum.Guard);
+            AddBidirectionalExits(oPotionFactoryReception, oMistyTrail4, BidirectionalExitType.WestEast);
+            imladrisToTharbadGraph.Rooms[oPotionFactoryReception] = new PointF(3, 1.5F);
+
+            Room oPotionFactoryAdministrativeOffices = AddRoom("Admin Offices", "Administrative Offices");
+            AddBidirectionalExits(oPotionFactoryReception, oPotionFactoryAdministrativeOffices, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oPotionFactoryAdministrativeOffices] = new PointF(3, 2);
+
+            Room oMarkFrey = AddRoom("Mark Frey", "Potent Potions, Inc.");
+            AddPermanentMobs(oMarkFrey, MobTypeEnum.MarkFrey);
+            AddBidirectionalExitsWithOut(oPotionFactoryAdministrativeOffices, oMarkFrey, "door");
+            imladrisToTharbadGraph.Rooms[oMarkFrey] = new PointF(3, 2.5F);
+
+            Room oAuctionRoom = AddRoom("Auction Room", "Auction Room");
+            AddBidirectionalSameNameExit(oPotionFactoryReception, oAuctionRoom, "door");
+            imladrisToTharbadGraph.Rooms[oAuctionRoom] = new PointF(3, 1);
+
+            Room oPotionFactory = AddRoom("Potion Factory", "Potion Factory");
+            Exit e = AddBidirectionalExitsWithOut(oPotionFactoryReception, oPotionFactory, "factory");
+            e.KeyType = SupportedKeysFlags.FactoryKey;
+            e.MustOpen = true;
+            imladrisToTharbadGraph.Rooms[oPotionFactory] = new PointF(2, 1.5F);
+
+            Room oPotionFactory2 = AddRoom("Potion Factory", "Potion Factory");
+            AddBidirectionalExits(oPotionFactory2, oPotionFactory, BidirectionalExitType.NorthSouth);
+            imladrisToTharbadGraph.Rooms[oPotionFactory2] = new PointF(2, 1);
+
+            Room oResearchLaboratory = AddRoom("Research Laboratory", "Research Laboratory");
+            AddBidirectionalExitsWithOut(oPotionFactory2, oResearchLaboratory, "laboratory");
+            imladrisToTharbadGraph.Rooms[oResearchLaboratory] = new PointF(2, 0.5F);
+
+            Room oReceivingDock = AddRoom("Receiving Dock", "Receiving Dock");
+            AddExit(oPotionFactory, oReceivingDock, "receiving");
+            AddExit(oReceivingDock, oPotionFactory, "warehouse");
+            imladrisToTharbadGraph.Rooms[oReceivingDock] = new PointF(2, 2);
         }
 
         private void AddSouthernBrethilForest(Room oMistyTrail)
