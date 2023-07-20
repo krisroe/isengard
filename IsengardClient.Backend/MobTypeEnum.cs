@@ -605,6 +605,10 @@
         [Experience(75)]
         GrayElf,
 
+        [SingularName("greater spider")]
+        [PluralName("greater spiders")]
+        GreaterSpider,
+
         [SingularName("green slime")]
         //CSRTODO: plurals are hard to get since hidden
         [MobVisibility(MobVisibility.Hidden)]

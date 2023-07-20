@@ -3365,7 +3365,31 @@ namespace IsengardClient.Backend
             e = AddExit(oBrethilForest, oSpriteGuards, "brush");
             e.Hidden = true;
             AddExit(oSpriteGuards, oBrethilForest, "east");
-            breeToImladrisGraph.Rooms[oSpriteGuards] = new PointF(11, 6);
+            breeToImladrisGraph.Rooms[oSpriteGuards] = new PointF(10, 6);
+
+            Room oSpriteForest = AddRoom("Sprite Forest", "Sprite Forest");
+            AddBidirectionalExits(oSpriteForest, oSpriteGuards, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oSpriteForest] = new PointF(10, 5.5F);
+
+            Room oHirluinsClearing = AddRoom("Hirluin's Clearing", "Hirluin's Clearing");
+            AddBidirectionalExits(oHirluinsClearing, oSpriteForest, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oHirluinsClearing] = new PointF(10, 5);
+
+            Room oDarkForest1 = AddRoom("Dark Forest", "Dark Forest");
+            AddBidirectionalExits(oDarkForest1, oSpriteForest, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oDarkForest1, oHirluinsClearing, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oDarkForest1] = new PointF(9, 5);
+
+            Room oDarkForest2 = AddRoom("Dark Forest", "Dark Forest");
+            AddBidirectionalExits(oDarkForest2, oSpriteForest, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oHirluinsClearing, oDarkForest2, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oDarkForest2] = new PointF(11, 5);
+
+            Room oDarkForest3 = AddRoom("Dark Forest", "Dark Forest");
+            AddBidirectionalExits(oDarkForest3, oDarkForest1, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oDarkForest3, oHirluinsClearing, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oDarkForest3, oDarkForest2, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oDarkForest3] = new PointF(10, 4.5F);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
