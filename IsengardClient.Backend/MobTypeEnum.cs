@@ -549,6 +549,7 @@
 
         [SingularName("giant venus fly-trap")]
         [PluralName("giant venus fly-traps")]
+        [Experience(150)]
         GiantVenusFlyTrap,
 
         [SingularName("Gnarbolla")]
