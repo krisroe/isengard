@@ -2036,6 +2036,14 @@ namespace IsengardClient.Backend
         //CSRTODO: plural?
         PearlEncrustedDiadem,
 
+        [SingularName("pearl handled blade")]
+        [PluralName("pearl handled blades")]
+        [LookText("You see a razor edged blade fitted with a solid pearl handle.")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(4)]
+        [Sellable(183)]
+        PearlHandledBlade,
+
         [SingularName("pearl handled knife")]
         [PluralName("pearl handled knives")]
         [WeaponType(WeaponType.Unknown)]
@@ -2225,6 +2233,14 @@ namespace IsengardClient.Backend
         [PluralName("rusty key")]
         [ItemClass(ItemClass.Key)]
         RustyKey,
+
+        [SingularName("sabre")]
+        [PluralName("sabres")]
+        [LookText("This straight, single-edged blade is a dangerous weapon.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [Sellable(193)]
+        Sabre,
 
         [SingularName("sack of potatoes")]
         [PluralName("sack of potatoeses")] //verified 6/14/2023
@@ -2497,6 +2513,7 @@ namespace IsengardClient.Backend
 
         [SingularName("string of pearls")]
         //CSRTODO: plural?
+        [LookText("You see a strand of small pearls that fit snugly around your throat.")]
         [EquipmentType(EquipmentType.Neck)]
         [Weight(0)]
         [ArmorClass(0.1)]
