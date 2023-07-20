@@ -495,6 +495,10 @@
         [PluralName("gargoyles")]
         Gargoyle,
 
+        [SingularName("garter snake")]
+        [PluralName("garter snakes")]
+        GarterSnake,
+
         [SingularName("gate guard")]
         [PluralName("gate guards")]
         GateGuard,
@@ -1340,6 +1344,10 @@
         [Alignment(AlignmentType.Blue)]
         [CannotHarm]
         PrucillaTheGroupie,
+
+        [SingularName("python")]
+        [PluralName("pythons")]
+        Python,
 
         [SingularName("rabbit")]
         [PluralName("rabbits")]
