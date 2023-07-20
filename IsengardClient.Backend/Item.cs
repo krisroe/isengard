@@ -705,6 +705,7 @@ namespace IsengardClient.Backend
         AdamantineScaleMailArmor,
 
         [SingularName("adamantine scale mail gloves")]
+        [LookText("You see some heavy gloves made of scale mail from adamantine ores.")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(5)]
         [ArmorClass(0.4)]
@@ -800,6 +801,7 @@ namespace IsengardClient.Backend
 
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
+        [LookText("You see a heavy dinosaur hide whip with a heavy chain and mithril tip.")]
         [WeaponType(WeaponType.Missile)]
         [Weight(2)]
         [Sellable(3093)]
@@ -1668,6 +1670,7 @@ namespace IsengardClient.Backend
 
         [SingularName("iron ring")]
         [PluralName("iron rings")]
+        [LookText("You see a ring made of wrought iron.")]
         [EquipmentType(EquipmentType.Finger)]
         [Weight(1)]
         [ArmorClass(0.1)]
@@ -1825,7 +1828,8 @@ namespace IsengardClient.Backend
 
         [SingularName("lollipop")]
         [PluralName("lollipops")]
-        [Potion(SpellsEnum.curedisease)] //per wiki
+        [LookText("This sticky item has just ruined your gloves.")]
+        [Potion(SpellsEnum.curedisease)]
         [Weight(1)]
         [Sellable(SellableEnum.NotSellable)]
         Lollipop,
