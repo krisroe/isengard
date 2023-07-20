@@ -2006,6 +2006,7 @@ namespace IsengardClient.Backend
 
         [SingularName("mountain boots")]
         //CSRTODO: plural
+        [LookText("You see a pair of boots, ruggedly designed for mountain climbing.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(2)]
         [ArmorClass(0.1)]
