@@ -1419,8 +1419,10 @@ namespace IsengardClient.Backend
 
         [SingularName("glitter")]
         //CSRTODO: glitter plural? (does not use some)
+        [LookText("This metallic substance reflects light in all directions.")]
         [Wand(SpellsEnum.stun)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         Glitter,
 
         [SingularName("glowing pendant")]
@@ -1470,7 +1472,7 @@ namespace IsengardClient.Backend
         [SingularName("gold ring")]
         [PluralName("gold rings")]
         [LookText("You see a shimmering 24 K gold ring.")]
-        [EquipmentType(EquipmentType.Finger)] //when worn, shocks and drops if cursed
+        [EquipmentType(EquipmentType.Finger)] //when reworn, shocks and drops if cursed
         [Weight(2)]
         [ArmorClass(0.1)]
         [Sellable(123)]
@@ -2529,6 +2531,7 @@ namespace IsengardClient.Backend
 
         [SingularName("T-bone")]
         [PluralName("T-bones")]
+        [LookText("You see a large bone from a steak")]
         [Weight(4)]
         [Sellable(SellableEnum.Junk)]
         TBone,

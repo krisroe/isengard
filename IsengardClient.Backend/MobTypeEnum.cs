@@ -1619,6 +1619,7 @@
 
         [SingularName("The Town Crier")]
         //CSRTODO: no plural?
+        [CannotHarm]
         TheTownCrier,
 
         [SingularName("tracker")]
