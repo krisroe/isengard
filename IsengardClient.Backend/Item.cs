@@ -2484,6 +2484,7 @@ namespace IsengardClient.Backend
         //dropped by sewer orcs
         [SingularName("stone key")]
         [PluralName("stone keys")]
+        [LookText("The key is made completely of stone.  It is quite fragile.")]
         [ItemClass(ItemClass.Key)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
