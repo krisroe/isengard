@@ -1810,8 +1810,11 @@ namespace IsengardClient.Backend
         LeatherCap,
 
         [SingularName("leather gloves")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Hands)]
         [Weight(2)]
+        [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         LeatherGloves,
 
         [SingularName("leather pouch")]
