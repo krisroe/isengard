@@ -714,6 +714,10 @@
         [PluralName("heralds")]
         Herald,
 
+        [SingularName("herb dealer")]
+        [PluralName("herb dealers")]
+        HerbDealer,
+
         [SingularName("herb vendor")]
         [PluralName("herb vendors")]
         HerbVendor,
@@ -1495,6 +1499,10 @@
         [PluralName("small spiders")]
         [Alignment(AlignmentType.DullRed)]
         SmallSpider,
+
+        [SingularName("small tree elf")]
+        //CSRTODO: plural
+        SmallTreeElf,
 
         [SingularName("Smee")]
         //CSRTODO: no plural

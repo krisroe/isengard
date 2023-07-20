@@ -3269,10 +3269,6 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oGreatEastRoad12, oPathThroughForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oPathThroughForest] = new PointF(15, 5);
 
-            Room oForestUnmapped = AddRoom("Forest", Room.UNKNOWN_ROOM);
-            AddExit(oPathThroughForest, oForestUnmapped, "forest");
-            breeToImladrisGraph.Rooms[oForestUnmapped] = new PointF(15, 6);
-
             Room oGreatEastRoad13 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad12, oGreatEastRoad13, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oGreatEastRoad13] = new PointF(16, 4);
@@ -3340,11 +3336,11 @@ namespace IsengardClient.Backend
             breeToImladrisGraph.Rooms[oRadbug] = new PointF(16, 0);
 
             //South Brethil Forest
-            Room oDeepForest = AddRoom("Deep Forest", "Deep Forest");
-            e = AddExit(oGreatEastRoad9, oDeepForest, "south");
+            Room oDeepForest1 = AddRoom("Deep Forest", "Deep Forest");
+            e = AddExit(oGreatEastRoad9, oDeepForest1, "south");
             e.Hidden = true;
-            AddExit(oDeepForest, oGreatEastRoad9, "north");
-            breeToImladrisGraph.Rooms[oDeepForest] = new PointF(12, 5);
+            AddExit(oDeepForest1, oGreatEastRoad9, "north");
+            breeToImladrisGraph.Rooms[oDeepForest1] = new PointF(12, 4.5F);
 
             Room oNathalin = AddRoom("Nathalin", "Trading Post");
             Trades[ItemTypeEnum.Diamond] = MobTypeEnum.NathalinTheTrader; //mask of distortion
@@ -3352,12 +3348,22 @@ namespace IsengardClient.Backend
             Trades[ItemTypeEnum.Emerald] = MobTypeEnum.NathalinTheTrader; //flint blade
             //CSRTODO: sprite sword
             AddPermanentMobs(oNathalin, MobTypeEnum.NathalinTheTrader);
-            AddBidirectionalExitsWithOut(oDeepForest, oNathalin, "tree");
-            breeToImladrisGraph.Rooms[oNathalin] = new PointF(13, 5);
+            AddBidirectionalExitsWithOut(oDeepForest1, oNathalin, "tree");
+            breeToImladrisGraph.Rooms[oNathalin] = new PointF(13, 4.5F);
+
+            Room oDeepForest2 = AddRoom("Deep Forest", "Deep Forest");
+            e = AddExit(oDeepForest1, oDeepForest2, "west");
+            e.Hidden = true;
+            AddExit(oDeepForest2, oDeepForest1, "east");
+            breeToImladrisGraph.Rooms[oDeepForest2] = new PointF(11, 4.5F);
+
+            Room oSkeletalOak = AddRoom("Skeletal Oak", Room.UNKNOWN_ROOM);
+            AddExit(oDeepForest2, oSkeletalOak, "skeletal oak");
+            breeToImladrisGraph.Rooms[oSkeletalOak] = new PointF(11, 4.25F);
 
             Room oBrethilForest = AddRoom("Brethil Forest", "Brethil Forest");
             AddPermanentItems(oBrethilForest, ItemTypeEnum.PipeWeed);
-            AddBidirectionalExits(oDeepForest, oBrethilForest, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oDeepForest1, oBrethilForest, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oBrethilForest] = new PointF(12, 6);
 
             Room oSpriteGuards = AddRoom("Sprite Guards", "Brethil Forest");
@@ -3390,6 +3396,22 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oDarkForest3, oHirluinsClearing, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oDarkForest3, oDarkForest2, BidirectionalExitType.SoutheastNorthwest);
             breeToImladrisGraph.Rooms[oDarkForest3] = new PointF(10, 4.5F);
+
+            Room oOvergrownPath = AddRoom("Overgrown Path", "Overgrown Path");
+            AddBidirectionalExits(oBrethilForest, oOvergrownPath, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oOvergrownPath] = new PointF(12, 7);
+
+            Room oDarkTree = AddRoom("Dark Tree", "Dark Tree");
+            AddPermanentMobs(oDarkTree, MobTypeEnum.HerbDealer);
+            e = AddBidirectionalExitsWithOut(oOvergrownPath, oDarkTree, "tree");
+            e.Hidden = true;
+            breeToImladrisGraph.Rooms[oDarkTree] = new PointF(13, 6);
+
+            Room oDirtPath = AddRoom("Dirt Path", "Dirt Path");
+            AddBidirectionalExits(oOvergrownPath, oDirtPath, BidirectionalExitType.WestEast);
+            AddExit(oPathThroughForest, oDirtPath, "forest");
+            AddExit(oDirtPath, oPathThroughForest, "northeast");
+            breeToImladrisGraph.Rooms[oDirtPath] = new PointF(13, 7);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
