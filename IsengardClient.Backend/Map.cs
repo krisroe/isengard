@@ -3424,14 +3424,44 @@ namespace IsengardClient.Backend
             Room oForest = AddRoom("Forest", "Brethil Forest");
             AddBidirectionalExits(oDarkForest1, oForest, BidirectionalExitType.SouthwestNortheast);
             breeToImladrisGraph.Rooms[oForest] = new PointF(8.5F, 5.5F);
-            //CSRTODO: northwest
-            //all exits are south, northwest, northeast
 
             Room oForest2 = AddRoom("Forest", "Brethil Forest");
             AddBidirectionalExits(oForest, oForest2, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oForest2] = new PointF(8.5F, 6);
-            //CSRTODO: southwest, west
-            //all exits are north, southwest, west
+
+            Room oForest3 = AddRoom("Forest", "Southern Brethil Forest");
+            AddExit(oForest3, oForest, "east");
+            breeToImladrisGraph.Rooms[oForest3] = new PointF(7.75F, 5.5F);
+
+            Room oForest4 = AddRoom("Forest", "Southern Brethil Forest");
+            AddBidirectionalExits(oForest3, oForest4, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oForest4] = new PointF(7.75F, 6);
+
+            Room oForest5 = AddRoom("Forest", "Southern Brethil Forest");
+            AddBidirectionalExits(oForest5, oForest3, BidirectionalExitType.WestEast);
+            AddExit(oForest2, oForest5, "west");
+            breeToImladrisGraph.Rooms[oForest5] = new PointF(7, 5.5F);
+
+            Room oForest6 = AddRoom("Forest", "Southern Brethil Forest");
+            AddBidirectionalExits(oForest5, oForest6, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oForest6, oForest4, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oForest6] = new PointF(7, 6);
+
+            Room oForestEdge = AddRoom("Forest Edge", "Edge of the Brethil Forest");
+            AddBidirectionalExits(oForestEdge, oForest5, BidirectionalExitType.WestEast);
+            breeToImladrisGraph.Rooms[oForestEdge] = new PointF(6.25F, 5.5F);
+
+            Room oDarkForest = AddRoom("Dark Forest", "Dark Forest");
+            AddBidirectionalExits(oForest2, oDarkForest, BidirectionalExitType.SouthwestNortheast);
+            AddExit(oForest, oDarkForest, "northwest");
+            AddExit(oDarkForest, oForest5, "west");
+            AddExit(oDarkForest, oForest6, "south");
+            AddExit(oDarkForest, oForest6, "southwest");
+            breeToImladrisGraph.Rooms[oDarkForest] = new PointF(7.75F, 6.5F);
+
+            Room oGrasslands = AddRoom("Grasslands", "Grasslands");
+            AddBidirectionalExits(oForestEdge, oGrasslands, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oGrasslands] = new PointF(5.5F, 6);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
@@ -3499,30 +3529,30 @@ namespace IsengardClient.Backend
 
             Room oSmallPlayground = AddRoom("Playground", "Small Playground");
             AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
-            breeToImladrisGraph.Rooms[oSmallPlayground] = new PointF(7.5F, 7.5F);
+            breeToImladrisGraph.Rooms[oSmallPlayground] = new PointF(9.5F, 7.5F);
 
             Room oUglyKidSchoolEntrance = AddRoom("School Entrance", "Ugly Kid School Entrance");
             AddBidirectionalSameNameExit(oSmallPlayground, oUglyKidSchoolEntrance, "gate");
-            breeToImladrisGraph.Rooms[oUglyKidSchoolEntrance] = new PointF(8.5F, 7.5F);
+            breeToImladrisGraph.Rooms[oUglyKidSchoolEntrance] = new PointF(10.5F, 7.5F);
 
             Room oMuddyFoyer = AddRoom("Muddy Foyer", "Muddy Foyer");
             e = AddBidirectionalExitsWithOut(oUglyKidSchoolEntrance, oMuddyFoyer, "front");
             e.MaximumLevel = 10;
-            breeToImladrisGraph.Rooms[oMuddyFoyer] = new PointF(8.5F, 7.25F);
+            breeToImladrisGraph.Rooms[oMuddyFoyer] = new PointF(10.5F, 7.25F);
 
             Room oUglyKidClassroomK7 = AddRoom("Classroom K-7", "Ugly Kid Classroom K-7");
             AddExit(oMuddyFoyer, oUglyKidClassroomK7, "classroom");
             AddExit(oUglyKidClassroomK7, oMuddyFoyer, "foyer");
-            breeToImladrisGraph.Rooms[oUglyKidClassroomK7] = new PointF(8.5F, 7);
+            breeToImladrisGraph.Rooms[oUglyKidClassroomK7] = new PointF(10.5F, 7);
 
             Room oHallway = AddRoom("Hallway", "Hallway");
             AddExit(oUglyKidClassroomK7, oHallway, "hallway");
             AddExit(oHallway, oUglyKidClassroomK7, "classroom");
-            breeToImladrisGraph.Rooms[oHallway] = new PointF(8.5F, 6.75F);
+            breeToImladrisGraph.Rooms[oHallway] = new PointF(10.5F, 6.75F);
 
             Room oHallwayEnd = AddRoom("Hallway End", "Hallway End");
             AddBidirectionalExits(oHallwayEnd, oHallway, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oHallwayEnd] = new PointF(8.5F, 6.5F);
+            breeToImladrisGraph.Rooms[oHallwayEnd] = new PointF(10.5F, 6.5F);
 
             Room oRoadToFarm7HoundDog = AddRoom("Hound Dog", "Front Porch");
             AddPermanentMobs(oRoadToFarm7HoundDog, MobTypeEnum.HoundDog);
@@ -3559,12 +3589,12 @@ namespace IsengardClient.Backend
             Room oCrabbe = AddRoom("Crabbe", "Detention Room");
             AddPermanentMobs(oCrabbe, MobTypeEnum.CrabbeTheClassBully);
             AddBidirectionalExitsWithOut(oHallway, oCrabbe, "detention");
-            breeToImladrisGraph.Rooms[oCrabbe] = new PointF(7.5F, 6.75F);
+            breeToImladrisGraph.Rooms[oCrabbe] = new PointF(9.5F, 6.75F);
 
             Room oMrWartnose = AddRoom("Mr. Wartnose", "Mr. Wartnose's Office");
             AddPermanentMobs(oMrWartnose, MobTypeEnum.MrWartnose);
             AddBidirectionalExitsWithOut(oUglyKidClassroomK7, oMrWartnose, "office");
-            breeToImladrisGraph.Rooms[oMrWartnose] = new PointF(7.5F, 7);
+            breeToImladrisGraph.Rooms[oMrWartnose] = new PointF(9.5F, 7);
         }
 
         private void AddGalbasiDowns(Room oGreatEastRoad2, Room oGreatEastRoad3, RoomGraph breeToImladrisGraph)

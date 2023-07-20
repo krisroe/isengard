@@ -992,6 +992,7 @@ namespace IsengardClient.Backend
 
         [SingularName("cat o' nine tails")]
         [PluralName("cat o' nine tailses")] //verified 7/3/23
+        [LookText("A whip with nine ends, each with pieces of metal or bone at the end.")]
         [WeaponType(WeaponType.Slash)]
         [Weight(12)]
         [Sellable(396)]

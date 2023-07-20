@@ -531,6 +531,10 @@
 
         //CSRTODO: giant crayfish?
 
+        [SingularName("giant grasshopper")]
+        [PluralName("giant grasshoppers")]
+        GiantGrasshopper,
+
         [SingularName("giant rat")]
         [PluralName("giant rats")]
         GiantRat,
@@ -613,6 +617,10 @@
         [PluralName("greater spiders")]
         [Experience(150)]
         GreaterSpider,
+
+        [SingularName("great spider")]
+        [PluralName("great spiders")]
+        GreatSpider,
 
         [SingularName("green slime")]
         //CSRTODO: plurals are hard to get since hidden
@@ -871,6 +879,10 @@
         [SingularName("Kauka")]
         //CSRTODO: no plural
         Kauka,
+
+        [SingularName("killer bee")]
+        [PluralName("killer bees")]
+        KillerBee,
 
         [SingularName("King Brunden")]
         //CSRTODO: no plural
