@@ -1646,7 +1646,8 @@ namespace IsengardClient.Backend
         HumanBrain,
 
         [SingularName("human carcass")]
-        [PluralName("human carcasses")]
+        [PluralName("human carcasses")] //verified 7/20/23
+        [LookText("You see the remains of an unlucky human partially consumed by ghouls.")]
         HumanCarcass,
 
         [SingularName("ice blue potion")]
@@ -2068,6 +2069,12 @@ namespace IsengardClient.Backend
         [PluralName("petrified morning stars")]
         [WeaponType(WeaponType.Unknown)]
         PetrifiedMorningStar,
+
+        [SingularName("philosopher's stone")]
+        [PluralName("philosopher's stones")]
+        [LookText("You see a mystical stone which is rumored to have magical healing properties.")]
+        [Wand(SpellsEnum.heal)] //CSRTODO: not sure about this, says "You feel incredibly better." when zapping.
+        PhilosophersStone,
 
         [SingularName("piece of coal")]
         //CSRTODO: plural?

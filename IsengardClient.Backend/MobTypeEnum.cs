@@ -543,6 +543,10 @@
         [PluralName("giant roosters")]
         GiantRooster,
 
+        [SingularName("giant venus fly-trap")]
+        [PluralName("giant venus fly-traps")]
+        GiantVenusFlyTrap,
+
         [SingularName("Gnarbolla")]
         //CSRTODO: no plural
         Gnarbolla,
