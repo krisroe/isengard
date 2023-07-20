@@ -2732,11 +2732,13 @@ namespace IsengardClient.Backend
             List<string> addedPlayers = null;
             List<string> removedPlayers = null;
             List<int> linesToRemove = null;
-            bool haveDataToDisplay = false;
 
             //process the initial user login. This happenens first because of a blank line before the message, so it needs to be
             //handled beforehand because the later logic stops at a blank line.
             int iStartIndex = Parameters.NextLineIndex;
+
+            bool haveDataToDisplay = iStartIndex > 0;
+
             for (int i = 0; i < Lines.Count; i++)
             {
                 string sNextLine = Lines[i];
