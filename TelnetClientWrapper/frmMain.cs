@@ -3855,6 +3855,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("Unlock what?", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
                 new ConstantOutputSequence("Wrong key.", FailUnlockAlways, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
                 new ConstantOutputSequence("Click.", SucceedUnlock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}),
+                new ConstantOutputSequence("*click*", SucceedUnlock, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}), //factory key
                 new ConstantOutputSequence(" is broken.", FailUnlockThisTime, ConstantSequenceMatchType.EndsWith, 0, new List<BackgroundCommandType>() {  BackgroundCommandType.UnlockExit}), //e.g. The tomb key is broken.
                 new ConstantOutputSequence("It's used up.", FailStunWithWandUsedUp, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.StunWithWand }),
             };
