@@ -924,6 +924,10 @@
         [Experience(50)]
         LargeGoblin,
 
+        [SingularName("large spider")]
+        [PluralName("large spiders")]
+        LargeSpider,
+
         [SingularName("Lars Magnus Grunwald")]
         //CSRTODO no plural
         LarsMagnusGrunwald,
