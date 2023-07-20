@@ -6760,7 +6760,11 @@ BeforeHazy:
                             }
                         }
                     }
-
+                    if (nextExit.RequiresNoItems)
+                    {
+                        backgroundCommandResultObject = TryDropEverything(pms, abortLogic);
+                        if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
+                    }
                     if (nextExit.IsTrapExit || (nextExitTarget != null && nextExitTarget.IsTrapRoom))
                     {
                         backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Prepare, "prepare", pms, abortLogic, false);
@@ -6841,6 +6845,12 @@ BeforeHazy:
                                 return backgroundCommandResultObject;
                             }
                         }
+                        else if (eMovementResult == MovementResult.EquipmentFailure)
+                        {
+                            backgroundCommandResultObject = TryDropEverything(pms, abortLogic);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
+                            keepTryingMovement = true;
+                        }
                         else if (eMovementResult == MovementResult.FallFailure)
                         {
                             backgroundCommandResultObject = GetFullHitpoints(pms, needCurepoison, abortLogic, pr);
@@ -6901,6 +6911,20 @@ BeforeHazy:
             else
                 ret = new CommandResultObject(CommandResult.CommandSuccessful);
             return ret;
+        }
+
+        private CommandResultObject TryDropEverything(BackgroundWorkerParameters pms, Func<bool> abortLogic)
+        {
+            CommandResultObject backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.RemoveEquipment, null, "all", pms, abortLogic);
+            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                if (_currentEntityInfo.GetTotalKnownEquipmentCount() != 0) //something still equipped, e.g. a cursed piece of equipment
+                {
+                    return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+                }
+            }
+            return TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, null, "all", pms, abortLogic);
         }
 
         private CommandResultObject TryStand(BackgroundWorkerParameters pms, Func<bool> abortLogic)

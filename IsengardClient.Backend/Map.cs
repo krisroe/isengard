@@ -2623,6 +2623,7 @@ namespace IsengardClient.Backend
             underBreeGraph.Rooms[oDustyPassage2] = new PointF(15, 4);
 
             Room oDustyPassage3 = AddRoom("Dusty Passage", "Dusty Passage");
+            AddExit(oDustyPassage2, oDustyPassage3, "east");
             AddExit(oDustyPassage3, oDustyPassage2, "east");
             underBreeGraph.Rooms[oDustyPassage3] = new PointF(16, 4);
 
@@ -2671,7 +2672,13 @@ namespace IsengardClient.Backend
             e = AddExit(oSewerOrcTomb3, oScrawledPit, "sarcophagus");
             e.Hidden = true;
             AddExit(oScrawledPit, oSewerOrcTomb3, "up");
-            underBreeGraph.Rooms[oScrawledPit] = new PointF(19, 1.5F);
+            underBreeGraph.Rooms[oScrawledPit] = new PointF(19, 1.75F);
+
+            Room oDirtHole = AddRoom("Dirt Hole", "Dirt Hole");
+            AddPermanentItems(oDirtHole, ItemTypeEnum.MauveScroll);
+            e = AddBidirectionalExitsWithOut(oScrawledPit, oDirtHole, "hole");
+            e.RequiresNoItems = true;
+            underBreeGraph.Rooms[oDirtHole] = new PointF(19, 1.5F);
         }
 
         private void AddBreeSewers(Room[,] breeStreets, Room[,] breeSewers, out Room oSmoulderingVillage)

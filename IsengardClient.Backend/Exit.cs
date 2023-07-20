@@ -64,6 +64,10 @@ namespace IsengardClient.Backend
         /// required class
         /// </summary>
         public ClassType? RequiredClass { get; set; }
+        /// <summary>
+        /// requires no items
+        /// </summary>
+        public bool RequiresNoItems { get; set; }
 
         /// <summary>
         /// whether go should be forced

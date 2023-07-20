@@ -83,6 +83,7 @@
         ClosedDoorFailure = 5,
         LockedDoorFailure = 6,
         FallFailure = 7,
+        EquipmentFailure = 8,
     }
 
     public enum BackgroundCommandType

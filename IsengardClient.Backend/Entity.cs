@@ -1822,6 +1822,11 @@ namespace IsengardClient.Backend
             return iCount;
         }
 
+        public int GetTotalEquipmentCount()
+        {
+            return GetTotalKnownEquipmentCount() + UnknownEquipment.Count;
+        }
+
         public int GetTotalKnownEquipmentCount()
         {
             int iCounter = 0;

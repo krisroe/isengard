@@ -2673,7 +2673,7 @@ namespace IsengardClient.Backend
                 }
                 else if (firstLine == "Your equipment prevents you from using that exit.")
                 {
-                    result = MovementResult.TotalFailure; //CSRTODO: this is solvable by removing equipment
+                    result = MovementResult.EquipmentFailure;
                 }
                 else if (firstLine.StartsWith("Only players under level ") && firstLine.EndsWith(" may go that way."))
                 {
@@ -3042,6 +3042,11 @@ namespace IsengardClient.Backend
                     haveDataToDisplay = true;
                 }
                 else if (sLine == "Your Chaos timer has been extended.") //death message when don't lose xp
+                {
+                    isMessageToKeep = true;
+                    haveDataToDisplay = true;
+                }
+                else if (sLine == "An invisible force saps your life force.") //mauve scroll room damage
                 {
                     isMessageToKeep = true;
                     haveDataToDisplay = true;

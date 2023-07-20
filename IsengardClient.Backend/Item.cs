@@ -1099,6 +1099,13 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Unknown)]
         CrystalAmulet,
 
+        [SingularName("crystal scepter")]
+        [PluralName("crypstal scepters")]
+        [LookText("You see a brilliant gold scepter with a headpiece of pure white crystal.")]
+        [Weight(6)]
+        [Sellable(618)]
+        CrystalScepter,
+
         [SingularName("cutlass")]
         [PluralName("cutlasses")]
         [WeaponType(WeaponType.Stab)]
@@ -1882,6 +1889,11 @@ namespace IsengardClient.Backend
         [Weight(3)]
         [Sellable(308)]
         MaskOfDistortion,
+
+        [SingularName("mauve scroll")]
+        [PluralName("mauve scrolls")]
+        [LookText("The scroll is written upon a burgundy colored paper.")]
+        MauveScroll,
 
         [SingularName("metal helmet")]
         [PluralName("metal helmets")]
