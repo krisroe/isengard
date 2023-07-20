@@ -4830,8 +4830,8 @@ namespace IsengardClient.Backend
             AddExit(oMistyTrail, oMistyTrailForest, "forest");
             AddExit(oMistyTrailForest, oMistyTrail, "southeast");
             AddExit(oMistyTrailForest, southernBrethilForestEdge, "west");
+            AddExit(oMistyTrailForest, southernBrethilForestByEdge, "southwest");
             imladrisToTharbadGraph.Rooms[oMistyTrailForest] = new PointF(1, 4.5F);
-            //CSRTODO: southwest
 
             Room oAncientForest = AddRoom("Ancient Forest", "Ancient Brethil Forest");
             AddBidirectionalExits(oAncientForest, oMistyTrailForest, BidirectionalExitType.NorthSouth);

@@ -1767,6 +1767,10 @@
         [PluralName("water turtles")]
         WaterTurtle,
 
+        [SingularName("weaver")]
+        [PluralName("weavers")]
+        Weaver,
+
         [SingularName("werewolf")]
         [PluralName("werewolves")]
         Werewolf,
