@@ -719,9 +719,11 @@ namespace IsengardClient.Backend
         AdamantineScaleMailLeggings,
 
         [SingularName("adamantine scale mail sleeves")]
+        [LookText("You see some shiny scale mail sleeves made of strong adamantine.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(8)]
         [ArmorClass(0.4)]
+        [Sellable(185)]
         AdamantineScaleMailSleeves,
 
         [SingularName("Ahrot's magic string")]
@@ -1776,6 +1778,7 @@ namespace IsengardClient.Backend
 
         [SingularName("large metal shield")]
         [PluralName("large metal shields")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Shield)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(12)]
