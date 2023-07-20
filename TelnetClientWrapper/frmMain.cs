@@ -10842,10 +10842,10 @@ BeforeHazy:
                         else
                             validateAgainstOtherSources = false;
                         string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
-                        if (!string.IsNullOrEmpty(sText))
-                        {
+                        if (string.IsNullOrEmpty(sText))
+                            MessageBox.Show("Unable to construct selection text for " + ilt + " " + eItemType + " " + sioei.Counter);
+                        else
                             SendCommand(menuText + " " + sText, InputEchoType.On);
-                        }
                     }
                 }
             }

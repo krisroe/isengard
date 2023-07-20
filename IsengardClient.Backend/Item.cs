@@ -2611,6 +2611,7 @@ namespace IsengardClient.Backend
 
         [SingularName("topaz")]
         [PluralName("topazs")] //verified 7/10/23
+        [LookText("You see a glimmering honey-colored gemstone of considerable weight.")]
         [ItemClass(ItemClass.Gem)]
         [Weight(3)]
         [Sellable(308)]
