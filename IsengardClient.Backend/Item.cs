@@ -1600,6 +1600,14 @@ namespace IsengardClient.Backend
         //CSRTODO: plural?
         HeadOfLettuce,
 
+        [SingularName("heavy cloth leggings")]
+        //CSRTODO: plural
+        [LookText("You see some leggings.  They are very warm for the cold mountain air.")]
+        [Weight(8)]
+        [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
+        HeavyClothLeggings,
+
         [SingularName("herbal stimulant")]
         [PluralName("herbal stimulants")]
         HerbalStimulant,
